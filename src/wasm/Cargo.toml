@@ -1,0 +1,14 @@
+[package]
+name = "wasm"
+edition = { workspace = true }
+rust-version = { workspace = true }
+version = { workspace = true }
+
+[lints]
+workspace = true
+
+[dependencies]
+candid = { workspace = true }
+serde = { workspace = true }
+snafu = { workspace = true }
+ic = { workspace = true }

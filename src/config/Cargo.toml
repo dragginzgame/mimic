@@ -1,0 +1,14 @@
+[package]
+name = "config"
+edition = { workspace = true }
+rust-version = { workspace = true }
+version = { workspace = true }
+
+[lints]
+workspace = true
+
+[dependencies]
+candid = { workspace = true }
+serde = { workspace = true }
+snafu = { workspace = true }
+toml = { workspace = true }

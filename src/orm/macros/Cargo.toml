@@ -1,0 +1,25 @@
+[package]
+name = "macros"
+edition = { workspace = true }
+rust-version = { workspace = true }
+version = { workspace = true }
+
+[lib]
+proc-macro = true
+
+[lints]
+workspace = true
+
+[dependencies]
+config = { workspace = true }
+darling = { workspace = true }
+derive_more = { workspace = true }
+lib_rand = { workspace = true }
+orm = { workspace = true }
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
+remain = { workspace = true }
+schema = { workspace = true }
+serde = { workspace = true }
+strum = { workspace = true }
+syn = { workspace = true }

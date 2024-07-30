@@ -1,0 +1,12 @@
+[package]
+name = "lib_rand"
+edition = { workspace = true }
+rust-version = { workspace = true }
+version = { workspace = true }
+
+[lints]
+workspace = true
+
+[dependencies]
+tinyrand = { workspace = true }
+types = { workspace = true }

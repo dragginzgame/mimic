@@ -1,0 +1,14 @@
+[package]
+name = "lib_cbor"
+edition = { workspace = true }
+rust-version = { workspace = true }
+version = { workspace = true }
+
+[lints]
+workspace = true
+
+[dependencies]
+candid = { workspace = true }
+ciborium = { workspace = true }
+serde = { workspace = true }
+snafu = { workspace = true }

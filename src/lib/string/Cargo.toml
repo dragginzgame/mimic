@@ -1,0 +1,10 @@
+[package]
+name = "lib_string"
+edition = { workspace = true }
+rust-version = { workspace = true }
+version = { workspace = true }
+
+[lints]
+workspace = true
+
+[dependencies]

@@ -1,0 +1,19 @@
+[package]
+name = "schemagen"
+edition = { workspace = true }
+rust-version = { workspace = true }
+version = { workspace = true }
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "schemagen"
+path = "src/main.rs"
+
+[dependencies]
+base = { workspace = true }
+clap = { workspace = true }
+design = { workspace = true }
+schema = { workspace = true }
+serde_json = { workspace = true }

@@ -1,0 +1,16 @@
+[package]
+name = "types"
+edition = { workspace = true }
+rust-version = { workspace = true }
+version = { workspace = true }
+
+[lints]
+workspace = true
+
+[dependencies]
+candid = { workspace = true }
+derive_more = { workspace = true }
+ic-cdk = { workspace = true }
+serde = { workspace = true }
+snafu = { workspace = true }
+ulid = { workspace = true }
