@@ -48,43 +48,43 @@ of Strings seemed a bit of a stretch
 
 ----------
 
-#### backend/core
+#### core
 
 This is the Dragginz Framework that doesn't yet have a name.  We'd like to eventually have this as a separate, open source app that could
 be used by teams developing on the IC, much in the same way as frameworks like Symfony, Gorm, etc.  It especially suits project with complex,
 evolving data models such as games.
 
-##### backend/core/api
+##### api
 
 This crate contains helper macros for the API/Actor classes.  This is also where a lot of the errors are defined and wrapped.  As the bin/actorgen
 crate generates a lot of code, this crate is mostly here to handle and organise where that code points to.
 
-##### backend/core/bin
+##### bin
 
 - schemagen - generates the schema into a schema.json file (which can be used by the frontend, and also read in by each actor class)
 - actorgen - generates the rust code included by every canister actor
 
-##### backend/core/canisters
+##### canisters
 
 Framework-level canisters.  Currently there's just the test canister which allows you to test things at IC runtime which cargo test can't do.
 
-##### backend/core/config
+##### config
 
 Framework-level configuration.  Magic numbers, hash seeds, directories etc.
 
-##### backend/core/db
+##### db
 
 The database is a collection of B-Trees.  This isn't really meant to be used directly as we wrap the database logic within a Query Builder
 
-##### backend/core/db/query
+##### db/query
 
 Query interface for the database.  Contains query builders, and a schema resource locator.
 
-##### backend/core/ic
+##### ic
 
 Everything IC is wrapped in this structure.  Like a library but has it's own crate structure as it's more important (and easier to type)
 
-##### backend/core/lib
+##### lib
 
 Libraries.  Notably ulid is wrapped here and also wrapped within the ORM, just so we can use it as a raw API CandidType, and also within
 the ORM where it gains a whole lot more features.
