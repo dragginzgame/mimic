@@ -58,8 +58,6 @@ macros = { path = "src/mimic/orm/macros" }
 # lib
 lib_case = { path = "src/mimic/lib/case" }
 lib_cbor = { path = "src/mimic/lib/cbor" }
-lib_hash = { path = "src/mimic/lib/hash" }
-lib_quote = { path = "src/mimic/lib/quote" }
 lib_rand = { path = "src/mimic/lib/rand" }
 lib_string = { path = "src/mimic/lib/string" }
 lib_test = { path = "src/mimic/lib/test" }
