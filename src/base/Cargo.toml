@@ -1,0 +1,22 @@
+[package]
+name = "base"
+edition = { workspace = true }
+rust-version = { workspace = true }
+version = { workspace = true }
+
+[lints]
+workspace = true
+
+[dependencies]
+candid = { workspace = true }
+ctor = { workspace = true }
+derive_more = { workspace = true }
+macros = { workspace = true }
+mimic = { workspace = true }
+num-traits = { workspace = true }
+rust_decimal = { workspace = true }
+serde = { workspace = true }
+serde_bytes = { workspace = true }
+sha2 = { workspace = true }
+snafu = { workspace = true }
+strum = { workspace = true }
