@@ -1,8 +1,8 @@
 [workspace]
 members = [
-    "benches",
     "src",
     "src/api",
+    "src/base",
     "src/bin/actorgen",
     "src/bin/schemagen",
     "src/canisters/test",
@@ -33,8 +33,9 @@ version = "0.99.0"
 
 [workspace.dependencies]
 
-# mimic exporter
+# mimic
 mimic = { path = "src/mimic" }
+base = { path = "src/mimic/base" }
 
 # mimic
 core = { path = "src/mimic/core" }
@@ -109,9 +110,6 @@ tinyrand = "0.5"
 toml = "0.8"
 # std off because it imports rand.  serde feature doesn't compile without it
 ulid = { version = "1.1", default-features = false }
-
-# benchmarks
-bencher = "0.1.5"
 
 # profile
 [profile.dev]
