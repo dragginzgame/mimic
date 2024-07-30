@@ -1,24 +1,147 @@
-[package]
-name = "mimic"
-edition = { workspace = true }
-rust-version = { workspace = true }
-version = { workspace = true }
+[workspace]
+members = [
+    "benches",
+    "src",
+    "src/api",
+    "src/bin/actorgen",
+    "src/bin/schemagen",
+    "src/canisters/test",
+    "src/config",
+    "src/db",
+    "src/db/query",
+    "src/ic",
+    "src/lib/case",
+    "src/lib/cbor",
+    "src/lib/derive",
+    "src/lib/rand",
+    "src/lib/string",
+    "src/lib/test",
+    "src/orm/macros",
+    "src/orm/orm",
+    "src/orm/schema",
+    "src/schema",
+    "src/state",
+    "src/types",
+    "tests",
+]
+resolver = "2"
 
-[lints]
-workspace = true
+[workspace.package]
+rust-version = "1.80.0"
+edition = "2021"
+version = "0.99.0"
 
-[dependencies]
-api = { workspace = true }
-config = { workspace = true }
-core_schema = { workspace = true }
-core_state = { workspace = true }
-wasm = { workspace = true }
-db = { workspace = true }
-ic = { workspace = true }
-lib_case = { workspace = true }
-lib_rand = { workspace = true }
-lib_string = { workspace = true }
-orm = { workspace = true }
-query = { workspace = true }
-schema = { workspace = true }
-types = { workspace = true }
+[workspace.dependencies]
+
+# mimic exporter
+mimic = { path = "src/mimic" }
+
+# mimic
+core = { path = "src/mimic/core" }
+api = { path = "src/mimic/api" }
+config = { path = "src/mimic/config" }
+core_schema = { path = "src/mimic/schema" }
+core_state = { path = "src/mimic/state" }
+wasm = { path = "src/mimic/wasm" }
+canister_test = { path = "src/mimic/canisters/test" }
+derive = { path = "src/mimic/lib/derive" }
+db = { path = "src/mimic/db" }
+query = { path = "src/mimic/db/query" }
+ic = { path = "src/mimic/ic" }
+types = { path = "src/mimic/types" }
+
+# orm
+orm = { path = "src/mimic/orm/orm" }
+schema = { path = "src/mimic/orm/schema" }
+macros = { path = "src/mimic/orm/macros" }
+
+# lib
+lib_case = { path = "src/mimic/lib/case" }
+lib_cbor = { path = "src/mimic/lib/cbor" }
+lib_hash = { path = "src/mimic/lib/hash" }
+lib_quote = { path = "src/mimic/lib/quote" }
+lib_rand = { path = "src/mimic/lib/rand" }
+lib_string = { path = "src/mimic/lib/string" }
+lib_test = { path = "src/mimic/lib/test" }
+
+# ic cdk
+candid = "0.10.9"
+ic-cdk = "0.15.0"
+ic-cdk-timers = "0.9.0"
+ic-stable-structures = "0.6.5"
+
+# macros
+darling = "0.20"
+proc-macro2 = "1.0"
+syn = "2.0"
+quote = "1.0"
+
+# third party
+ciborium = "0.2"
+clap = { version = "4.5", features = ["derive"] }
+ctor = "0.2"
+convert_case = "0.6"
+defer = "0.2"
+derive_more = { version = "0.99", default-features = false, features = [
+    "add",
+    "add_assign",
+    "as_ref",
+    "deref",
+    "deref_mut",
+    "from_str",
+    "into_iterator",
+    "mul",
+    "mul_assign",
+] }
+hex = "0.4"
+itertools = "0.13"
+num-traits = { version = "0.2", default-features = false, features = ["libm"] }
+remain = "0.2"
+rust_decimal = { version = "1.35", default-features = false, features = [
+    "serde",
+    "serde-float",
+] }
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+serde_bytes = "0.11"
+serde_json = "1.0"
+sha2 = "0.10"
+strum = { version = "0.26", features = ["derive"] }
+snafu = "0.8"
+tinyrand = "0.5"
+toml = "0.8"
+# std off because it imports rand.  serde feature doesn't compile without it
+ulid = { version = "1.1", default-features = false }
+
+# benchmarks
+bencher = "0.1.5"
+
+# profile
+[profile.dev]
+debug = false
+opt-level = 'z'
+
+[profile.perf]
+inherits = "dev"
+debug = true
+
+[profile.release]
+debug = false
+opt-level = 'z'
+
+# clippy
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "allow", priority = -1 }
+nursery = { level = "allow", priority = -1 }
+
+# always warn
+must-use-candidate = "warn"
+
+# always allow
+allow_wildcard_imports = "allow"
+doc_markdown = "allow"
+empty_line_after_doc_comments = "allow"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+module_name_repetitions = "allow"
+needless_pass_by_value = "allow"
