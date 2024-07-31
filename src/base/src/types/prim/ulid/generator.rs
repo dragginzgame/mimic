@@ -1,9 +1,9 @@
 use super::Ulid;
 use candid::CandidType;
+use mimic::types::{Timestamp, Ulid as WrappedUlid};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::sync::{LazyLock, Mutex};
-use types::{Timestamp, Ulid as WrappedUlid};
 
 ///
 /// Error
@@ -48,7 +48,7 @@ impl Generator {
 
     // generate
     pub fn generate(&mut self) -> Result<Ulid, Error> {
-        let last_ts : Timestamp = self.previous.timestamp_ms().into();
+        let last_ts: Timestamp = self.previous.timestamp_ms().into();
         let ts = Timestamp::now_millis();
 
         // maybe time went backward, or it is the same ms.
@@ -65,7 +65,7 @@ impl Generator {
         }
 
         // generate
-        let rand = lib_rand::next_u128();
+        let rand = mimic::lib::rand::next_u128();
         let ulid = Ulid(WrappedUlid::from_parts(*ts, rand));
 
         self.previous = ulid;

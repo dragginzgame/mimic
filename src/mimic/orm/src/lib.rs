@@ -3,15 +3,12 @@ pub mod traits;
 pub mod types;
 pub mod visit;
 
+use ::types::ErrorTree;
 use candid::CandidType;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use snafu::Snafu;
 use traits::Visitable;
-use ::types::ErrorTree;
 use visit::{perform_visit, perform_visit_mut, SanitizeVisitor, ValidateVisitor};
-
-#[macro_use]
-extern crate quote;
 
 ///
 /// Error

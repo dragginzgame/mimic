@@ -4,6 +4,7 @@ pub mod color;
 pub mod lang;
 pub mod math;
 pub mod orm;
+pub mod prim;
 pub mod test;
 pub mod text;
 pub mod time;
@@ -11,12 +12,19 @@ pub mod time;
 // re-exports and aliases
 pub type Todo = Bool;
 
+use mimic::orm::traits::Path;
+
 ///
 /// Blob
 ///
 
 #[primitive(ty = "prim::Blob")]
 pub struct Blob {}
+
+impl Path for Blob {
+    const IDENT: &'static str = "Blob";
+    const PATH: &'static str = "base::types::Blob";
+}
 
 ///
 /// Bool
@@ -29,8 +37,13 @@ pub struct Bool {}
 /// Decimal
 ///
 
-#[primitive(ty = "mimic::orm::types::Decimal")]
+#[primitive(ty = "prim::Decimal")]
 pub struct Decimal {}
+
+impl Path for Decimal {
+    const IDENT: &'static str = "Decimal";
+    const PATH: &'static str = "base::types::Decimal";
+}
 
 ///
 /// F32
@@ -88,6 +101,11 @@ pub struct I128 {}
 #[primitive(ty = "prim::Principal")]
 pub struct Principal {}
 
+impl Path for Principal {
+    const IDENT: &'static str = "Principal";
+    const PATH: &'static str = "base::types::Principal";
+}
+
 ///
 /// String
 ///
@@ -101,6 +119,11 @@ pub struct String {}
 
 #[primitive(ty = "prim::Ulid")]
 pub struct Ulid {}
+
+impl Path for Ulid {
+    const IDENT: &'static str = "Ulid";
+    const PATH: &'static str = "base::types::Ulid";
+}
 
 ///
 /// U8

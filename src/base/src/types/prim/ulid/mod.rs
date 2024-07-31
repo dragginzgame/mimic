@@ -1,20 +1,22 @@
 pub mod fixture;
 pub mod generator;
 
-use crate::{
-    collections::HashSet,
-    traits::{
-        Filterable, Orderable, Path, PrimaryKey, Sanitize, SanitizeAuto, Validate, ValidateAuto,
-        Visitable,
-    },
-};
 use candid::CandidType;
-use derive::Storable;
 use derive_more::{Deref, DerefMut, FromStr};
+use mimic::{
+    derive::Storable,
+    orm::{
+        collections::HashSet,
+        traits::{
+            Filterable, Orderable, Path, PrimaryKey, Sanitize, SanitizeAuto, Validate,
+            ValidateAuto, Visitable,
+        },
+    },
+    types::{ErrorVec, Ulid as WrappedUlid},
+};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::{cmp::Ordering, fmt};
-use types::{ErrorVec, Ulid as WrappedUlid};
 
 ///
 /// Error
@@ -23,7 +25,7 @@ use types::{ErrorVec, Ulid as WrappedUlid};
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
-    Ulid { source: types::ulid::Error },
+    Ulid { source: mimic::types::ulid::Error },
 
     #[snafu(display("generator: {source}"))]
     Generator { source: generator::Error },
@@ -150,7 +152,7 @@ impl PrimaryKey for Ulid {
 impl Validate for Ulid {
     fn validate(&self) -> Result<(), ErrorVec> {
         if self.is_nil() {
-            Err(types::ulid::Error::Nil.into())
+            Err(mimic::types::ulid::Error::Nil.into())
         } else {
             Ok(())
         }

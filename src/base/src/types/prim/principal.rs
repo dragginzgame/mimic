@@ -1,10 +1,13 @@
-use crate::traits::{
-    Filterable, Inner, Orderable, PrimaryKey, Sanitize, SanitizeAuto, Storable, Validate,
-    ValidateAuto, Visitable,
-};
 use candid::{types::principal::PrincipalError, CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut};
-use ic::{api::caller, structures::storable::Bound};
+use mimic::{
+    ic::{api::caller, structures::storable::Bound},
+    orm::traits::{
+        Filterable, Inner, Orderable, PrimaryKey, Sanitize, SanitizeAuto, Storable, Validate,
+        ValidateAuto, Visitable,
+    },
+    types::ErrorVec,
+};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::{
@@ -13,7 +16,6 @@ use std::{
     fmt::{self},
     str::FromStr,
 };
-use types::ErrorVec;
 
 ///
 /// Error

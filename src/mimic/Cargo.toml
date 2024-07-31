@@ -14,6 +14,7 @@ orm = { workspace = true }
 config = { workspace = true }
 schema = { workspace = true }
 types = { workspace = true }
+derive = { workspace = true }
 wasm = { workspace = true }
 core_schema = { workspace = true }
 state = { workspace = true }

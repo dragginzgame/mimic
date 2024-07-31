@@ -854,6 +854,7 @@ dependencies = [
  "config",
  "core_schema",
  "db",
+ "derive",
  "ic",
  "lib_case",
  "lib_rand",

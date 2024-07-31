@@ -19,8 +19,8 @@ members = [
     "src/mimic/lib/cbor",
     "src/mimic/lib/rand",
     "src/mimic/lib/test",
+    "src/mimic/orm",
     "src/mimic/orm/macros",
-    "src/mimic/orm/orm",
     "src/mimic/orm/schema",
     "src/mimic/types",
     "src/tests",
@@ -57,7 +57,7 @@ state = { path = "src/mimic/core/state" }
 wasm = { path = "src/mimic/core/wasm" }
 
 # orm
-orm = { path = "src/mimic/orm/orm" }
+orm = { path = "src/mimic/orm" }
 schema = { path = "src/mimic/orm/schema" }
 macros = { path = "src/mimic/orm/macros" }
 
