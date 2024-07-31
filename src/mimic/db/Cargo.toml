@@ -1,5 +1,5 @@
 [package]
-name = "core_state"
+name = "db"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }
@@ -9,13 +9,10 @@ workspace = true
 
 [dependencies]
 candid = { workspace = true }
-core_schema = { workspace = true }
 derive_more = { workspace = true }
 ic = { workspace = true }
 lib_cbor = { workspace = true }
-lib_derive = { workspace = true }
-schema = { workspace = true }
+derive = { workspace = true }
 serde = { workspace = true }
 snafu = { workspace = true }
-strum = { workspace = true }
 types = { workspace = true }

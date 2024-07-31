@@ -1,0 +1,16 @@
+[package]
+name = "tests"
+version = { workspace = true }
+edition = { workspace = true }
+publish = false
+
+[dependencies]
+serde = { workspace = true }
+
+[[test]]
+name = "mytest"
+path = "mytest.rs"
+
+#[[test]]
+#name = "variant"
+#path = "variant.rs"

@@ -9,6 +9,7 @@ use crate::{
     },
 };
 use candid::CandidType;
+use derive::Storable;
 use derive_more::{Deref, DerefMut, FromStr};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;

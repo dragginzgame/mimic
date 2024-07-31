@@ -1,0 +1,24 @@
+[package]
+name = "mimic"
+edition = { workspace = true }
+rust-version = { workspace = true }
+version = { workspace = true }
+
+[lints]
+workspace = true
+
+[dependencies]
+api = { workspace = true }
+ic = { workspace = true }
+orm = { workspace = true }
+schema = { workspace = true }
+types = { workspace = true }
+wasm = { workspace = true }
+core_schema = { workspace = true }
+core_state = { workspace = true }
+db = { workspace = true }
+query = { workspace = true }
+lib_case = { workspace = true }
+lib_rand = { workspace = true }
+lib_string = { workspace = true }
+candid = { workspace = true }

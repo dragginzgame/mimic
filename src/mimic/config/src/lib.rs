@@ -13,7 +13,8 @@ use std::sync::LazyLock;
 ///
 
 pub static CONFIG: LazyLock<Config> = LazyLock::new(|| {
-    let config_str = include_str!("../../../config.toml");
+    //  let config_str = include_str!("../../../config.toml");
+    let config_str = "";
 
     let config: Config = toml::from_str(config_str)
         .map_err(|_| Error::CannotParseToml)

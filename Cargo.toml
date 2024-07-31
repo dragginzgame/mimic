@@ -1,34 +1,29 @@
-[package]
-name = "mimic"
-version = "0.0.1"
-edition = "2021"
-rust-version = "1.80.0"
 
 [workspace]
 members = [
-    "src",
-    "src/api",
     "src/base",
-    "src/bin/actorgen",
-    "src/bin/schemagen",
-    "src/canisters/test",
-    "src/config",
-    "src/db",
-    "src/db/query",
-    "src/ic",
-    "src/lib/case",
-    "src/lib/cbor",
-    "src/lib/derive",
-    "src/lib/rand",
-    "src/lib/string",
-    "src/lib/test",
-    "src/orm/macros",
-    "src/orm/orm",
-    "src/orm/schema",
-    "src/schema",
-    "src/state",
-    "src/types",
-    "tests",
+    "src/mimic",
+    "src/mimic/api",
+    "src/mimic/bin/actorgen",
+    "src/mimic/bin/schemagen",
+    "src/mimic/canisters/test",
+    "src/mimic/config",
+    "src/mimic/db",
+    "src/mimic/db/query",
+    "src/mimic/derive",
+    "src/mimic/ic",
+    "src/mimic/lib/case",
+    "src/mimic/lib/cbor",
+    "src/mimic/lib/rand",
+    "src/mimic/lib/string",
+    "src/mimic/lib/test",
+    "src/mimic/orm/macros",
+    "src/mimic/orm/orm",
+    "src/mimic/orm/schema",
+    "src/mimic/schema",
+    "src/mimic/state",
+    "src/mimic/types",
+    "src/tests",
 ]
 resolver = "2"
 
@@ -38,10 +33,9 @@ edition = "2021"
 version = "0.99.0"
 
 [workspace.dependencies]
-
 # mimic
 mimic = { path = "src/mimic" }
-base = { path = "src/mimic/base" }
+base = { path = "src/base" }
 
 # mimic
 core = { path = "src/mimic/core" }
@@ -51,7 +45,7 @@ core_schema = { path = "src/mimic/schema" }
 core_state = { path = "src/mimic/state" }
 wasm = { path = "src/mimic/wasm" }
 canister_test = { path = "src/mimic/canisters/test" }
-derive = { path = "src/mimic/lib/derive" }
+derive = { path = "src/mimic/derive" }
 db = { path = "src/mimic/db" }
 query = { path = "src/mimic/db/query" }
 ic = { path = "src/mimic/ic" }
