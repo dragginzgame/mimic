@@ -1,6 +1,6 @@
 use crate::Error;
-use candid::Principal;
-use config::CONFIG;
+use candid::{CandidType, Principal};
+use config::get_config;
 use ic::{
     api::management_canister::{
         main::{CanisterInstallMode, InstallCodeArgument, WasmModule},
@@ -8,6 +8,18 @@ use ic::{
     },
     id, log, Log,
 };
+use serde::{Deserialize, Serialize};
+use snafu::Snafu;
+
+///
+/// CreateError
+///
+
+#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+pub enum CreateError {
+    #[snafu(transparent)]
+    Config { source: config::Error },
+}
 
 ///
 /// create_canister
@@ -18,12 +30,14 @@ pub async fn create_canister(
     bytes: &[u8],
     parent_id: Principal,
 ) -> Result<Principal, Error> {
+    let config = get_config().map_err(CreateError::from)?;
+
     //
     // controllers
     // default controllers + root
     //
 
-    let mut controllers: Vec<Principal> = CONFIG.ic.controllers.clone();
+    let mut controllers: Vec<Principal> = config.ic.controllers.clone();
     controllers.push(id());
 
     //

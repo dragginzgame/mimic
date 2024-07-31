@@ -1,7 +1,7 @@
 use crate::{Error, APP_STATE};
 use candid::CandidType;
+use derive::Storable;
 use derive_more::{Deref, DerefMut};
-use lib_derive::Storable;
 use ic::{
     log,
     structures::{memory::VirtualMemory, Cell},

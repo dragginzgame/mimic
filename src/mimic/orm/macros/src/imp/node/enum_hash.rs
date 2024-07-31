@@ -2,7 +2,7 @@ use crate::{
     imp::Implementor,
     node::{EnumHash, MacroNode, Trait},
 };
-use config::CONFIG;
+use config::get_config;
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 use std::hash::{DefaultHasher, Hash, Hasher};
@@ -54,7 +54,8 @@ pub fn enum_hash(node: &EnumHash, t: Trait) -> TokenStream {
 // compute_hash
 #[allow(clippy::cast_possible_truncation)]
 fn compute_hash(item: &str) -> u64 {
-    let digest = format!("{}{}", item, &CONFIG.orm.hash_salt);
+    let config = get_config().unwrap();
+    let digest = format!("{}{}", item, config.orm.hash_salt);
 
     let mut s = DefaultHasher::new();
     digest.hash(&mut s);

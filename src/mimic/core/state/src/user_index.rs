@@ -1,9 +1,9 @@
 use crate::{Error, USER_INDEX};
 use candid::{CandidType, Principal};
-use core_schema::SCHEMA;
+use core_schema::get_schema;
+use derive::Storable;
 use derive_more::{Deref, DerefMut};
 use ic::structures::{memory::VirtualMemory, BTreeMap};
-use lib_derive::Storable;
 use schema::node::Role;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -30,6 +30,9 @@ pub enum UserIndexError {
 
     #[snafu(display("user does not have role '{role}'"))]
     UserDoesNotHaveRole { role: String },
+
+    #[snafu(transparent)]
+    Schema { source: core_schema::Error },
 }
 
 ///
@@ -73,8 +76,10 @@ impl UserIndexManager {
 
     // add_role
     pub fn add_role(id: Principal, role: String) -> Result<(), Error> {
+        let schema = get_schema().map_err(UserIndexError::from)?;
+
         // check its a valid role
-        if SCHEMA.get_node::<Role>(&role).is_none() {
+        if schema.get_node::<Role>(&role).is_none() {
             Err(UserIndexError::RoleNotFound { role: role.clone() })?;
         }
 
@@ -92,8 +97,10 @@ impl UserIndexManager {
 
     // remove_role
     pub fn remove_role(id: Principal, role: String) -> Result<(), Error> {
+        let schema = get_schema().map_err(UserIndexError::from)?;
+
         // check its a valid role
-        if SCHEMA.get_node::<Role>(&role).is_none() {
+        if schema.get_node::<Role>(&role).is_none() {
             Err(UserIndexError::RoleNotFound { role: role.clone() })?;
         }
 

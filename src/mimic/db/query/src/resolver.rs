@@ -1,6 +1,6 @@
 use crate::Error;
 use candid::CandidType;
-use core_schema::SCHEMA;
+use core_schema::get_schema;
 use db::DataKey;
 use schema::node::Entity;
 use serde::{Deserialize, Serialize};
@@ -14,6 +14,9 @@ use snafu::Snafu;
 pub enum ResolverError {
     #[snafu(display("entity not found: {path}"))]
     EntityNotFound { path: String },
+
+    #[snafu(transparent)]
+    Schema { source: core_schema::Error },
 }
 
 impl ResolverError {
@@ -46,7 +49,8 @@ impl Resolver {
 
     // store
     pub fn store(&self) -> Result<String, Error> {
-        let entity = &SCHEMA
+        let schema = get_schema().map_err(ResolverError::from)?;
+        let entity = schema
             .get_node::<Entity>(&self.entity)
             .ok_or_else(|| ResolverError::entity_not_found(&self.entity))?;
 
@@ -79,9 +83,31 @@ impl Resolver {
     // chain_format
     // returns the data used to format the sort key
     fn chain_format(&self) -> Result<Vec<(String, usize)>, Error> {
-        let chain = self.chain()?;
-        let mut format = Vec::new();
+        let schema = get_schema().map_err(ResolverError::from)?;
 
+        //
+        // Create the chain from the Schema
+        //
+        let entity = schema
+            .get_node::<Entity>(&self.entity)
+            .ok_or_else(|| ResolverError::entity_not_found(&self.entity))?;
+
+        // create an ordered vec from the parents
+        let mut chain = Vec::new();
+        for sk in &entity.sort_keys {
+            let sk_entity = schema
+                .get_node::<Entity>(&sk.entity)
+                .ok_or_else(|| ResolverError::entity_not_found(&sk.entity))?;
+
+            chain.push(sk_entity);
+        }
+        chain.push(entity);
+
+        //
+        // format the chain
+        //
+
+        let mut format = Vec::new();
         for (i, entity) in chain.into_iter().enumerate() {
             let num_keys = entity.primary_keys.len();
             let part = if i == 0 {
@@ -94,30 +120,5 @@ impl Resolver {
         }
 
         Ok(format)
-    }
-
-    // chain
-    // takes an entity path, returns the ordered vec of Entity
-    // schema nodes that make up the whole path
-    fn chain(&self) -> Result<Vec<&Entity>, Error> {
-        // look up the first entity path
-        let entity = &SCHEMA
-            .get_node::<Entity>(&self.entity)
-            .ok_or_else(|| ResolverError::entity_not_found(&self.entity))?;
-
-        // create an ordered vec from the parents
-        let mut chain = Vec::new();
-        for sk in &entity.sort_keys {
-            let sk_entity = SCHEMA
-                .get_node::<Entity>(&sk.entity)
-                .ok_or_else(|| ResolverError::entity_not_found(&sk.entity))?;
-
-            chain.push(sk_entity);
-        }
-
-        // lastly add the starting entity
-        chain.push(entity);
-
-        Ok(chain)
     }
 }

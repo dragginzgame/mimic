@@ -40,6 +40,9 @@ pub enum Error {
     Canister { source: canister::CanisterError },
 
     #[snafu(transparent)]
+    Create { source: create::CreateError },
+
+    #[snafu(transparent)]
     Crud { source: crud::CrudError },
 
     #[snafu(transparent)]
@@ -63,16 +66,16 @@ pub enum Error {
     ///
 
     #[snafu(transparent)]
-    Db { source: db::Error },
+    Db { source: ::db::Error },
 
     #[snafu(transparent)]
-    Query { source: query::Error },
+    Query { source: ::query::Error },
 
     #[snafu(transparent)]
-    State { source: state::Error },
+    State { source: ::state::Error },
 
     #[snafu(transparent)]
-    Wasm { source: wasm::Error },
+    Wasm { source: ::wasm::Error },
 }
 
 impl From<(RejectionCode, String)> for Error {

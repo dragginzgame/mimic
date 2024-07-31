@@ -11,6 +11,7 @@ workspace = true
 api = { workspace = true }
 ic = { workspace = true }
 orm = { workspace = true }
+config = { workspace = true }
 schema = { workspace = true }
 types = { workspace = true }
 wasm = { workspace = true }
