@@ -1,4 +1,4 @@
-use crate::SCHEMA;
+use crate::get_schema;
 use derive_more::Deref;
 use schema::node::Role;
 use std::{
@@ -40,7 +40,7 @@ impl RolePermissionMap {
         let mut map = HashMap::new();
 
         // role by role
-        for role in SCHEMA.get_node_values::<Role>() {
+        for role in get_schema().unwrap().get_node_values::<Role>() {
             let permissions = Self::collect_permissions(role);
             map.insert(role.def.path(), permissions);
         }
@@ -68,7 +68,7 @@ impl RolePermissionMap {
         }
 
         // Recurse into children roles
-        for child in SCHEMA.get_node_values::<Role>() {
+        for child in get_schema().unwrap().get_node_values::<Role>() {
             if let Some(parent_path) = &child.parent {
                 if parent_path == &role.def.path() {
                     Self::collect_child_permissions(child, permissions);

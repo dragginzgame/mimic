@@ -14,40 +14,39 @@ use std::sync::Mutex;
 
 static CONFIG: Mutex<Option<Config>> = Mutex::new(None);
 
-// get
-pub fn get() -> Result<Config, Error> {
-    let config_guard = CONFIG
+// get_config
+pub fn get_config() -> Result<Config, Error> {
+    let guard = CONFIG
         .lock()
         .map_err(|e| Error::Mutex { msg: e.to_string() })?;
 
-    match *config_guard {
+    match *guard {
         Some(ref config) => Ok(config.clone()),
         None => Err(Error::NotInitialized),
     }
 }
 
-// init
-// private as we don't need to update it directly with a config object
-fn init(config: Config) -> Result<(), Error> {
-    let mut config_guard = CONFIG
+// init_config
+fn init_config(config: Config) -> Result<(), Error> {
+    let mut guard = CONFIG
         .lock()
         .map_err(|e| Error::Mutex { msg: e.to_string() })?;
 
-    if config_guard.is_some() {
+    if guard.is_some() {
         Err(Error::AlreadyInitialized)
     } else {
-        *config_guard = Some(config);
+        *guard = Some(config);
 
         Ok(())
     }
 }
 
-// init_toml
-pub fn init_toml(config_str: &str) -> Result<(), Error> {
+// init_config_toml
+pub fn init_config_toml(config_str: &str) -> Result<(), Error> {
     let config =
         toml::from_str(config_str).map_err(|e| Error::CannotParseToml { msg: e.to_string() })?;
 
-    init(config)
+    init_config(config)
 }
 
 ///

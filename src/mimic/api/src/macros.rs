@@ -6,7 +6,7 @@ macro_rules! init_mimic {
     };
     ($config_path:expr) => {{
         let config_str = include_str!($config_path);
-        let config = ::mimic::config::load_toml(config_str).expect("Failed to load configuration");
+        let config = ::mimic::config::init_toml(config_str).expect("Failed to load configuration");
     }};
 }
 

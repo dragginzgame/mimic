@@ -1,4 +1,4 @@
-use crate::SCHEMA;
+use crate::get_schema;
 use candid::CandidType;
 use derive_more::Deref;
 use schema::node::{Crud, Entity, Store};
@@ -26,10 +26,11 @@ pub static ENTITY_CRUD_MAP: LazyLock<EntityCrudMap> = LazyLock::new(EntityCrudMa
 pub struct EntityCrudMap(HashMap<String, Crud>);
 
 impl EntityCrudMap {
+    #[must_use]
     pub fn init() -> Self {
         let mut map = HashMap::new();
 
-        for (entity_path, entity) in SCHEMA.get_nodes::<Entity>() {
+        for (entity_path, entity) in get_schema().unwrap().get_nodes::<Entity>() {
             map.insert(entity_path.to_string(), Self::get_crud(entity).unwrap());
         }
 
@@ -38,7 +39,8 @@ impl EntityCrudMap {
 
     // get_crud
     fn get_crud(entity: &Entity) -> Result<Crud, Error> {
-        let store = SCHEMA.try_get_node::<Store>(&entity.store)?;
+        let schema = get_schema().unwrap();
+        let store = schema.try_get_node::<Store>(&entity.store)?;
 
         // entity overrides store
         if let Some(entity_crud) = &entity.crud {
