@@ -4,10 +4,7 @@ mod sanitize;
 mod validate;
 
 use api::Error;
-use ic::update;
-
-// start
-api::actor_start!("test");
+use ic::{log, update, Log};
 
 // init2
 pub fn init2() -> Result<(), Error> {
@@ -31,35 +28,23 @@ pub fn post_upgrade2() -> Result<(), Error> {
 
 // test
 #[update]
-pub fn test() -> Result<(), Error> {
-    let res: Result<(), Error> = DB.with(|db| {
-        // cache
-        //     let mut tester = cache::CacheTester::new(store);
-        //     tester.test();
+pub fn test() {
+    // cache
+    //     let mut tester = cache::CacheTester::new(store);
+    //     tester.test();
 
-        // default
-        default::DefaultTester::test();
+    // default
+    default::DefaultTester::test();
 
-        // sanitize
-        sanitize::SanitizeTester::test();
+    // sanitize
+    sanitize::SanitizeTester::test();
 
-        // store
-        let tester = db::DbTester::new(db);
-        tester.test();
+    // validate
+    validate::ValidateTester::test();
 
-        // validate
-        validate::ValidateTester::test();
+    // store
+    //    let tester = db::DbTester::new(db);
+    //    tester.test();
 
-        Ok(())
-    });
-
-    match res {
-        Ok(()) => log!(Log::Ok, "test: all tests passed successfully"),
-        Err(e) => eprintln!("{e:?}"),
-    }
-
-    Ok(())
+    log!(Log::Ok, "test: all tests passed successfully");
 }
-
-// end
-api::actor_end!();

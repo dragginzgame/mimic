@@ -1,6 +1,6 @@
 use crate::{Error, APP_STATE};
 use candid::CandidType;
-use derive::Storable;
+use derive::StorableInternal;
 use derive_more::{Deref, DerefMut};
 use ic::{
     log,
@@ -109,7 +109,7 @@ impl AppStateStable {
 /// AppState
 ///
 
-#[derive(CandidType, Clone, Copy, Debug, Serialize, Deserialize, Storable)]
+#[derive(CandidType, Clone, Copy, Debug, Serialize, Deserialize, StorableInternal)]
 pub struct AppState {
     mode: AppMode,
 }

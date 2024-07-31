@@ -1,5 +1,5 @@
 use candid::CandidType;
-use derive::Storable;
+use derive::StorableInternal;
 use ic::structures::{storable::Bound, Storable};
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, fmt};
@@ -31,7 +31,7 @@ impl DataRow {
 /// DataValue
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize, Storable)]
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize, StorableInternal)]
 pub struct DataValue {
     pub data: Vec<u8>,
     pub metadata: Metadata,

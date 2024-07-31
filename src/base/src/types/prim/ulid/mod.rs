@@ -4,7 +4,7 @@ pub mod generator;
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, FromStr};
 use mimic::{
-    derive::Storable,
+    derive::StorableInternal,
     orm::{
         collections::HashSet,
         traits::{
@@ -52,7 +52,7 @@ pub enum Error {
     PartialOrd,
     Serialize,
     Deserialize,
-    Storable,
+    StorableInternal,
 )]
 pub struct Ulid(WrappedUlid);
 

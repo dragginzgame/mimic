@@ -1,7 +1,7 @@
 use crate::{Error, USER_INDEX};
 use candid::{CandidType, Principal};
 use core_schema::get_schema;
-use derive::Storable;
+use derive::StorableInternal;
 use derive_more::{Deref, DerefMut};
 use ic::structures::{memory::VirtualMemory, BTreeMap};
 use schema::node::Role;
@@ -151,7 +151,7 @@ impl UserIndexStable {
 /// roles: for Role-based access control
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize, Storable)]
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize, StorableInternal)]
 pub struct User {
     pub canister_principal: Principal,
     pub user_id: Ulid,

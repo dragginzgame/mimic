@@ -10,7 +10,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.0.1]
 
-
 ### Added
 
 - Split off the Dragginz ORM into a separate repository (this one) and renamed it Mimic.  Everything in

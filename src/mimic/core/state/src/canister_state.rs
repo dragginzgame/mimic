@@ -1,6 +1,6 @@
 use crate::{Error, CANISTER_STATE};
 use candid::{CandidType, Principal};
-use derive::Storable;
+use derive::StorableInternal;
 use derive_more::{Deref, DerefMut};
 use ic::structures::{memory::VirtualMemory, Cell};
 use serde::{Deserialize, Serialize};
@@ -104,7 +104,7 @@ impl CanisterStateStable {
 /// CanisterState
 ///
 
-#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize, Storable)]
+#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize, StorableInternal)]
 pub struct CanisterState {
     path: Option<String>,
     root_id: Option<Principal>,
