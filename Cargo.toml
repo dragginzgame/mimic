@@ -7,7 +7,10 @@ members = [
     "src/mimic/bin/actorgen",
     "src/mimic/bin/schemagen",
     "src/mimic/canisters/test",
-    "src/mimic/config",
+    "src/mimic/core/config",
+    "src/mimic/core/schema",
+    "src/mimic/core/state",
+    "src/mimic/core/wasm",
     "src/mimic/db",
     "src/mimic/db/query",
     "src/mimic/derive",
@@ -19,8 +22,6 @@ members = [
     "src/mimic/orm/macros",
     "src/mimic/orm/orm",
     "src/mimic/orm/schema",
-    "src/mimic/schema",
-    "src/mimic/state",
     "src/mimic/types",
     "src/tests",
 ]
@@ -37,18 +38,23 @@ mimic = { path = "src/mimic" }
 base = { path = "src/base" }
 
 # mimic
-core = { path = "src/mimic/core" }
 api = { path = "src/mimic/api" }
-config = { path = "src/mimic/config" }
-core_schema = { path = "src/mimic/schema" }
-core_state = { path = "src/mimic/state" }
-wasm = { path = "src/mimic/wasm" }
 canister_test = { path = "src/mimic/canisters/test" }
 derive = { path = "src/mimic/derive" }
 db = { path = "src/mimic/db" }
 query = { path = "src/mimic/db/query" }
 ic = { path = "src/mimic/ic" }
 types = { path = "src/mimic/types" }
+
+# bin
+actorgen = { path = "src/bin/actorgen" }
+schemagen = { path = "src/bin/schemagen" }
+
+# core
+config = { path = "src/mimic/core/config" }
+core_schema = { path = "src/mimic/core/schema" }
+state = { path = "src/mimic/core/state" }
+wasm = { path = "src/mimic/core/wasm" }
 
 # orm
 orm = { path = "src/mimic/orm/orm" }

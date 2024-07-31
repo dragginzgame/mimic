@@ -8,11 +8,12 @@ pub use ic;
 pub use orm;
 pub use schema;
 pub use types;
-pub use wasm;
 
 pub mod core {
+    pub use config;
     pub use core_schema as schema;
-    pub use core_state as state;
+    pub use state;
+    pub use wasm;
 }
 
 pub mod db {

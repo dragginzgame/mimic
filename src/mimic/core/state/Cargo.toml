@@ -1,5 +1,5 @@
 [package]
-name = "core_state"
+name = "state"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }

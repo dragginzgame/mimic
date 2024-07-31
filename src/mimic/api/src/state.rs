@@ -1,4 +1,4 @@
-use core_state::{
+use state::{
     AppState, AppStateManager, CanisterState, CanisterStateManager, ChildIndex, ChildIndexManager,
     SubnetIndex, SubnetIndexManager, UserIndex, UserIndexManager,
 };

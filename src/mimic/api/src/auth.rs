@@ -1,9 +1,9 @@
 use crate::Error;
 use candid::{CandidType, Principal};
-use core_state::{ChildIndexManager, SubnetIndexManager};
 use schema::node::AccessPolicy;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
+use state::{ChildIndexManager, SubnetIndexManager};
 
 ///
 /// AuthError

@@ -15,7 +15,7 @@ api = { workspace = true }
 base = { workspace = true }
 candid = { workspace = true }
 core_schema = { workspace = true }
-core_state = { workspace = true }
+state = { workspace = true }
 db = { workspace = true }
 ic = { workspace = true }
 ic-cdk = { workspace = true }

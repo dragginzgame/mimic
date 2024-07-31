@@ -69,7 +69,7 @@ pub enum Error {
     Query { source: query::Error },
 
     #[snafu(transparent)]
-    CoreState { source: core_state::Error },
+    State { source: state::Error },
 
     #[snafu(transparent)]
     Wasm { source: wasm::Error },

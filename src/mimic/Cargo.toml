@@ -15,7 +15,7 @@ schema = { workspace = true }
 types = { workspace = true }
 wasm = { workspace = true }
 core_schema = { workspace = true }
-core_state = { workspace = true }
+state = { workspace = true }
 db = { workspace = true }
 query = { workspace = true }
 lib_case = { workspace = true }

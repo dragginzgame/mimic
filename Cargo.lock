@@ -77,7 +77,6 @@ dependencies = [
  "candid",
  "config",
  "core_schema",
- "core_state",
  "db",
  "defer",
  "ic",
@@ -87,6 +86,7 @@ dependencies = [
  "schema",
  "serde",
  "snafu",
+ "state",
  "strum",
  "wasm",
 ]
@@ -214,7 +214,6 @@ dependencies = [
  "base",
  "candid",
  "core_schema",
- "core_state",
  "db",
  "ic",
  "ic-cdk",
@@ -223,6 +222,7 @@ dependencies = [
  "orm",
  "query",
  "schema",
+ "state",
 ]
 
 [[package]]
@@ -339,23 +339,6 @@ dependencies = [
  "serde",
  "serde_json",
  "snafu",
-]
-
-[[package]]
-name = "core_state"
-version = "0.0.1"
-dependencies = [
- "candid",
- "core_schema",
- "derive",
- "derive_more",
- "ic",
- "lib_cbor",
- "schema",
- "serde",
- "snafu",
- "strum",
- "types",
 ]
 
 [[package]]
@@ -869,7 +852,6 @@ version = "0.0.1"
 dependencies = [
  "api",
  "core_schema",
- "core_state",
  "db",
  "ic",
  "lib_case",
@@ -877,6 +859,7 @@ dependencies = [
  "orm",
  "query",
  "schema",
+ "state",
  "types",
  "wasm",
 ]
@@ -1205,6 +1188,23 @@ dependencies = [
  "libc",
  "psm",
  "winapi",
+]
+
+[[package]]
+name = "state"
+version = "0.0.1"
+dependencies = [
+ "candid",
+ "core_schema",
+ "derive",
+ "derive_more",
+ "ic",
+ "lib_cbor",
+ "schema",
+ "serde",
+ "snafu",
+ "strum",
+ "types",
 ]
 
 [[package]]
