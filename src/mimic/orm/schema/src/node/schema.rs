@@ -304,16 +304,22 @@ impl ValidateNode for Schema {
             }
         }
 
-        // there can be only one root
-        // use take(2) for efficiency
-        let root_canister_count = self
-            .filter_nodes::<Canister, _>(|node| matches!(node.build, CanisterBuild::Root))
-            .take(2)
-            .count();
-        match root_canister_count {
-            0 => errs.add("No root canister found"),
-            1 => {}
-            _ => errs.add("Multiple root canisters found"),
+        // check canister build max
+        for build in [
+            CanisterBuild::Root,
+            CanisterBuild::Test,
+            CanisterBuild::User,
+        ] {
+            let count = self
+                .filter_nodes::<Canister, _>(|node| node.build == build)
+                .take(2)
+                .count();
+
+            match count {
+                0 => errs.add(format!("no canister build '{build}' found")),
+                1 => {}
+                _ => errs.add(format!("multiple canister builds '{build}' found")),
+            }
         }
 
         // canister dir

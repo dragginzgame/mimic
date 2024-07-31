@@ -3,19 +3,6 @@
 version = 3
 
 [[package]]
-name = "actorgen"
-version = "0.0.1"
-dependencies = [
- "base",
- "clap",
- "orm",
- "proc-macro2",
- "quote",
- "schema",
- "syn 2.0.72",
-]
-
-[[package]]
 name = "anstream"
 version = "0.6.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -116,6 +103,8 @@ dependencies = [
  "candid",
  "ctor",
  "derive_more",
+ "ic",
+ "lib_cbor",
  "macros",
  "mimic",
  "num-traits",
@@ -125,6 +114,20 @@ dependencies = [
  "sha2",
  "snafu",
  "strum",
+]
+
+[[package]]
+name = "bin"
+version = "0.0.1"
+dependencies = [
+ "base",
+ "clap",
+ "orm",
+ "proc-macro2",
+ "quote",
+ "schema",
+ "serde_json",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -1055,16 +1058,6 @@ dependencies = [
  "strum",
  "syn 2.0.72",
  "types",
-]
-
-[[package]]
-name = "schemagen"
-version = "0.0.1"
-dependencies = [
- "base",
- "clap",
- "schema",
- "serde_json",
 ]
 
 [[package]]

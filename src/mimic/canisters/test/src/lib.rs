@@ -7,7 +7,7 @@ use api::Error;
 use ic::update;
 
 // start
-mimic::api::actor_start!("test");
+api::actor_start!("test");
 
 // init2
 pub fn init2() -> Result<(), Error> {
@@ -62,4 +62,4 @@ pub fn test() -> Result<(), Error> {
 }
 
 // end
-mimic::api::actor_end!();
+api::actor_end!();

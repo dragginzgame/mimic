@@ -1,5 +1,5 @@
 [package]
-name = "schemagen"
+name = "bin"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }
@@ -8,11 +8,19 @@ version = { workspace = true }
 workspace = true
 
 [[bin]]
+name = "actorgen"
+path = "src/actorgen/main.rs"
+
+[[bin]]
 name = "schemagen"
-path = "src/main.rs"
+path = "src/schemagen/main.rs"
 
 [dependencies]
 base = { workspace = true }
 clap = { workspace = true }
+orm = { workspace = true }
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
 schema = { workspace = true }
 serde_json = { workspace = true }
+syn = { workspace = true }

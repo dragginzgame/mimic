@@ -54,3 +54,39 @@ impl Paragraph {
         CollapseWhitespace::sanitize(s)
     }
 }
+
+///
+/// TESTS
+///
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_collapse_whitespace() {
+        let test_cases = [
+            ("", ""),
+            ("    ", ""),
+            ("\n", ""),
+            ("\n\n", ""),
+            (" \n \n ", ""),
+            ("   hello   ", "hello"),
+            ("hello   ", "hello"),
+            ("   hello", "hello"),
+            ("hello world", "hello world"),
+            ("  hello   world  ", "hello world"),
+            ("hello   world  \n", "hello world"),
+            ("hello\tworld", "hello world"),
+            ("\t\na\n\n\nc        \t   \t", "a c"),
+        ];
+
+        for (input, expected) in &test_cases {
+            assert_eq!(
+                CollapseWhitespace::sanitize(input),
+                *expected,
+                "testing: {input}"
+            );
+        }
+    }
+}

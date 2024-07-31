@@ -39,7 +39,6 @@ fn main() {
     let cli = Cli::parse();
 
     // Stub functions for Rust on OSX
-    design::init();
     base::init();
 
     // validate schema

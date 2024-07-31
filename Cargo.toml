@@ -4,8 +4,7 @@ members = [
     "src/base",
     "src/mimic",
     "src/mimic/api",
-    "src/mimic/bin/actorgen",
-    "src/mimic/bin/schemagen",
+    "src/mimic/bin",
     "src/mimic/canisters/test",
     "src/mimic/core/config",
     "src/mimic/core/schema",
@@ -36,6 +35,7 @@ version = "0.0.1"
 # mimic
 mimic = { path = "src/mimic" }
 base = { path = "src/base" }
+bin = { path = "src/bin/" }
 
 # mimic
 api = { path = "src/mimic/api" }
@@ -46,9 +46,6 @@ query = { path = "src/mimic/db/query" }
 ic = { path = "src/mimic/ic" }
 types = { path = "src/mimic/types" }
 
-# bin
-actorgen = { path = "src/bin/actorgen" }
-schemagen = { path = "src/bin/schemagen" }
 
 # core
 config = { path = "src/mimic/core/config" }

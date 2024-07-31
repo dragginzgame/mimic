@@ -5,7 +5,7 @@ use schema::build::schema;
 // Both design and types should be included as otherwise MACOS builds can fail
 // And we also need to call a init() fn in those crates
 #[allow(unused_imports)]
-use {base::*, design::*};
+use base::*;
 
 //
 // CLI
@@ -24,7 +24,6 @@ fn main() {
     let _cli = Cli::parse();
 
     // Stub functions for Rust on OSX
-    design::init();
     base::init();
 
     // validate schema

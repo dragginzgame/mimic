@@ -3,6 +3,7 @@ use candid::CandidType;
 use ic::TC;
 use lib_case::{Case, Casing};
 use serde::{Deserialize, Serialize};
+use strum::Display;
 use types::ErrorVec;
 
 //
@@ -70,7 +71,7 @@ impl VisitableNode for Canister {
 /// CanisterBuild
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Display, Serialize, Deserialize)]
 pub enum CanisterBuild {
     Basic(CanisterBuildBasic),
     Root,
@@ -86,6 +87,19 @@ impl CanisterBuild {
             Self::Basic(basic) if !basic.replicated => true,
             _ => false,
         }
+    }
+
+    // is_singleton
+    // should there be one and only one of these
+    #[must_use]
+    pub const fn is_singleton(&self) -> bool {
+        matches!(self, Self::Root | Self::Test | Self::User)
+    }
+}
+
+impl PartialEq for CanisterBuild {
+    fn eq(&self, other: &Self) -> bool {
+        std::mem::discriminant(self) == std::mem::discriminant(other)
     }
 }
 
