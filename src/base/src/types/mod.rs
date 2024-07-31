@@ -20,11 +20,6 @@ use mimic::orm::traits::Path;
 #[primitive(ty = "mimic::orm::types::Blob")]
 pub struct Blob {}
 
-impl Path for Blob {
-    const IDENT: &'static str = "Blob";
-    const PATH: &'static str = "base::types::Blob";
-}
-
 ///
 /// Bool
 ///
@@ -38,11 +33,6 @@ pub struct Bool {}
 
 #[primitive(ty = "mimic::orm::types::Decimal")]
 pub struct Decimal {}
-
-impl Path for Decimal {
-    const IDENT: &'static str = "Decimal";
-    const PATH: &'static str = "base::types::Decimal";
-}
 
 ///
 /// F32
@@ -100,11 +90,6 @@ pub struct I128 {}
 #[primitive(ty = "mimic::orm::types::Principal")]
 pub struct Principal {}
 
-impl Path for Principal {
-    const IDENT: &'static str = "Principal";
-    const PATH: &'static str = "base::types::Principal";
-}
-
 ///
 /// String
 ///
@@ -118,11 +103,6 @@ pub struct String {}
 
 #[primitive(ty = "mimic::orm::types::Ulid")]
 pub struct Ulid {}
-
-impl Path for Ulid {
-    const IDENT: &'static str = "Ulid";
-    const PATH: &'static str = "base::types::Ulid";
-}
 
 ///
 /// U8

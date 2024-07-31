@@ -11,6 +11,9 @@ use state::{ChildIndexManager, SubnetIndexManager};
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum AuthError {
+    #[snafu(display("one or more rules must be defined"))]
+    NoRulesDefined,
+
     #[snafu(display("this action is not allowed due to configuration settings"))]
     NotAllowed,
 
@@ -80,9 +83,8 @@ pub async fn guard(rules: Vec<Guard>) -> Result<(), Error> {
     // only works for caller now
     let caller = ::ic::caller();
 
-    // controller override
-    if guard_controller(caller).is_ok() {
-        return Ok(());
+    if rules.is_empty() {
+        Err(AuthError::NoRulesDefined)?;
     }
 
     // check rules
