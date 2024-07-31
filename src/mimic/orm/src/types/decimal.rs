@@ -1,8 +1,8 @@
-use candid::CandidType;
-use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
-use mimic::orm::traits::{
+use crate::traits::{
     Filterable, Inner, Orderable, Sanitize, SanitizeAuto, Validate, ValidateAuto, Visitable,
 };
+use candid::CandidType;
+use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
 use num_traits::{FromPrimitive, ToPrimitive};
 use rust_decimal::Decimal as WrappedDecimal;
 use serde::{ser::Error, Deserialize, Serialize};

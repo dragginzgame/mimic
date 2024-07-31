@@ -46,7 +46,6 @@ query = { path = "src/mimic/db/query" }
 ic = { path = "src/mimic/ic" }
 types = { path = "src/mimic/types" }
 
-
 # core
 config = { path = "src/mimic/core/config" }
 core_schema = { path = "src/mimic/core/schema" }

@@ -1,9 +1,9 @@
 use super::Ulid;
 use candid::CandidType;
-use mimic::types::{Timestamp, Ulid as WrappedUlid};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::sync::{LazyLock, Mutex};
+use types::{Timestamp, Ulid as WrappedUlid};
 
 ///
 /// Error
@@ -65,7 +65,7 @@ impl Generator {
         }
 
         // generate
-        let rand = mimic::lib::rand::next_u128();
+        let rand = lib_rand::next_u128();
         let ulid = Ulid(WrappedUlid::from_parts(*ts, rand));
 
         self.previous = ulid;

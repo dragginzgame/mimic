@@ -1,8 +1,8 @@
-use candid::CandidType;
-use derive_more::{Deref, DerefMut};
-use mimic::orm::traits::{
+use crate::traits::{
     Filterable, Inner, Orderable, Sanitize, SanitizeAuto, Validate, ValidateAuto, Visitable,
 };
+use candid::CandidType;
+use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
 use serde_bytes::ByteBuf;
 

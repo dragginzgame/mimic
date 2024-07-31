@@ -4,7 +4,6 @@ pub mod color;
 pub mod lang;
 pub mod math;
 pub mod orm;
-pub mod prim;
 pub mod test;
 pub mod text;
 pub mod time;
@@ -18,7 +17,7 @@ use mimic::orm::traits::Path;
 /// Blob
 ///
 
-#[primitive(ty = "prim::Blob")]
+#[primitive(ty = "mimic::orm::types::Blob")]
 pub struct Blob {}
 
 impl Path for Blob {
@@ -37,7 +36,7 @@ pub struct Bool {}
 /// Decimal
 ///
 
-#[primitive(ty = "prim::Decimal")]
+#[primitive(ty = "mimic::orm::types::Decimal")]
 pub struct Decimal {}
 
 impl Path for Decimal {
@@ -98,7 +97,7 @@ pub struct I128 {}
 /// Principal
 ///
 
-#[primitive(ty = "prim::Principal")]
+#[primitive(ty = "mimic::orm::types::Principal")]
 pub struct Principal {}
 
 impl Path for Principal {
@@ -117,7 +116,7 @@ pub struct String {}
 /// Ulid
 ///
 
-#[primitive(ty = "prim::Ulid")]
+#[primitive(ty = "mimic::orm::types::Ulid")]
 pub struct Ulid {}
 
 impl Path for Ulid {
