@@ -1,3 +1,9 @@
+[package]
+name = "mimic"
+version = "0.0.1"
+edition = "2021"
+rust-version = "1.80.0"
+
 [workspace]
 members = [
     "src",
@@ -110,19 +116,6 @@ tinyrand = "0.5"
 toml = "0.8"
 # std off because it imports rand.  serde feature doesn't compile without it
 ulid = { version = "1.1", default-features = false }
-
-# profile
-[profile.dev]
-debug = false
-opt-level = 'z'
-
-[profile.perf]
-inherits = "dev"
-debug = true
-
-[profile.release]
-debug = false
-opt-level = 'z'
 
 # clippy
 [workspace.lints.clippy]
