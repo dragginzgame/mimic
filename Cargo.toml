@@ -35,7 +35,7 @@ version = "0.0.1"
 # mimic
 mimic = { path = "src/mimic" }
 base = { path = "src/base" }
-bin = { path = "src/bin/" }
+bin = { path = "src/bin" }
 
 # mimic
 api = { path = "src/mimic/api" }

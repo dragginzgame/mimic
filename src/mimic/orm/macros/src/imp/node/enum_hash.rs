@@ -54,6 +54,8 @@ pub fn enum_hash(node: &EnumHash, t: Trait) -> TokenStream {
 // compute_hash
 #[allow(clippy::cast_possible_truncation)]
 fn compute_hash(item: &str) -> u64 {
+    1
+    /*
     let config = get_config().unwrap();
     let digest = format!("{}{}", item, config.orm.hash_salt);
 
@@ -61,4 +63,5 @@ fn compute_hash(item: &str) -> u64 {
     digest.hash(&mut s);
 
     s.finish()
+    */
 }
