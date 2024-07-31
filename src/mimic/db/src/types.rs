@@ -1,6 +1,6 @@
 use candid::CandidType;
+use derive::Storable;
 use ic::structures::{storable::Bound, Storable};
-use lib_derive::Storable;
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, fmt};
 use types::Timestamp;

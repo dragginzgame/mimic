@@ -15,7 +15,6 @@ members = [
     "src/mimic/lib/case",
     "src/mimic/lib/cbor",
     "src/mimic/lib/rand",
-    "src/mimic/lib/string",
     "src/mimic/lib/test",
     "src/mimic/orm/macros",
     "src/mimic/orm/orm",
@@ -30,7 +29,7 @@ resolver = "2"
 [workspace.package]
 rust-version = "1.80.0"
 edition = "2021"
-version = "0.99.0"
+version = "0.0.1"
 
 [workspace.dependencies]
 # mimic
@@ -60,7 +59,6 @@ macros = { path = "src/mimic/orm/macros" }
 lib_case = { path = "src/mimic/lib/case" }
 lib_cbor = { path = "src/mimic/lib/cbor" }
 lib_rand = { path = "src/mimic/lib/rand" }
-lib_string = { path = "src/mimic/lib/string" }
 lib_test = { path = "src/mimic/lib/test" }
 
 # ic cdk

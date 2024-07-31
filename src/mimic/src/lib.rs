@@ -25,5 +25,4 @@ pub mod db {
 pub mod lib {
     pub use lib_case as case;
     pub use lib_rand as rand;
-    pub use lib_string as string;
 }

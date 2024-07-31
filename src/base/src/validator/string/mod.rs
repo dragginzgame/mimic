@@ -38,23 +38,3 @@ impl Ascii {
         }
     }
 }
-
-///
-/// MaxCharRepeat
-///
-
-#[validator]
-pub struct MaxCharRepeat {}
-
-impl MaxCharRepeat {
-    pub fn validate<D: Display>(d: &D, max: isize) -> Result<(), Error> {
-        let s = d.to_string();
-
-        let char_repeat = mimic::lib::string::validate::max_char_repeat(s) as isize;
-        if char_repeat > max {
-            Err(Error::MaxCharRepeatExceeded { max })
-        } else {
-            Ok(())
-        }
-    }
-}

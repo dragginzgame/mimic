@@ -3,6 +3,7 @@
 // remove this from time to time to see the actual unused imports
 #![allow(unused_imports)]
 
+pub mod auth;
 pub mod canister;
 pub mod sanitizer;
 pub mod types;

@@ -1,5 +1,4 @@
 pub mod case;
-pub mod misc;
 
 use base::sanitizer::string;
 use std::fmt::Display;

@@ -2,9 +2,9 @@ use std::sync::{LazyLock, Mutex};
 use tinyrand::{Rand, Seeded, StdRand};
 use types::Timestamp;
 
-//
-// STD_RAND
-//
+///
+/// STD_RAND
+///
 
 pub static STD_RAND: LazyLock<Mutex<StdRand>> =
     LazyLock::new(|| Mutex::new(StdRand::seed(*Timestamp::now_millis())));
@@ -54,7 +54,7 @@ mod tests {
 
         let mut set = HashSet::new();
         while set.len() < 1000 {
-            let random_value = u64();
+            let random_value = next_u64();
             assert!(set.insert(random_value), "value already in set");
         }
     }

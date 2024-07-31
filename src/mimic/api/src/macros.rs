@@ -1,3 +1,15 @@
+#[macro_export]
+macro_rules! init_mimic {
+    () => {
+        // Default configuration path
+        init_mimic!("../../../config.toml");
+    };
+    ($config_path:expr) => {{
+        let config_str = include_str!($config_path);
+        let config = ::mimic::config::load_toml(config_str).expect("Failed to load configuration");
+    }};
+}
+
 // actor_start
 #[macro_export]
 macro_rules! actor_start {
