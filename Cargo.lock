@@ -860,6 +860,7 @@ dependencies = [
  "derive",
  "ic",
  "lib_case",
+ "lib_cbor",
  "lib_rand",
  "orm",
  "query",

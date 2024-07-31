@@ -22,3 +22,4 @@ db = { workspace = true }
 query = { workspace = true }
 lib_case = { workspace = true }
 lib_rand = { workspace = true }
+lib_cbor = { workspace = true }
