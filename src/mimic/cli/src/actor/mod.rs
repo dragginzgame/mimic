@@ -17,41 +17,27 @@ use schema::{
 };
 use std::process;
 
-#[macro_use]
-extern crate quote;
-
 ///
-/// Cli
+/// Command
 ///
 
 #[derive(Parser)]
-#[clap(name = "ActorGen", version = "1.0", about = "Generates canister code")]
-struct Cli {
+pub struct Command {
     #[clap(help = "Name of the canister to generate code for")]
     canister_name: String,
 }
 
-///
-/// Main
-///
-
-fn main() {
-    let cli = Cli::parse();
-
-    // Stub functions for Rust on OSX
-    base::init();
-
-    // validate schema
-    if let Err(e) = ::schema::build::validate() {
-        eprintln!("{e}");
-        std::process::exit(2);
-    }
-
+// process
+pub fn process(command: Command) {
     // load schema and get the specified canister
     let schema = schema();
-    let mut canisters = schema.filter_nodes::<Canister, _>(|node| node.name() == cli.canister_name);
+    let mut canisters =
+        schema.filter_nodes::<Canister, _>(|node| node.name() == command.canister_name);
     let Some((_, canister)) = canisters.next() else {
-        eprintln!("Canister '{}' not found in the schema", cli.canister_name);
+        eprintln!(
+            "Canister '{}' not found in the schema",
+            command.canister_name
+        );
         process::exit(1);
     };
 

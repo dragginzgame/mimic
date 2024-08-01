@@ -1,4 +1,4 @@
-use crate::ActorBuilder;
+use super::ActorBuilder;
 
 // extend
 pub fn extend(builder: &mut ActorBuilder) {

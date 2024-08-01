@@ -8,12 +8,8 @@ version = { workspace = true }
 workspace = true
 
 [[bin]]
-name = "actorgen"
-path = "src/actorgen/main.rs"
-
-[[bin]]
-name = "schemagen"
-path = "src/schemagen/main.rs"
+name = "mimicli"
+path = "main.rs"
 
 [dependencies]
 base = { workspace = true }

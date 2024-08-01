@@ -1,4 +1,4 @@
-use crate::ActorBuilder;
+use super::ActorBuilder;
 use proc_macro2::TokenStream;
 use schema::node::CanisterBuild;
 use syn::{parse_str, Path};
