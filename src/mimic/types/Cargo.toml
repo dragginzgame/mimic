@@ -10,7 +10,6 @@ workspace = true
 [dependencies]
 candid = { workspace = true }
 derive_more = { workspace = true }
-ic-cdk = { workspace = true }
 serde_bytes = { workspace = true }
 serde = { workspace = true }
 lib_cbor = { workspace = true }

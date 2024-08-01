@@ -21,10 +21,9 @@ pub fn get_schema() -> Result<Schema, Error> {
         .lock()
         .map_err(|e| Error::Mutex { msg: e.to_string() })?;
 
-    match *guard {
-        Some(ref schema) => Ok(schema.clone()),
-        None => Err(Error::NotInitialized),
-    }
+    guard
+        .as_ref()
+        .map_or(Err(Error::NotInitialized), |schema| Ok(schema.clone()))
 }
 
 // init_schema

@@ -20,10 +20,9 @@ pub fn get_config() -> Result<Config, Error> {
         .lock()
         .map_err(|e| Error::Mutex { msg: e.to_string() })?;
 
-    match *guard {
-        Some(ref config) => Ok(config.clone()),
-        None => Err(Error::NotInitialized),
-    }
+    guard
+        .as_ref()
+        .map_or(Err(Error::NotInitialized), |config| Ok(config.clone()))
 }
 
 // init_config

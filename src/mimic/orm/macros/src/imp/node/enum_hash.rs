@@ -52,13 +52,13 @@ pub fn enum_hash(node: &EnumHash, t: Trait) -> TokenStream {
 }
 
 // compute_hash
-#[allow(clippy::cast_possible_truncation)]
 fn compute_hash(item: &str) -> u64 {
     let config = get_config().unwrap();
-    let digest = format!("{}{}", item, config.orm.hash_salt);
 
     let mut s = DefaultHasher::new();
-    digest.hash(&mut s);
+
+    // done this way to avoid a clippy false positive
+    format!("{}{}", item, config.orm.hash_salt).hash(&mut s);
 
     s.finish()
 }
