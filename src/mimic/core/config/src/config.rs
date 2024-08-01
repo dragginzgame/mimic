@@ -16,9 +16,7 @@ pub struct Config {
 ///
 
 #[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub struct Orm {
-    pub hash_salt: String,
-}
+pub struct Orm {}
 
 ///
 /// Ic

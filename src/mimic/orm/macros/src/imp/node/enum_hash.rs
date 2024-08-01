@@ -2,7 +2,6 @@ use crate::{
     imp::Implementor,
     node::{EnumHash, MacroNode, Trait},
 };
-use config::get_config;
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 use std::hash::{DefaultHasher, Hash, Hasher};
@@ -53,12 +52,8 @@ pub fn enum_hash(node: &EnumHash, t: Trait) -> TokenStream {
 
 // compute_hash
 fn compute_hash(item: &str) -> u64 {
-    let config = get_config().unwrap();
-
     let mut s = DefaultHasher::new();
-
-    // done this way to avoid a clippy false positive
-    format!("{}{}", item, config.orm.hash_salt).hash(&mut s);
+    item.hash(&mut s);
 
     s.finish()
 }
