@@ -1,10 +1,11 @@
-use crate::traits::{
-    Filterable, Inner, Orderable, Path, PrimaryKey, Sanitize, SanitizeAuto, Storable, Validate,
-    ValidateAuto, Visitable,
-};
+use crate::prelude::*;
 use candid::{types::principal::PrincipalError, CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut};
 use ic::{api::caller, structures::storable::Bound};
+use mimic::orm::traits::{
+    Filterable, Inner, Orderable, PrimaryKey, Sanitize, SanitizeAuto, Storable, Validate,
+    ValidateAuto, Visitable,
+};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::{
@@ -13,7 +14,6 @@ use std::{
     fmt::{self},
     str::FromStr,
 };
-use types::ErrorVec;
 
 ///
 /// Error
@@ -87,7 +87,7 @@ impl FromStr for Principal {
     type Err = PrincipalError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        WrappedPrincipal::from_str(s).map(Principal)
+        WrappedPrincipal::from_str(s).map(Self)
     }
 }
 
@@ -101,11 +101,6 @@ impl Orderable for Principal {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
     }
-}
-
-impl Path for Principal {
-    const IDENT: &'static str = "Principal";
-    const PATH: &'static str = concat!(module_path!(), "Principal");
 }
 
 impl PrimaryKey for Principal {

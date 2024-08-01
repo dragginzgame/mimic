@@ -1,15 +1,3 @@
-pub mod blob;
-pub mod decimal;
-pub mod principal;
-pub mod timestamp;
-pub mod ulid;
-
-pub use blob::Blob;
-pub use decimal::Decimal;
-pub use principal::Principal;
-pub use timestamp::Timestamp;
-pub use ulid::Ulid;
-
 use candid::CandidType;
 use darling::FromMeta;
 use derive_more::{Add, Deref, DerefMut, Sub};
@@ -167,14 +155,14 @@ fn parse_cycles(value: &str) -> darling::Result<u128> {
 }
 
 ///
-/// Primitive
+/// PrimitiveType
 ///
 
 #[derive(
     Debug, Clone, Copy, Deserialize, Display, EnumString, Eq, Hash, PartialEq, PartialOrd, Serialize,
 )]
 #[remain::sorted]
-pub enum Primitive {
+pub enum PrimitiveType {
     Blob,
     Bool,
     Decimal,
@@ -187,6 +175,7 @@ pub enum Primitive {
     I128,
     Principal,
     String,
+    Timestamp,
     U8,
     U16,
     U32,
@@ -195,19 +184,20 @@ pub enum Primitive {
     Ulid,
 }
 
-impl Primitive {
+impl PrimitiveType {
     #[must_use]
     pub const fn is_orderable(&self) -> bool {
         !matches!(*self, Self::Blob | Self::F32 | Self::F64)
     }
 
     #[must_use]
-    pub const fn ty(&self) -> PrimitiveType {
+    pub const fn group(&self) -> PrimitiveGroup {
         match self {
-            Self::Blob => PrimitiveType::Blob,
-            Self::Bool => PrimitiveType::Bool,
-            Self::F32 | Self::F64 => PrimitiveType::Float,
-            Self::I8
+            Self::Blob => PrimitiveGroup::Blob,
+            Self::Bool => PrimitiveGroup::Bool,
+            Self::F32 | Self::F64 => PrimitiveGroup::Float,
+            Self::Timestamp
+            | Self::I8
             | Self::I16
             | Self::I32
             | Self::I64
@@ -216,9 +206,9 @@ impl Primitive {
             | Self::U16
             | Self::U32
             | Self::U64
-            | Self::U128 => PrimitiveType::Integer,
-            Self::String | Self::Ulid | Self::Principal => PrimitiveType::String,
-            Self::Decimal => PrimitiveType::Decimal,
+            | Self::U128 => PrimitiveGroup::Integer,
+            Self::String | Self::Ulid | Self::Principal => PrimitiveGroup::String,
+            Self::Decimal => PrimitiveGroup::Decimal,
         }
     }
 
@@ -235,75 +225,11 @@ impl Primitive {
             Self::U8 => "u8",
             Self::U16 => "u16",
             Self::U32 => "u32",
-            Self::U64 => "u64",
+            Self::U64 | Self::Timestamp => "u64",
             Self::U128 => "u128",
             _ => panic!("unexpected primitive type"),
         }
         .into()
-    }
-}
-
-impl FromMeta for Primitive {
-    fn from_string(s: &str) -> Result<Self, darling::Error> {
-        s.parse().map_err(|_| darling::Error::unknown_value(s))
-    }
-}
-
-impl Schemable for Primitive {
-    fn schema(&self) -> TokenStream {
-        let ident = format_ident!("{}", self.to_string());
-
-        quote!(::mimic::schema::types::Primitive::#ident)
-    }
-}
-
-impl ToTokens for Primitive {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ty = match self {
-            Self::Bool => quote!(bool),
-            Self::Blob => quote!(Vec<u8>),
-            Self::Decimal => quote!(::base::types::Decimal),
-            Self::F32 => quote!(f32),
-            Self::F64 => quote!(f64),
-            Self::I8 => quote!(i8),
-            Self::I16 => quote!(i16),
-            Self::I32 => quote!(i32),
-            Self::I64 => quote!(i64),
-            Self::I128 => quote!(i128),
-            Self::Principal => quote!(::base::types::Principal),
-            Self::String => quote!(String),
-            Self::Ulid => quote!(::base::types::Ulid),
-            Self::U8 => quote!(u8),
-            Self::U16 => quote!(u16),
-            Self::U32 => quote!(u32),
-            Self::U64 => quote!(u64),
-            Self::U128 => quote!(u128),
-        };
-        tokens.extend(ty);
-    }
-}
-
-///
-/// PrimitiveType
-///
-
-#[derive(
-    Debug, Clone, Copy, Deserialize, Display, EnumString, Eq, Hash, PartialEq, PartialOrd, Serialize,
-)]
-#[remain::sorted]
-pub enum PrimitiveType {
-    Blob,
-    Bool,
-    Decimal,
-    Float,
-    Integer,
-    String,
-}
-
-impl PrimitiveType {
-    #[must_use]
-    pub const fn is_orderable(&self) -> bool {
-        !matches!(*self, Self::Blob | Self::Float)
     }
 }
 
@@ -318,6 +244,71 @@ impl Schemable for PrimitiveType {
         let ident = format_ident!("{}", self.to_string());
 
         quote!(::mimic::schema::types::PrimitiveType::#ident)
+    }
+}
+
+impl ToTokens for PrimitiveType {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let ty = match self {
+            Self::Bool => quote!(bool),
+            Self::Blob => quote!(::base::types::Blob),
+            Self::Decimal => quote!(::base::types::Decimal),
+            Self::F32 => quote!(f32),
+            Self::F64 => quote!(f64),
+            Self::I8 => quote!(i8),
+            Self::I16 => quote!(i16),
+            Self::I32 => quote!(i32),
+            Self::I64 => quote!(i64),
+            Self::I128 => quote!(i128),
+            Self::Principal => quote!(::base::types::Principal),
+            Self::String => quote!(String),
+            Self::Timestamp => quote!(::base::types::Timestamp),
+            Self::Ulid => quote!(::base::types::Ulid),
+            Self::U8 => quote!(u8),
+            Self::U16 => quote!(u16),
+            Self::U32 => quote!(u32),
+            Self::U64 => quote!(u64),
+            Self::U128 => quote!(u128),
+        };
+        tokens.extend(ty);
+    }
+}
+
+///
+/// PrimitiveGroup
+///
+
+#[derive(
+    Debug, Clone, Copy, Deserialize, Display, EnumString, Eq, Hash, PartialEq, PartialOrd, Serialize,
+)]
+#[remain::sorted]
+pub enum PrimitiveGroup {
+    Blob,
+    Bool,
+    Decimal,
+    Float,
+    Integer,
+    String,
+}
+
+impl PrimitiveGroup {
+    #[must_use]
+    pub const fn is_orderable(&self) -> bool {
+        !matches!(*self, Self::Blob | Self::Float)
+    }
+}
+
+impl FromMeta for PrimitiveGroup {
+    fn from_string(s: &str) -> Result<Self, darling::Error> {
+        s.parse().map_err(|_| darling::Error::unknown_value(s))
+    }
+}
+
+impl Schemable for PrimitiveGroup {
+    fn schema(&self) -> TokenStream {
+        let ident = format_ident!("{}", self.to_string());
+
+        quote!(::mimic::schema::types::PrimitiveGroup::#ident)
     }
 }
 

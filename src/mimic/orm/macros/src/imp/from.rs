@@ -2,7 +2,7 @@ use crate::{
     imp::Implementor,
     node::{MacroNode, Map, Newtype, Trait, Tuple},
 };
-use orm::types::{Cardinality, PrimitiveType};
+use orm::types::{Cardinality, PrimitiveGroup};
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 
@@ -39,14 +39,14 @@ pub fn map(node: &Map, t: Trait) -> TokenStream {
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
     let mut q = quote!();
 
-    match node.primitive.map(|p| p.ty()) {
-        Some(PrimitiveType::Bool | PrimitiveType::Float) | None => {
+    match node.primitive.map(|p| p.group()) {
+        Some(PrimitiveGroup::Bool | PrimitiveGroup::Float) | None => {
             q.extend(newtype_inner(node, t));
         }
-        Some(PrimitiveType::Blob | PrimitiveType::Integer | PrimitiveType::Decimal) => {
+        Some(PrimitiveGroup::Blob | PrimitiveGroup::Integer | PrimitiveGroup::Decimal) => {
             q.extend(newtype_into_inner(node, t));
         }
-        Some(PrimitiveType::String) => {
+        Some(PrimitiveGroup::String) => {
             q.extend(newtype_inner(node, t));
             q.extend(newtype_str(node, t));
         }

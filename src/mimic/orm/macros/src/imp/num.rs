@@ -2,7 +2,7 @@ use crate::{
     imp::Implementor,
     node::{Newtype, Trait},
 };
-use orm::types::Primitive;
+use orm::types::PrimitiveType;
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 
@@ -58,7 +58,10 @@ pub mod from_primitive {
         };
 
         // Decimal
-        if matches!(node.primitive, Some(Primitive::Decimal | Primitive::F64)) {
+        if matches!(
+            node.primitive,
+            Some(PrimitiveType::Decimal | PrimitiveType::F64)
+        ) {
             q.extend(quote! {
                 fn from_f64(n: f64) -> Option<Self> {
                     type Ty = #value;

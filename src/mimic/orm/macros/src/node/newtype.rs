@@ -6,7 +6,7 @@ use crate::{
     },
 };
 use darling::FromMeta;
-use orm::types::{Cardinality, Primitive, PrimitiveType};
+use orm::types::{Cardinality, PrimitiveGroup, PrimitiveType};
 use proc_macro2::TokenStream;
 use schema::Schemable;
 
@@ -23,7 +23,9 @@ pub struct Newtype {
     pub debug: bool,
 
     pub value: Value,
-    pub primitive: Option<Primitive>,
+
+    #[darling(default)]
+    pub primitive: Option<PrimitiveType>,
 
     #[darling(default)]
     pub guide: Option<Guide>,
@@ -94,8 +96,8 @@ impl TraitNode for Newtype {
         }
 
         // primitive
-        match self.primitive.map(|p| p.ty()) {
-            Some(PrimitiveType::Integer | PrimitiveType::Decimal) => {
+        match self.primitive.map(|p| p.group()) {
+            Some(PrimitiveGroup::Integer | PrimitiveGroup::Decimal) => {
                 traits.extend(vec![
                     Trait::Add,
                     Trait::AddAssign,
@@ -111,7 +113,7 @@ impl TraitNode for Newtype {
                     Trait::SubAssign,
                 ]);
             }
-            Some(PrimitiveType::String) => {
+            Some(PrimitiveGroup::String) => {
                 traits.extend(vec![Trait::Display, Trait::FromStr]);
             }
             _ => {}
@@ -153,7 +155,7 @@ impl Schemable for Newtype {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let value = self.value.schema();
-        let primitive = quote_option(&self.primitive, Primitive::schema);
+        let primitive = quote_option(&self.primitive, PrimitiveType::schema);
         let guide = quote_option(&self.guide, Guide::schema);
         let sanitizers = quote_vec(&self.sanitizers, TypeSanitizer::schema);
         let validators = quote_vec(&self.validators, TypeValidator::schema);

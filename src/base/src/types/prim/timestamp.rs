@@ -1,7 +1,9 @@
-use crate::traits::{Orderable, Sanitize, SanitizeAuto, Validate, ValidateAuto, Visitable};
-use candid::CandidType;
+use crate::prelude::*;
 use derive_more::{Deref, DerefMut};
-use serde::{Deserialize, Serialize};
+use mimic::{
+    orm::traits::{SanitizeAuto, ValidateAuto},
+    types::Timestamp as WrappedTimestamp,
+};
 
 ///
 /// Timestamp

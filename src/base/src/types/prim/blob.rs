@@ -1,10 +1,9 @@
-use crate::traits::{
-    Filterable, Inner, Orderable, Path, Sanitize, SanitizeAuto, Validate, ValidateAuto, Visitable,
-};
-use candid::CandidType;
+use crate::prelude::*;
 use derive_more::{Deref, DerefMut};
-use serde::{Deserialize, Serialize};
-use serde_bytes::ByteBuf;
+use mimic::{
+    orm::traits::{Inner, SanitizeAuto, ValidateAuto},
+    types::Blob as WrappedBlob,
+};
 
 ///
 /// Blob
@@ -25,7 +24,7 @@ use serde_bytes::ByteBuf;
     Serialize,
     Deserialize,
 )]
-pub struct Blob(ByteBuf);
+pub struct Blob(WrappedBlob);
 
 impl Blob {
     #[must_use]
@@ -43,7 +42,7 @@ impl Filterable for Blob {}
 
 impl From<Vec<u8>> for Blob {
     fn from(bytes: Vec<u8>) -> Self {
-        Self(ByteBuf::from(bytes))
+        Self(WrappedBlob::from(bytes))
     }
 }
 
@@ -54,11 +53,6 @@ impl Inner<Self> for Blob {
 }
 
 impl Orderable for Blob {}
-
-impl Path for Blob {
-    const IDENT: &'static str = "Blob";
-    const PATH: &'static str = concat!(module_path!(), "Blob");
-}
 
 impl Sanitize for Blob {}
 

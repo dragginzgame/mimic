@@ -3,6 +3,7 @@ use crate::{
     node::{Def, MacroNode, Node},
 };
 use darling::FromMeta;
+use orm::types::PrimitiveType;
 use proc_macro2::TokenStream;
 use schema::Schemable;
 use syn::Path;
@@ -16,7 +17,8 @@ pub struct Primitive {
     #[darling(default, skip)]
     pub def: Def,
 
-    pub ty: Path,
+    pub ty: PrimitiveType,
+    pub path: Path,
 
     #[darling(default)]
     pub debug: bool,
@@ -24,14 +26,14 @@ pub struct Primitive {
 
 impl Node for Primitive {
     fn expand(&self) -> TokenStream {
-        let Self { ty, .. } = self;
+        let Self { path, .. } = self;
         let Def { ident, .. } = &self.def;
 
         // quote
         let schema = self.ctor_schema();
         let q = quote! {
             #schema
-            pub type #ident = #ty;
+            pub type #ident = #path;
         };
 
         // debug
@@ -50,12 +52,14 @@ impl MacroNode for Primitive {
 impl Schemable for Primitive {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
-        let ty = quote_one(&self.ty, to_string);
+        let ty = quote_one(&self.ty, PrimitiveType::schema);
+        let path = quote_one(&self.path, to_string);
 
         quote! {
             ::mimic::schema::node::SchemaNode::Primitive(::mimic::schema::node::Primitive {
                 def: #def,
                 ty: #ty,
+                path: #path,
             })
         }
     }

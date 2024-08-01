@@ -1,5 +1,6 @@
 use crate::{
     node::{Def, MacroNode, ValidateNode, VisitableNode},
+    types::PrimitiveType,
     visit::Visitor,
 };
 use serde::{Deserialize, Serialize};
@@ -11,7 +12,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Primitive {
     pub def: Def,
-    pub ty: String,
+    pub ty: PrimitiveType,
+    pub path: String,
 }
 
 impl MacroNode for Primitive {

@@ -1,10 +1,13 @@
-use crate::traits::{
-    Filterable, Inner, Orderable, Path, Sanitize, SanitizeAuto, Validate, ValidateAuto, Visitable,
-};
+use crate::prelude::*;
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
+use mimic::{
+    orm::traits::{
+        Filterable, Inner, Orderable, Sanitize, SanitizeAuto, Validate, ValidateAuto, Visitable,
+    },
+    types::Decimal as WrappedDecimal,
+};
 use num_traits::{FromPrimitive, ToPrimitive};
-use rust_decimal::Decimal as WrappedDecimal;
 use serde::{ser::Error, Deserialize, Serialize};
 use std::{cmp::Ordering, fmt};
 
@@ -15,6 +18,7 @@ use std::{cmp::Ordering, fmt};
 #[derive(
     Add,
     AddAssign,
+    CandidType,
     Clone,
     Copy,
     Debug,
@@ -53,33 +57,15 @@ impl Decimal {
     }
 }
 
-impl CandidType for Decimal {
-    fn _ty() -> candid::types::Type {
-        candid::types::TypeInner::Float64.into()
-    }
-
-    fn idl_serialize<S>(&self, serializer: S) -> Result<(), S::Error>
-    where
-        S: candid::types::Serializer,
-    {
-        let v: f64 = self
-            .0
-            .to_f64()
-            .ok_or_else(|| S::Error::custom("Failed to convert Decimal to f64"))?;
-
-        serializer.serialize_float64(v)
+impl fmt::Display for Decimal {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.0.fmt(f)
     }
 }
 
 impl Filterable for Decimal {
     fn as_text(&self) -> Option<String> {
         Some(self.to_string())
-    }
-}
-
-impl fmt::Display for Decimal {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.0.fmt(f)
     }
 }
 
@@ -133,7 +119,7 @@ impl FromPrimitive for Decimal {
     }
 
     fn from_u64(n: u64) -> Option<Self> {
-        Some(WrappedDecimal::from(n).into())
+        WrappedDecimal::from_u64(n).map(Self)
     }
 
     fn from_f32(n: f32) -> Option<Self> {
@@ -155,11 +141,6 @@ impl Orderable for Decimal {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
     }
-}
-
-impl Path for Decimal {
-    const IDENT: &'static str = "Decimal";
-    const PATH: &'static str = concat!(module_path!(), "Decimal");
 }
 
 impl ToPrimitive for Decimal {

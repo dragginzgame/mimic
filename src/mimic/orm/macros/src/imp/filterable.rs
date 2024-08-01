@@ -2,14 +2,14 @@ use crate::{
     imp::Implementor,
     node::{MacroNode, Newtype, Trait},
 };
-use orm::types::PrimitiveType;
+use orm::types::PrimitiveGroup;
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 
 // newtype
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
-    let inner = match &node.primitive.map(|p| p.ty()) {
-        Some(PrimitiveType::Float | PrimitiveType::Integer | PrimitiveType::String) => {
+    let inner = match &node.primitive.map(|p| p.group()) {
+        Some(PrimitiveGroup::Float | PrimitiveGroup::Integer | PrimitiveGroup::String) => {
             quote! {
                 Some(self.to_string())
             }

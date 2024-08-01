@@ -109,6 +109,7 @@ dependencies = [
  "mimic",
  "num-traits",
  "serde",
+ "sha2",
  "snafu",
  "strum",
 ]

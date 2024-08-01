@@ -16,7 +16,9 @@ pub(crate) mod prelude {
         ic::structures::storable::Bound,
         orm::{
             collections::HashSet,
-            traits::{Filterable, Orderable, Path, PrimaryKey, Sanitize, Storable, Validate},
+            traits::{
+                Filterable, Orderable, Path, PrimaryKey, Sanitize, Storable, Validate, Visitable,
+            },
         },
         types::ErrorVec,
     };

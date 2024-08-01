@@ -1,19 +1,19 @@
 pub mod fixture;
 
-use crate::{
-    collections::HashSet,
-    traits::{
-        Filterable, Orderable, Path, PrimaryKey, Sanitize, SanitizeAuto, Validate, ValidateAuto,
-        Visitable,
-    },
-};
+use crate::prelude::*;
 use candid::CandidType;
-use derive::StorableInternal;
 use derive_more::{Deref, DerefMut, FromStr};
+use mimic::{
+    derive::StorableInternal,
+    orm::{
+        collections::HashSet,
+        traits::{Filterable, Orderable, Path, PrimaryKey, SanitizeAuto, Validate, ValidateAuto},
+    },
+    types::{ErrorVec, Ulid as WrappedUlid},
+};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::{cmp::Ordering, fmt};
-use types::{ErrorVec, Ulid as WrappedUlid};
 
 ///
 /// Error
@@ -22,13 +22,11 @@ use types::{ErrorVec, Ulid as WrappedUlid};
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
-    Ulid { source: types::ulid::Error },
+    Ulid { source: mimic::types::ulid::Error },
 }
 
 ///
 /// Ulid
-///
-/// an ORM type wrapper around types::Ulid
 ///
 
 #[derive(
@@ -129,15 +127,6 @@ impl Orderable for Ulid {
     }
 }
 
-impl Path for Ulid {
-    const IDENT: &'static str = "Ulid";
-    const PATH: &'static str = concat!(module_path!(), "Ulid");
-}
-
-impl Sanitize for Ulid {}
-
-impl SanitizeAuto for Ulid {}
-
 impl PrimaryKey for Ulid {
     fn on_create(&self) -> Self {
         Self::generate()
@@ -148,10 +137,14 @@ impl PrimaryKey for Ulid {
     }
 }
 
+impl Sanitize for Ulid {}
+
+impl SanitizeAuto for Ulid {}
+
 impl Validate for Ulid {
     fn validate(&self) -> Result<(), ErrorVec> {
         if self.is_nil() {
-            Err(types::ulid::Error::Nil.into())
+            Err(mimic::types::ulid::Error::Nil.into())
         } else {
             Ok(())
         }

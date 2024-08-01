@@ -2,7 +2,7 @@ use crate::{
     node::{
         Def, Guide, MacroNode, TypeSanitizer, TypeValidator, ValidateNode, Value, VisitableNode,
     },
-    types::Primitive,
+    types::PrimitiveType,
     visit::Visitor,
 };
 use serde::{Deserialize, Serialize};
@@ -17,7 +17,7 @@ pub struct Newtype {
     pub value: Value,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub primitive: Option<Primitive>,
+    pub primitive: Option<PrimitiveType>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub guide: Option<Guide>,

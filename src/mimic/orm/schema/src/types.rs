@@ -36,12 +36,12 @@ impl From<u128> for Cycles {
 }
 
 ///
-/// Primitive
+/// PrimitiveType
 ///
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 #[remain::sorted]
-pub enum Primitive {
+pub enum PrimitiveType {
     Blob,
     Bool,
     Decimal,
@@ -54,6 +54,7 @@ pub enum Primitive {
     I128,
     Principal,
     String,
+    Timestamp,
     U8,
     U16,
     U32,
@@ -63,12 +64,12 @@ pub enum Primitive {
 }
 
 ///
-/// PrimitiveType
+/// PrimitiveGroup
 ///
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 #[remain::sorted]
-pub enum PrimitiveType {
+pub enum PrimitiveGroup {
     Blob,
     Bool,
     Decimal,
