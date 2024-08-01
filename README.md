@@ -1,8 +1,9 @@
+![MSRV](https://img.shields.io/badge/rustc-1.80+-blue.svg)  (deal with it)
+
 # mimic
 Mimic Dapp Framework
 
-( picture of fantasy game components that have been hastily been assembled, including
-aforementioned mimic treasure chest monster )
+![alt text](image.png)
 
 ```
 Make It [ Matter     ] on the Internet Computer
@@ -15,19 +16,20 @@ Make It [ Matter     ] on the Internet Computer
           Memorable
 ```
 
+Hi, I'm @borovan and I LARP as a rust developer.  This is my ORM framework, originally designed for the web3 game Dragginz but we have decided to open source it to get help making it better, and also provide a tool for others to develop on the [www.internetcomputer.org]Internet Computer
+
+
 # NOTHING WORKS YET THIS IS A HUGE MESS
-
-
 
 ### Notable deps
 
-- ctor - this is how the schema is assembled
-- derive_more, strum - giving our types a broad range of derived traits
-- snafu for errors
-- serde, serde_json, serde_bytes (no brainer).  However, had issues with serde_cbor so we have ciborium
-- ulid for the orm (serde doesn't work with it, so wrote a custom implementation)
-- darling for macro parsing
-- remain for alphabetical sorting to keep OCD at bay
+- `ctor` - this is how the schema is assembled
+- `derive_more`, strum - giving our types a broad range of derived traits
+- `snafu` for errors
+- `serde`, `serde_json`, `serde_bytes` (no brainer).  However, had issues with serde_cbor so we have ciborium
+- `ulid` for the orm (serde doesn't work with it, so wrote a custom implementation)
+- `darling` for macro parsing
+- `remain` for alphabetical sorting to keep OCD at bay
 
 ### (Hopefully Best) Practices
 
@@ -41,18 +43,12 @@ actually writing useful documentation
 
 ### Notable TODO
 
-- Indexing for B-Trees
+- Indexing for B-Trees (no use-case yet however)
 - Stable structures for Cell/B-Tree, would like it if there was a few more options.  Making non-Copy Cells because
 of Strings seemed a bit of a stretch
 - false positives in rust-analyzer with macros.  Hopefully they go away in time.
 
 ----------
-
-#### core
-
-This is the Dragginz Framework that doesn't yet have a name.  We'd like to eventually have this as a separate, open source app that could
-be used by teams developing on the IC, much in the same way as frameworks like Symfony, Gorm, etc.  It especially suits project with complex,
-evolving data models such as games.
 
 ##### api
 
@@ -70,7 +66,9 @@ Framework-level canisters.  Currently there's just the test canister which allow
 
 ##### config
 
-Framework-level configuration.  Magic numbers, hash seeds, directories etc.
+Framework-level runtime configuration.  Magic numbers, hash seeds, directories etc.
+
+Anything compile time we would have to pass into Mimic as an environment variable or rust feature.
 
 ##### db
 
