@@ -8,9 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
-## [0.0.1]
+## [0.0.2]
 
-### Added
+- actorgen and schemagen combined into a single `mimicli` executable
+
+## [0.0.1]
 
 - Split off the Dragginz ORM into a separate repository (this one) and renamed it Mimic.  Everything in
 this 0.0.1 release will just be getting the thing working.

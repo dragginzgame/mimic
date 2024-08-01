@@ -30,7 +30,7 @@ resolver = "2"
 [workspace.package]
 rust-version = "1.80.0"
 edition = "2021"
-version = "0.0.1"
+version = "0.0.2"
 
 [workspace.dependencies]
 base = { path = "src/base" }

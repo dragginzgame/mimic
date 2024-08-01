@@ -23,7 +23,7 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
-    #[clap(name = "actor", about = "Commands related to actor")]
+    #[clap(name = "actor", about = "generate actor rust code")]
     Actor(actor::Command),
 
     #[clap(name = "schema", about = "generate the schema JSON")]

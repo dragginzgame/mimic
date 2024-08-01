@@ -9,7 +9,7 @@ workspace = true
 
 [[bin]]
 name = "mimicli"
-path = "main.rs"
+path = "src/main.rs"
 
 [dependencies]
 base = { workspace = true }
