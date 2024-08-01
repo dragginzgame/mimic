@@ -1,4 +1,7 @@
+pub mod generator;
+
 use candid::CandidType;
+use derive::StorableInternal;
 use derive_more::{Deref, DerefMut, FromStr};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use snafu::Snafu;
@@ -19,6 +22,9 @@ pub enum Error {
 
     #[snafu(display("ulid has an invalid length"))]
     InvalidLength,
+
+    #[snafu(display("generator: {source}"))]
+    Generator { source: generator::Error },
 }
 
 impl From<ulid::DecodeError> for Error {
@@ -32,12 +38,23 @@ impl From<ulid::DecodeError> for Error {
 
 ///
 /// Ulid
-///
-/// a wrapper around ulid::Ulid that enables use with the API
-/// serde is disabled as the std flag it needs also enables the rand crate
+/// a wrapper around ulid::Ulid
 ///
 
-#[derive(Copy, Clone, Debug, Deref, DerefMut, Eq, PartialEq, FromStr, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Deref,
+    DerefMut,
+    Eq,
+    FromStr,
+    PartialEq,
+    Hash,
+    Ord,
+    PartialOrd,
+    StorableInternal,
+)]
 pub struct Ulid(WrappedUlid);
 
 impl Ulid {
@@ -59,6 +76,13 @@ impl Ulid {
 
         Ok(Self(ulid))
     }
+
+    /// generate
+    /// Generate a ULID string with the current timestamp and a random value
+    #[must_use]
+    pub fn generate() -> Self {
+        generator::generate().unwrap()
+    }
 }
 
 impl CandidType for Ulid {
@@ -71,6 +95,12 @@ impl CandidType for Ulid {
         S: candid::types::Serializer,
     {
         serializer.serialize_text(&self.0.to_string())
+    }
+}
+
+impl Default for Ulid {
+    fn default() -> Self {
+        Self(WrappedUlid::nil())
     }
 }
 

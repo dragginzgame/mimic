@@ -98,6 +98,13 @@ pub struct Principal {}
 pub struct String {}
 
 ///
+/// Timestamp
+///
+
+#[primitive(ty = "mimic::orm::types::Timestamp")]
+pub struct Timestamp {}
+
+///
 /// Ulid
 ///
 

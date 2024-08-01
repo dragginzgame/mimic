@@ -1,12 +1,9 @@
-use crate::traits::{
-    Filterable, Inner, Orderable, Path, Sanitize, SanitizeAuto, Validate, ValidateAuto, Visitable,
-};
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
 use num_traits::{FromPrimitive, ToPrimitive};
 use rust_decimal::Decimal as WrappedDecimal;
 use serde::{ser::Error, Deserialize, Serialize};
-use std::{cmp::Ordering, fmt};
+use std::fmt;
 
 ///
 /// Decimal
@@ -68,12 +65,6 @@ impl CandidType for Decimal {
             .ok_or_else(|| S::Error::custom("Failed to convert Decimal to f64"))?;
 
         serializer.serialize_float64(v)
-    }
-}
-
-impl Filterable for Decimal {
-    fn as_text(&self) -> Option<String> {
-        Some(self.to_string())
     }
 }
 
@@ -145,23 +136,6 @@ impl FromPrimitive for Decimal {
     }
 }
 
-impl Inner<Self> for Decimal {
-    fn inner(&self) -> &Self {
-        self
-    }
-}
-
-impl Orderable for Decimal {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
-    }
-}
-
-impl Path for Decimal {
-    const IDENT: &'static str = "Decimal";
-    const PATH: &'static str = concat!(module_path!(), "Decimal");
-}
-
 impl ToPrimitive for Decimal {
     fn to_i32(&self) -> Option<i32> {
         self.0.to_i32()
@@ -183,13 +157,3 @@ impl ToPrimitive for Decimal {
         self.0.to_f64()
     }
 }
-
-impl Sanitize for Decimal {}
-
-impl SanitizeAuto for Decimal {}
-
-impl Validate for Decimal {}
-
-impl ValidateAuto for Decimal {}
-
-impl Visitable for Decimal {}

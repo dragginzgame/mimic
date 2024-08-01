@@ -13,7 +13,11 @@ pub mod validator;
 pub(crate) mod prelude {
     pub use candid::CandidType;
     pub use mimic::{
-        orm::traits::{Sanitize, Validate},
+        ic::structures::storable::Bound,
+        orm::{
+            collections::HashSet,
+            traits::{Filterable, Orderable, Path, PrimaryKey, Sanitize, Storable, Validate},
+        },
         types::ErrorVec,
     };
     pub use serde::{Deserialize, Serialize};

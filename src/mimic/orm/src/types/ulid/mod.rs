@@ -1,5 +1,4 @@
 pub mod fixture;
-pub mod generator;
 
 use crate::{
     collections::HashSet,
@@ -24,9 +23,6 @@ use types::{ErrorVec, Ulid as WrappedUlid};
 pub enum Error {
     #[snafu(transparent)]
     Ulid { source: types::ulid::Error },
-
-    #[snafu(display("generator: {source}"))]
-    Generator { source: generator::Error },
 }
 
 ///
@@ -72,7 +68,7 @@ impl Ulid {
     /// Generate a ULID string with the current timestamp and a random value
     #[must_use]
     pub fn generate() -> Self {
-        generator::generate().unwrap()
+        Self(WrappedUlid::generate())
     }
 
     /// fixture
@@ -131,6 +127,11 @@ impl Orderable for Ulid {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
     }
+}
+
+impl Path for Ulid {
+    const IDENT: &'static str = "Ulid";
+    const PATH: &'static str = concat!(module_path!(), "Ulid");
 }
 
 impl Sanitize for Ulid {}

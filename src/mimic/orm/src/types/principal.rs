@@ -1,5 +1,5 @@
 use crate::traits::{
-    Filterable, Inner, Orderable, PrimaryKey, Sanitize, SanitizeAuto, Storable, Validate,
+    Filterable, Inner, Orderable, Path, PrimaryKey, Sanitize, SanitizeAuto, Storable, Validate,
     ValidateAuto, Visitable,
 };
 use candid::{types::principal::PrincipalError, CandidType, Principal as WrappedPrincipal};
@@ -101,6 +101,11 @@ impl Orderable for Principal {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
     }
+}
+
+impl Path for Principal {
+    const IDENT: &'static str = "Principal";
+    const PATH: &'static str = concat!(module_path!(), "Principal");
 }
 
 impl PrimaryKey for Principal {

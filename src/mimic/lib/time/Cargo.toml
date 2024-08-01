@@ -1,5 +1,5 @@
 [package]
-name = "lib_rand"
+name = "lib_time"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }
@@ -8,5 +8,3 @@ version = { workspace = true }
 workspace = true
 
 [dependencies]
-tinyrand = { workspace = true }
-lib_time = { workspace = true }

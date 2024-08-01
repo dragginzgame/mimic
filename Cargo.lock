@@ -799,12 +799,16 @@ dependencies = [
 name = "lib_rand"
 version = "0.0.1"
 dependencies = [
+ "lib_time",
  "tinyrand",
- "types",
 ]
 
 [[package]]
 name = "lib_test"
+version = "0.0.1"
+
+[[package]]
+name = "lib_time"
 version = "0.0.1"
 
 [[package]]
@@ -1337,9 +1341,18 @@ name = "types"
 version = "0.0.1"
 dependencies = [
  "candid",
+ "derive",
  "derive_more",
+ "ic",
  "ic-cdk",
+ "lib_cbor",
+ "lib_rand",
+ "lib_time",
+ "num-traits",
+ "rust_decimal",
  "serde",
+ "serde_bytes",
+ "sha2",
  "snafu",
  "ulid",
 ]

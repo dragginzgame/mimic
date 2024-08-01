@@ -83,6 +83,7 @@ pub async fn guard(rules: Vec<Guard>) -> Result<(), Error> {
     // only works for caller now
     let caller = ::ic::caller();
 
+    // in case rules are accidentally blank / commented out
     if rules.is_empty() {
         Err(AuthError::NoRulesDefined)?;
     }

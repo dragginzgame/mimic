@@ -1,4 +1,3 @@
-use crate::types::Blob;
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;

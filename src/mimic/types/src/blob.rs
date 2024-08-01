@@ -1,6 +1,3 @@
-use crate::traits::{
-    Filterable, Inner, Orderable, Path, Sanitize, SanitizeAuto, Validate, ValidateAuto, Visitable,
-};
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
@@ -39,33 +36,8 @@ impl Blob {
     }
 }
 
-impl Filterable for Blob {}
-
 impl From<Vec<u8>> for Blob {
     fn from(bytes: Vec<u8>) -> Self {
         Self(ByteBuf::from(bytes))
     }
 }
-
-impl Inner<Self> for Blob {
-    fn inner(&self) -> &Self {
-        self
-    }
-}
-
-impl Orderable for Blob {}
-
-impl Path for Blob {
-    const IDENT: &'static str = "Blob";
-    const PATH: &'static str = concat!(module_path!(), "Blob");
-}
-
-impl Sanitize for Blob {}
-
-impl SanitizeAuto for Blob {}
-
-impl Validate for Blob {}
-
-impl ValidateAuto for Blob {}
-
-impl Visitable for Blob {}
