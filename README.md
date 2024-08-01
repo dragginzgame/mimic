@@ -1,7 +1,7 @@
 ![MSRV](https://img.shields.io/badge/rustc-1.80+-blue.svg)  (deal with it)
 
 # mimic
-Mimic Dapp Framework
+## <marquee>Mimic Dapp Framework</marquee>
 
 ![alt text](image.png)
 
@@ -16,7 +16,7 @@ Make It [ Matter     ] on the Internet Computer
           Memorable
 ```
 
-Hi, I'm @borovan and I LARP as a rust developer.  This is my ORM framework, originally designed for the web3 game Dragginz but we have decided to open source it to get help making it better, and also provide a tool for others to develop on the [www.internetcomputer.org]Internet Computer
+Hi, I'm @borovan and I LARP as a rust developer.  This is my ORM framework, originally designed for the web3 game Dragginz but we have decided to open source it to get help making it better, and also provide a tool for others to develop on the [Internet Computer](https://internetcomputer.org).
 
 
 # NOTHING WORKS YET THIS IS A HUGE MESS
@@ -31,44 +31,49 @@ Hi, I'm @borovan and I LARP as a rust developer.  This is my ORM framework, orig
 - `darling` for macro parsing
 - `remain` for alphabetical sorting to keep OCD at bay
 
-### (Hopefully Best) Practices
-
-- Most larger crates wrapped for sanity / ease of imports.
 
 ### Current Situation
 
-- documentation is a disaster because it's evolving so quickly I just make it look neat and forget about
+- Documentation is a disaster because it's evolving so quickly I just make it look neat and forget about
 actually writing useful documentation
+- TESTING
 - HUGE emphasis on macros which slows down the IDE but it's also what makes it so easy to write game design
 
-### Notable TODO
+### Framework TODO
 
-- Indexing for B-Trees (no use-case yet however)
-- Stable structures for Cell/B-Tree, would like it if there was a few more options.  Making non-Copy Cells because
-of Strings seemed a bit of a stretch
+- **TOO MANY CRATES** - frameworks do not wok this way
+- strum, candid, remain - is there anyway to wrap these without requiring the dependency to be specified in
+the upstream package
 - false positives in rust-analyzer with macros.  Hopefully they go away in time.
 
+### Testing TODO
+
+- So far we have barely scratched the surface of how this code should be tested
+
+### Feature TODO
+
+- Indexing for B-Trees (no use-case yet however)
+- Caching of derive entities in each canister.  So you can do all these complex queries to build a type and then cache it automatically.
+- Stable structures for Cell/B-Tree, would like it if there was a few more options.  Making non-Copy Cells because
+of Strings seemed a bit of a stretch
+
 ----------
+## Directories
 
 ##### api
 
 This crate contains helper macros for the API/Actor classes.  This is also where a lot of the errors are defined and wrapped.  As the bin/actorgen
 crate generates a lot of code, this crate is mostly here to handle and organise where that code points to.
 
-##### bin
+##### cli
 
-- schemagen - generates the schema into a schema.json file (which can be used by the frontend, and also read in by each actor class)
-- actorgen - generates the rust code included by every canister actor
+This contains `mimicli`, the commnand line tool to generate rust code for canister actor classes, and the schema.json file which is deserialized and used by the actors.
 
 ##### canisters
 
 Framework-level canisters.  Currently there's just the test canister which allows you to test things at IC runtime which cargo test can't do.
 
-##### config
 
-Framework-level runtime configuration.  Magic numbers, hash seeds, directories etc.
-
-Anything compile time we would have to pass into Mimic as an environment variable or rust feature.
 
 ##### db
 
@@ -84,35 +89,43 @@ Everything IC is wrapped in this structure.  Like a library but has it's own cra
 
 ##### lib
 
-Libraries.  Notably ulid is wrapped here and also wrapped within the ORM, just so we can use it as a raw API CandidType, and also within
-the ORM where it gains a whole lot more features.
+Libraries.  Notably ulid is wrapped here and also wrapped within the ORM, just so we can use it as a raw API CandidType, and also within the ORM where it gains a whole lot more features.
 
-##### backend/core/orm
+Do these need to be separate crates?
+
+##### core/config
+
+Framework-level runtime configuration.  Magic numbers, hash seeds, directories etc.
+
+Anything compile time we would have to pass into Mimic as an environment variable or rust feature.
 
 
-##### backend/core/schema
 
 
-##### backend/core/service
+##### core/schema
 
-Core-level services.  This @todo@ will probably get rolled into Schema as really all the services just load in and repackage Schema
-data.  Perhaps there could be plugin services, but those could probably live in app/ land.
+The runtime schema can be accessed from this crate.
 
 ##### core/state
 
-Core-level state.  This was moved out of the actor classes as we couldn't reference it anywhere and the macro code we had to use was
-becoming hard to maintain.
+Core-level state.  This was moved out of the actor classes as we couldn't reference it anywhere and the macro code we had to use was becoming hard to maintain.
 
 This crate contains runtime state, which isn't great but we have a strict interface that allows access to it which somewhat lessens
 the concerns.
 
 ##### core/wasm
 
-Currently this crate contains one helper struct that allows you to store and retrieve Wasm bytes at runtime, allowing the root canister
-to create canisters on demand.
+Currently this crate contains one helper struct that allows you to store and retrieve Wasm bytes at runtime, allowing the root canister to create canisters on demand.
 
-This logic has only been moved into a separate crate so that we can reference it via nested crates like api, and not have to rely on the
-actor.
+This logic has only been moved into a separate crate so that we can reference it via nested crates like api, and not have to rely on the actor.
 
+##### orm
 
+##### orm/macros
+
+This is the home of all the macros that allow you to create the data model, for instance #[entity], #[newtype]
+
+##### orm/schema
+
+##### types
 
