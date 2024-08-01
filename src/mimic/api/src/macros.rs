@@ -2,7 +2,9 @@
 macro_rules! actor_start {
     ($config_path:expr) => {{
         let config_str = include_str!("../../../config.toml");
-        let config = ::mimic::config::init_toml(config_str).expect("Failed to load configuration");
+        ::mimic::config::init_toml(config_str).expect("Failed to load configuration");
+
+        panic!("{}", ::mimic::config::get_config().unwrap());
 
         include!(concat!("../../../../../generated/actor/", $actor, ".rs"));
     }};
