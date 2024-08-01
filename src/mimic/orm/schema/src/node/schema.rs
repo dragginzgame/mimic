@@ -1,8 +1,8 @@
 use crate::{
     node::{
-        Canister, CanisterBuild, Constant, Def, Entity, Enum, EnumHash, Error, Fixture, MacroNode,
-        Map, Newtype, Permission, Primitive, Record, Role, Sanitizer, Store, Tuple, ValidateNode,
-        Validator, VisitableNode,
+        Canister, Constant, Def, Entity, Enum, EnumHash, Error, Fixture, MacroNode, Map, Newtype,
+        Permission, Primitive, Record, Role, Sanitizer, Store, Tuple, ValidateNode, Validator,
+        VisitableNode,
     },
     visit::Visitor,
 };
@@ -306,6 +306,8 @@ impl ValidateNode for Schema {
 
         // check canister build max
         /*
+            @todo put this back when the schema is fixed
+
                 for build in [
                     CanisterBuild::Root,
                     CanisterBuild::Test,

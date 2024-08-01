@@ -4,8 +4,8 @@ members = [
     "src/base",
     "src/mimic",
     "src/mimic/api",
-    "src/mimic/bin",
     "src/mimic/canisters/test",
+    "src/mimic/cli",
     "src/mimic/core/config",
     "src/mimic/core/schema",
     "src/mimic/core/state",
@@ -33,10 +33,11 @@ edition = "2021"
 version = "0.0.1"
 
 [workspace.dependencies]
+base = { path = "src/base" }
+
 # mimic
 mimic = { path = "src/mimic" }
-base = { path = "src/base" }
-bin = { path = "src/bin" }
+cli = { path = "src/mimic/cli" }
 
 # mimic
 api = { path = "src/mimic/api" }

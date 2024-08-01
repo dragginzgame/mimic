@@ -115,20 +115,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bin"
-version = "0.0.1"
-dependencies = [
- "base",
- "clap",
- "orm",
- "proc-macro2",
- "quote",
- "schema",
- "serde_json",
- "syn 2.0.72",
-]
-
-[[package]]
 name = "binread"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -219,7 +205,6 @@ dependencies = [
  "ic",
  "ic-cdk",
  "lib_test",
- "mimic",
  "orm",
  "query",
  "schema",
@@ -304,6 +289,20 @@ name = "clap_lex"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1462739cb27611015575c0c11df5df7601141071f07518d56fcc1be504cbec97"
+
+[[package]]
+name = "cli"
+version = "0.0.1"
+dependencies = [
+ "base",
+ "clap",
+ "orm",
+ "proc-macro2",
+ "quote",
+ "schema",
+ "serde_json",
+ "syn 2.0.72",
+]
 
 [[package]]
 name = "colorchoice"

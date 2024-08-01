@@ -20,7 +20,6 @@ db = { workspace = true }
 ic = { workspace = true }
 ic-cdk = { workspace = true }
 lib_test = { workspace = true }
-mimic = { workspace = true }
 orm = { workspace = true }
 query = { workspace = true }
 schema = { workspace = true }
