@@ -44,7 +44,7 @@ pub mod orm {
         pub use serde::{Deserialize, Serialize};
         pub use snafu::Snafu;
         pub use std::fmt::Display;
-        pub use types::ErrorVec;
+        pub use types::{ErrorVec, Ulid};
     }
 
     pub use orm::*;
