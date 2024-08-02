@@ -3,7 +3,6 @@ pub mod canister;
 pub mod cascade;
 pub mod create;
 pub mod crud;
-pub mod macros;
 pub mod mgmt;
 pub mod request;
 pub mod schema;
