@@ -1,5 +1,5 @@
 [package]
-name = "derive"
+name = "mimic_derive"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }

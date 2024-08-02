@@ -6,12 +6,10 @@ members = [
     "src/mimic/api",
     "src/mimic/canisters/test",
     "src/mimic/cli",
-    "src/mimic/core/schema",
     "src/mimic/core/state",
     "src/mimic/core/wasm",
     "src/mimic/db",
     "src/mimic/db/query",
-    "src/mimic/derive",
     "src/mimic/ic",
     "src/mimic/lib/case",
     "src/mimic/lib/cbor",
@@ -22,6 +20,7 @@ members = [
     "src/mimic/orm/macros",
     "src/mimic/orm/schema",
     "src/mimic/types",
+    "src/mimic_derive",
     "src/tests",
 ]
 resolver = "2"
@@ -36,12 +35,12 @@ base = { path = "src/base" }
 
 # mimic
 mimic = { path = "src/mimic" }
+mimic_derive = { path = "src/mimic_derive" }
 cli = { path = "src/mimic/cli" }
 
 # mimic
 api = { path = "src/mimic/api" }
 canister_test = { path = "src/mimic/canisters/test" }
-derive = { path = "src/mimic/derive" }
 db = { path = "src/mimic/db" }
 query = { path = "src/mimic/db/query" }
 ic = { path = "src/mimic/ic" }

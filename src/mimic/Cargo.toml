@@ -15,8 +15,8 @@ derive_more = { workspace = true }
 orm = { workspace = true }
 schema = { workspace = true }
 types = { workspace = true }
-derive = { workspace = true }
 wasm = { workspace = true }
+toml = { workspace = true }
 state = { workspace = true }
 db = { workspace = true }
 query = { workspace = true }

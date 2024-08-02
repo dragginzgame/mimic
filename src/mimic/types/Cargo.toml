@@ -20,5 +20,5 @@ ic = { workspace = true }
 rust_decimal = { workspace = true }
 num-traits = { workspace = true }
 sha2 = { workspace = true }
-derive = { workspace = true }
+mimic_derive = { workspace = true }
 ulid = { workspace = true }

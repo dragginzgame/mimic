@@ -1,8 +1,8 @@
 pub mod generator;
 
 use candid::CandidType;
-use derive::StorableInternal;
 use derive_more::{Deref, DerefMut, FromStr};
+use mimic_derive::Storable;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use snafu::Snafu;
 use std::fmt;
@@ -42,18 +42,7 @@ impl From<ulid::DecodeError> for Error {
 ///
 
 #[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deref,
-    DerefMut,
-    Eq,
-    FromStr,
-    PartialEq,
-    Hash,
-    Ord,
-    PartialOrd,
-    StorableInternal,
+    Clone, Copy, Debug, Deref, DerefMut, Eq, FromStr, PartialEq, Hash, Ord, PartialOrd, Storable,
 )]
 pub struct Ulid(WrappedUlid);
 

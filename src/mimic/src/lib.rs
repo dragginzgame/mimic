@@ -7,7 +7,6 @@ pub mod schema;
 /// NOTE: this crate (mimic) is designed to be used by external crates, not internal ones
 ///
 pub use api;
-pub use derive;
 pub use ic;
 pub use orm;
 pub use types;

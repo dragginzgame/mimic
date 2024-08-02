@@ -62,8 +62,6 @@ name = "api"
 version = "0.0.2"
 dependencies = [
  "candid",
- "config",
- "core_schema",
  "db",
  "defer",
  "ic",
@@ -200,7 +198,6 @@ dependencies = [
  "api",
  "base",
  "candid",
- "core_schema",
  "db",
  "ic",
  "ic-cdk",
@@ -311,34 +308,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d3fd119d74b830634cea2a0f58bbd0d54540518a14397557951e79340abc28c0"
 
 [[package]]
-name = "config"
-version = "0.0.2"
-dependencies = [
- "candid",
- "serde",
- "snafu",
- "toml",
-]
-
-[[package]]
 name = "convert_case"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec182b0ca2f35d8fc196cf3404988fd8b8c739a4d270ff118a398feb0cbec1ca"
 dependencies = [
  "unicode-segmentation",
-]
-
-[[package]]
-name = "core_schema"
-version = "0.0.2"
-dependencies = [
- "candid",
- "derive_more",
- "schema",
- "serde",
- "serde_json",
- "snafu",
 ]
 
 [[package]]
@@ -431,10 +406,10 @@ name = "db"
 version = "0.0.2"
 dependencies = [
  "candid",
- "derive",
  "derive_more",
  "ic",
  "lib_cbor",
+ "mimic_derive",
  "serde",
  "snafu",
  "types",
@@ -445,14 +420,6 @@ name = "defer"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "930c7171c8df9fb1782bdf9b918ed9ed2d33d1d22300abb754f9085bc48bf8e8"
-
-[[package]]
-name = "derive"
-version = "0.0.2"
-dependencies = [
- "quote",
- "syn 2.0.72",
-]
 
 [[package]]
 name = "derive_more"
@@ -855,10 +822,8 @@ version = "0.0.2"
 dependencies = [
  "api",
  "candid",
- "config",
- "core_schema",
  "db",
- "derive",
+ "derive_more",
  "ic",
  "lib_case",
  "lib_cbor",
@@ -867,8 +832,17 @@ dependencies = [
  "query",
  "schema",
  "state",
+ "toml",
  "types",
  "wasm",
+]
+
+[[package]]
+name = "mimic_derive"
+version = "0.0.2"
+dependencies = [
+ "quote",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -913,10 +887,10 @@ version = "0.0.2"
 dependencies = [
  "candid",
  "darling",
- "derive",
  "derive_more",
  "ic",
  "lib_cbor",
+ "mimic_derive",
  "num-traits",
  "proc-macro2",
  "quote",
@@ -984,7 +958,6 @@ name = "query"
 version = "0.0.2"
 dependencies = [
  "candid",
- "core_schema",
  "db",
  "derive_more",
  "ic",
@@ -1191,11 +1164,10 @@ name = "state"
 version = "0.0.2"
 dependencies = [
  "candid",
- "core_schema",
- "derive",
  "derive_more",
  "ic",
  "lib_cbor",
+ "mimic_derive",
  "schema",
  "serde",
  "snafu",
@@ -1337,12 +1309,12 @@ name = "types"
 version = "0.0.2"
 dependencies = [
  "candid",
- "derive",
  "derive_more",
  "ic",
  "lib_cbor",
  "lib_rand",
  "lib_time",
+ "mimic_derive",
  "num-traits",
  "rust_decimal",
  "serde",
