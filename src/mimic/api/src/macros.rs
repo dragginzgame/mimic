@@ -1,5 +1,7 @@
+// mimic_start
+// macro to be included at the start of each canister lib.rs file
 #[macro_export]
-macro_rules! actor_start {
+macro_rules! mimic_start {
     ($config_path:expr) => {{
         let config_str = include_str!("../../../config.toml");
         ::mimic::config::init_toml(config_str).expect("Failed to load configuration");
@@ -10,9 +12,10 @@ macro_rules! actor_start {
     }};
 }
 
-// actor_end
+// mimic_end
+// macro that needs to be included as the last item in the actor lib.rs file
 #[macro_export]
-macro_rules! actor_end {
+macro_rules! mimic_end {
     () => {
         // export_candid
         // has to be at the end

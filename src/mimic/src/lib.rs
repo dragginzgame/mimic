@@ -39,13 +39,14 @@ pub mod prelude {
     pub use crate::{
         api::{
             auth::{guard, Guard},
-            perf,
+            mimic_end, mimic_start, perf,
             request::{Request, RequestKind, Response},
         },
         core::state::{
             AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager,
             SubnetIndex, SubnetIndexManager, User, UserIndex, UserIndexManager,
         },
+        db,
         ic::{caller, format_cycles, id, log, Log},
         orm::traits::EntityFixture,
     };
