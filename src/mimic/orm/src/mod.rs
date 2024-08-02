@@ -35,9 +35,9 @@ pub enum Cardinality {
 impl Schemable for Cardinality {
     fn schema(&self) -> TokenStream {
         match &self {
-            Self::One => quote!(::mimic::schema::types::Cardinality::One),
-            Self::Opt => quote!(::mimic::schema::types::Cardinality::Opt),
-            Self::Many => quote!(::mimic::schema::types::Cardinality::Many),
+            Self::One => quote!(::mimic::orm::schema::types::Cardinality::One),
+            Self::Opt => quote!(::mimic::orm::schema::types::Cardinality::Opt),
+            Self::Many => quote!(::mimic::orm::schema::types::Cardinality::Many),
         }
     }
 }
@@ -58,9 +58,9 @@ pub enum CrudAction {
 impl Schemable for CrudAction {
     fn schema(&self) -> TokenStream {
         match &self {
-            Self::Load => quote!(::mimic::schema::types::CrudAction::Load),
-            Self::Save => quote!(::mimic::schema::types::CrudAction::Save),
-            Self::Delete => quote!(::mimic::schema::types::CrudAction::Delete),
+            Self::Load => quote!(::mimic::orm::schema::types::CrudAction::Load),
+            Self::Save => quote!(::mimic::orm::schema::types::CrudAction::Save),
+            Self::Delete => quote!(::mimic::orm::schema::types::CrudAction::Delete),
         }
     }
 }
@@ -243,7 +243,7 @@ impl Schemable for PrimitiveType {
     fn schema(&self) -> TokenStream {
         let ident = format_ident!("{}", self.to_string());
 
-        quote!(::mimic::schema::types::PrimitiveType::#ident)
+        quote!(::mimic::orm::schema::types::PrimitiveType::#ident)
     }
 }
 
@@ -308,7 +308,7 @@ impl Schemable for PrimitiveGroup {
     fn schema(&self) -> TokenStream {
         let ident = format_ident!("{}", self.to_string());
 
-        quote!(::mimic::schema::types::PrimitiveGroup::#ident)
+        quote!(::mimic::orm::schema::types::PrimitiveGroup::#ident)
     }
 }
 
@@ -339,8 +339,8 @@ pub enum SortDirection {
 impl Schemable for SortDirection {
     fn schema(&self) -> TokenStream {
         match &self {
-            Self::Asc => quote!(::mimic::schema::types::SortDirection::Asc),
-            Self::Desc => quote!(::mimic::schema::types::SortDirection::Desc),
+            Self::Asc => quote!(::mimic::orm::schema::types::SortDirection::Asc),
+            Self::Desc => quote!(::mimic::orm::schema::types::SortDirection::Desc),
         }
     }
 }

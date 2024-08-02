@@ -5,21 +5,25 @@ members = [
     "src/mimic",
     "src/mimic/api",
     "src/mimic/canisters/test",
-    "src/mimic/cli",
+    "src/mimic/core/config",
+    "src/mimic/core/schema",
     "src/mimic/core/state",
     "src/mimic/core/wasm",
     "src/mimic/db",
     "src/mimic/db/query",
-    "src/mimic/ic",
-    "src/mimic/lib/case",
-    "src/mimic/lib/cbor",
-    "src/mimic/lib/rand",
-    "src/mimic/lib/time",
-    "src/mimic/lib/test",
     "src/mimic/orm",
     "src/mimic/orm/macros",
     "src/mimic/orm/schema",
     "src/mimic/types",
+    "src/mimic",
+    "src/mimic/lib/case",
+    "src/mimic/lib/cbor",
+    "src/mimic/lib/ic",
+    "src/mimic/lib/rand",
+    "src/mimic/lib/time",
+    "src/mimic/lib/test",
+    "src/mimic_cli",
+    "src/mimic_common",
     "src/mimic_derive",
     "src/tests",
 ]
@@ -33,34 +37,39 @@ version = "0.0.2"
 [workspace.dependencies]
 base = { path = "src/base" }
 
-# mimic
+# top level
 mimic = { path = "src/mimic" }
+mimic_common = { path = "src/mimic_common" }
 mimic_derive = { path = "src/mimic_derive" }
-cli = { path = "src/mimic/cli" }
+cli = { path = "src/mimic_cli" }
 
 # mimic
 api = { path = "src/mimic/api" }
 canister_test = { path = "src/mimic/canisters/test" }
-db = { path = "src/mimic/db" }
-query = { path = "src/mimic/db/query" }
-ic = { path = "src/mimic/ic" }
 types = { path = "src/mimic/types" }
 
 # core
-state = { path = "src/mimic/core/state" }
-wasm = { path = "src/mimic/core/wasm" }
+core_config = { path = "src/mimic/core/config" }
+core_schema = { path = "src/mimic/core/schema" }
+core_state = { path = "src/mimic/core/state" }
+core_wasm = { path = "src/mimic/core/wasm" }
+
+# db
+db = { path = "src/mimic/db" }
+db_query = { path = "src/mimic/db/query" }
 
 # orm
 orm = { path = "src/mimic/orm" }
-schema = { path = "src/mimic/orm/schema" }
-macros = { path = "src/mimic/orm/macros" }
+orm_schema = { path = "src/mimic/orm/schema" }
+orm_macros = { path = "src/mimic/orm/macros" }
 
-# lib
+# core
 lib_case = { path = "src/mimic/lib/case" }
 lib_cbor = { path = "src/mimic/lib/cbor" }
+lib_ic = { path = "src/mimic/lib/ic" }
 lib_rand = { path = "src/mimic/lib/rand" }
-lib_time = { path = "src/mimic/lib/time" }
 lib_test = { path = "src/mimic/lib/test" }
+lib_time = { path = "src/mimic/lib/time" }
 
 # ic cdk
 candid = "0.10.9"
@@ -125,5 +134,6 @@ doc_markdown = "allow"
 empty_line_after_doc_comments = "allow"
 missing_errors_doc = "allow"
 missing_panics_doc = "allow"
+module_inception = "allow"
 module_name_repetitions = "allow"
 needless_pass_by_value = "allow"

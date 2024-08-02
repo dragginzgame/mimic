@@ -1,8 +1,8 @@
-use crate::{Error, CANISTER_STATE};
+use super::{Error, CANISTER_STATE};
 use candid::{CandidType, Principal};
-use derive::StorableInternal;
 use derive_more::{Deref, DerefMut};
-use ic::structures::{memory::VirtualMemory, Cell};
+use lib_ic::structures::{memory::VirtualMemory, Cell};
+use mimic_derive::Storable;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
@@ -104,7 +104,7 @@ impl CanisterStateStable {
 /// CanisterState
 ///
 
-#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize, StorableInternal)]
+#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize, Storable)]
 pub struct CanisterState {
     path: Option<String>,
     root_id: Option<Principal>,

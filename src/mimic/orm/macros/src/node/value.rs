@@ -4,9 +4,9 @@ use crate::{
 };
 use darling::FromMeta;
 use orm::types::Cardinality;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
 use quote::ToTokens;
-use schema::Schemable;
 use syn::Path;
 
 ///
@@ -46,7 +46,7 @@ impl Schemable for Value {
         let default = quote_option(&self.default, Arg::schema);
 
         quote!(
-            ::mimic::schema::node::Value {
+            ::mimic::orm::schema::node::Value {
                 cardinality: #cardinality,
                 item: #item,
                 default: #default,

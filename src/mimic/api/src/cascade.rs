@@ -1,5 +1,5 @@
 use crate::{call, Error};
-use ic::{log, Log};
+use lib_ic::{log, Log};
 
 // app_state_cascade
 pub async fn app_state_cascade() -> Result<(), Error> {

@@ -3,9 +3,9 @@ use crate::{
     node::PRIM_ULID,
 };
 use darling::{Error as DarlingError, FromMeta};
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
 use quote::ToTokens;
-use schema::Schemable;
 use syn::{parse_str, Lit, Path};
 
 ///
@@ -74,7 +74,7 @@ impl Schemable for ItemIs {
         let path = quote_one(&self.path, to_path);
 
         quote!(
-            ::mimic::schema::node::Item::Is(::mimic::schema::node::ItemIs {
+            ::mimic::orm::schema::node::Item::Is(::mimic::orm::schema::node::ItemIs {
                 path: #path,
             }
         ))
@@ -118,7 +118,7 @@ impl Schemable for ItemRelation {
         let path = quote_one(&self.path, to_path);
 
         quote!(
-            ::mimic::schema::node::Item::Relation(::mimic::schema::node::ItemRelation {
+            ::mimic::orm::schema::node::Item::Relation(::mimic::orm::schema::node::ItemRelation {
                 path: #path,
             })
         )

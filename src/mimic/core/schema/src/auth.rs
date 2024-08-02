@@ -1,6 +1,6 @@
 use super::get_schema;
 use derive_more::Deref;
-use schema::node::Role;
+use orm_schema::node::Role;
 use std::{
     collections::{HashMap, HashSet},
     sync::LazyLock,
@@ -25,10 +25,11 @@ impl AuthService {
 }
 
 ///
-/// ROLE_PERMISSION_MAP
+/// RolePermissionMap
 ///
 
-pub static ROLE_PERMISSION_MAP: LazyLock<RolePermissionMap> = LazyLock::new(RolePermissionMap::init);
+pub static ROLE_PERMISSION_MAP: LazyLock<RolePermissionMap> =
+    LazyLock::new(RolePermissionMap::init);
 
 #[derive(Clone, Debug, Deref)]
 pub struct RolePermissionMap(HashMap<String, HashSet<String>>);

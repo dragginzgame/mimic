@@ -3,8 +3,8 @@ use crate::{
     node::{Def, MacroNode, Node, Trait, TraitNode, Traits},
 };
 use darling::FromMeta;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use schema::Schemable;
 
 ///
 /// Validator
@@ -52,7 +52,7 @@ impl Schemable for Validator {
         let def = self.def.schema();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Validator(::mimic::schema::node::Validator {
+            ::mimic::orm::schema::node::SchemaNode::Validator(::mimic::orm::schema::node::Validator {
                 def: #def,
             })
         }

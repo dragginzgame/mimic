@@ -1,7 +1,7 @@
-use crate::get_schema;
+use super::get_schema;
 use candid::CandidType;
 use derive_more::Deref;
-use schema::node::{Crud, Entity, Store};
+use orm_schema::node::{Crud, Entity, Store};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::{collections::HashMap, sync::LazyLock};
@@ -13,14 +13,14 @@ use std::{collections::HashMap, sync::LazyLock};
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
-    Schema { source: schema::node::Error },
+    Schema { source: orm_schema::node::Error },
 }
-
-pub static ENTITY_CRUD_MAP: LazyLock<EntityCrudMap> = LazyLock::new(EntityCrudMap::init);
 
 ///
 /// EntityCrudMap
 ///
+
+pub static ENTITY_CRUD_MAP: LazyLock<EntityCrudMap> = LazyLock::new(EntityCrudMap::init);
 
 #[derive(Clone, Debug, Default, Deref)]
 pub struct EntityCrudMap(HashMap<String, Crud>);

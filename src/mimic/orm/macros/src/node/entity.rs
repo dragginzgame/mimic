@@ -4,8 +4,8 @@ use crate::{
     node::{Crud, Def, FieldList, MacroNode, Node, SortKey, Trait, TraitNode, Traits},
 };
 use darling::FromMeta;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use schema::Schemable;
 use syn::{Ident, Path};
 
 ///
@@ -120,7 +120,7 @@ impl Schemable for Entity {
         let crud = quote_option(&self.crud, Crud::schema);
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Entity(::mimic::schema::node::Entity {
+            ::mimic::orm::schema::node::SchemaNode::Entity(::mimic::orm::schema::node::Entity {
                 def: #def,
                 store: #store,
                 sort_keys: #sort_keys,

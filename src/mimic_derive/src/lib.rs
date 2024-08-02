@@ -14,17 +14,17 @@ pub fn storable(input: TokenStream) -> TokenStream {
     let name = &input.ident;
 
     let expanded = quote! {
-        impl ::mimic::ic::structures::storable::Storable for #name {
+        impl ::mimic_common::ic::structures::storable::Storable for #name {
             fn to_bytes(&self) -> ::std::borrow::Cow<[u8]> {
-                ::std::borrow::Cow::Owned(::mimic::lib::cbor::serialize(self).unwrap())
+                ::std::borrow::Cow::Owned(::mimic_common::cbor::serialize(self).unwrap())
             }
 
             fn from_bytes(bytes: ::std::borrow::Cow<[u8]>) -> Self {
-                ::mimic::lib::cbor::deserialize(&bytes).unwrap()
+                ::mimic_common::cbor::deserialize(&bytes).unwrap()
             }
 
-            const BOUND: ::mimic::ic::structures::storable::Bound =
-                ::mimic::ic::structures::storable::Bound::Unbounded;
+            const BOUND: ::mimic_common::ic::structures::storable::Bound =
+                ::mimic_common::ic::structures::storable::Bound::Unbounded;
         }
     };
 

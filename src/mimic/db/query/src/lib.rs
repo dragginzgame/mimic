@@ -99,7 +99,7 @@ impl DebugContext {
 
     pub fn println(&self, s: &str) {
         if self.enabled {
-            ic::println!("{s}");
+            lib_ic::println!("{s}");
         }
     }
 }

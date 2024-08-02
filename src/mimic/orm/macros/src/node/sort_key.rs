@@ -1,7 +1,7 @@
 use crate::helper::{quote_one, quote_vec, split_idents, to_path, to_string};
 use darling::FromMeta;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use schema::Schemable;
 use syn::{Ident, Path};
 
 ///
@@ -22,7 +22,7 @@ impl Schemable for SortKey {
         let fields = quote_vec(&self.fields, to_string);
 
         quote! {
-            ::mimic::schema::node::SortKey {
+            ::mimic::orm::schema::node::SortKey {
                 entity: #entity,
                 fields: #fields,
             }

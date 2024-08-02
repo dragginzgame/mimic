@@ -1,9 +1,9 @@
 use crate::Error;
 use candid::{CandidType, Principal};
-use schema::node::Canister;
+use core_state::CanisterStateManager;
+use orm_schema::node::Canister;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
-use state::CanisterStateManager;
 
 ///
 /// CanisterError
@@ -12,7 +12,7 @@ use state::CanisterStateManager;
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum CanisterError {
     #[snafu(transparent)]
-    State { source: state::Error },
+    State { source: core_state::Error },
 }
 
 ///
@@ -22,19 +22,19 @@ pub enum CanisterError {
 // balance
 #[must_use]
 pub fn balance() -> u128 {
-    ::ic::api::canister_balance128()
+    lib_ic::api::canister_balance128()
 }
 
 // caller
 #[must_use]
 pub fn caller() -> Principal {
-    ::ic::api::caller()
+    lib_ic::api::caller()
 }
 
 // id
 #[must_use]
 pub fn id() -> Principal {
-    ::ic::api::id()
+    lib_ic::api::id()
 }
 
 // schema
@@ -48,13 +48,13 @@ pub fn schema() -> Result<Canister, Error> {
 // time
 #[must_use]
 pub fn time() -> u64 {
-    ::ic::api::time()
+    lib_ic::api::time()
 }
 
 // version
 #[must_use]
 pub fn version() -> u64 {
-    ::ic::api::canister_version()
+    lib_ic::api::canister_version()
 }
 
 ///

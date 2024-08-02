@@ -17,7 +17,7 @@ use candid::{
     utils::{ArgumentDecoder, ArgumentEncoder},
     CandidType, Principal,
 };
-use ic::api::call::{call_raw, RejectionCode};
+use lib_ic::api::call::{call_raw, RejectionCode};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::future::Future;
@@ -68,13 +68,13 @@ pub enum Error {
     Db { source: ::db::Error },
 
     #[snafu(transparent)]
-    Query { source: ::query::Error },
+    Query { source: ::db_query::Error },
 
     #[snafu(transparent)]
-    State { source: ::state::Error },
+    State { source: ::core_state::Error },
 
     #[snafu(transparent)]
-    Wasm { source: ::wasm::Error },
+    Wasm { source: ::core_wasm::Error },
 }
 
 impl From<(RejectionCode, String)> for Error {

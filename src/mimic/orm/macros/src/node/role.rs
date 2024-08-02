@@ -4,8 +4,8 @@ use crate::{
     node::{Def, MacroNode, Node, Trait, TraitNode, Traits},
 };
 use darling::FromMeta;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use schema::Schemable;
 use syn::Path;
 
 ///
@@ -60,7 +60,7 @@ impl Schemable for Role {
         let permissions = quote_vec(&self.permissions, to_path);
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Role(::mimic::schema::node::Role {
+            ::mimic::orm::schema::node::SchemaNode::Role(::mimic::orm::schema::node::Role {
                 def: #def,
                 parent: #parent,
                 permissions: #permissions,

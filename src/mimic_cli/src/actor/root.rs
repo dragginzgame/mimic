@@ -38,7 +38,7 @@ pub fn root_module(builder: &mut ActorBuilder) {
     let q = quote! {
         // auto_create_canisters
         pub async fn auto_create_canisters() -> Result<(), Error> {
-            use ::mimic::schema::node::Canister;
+            use ::mimic::orm::schema::node::Canister;
 
             guard(vec![Guard::Controller]).await?;
 

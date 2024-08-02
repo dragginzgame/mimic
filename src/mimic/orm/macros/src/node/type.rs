@@ -3,8 +3,8 @@ use crate::{
     node::Args,
 };
 use darling::FromMeta;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use schema::Schemable;
 use syn::Path;
 
 ///
@@ -25,7 +25,7 @@ impl Schemable for TypeSanitizer {
         let args = &self.args.schema();
 
         let q = quote! {
-            ::mimic::schema::node::TypeSanitizer {
+            ::mimic::orm::schema::node::TypeSanitizer {
                 path: #path,
                 args: #args,
             }
@@ -55,7 +55,7 @@ impl Schemable for TypeValidator {
         let args = &self.args.schema();
 
         let q = quote! {
-            ::mimic::schema::node::TypeValidator {
+            ::mimic::orm::schema::node::TypeValidator {
                 path: #path,
                 args: #args,
             }

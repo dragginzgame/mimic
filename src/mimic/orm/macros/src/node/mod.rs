@@ -55,8 +55,8 @@ pub const PRIM_ULID: &str = "base::types::Ulid";
 
 use crate::helper::{quote_one, to_path};
 use darling::FromMeta;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use schema::Schemable;
 use syn::Path;
 
 ///
@@ -90,7 +90,7 @@ pub trait MacroNode: Schemable {
             #[cfg(not(target_arch = "wasm32"))]
             #[::ctor::ctor]
             fn #ctor_fn() {
-                ::mimic::schema::build::schema_write().add_node(
+                ::mimic::orm::schema::build::schema_write().add_node(
                     #schema
                 );
             }
@@ -188,11 +188,11 @@ pub enum AccessPolicy {
 impl Schemable for AccessPolicy {
     fn schema(&self) -> TokenStream {
         match &self {
-            Self::Allow => quote!(::mimic::schema::node::AccessPolicy::Allow),
-            Self::Deny => quote!(::mimic::schema::node::AccessPolicy::Deny),
+            Self::Allow => quote!(::mimic::orm::schema::node::AccessPolicy::Allow),
+            Self::Deny => quote!(::mimic::orm::schema::node::AccessPolicy::Deny),
             Self::Permission(path) => {
                 let path = quote_one(path, to_path);
-                quote!(::mimic::schema::node::AccessPolicy::Permission(#path))
+                quote!(::mimic::orm::schema::node::AccessPolicy::Permission(#path))
             }
         }
     }
@@ -221,7 +221,7 @@ impl Schemable for Crud {
         let delete = &self.delete.schema();
 
         quote! {
-            ::mimic::schema::node::Crud {
+            ::mimic::orm::schema::node::Crud {
                 load: #load,
                 save: #save,
                 delete: #delete,

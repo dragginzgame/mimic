@@ -4,8 +4,8 @@ use crate::{
 };
 use darling::FromMeta;
 use orm::types::PrimitiveType;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use schema::Schemable;
 use syn::Path;
 
 ///
@@ -56,7 +56,7 @@ impl Schemable for Primitive {
         let path = quote_one(&self.path, to_string);
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Primitive(::mimic::schema::node::Primitive {
+            ::mimic::orm::schema::node::SchemaNode::Primitive(::mimic::orm::schema::node::Primitive {
                 def: #def,
                 ty: #ty,
                 path: #path,

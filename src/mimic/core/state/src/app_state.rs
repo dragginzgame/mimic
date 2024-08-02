@@ -1,12 +1,12 @@
-use crate::{Error, APP_STATE};
+use super::{Error, APP_STATE};
 use candid::CandidType;
-use derive::StorableInternal;
 use derive_more::{Deref, DerefMut};
-use ic::{
+use lib_ic::{
     log,
     structures::{memory::VirtualMemory, Cell},
     Log,
 };
+use mimic_derive::Storable;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use strum::Display;
@@ -109,7 +109,7 @@ impl AppStateStable {
 /// AppState
 ///
 
-#[derive(CandidType, Clone, Copy, Debug, Serialize, Deserialize, StorableInternal)]
+#[derive(CandidType, Clone, Copy, Debug, Serialize, Deserialize, Storable)]
 pub struct AppState {
     mode: AppMode,
 }

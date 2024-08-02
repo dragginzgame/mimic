@@ -1,7 +1,7 @@
 use crate::Error;
 use candid::{CandidType, Principal};
-use config::get_config;
-use ic::{
+use core_config::get_config;
+use lib_ic::{
     api::management_canister::{
         main::{CanisterInstallMode, InstallCodeArgument, WasmModule},
         provisional::CanisterSettings,
@@ -18,7 +18,7 @@ use snafu::Snafu;
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum CreateError {
     #[snafu(transparent)]
-    Config { source: config::Error },
+    Config { source: core_config::Error },
 }
 
 ///
@@ -52,7 +52,7 @@ pub async fn create_canister(
     });
 
     let canister_id = super::mgmt::create_canister(
-        ::ic::api::management_canister::main::CreateCanisterArgument { settings },
+        ::lib_ic::api::management_canister::main::CreateCanisterArgument { settings },
         cycles,
     )
     .await?;
@@ -89,7 +89,7 @@ pub async fn create_canister(
         canister_path,
         bytes_fmt,
         canister_id,
-        ::ic::format_cycles(cycles)
+        ::lib_ic::format_cycles(cycles)
     );
 
     Ok(canister_id)

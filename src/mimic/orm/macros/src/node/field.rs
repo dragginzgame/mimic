@@ -4,9 +4,9 @@ use crate::{
 };
 use darling::FromMeta;
 use orm::types::SortDirection;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
 use quote::ToTokens;
-use schema::Schemable;
 use syn::Ident;
 
 ///
@@ -36,7 +36,7 @@ impl Schemable for FieldList {
         let order = quote_vec(&self.order, FieldOrder::schema);
 
         quote! {
-            ::mimic::schema::node::FieldList {
+            ::mimic::orm::schema::node::FieldList {
                 fields: #fields,
                 order: #order,
             }
@@ -70,7 +70,7 @@ impl Schemable for Field {
         let value = self.value.schema();
 
         quote! {
-            ::mimic::schema::node::Field {
+            ::mimic::orm::schema::node::Field {
                 name: #name,
                 value: #value,
             }
@@ -108,7 +108,7 @@ impl Schemable for FieldOrder {
         let direction = self.direction.schema();
 
         quote! {
-            ::mimic::schema::node::FieldOrder {
+            ::mimic::orm::schema::node::FieldOrder {
                 field: #field,
                 direction: #direction,
             }

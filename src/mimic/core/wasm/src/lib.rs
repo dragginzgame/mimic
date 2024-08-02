@@ -1,4 +1,5 @@
 use candid::CandidType;
+use lib_ic::{log, Log};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::{
@@ -56,8 +57,8 @@ impl WasmManager {
             .map_err(|_| Error::LockFailed)?
             .insert(path, wasm);
 
-        ::ic::log!(
-            ::ic::Log::Ok,
+        log!(
+            Log::Ok,
             "add_wasm: {} ({:.2} KB)",
             path,
             wasm.len() as f64 / 1000.0

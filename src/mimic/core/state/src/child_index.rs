@@ -1,7 +1,7 @@
-use crate::{Error, CHILD_INDEX};
+use super::{Error, CHILD_INDEX};
 use candid::{CandidType, Principal};
 use derive_more::{Deref, DerefMut};
-use ic::structures::{memory::VirtualMemory, BTreeMap};
+use lib_ic::structures::{memory::VirtualMemory, BTreeMap};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 

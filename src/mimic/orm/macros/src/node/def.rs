@@ -32,7 +32,7 @@ impl Def {
         let ident = quote_one(&self.ident, to_string);
 
         quote! {
-            ::mimic::schema::node::Def {
+            ::mimic::orm::schema::node::Def {
                 module_path: module_path!().to_string(),
                 comments: #comments,
                 ident: #ident,

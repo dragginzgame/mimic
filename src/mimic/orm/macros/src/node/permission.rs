@@ -3,8 +3,8 @@ use crate::{
     node::{Def, MacroNode, Node, Trait, TraitNode, Traits},
 };
 use darling::FromMeta;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use schema::Schemable;
 
 ///
 /// Permission
@@ -50,7 +50,7 @@ impl Schemable for Permission {
         let def = self.def.schema();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Permission(::mimic::schema::node::Permission {
+            ::mimic::orm::schema::node::SchemaNode::Permission(::mimic::orm::schema::node::Permission {
                 def: #def,
             })
         }

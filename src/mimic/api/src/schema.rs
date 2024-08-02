@@ -1,6 +1,6 @@
 use candid::CandidType;
 use core_schema::get_schema;
-use schema::node::Canister;
+use orm_schema::node::Canister;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 

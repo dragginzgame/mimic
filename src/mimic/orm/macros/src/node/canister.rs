@@ -4,8 +4,8 @@ use crate::{
 };
 use darling::FromMeta;
 use orm::types::Cycles;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use schema::Schemable;
 
 ///
 /// Canister
@@ -59,7 +59,7 @@ impl Schemable for Canister {
         let build = self.build.schema();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Canister(::mimic::schema::node::Canister{
+            ::mimic::orm::schema::node::SchemaNode::Canister(::mimic::orm::schema::node::Canister{
                 def: #def,
                 initial_cycles: #initial_cycles,
                 min_cycles: #min_cycles,
@@ -97,11 +97,11 @@ impl Schemable for CanisterBuild {
         match &self {
             Self::Basic(canister) => {
                 let canister = canister.schema();
-                quote!(::mimic::schema::node::CanisterBuild::Basic(#canister))
+                quote!(::mimic::orm::schema::node::CanisterBuild::Basic(#canister))
             }
-            Self::Root => quote!(::mimic::schema::node::CanisterBuild::Root),
-            Self::Test => quote!(::mimic::schema::node::CanisterBuild::Test),
-            Self::User => quote!(::mimic::schema::node::CanisterBuild::User),
+            Self::Root => quote!(::mimic::orm::schema::node::CanisterBuild::Root),
+            Self::Test => quote!(::mimic::orm::schema::node::CanisterBuild::Test),
+            Self::User => quote!(::mimic::orm::schema::node::CanisterBuild::User),
         }
     }
 }
@@ -121,7 +121,7 @@ impl Schemable for CanisterBuildBasic {
         let replicated = self.replicated;
 
         quote! {
-            ::mimic::schema::node::CanisterBuildBasic{
+            ::mimic::orm::schema::node::CanisterBuildBasic{
                 replicated: #replicated,
             }
         }

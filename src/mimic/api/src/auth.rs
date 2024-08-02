@@ -1,9 +1,10 @@
 use crate::Error;
 use candid::{CandidType, Principal};
-use schema::node::AccessPolicy;
+use core_state::{ChildIndexManager, SubnetIndexManager};
+use lib_ic::{api::is_controller, caller};
+use orm_schema::node::AccessPolicy;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
-use state::{ChildIndexManager, SubnetIndexManager};
 
 ///
 /// AuthError
@@ -81,7 +82,7 @@ impl Guard {
 // guard
 pub async fn guard(rules: Vec<Guard>) -> Result<(), Error> {
     // only works for caller now
-    let caller = ::ic::caller();
+    let caller = caller();
 
     // in case rules are accidentally blank / commented out
     if rules.is_empty() {
@@ -127,7 +128,7 @@ fn guard_child(id: Principal) -> Result<(), Error> {
 
 // guard_controller
 fn guard_controller(id: Principal) -> Result<(), Error> {
-    if ::ic::api::is_controller(&id) {
+    if is_controller(&id) {
         Ok(())
     } else {
         Err(AuthError::NotController { id })?
@@ -188,7 +189,7 @@ pub async fn guard_subnet(_id: Principal) -> Result<(), Error> {
 
 // guard_this
 fn guard_this(id: Principal) -> Result<(), Error> {
-    if id == ::ic::api::id() {
+    if id == lib_ic::api::id() {
         Ok(())
     } else {
         Err(AuthError::NotThis { id })?

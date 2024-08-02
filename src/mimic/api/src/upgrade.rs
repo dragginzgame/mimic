@@ -3,7 +3,7 @@ use crate::{
     Error,
 };
 use candid::{CandidType, Principal};
-use ic::{
+use lib_ic::{
     api::management_canister::main::{CanisterInstallMode, InstallCodeArgument, WasmModule},
     helper::get_wasm_hash,
     log, Log,

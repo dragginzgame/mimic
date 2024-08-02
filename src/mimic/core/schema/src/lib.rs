@@ -4,7 +4,7 @@ pub mod entity;
 pub use auth::AuthService;
 
 use candid::CandidType;
-use schema::node::Schema;
+use orm_schema::node::Schema;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::sync::Mutex;
@@ -14,6 +14,25 @@ use std::sync::Mutex;
 ///
 
 static SCHEMA: Mutex<Option<Schema>> = Mutex::new(None);
+
+///
+/// Error
+///
+
+#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+pub enum Error {
+    #[snafu(display("config has already been initialized"))]
+    AlreadyInitialized,
+
+    #[snafu(display("config not yet initialized"))]
+    NotInitialized,
+
+    #[snafu(display("mutex error: {msg}"))]
+    Mutex { msg: String },
+
+    #[snafu(display("serde json error: {msg}"))]
+    SerdeJson { msg: String },
+}
 
 // get_schema
 pub fn get_schema() -> Result<Schema, Error> {
@@ -47,23 +66,4 @@ pub fn init_schema_json(schema_json: &str) -> Result<(), Error> {
         .map_err(|e| Error::SerdeJson { msg: e.to_string() })?;
 
     init_schema(schema)
-}
-
-///
-/// Error
-///
-
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
-    #[snafu(display("config has already been initialized"))]
-    AlreadyInitialized,
-
-    #[snafu(display("config not yet initialized"))]
-    NotInitialized,
-
-    #[snafu(display("mutex error: {msg}"))]
-    Mutex { msg: String },
-
-    #[snafu(display("serde json error: {msg}"))]
-    SerdeJson { msg: String },
 }

@@ -5,8 +5,8 @@ use crate::{
 };
 use darling::FromMeta;
 use orm::types::Sorted;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use schema::Schemable;
 use syn::Ident;
 
 ///
@@ -115,7 +115,7 @@ impl Schemable for Enum {
         let variants = quote_vec(&self.variants, EnumVariant::schema);
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Enum(::mimic::schema::node::Enum {
+            ::mimic::orm::schema::node::SchemaNode::Enum(::mimic::orm::schema::node::Enum {
                 def: #def,
                 variants: #variants,
             })
@@ -189,7 +189,7 @@ impl Schemable for EnumVariant {
         let discriminant = quote_option(&self.discriminant, as_self);
 
         quote! {
-            ::mimic::schema::node::EnumVariant {
+            ::mimic::orm::schema::node::EnumVariant {
                 name: #name,
                 value : #value,
                 discriminant : #discriminant,

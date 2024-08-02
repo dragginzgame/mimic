@@ -1,9 +1,10 @@
 use crate::Error;
 use candid::{CandidType, Principal};
-use ic::{format_cycles, log, Log};
+use core_state::ChildIndexManager;
+use core_wasm::WasmManager;
+use lib_ic::{caller, format_cycles, log, Log};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
-use state::ChildIndexManager;
 use strum::Display;
 
 ///
@@ -104,8 +105,6 @@ pub enum Response {
 
 // response
 pub async fn response(req: Request) -> Result<Response, Error> {
-    use ::ic::api::caller;
-
     // ::ic::println!("root response : {req:?}");
 
     match req.kind {
@@ -119,9 +118,6 @@ pub async fn response(req: Request) -> Result<Response, Error> {
 
 // response_create_canister
 async fn response_create_canister(path: &str) -> Result<Response, Error> {
-    use ::ic::api::caller;
-    use ::wasm::WasmManager;
-
     let bytes = WasmManager::get_wasm(path)?;
     let new_canister_id = crate::create::create_canister(path, bytes, caller()).await?;
 
@@ -130,8 +126,6 @@ async fn response_create_canister(path: &str) -> Result<Response, Error> {
 
 // response_upgrade_canister
 async fn response_upgrade_canister(canister_id: Principal, path: &str) -> Result<Response, Error> {
-    use ::wasm::WasmManager;
-
     let bytes = WasmManager::get_wasm(path)?;
     crate::upgrade::upgrade_canister(canister_id, bytes).await?;
 
@@ -209,7 +203,7 @@ pub async fn request_cycles() -> Result<(), Error> {
     let canister_schema = crate::canister::schema()?;
     let balance = crate::canister::balance();
 
-    ::ic::log!(
+    log!(
         Log::Info,
         "cc check: balance: {}, initial {}, min {}",
         format_cycles(balance),

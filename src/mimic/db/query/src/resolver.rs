@@ -2,7 +2,7 @@ use crate::Error;
 use candid::CandidType;
 use core_schema::get_schema;
 use db::DataKey;
-use schema::node::Entity;
+use orm_schema::node::Entity;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 

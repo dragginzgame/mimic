@@ -1,30 +1,35 @@
-pub mod config;
-pub mod schema;
-
 ///
-/// Framework Re-Export
+/// mimic
 ///
-/// NOTE: this crate (mimic) is designed to be used by external crates, not internal ones
+/// for external use only
 ///
 pub use api;
-pub use ic;
-pub use orm;
 pub use types;
 
 pub mod core {
-    pub use state;
-    pub use wasm;
+    pub use core_config as config;
+    pub use core_schema as schema;
+    pub use core_state as state;
+    pub use core_wasm as wasm;
 }
 
 pub mod db {
     pub use db::*;
-    pub use query;
+    pub use db_query as query;
 }
 
 pub mod lib {
     pub use lib_case as case;
     pub use lib_cbor as cbor;
+    pub use lib_ic as ic;
     pub use lib_rand as rand;
+    pub use lib_time as time;
+}
+
+pub mod orm {
+    pub use orm::*;
+    pub use orm_macros as macros;
+    pub use orm_schema as schema;
 }
 
 ///
@@ -45,7 +50,6 @@ pub mod prelude {
             SubnetIndex, SubnetIndexManager, User, UserIndex, UserIndexManager,
         },
         db::query,
-        ic::{caller, format_cycles, id, log, Log},
         mimic_end, mimic_start,
         orm::traits::{EntityFixture, Path},
         perf,
@@ -53,6 +57,7 @@ pub mod prelude {
     pub use ::candid::{CandidType, Principal};
     pub use ::std::cell::RefCell;
     pub use ::types::Ulid;
+    pub use mimic_common::ic::{caller, format_cycles, id, log, Log};
 }
 
 ///

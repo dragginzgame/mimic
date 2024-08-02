@@ -7,8 +7,8 @@ use crate::{
 };
 use darling::FromMeta;
 use orm::types::{Cardinality, PrimitiveGroup, PrimitiveType};
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use schema::Schemable;
 
 ///
 /// Newtype
@@ -161,7 +161,7 @@ impl Schemable for Newtype {
         let validators = quote_vec(&self.validators, TypeValidator::schema);
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Newtype(::mimic::schema::node::Newtype {
+            ::mimic::orm::schema::node::SchemaNode::Newtype(::mimic::orm::schema::node::Newtype {
                 def: #def,
                 value: #value,
                 primitive: #primitive,

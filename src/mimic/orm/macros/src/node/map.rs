@@ -4,9 +4,9 @@ use crate::{
     node::{Def, Item, MacroNode, Node, Trait, TraitNode, Traits, TypeValidator, Value},
 };
 use darling::FromMeta;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
 use quote::ToTokens;
-use schema::Schemable;
 
 //
 // Map
@@ -90,7 +90,7 @@ impl Schemable for Map {
         let validators = quote_vec(&self.validators, TypeValidator::schema);
 
         quote! {
-                ::mimic::schema::node::SchemaNode::Map(::mimic::schema::node::Map {
+                ::mimic::orm::schema::node::SchemaNode::Map(::mimic::orm::schema::node::Map {
                     def: #def,
                     key: #key,
                     value: #value,

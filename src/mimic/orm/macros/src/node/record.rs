@@ -3,8 +3,8 @@ use crate::{
     node::{Def, FieldList, MacroNode, Node, Trait, TraitNode, Traits},
 };
 use darling::FromMeta;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use schema::Schemable;
 
 ///
 /// Record
@@ -62,7 +62,7 @@ impl Schemable for Record {
         let fields = self.fields.schema();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Record(::mimic::schema::node::Record {
+            ::mimic::orm::schema::node::SchemaNode::Record(::mimic::orm::schema::node::Record {
                 def: #def,
                 fields: #fields,
             })

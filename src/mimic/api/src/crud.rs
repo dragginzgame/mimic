@@ -1,11 +1,11 @@
 use crate::Error;
 use candid::CandidType;
 use db::Db;
-use orm::traits::Entity;
-use query::types::{
+use db_query::types::{
     CreateResponse, DeleteRequest, DeleteResponse, LoadFormat, LoadRequest, LoadResponse, QueryRow,
     SaveRequest, SaveRequestAction, SaveResponse, UpdateResponse,
 };
+use orm::traits::Entity;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
@@ -19,7 +19,7 @@ pub enum CrudError {
     EntityNotFound { path: String },
 
     #[snafu(transparent)]
-    Query { source: query::Error },
+    Query { source: db_query::Error },
 
     #[snafu(transparent)]
     Orm { source: orm::Error },
@@ -45,7 +45,7 @@ pub fn load<E>(db: &Db, request: LoadRequest) -> Result<LoadResponse, Error>
 where
     E: Entity + 'static,
 {
-    let iter = query::load::<E>(db)
+    let iter = db_query::load::<E>(db)
         .method(request.method)
         .order_option(request.order)
         .filter_option(request.filter)
@@ -76,7 +76,7 @@ pub fn delete<E>(db: &Db, request: &DeleteRequest) -> Result<DeleteResponse, Err
 where
     E: Entity,
 {
-    let keys = query::delete::<E>(db)
+    let keys = db_query::delete::<E>(db)
         .one(&request.key)
         .map_err(CrudError::from)?
         .keys()
@@ -96,7 +96,7 @@ where
 
     match request.action {
         SaveRequestAction::Create => {
-            let row = query::create(db)
+            let row = db_query::create(db)
                 .from_entity_dynamic(boxed_entity)
                 .map_err(CrudError::from)?
                 .query_row()
@@ -106,7 +106,7 @@ where
         }
 
         SaveRequestAction::Update => {
-            let row = query::update(db)
+            let row = db_query::update(db)
                 .from_entity_dynamic(boxed_entity)
                 .map_err(CrudError::from)?
                 .query_row()

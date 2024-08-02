@@ -4,9 +4,9 @@ use crate::{
     node::{Def, MacroNode, Node, Trait, TraitNode, Traits, Value},
 };
 use darling::FromMeta;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
 use quote::ToTokens;
-use schema::Schemable;
 
 ///
 /// Tuple
@@ -83,7 +83,7 @@ impl Schemable for Tuple {
         let values = quote_vec(&self.values, Value::schema);
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Tuple(::mimic::schema::node::Tuple {
+            ::mimic::orm::schema::node::SchemaNode::Tuple(::mimic::orm::schema::node::Tuple {
                 def: #def,
                 values: #values,
             })

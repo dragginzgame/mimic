@@ -1,0 +1,14 @@
+[package]
+name = "mimic_common"
+edition = { workspace = true }
+rust-version = { workspace = true }
+version = { workspace = true }
+
+[lints]
+workspace = true
+
+[dependencies]
+quote = { workspace = true }
+syn = { workspace = true }
+lib_ic = { workspace = true }
+lib_cbor = { workspace = true }

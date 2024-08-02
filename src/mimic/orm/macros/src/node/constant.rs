@@ -1,7 +1,7 @@
 use crate::node::{Def, MacroNode, Node};
 use darling::FromMeta;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use schema::Schemable;
 use syn::{Expr, Type};
 
 ///
@@ -51,7 +51,7 @@ impl Schemable for Constant {
         let def = self.def.schema();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Constant(::mimic::schema::node::Constant{
+            ::mimic::orm::schema::node::SchemaNode::Constant(::mimic::orm::schema::node::Constant{
                 def: #def,
             })
         }

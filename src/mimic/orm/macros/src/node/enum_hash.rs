@@ -5,8 +5,8 @@ use crate::{
 };
 use darling::FromMeta;
 use orm::types::Sorted;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use schema::Schemable;
 use syn::Ident;
 
 ///
@@ -67,7 +67,7 @@ impl Schemable for EnumHash {
         let keys = quote_vec(&self.keys, to_string);
 
         quote! {
-            ::mimic::schema::node::SchemaNode::EnumHash(::mimic::schema::node::EnumHash{
+            ::mimic::orm::schema::node::SchemaNode::EnumHash(::mimic::orm::schema::node::EnumHash{
                 def: #def,
                 keys: #keys,
             })

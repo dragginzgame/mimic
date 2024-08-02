@@ -1,5 +1,5 @@
 [package]
-name = "wasm"
+name = "core_wasm"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }
@@ -9,6 +9,13 @@ workspace = true
 
 [dependencies]
 candid = { workspace = true }
+derive_more = { workspace = true }
+lib_ic = { workspace = true }
+lib_cbor = { workspace = true }
+mimic_common = { workspace = true }
+mimic_derive = { workspace = true }
+orm_schema = { workspace = true }
 serde = { workspace = true }
 snafu = { workspace = true }
-ic = { workspace = true }
+strum = { workspace = true }
+types = { workspace = true }

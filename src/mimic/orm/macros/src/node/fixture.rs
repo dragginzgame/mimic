@@ -5,8 +5,8 @@ use crate::{
 };
 use darling::FromMeta;
 use orm::types::Sorted;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use schema::Schemable;
 use syn::{Ident, Path};
 
 ///
@@ -70,7 +70,7 @@ impl Schemable for Fixture {
         let keys = quote_vec(&self.keys, to_string);
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Fixture(::mimic::schema::node::Fixture{
+            ::mimic::orm::schema::node::SchemaNode::Fixture(::mimic::orm::schema::node::Fixture{
                 def: #def,
                 entity: #entity,
                 keys: #keys,

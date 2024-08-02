@@ -62,18 +62,21 @@ name = "api"
 version = "0.0.2"
 dependencies = [
  "candid",
+ "core_config",
+ "core_schema",
+ "core_state",
+ "core_wasm",
  "db",
+ "db_query",
  "defer",
- "ic",
+ "lib_ic",
+ "mimic_common",
  "orm",
- "query",
+ "orm_schema",
  "remain",
- "schema",
  "serde",
  "snafu",
- "state",
  "strum",
- "wasm",
 ]
 
 [[package]]
@@ -101,10 +104,8 @@ dependencies = [
  "candid",
  "ctor",
  "derive_more",
- "ic",
- "lib_cbor",
- "macros",
  "mimic",
+ "mimic_common",
  "num-traits",
  "serde",
  "sha2",
@@ -199,13 +200,12 @@ dependencies = [
  "base",
  "candid",
  "db",
- "ic",
+ "db_query",
  "ic-cdk",
+ "lib_ic",
  "lib_test",
  "orm",
- "query",
- "schema",
- "state",
+ "orm_schema",
 ]
 
 [[package]]
@@ -294,9 +294,9 @@ dependencies = [
  "base",
  "clap",
  "orm",
+ "orm_schema",
  "proc-macro2",
  "quote",
- "schema",
  "serde_json",
  "syn 2.0.72",
 ]
@@ -314,6 +314,75 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec182b0ca2f35d8fc196cf3404988fd8b8c739a4d270ff118a398feb0cbec1ca"
 dependencies = [
  "unicode-segmentation",
+]
+
+[[package]]
+name = "core_config"
+version = "0.0.2"
+dependencies = [
+ "candid",
+ "derive_more",
+ "lib_cbor",
+ "lib_ic",
+ "mimic_derive",
+ "orm_schema",
+ "serde",
+ "snafu",
+ "strum",
+ "toml",
+ "types",
+]
+
+[[package]]
+name = "core_schema"
+version = "0.0.2"
+dependencies = [
+ "candid",
+ "derive_more",
+ "lib_cbor",
+ "lib_ic",
+ "mimic_derive",
+ "orm_schema",
+ "serde",
+ "serde_json",
+ "snafu",
+ "strum",
+ "types",
+]
+
+[[package]]
+name = "core_state"
+version = "0.0.2"
+dependencies = [
+ "candid",
+ "core_schema",
+ "derive_more",
+ "lib_cbor",
+ "lib_ic",
+ "mimic_common",
+ "mimic_derive",
+ "orm_schema",
+ "serde",
+ "snafu",
+ "strum",
+ "types",
+]
+
+[[package]]
+name = "core_wasm"
+version = "0.0.2"
+dependencies = [
+ "candid",
+ "derive_more",
+ "lib_cbor",
+ "lib_ic",
+ "mimic_common",
+ "mimic_derive",
+ "orm_schema",
+ "serde",
+ "snafu",
+ "strum",
+ "types",
 ]
 
 [[package]]
@@ -407,11 +476,30 @@ version = "0.0.2"
 dependencies = [
  "candid",
  "derive_more",
- "ic",
  "lib_cbor",
+ "lib_ic",
+ "mimic_common",
  "mimic_derive",
  "serde",
  "snafu",
+ "types",
+]
+
+[[package]]
+name = "db_query"
+version = "0.0.2"
+dependencies = [
+ "candid",
+ "core_schema",
+ "core_state",
+ "db",
+ "derive_more",
+ "lib_ic",
+ "orm",
+ "orm_schema",
+ "serde",
+ "snafu",
+ "strum",
  "types",
 ]
 
@@ -601,20 +689,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
-name = "ic"
-version = "0.0.2"
-dependencies = [
- "candid",
- "derive_more",
- "ic-cdk",
- "ic-cdk-timers",
- "ic-stable-structures",
- "serde",
- "sha2",
- "snafu",
-]
-
-[[package]]
 name = "ic-cdk"
 version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -760,6 +834,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "lib_ic"
+version = "0.0.2"
+dependencies = [
+ "candid",
+ "derive_more",
+ "ic-cdk",
+ "ic-cdk-timers",
+ "ic-stable-structures",
+ "serde",
+ "sha2",
+ "snafu",
+]
+
+[[package]]
 name = "lib_rand"
 version = "0.0.2"
 dependencies = [
@@ -794,23 +882,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24"
 
 [[package]]
-name = "macros"
-version = "0.0.2"
-dependencies = [
- "darling",
- "derive_more",
- "lib_rand",
- "orm",
- "proc-macro2",
- "quote",
- "remain",
- "schema",
- "serde",
- "strum",
- "syn 2.0.72",
-]
-
-[[package]]
 name = "memchr"
 version = "2.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -822,19 +893,34 @@ version = "0.0.2"
 dependencies = [
  "api",
  "candid",
+ "core_config",
+ "core_schema",
+ "core_state",
+ "core_wasm",
  "db",
+ "db_query",
  "derive_more",
- "ic",
  "lib_case",
  "lib_cbor",
+ "lib_ic",
  "lib_rand",
+ "lib_time",
+ "mimic_common",
  "orm",
- "query",
- "schema",
- "state",
+ "orm_macros",
+ "orm_schema",
  "toml",
  "types",
- "wasm",
+]
+
+[[package]]
+name = "mimic_common"
+version = "0.0.2"
+dependencies = [
+ "lib_cbor",
+ "lib_ic",
+ "quote",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -888,17 +974,56 @@ dependencies = [
  "candid",
  "darling",
  "derive_more",
- "ic",
  "lib_cbor",
+ "lib_ic",
  "mimic_derive",
  "num-traits",
+ "orm_schema",
  "proc-macro2",
  "quote",
  "remain",
  "rust_decimal",
- "schema",
  "serde",
  "serde_bytes",
+ "sha2",
+ "snafu",
+ "strum",
+ "syn 2.0.72",
+ "types",
+]
+
+[[package]]
+name = "orm_macros"
+version = "0.0.2"
+dependencies = [
+ "darling",
+ "derive_more",
+ "lib_rand",
+ "orm",
+ "orm_schema",
+ "proc-macro2",
+ "quote",
+ "remain",
+ "serde",
+ "strum",
+ "syn 2.0.72",
+]
+
+[[package]]
+name = "orm_schema"
+version = "0.0.2"
+dependencies = [
+ "candid",
+ "derive_more",
+ "hex",
+ "itertools",
+ "lib_case",
+ "lib_ic",
+ "proc-macro2",
+ "quote",
+ "remain",
+ "serde",
+ "serde_json",
  "sha2",
  "snafu",
  "strum",
@@ -954,22 +1079,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "query"
-version = "0.0.2"
-dependencies = [
- "candid",
- "db",
- "derive_more",
- "ic",
- "orm",
- "schema",
- "serde",
- "snafu",
- "strum",
- "types",
-]
-
-[[package]]
 name = "quote"
 version = "1.0.36"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1011,28 +1120,6 @@ name = "ryu"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f3cb5ba0dc43242ce17de99c180e96db90b235b8a9fdc9543c96d2209116bd9f"
-
-[[package]]
-name = "schema"
-version = "0.0.2"
-dependencies = [
- "candid",
- "derive_more",
- "hex",
- "ic",
- "itertools",
- "lib_case",
- "proc-macro2",
- "quote",
- "remain",
- "serde",
- "serde_json",
- "sha2",
- "snafu",
- "strum",
- "syn 2.0.72",
- "types",
-]
 
 [[package]]
 name = "serde"
@@ -1157,22 +1244,6 @@ dependencies = [
  "libc",
  "psm",
  "winapi",
-]
-
-[[package]]
-name = "state"
-version = "0.0.2"
-dependencies = [
- "candid",
- "derive_more",
- "ic",
- "lib_cbor",
- "mimic_derive",
- "schema",
- "serde",
- "snafu",
- "strum",
- "types",
 ]
 
 [[package]]
@@ -1310,10 +1381,11 @@ version = "0.0.2"
 dependencies = [
  "candid",
  "derive_more",
- "ic",
  "lib_cbor",
+ "lib_ic",
  "lib_rand",
  "lib_time",
+ "mimic_common",
  "mimic_derive",
  "num-traits",
  "rust_decimal",
@@ -1369,16 +1441,6 @@ name = "wasi"
 version = "0.11.0+wasi-snapshot-preview1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
-
-[[package]]
-name = "wasm"
-version = "0.0.2"
-dependencies = [
- "candid",
- "ic",
- "serde",
- "snafu",
-]
 
 [[package]]
 name = "wasm-bindgen"

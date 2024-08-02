@@ -3,8 +3,8 @@ use crate::{
     node::ArgNumber,
 };
 use darling::FromMeta;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use schema::Schemable;
 use syn::Lit;
 
 ///
@@ -22,7 +22,7 @@ impl Schemable for Guide {
         let entries = quote_vec(&self.entries, GuideEntry::schema);
 
         quote! {
-            ::mimic::schema::node::Guide {
+            ::mimic::orm::schema::node::Guide {
                 entries: #entries,
             }
         }
@@ -48,7 +48,7 @@ impl Schemable for GuideEntry {
         let value = &self.value.schema();
 
         quote! {
-            ::mimic::schema::node::GuideEntry {
+            ::mimic::orm::schema::node::GuideEntry {
                 name: #name,
                 value: #value,
             }

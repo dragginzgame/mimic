@@ -4,8 +4,8 @@ use crate::{
     node::{Crud, Def, MacroNode, Node, Trait, TraitNode, Traits},
 };
 use darling::FromMeta;
+use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use schema::Schemable;
 use syn::Path;
 
 ///
@@ -61,7 +61,7 @@ impl Schemable for Store {
         let crud = self.crud.schema();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Store(::mimic::schema::node::Store{
+            ::mimic::orm::schema::node::SchemaNode::Store(::mimic::orm::schema::node::Store{
                 def: #def,
                 canister: #canister,
                 memory_id: #memory_id,
