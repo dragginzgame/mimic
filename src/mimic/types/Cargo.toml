@@ -12,14 +12,11 @@ candid = { workspace = true }
 derive_more = { workspace = true }
 serde_bytes = { workspace = true }
 serde = { workspace = true }
-lib_cbor = { workspace = true }
 lib_time = { workspace = true }
 lib_rand = { workspace = true }
 snafu = { workspace = true }
-lib_ic = { workspace = true }
 rust_decimal = { workspace = true }
 num-traits = { workspace = true }
 mimic_common = { workspace = true }
-sha2 = { workspace = true }
 mimic_derive = { workspace = true }
 ulid = { workspace = true }

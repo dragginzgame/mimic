@@ -14,7 +14,6 @@ derive_more = { workspace = true }
 lib_ic = { workspace = true }
 orm = { workspace = true }
 orm_schema = { workspace = true }
-core_state = { workspace = true }
 core_schema = { workspace = true }
 serde = { workspace = true }
 snafu = { workspace = true }

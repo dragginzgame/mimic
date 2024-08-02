@@ -204,10 +204,8 @@ dependencies = [
  "db_query",
  "ic-cdk",
  "lib_ic",
- "lib_test",
  "mimic_common",
  "orm",
- "orm_schema",
 ]
 
 [[package]]
@@ -323,16 +321,9 @@ name = "core_config"
 version = "0.0.2"
 dependencies = [
  "candid",
- "derive_more",
- "lib_cbor",
- "lib_ic",
- "mimic_derive",
- "orm_schema",
  "serde",
  "snafu",
- "strum",
  "toml",
- "types",
 ]
 
 [[package]]
@@ -341,15 +332,10 @@ version = "0.0.2"
 dependencies = [
  "candid",
  "derive_more",
- "lib_cbor",
- "lib_ic",
- "mimic_derive",
  "orm_schema",
  "serde",
  "serde_json",
  "snafu",
- "strum",
- "types",
 ]
 
 [[package]]
@@ -359,7 +345,6 @@ dependencies = [
  "candid",
  "core_schema",
  "derive_more",
- "lib_cbor",
  "lib_ic",
  "mimic_common",
  "mimic_derive",
@@ -375,16 +360,10 @@ name = "core_wasm"
 version = "0.0.2"
 dependencies = [
  "candid",
- "derive_more",
- "lib_cbor",
  "lib_ic",
  "mimic_common",
- "mimic_derive",
- "orm_schema",
  "serde",
  "snafu",
- "strum",
- "types",
 ]
 
 [[package]]
@@ -493,7 +472,6 @@ version = "0.0.2"
 dependencies = [
  "candid",
  "core_schema",
- "core_state",
  "db",
  "derive_more",
  "lib_ic",
@@ -901,7 +879,6 @@ dependencies = [
  "core_wasm",
  "db",
  "db_query",
- "derive_more",
  "lib_case",
  "lib_cbor",
  "lib_ic",
@@ -911,7 +888,6 @@ dependencies = [
  "orm",
  "orm_macros",
  "orm_schema",
- "toml",
  "types",
 ]
 
@@ -921,8 +897,8 @@ version = "0.0.2"
 dependencies = [
  "lib_cbor",
  "lib_ic",
- "quote",
- "syn 2.0.72",
+ "lib_rand",
+ "lib_time",
 ]
 
 [[package]]
@@ -978,16 +954,12 @@ dependencies = [
  "derive_more",
  "lib_cbor",
  "lib_ic",
- "mimic_derive",
  "num-traits",
  "orm_schema",
  "proc-macro2",
  "quote",
  "remain",
- "rust_decimal",
  "serde",
- "serde_bytes",
- "sha2",
  "snafu",
  "strum",
  "syn 2.0.72",
@@ -1301,9 +1273,6 @@ dependencies = [
 [[package]]
 name = "tests"
 version = "0.0.2"
-dependencies = [
- "serde",
-]
 
 [[package]]
 name = "thiserror"
@@ -1383,8 +1352,6 @@ version = "0.0.2"
 dependencies = [
  "candid",
  "derive_more",
- "lib_cbor",
- "lib_ic",
  "lib_rand",
  "lib_time",
  "mimic_common",
@@ -1393,7 +1360,6 @@ dependencies = [
  "rust_decimal",
  "serde",
  "serde_bytes",
- "sha2",
  "snafu",
  "ulid",
 ]

@@ -16,7 +16,7 @@ pub mod role {
 ///
 
 pub mod permission {
-    pub use super::*;
+    use super::*;
 
     ///
     /// Basic

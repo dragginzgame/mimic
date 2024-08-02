@@ -15,12 +15,10 @@ core_schema = { workspace = true }
 core_config = { workspace = true }
 core_wasm = { workspace = true }
 candid = { workspace = true }
-derive_more = { workspace = true }
 orm = { workspace = true }
 orm_schema = { workspace = true }
 orm_macros = { workspace = true }
 types = { workspace = true }
-toml = { workspace = true }
 db = { workspace = true }
 db_query = { workspace = true }
 mimic_common = { workspace = true }

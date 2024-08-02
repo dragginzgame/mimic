@@ -8,7 +8,7 @@ version = { workspace = true }
 workspace = true
 
 [dependencies]
-quote = { workspace = true }
-syn = { workspace = true }
 lib_ic = { workspace = true }
+lib_time = { workspace = true }
+lib_rand = { workspace = true }
 lib_cbor = { workspace = true }
