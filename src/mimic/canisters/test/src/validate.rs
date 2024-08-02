@@ -1,4 +1,4 @@
-use base::types::test::validate::Validator;
+use mimic_base::types::test::validate::Validator;
 
 ///
 /// ValidateTester

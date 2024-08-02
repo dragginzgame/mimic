@@ -36,7 +36,7 @@ fn main() {
 
     // LOAD SCHEMA
     // Stub functions for Rust on OSX
-    base::init();
+    mimic_base::init();
 
     // VALIDATE SCHEMA
     if let Err(e) = orm_schema::build::validate() {

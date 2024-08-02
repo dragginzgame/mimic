@@ -1,4 +1,4 @@
-use base::types::test::sanitize::ClampRecord;
+use mimic_base::types::test::sanitize::ClampRecord;
 
 ///
 /// SanitizeTester

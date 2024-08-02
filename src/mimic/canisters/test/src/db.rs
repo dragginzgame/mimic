@@ -3,14 +3,14 @@
 
 use db::{DataKey, Db};
 use db_query::types::Order;
+use mimic_base::types::{self, Ulid};
 use orm::traits::Path;
-use types::Ulid;
 
 ///
 /// DbTester
 ///
 
-const STORE: &str = ::base::canister::test::store::Data::PATH;
+const STORE: &str = ::mimic_base::canister::test::store::Data::PATH;
 
 pub struct DbTester<'a> {
     db: &'a Db,
