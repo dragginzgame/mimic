@@ -9,7 +9,6 @@ workspace = true
 
 [dependencies]
 candid = { workspace = true }
-core_schema = { workspace = true }
 derive_more = { workspace = true }
 ic = { workspace = true }
 lib_cbor = { workspace = true }

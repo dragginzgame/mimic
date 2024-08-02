@@ -1,3 +1,6 @@
+pub mod config;
+pub mod schema;
+
 ///
 /// Framework Re-Export
 ///
@@ -7,12 +10,9 @@ pub use api;
 pub use derive;
 pub use ic;
 pub use orm;
-pub use schema;
 pub use types;
 
 pub mod core {
-    pub use config;
-    pub use core_schema as schema;
     pub use state;
     pub use wasm;
 }
@@ -47,9 +47,11 @@ pub mod prelude {
         },
         db::query,
         ic::{caller, format_cycles, id, log, Log},
-        orm::traits::EntityFixture,
+        mimic_end, mimic_start,
+        orm::traits::{EntityFixture, Path},
+        perf,
     };
-    pub use ::candid::Principal;
+    pub use ::candid::{CandidType, Principal};
     pub use ::std::cell::RefCell;
     pub use ::types::Ulid;
 }

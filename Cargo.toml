@@ -6,7 +6,6 @@ members = [
     "src/mimic/api",
     "src/mimic/canisters/test",
     "src/mimic/cli",
-    "src/mimic/core/config",
     "src/mimic/core/schema",
     "src/mimic/core/state",
     "src/mimic/core/wasm",
@@ -49,8 +48,6 @@ ic = { path = "src/mimic/ic" }
 types = { path = "src/mimic/types" }
 
 # core
-config = { path = "src/mimic/core/config" }
-core_schema = { path = "src/mimic/core/schema" }
 state = { path = "src/mimic/core/state" }
 wasm = { path = "src/mimic/core/wasm" }
 

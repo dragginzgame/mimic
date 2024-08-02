@@ -14,7 +14,6 @@ crate-type = ["cdylib"]
 api = { workspace = true }
 base = { workspace = true }
 candid = { workspace = true }
-core_schema = { workspace = true }
 state = { workspace = true }
 db = { workspace = true }
 ic = { workspace = true }
