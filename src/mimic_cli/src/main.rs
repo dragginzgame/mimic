@@ -42,7 +42,7 @@ fn main() {
     base::init();
 
     // VALIDATE SCHEMA
-    if let Err(e) = ::schema::build::validate() {
+    if let Err(e) = orm_schema::build::validate() {
         eprintln!("{e}");
         std::process::exit(2);
     }

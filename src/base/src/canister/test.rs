@@ -8,6 +8,7 @@ pub use crate::prelude::*;
 pub struct Test {}
 
 pub mod store {
+    use super::*;
 
     ///
     /// Test Data

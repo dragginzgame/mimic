@@ -1,4 +1,4 @@
-use schema::build::schema;
+use orm_schema::build::schema;
 
 // process
 pub fn process() {

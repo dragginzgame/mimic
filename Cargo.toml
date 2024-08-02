@@ -41,7 +41,7 @@ base = { path = "src/base" }
 mimic = { path = "src/mimic" }
 mimic_common = { path = "src/mimic_common" }
 mimic_derive = { path = "src/mimic_derive" }
-cli = { path = "src/mimic_cli" }
+mimic_cli = { path = "src/mimic_cli" }
 
 # mimic
 api = { path = "src/mimic/api" }

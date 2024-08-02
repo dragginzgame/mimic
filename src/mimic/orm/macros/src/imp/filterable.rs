@@ -8,14 +8,14 @@ use quote::ToTokens;
 
 // newtype
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
-    let inner = match &node.primitive.map(|p| p.group()) {
-        Some(PrimitiveGroup::Float | PrimitiveGroup::Integer | PrimitiveGroup::String) => {
-            quote! {
-                Some(self.to_string())
-            }
-        }
-        _ => quote!(None),
-    };
+    let inner =
+        if let Some(PrimitiveGroup::Float | PrimitiveGroup::Integer | PrimitiveGroup::String) =
+            &node.primitive.map(|p| p.group())
+        {
+            quote!(Some(self.to_string()))
+        } else {
+            quote!(None)
+        };
 
     // quote
     let q = quote! {

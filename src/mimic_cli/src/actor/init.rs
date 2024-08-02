@@ -1,6 +1,6 @@
 use super::ActorBuilder;
+use orm_schema::node::CanisterBuild;
 use proc_macro2::TokenStream;
-use schema::node::CanisterBuild;
 use syn::{parse_str, Path};
 
 // extend

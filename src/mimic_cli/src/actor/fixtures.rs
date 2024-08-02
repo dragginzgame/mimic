@@ -1,6 +1,6 @@
 use super::ActorBuilder;
+use orm_schema::{build::schema, node::Fixture};
 use proc_macro2::TokenStream;
-use schema::{build::schema, node::Fixture};
 use syn::{parse_str, Path};
 
 // extend

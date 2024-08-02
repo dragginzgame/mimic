@@ -19,5 +19,6 @@ lib_ic = { workspace = true }
 ic-cdk = { workspace = true }
 lib_test = { workspace = true }
 orm = { workspace = true }
+mimic_common = { workspace = true }
 db_query = { workspace = true }
 orm_schema = { workspace = true }

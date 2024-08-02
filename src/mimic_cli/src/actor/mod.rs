@@ -8,12 +8,12 @@ pub mod timers;
 pub mod user;
 
 use clap::Parser;
-use proc_macro2::TokenStream;
-use quote::quote;
-use schema::{
+use orm_schema::{
     build::schema,
     node::{Canister, CanisterBuild, Entity, Store},
 };
+use proc_macro2::TokenStream;
+use quote::quote;
 use std::process;
 
 ///
