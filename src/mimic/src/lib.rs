@@ -27,3 +27,29 @@ pub mod lib {
     pub use lib_cbor as cbor;
     pub use lib_rand as rand;
 }
+
+//
+// Prelude
+//
+// NOTE: Do not put the candid macros (query, update etc.) directly within this prelude as the endpoints
+// will fail to be registered with the export_candid! macro
+//
+
+pub mod prelude {
+    pub use crate::{
+        api::{
+            auth::{guard, Guard},
+            perf,
+            request::{Request, RequestKind, Response},
+        },
+        core::state::{
+            AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager,
+            SubnetIndex, SubnetIndexManager, User, UserIndex, UserIndexManager,
+        },
+        ic::{caller, format_cycles, id, log, Log},
+        orm::traits::EntityFixture,
+    };
+    pub use ::candid::Principal;
+    pub use ::std::cell::RefCell;
+    pub use ::types::Ulid;
+}

@@ -1,4 +1,4 @@
-![MSRV](https://img.shields.io/badge/rustc-1.80+-blue.svg)  (deal with it)
+![MSRV](https://img.shields.io/badge/rustc-1.80+-blue.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # mimic
 ## <marquee>Mimic Dapp Framework</marquee>
@@ -100,8 +100,6 @@ Framework-level runtime configuration.  Magic numbers, hash seeds, directories e
 Anything compile time we would have to pass into Mimic as an environment variable or rust feature.
 
 
-
-
 #### core/schema
 
 The runtime schema can be accessed from this crate.
@@ -113,7 +111,7 @@ Core-level state.  This was moved out of the actor classes as we couldn't refere
 This crate contains runtime state, which isn't great but we have a strict interface that allows access to it which somewhat lessens
 the concerns.
 
-#####core/wasm
+#### core/wasm
 
 Currently this crate contains one helper struct that allows you to store and retrieve Wasm bytes at runtime, allowing the root canister to create canisters on demand.
 

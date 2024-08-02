@@ -10,6 +10,7 @@ workspace = true
 [dependencies]
 api = { workspace = true }
 ic = { workspace = true }
+candid = { workspace = true }
 orm = { workspace = true }
 config = { workspace = true }
 schema = { workspace = true }

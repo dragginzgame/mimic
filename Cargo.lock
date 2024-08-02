@@ -854,6 +854,7 @@ name = "mimic"
 version = "0.0.2"
 dependencies = [
  "api",
+ "candid",
  "config",
  "core_schema",
  "db",

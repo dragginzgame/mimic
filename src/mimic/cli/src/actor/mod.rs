@@ -2,7 +2,6 @@ pub mod crud;
 pub mod endpoints;
 pub mod fixtures;
 pub mod init;
-pub mod prelude;
 pub mod root;
 pub mod stores;
 pub mod timers;
@@ -90,7 +89,6 @@ impl ActorBuilder {
     #[must_use]
     pub fn expand(mut self) -> TokenStream {
         // all get these
-        prelude::extend(&mut self);
         endpoints::extend(&mut self);
         crud::extend(&mut self);
         fixtures::extend(&mut self);
