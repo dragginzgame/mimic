@@ -46,7 +46,7 @@ pub mod prelude {
             AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager,
             SubnetIndex, SubnetIndexManager, User, UserIndex, UserIndexManager,
         },
-        db,
+        db::query,
         ic::{caller, format_cycles, id, log, Log},
         orm::traits::EntityFixture,
     };
