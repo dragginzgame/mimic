@@ -1,7 +1,7 @@
 use darling::{ast::NestedMeta, Error as DarlingError, FromMeta};
 use derive_more::{Deref, DerefMut};
 use proc_macro2::TokenStream;
-use quote::ToTokens;
+use quote::{quote, format_ident, ToTokens};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, hash::Hash, str::FromStr, sync::LazyLock};
 use strum::{Display, EnumString};

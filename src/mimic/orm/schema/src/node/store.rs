@@ -4,6 +4,7 @@ use crate::{
     visit::Visitor,
 };
 use lib_case::{Case, Casing};
+use quote::format_ident;
 use serde::{Deserialize, Serialize};
 use std::ops::Range;
 use syn::Ident;

@@ -36,15 +36,15 @@ pub mod orm {
         pub use orm::{
             collections::HashSet,
             traits::{
-                EntityDynamic, EntityFixture, Filterable, Orderable, Path, PrimaryKey, Sanitize,
-                Storable, Validate, Visitable,
+                EntityDynamic, EntityFixture, EnumHash, Filterable, Inner, Orderable, Path,
+                PrimaryKey, Sanitize, Storable, Validate, Visitable,
             },
         };
         pub use orm_macros::*;
         pub use serde::{Deserialize, Serialize};
         pub use snafu::Snafu;
-        pub use std::fmt::Display;
-        pub use types::{ErrorVec, Ulid};
+        pub use std::{cmp::Ordering, fmt::Display};
+        pub use types::ErrorVec;
     }
 
     pub use orm::*;

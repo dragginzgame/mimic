@@ -4,7 +4,7 @@ use crate::{
 };
 use orm::types::{Cardinality, PrimitiveGroup};
 use proc_macro2::TokenStream;
-use quote::ToTokens;
+use quote::{quote, ToTokens};
 
 ///
 /// Map

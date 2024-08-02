@@ -3,6 +3,7 @@ use darling::FromMeta;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
 use syn::{Expr, Type};
+use quote::quote;
 
 ///
 /// Constant

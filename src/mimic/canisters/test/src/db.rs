@@ -1,10 +1,10 @@
 // darling(default) generates these warnings
 #![allow(clippy::unused_self)]
 
-use base::types::{self, Ulid};
 use db::{DataKey, Db};
 use db_query::types::Order;
 use orm::traits::Path;
+use types::Ulid;
 
 ///
 /// DbTester

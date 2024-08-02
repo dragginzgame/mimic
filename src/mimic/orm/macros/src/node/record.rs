@@ -5,6 +5,7 @@ use crate::{
 use darling::FromMeta;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
+use quote::quote;
 
 ///
 /// Record

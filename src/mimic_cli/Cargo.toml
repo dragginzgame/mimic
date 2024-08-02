@@ -12,7 +12,7 @@ name = "mimicli"
 path = "src/main.rs"
 
 [dependencies]
-base = { workspace = true }
+mimic_base = { workspace = true }
 clap = { workspace = true }
 orm = { workspace = true }
 proc-macro2 = { workspace = true }

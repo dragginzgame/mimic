@@ -3,7 +3,7 @@ use crate::{
     node::{Arg, Entity, FieldList, MacroNode, Newtype, Record},
 };
 use proc_macro2::TokenStream;
-use quote::ToTokens;
+use quote::{quote, ToTokens};
 
 // entity
 pub fn entity(node: &Entity, t: Trait) -> TokenStream {

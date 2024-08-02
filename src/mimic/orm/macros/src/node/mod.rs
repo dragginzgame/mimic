@@ -58,6 +58,7 @@ use darling::FromMeta;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
 use syn::Path;
+use quote::{format_ident, quote};
 
 ///
 /// NODE TRAITS

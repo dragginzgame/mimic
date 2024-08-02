@@ -3,7 +3,7 @@ use crate::{
     node::{EnumHash, MacroNode, Trait},
 };
 use proc_macro2::TokenStream;
-use quote::ToTokens;
+use quote::{quote, ToTokens};
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 ///

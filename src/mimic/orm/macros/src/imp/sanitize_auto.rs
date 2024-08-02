@@ -3,7 +3,7 @@ use crate::{
     node::Newtype,
 };
 use proc_macro2::TokenStream;
-use quote::ToTokens;
+use quote::{quote, ToTokens};
 
 // newtype
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {

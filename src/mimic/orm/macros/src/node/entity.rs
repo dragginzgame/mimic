@@ -7,6 +7,7 @@ use darling::FromMeta;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
 use syn::{Ident, Path};
+use quote::quote;
 
 ///
 /// Entity

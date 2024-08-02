@@ -1,7 +1,6 @@
 
 [workspace]
 members = [
-    "src/base",
     "src/mimic",
     "src/mimic/api",
     "src/mimic/canisters/test",
@@ -23,6 +22,7 @@ members = [
     "src/mimic/lib/time",
     "src/mimic/lib/test",
     "src/mimic_cli",
+    "src/mimic_base",
     "src/mimic_common",
     "src/mimic_derive",
     "src/tests",
@@ -35,10 +35,10 @@ edition = "2021"
 version = "0.0.2"
 
 [workspace.dependencies]
-base = { path = "src/base" }
 
 # top level
 mimic = { path = "src/mimic" }
+mimic_base = { path = "src/mimic_base" }
 mimic_common = { path = "src/mimic_common" }
 mimic_derive = { path = "src/mimic_derive" }
 mimic_cli = { path = "src/mimic_cli" }

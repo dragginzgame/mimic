@@ -6,7 +6,7 @@ use darling::FromMeta;
 use orm::types::Cardinality;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use quote::ToTokens;
+use quote::{quote, ToTokens};
 use syn::Path;
 
 ///

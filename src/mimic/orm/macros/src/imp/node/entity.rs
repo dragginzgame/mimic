@@ -3,7 +3,7 @@ use crate::{
     node::{Entity, Trait},
 };
 use proc_macro2::TokenStream;
-use quote::ToTokens;
+use quote::{quote, ToTokens};
 
 ///
 /// Entity

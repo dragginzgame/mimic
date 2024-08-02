@@ -4,7 +4,7 @@ use crate::{
 };
 use orm::types::PrimitiveType;
 use proc_macro2::TokenStream;
-use quote::ToTokens;
+use quote::{quote, format_ident, ToTokens};
 
 ///
 /// NumCast

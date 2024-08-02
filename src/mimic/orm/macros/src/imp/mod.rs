@@ -15,7 +15,7 @@ pub mod visitable;
 
 use crate::node::{Def, MacroNode, Trait};
 use proc_macro2::TokenStream;
-use quote::ToTokens;
+use quote::{quote, ToTokens};
 use syn::{parse2, GenericParam, Generics, WherePredicate};
 
 ///

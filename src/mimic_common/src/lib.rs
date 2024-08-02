@@ -3,6 +3,10 @@
 /// common libraries used by both App and Framework
 ///
 
+pub mod case {
+    pub use lib_case::*;
+}
+
 pub mod cbor {
     pub use lib_cbor::*;
 }

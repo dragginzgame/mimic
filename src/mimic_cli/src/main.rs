@@ -3,9 +3,6 @@ pub mod schema;
 
 use clap::{Parser, Subcommand};
 
-#[macro_use]
-extern crate quote;
-
 ///
 /// Cli
 ///

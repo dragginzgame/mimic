@@ -3,7 +3,7 @@ use darling::{ast::NestedMeta, Error as DarlingError, FromMeta};
 use derive_more::Deref;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use quote::ToTokens;
+use quote::{quote, ToTokens};
 use strum::Display;
 use syn::{Lit, Path};
 

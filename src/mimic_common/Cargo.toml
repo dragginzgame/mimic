@@ -12,3 +12,4 @@ lib_ic = { workspace = true }
 lib_time = { workspace = true }
 lib_rand = { workspace = true }
 lib_cbor = { workspace = true }
+lib_case = { workspace = true }

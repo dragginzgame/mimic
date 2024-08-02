@@ -3,7 +3,7 @@ use crate::{
     node::{Enum, Newtype, TypeValidator},
 };
 use proc_macro2::TokenStream;
-use quote::ToTokens;
+use quote::{format_ident, quote, ToTokens};
 
 // enum_
 // any variants that have the invalid flag set should not pass validation if selected

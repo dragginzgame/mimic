@@ -1,6 +1,7 @@
 use super::ActorBuilder;
 use proc_macro2::TokenStream;
 use syn::{parse_str, Path};
+use quote::quote;
 
 // extend
 pub fn extend(builder: &mut ActorBuilder) {

@@ -1,4 +1,5 @@
 use super::ActorBuilder;
+use quote::quote;
 
 // extend
 pub fn extend(builder: &mut ActorBuilder) {

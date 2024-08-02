@@ -3,7 +3,7 @@ use crate::{
     node::{Enum, MacroNode, Newtype, Trait},
 };
 use proc_macro2::TokenStream;
-use quote::ToTokens;
+use quote::{quote, ToTokens};
 
 // enum_
 pub fn enum_(node: &Enum, t: Trait) -> TokenStream {

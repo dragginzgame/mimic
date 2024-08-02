@@ -8,6 +8,7 @@ use orm::types::Sorted;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
 use syn::Ident;
+use quote::quote;
 
 ///
 /// Enum

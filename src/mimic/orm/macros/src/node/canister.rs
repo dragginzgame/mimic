@@ -5,6 +5,7 @@ use crate::{
 use darling::FromMeta;
 use orm::types::Cycles;
 use orm_schema::Schemable;
+use quote::quote;
 use proc_macro2::TokenStream;
 
 ///

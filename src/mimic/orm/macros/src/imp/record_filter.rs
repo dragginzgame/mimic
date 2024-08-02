@@ -4,7 +4,7 @@ use crate::{
 };
 use orm::types::Cardinality;
 use proc_macro2::TokenStream;
-use quote::ToTokens;
+use quote::{quote, ToTokens};
 
 // entity
 pub fn entity(node: &Entity, t: Trait) -> TokenStream {

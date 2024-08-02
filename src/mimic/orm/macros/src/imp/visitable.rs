@@ -4,7 +4,7 @@ use crate::{
 };
 use orm::types::Cardinality;
 use proc_macro2::TokenStream;
-use quote::ToTokens;
+use quote::{quote, ToTokens};
 use syn::{Expr, Ident};
 
 //

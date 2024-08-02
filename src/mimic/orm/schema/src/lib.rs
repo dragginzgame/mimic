@@ -4,9 +4,6 @@ pub mod node;
 pub mod types;
 pub mod visit;
 
-#[macro_use]
-extern crate quote;
-
 use proc_macro2::TokenStream;
 
 ///

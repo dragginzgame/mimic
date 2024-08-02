@@ -98,23 +98,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c4b4d0bd25bd0b74681c0ad21497610ce1b7c91b1022cd21c80c6fbdd9476b0"
 
 [[package]]
-name = "base"
-version = "0.0.2"
-dependencies = [
- "candid",
- "ctor",
- "derive_more",
- "mimic",
- "mimic_common",
- "mimic_derive",
- "num-traits",
- "serde",
- "sha2",
- "snafu",
- "strum",
-]
-
-[[package]]
 name = "binread"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -198,12 +181,12 @@ name = "canister_test"
 version = "0.0.2"
 dependencies = [
  "api",
- "base",
  "candid",
  "db",
  "db_query",
  "ic-cdk",
  "lib_ic",
+ "mimic_base",
  "mimic_common",
  "orm",
 ]
@@ -291,8 +274,8 @@ checksum = "1462739cb27611015575c0c11df5df7601141071f07518d56fcc1be504cbec97"
 name = "cli"
 version = "0.0.2"
 dependencies = [
- "base",
  "clap",
+ "mimic_base",
  "orm",
  "orm_schema",
  "proc-macro2",
@@ -895,9 +878,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "mimic_base"
+version = "0.0.2"
+dependencies = [
+ "candid",
+ "ctor",
+ "derive_more",
+ "mimic",
+ "mimic_common",
+ "mimic_derive",
+ "num-traits",
+ "serde",
+ "sha2",
+ "snafu",
+ "strum",
+]
+
+[[package]]
 name = "mimic_common"
 version = "0.0.2"
 dependencies = [
+ "lib_case",
  "lib_cbor",
  "lib_ic",
  "lib_rand",

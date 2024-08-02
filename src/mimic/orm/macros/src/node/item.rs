@@ -5,7 +5,7 @@ use crate::{
 use darling::{Error as DarlingError, FromMeta};
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use quote::ToTokens;
+use quote::{quote, ToTokens};
 use syn::{parse_str, Lit, Path};
 
 ///

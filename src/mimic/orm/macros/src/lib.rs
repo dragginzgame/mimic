@@ -15,9 +15,6 @@ use darling::{ast::NestedMeta, Error as DarlingError, FromMeta};
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, ItemStruct, Visibility};
 
-#[macro_use]
-extern crate quote;
-
 ///
 /// Node Macro Macros
 ///
