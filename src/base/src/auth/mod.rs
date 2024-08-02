@@ -1,3 +1,5 @@
+pub use crate::prelude::*;
+
 pub mod role {
     use super::*;
 

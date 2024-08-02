@@ -1,4 +1,4 @@
-use crate::{canister, types, validator};
+use crate::{canister, prelude::*, types, validator};
 
 ///
 /// Validator

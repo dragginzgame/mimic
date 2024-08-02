@@ -1,3 +1,5 @@
+pub use crate::prelude::*;
+
 ///
 /// Test Canister
 ///

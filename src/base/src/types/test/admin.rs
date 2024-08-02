@@ -1,4 +1,7 @@
-use crate::types::{self, test};
+use crate::{
+    prelude::*,
+    types::{self, test},
+};
 
 ///
 /// ComplexEntity

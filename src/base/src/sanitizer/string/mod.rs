@@ -1,7 +1,7 @@
 pub mod case;
 
+pub use crate::prelude::*;
 use base::sanitizer::string;
-use std::fmt::Display;
 
 ///
 /// CollapseWhitespace

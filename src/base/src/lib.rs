@@ -11,22 +11,25 @@ pub mod validator;
 
 // prelude
 pub(crate) mod prelude {
-    pub use candid::CandidType;
-    pub use mimic::{
+    pub use ::candid::CandidType;
+    pub use ::mimic::{
+        lib::case::{Case, Casing},
         lib::ic::structures::storable::Bound,
         orm::{
             collections::HashSet,
+            macros::*,
             traits::{
                 Filterable, Orderable, Path, PrimaryKey, Sanitize, Storable, Validate, Visitable,
             },
         },
         types::ErrorVec,
     };
-    pub use serde::{Deserialize, Serialize};
+    pub use ::num_traits::NumCast;
+    pub use ::serde::{Deserialize, Serialize};
+    pub use ::snafu::Snafu;
+    pub use ::std::fmt::Display;
 }
 
-#[macro_use]
-extern crate macros;
 extern crate self as base;
 
 // init

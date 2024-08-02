@@ -55,9 +55,9 @@ pub mod prelude {
         perf,
     };
     pub use ::candid::{CandidType, Principal};
+    pub use ::mimic_common::ic::{caller, format_cycles, id, log, Log};
     pub use ::std::cell::RefCell;
     pub use ::types::Ulid;
-    pub use mimic_common::ic::{caller, format_cycles, id, log, Log};
 }
 
 ///

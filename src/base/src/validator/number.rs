@@ -1,9 +1,5 @@
-#![allow(clippy::needless_pass_by_value)]
-use candid::CandidType;
+use crate::prelude::*;
 use num_traits::{CheckedRem, NumCast, Zero};
-use serde::{Deserialize, Serialize};
-use snafu::Snafu;
-use std::fmt::Display;
 
 ///
 /// Error

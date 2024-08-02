@@ -1,8 +1,8 @@
+use crate::prelude::*;
 use candid::CandidType;
 use mimic::lib::case::{Case, Casing};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
-use std::fmt::Display;
 
 ///
 /// Error

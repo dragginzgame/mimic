@@ -1,4 +1,4 @@
-use std::fmt::Display;
+pub use crate::prelude::*;
 
 ///
 /// RgbHex

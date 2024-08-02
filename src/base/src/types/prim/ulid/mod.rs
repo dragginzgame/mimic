@@ -4,13 +4,13 @@ use crate::prelude::*;
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, FromStr};
 use mimic::{
-    derive::StorableInternal,
     orm::{
         collections::HashSet,
         traits::{Filterable, Orderable, Path, PrimaryKey, SanitizeAuto, Validate, ValidateAuto},
     },
     types::{ErrorVec, Ulid as WrappedUlid},
 };
+use mimic_derive::Storable;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::{cmp::Ordering, fmt};
@@ -44,7 +44,7 @@ pub enum Error {
     PartialOrd,
     Serialize,
     Deserialize,
-    StorableInternal,
+    Storable,
 )]
 pub struct Ulid(WrappedUlid);
 

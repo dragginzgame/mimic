@@ -1,4 +1,4 @@
-use crate::{canister, types};
+use crate::{canister, prelude::*, types};
 
 ///
 /// CreateBasic

@@ -1,5 +1,4 @@
-use mimic::lib::case::{Case, Casing};
-use std::fmt::Display;
+pub use crate::prelude::*;
 
 ///
 /// Camel

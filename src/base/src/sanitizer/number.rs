@@ -1,4 +1,4 @@
-use num_traits::NumCast;
+use crate::prelude::*;
 
 ///
 /// Clamp

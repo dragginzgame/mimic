@@ -1,11 +1,11 @@
 use crate::prelude::*;
 use candid::{types::principal::PrincipalError, CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut};
-use ic::{api::caller, structures::storable::Bound};
 use mimic::orm::traits::{
     Filterable, Inner, Orderable, PrimaryKey, Sanitize, SanitizeAuto, Storable, Validate,
     ValidateAuto, Visitable,
 };
+use mimic_common::ic::{api::caller, structures::storable::Bound};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::{

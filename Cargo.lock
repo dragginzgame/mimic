@@ -106,6 +106,7 @@ dependencies = [
  "derive_more",
  "mimic",
  "mimic_common",
+ "mimic_derive",
  "num-traits",
  "serde",
  "sha2",
