@@ -1,8 +1,8 @@
 pub mod fixture;
 
-use crate::prelude::*;
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, FromStr};
+use mimic::orm::prelude::*;
 use mimic::{
     orm::{
         collections::HashSet,

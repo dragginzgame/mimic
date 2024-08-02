@@ -1,4 +1,5 @@
-pub use crate::{prelude::*, types};
+pub use crate::types;
+use mimic::orm::prelude::*;
 
 ///
 /// Duration

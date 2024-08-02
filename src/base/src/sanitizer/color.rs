@@ -1,4 +1,4 @@
-pub use crate::prelude::*;
+use mimic::orm::prelude::*;
 
 ///
 /// RgbHex

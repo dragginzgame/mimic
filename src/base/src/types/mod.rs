@@ -9,8 +9,8 @@ pub mod test;
 pub mod text;
 pub mod time;
 
-pub use crate::prelude::*;
 use crate::types;
+pub use mimic::orm::prelude::*;
 
 // re-exports and aliases
 pub type Todo = Bool;

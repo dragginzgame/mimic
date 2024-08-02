@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use mimic::orm::prelude::*;
 use snafu::Snafu;
 
 ///

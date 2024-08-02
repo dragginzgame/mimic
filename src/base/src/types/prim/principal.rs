@@ -1,6 +1,6 @@
-use crate::prelude::*;
 use candid::{types::principal::PrincipalError, CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut};
+use mimic::orm::prelude::*;
 use mimic::orm::traits::{
     Filterable, Inner, Orderable, PrimaryKey, Sanitize, SanitizeAuto, Storable, Validate,
     ValidateAuto, Visitable,

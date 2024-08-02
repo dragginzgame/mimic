@@ -1,5 +1,5 @@
-use crate::prelude::*;
 use candid::CandidType;
+use mimic::orm::prelude::*;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 

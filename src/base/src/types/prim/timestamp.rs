@@ -1,5 +1,5 @@
-use crate::prelude::*;
 use derive_more::{Deref, DerefMut};
+use mimic::orm::prelude::*;
 use mimic::{
     orm::traits::{SanitizeAuto, ValidateAuto},
     types::Timestamp as WrappedTimestamp,

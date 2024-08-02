@@ -9,27 +9,6 @@ pub mod sanitizer;
 pub mod types;
 pub mod validator;
 
-// prelude
-pub(crate) mod prelude {
-    pub use ::candid::CandidType;
-    pub use ::mimic::{
-        lib::case::{Case, Casing},
-        lib::ic::structures::storable::Bound,
-        orm::{
-            collections::HashSet,
-            macros::*,
-            traits::{
-                Filterable, Orderable, Path, PrimaryKey, Sanitize, Storable, Validate, Visitable,
-            },
-        },
-        types::ErrorVec,
-    };
-    pub use ::num_traits::NumCast;
-    pub use ::serde::{Deserialize, Serialize};
-    pub use ::snafu::Snafu;
-    pub use ::std::fmt::Display;
-}
-
 extern crate self as base;
 
 // init

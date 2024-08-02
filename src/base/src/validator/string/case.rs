@@ -1,6 +1,6 @@
-use crate::prelude::*;
 use candid::CandidType;
 use mimic::lib::case::{Case, Casing};
+use mimic::orm::prelude::*;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 

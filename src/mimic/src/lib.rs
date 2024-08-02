@@ -27,6 +27,25 @@ pub mod lib {
 }
 
 pub mod orm {
+    // ORM Prelude
+    pub mod prelude {
+        pub use candid::CandidType;
+        pub use lib_case::{Case, Casing};
+        pub use lib_ic::structures::storable::Bound;
+        pub use num_traits::NumCast;
+        pub use orm::{
+            collections::HashSet,
+            traits::{
+                Filterable, Orderable, Path, PrimaryKey, Sanitize, Storable, Validate, Visitable,
+            },
+        };
+        pub use orm_macros::*;
+        pub use serde::{Deserialize, Serialize};
+        pub use snafu::Snafu;
+        pub use std::fmt::Display;
+        pub use types::ErrorVec;
+    }
+
     pub use orm::*;
     pub use orm_macros as macros;
     pub use orm_schema as schema;

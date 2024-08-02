@@ -1,6 +1,6 @@
-use crate::prelude::*;
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
+use mimic::orm::prelude::*;
 use mimic::{
     orm::traits::{
         Filterable, Inner, Orderable, Sanitize, SanitizeAuto, Validate, ValidateAuto, Visitable,

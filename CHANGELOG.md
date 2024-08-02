@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.0.2]
 
 - actorgen and schemagen combined into a single `mimicli` executable
+- added mimic::prelude and mimic::orm::prelude for external actor and design crates
 
 ## [0.0.1]
 

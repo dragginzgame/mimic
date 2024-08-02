@@ -1,4 +1,5 @@
-use crate::{prelude::*, types};
+use crate::types;
+use mimic::orm::prelude::*;
 
 ///
 /// Record

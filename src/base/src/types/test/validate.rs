@@ -1,4 +1,5 @@
-use crate::{canister, prelude::*, types, validator};
+use crate::{canister, types, validator};
+use mimic::orm::prelude::*;
 
 ///
 /// Validator

@@ -1,7 +1,5 @@
-use crate::{
-    prelude::*,
-    types::{self, test},
-};
+use crate::types::{self, test};
+use mimic::orm::prelude::*;
 
 ///
 /// ComplexEntity

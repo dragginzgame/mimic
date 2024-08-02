@@ -885,9 +885,12 @@ dependencies = [
  "lib_rand",
  "lib_time",
  "mimic_common",
+ "num-traits",
  "orm",
  "orm_macros",
  "orm_schema",
+ "serde",
+ "snafu",
  "types",
 ]
 

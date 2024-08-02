@@ -1,4 +1,5 @@
-use crate::{prelude::*, sanitizer, types, validator};
+use crate::{sanitizer, types, validator};
+use mimic::orm::prelude::*;
 
 ///
 /// Rgb

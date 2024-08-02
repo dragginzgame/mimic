@@ -1,5 +1,5 @@
-use crate::prelude::*;
 use derive_more::{Deref, DerefMut};
+use mimic::orm::prelude::*;
 use mimic::{
     orm::traits::{Inner, SanitizeAuto, ValidateAuto},
     types::Blob as WrappedBlob,

@@ -1,4 +1,5 @@
-use crate::{prelude::*, sanitizer, types};
+use crate::{sanitizer, types};
+use mimic::orm::prelude::*;
 
 ///
 /// ClampRecord

@@ -1,4 +1,5 @@
-use crate::{canister, prelude::*, types};
+use crate::{canister, types};
+use mimic::orm::prelude::*;
 
 ///
 /// CreateBasic

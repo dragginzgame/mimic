@@ -1,7 +1,7 @@
 #![allow(clippy::cast_possible_wrap)]
 pub mod case;
 
-pub use crate::prelude::*;
+use mimic::orm::prelude::*;
 
 ///
 /// Error

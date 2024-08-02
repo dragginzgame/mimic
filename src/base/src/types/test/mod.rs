@@ -4,7 +4,8 @@ pub mod sanitize;
 pub mod store;
 pub mod validate;
 
-use crate::{prelude::*, types};
+use crate::types;
+use mimic::orm::prelude::*;
 
 pub mod has_map {
     use super::*;
