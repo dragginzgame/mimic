@@ -8,6 +8,25 @@ use snafu::Snafu;
 use std::sync::Mutex;
 
 ///
+/// Error
+///
+
+#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+pub enum Error {
+    #[snafu(display("config has already been initialized"))]
+    AlreadyInitialized,
+
+    #[snafu(display("config not yet initialized"))]
+    NotInitialized,
+
+    #[snafu(display("mutex error: {msg}"))]
+    Mutex { msg: String },
+
+    #[snafu(display("toml error: {msg}"))]
+    CannotParseToml { msg: String },
+}
+
+///
 /// CONFIG
 /// Global static variable
 ///
@@ -46,23 +65,4 @@ pub fn init_config_toml(config_str: &str) -> Result<(), Error> {
         toml::from_str(config_str).map_err(|e| Error::CannotParseToml { msg: e.to_string() })?;
 
     init_config(config)
-}
-
-///
-/// Error
-///
-
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
-    #[snafu(display("config has already been initialized"))]
-    AlreadyInitialized,
-
-    #[snafu(display("config not yet initialized"))]
-    NotInitialized,
-
-    #[snafu(display("mutex error: {msg}"))]
-    Mutex { msg: String },
-
-    #[snafu(display("toml error: {msg}"))]
-    CannotParseToml { msg: String },
 }

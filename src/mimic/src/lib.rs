@@ -46,10 +46,13 @@ pub enum Error {
     Db { source: db::Error },
 
     #[snafu(transparent)]
-    Query { source: db::query::Error },
+    Query { source: db_query::Error },
 
     #[snafu(transparent)]
-    Wasm { source: core_wasm::Error },
+    CoreConfig { source: core_config::Error },
+
+    #[snafu(transparent)]
+    CoreWasm { source: core_wasm::Error },
 }
 
 ///
