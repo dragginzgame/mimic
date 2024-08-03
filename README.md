@@ -21,6 +21,13 @@ Hi, I'm @borovan and I LARP as a rust developer.  This is my ORM framework, orig
 
 # NOTHING WORKS YET THIS IS A HUGE MESS
 
+### Current Situation
+
+- Documentation is a disaster because it's evolving so quickly I just make it look neat and forget about
+actually writing useful documentation
+- TESTING
+- HUGE emphasis on macros which slows down the IDE but it's also what makes it so easy to write game design
+
 ### Notable deps
 
 - `ctor` - this is how the schema is assembled
@@ -30,21 +37,6 @@ Hi, I'm @borovan and I LARP as a rust developer.  This is my ORM framework, orig
 - `ulid` for the orm (serde doesn't work with it, so wrote a custom implementation)
 - `darling` for macro parsing
 - `remain` for alphabetical sorting to keep OCD at bay
-
-
-### Current Situation
-
-- Documentation is a disaster because it's evolving so quickly I just make it look neat and forget about
-actually writing useful documentation
-- TESTING
-- HUGE emphasis on macros which slows down the IDE but it's also what makes it so easy to write game design
-
-### Framework TODO
-
-- **TOO MANY CRATES** - frameworks do not wok this way
-- strum, candid, remain - is there anyway to wrap these without requiring the dependency to be specified in
-the upstream package
-- false positives in rust-analyzer with macros.  Hopefully they go away in time.
 
 ### Testing TODO
 
@@ -57,23 +49,44 @@ the upstream package
 - Stable structures for Cell/B-Tree, would like it if there was a few more options.  Making non-Copy Cells because
 of Strings seemed a bit of a stretch
 
+### OPEN QUESTIONS (HELP PLZ!)
+
+#### Crates & Modules
+
+- strum, candid, remain - is there anyway to wrap these without requiring the dependency to be specified in
+the application that's using Mimic
+- comments needed on the amount of crates in the framework.  Does it have to be so many?  What's the best practice
+for organising crates in a complicated project
+
+#### Errors
+
+- **HELP!** what's the best way to handle a framework that has about 50 different error types
+
+#### IDE
+
+- rust-analyzer gives false positives when negative numbers are used in macros, via the derive crate.  I know that
+you're supposed to put them in quotes, but the ArgNumber crate works just fine.
+
+
 ----------
-## Directories
+## Top-Level Crates
+
+- `mimic` - the codebase is here, plus a top level `mimic/src` crate that includes and organises everything
+- `mimic_base` - the design
+- `mimic_cli` - This contains `mimicli`, the commnand line tool to generate rust code for canister actor classes, and the schema.json file which is deserialized and used by the actors.
+- `mimic_common` - common files that are used by macros at the framework level and also application level
+- `mimic_derive` - derive macros (currently just Storable)
+
+## Mimic
 
 #### api
 
 This crate contains helper macros for the API/Actor classes.  This is also where a lot of the errors are defined and wrapped.  As the bin/actorgen
 crate generates a lot of code, this crate is mostly here to handle and organise where that code points to.
 
-#### cli
-
-This contains `mimicli`, the commnand line tool to generate rust code for canister actor classes, and the schema.json file which is deserialized and used by the actors.
-
 #### canisters
 
 Framework-level canisters.  Currently there's just the test canister which allows you to test things at IC runtime which cargo test can't do.
-
-
 
 #### db
 
@@ -82,10 +95,6 @@ The database is a collection of B-Trees.  This isn't really meant to be used dir
 #### db/query
 
 Query interface for the database.  Contains query builders, and a schema resource locator.
-
-#### ic
-
-Everything IC is wrapped in this structure.  Like a library but has it's own crate structure as it's more important (and easier to type)
 
 #### lib
 
@@ -98,7 +107,6 @@ Do these need to be separate crates?
 Framework-level runtime configuration.  Magic numbers, hash seeds, directories etc.
 
 Anything compile time we would have to pass into Mimic as an environment variable or rust feature.
-
 
 #### core/schema
 
@@ -121,7 +129,7 @@ This logic has only been moved into a separate crate so that we can reference it
 
 #### orm/macros
 
-This is the home of all the macros that allow you to create the data model, for instance #[entity], #[newtype]
+This is the home of all the macros that allow you to create the data model, for instance `#[entity]`, `#[newtype]`
 
 #### orm/schema
 
