@@ -32,7 +32,7 @@ pub mod orm {
         pub use candid::CandidType;
         pub use lib_case::{Case, Casing};
         pub use lib_ic::structures::storable::Bound;
-        pub use num_traits::NumCast;
+        pub use num_traits::{NumCast, ToPrimitive};
         pub use orm::{
             collections::HashSet,
             traits::{

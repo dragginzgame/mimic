@@ -87,7 +87,7 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
         rules.extend(quote! {
             let valid_values = [#(#values),*];
 
-            match <isize as NumCast>::from(self.0) {
+            match NumCast::from(self.0) {
                 Some(value) => {
                     if !valid_values.contains(&value) {
                         errs.add(format!("value {} does not appear in guide", &self.0));
