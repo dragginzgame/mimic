@@ -1,6 +1,12 @@
 #!/bin/bash
 
 #
+# This script is designed to be run on a fresh Ubuntu install, it should
+# set up most of the prerequisites needed to install Mimic
+#
+
+
+#
 # ERROR HANDLING
 #
 

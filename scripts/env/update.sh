@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-cd $HOME/projects/dragginz/backend
-
 # rustup
 rustup update
 
