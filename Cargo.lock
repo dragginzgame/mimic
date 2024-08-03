@@ -343,10 +343,16 @@ name = "core_wasm"
 version = "0.0.2"
 dependencies = [
  "candid",
+ "core_schema",
+ "derive_more",
  "lib_ic",
  "mimic_common",
+ "mimic_derive",
+ "orm_schema",
  "serde",
  "snafu",
+ "strum",
+ "types",
 ]
 
 [[package]]
@@ -867,7 +873,6 @@ dependencies = [
  "lib_ic",
  "lib_rand",
  "lib_time",
- "mimic_common",
  "num-traits",
  "orm",
  "orm_macros",
@@ -898,11 +903,14 @@ dependencies = [
 name = "mimic_common"
 version = "0.0.2"
 dependencies = [
+ "candid",
  "lib_case",
  "lib_cbor",
  "lib_ic",
  "lib_rand",
  "lib_time",
+ "serde",
+ "snafu",
 ]
 
 [[package]]

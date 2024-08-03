@@ -58,29 +58,29 @@ macro_rules! log {
     // Match when only the format string is provided (no additional args)
     ($level:expr, $fmt:expr) => {{
         // Pass an empty set of arguments to @inner
-        ::mimic_common::ic::log!(@inner $level, $fmt,);
+        log!(@inner $level, $fmt,);
     }};
 
     // Match when additional arguments are provided
     ($level:expr, $fmt:expr, $($arg:tt)*) => {{
-        ::mimic_common::ic::log!(@inner $level, $fmt, $($arg)*);
+        log!(@inner $level, $fmt, $($arg)*);
     }};
 
     // Inner macro for actual logging logic to avoid code duplication
     (@inner $level:expr, $fmt:expr, $($arg:tt)*) => {{
-        let level: ::mimic_common::ic::Log = $level;
+        let level: Log = $level;
         let formatted_message = format!($fmt, $($arg)*);  // Apply formatting with args
 
         let msg = match level {
-            ::mimic_common::ic::Log::Ok => format!("\x1b[32mOK\x1b[0m: {}", formatted_message),
-            ::mimic_common::ic::Log::Perf => format!("\x1b[35mPERF\x1b[0m: {}", formatted_message),
-            ::mimic_common::ic::Log::Info => format!("\x1b[34mINFO\x1b[0m: {}", formatted_message),
-            ::mimic_common::ic::Log::Warn => format!("\x1b[33mWARN\x1b[0m: {}", formatted_message),
-            ::mimic_common::ic::Log::Error => format!("\x1b[31mERROR\x1b[0m: {}", formatted_message),
+            Log::Ok => format!("\x1b[32mOK\x1b[0m: {}", formatted_message),
+            Log::Perf => format!("\x1b[35mPERF\x1b[0m: {}", formatted_message),
+            Log::Info => format!("\x1b[34mINFO\x1b[0m: {}", formatted_message),
+            Log::Warn => format!("\x1b[33mWARN\x1b[0m: {}", formatted_message),
+            Log::Error => format!("\x1b[31mERROR\x1b[0m: {}", formatted_message),
 
             _ => formatted_message,
         };
 
-        ::mimic_common::ic::println!("{}", msg);
+        println!("{}", msg);
     }};
 }

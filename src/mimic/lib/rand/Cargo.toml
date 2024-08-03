@@ -8,5 +8,5 @@ version = { workspace = true }
 workspace = true
 
 [dependencies]
-tinyrand = { workspace = true }
 lib_time = { workspace = true }
+tinyrand = { workspace = true }

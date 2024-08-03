@@ -9,9 +9,9 @@ workspace = true
 
 [dependencies]
 candid = { workspace = true }
+core_schema = { workspace = true }
 derive_more = { workspace = true }
 lib_ic = { workspace = true }
-core_schema = { workspace = true }
 mimic_common = { workspace = true }
 mimic_derive = { workspace = true }
 orm_schema = { workspace = true }
