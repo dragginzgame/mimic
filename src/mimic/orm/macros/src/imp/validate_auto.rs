@@ -87,10 +87,9 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
         rules.extend(quote! {
             let valid_values = vec![#(#values),*];
 
-            errs.add_result(::base::validator::number::InArray::validate(
-                &self.0,
-                &valid_values,
-            ));
+            if !valid_values.contains(&self.0 as &isize) {
+                errs.add(format!("value {} does not appear in guide", #&self.0));
+            }
         });
     };
 
