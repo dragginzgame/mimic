@@ -7,13 +7,6 @@ pub mod macros;
 pub use api;
 pub use types;
 
-pub mod core {
-    pub use core_config as config;
-    pub use core_schema as schema;
-    pub use core_state as state;
-    pub use core_wasm as wasm;
-}
-
 pub mod db {
     pub use db::*;
     pub use db_query as query;
@@ -27,6 +20,17 @@ pub mod lib {
     pub use lib_time as time;
 }
 
+pub mod config {
+    pub use core_config::{get_config, Config};
+}
+
+pub mod schema {
+    pub use core_schema::{get_schema, Schema};
+}
+
+///
+/// ::mimic module code
+///
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -52,6 +56,9 @@ pub enum Error {
     CoreConfig { source: core_config::Error },
 
     #[snafu(transparent)]
+    CoreState { source: core_state::Error },
+
+    #[snafu(transparent)]
     CoreWasm { source: core_wasm::Error },
 }
 
@@ -63,22 +70,19 @@ pub enum Error {
 ///
 
 pub mod prelude {
-    pub use crate::{
-        api::{
-            auth::{guard, Guard},
-            request::{Request, RequestKind, Response},
-        },
-        core::state::{
-            AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager,
-            SubnetIndex, SubnetIndexManager, User, UserIndex, UserIndexManager,
-        },
-        db::query,
-        mimic_end, mimic_start,
-        orm::traits::{EntityFixture, Path},
-        perf,
+    pub use crate::{mimic_end, mimic_start, perf};
+    pub use ::api::{
+        auth::{guard, Guard},
+        request::{Request, RequestKind, Response},
     };
     pub use ::candid::{CandidType, Principal};
+    pub use ::core_state::{
+        AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager, SubnetIndex,
+        SubnetIndexManager, User, UserIndex, UserIndexManager,
+    };
+    pub use ::db_query;
     pub use ::lib_ic::{caller, format_cycles, id, log, Log};
+    pub use ::orm::traits::{EntityFixture, Path};
     pub use ::std::cell::RefCell;
     pub use ::types::Ulid;
 }
@@ -89,22 +93,22 @@ pub mod prelude {
 
 pub mod orm {
     pub mod prelude {
-        pub use candid::CandidType;
-        pub use lib_case::{Case, Casing};
-        pub use lib_ic::structures::storable::Bound;
-        pub use num_traits::{NumCast, ToPrimitive};
-        pub use orm::{
+        pub use ::candid::CandidType;
+        pub use ::lib_case::{Case, Casing};
+        pub use ::lib_ic::structures::storable::Bound;
+        pub use ::num_traits::{NumCast, ToPrimitive};
+        pub use ::orm::{
             collections::HashSet,
             traits::{
                 EntityDynamic, EntityFixture, EnumHash, Filterable, Inner, Orderable, Path,
                 PrimaryKey, Sanitize, Storable, Validate, Visitable,
             },
         };
-        pub use orm_macros::*;
-        pub use serde::{Deserialize, Serialize};
-        pub use snafu::Snafu;
-        pub use std::{cmp::Ordering, fmt::Display};
-        pub use types::ErrorVec;
+        pub use ::orm_macros::*;
+        pub use ::serde::{Deserialize, Serialize};
+        pub use ::snafu::Snafu;
+        pub use ::std::{cmp::Ordering, fmt::Display};
+        pub use ::types::ErrorVec;
     }
 
     pub use orm::*;

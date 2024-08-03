@@ -2,9 +2,9 @@ pub mod auth;
 pub mod entity;
 
 pub use auth::AuthService;
+pub use orm_schema::node::Schema;
 
 use candid::CandidType;
-use orm_schema::node::Schema;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::sync::Mutex;
