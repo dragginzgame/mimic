@@ -85,10 +85,15 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
             .collect();
 
         rules.extend(quote! {
-            let valid_values = vec![#(#values),*];
+            let valid_values = [#(#values),*];
 
-            if !valid_values.contains(&self.0 as &isize) {
-                errs.add(format!("value {} does not appear in guide", #&self.0));
+            match <isize as NumCast>::from(self.0) {
+                Some(value) => {
+                    if !valid_values.contains(&value) {
+                        errs.add(format!("value {} does not appear in guide", &self.0));
+                    }
+                }
+                None => errs.add("failed to convert value to isize")
             }
         });
     };
