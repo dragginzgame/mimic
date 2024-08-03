@@ -16,7 +16,7 @@ pub fn enum_(node: &Enum, t: Trait) -> TokenStream {
             let name = format!("{}", v.name);
             let ident = format_ident!("{}", v.name);
             quote! {
-                Self::#ident => Err(::base::validator::Error::invalid_variant(#name).into()),
+                Self::#ident => Err(format!("invalid variant: {}", #name).into()),
             }
         })
         .collect();
