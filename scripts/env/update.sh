@@ -9,7 +9,14 @@ cargo install \
     cargo-audit cargo-expand cargo-machete cargo-llvm-lines \
     cargo-outdated cargo-sort cargo-udeps  \
     candid-extractor ic-wasm
-cargo update --verbose
 
 # dfx
 dfxvm update
+
+# cleanup
+cargo audit
+cargo outdated
+cargo sort -w 1>/dev/null
+
+# update last
+cargo update --verbose
