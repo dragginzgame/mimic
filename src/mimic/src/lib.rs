@@ -1,7 +1,11 @@
+use candid::CandidType;
+use serde::{Deserialize, Serialize};
+use snafu::Snafu;
+
 ///
 /// mimic
 ///
-/// for external use only
+/// [for external use only]
 ///
 pub use api;
 pub use types;
@@ -78,6 +82,27 @@ pub mod prelude {
     pub use ::mimic_common::ic::{caller, format_cycles, id, log, Log};
     pub use ::std::cell::RefCell;
     pub use ::types::Ulid;
+}
+
+///
+/// ERROR
+///
+/// consolidates all the different crate errors into one place
+///
+
+#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+pub enum Error {
+    #[snafu(transparent)]
+    Api { source: api::Error },
+
+    #[snafu(transparent)]
+    Db { source: db::Error },
+
+    #[snafu(transparent)]
+    Query { source: db::query::Error },
+
+    #[snafu(transparent)]
+    Wasm { source: core::wasm::Error },
 }
 
 ///
