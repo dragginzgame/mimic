@@ -9,6 +9,12 @@ pub use config;
 pub use ic;
 pub use types;
 
+pub mod core {
+    pub use core_schema as schema;
+    pub use core_state as state;
+    pub use core_wasm as wasm;
+}
+
 pub mod db {
     pub use db::*;
     pub use db_query as query;
