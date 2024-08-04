@@ -6,7 +6,7 @@
 // macro to be included at the start of each canister lib.rs file
 #[macro_export]
 macro_rules! mimic_start {
-    ($config_path:expr) => {{
+    ($actor:expr) => {{
         // CONFIG CHECK
         let config_str = include_str!("../../../config.toml");
         ::mimic::config::init_toml(config_str).expect("Failed to load configuration");

@@ -10,8 +10,8 @@ workspace = true
 [dependencies]
 candid = { workspace = true }
 derive_more = { workspace = true }
-lib_cbor = { workspace = true }
 ic = { workspace = true }
+lib_cbor = { workspace = true }
 mimic_common = { workspace = true }
 mimic_derive = { workspace = true }
 serde = { workspace = true }
