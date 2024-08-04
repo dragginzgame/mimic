@@ -7,11 +7,6 @@
 #[macro_export]
 macro_rules! mimic_start {
     ($actor:expr) => {{
-        // CONFIG CHECK
-        let config_str = include_str!("../../../config.toml");
-        ::mimic::config::init_toml(config_str).expect("Failed to load configuration");
-        panic!("{}", ::mimic::config::get_config().unwrap());
-
         include!(concat!("../../../../../generated/actor/", $actor, ".rs"));
     }};
 }
