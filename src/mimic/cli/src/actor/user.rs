@@ -101,14 +101,16 @@ pub fn user_index(builder: &mut ActorBuilder) {
             if user
                 .roles
                 .iter()
-                .any(|role| core_schema::AuthService::role_has_permission(role, &permission))
+                .any(|role| ::mimic::core::schema::AuthService::role_has_permission(role, &permission))
             {
                 Ok(())
             } else {
                 Err(::mimic::api::auth::AuthError::NotPermitted {
                     id,
-                    permission: permission,
-                })?
+                    permission,
+                })
+                .map_err(::mimic::Error::from)
+                .map_err(Error::from)
             }
         }
     };

@@ -72,7 +72,7 @@ pub fn crud_load(builder: &ActorBuilder) -> TokenStream {
                     #(#calls)*
                     _ => Err(::mimic::api::Error::from(::mimic::api::crud::CrudError::entity_not_found(&request.entity)))
                 }
-            }).map_err(Error::from)?;
+            }).map_err(::mimic::Error::from)?;
 
             Ok(res)
         }
@@ -104,7 +104,7 @@ pub fn crud_save(builder: &ActorBuilder) -> TokenStream {
                     #(#calls)*
                     _ => Err(::mimic::api::Error::from(::mimic::api::crud::CrudError::entity_not_found(&request.entity)))
                 }
-            }).map_err(Error::from)?;
+            }).map_err(::mimic::Error::from)?;
 
             Ok(res)
         }
@@ -138,7 +138,7 @@ pub fn crud_delete(builder: &ActorBuilder) -> TokenStream {
                         ::mimic::api::crud::CrudError::entity_not_found(&request.entity)
                     ))
                 }
-            }).map_err(Error::from)?;
+            }).map_err(::mimic::Error::from)?;
 
             Ok(res)
         }
