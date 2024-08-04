@@ -72,7 +72,7 @@ pub fn canister_endpoints(builder: &mut ActorBuilder) {
         async fn canister_upgrade_children(
             canister_id: Option<Principal>,
         ) -> Result<(), Error> {
-            guard(vec![Guard::Controller]).await?;
+            guard(vec![Guard::Controller]).await.map_err(::mimic::Error::from)?;
 
             // send a request for each matching canister
             for (child_id, path) in child_index() {

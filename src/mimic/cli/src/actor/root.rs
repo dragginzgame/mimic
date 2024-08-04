@@ -53,7 +53,7 @@ pub fn root_module(builder: &mut ActorBuilder) {
             for path in paths {
                 if SubnetIndexManager::get_canister(path).is_none() {
                     // set the canister within the service index
-                    let new_canister_id = api::request::request_canister_create(path).await?;
+                    let new_canister_id = ::mimic::api::request::request_canister_create(path).await?;
 
                     SubnetIndexManager::set_canister(path, new_canister_id);
                 } else {
