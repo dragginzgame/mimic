@@ -206,7 +206,7 @@ pub fn store_endpoints(builder: &mut ActorBuilder) {
         #[::mimic::ic::query(composite = true)]
         #[allow(clippy::needless_pass_by_value)]
         async fn store_keys(store_name: String) -> Result<Vec<String>, Error> {
-            guard(vec![Guard::Controller]).await?;
+            guard(vec![Guard::Controller]).await.map_err(::mimic::Error::from)?;
 
             // get keys
             let keys: Vec<String> = DB.with(|db| {
