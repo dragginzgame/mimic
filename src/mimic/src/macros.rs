@@ -6,9 +6,9 @@
 // macro to be included at the start of each canister lib.rs file
 #[macro_export]
 macro_rules! mimic_start {
-    ($actor:expr) => {{
+    ($actor:expr) => {
         include!(concat!("../../../../../generated/actor/", $actor, ".rs"));
-    }};
+    };
 }
 
 // mimic_end
