@@ -44,6 +44,9 @@ pub enum AuthError {
 
     #[snafu(display("role '{role}' not found"))]
     RoleNotFound { role: String },
+
+    #[snafu(transparent)]
+    CoreState { source: core_state::Error },
 }
 
 ///
@@ -156,7 +159,8 @@ fn guard_parent(id: Principal) -> Result<(), Error> {
 
 // guard_permission
 pub async fn guard_permission(id: Principal, permission: &str) -> Result<(), Error> {
-    let user_canister_id = SubnetIndexManager::try_get_canister("::design::canister::user::User")?;
+    let user_canister_id = SubnetIndexManager::try_get_canister("::design::canister::user::User")
+        .map_err(AuthError::from)?;
 
     crate::call::<_, (Result<(), Error>,)>(
         user_canister_id,

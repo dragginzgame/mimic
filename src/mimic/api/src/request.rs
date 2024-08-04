@@ -15,6 +15,9 @@ use strum::Display;
 pub enum RequestError {
     #[snafu(display("invalid response: {response}"))]
     InvalidResponse { response: Response },
+
+    #[snafu(transparent)]
+    Wasm { source: core_wasm::Error },
 }
 
 ///
@@ -118,7 +121,7 @@ pub async fn response(req: Request) -> Result<Response, Error> {
 
 // response_create_canister
 async fn response_create_canister(path: &str) -> Result<Response, Error> {
-    let bytes = WasmManager::get_wasm(path)?;
+    let bytes = WasmManager::get_wasm(path).map_err(RequestError::from)?;
     let new_canister_id = crate::create::create_canister(path, bytes, caller()).await?;
 
     Ok(Response::CanisterCreate(new_canister_id))
@@ -126,7 +129,7 @@ async fn response_create_canister(path: &str) -> Result<Response, Error> {
 
 // response_upgrade_canister
 async fn response_upgrade_canister(canister_id: Principal, path: &str) -> Result<Response, Error> {
-    let bytes = WasmManager::get_wasm(path)?;
+    let bytes = WasmManager::get_wasm(path).map_err(RequestError::from)?;
     crate::upgrade::upgrade_canister(canister_id, bytes).await?;
 
     Ok(Response::CanisterUpgrade)

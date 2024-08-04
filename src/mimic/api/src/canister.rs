@@ -63,14 +63,14 @@ pub fn version() -> u64 {
 
 // path
 pub fn path() -> Result<String, Error> {
-    let path = CanisterStateManager::get_path()?;
+    let path = CanisterStateManager::get_path().map_err(CanisterError::from)?;
 
     Ok(path)
 }
 
 // root_id
 pub fn root_id() -> Result<Principal, Error> {
-    let root_id = CanisterStateManager::get_root_id()?;
+    let root_id = CanisterStateManager::get_root_id().map_err(CanisterError::from)?;
 
     Ok(root_id)
 }

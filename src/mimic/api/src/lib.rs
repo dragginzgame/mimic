@@ -59,22 +59,6 @@ pub enum Error {
 
     #[snafu(display("ic call: {msg}"))]
     Call { msg: String },
-
-    ///
-    /// catch-all errors to make the API easier to use
-    ///
-
-    #[snafu(transparent)]
-    Db { source: ::db::Error },
-
-    #[snafu(transparent)]
-    Query { source: ::db_query::Error },
-
-    #[snafu(transparent)]
-    State { source: ::core_state::Error },
-
-    #[snafu(transparent)]
-    Wasm { source: ::core_wasm::Error },
 }
 
 impl From<(RejectionCode, String)> for Error {
