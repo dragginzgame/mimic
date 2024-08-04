@@ -26,8 +26,7 @@ pub fn guard_crud(_: &ActorBuilder) -> TokenStream {
             // are there crud permissions?
             let crud = ::core_schema::entity::ENTITY_CRUD_MAP.get(entity)
                 .ok_or_else(|| ::mimic::api::crud::CrudError::entity_not_found(entity))
-                .map_err(::mimic::api::Error::from)
-                .map_err(Error::from)?;
+                .map_err(::mimic::Error::from)?;
 
             // check permission action
             let policy = match action {
@@ -40,8 +39,9 @@ pub fn guard_crud(_: &ActorBuilder) -> TokenStream {
                 vec![Guard::Policy(policy)]
             )
             .await
-            .map_err(::mimic::api::Error::from)
-            .map_err(Error::from)
+            .map_err(::mimic::api::Error::from)?;
+
+            Ok(())
         }
     }
 }
