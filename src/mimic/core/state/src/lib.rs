@@ -48,9 +48,6 @@ pub enum Error {
 
     #[snafu(transparent)]
     UserIndex { source: UserIndexError },
-
-    #[snafu(transparent)]
-    Ic { source: ic::Error },
 }
 
 ///

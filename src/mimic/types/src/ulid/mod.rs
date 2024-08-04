@@ -22,9 +22,6 @@ pub enum Error {
 
     #[snafu(display("ulid has an invalid length"))]
     InvalidLength,
-
-    #[snafu(display("generator: {source}"))]
-    Generator { source: generator::Error },
 }
 
 impl From<ulid::DecodeError> for Error {

@@ -17,6 +17,9 @@ pub enum CanisterStateError {
 
     #[snafu(display("root_id has not been set"))]
     RootIdNotSet,
+
+    #[snafu(transparent)]
+    Ic { source: ic::Error },
 }
 
 ///
@@ -34,7 +37,9 @@ impl CanisterStateManager {
 
     // set
     pub fn set(new_state: CanisterState) -> Result<(), Error> {
-        CANISTER_STATE.with_borrow_mut(|state| state.set(new_state))?;
+        CANISTER_STATE
+            .with_borrow_mut(|state| state.set(new_state))
+            .map_err(CanisterStateError::from)?;
 
         Ok(())
     }

@@ -11,12 +11,6 @@ use mimic::orm::prelude::*;
 pub enum Error {
     #[snafu(display("string contains non-ascii characters"))]
     NonAscii,
-
-    #[snafu(display("string has more than {max} repeated consecutive characters"))]
-    MaxCharRepeatExceeded { max: isize },
-
-    #[snafu(display("case: {source}"))]
-    Case { source: case::Error },
 }
 
 ///

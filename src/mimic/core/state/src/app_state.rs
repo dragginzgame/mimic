@@ -19,6 +19,9 @@ use strum::Display;
 pub enum AppStateError {
     #[snafu(display("app is already in {mode} mode"))]
     AlreadyInMode { mode: AppMode },
+
+    #[snafu(transparent)]
+    Ic { source: ic::Error },
 }
 
 ///
@@ -36,7 +39,9 @@ impl AppStateManager {
 
     // set
     pub fn set(new_state: AppState) -> Result<(), Error> {
-        APP_STATE.with_borrow_mut(|state| state.set(new_state))?;
+        APP_STATE
+            .with_borrow_mut(|state| state.set(new_state))
+            .map_err(AppStateError::from)?;
 
         Ok(())
     }
@@ -49,12 +54,14 @@ impl AppStateManager {
 
     // set_mode
     pub fn set_mode(mode: AppMode) -> Result<(), Error> {
-        APP_STATE.with_borrow_mut(|state| {
-            let mut cur_state = state.get();
+        APP_STATE
+            .with_borrow_mut(|state| {
+                let mut cur_state = state.get();
 
-            cur_state.mode = mode;
-            state.set(cur_state)
-        })?;
+                cur_state.mode = mode;
+                state.set(cur_state)
+            })
+            .map_err(AppStateError::from)?;
 
         Ok(())
     }
