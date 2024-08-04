@@ -139,13 +139,13 @@ pub fn ic_endpoints(builder: &mut ActorBuilder) {
         }
 
         // pre_upgrade
-        #[::ic::pre_upgrade]
+        #[::mimic::ic::pre_upgrade]
         fn pre_upgrade() {
             pre_upgrade2().unwrap();
         }
 
         // post_upgrade
-        #[::ic::post_upgrade]
+        #[::mimic::ic::post_upgrade]
         fn post_upgrade() {
             post_upgrade2().unwrap();
         }
@@ -172,25 +172,25 @@ pub fn state_endpoints(builder: &mut ActorBuilder) {
 
         // app_state
         #[::mimic::ic::query]
-        fn app_state() -> ::state::AppState {
+        fn app_state() -> ::mimic::core::state::AppState {
             ::mimic::api::state::app_state()
         }
 
         // canister_state
         #[::mimic::ic::query]
-        fn canister_state() -> ::state::CanisterState {
+        fn canister_state() -> ::mimic::core::state::CanisterState {
             ::mimic::api::state::canister_state()
         }
 
         // child_index
         #[::mimic::ic::query]
-        fn child_index() -> ::state::ChildIndex {
+        fn child_index() -> ::mimic::core::state::ChildIndex {
             ::mimic::api::state::child_index()
         }
 
         // subnet_index
         #[::mimic::ic::query]
-        fn subnet_index() -> ::state::SubnetIndex {
+        fn subnet_index() -> ::mimic::core::state::SubnetIndex {
             ::mimic::api::state::subnet_index()
         }
     };
@@ -213,7 +213,7 @@ pub fn store_endpoints(builder: &mut ActorBuilder) {
                 db.with_store(&store_name, |store| {
                     Ok(store.data.keys().map(|k| k.to_string()).collect())
                 })
-            })?;
+            }).map_err(::mimic::Error::from)?;
 
             Ok(keys)
         }
