@@ -4,7 +4,7 @@ pub mod sanitize;
 pub mod store;
 pub mod validate;
 
-use crate::types;
+use crate::{canister, types};
 use mimic::orm::prelude::*;
 
 pub mod has_map {
@@ -15,7 +15,7 @@ pub mod has_map {
     ///
 
     #[entity(
-        store = "base::canister::test::store::Data",
+        store = "canister::test::store::Data",
         fields(field(name = "map_int_string", value(item(is = "types::test::MapIntString"))))
     )]
     pub struct HasMap {}

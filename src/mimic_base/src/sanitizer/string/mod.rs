@@ -1,6 +1,6 @@
 pub mod case;
 
-use base::sanitizer::string;
+use crate::sanitizer::string;
 use mimic::orm::prelude::*;
 
 ///

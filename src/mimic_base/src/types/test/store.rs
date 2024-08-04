@@ -17,7 +17,7 @@ pub struct CreateBasic {}
 ///
 
 #[entity(
-    store = "base::canister::test::store::Data",
+    store = "canister::test::store::Data",
     pks = "id",
     fields(
         field(name = "id", value(item(is = "types::Ulid"))),

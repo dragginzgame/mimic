@@ -1,3 +1,4 @@
+use crate::canister;
 use mimic::orm::prelude::*;
 
 ///
@@ -15,7 +16,7 @@ pub mod store {
     ///
 
     #[store(
-        canister = "base::canister::test::Test",
+        canister = "canister::test::Test",
         memory_id = 20,
         crud(load = "allow", save = "allow", delete = "allow")
     )]

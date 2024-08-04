@@ -1,4 +1,7 @@
-use crate::types::{self, test};
+use crate::{
+    canister,
+    types::{self, test},
+};
 use mimic::orm::prelude::*;
 
 ///
@@ -6,7 +9,7 @@ use mimic::orm::prelude::*;
 ///
 
 #[entity(
-    store = "base::canister::test::store::Data",
+    store = "canister::test::store::Data",
     pks = "id",
     fields(
         field(name = "id", value(item(is = "types::Ulid"))),
@@ -74,7 +77,7 @@ pub struct ComplexEntity {}
 ///
 
 #[entity(
-    store = "base::canister::test::store::Data",
+    store = "canister::test::store::Data",
     pks = "id",
     fields(
         field(name = "id", value(item(is = "types::Ulid"))),
@@ -115,7 +118,7 @@ pub struct AdminEntity {}
 ///
 
 #[entity(
-    store = "base::canister::test::store::Data",
+    store = "canister::test::store::Data",
     pks = "id",
     fields(
         field(name = "id", value(item(is = "types::Ulid"))),

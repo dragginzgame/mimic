@@ -9,8 +9,6 @@ pub mod sanitizer;
 pub mod types;
 pub mod validator;
 
-extern crate self as base;
-
 // init
 // schema generation requires a function stub
 // to work on OSX
