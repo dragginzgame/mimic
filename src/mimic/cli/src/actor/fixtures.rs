@@ -1,8 +1,8 @@
 use super::ActorBuilder;
 use orm_schema::{build::schema, node::Fixture};
 use proc_macro2::TokenStream;
-use syn::{parse_str, Path};
 use quote::quote;
+use syn::{parse_str, Path};
 
 // extend
 pub fn extend(builder: &mut ActorBuilder) {
@@ -50,7 +50,7 @@ pub fn fixture_module(builder: &mut ActorBuilder) {
                 ::mimic::db::query::replace(db)
             //     .debug()
                     .from_entities_dynamic(fixtures)
-                    .map_err(Error::from)?;
+                    .map_err(::mimic::Error::from)?;
 
                 Ok(())
             })
