@@ -824,6 +824,9 @@ version = "0.0.2"
 [[package]]
 name = "lib_time"
 version = "0.0.2"
+dependencies = [
+ "ic-cdk",
+]
 
 [[package]]
 name = "libc"

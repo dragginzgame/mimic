@@ -8,3 +8,4 @@ version = { workspace = true }
 workspace = true
 
 [dependencies]
+ic-cdk = { workspace = true }
