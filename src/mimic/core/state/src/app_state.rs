@@ -1,7 +1,7 @@
 use super::{Error, APP_STATE};
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
-use lib_ic::{
+use ic::{
     log,
     structures::{memory::VirtualMemory, Cell},
     Log,

@@ -16,7 +16,7 @@ candid = { workspace = true }
 db = { workspace = true }
 db_query = { workspace = true }
 ic-cdk = { workspace = true }
-lib_ic = { workspace = true }
+ic = { workspace = true }
 mimic_base = { workspace = true }
 mimic_common = { workspace = true }
 orm = { workspace = true }

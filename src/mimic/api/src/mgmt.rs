@@ -1,6 +1,6 @@
 use crate::Error;
 use candid::Principal;
-use lib_ic::api::management_canister::main::{
+use ic::api::management_canister::main::{
     canister_status as ic_canister_status, create_canister as ic_create_canister,
     deposit_cycles as ic_deposit_cycles, install_code as ic_install_code, CanisterIdRecord,
     CanisterStatusResponse, CreateCanisterArgument, InstallCodeArgument,

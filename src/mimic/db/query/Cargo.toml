@@ -12,7 +12,7 @@ candid = { workspace = true }
 core_schema = { workspace = true }
 db = { workspace = true }
 derive_more = { workspace = true }
-lib_ic = { workspace = true }
+ic = { workspace = true }
 orm = { workspace = true }
 orm_schema = { workspace = true }
 serde = { workspace = true }

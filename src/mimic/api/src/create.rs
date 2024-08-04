@@ -1,7 +1,7 @@
 use crate::Error;
 use candid::{CandidType, Principal};
 use config::get_config;
-use lib_ic::{
+use ic::{
     api::management_canister::{
         main::{CanisterInstallMode, InstallCodeArgument, WasmModule},
         provisional::CanisterSettings,
@@ -52,7 +52,7 @@ pub async fn create_canister(
     });
 
     let canister_id = super::mgmt::create_canister(
-        ::lib_ic::api::management_canister::main::CreateCanisterArgument { settings },
+        ::ic::api::management_canister::main::CreateCanisterArgument { settings },
         cycles,
     )
     .await?;
@@ -89,7 +89,7 @@ pub async fn create_canister(
         canister_path,
         bytes_fmt,
         canister_id,
-        ::lib_ic::format_cycles(cycles)
+        ::ic::format_cycles(cycles)
     );
 
     Ok(canister_id)

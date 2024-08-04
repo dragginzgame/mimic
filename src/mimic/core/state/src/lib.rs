@@ -13,7 +13,7 @@ pub use {
 };
 
 use candid::CandidType;
-use lib_ic::structures::{
+use ic::structures::{
     memory::{MemoryId, MemoryManager},
     DefaultMemoryImpl,
 };
@@ -50,7 +50,7 @@ pub enum Error {
     UserIndex { source: UserIndexError },
 
     #[snafu(transparent)]
-    Ic { source: lib_ic::Error },
+    Ic { source: ic::Error },
 }
 
 ///

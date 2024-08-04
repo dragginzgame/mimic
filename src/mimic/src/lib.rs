@@ -6,6 +6,7 @@ pub mod macros;
 ///
 pub use api;
 pub use config;
+pub use ic;
 pub use types;
 
 pub mod db {
@@ -16,7 +17,6 @@ pub mod db {
 pub mod lib {
     pub use lib_case as case;
     pub use lib_cbor as cbor;
-    pub use lib_ic as ic;
     pub use lib_rand as rand;
     pub use lib_time as time;
 }
@@ -78,7 +78,7 @@ pub mod prelude {
         SubnetIndexManager, User, UserIndex, UserIndexManager,
     };
     pub use ::db_query;
-    pub use ::lib_ic::{caller, format_cycles, id, log, Log};
+    pub use ::ic::{caller, format_cycles, id, log, Log};
     pub use ::orm::traits::{EntityFixture, Path};
     pub use ::std::cell::RefCell;
     pub use ::types::Ulid;
@@ -91,8 +91,8 @@ pub mod prelude {
 pub mod orm {
     pub mod prelude {
         pub use ::candid::CandidType;
+        pub use ::ic::structures::storable::Bound;
         pub use ::lib_case::{Case, Casing};
-        pub use ::lib_ic::structures::storable::Bound;
         pub use ::num_traits::{NumCast, ToPrimitive};
         pub use ::orm::{
             collections::HashSet,

@@ -1,5 +1,5 @@
 use candid::CandidType;
-use lib_ic::{log, Log};
+use ic::{log, Log};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::{

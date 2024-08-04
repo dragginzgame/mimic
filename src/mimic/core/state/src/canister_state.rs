@@ -1,7 +1,7 @@
 use super::{Error, CANISTER_STATE};
 use candid::{CandidType, Principal};
 use derive_more::{Deref, DerefMut};
-use lib_ic::structures::{memory::VirtualMemory, Cell};
+use ic::structures::{memory::VirtualMemory, Cell};
 use mimic_derive::Storable;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;

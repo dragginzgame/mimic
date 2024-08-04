@@ -1,5 +1,5 @@
 [package]
-name = "lib_ic"
+name = "ic"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }

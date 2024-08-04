@@ -17,7 +17,7 @@ use candid::{
     utils::{ArgumentDecoder, ArgumentEncoder},
     CandidType, Principal,
 };
-use lib_ic::api::call::{call_raw, RejectionCode};
+use ic::api::call::{call_raw, RejectionCode};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::future::Future;

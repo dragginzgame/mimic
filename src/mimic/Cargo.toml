@@ -18,7 +18,7 @@ db = { workspace = true }
 db_query = { workspace = true }
 lib_case = { workspace = true }
 lib_cbor = { workspace = true }
-lib_ic = { workspace = true }
+ic = { workspace = true }
 lib_rand = { workspace = true }
 lib_time = { workspace = true }
 num-traits = { workspace = true }

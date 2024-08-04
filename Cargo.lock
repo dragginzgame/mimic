@@ -62,14 +62,14 @@ name = "api"
 version = "0.0.2"
 dependencies = [
  "candid",
- "core_config",
+ "config",
  "core_schema",
  "core_state",
  "core_wasm",
  "db",
  "db_query",
  "defer",
- "lib_ic",
+ "ic",
  "mimic_common",
  "orm",
  "orm_schema",
@@ -184,8 +184,8 @@ dependencies = [
  "candid",
  "db",
  "db_query",
+ "ic",
  "ic-cdk",
- "lib_ic",
  "mimic_base",
  "mimic_common",
  "orm",
@@ -291,22 +291,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d3fd119d74b830634cea2a0f58bbd0d54540518a14397557951e79340abc28c0"
 
 [[package]]
-name = "convert_case"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec182b0ca2f35d8fc196cf3404988fd8b8c739a4d270ff118a398feb0cbec1ca"
-dependencies = [
- "unicode-segmentation",
-]
-
-[[package]]
-name = "core_config"
+name = "config"
 version = "0.0.2"
 dependencies = [
  "candid",
  "serde",
  "snafu",
  "toml",
+]
+
+[[package]]
+name = "convert_case"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ec182b0ca2f35d8fc196cf3404988fd8b8c739a4d270ff118a398feb0cbec1ca"
+dependencies = [
+ "unicode-segmentation",
 ]
 
 [[package]]
@@ -328,7 +328,7 @@ dependencies = [
  "candid",
  "core_schema",
  "derive_more",
- "lib_ic",
+ "ic",
  "mimic_common",
  "mimic_derive",
  "orm_schema",
@@ -343,7 +343,7 @@ name = "core_wasm"
 version = "0.0.2"
 dependencies = [
  "candid",
- "lib_ic",
+ "ic",
  "mimic_common",
  "serde",
  "snafu",
@@ -440,8 +440,8 @@ version = "0.0.2"
 dependencies = [
  "candid",
  "derive_more",
+ "ic",
  "lib_cbor",
- "lib_ic",
  "mimic_common",
  "mimic_derive",
  "serde",
@@ -457,7 +457,7 @@ dependencies = [
  "core_schema",
  "db",
  "derive_more",
- "lib_ic",
+ "ic",
  "orm",
  "orm_schema",
  "serde",
@@ -652,6 +652,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
+name = "ic"
+version = "0.0.2"
+dependencies = [
+ "candid",
+ "derive_more",
+ "ic-cdk",
+ "ic-cdk-timers",
+ "ic-stable-structures",
+ "serde",
+ "sha2",
+ "snafu",
+]
+
+[[package]]
 name = "ic-cdk"
 version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -797,20 +811,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "lib_ic"
-version = "0.0.2"
-dependencies = [
- "candid",
- "derive_more",
- "ic-cdk",
- "ic-cdk-timers",
- "ic-stable-structures",
- "serde",
- "sha2",
- "snafu",
-]
-
-[[package]]
 name = "lib_rand"
 version = "0.0.2"
 dependencies = [
@@ -856,15 +856,15 @@ version = "0.0.2"
 dependencies = [
  "api",
  "candid",
- "core_config",
+ "config",
  "core_schema",
  "core_state",
  "core_wasm",
  "db",
  "db_query",
+ "ic",
  "lib_case",
  "lib_cbor",
- "lib_ic",
  "lib_rand",
  "lib_time",
  "num-traits",
@@ -897,9 +897,9 @@ dependencies = [
 name = "mimic_common"
 version = "0.0.2"
 dependencies = [
+ "ic",
  "lib_case",
  "lib_cbor",
- "lib_ic",
  "lib_rand",
  "lib_time",
 ]
@@ -955,8 +955,8 @@ dependencies = [
  "candid",
  "darling",
  "derive_more",
+ "ic",
  "lib_cbor",
- "lib_ic",
  "num-traits",
  "orm_schema",
  "proc-macro2",
@@ -993,9 +993,9 @@ dependencies = [
  "candid",
  "derive_more",
  "hex",
+ "ic",
  "itertools",
  "lib_case",
- "lib_ic",
  "proc-macro2",
  "quote",
  "remain",

@@ -1,7 +1,7 @@
 use crate::node::{Def, MacroNode, ValidateNode, VisitableNode};
 use candid::CandidType;
+use ic::TC;
 use lib_case::{Case, Casing};
-use lib_ic::TC;
 use serde::{Deserialize, Serialize};
 use strum::Display;
 use types::ErrorVec;

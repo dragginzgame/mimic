@@ -4,7 +4,7 @@ mod sanitize;
 mod validate;
 
 use api::Error;
-use lib_ic::{log, update, Log};
+use ic::{log, update, Log};
 
 // init2
 pub fn init2() -> Result<(), Error> {

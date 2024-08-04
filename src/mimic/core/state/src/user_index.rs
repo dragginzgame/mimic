@@ -2,7 +2,7 @@ use super::{Error, USER_INDEX};
 use candid::{CandidType, Principal};
 use core_schema::get_schema;
 use derive_more::{Deref, DerefMut};
-use lib_ic::structures::{memory::VirtualMemory, BTreeMap};
+use ic::structures::{memory::VirtualMemory, BTreeMap};
 use mimic_derive::Storable;
 use orm_schema::node::Role;
 use serde::{Deserialize, Serialize};
