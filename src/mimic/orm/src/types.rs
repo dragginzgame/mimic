@@ -365,7 +365,7 @@ pub struct Sorted(bool);
 impl ToTokens for Sorted {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         if self.0 {
-            tokens.extend(quote!(#[remain::sorted]));
+            tokens.extend(quote!(#[::mimic::export::remain::sorted]));
         }
     }
 }

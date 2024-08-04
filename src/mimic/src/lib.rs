@@ -34,6 +34,7 @@ pub mod schema {
 
 pub mod export {
     pub use ctor;
+    pub use remain;
 }
 
 ///

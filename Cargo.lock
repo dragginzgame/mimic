@@ -872,6 +872,7 @@ dependencies = [
  "orm",
  "orm_macros",
  "orm_schema",
+ "remain",
  "serde",
  "snafu",
  "types",
@@ -882,7 +883,6 @@ name = "mimic_base"
 version = "0.0.2"
 dependencies = [
  "candid",
- "ctor",
  "derive_more",
  "mimic",
  "mimic_common",
