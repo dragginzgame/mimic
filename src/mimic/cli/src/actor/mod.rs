@@ -120,8 +120,8 @@ impl ActorBuilder {
         quote! {
 
             // load config
-            let config_str = include_str!("../../../config.toml");
-            ::mimic::config::init_toml(config_str).expect("Failed to load configuration");
+        //    let config_str = include_str!("../../../config.toml");
+        //    ::mimic::config::init_toml(config_str).expect("Failed to load configuration");
 
             #actor_tokens
 
