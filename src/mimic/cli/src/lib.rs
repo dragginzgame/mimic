@@ -12,6 +12,9 @@ use clap::{Parser, Subcommand};
 struct Cli {
     #[clap(subcommand)]
     command: Command,
+
+    #[clap(long, action)]
+    skip_validation: bool,
 }
 
 ///
@@ -32,9 +35,11 @@ pub fn run() {
     let cli = Cli::parse();
 
     // VALIDATE SCHEMA
-    if let Err(e) = orm_schema::build::validate() {
-        eprintln!("{e}");
-        std::process::exit(2);
+    if !cli.skip_validation {
+        if let Err(e) = orm_schema::build::validate() {
+            eprintln!("{e}");
+            std::process::exit(2);
+        }
     }
 
     // ROUTE COMMAND

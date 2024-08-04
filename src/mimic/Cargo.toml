@@ -10,12 +10,12 @@ workspace = true
 [dependencies]
 api = { workspace = true }
 candid = { workspace = true }
+cli = { workspace = true }
 config = { workspace = true }
 core_schema = { workspace = true }
 core_state = { workspace = true }
 core_wasm = { workspace = true }
 db = { workspace = true }
-cli = { workspace = true }
 db_query = { workspace = true }
 ic = { workspace = true }
 lib_case = { workspace = true }
