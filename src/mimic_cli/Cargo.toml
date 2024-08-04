@@ -7,10 +7,6 @@ version = { workspace = true }
 [lints]
 workspace = true
 
-[[bin]]
-name = "mimicli"
-path = "src/main.rs"
-
 [dependencies]
 clap = { workspace = true }
 mimic_base = { workspace = true }

@@ -31,10 +31,6 @@ enum Command {
 /// Main
 ///
 
-fn main() {
-    run()
-}
-
 pub fn run() {
     let cli = Cli::parse();
 
