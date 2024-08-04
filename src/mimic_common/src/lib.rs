@@ -2,7 +2,7 @@
 /// mimic_common
 /// common libraries used by both App and Framework
 ///
-/// TODO - this should mirror mimi:: as much as possible
+/// TODO - this should mirror mimic:: as much as possible
 ///
 pub use ic;
 
