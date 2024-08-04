@@ -1,8 +1,7 @@
 use derive_more::{Deref, DerefMut};
-use mimic::orm::prelude::*;
-use mimic::{
-    orm::traits::{SanitizeAuto, ValidateAuto},
-    types::Timestamp as WrappedTimestamp,
+use mimic::orm::{
+    prelude::*,
+    traits::{SanitizeAuto, ValidateAuto},
 };
 
 ///

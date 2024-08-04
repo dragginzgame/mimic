@@ -39,8 +39,8 @@ version = "0.0.2"
 mimic = { path = "src/mimic" }
 mimic_base = { path = "src/mimic_base" }
 mimic_common = { path = "src/mimic_common" }
-mimic_derive = { path = "src/mimic_derive" }
 mimic_cli = { path = "src/mimic_cli" }
+mimic_derive = { path = "src/mimic_derive" }
 
 # mimic
 api = { path = "src/mimic/api" }
