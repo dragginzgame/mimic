@@ -32,6 +32,9 @@ resolver = "2"
 rust-version = "1.80.0"
 edition = "2021"
 version = "0.0.2"
+authors = ["borovan <spam@powlex.com>"]
+description = "ORM/Database framework for the Internet Computer"
+license = "MIT"
 
 [workspace.dependencies]
 

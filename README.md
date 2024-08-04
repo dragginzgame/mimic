@@ -1,4 +1,5 @@
-![MSRV](https://img.shields.io/badge/rustc-1.80+-blue.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![MSRV](https://img.shields.io/badge/rustc-1.80+-blue.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Documentation](https://docs.rs/mimic/badge.svg)](https://docs.rs/mimic)
+
 
 # mimic
 ## <marquee>Mimic Dapp Framework</marquee>
@@ -51,11 +52,14 @@ of Strings seemed a bit of a stretch
 
 ### OPEN QUESTIONS (HELP PLZ!)
 
+#### Macros
+
+- the mimic_start! macro - how should it know where the generated file is going to be?  Should I generate it into
+the same directory?  Can I pass an environment variable for WORKSPACE_ROOT or something like that?
+
 #### Crates & Modules
 
-- strum, candid, remain - is there anyway to wrap these without requiring the dependency to be specified in
-the application that's using Mimic
-- comments needed on the amount of crates in the framework.  Does it have to be so many?  What's the best practice
+- feedback needed on the amount of crates in the framework.  Does it have to be so many?  What's the best practice
 for organising crates in a complicated project
 
 #### Errors
@@ -74,7 +78,6 @@ you're supposed to put them in quotes, but the ArgNumber crate works just fine.
 
 - `mimic` - the codebase is here, plus a top level `mimic/src` crate that includes and organises everything
 - `mimic_base` - the design
-- `mimic_cli` - This contains `mimicli`, the commnand line tool to generate rust code for canister actor classes, and the schema.json file which is deserialized and used by the actors.
 - `mimic_common` - common files that are used by macros at the framework level and also application level
 - `mimic_derive` - derive macros (currently just Storable)
 
@@ -88,6 +91,14 @@ crate generates a lot of code, this crate is mostly here to handle and organise 
 #### canisters
 
 Framework-level canisters.  Currently there's just the test canister which allows you to test things at IC runtime which cargo test can't do.
+
+#### cli
+
+This is the helper code to make a binary `mimicli` that can generate rust code for the actor classes, and also the
+schema.json file.
+
+`mimicli` needs to include your local design crate when compiling, so it isn't a binary in its own right.  You have to make
+it into a binary yourself.
 
 #### db
 

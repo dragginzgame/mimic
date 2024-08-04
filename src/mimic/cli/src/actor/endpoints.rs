@@ -50,7 +50,7 @@ pub fn canister_endpoints(builder: &mut ActorBuilder) {
         #[::mimic::ic::query]
         fn canister_path() -> Result<String, Error> {
             ::mimic::api::canister::path()
-                .map_err(::mimic::api::Error::from)
+                .map_err(::mimic::Error::from)
                 .map_err(Error::from)
         }
 
