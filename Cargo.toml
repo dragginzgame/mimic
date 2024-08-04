@@ -4,7 +4,7 @@ members = [
     "src/mimic",
     "src/mimic/api",
     "src/mimic/canisters/test",
-    "src/mimic/core/config",
+    "src/mimic/config",
     "src/mimic/core/schema",
     "src/mimic/core/state",
     "src/mimic/core/wasm",
@@ -44,11 +44,14 @@ mimic_cli = { path = "src/mimic_cli" }
 
 # mimic
 api = { path = "src/mimic/api" }
-canister_test = { path = "src/mimic/canisters/test" }
+config = { path = "src/mimic/config" }
+ic = { path = "src/mimic/ic" }
 types = { path = "src/mimic/types" }
 
+# canisters
+canister_test = { path = "src/mimic/canisters/test" }
+
 # core
-core_config = { path = "src/mimic/core/config" }
 core_schema = { path = "src/mimic/core/schema" }
 core_state = { path = "src/mimic/core/state" }
 core_wasm = { path = "src/mimic/core/wasm" }
@@ -65,7 +68,6 @@ orm_macros = { path = "src/mimic/orm/macros" }
 # core
 lib_case = { path = "src/mimic/lib/case" }
 lib_cbor = { path = "src/mimic/lib/cbor" }
-lib_ic = { path = "src/mimic/lib/ic" }
 lib_rand = { path = "src/mimic/lib/rand" }
 lib_test = { path = "src/mimic/lib/test" }
 lib_time = { path = "src/mimic/lib/time" }

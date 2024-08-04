@@ -1,6 +1,6 @@
 use crate::Error;
 use candid::{CandidType, Principal};
-use core_config::get_config;
+use config::get_config;
 use lib_ic::{
     api::management_canister::{
         main::{CanisterInstallMode, InstallCodeArgument, WasmModule},
@@ -18,7 +18,7 @@ use snafu::Snafu;
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum CreateError {
     #[snafu(transparent)]
-    Config { source: core_config::Error },
+    Config { source: config::Error },
 }
 
 ///

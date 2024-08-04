@@ -5,6 +5,7 @@ pub mod macros;
 /// [for external use only]
 ///
 pub use api;
+pub use config;
 pub use types;
 
 pub mod db {
@@ -18,10 +19,6 @@ pub mod lib {
     pub use lib_ic as ic;
     pub use lib_rand as rand;
     pub use lib_time as time;
-}
-
-pub mod config {
-    pub use core_config::{get_config, Config};
 }
 
 pub mod schema {
@@ -47,13 +44,13 @@ pub enum Error {
     Api { source: api::Error },
 
     #[snafu(transparent)]
+    Config { source: config::Error },
+
+    #[snafu(transparent)]
     Db { source: db::Error },
 
     #[snafu(transparent)]
     Query { source: db_query::Error },
-
-    #[snafu(transparent)]
-    CoreConfig { source: core_config::Error },
 
     #[snafu(transparent)]
     CoreState { source: core_state::Error },
