@@ -860,6 +860,7 @@ dependencies = [
  "core_schema",
  "core_state",
  "core_wasm",
+ "ctor",
  "db",
  "db_query",
  "ic",

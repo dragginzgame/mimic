@@ -23,6 +23,7 @@ lib_cbor = { workspace = true }
 lib_rand = { workspace = true }
 lib_time = { workspace = true }
 num-traits = { workspace = true }
+ctor = { workspace = true }
 orm = { workspace = true }
 orm_macros = { workspace = true }
 orm_schema = { workspace = true }

@@ -57,8 +57,8 @@ use crate::helper::{quote_one, to_path};
 use darling::FromMeta;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use syn::Path;
 use quote::{format_ident, quote};
+use syn::Path;
 
 ///
 /// NODE TRAITS
@@ -89,7 +89,7 @@ pub trait MacroNode: Schemable {
 
         quote! {
             #[cfg(not(target_arch = "wasm32"))]
-            #[::ctor::ctor]
+            #[::mimic::export::ctor::ctor]
             fn #ctor_fn() {
                 ::mimic::orm::schema::build::schema_write().add_node(
                     #schema
