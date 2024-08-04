@@ -7,7 +7,7 @@
 #[macro_export]
 macro_rules! mimic_start {
     ($actor:expr) => {
-        include!(concat!("../../../../../generated/actor/", $actor, ".rs"));
+        include!(concat!("../../../../generated/actor/", $actor, ".rs"));
     };
 }
 

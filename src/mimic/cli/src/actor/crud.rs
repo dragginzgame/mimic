@@ -1,7 +1,7 @@
 use super::ActorBuilder;
 use proc_macro2::TokenStream;
-use syn::{parse_str, Path};
 use quote::quote;
+use syn::{parse_str, Path};
 
 // extend
 pub fn extend(builder: &mut ActorBuilder) {
@@ -55,7 +55,7 @@ pub fn crud_load(builder: &ActorBuilder) -> TokenStream {
         let path_ident: Path = parse_str(&path).unwrap();
 
         calls.push(quote! {
-            #path => ::api::crud::load::<#path_ident>(db, request),
+            #path => ::mimic::api::crud::load::<#path_ident>(db, request),
         });
     }
 

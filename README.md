@@ -66,6 +66,7 @@ for organising crates in a complicated project
 
 - rust-analyzer gives false positives when negative numbers are used in macros, via the derive crate.  I know that
 you're supposed to put them in quotes, but the ArgNumber crate works just fine.
+- rust-analyzer false positive when including a file at the start of each actor
 
 
 ----------
