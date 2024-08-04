@@ -32,6 +32,10 @@ enum Command {
 ///
 
 fn main() {
+    run()
+}
+
+pub fn run() {
     let cli = Cli::parse();
 
     // LOAD SCHEMA
