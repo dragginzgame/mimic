@@ -131,7 +131,7 @@ impl Visitor for ValidateVisitor {
 /// EntityAdapter
 ///
 /// because no dynamic trait upscaling
-/// `<https://github.com/rust-lang/rust/issues/65991>`
+/// https://github.com/rust-lang/rust/issues/65991
 ///
 
 pub struct EntityAdapter<'a>(pub &'a dyn EntityDynamic);
