@@ -27,16 +27,9 @@ enum Command {
     Schema,
 }
 
-///
-/// Main
-///
-
+// run
 pub fn run() {
     let cli = Cli::parse();
-
-    // LOAD SCHEMA
-    // Stub functions for Rust on OSX
-    mimic_base::init();
 
     // VALIDATE SCHEMA
     if let Err(e) = orm_schema::build::validate() {

@@ -271,6 +271,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1462739cb27611015575c0c11df5df7601141071f07518d56fcc1be504cbec97"
 
 [[package]]
+name = "cli"
+version = "0.0.2"
+dependencies = [
+ "clap",
+ "orm",
+ "orm_schema",
+ "proc-macro2",
+ "quote",
+ "serde_json",
+ "syn 2.0.72",
+]
+
+[[package]]
 name = "colorchoice"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -842,6 +855,7 @@ version = "0.0.2"
 dependencies = [
  "api",
  "candid",
+ "cli",
  "config",
  "core_schema",
  "core_state",
@@ -877,20 +891,6 @@ dependencies = [
  "sha2",
  "snafu",
  "strum",
-]
-
-[[package]]
-name = "mimic_cli"
-version = "0.0.2"
-dependencies = [
- "clap",
- "mimic_base",
- "orm",
- "orm_schema",
- "proc-macro2",
- "quote",
- "serde_json",
- "syn 2.0.72",
 ]
 
 [[package]]

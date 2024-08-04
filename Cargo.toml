@@ -5,6 +5,7 @@ members = [
     "src/mimic/api",
     "src/mimic/canisters/test",
     "src/mimic/config",
+    "src/mimic/cli",
     "src/mimic/core/schema",
     "src/mimic/core/state",
     "src/mimic/core/wasm",
@@ -21,7 +22,6 @@ members = [
     "src/mimic/orm/schema",
     "src/mimic/types",
     "src/mimic_base",
-    "src/mimic_cli",
     "src/mimic_common",
     "src/mimic_derive",
     "src/tests",
@@ -39,11 +39,11 @@ version = "0.0.2"
 mimic = { path = "src/mimic" }
 mimic_base = { path = "src/mimic_base" }
 mimic_common = { path = "src/mimic_common" }
-mimic_cli = { path = "src/mimic_cli" }
 mimic_derive = { path = "src/mimic_derive" }
 
 # mimic
 api = { path = "src/mimic/api" }
+cli = { path = "src/mimic/cli" }
 config = { path = "src/mimic/config" }
 ic = { path = "src/mimic/ic" }
 types = { path = "src/mimic/types" }
