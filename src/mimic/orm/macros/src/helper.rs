@@ -1,5 +1,5 @@
 use proc_macro2::{TokenStream, TokenTree};
-use quote::{quote, format_ident, ToTokens};
+use quote::{format_ident, quote, ToTokens};
 use syn::Ident;
 
 ///

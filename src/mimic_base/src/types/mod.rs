@@ -31,7 +31,7 @@ pub struct Blob {}
 
 impl Path for Blob {
     const IDENT: &'static str = "Blob";
-    const PATH: &'static str = "base::types::Blob";
+    const PATH: &'static str = "mimic_base::types::Blob";
 }
 
 ///
@@ -43,7 +43,7 @@ pub struct Decimal {}
 
 impl Path for Decimal {
     const IDENT: &'static str = "Decimal";
-    const PATH: &'static str = "base::types::Decimal";
+    const PATH: &'static str = "mimic_base::types::Decimal";
 }
 
 ///
@@ -104,7 +104,7 @@ pub struct Principal {}
 
 impl Path for Principal {
     const IDENT: &'static str = "Principal";
-    const PATH: &'static str = "base::types::Principal";
+    const PATH: &'static str = "mimic_base::types::Principal";
 }
 
 ///
@@ -123,7 +123,7 @@ pub struct Timestamp {}
 
 impl Path for Timestamp {
     const IDENT: &'static str = "Timestamp";
-    const PATH: &'static str = "base::types::Timestamp";
+    const PATH: &'static str = "mimic_base::types::Timestamp";
 }
 
 ///
@@ -135,7 +135,7 @@ pub struct Ulid {}
 
 impl Path for Ulid {
     const IDENT: &'static str = "Ulid";
-    const PATH: &'static str = "base::types::Ulid";
+    const PATH: &'static str = "mimic_base::types::Ulid";
 }
 
 ///

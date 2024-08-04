@@ -183,7 +183,7 @@ macro_rules! impl_primitive_list {
         $(
             impl Path for $t {
                 const IDENT: &'static str = $name;
-                const PATH: &'static str = concat!("base::types::", $name);
+                const PATH: &'static str = concat!("mimic_base::types::", $name);
             }
         )*
     };
