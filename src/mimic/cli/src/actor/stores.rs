@@ -35,7 +35,7 @@ fn stores(builder: &mut ActorBuilder) {
     // format stores variable
     let db = if db_inserts.is_empty() {
         quote! {
-            ::db::Db::new()
+            ::mimic::db::Db::new()
         }
     } else {
         quote! {

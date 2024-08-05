@@ -15,6 +15,7 @@ config = { workspace = true }
 core_schema = { workspace = true }
 core_state = { workspace = true }
 core_wasm = { workspace = true }
+ctor = { workspace = true }
 db = { workspace = true }
 db_query = { workspace = true }
 ic = { workspace = true }
@@ -23,11 +24,10 @@ lib_cbor = { workspace = true }
 lib_rand = { workspace = true }
 lib_time = { workspace = true }
 num-traits = { workspace = true }
-ctor = { workspace = true }
 orm = { workspace = true }
 orm_macros = { workspace = true }
 orm_schema = { workspace = true }
+remain = { workspace = true }
 serde = { workspace = true }
 snafu = { workspace = true }
-remain = { workspace = true }
 types = { workspace = true }
