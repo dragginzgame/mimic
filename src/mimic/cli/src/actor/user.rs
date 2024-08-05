@@ -55,7 +55,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
             guard(vec![
                 Guard::This,
                 Guard::Controller,
-            ])?;
+            ]).await?;
 
             let user = register(id).await?;
 
@@ -68,7 +68,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
             guard(vec![
                 Guard::Parent,
                 Guard::Controller,
-            ])?;
+            ]).await?;
 
             UserIndexManager::add_role(id, role)?;
 
@@ -81,9 +81,9 @@ pub fn user_index(builder: &mut ActorBuilder) {
             guard(vec![
                 Guard::Parent,
                 Guard::Controller,
-            ])?;
+            ]).await?;
 
-            UserIndexManager::remove_role(id, role)?;
+            UserIndexManager::remove_role(id, role).map_err(::mimic::Error::from)?;
 
             Ok(())
         }
@@ -91,8 +91,8 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // guard_permission
         // endpoint only works on the User canister
         #[::mimic::ic::query]
-        pub async fn guard_permission(id: Principal, permission: String) -> Result<(), ::mimic::Error> {
-            let user = UserIndexManager::try_get_user(id)?;
+        pub async fn guard_permission(id: Principal, permission: String) -> Result<(), Error> {
+            let user = UserIndexManager::try_get_user(id).map_err(::mimic::Error::from)?;
 
             // return Ok if any role has the permission, otherwise return an error
             if user
