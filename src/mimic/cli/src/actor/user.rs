@@ -108,7 +108,6 @@ pub fn user_index(builder: &mut ActorBuilder) {
                 })
                 .map_err(::mimic::api::Error::from)
                 .map_err(::mimic::Error::from)
-                .map_err(Error::from)
             }
         }
     };
