@@ -43,7 +43,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // register_caller
         #[::mimic::ic::update]
         async fn register_caller() -> Result<User, Error> {
-            let user = register(caller()).await.map_err(::mimic::Error::from)?;
+            let user = register(caller()).await?;
 
             Ok(user)
         }
@@ -56,7 +56,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
                 Guard::This,
                 Guard::Controller,
             ])
-            .await?;
+            .await.map_err(::mimic::Error::from)?;
 
             let user = register(id).await.map_err(::mimic::Error::from)?;
 
@@ -72,7 +72,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
             ])
             .await.map_err(::mimic::Error::from)?;
 
-            UserIndexManager::add_role(id, role)?;
+            UserIndexManager::add_role(id, role).map_err(::mimic::Error::from)?;
 
             Ok(())
         }
@@ -86,7 +86,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
             ])
             .await.map_err(::mimic::Error::from)?;
 
-            UserIndexManager::remove_role(id, role)?;
+            UserIndexManager::remove_role(id, role).map_err(::mimic::Error::from)?;
 
             Ok(())
         }
