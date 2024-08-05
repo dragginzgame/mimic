@@ -102,8 +102,8 @@ pub fn cascade_endpoints(builder: &mut ActorBuilder) {
             guard(vec![Guard::Parent]).await.map_err(::mimic::Error::from)?;
 
             // set state and cascade
-            AppStateManager::set(state)?;
-            ::mimic::api::cascade::app_state_cascade().await?;
+            AppStateManager::set(state).map_err(::mimic::Error::from)?;
+            ::mimic::api::cascade::app_state_cascade().await.map_err(::mimic::Error::from)?;
 
             Ok(())
         }
@@ -115,7 +115,7 @@ pub fn cascade_endpoints(builder: &mut ActorBuilder) {
 
             // set index and cascade
             SubnetIndexManager::set(index);
-            ::mimic::api::cascade::subnet_index_cascade().await?;
+            ::mimic::api::cascade::subnet_index_cascade().await.map_err(::mimic::Error::from)?;
 
             Ok(())
         }
