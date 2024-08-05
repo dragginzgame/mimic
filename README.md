@@ -20,7 +20,8 @@ Make It [ Matter     ] on the Internet Computer
 Hi, I'm @borovan and I LARP as a rust developer.  This is my ORM framework, originally designed for the web3 game Dragginz but we have decided to open source it to get help making it better, and also provide a tool for others to develop on the [Internet Computer](https://internetcomputer.org).
 
 
-# NOTHING WORKS YET THIS IS A HUGE MESS
+# ~~NOTHING WORKS YET THIS IS A HUGE MESS~~
+# NOW THINGS COMPILE BUT ITS STILL A HUGE MESS
 
 ### Current Situation
 
@@ -29,19 +30,6 @@ actually writing useful documentation
 - TESTING
 - HUGE emphasis on macros which slows down the IDE but it's also what makes it so easy to write game design
 
-### Notable deps
-
-- `ctor` - this is how the schema is assembled
-- `derive_more`, strum - giving our types a broad range of derived traits
-- `snafu` for errors
-- `serde`, `serde_json`, `serde_bytes` (no brainer).  However, had issues with serde_cbor so we have ciborium
-- `ulid` for the orm (serde doesn't work with it, so wrote a custom implementation)
-- `darling` for macro parsing
-- `remain` for alphabetical sorting to keep OCD at bay
-
-### Testing TODO
-
-- So far we have barely scratched the surface of how this code should be tested
 
 ### Feature TODO
 
@@ -50,7 +38,13 @@ actually writing useful documentation
 - Stable structures for Cell/B-Tree, would like it if there was a few more options.  Making non-Copy Cells because
 of Strings seemed a bit of a stretch
 
+### Testing TODO
+
+- So far we have barely scratched the surface of how this code should be tested
+
 ### OPEN QUESTIONS (HELP PLZ!)
+
+(will move some of these to github issues)
 
 #### Macros
 
@@ -71,7 +65,6 @@ for organising crates in a complicated project
 - rust-analyzer gives false positives when negative numbers are used in macros, via the derive crate.  I know that
 you're supposed to put them in quotes, but the ArgNumber crate works just fine.
 - rust-analyzer false positive when including a file at the start of each actor
-
 
 ----------
 ## Top-Level Crates
