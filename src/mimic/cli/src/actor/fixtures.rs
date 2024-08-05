@@ -18,8 +18,8 @@ pub fn fixture_actor(builder: &mut ActorBuilder) {
 
         // fixtures_replace_all
         #[::mimic::ic::update]
-        async fn fixtures_replace_all() -> Result<(), Error> {
-            guard(vec![Guard::Controller]).await.map_err(::mimic::Error::from)?;
+        async fn fixtures_replace_all() -> Result<(), ::mimic::Error> {
+            guard(vec![Guard::Controller]).await?;
 
             actorgen::fixtures_replace_all()?;
 
@@ -97,7 +97,7 @@ pub fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
 
     quote! {
         #[allow(clippy::too_many_lines)]
-        pub fn fixtures_replace_all() -> Result<(), Error> {
+        pub fn fixtures_replace_all() -> Result<(), ::mimic::Error> {
             #inner
         }
     }

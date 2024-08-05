@@ -48,10 +48,8 @@ pub fn canister_endpoints(builder: &mut ActorBuilder) {
 
         // canister_path
         #[::mimic::ic::query]
-        fn canister_path() -> Result<String, Error> {
+        fn canister_path() -> Result<String, ::mimic::Error> {
             ::mimic::api::canister::path()
-                .map_err(::mimic::Error::from)
-                .map_err(Error::from)
         }
 
         // canister_time

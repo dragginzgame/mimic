@@ -14,18 +14,18 @@ pub fn root_actor(builder: &mut ActorBuilder) {
         // modify app-level state
         // @todo eventually this will cascade down from an orchestrator canister
         #[::mimic::ic::update]
-        async fn app(cmd: AppCommand) -> Result<(), Error> {
+        async fn app(cmd: AppCommand) -> Result<(), ::mimic::Error> {
             AppStateManager::command(cmd)?;
 
-            ::mimic::api::cascade::app_state_cascade().await.map_err(::mimic::Error::from)?;
+            ::mimic::api::cascade::app_state_cascade().await?;
 
             Ok(())
         }
 
         // response
         #[::mimic::ic::update]
-        async fn response(req: Request) -> Result<Response, Error> {
-            let res = ::mimic::api::request::response(req).await.map_err(::mimic::Error::from)?;
+        async fn response(req: Request) -> Result<Response, ::mimic::Error> {
+            let res = ::mimic::api::request::response(req).await?;
 
             Ok(res)
         }
@@ -38,10 +38,10 @@ pub fn root_actor(builder: &mut ActorBuilder) {
 pub fn root_module(builder: &mut ActorBuilder) {
     let q = quote! {
         // auto_create_canisters
-        pub async fn auto_create_canisters() -> Result<(), Error> {
+        pub async fn auto_create_canisters() -> Result<(), ::mimic::Error> {
             use ::mimic::orm::schema::node::Canister;
 
-            guard(vec![Guard::Controller]).await.map_err(::mimic::Error::from)?;
+            guard(vec![Guard::Controller]).await?;
 
             // Collect all service canister paths directly into a vector of tokens.
             let paths: Vec<_> = ::mimic::core::schema::get_schema()
@@ -54,8 +54,7 @@ pub fn root_module(builder: &mut ActorBuilder) {
                 if SubnetIndexManager::get_canister(path).is_none() {
                     // set the canister within the service index
                     let new_canister_id = ::mimic::api::request::request_canister_create(path)
-                        .await
-                        .map_err(::mimic::Error::from)?;
+                        .await?;
 
                     SubnetIndexManager::set_canister(path, new_canister_id);
                 } else {
@@ -67,7 +66,7 @@ pub fn root_module(builder: &mut ActorBuilder) {
             }
 
             // cascade subnet_index
-            ::mimic::api::cascade::subnet_index_cascade().await.map_err(::mimic::Error::from)?;
+            ::mimic::api::cascade::subnet_index_cascade().await?;
 
             Ok(())
         }
