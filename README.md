@@ -1,6 +1,5 @@
 ![MSRV](https://img.shields.io/badge/rustc-1.80+-blue.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Documentation](https://docs.rs/mimic/badge.svg)](https://docs.rs/mimic)
 
-
 # mimic
 ## <marquee>Mimic Dapp Framework</marquee>
 
@@ -14,6 +13,7 @@ Make It [ Matter     ] on the Internet Computer
           Multiplayer
           Mainstream
           Mostly
+          Moribund
           Memorable
 ```
 
@@ -93,21 +93,7 @@ schema.json file.
 `mimicli` needs to include your local design crate when compiling, so it isn't a binary in its own right.  You have to make
 it into a binary yourself.
 
-#### db
-
-The database is a collection of B-Trees.  This isn't really meant to be used directly as we wrap the database logic within a Query Builder
-
-#### db/query
-
-Query interface for the database.  Contains query builders, and a schema resource locator.
-
-#### lib
-
-Libraries.  Notably ulid is wrapped here and also wrapped within the ORM, just so we can use it as a raw API CandidType, and also within the ORM where it gains a whole lot more features.
-
-Do these need to be separate crates?
-
-#### core/config
+#### config
 
 Framework-level runtime configuration.  Magic numbers, hash seeds, directories etc.
 
@@ -130,7 +116,27 @@ Currently this crate contains one helper struct that allows you to store and ret
 
 This logic has only been moved into a separate crate so that we can reference it via nested crates like api, and not have to rely on the actor.
 
+#### db
+
+The database is a collection of B-Trees.  This isn't really meant to be used directly as we wrap the database logic within a Query Builder
+
+#### db/query
+
+Query interface for the database.  Contains query builders, and a schema resource locator.
+
+#### ic
+
+the Internet Computer and related repos are all wrapped in the ic crate
+
+#### lib
+
+Libraries.  Notably ulid is wrapped here and also wrapped within the ORM, just so we can use it as a raw API CandidType, and also within the ORM where it gains a whole lot more features.
+
+Do these need to be separate crates?
+
 #### orm
+
+[todo!()]
 
 #### orm/macros
 
@@ -138,5 +144,13 @@ This is the home of all the macros that allow you to create the data model, for 
 
 #### orm/schema
 
+[todo!()]
+
 #### types
 
+There are two layers of wrapping when it comes to most of the non-primitive Rust types.
+
+Firstly we have the types like Ulid, Timestamp, Decimal.  We want to use these in endpoints (so we need serde/CandidType) but they're not ORM-ready, they don't have the
+20 or so derives needed to be part of the ORM.  candid::Principal is an example of this, it derives CandidType but doesn't do much else.
+
+The double-wrapped types are used inside the orm, in `mimic-base`.  God I suck at documentation.
