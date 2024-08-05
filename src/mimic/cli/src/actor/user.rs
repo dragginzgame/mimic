@@ -13,7 +13,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // user_index
         #[::mimic::ic::query]
         async fn user_index() -> Result<UserIndex, Error> {
-            guard(vec![Guard::Controller]).await?;
+            guard(vec![Guard::Controller]).await.map_err(::mimic::Error::from)?;
 
             Ok(::mimic::api::state::user_index())
         }
@@ -32,7 +32,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         #[::mimic::ic::query]
         async fn get_user(id: Principal) -> Result<User, Error> {
             if id != caller() {
-                guard(vec![Guard::Controller]).await?;
+                guard(vec![Guard::Controller]).await.map_err(::mimic::Error::from)?;
             }
 
             let user = UserIndexManager::try_get_user(id)?;
@@ -43,7 +43,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // register_caller
         #[::mimic::ic::update]
         async fn register_caller() -> Result<User, Error> {
-            let user = register(caller()).await?;
+            let user = register(caller()).await.map_err(::mimic::Error::from)?;
 
             Ok(user)
         }
@@ -70,7 +70,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
                 Guard::Parent,
                 Guard::Controller,
             ])
-            .await?;
+            .await.map_err(::mimic::Error::from)?;
 
             UserIndexManager::add_role(id, role)?;
 
@@ -84,7 +84,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
                 Guard::Parent,
                 Guard::Controller,
             ])
-            .await?;
+            .await.map_err(::mimic::Error::from)?;
 
             UserIndexManager::remove_role(id, role)?;
 
