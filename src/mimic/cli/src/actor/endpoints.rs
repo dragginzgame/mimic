@@ -71,8 +71,8 @@ pub fn canister_endpoints(builder: &mut ActorBuilder) {
         #[::mimic::ic::update]
         async fn canister_upgrade_children(
             canister_id: Option<Principal>,
-        ) -> Result<(), Error> {
-            guard(vec![Guard::Controller]).await.map_err(::mimic::Error::from)?;
+        ) -> Result<(), ::mimic::Error> {
+            guard(vec![Guard::Controller]).await?;
 
             // send a request for each matching canister
             for (child_id, path) in child_index() {
@@ -98,24 +98,24 @@ pub fn cascade_endpoints(builder: &mut ActorBuilder) {
 
         // app_state_cascade
         #[::mimic::ic::update]
-        async fn app_state_cascade(state: AppState) -> Result<(), Error> {
+        async fn app_state_cascade(state: AppState) -> Result<(), ::mimic::Error> {
             guard(vec![Guard::Parent]).await.map_err(::mimic::Error::from)?;
 
             // set state and cascade
-            AppStateManager::set(state).map_err(::mimic::Error::from)?;
-            ::mimic::api::cascade::app_state_cascade().await.map_err(::mimic::Error::from)?;
+            AppStateManager::set(state)?;
+            ::mimic::api::cascade::app_state_cascade().await?;
 
             Ok(())
         }
 
         // subnet_index_cascade
         #[::mimic::ic::update]
-        async fn subnet_index_cascade(index: SubnetIndex) -> Result<(), Error> {
-            guard(vec![Guard::Parent]).await.map_err(::mimic::Error::from)?;
+        async fn subnet_index_cascade(index: SubnetIndex) -> Result<(), ::mimic::Error> {
+            guard(vec![Guard::Parent]).await?;
 
             // set index and cascade
             SubnetIndexManager::set(index);
-            ::mimic::api::cascade::subnet_index_cascade().await.map_err(::mimic::Error::from)?;
+            ::mimic::api::cascade::subnet_index_cascade().await?;
 
             Ok(())
         }
@@ -134,7 +134,7 @@ pub fn ic_endpoints(builder: &mut ActorBuilder) {
 
         // init_async
         #[::mimic::ic::update]
-        async fn init_async() -> Result<(), Error> {
+        async fn init_async() -> Result<(), ::mimic::Error> {
             init_async2().await
         }
 
@@ -205,8 +205,8 @@ pub fn store_endpoints(builder: &mut ActorBuilder) {
         // store_keys
         #[::mimic::ic::query(composite = true)]
         #[allow(clippy::needless_pass_by_value)]
-        async fn store_keys(store_name: String) -> Result<Vec<String>, Error> {
-            guard(vec![Guard::Controller]).await.map_err(::mimic::Error::from)?;
+        async fn store_keys(store_name: String) -> Result<Vec<String>, ::mimic::Error> {
+            guard(vec![Guard::Controller]).await?;
 
             // get keys
             let keys: Vec<String> = DB.with(|db| {

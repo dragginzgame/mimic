@@ -65,7 +65,7 @@ pub fn crud_load(builder: &ActorBuilder) -> TokenStream {
         #[allow(clippy::too_many_lines)]
         #[allow(clippy::match_single_binding)]
         #[allow(unused_variables)]
-        async fn crud_load(request: ::mimic::db::query::LoadRequest) -> Result<::mimic::db::query::LoadResponse, Error> {
+        async fn crud_load(request: ::mimic::db::query::LoadRequest) -> Result<::mimic::db::query::LoadResponse, ::mimic::Error> {
             guard_crud(&request.entity, ::mimic::orm::types::CrudAction::Load).await?;
 
             let res = DB.with(|db| {
@@ -97,7 +97,7 @@ pub fn crud_save(builder: &ActorBuilder) -> TokenStream {
         #[allow(clippy::too_many_lines)]
         #[allow(clippy::match_single_binding)]
         #[allow(unused_variables)]
-        async fn crud_save(request: ::mimic::db::query::SaveRequest) -> Result<::mimic::db::query::SaveResponse, Error> {
+        async fn crud_save(request: ::mimic::db::query::SaveRequest) -> Result<::mimic::db::query::SaveResponse, ::mimic::Error> {
             guard_crud(&request.entity, ::mimic::orm::types::CrudAction::Save).await?;
 
             let res = DB.with(|db| {
@@ -129,7 +129,7 @@ pub fn crud_delete(builder: &ActorBuilder) -> TokenStream {
         #[allow(clippy::too_many_lines)]
         #[allow(clippy::match_single_binding)]
         #[allow(unused_variables)]
-        async fn crud_delete(request: ::mimic::db::query::DeleteRequest) -> Result<::mimic::db::query::DeleteResponse, Error> {
+        async fn crud_delete(request: ::mimic::db::query::DeleteRequest) -> Result<::mimic::db::query::DeleteResponse, ::mimic::Error> {
             guard_crud(&request.entity, ::mimic::orm::types::CrudAction::Delete).await?;
 
             let res = DB.with(|db| {
