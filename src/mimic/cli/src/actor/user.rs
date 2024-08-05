@@ -91,7 +91,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // guard_permission
         // endpoint only works on the User canister
         #[::mimic::ic::query]
-        pub async fn guard_permission(id: Principal, permission: String) -> Result<(), Error> {
+        pub async fn guard_permission(id: Principal, permission: String) -> Result<(), ::mimic::Error> {
             let user = UserIndexManager::try_get_user(id).map_err(::mimic::Error::from)?;
 
             // return Ok if any role has the permission, otherwise return an error
