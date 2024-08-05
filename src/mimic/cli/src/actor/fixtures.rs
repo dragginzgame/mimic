@@ -37,7 +37,7 @@ pub fn fixture_module(builder: &mut ActorBuilder) {
     let q = quote! {
 
         // init_fixtures
-        pub fn init_fixtures() -> Result<(), Error> {
+        pub fn init_fixtures() -> Result<(), ::mimic::Error> {
             fixtures_replace_all()
         }
 
@@ -45,12 +45,11 @@ pub fn fixture_module(builder: &mut ActorBuilder) {
         #[allow(dead_code)]
         fn fixtures_replace_helper(
             fixtures: Vec<Box<dyn ::mimic::orm::traits::EntityDynamic>>,
-        ) -> Result<(), Error> {
+        ) -> Result<(), ::mimic::Error> {
             DB.with(|db| {
                 ::mimic::db::query::replace(db)
             //     .debug()
-                    .from_entities_dynamic(fixtures)
-                    .map_err(::mimic::Error::from)?;
+                    .from_entities_dynamic(fixtures)?;
 
                 Ok(())
             })

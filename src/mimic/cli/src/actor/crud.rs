@@ -22,12 +22,11 @@ pub fn extend(builder: &mut ActorBuilder) {
 #[must_use]
 pub fn guard_crud(_: &ActorBuilder) -> TokenStream {
     quote! {
-        async fn guard_crud(entity: &str, action: ::mimic::orm::types::CrudAction) -> Result<(), Error> {
+        async fn guard_crud(entity: &str, action: ::mimic::orm::types::CrudAction) -> Result<(), ::mimic::Error> {
             // are there crud permissions?
             let crud = ::mimic::core::schema::entity::ENTITY_CRUD_MAP.get(entity)
                 .ok_or_else(|| ::mimic::api::crud::CrudError::entity_not_found(entity))
-                .map_err(::mimic::api::Error::from)
-                .map_err(::mimic::Error::from)?;
+                .map_err(::mimic::api::Error::from)?;
 
             // check permission action
             let policy = match action {
@@ -39,8 +38,7 @@ pub fn guard_crud(_: &ActorBuilder) -> TokenStream {
             guard(
                 vec![Guard::Policy(policy)]
             )
-            .await
-            .map_err(::mimic::Error::from)?;
+            .await?;
 
             Ok(())
         }
