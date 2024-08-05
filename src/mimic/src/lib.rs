@@ -65,6 +65,9 @@ pub enum Error {
     Query { source: db_query::Error },
 
     #[snafu(transparent)]
+    CoreSchema { source: core_schema::Error },
+
+    #[snafu(transparent)]
     CoreState { source: core_state::Error },
 
     #[snafu(transparent)]
