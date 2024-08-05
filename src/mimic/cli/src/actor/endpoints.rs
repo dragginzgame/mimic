@@ -49,7 +49,7 @@ pub fn canister_endpoints(builder: &mut ActorBuilder) {
         // canister_path
         #[::mimic::ic::query]
         fn canister_path() -> Result<String, ::mimic::Error> {
-            ::mimic::api::canister::path()
+            ::mimic::api::canister::path().map_err(::mimic::Error::from)
         }
 
         // canister_time
@@ -132,7 +132,7 @@ pub fn ic_endpoints(builder: &mut ActorBuilder) {
 
         // init_async
         #[::mimic::ic::update]
-        async fn init_async() -> Result<(), ::mimic::Error> {
+        async fn init_async() -> Result<(), Error> {
             init_async2().await
         }
 
