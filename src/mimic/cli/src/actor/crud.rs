@@ -40,7 +40,7 @@ pub fn guard_crud(_: &ActorBuilder) -> TokenStream {
                 vec![Guard::Policy(policy)]
             )
             .await
-            .map_err(::mimic::api::Error::from)?;
+            .map_err(::mimic::Error::from)?;
 
             Ok(())
         }
