@@ -17,7 +17,7 @@ pub fn root_actor(builder: &mut ActorBuilder) {
         async fn app(cmd: AppCommand) -> Result<(), Error> {
             AppStateManager::command(cmd)?;
 
-            ::mimic::api::cascade::app_state_cascade().await?;
+            ::mimic::api::cascade::app_state_cascade().await.map_err(::mimic::Error::from)?;
 
             Ok(())
         }
@@ -25,7 +25,7 @@ pub fn root_actor(builder: &mut ActorBuilder) {
         // response
         #[::mimic::ic::update]
         async fn response(req: Request) -> Result<Response, Error> {
-            let res = ::mimic::api::request::response(req).await?;
+            let res = ::mimic::api::request::response(req).await.map_err(::mimic::Error::from)?;
 
             Ok(res)
         }
@@ -41,7 +41,7 @@ pub fn root_module(builder: &mut ActorBuilder) {
         pub async fn auto_create_canisters() -> Result<(), Error> {
             use ::mimic::orm::schema::node::Canister;
 
-            guard(vec![Guard::Controller]).await?;
+            guard(vec![Guard::Controller]).await.map_err(::mimic::Error::from)?;
 
             // Collect all service canister paths directly into a vector of tokens.
             let paths: Vec<_> = ::mimic::core::schema::get_schema()
@@ -53,7 +53,9 @@ pub fn root_module(builder: &mut ActorBuilder) {
             for path in paths {
                 if SubnetIndexManager::get_canister(path).is_none() {
                     // set the canister within the service index
-                    let new_canister_id = ::mimic::api::request::request_canister_create(path).await?;
+                    let new_canister_id = ::mimic::api::request::request_canister_create(path)
+                        .await
+                        .map_err(::mimic::Error::from)?;
 
                     SubnetIndexManager::set_canister(path, new_canister_id);
                 } else {
@@ -65,7 +67,7 @@ pub fn root_module(builder: &mut ActorBuilder) {
             }
 
             // cascade subnet_index
-            ::mimic::api::cascade::subnet_index_cascade().await?;
+            ::mimic::api::cascade::subnet_index_cascade().await.map_err(::mimic::Error::from)?;
 
             Ok(())
         }
