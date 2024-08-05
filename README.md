@@ -20,6 +20,13 @@ Make It [ Matter     ] on the Internet Computer
 
 Hi, I'm @borovan and I LARP as a Rust developer. This is my ORM framework, originally designed for the web3 game [Dragginz](https://dragginz.io/) but we have decided to open source it to get help making it better, and also provide a tool for others to develop on the [Internet Computer](https://internetcomputer.org).
 
+### WHAT IS THIS?!?!
+
+A picture paints a thousand words.  A picture of words doesn't paint as much but I'm in a rush.
+
+![alt text](image-1.png)
+![alt text](image-2.png)
+
 ## 🚧 Work In Progress
 
 > [!NOTE]
