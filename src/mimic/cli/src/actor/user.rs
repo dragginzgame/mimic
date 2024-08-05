@@ -22,7 +22,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // no auth needed as it's just looking up the current caller
         #[::mimic::ic::query]
         fn get_caller() -> Result<User, Error> {
-            let user = UserIndexManager::try_get_user(caller())?;
+            let user = UserIndexManager::try_get_user(caller()).map_err(::mimic::Error::from)?;
 
             Ok(user)
         }
@@ -35,7 +35,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
                 guard(vec![Guard::Controller]).await.map_err(::mimic::Error::from)?;
             }
 
-            let user = UserIndexManager::try_get_user(id)?;
+            let user = UserIndexManager::try_get_user(id).map_err(::mimic::Error::from)?;
 
             Ok(user)
         }
@@ -58,7 +58,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
             ])
             .await?;
 
-            let user = register(id).await?;
+            let user = register(id).await.map_err(::mimic::Error::from)?;
 
             Ok(user)
         }
@@ -95,7 +95,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // endpoint only works on the User canister
         #[::mimic::ic::query]
         pub async fn guard_permission(id: Principal, permission: String) -> Result<(), Error> {
-            let user = UserIndexManager::try_get_user(id)?;
+            let user = UserIndexManager::try_get_user(id).map_err(::mimic::Error::from)?;
 
             // return Ok if any role has the permission, otherwise return an error
             if user
