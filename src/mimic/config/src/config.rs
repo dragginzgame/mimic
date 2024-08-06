@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 ///
 
 #[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
+#[serde(default)]
 pub struct Config {
     pub ic: Ic,
     pub orm: Orm,
