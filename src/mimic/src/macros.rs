@@ -6,18 +6,21 @@
 // macro to be included at the start of each canister lib.rs file
 #[macro_export]
 macro_rules! mimic_start {
-    ($actor:expr) => {
-        // Include the actor-specific file
+    ($actor:expr) => {{
         include!(concat!("../../../../generated/actor/", $actor, ".rs"));
 
-        // config
-        let config_str = include_str!("../../../config.toml");
-        ::mimic::config::init_config_toml(config_str).expect("Failed to load configuration");
+        // startup
+        // code called on all canister startups (install, upgrade)
+        fn startup() -> Result<(), ::mimic::Error> {
+            let config_str = include_str!("../../../config.toml");
+            ::mimic::config::init_config_toml(config_str)?;
 
-        // schema
-        let schema_json = include_str!("../../../../generated/schema.json");
-        ::mimic::core::schema::init_schema_json(schema_json).unwrap();
-    };
+            let schema_json = include_str!("../../../../generated/schema/schema.json");
+            ::mimic::core::schema::init_schema_json(schema_json)?;
+
+            Ok(())
+        }
+    }};
 }
 
 // mimic_end
