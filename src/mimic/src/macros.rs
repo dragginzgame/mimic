@@ -18,7 +18,7 @@ macro_rules! mimic_start {
             let schema_json = include_str!("../../../../generated/schema/schema.json");
             ::mimic::core::schema::init_schema_json(schema_json)?;
 
-            Ok(())
+            startup2()
         }
     }};
 }

@@ -19,6 +19,6 @@ pub fn extend(builder: &mut ActorBuilder) {
     };
 
     // code
-    builder.add_hook("actorgen::init_timers");
+    builder.add_init_hook("actorgen::init_timers");
     builder.extend_module(q);
 }

@@ -53,7 +53,7 @@ pub fn process(command: Command) {
 
 pub struct ActorBuilder {
     pub canister: Canister,
-    pub hooks: Vec<String>,
+    pub init_hooks: Vec<String>,
     pub actor_tokens: TokenStream,
     pub module_tokens: TokenStream,
 }
@@ -64,7 +64,7 @@ impl ActorBuilder {
     pub fn new(canister: Canister) -> Self {
         Self {
             canister,
-            hooks: Vec::new(),
+            init_hooks: Vec::new(),
             actor_tokens: quote!(),
             module_tokens: quote!(),
         }
@@ -80,9 +80,9 @@ impl ActorBuilder {
         self.module_tokens.extend(tokens);
     }
 
-    // add_hook
-    pub fn add_hook(&mut self, hook: &str) {
-        self.hooks.push(hook.to_string());
+    // add_init_hook
+    pub fn add_init_hook(&mut self, hook: &str) {
+        self.init_hooks.push(hook.to_string());
     }
 
     // expand
@@ -108,9 +108,8 @@ impl ActorBuilder {
 
         // init
         // this goes last because it has registered hooks
-        self.add_hook("startup");
-        self.add_hook("startup2");
-        self.add_hook("init2");
+        self.add_init_hook("init2");
+        self.add_init_hook("startup");
         init::extend(&mut self);
 
         //

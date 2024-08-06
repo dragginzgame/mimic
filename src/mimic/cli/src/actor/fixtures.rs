@@ -9,7 +9,7 @@ pub fn extend(builder: &mut ActorBuilder) {
     fixture_actor(builder);
     fixture_module(builder);
 
-    builder.add_hook("actorgen::init_fixtures");
+    builder.add_init_hook("actorgen::init_fixtures");
 }
 
 // fixture_actor

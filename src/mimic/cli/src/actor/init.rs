@@ -1,8 +1,8 @@
 use super::ActorBuilder;
 use orm_schema::node::CanisterBuild;
 use proc_macro2::TokenStream;
-use syn::{parse_str, Path};
 use quote::quote;
+use syn::{parse_str, Path};
 
 // extend
 pub fn extend(builder: &mut ActorBuilder) {
@@ -17,7 +17,7 @@ pub fn extend(builder: &mut ActorBuilder) {
 
 // init_root
 fn init_root(builder: &ActorBuilder) -> TokenStream {
-    let hooks = format_hooks(&builder.hooks);
+    let hooks = format_hooks(&builder.init_hooks);
     let canister_path = builder.canister.def.path();
 
     quote! {
@@ -39,7 +39,7 @@ fn init_root(builder: &ActorBuilder) -> TokenStream {
 
 // init_default
 fn init_default(builder: &ActorBuilder) -> TokenStream {
-    let hooks = format_hooks(&builder.hooks);
+    let hooks = format_hooks(&builder.init_hooks);
     let canister_path = builder.canister.def.path();
 
     quote! {
@@ -58,7 +58,7 @@ fn init_default(builder: &ActorBuilder) -> TokenStream {
 
 // init_test
 fn init_test(builder: &ActorBuilder) -> TokenStream {
-    let hooks = format_hooks(&builder.hooks);
+    let hooks = format_hooks(&builder.init_hooks);
     let canister_path = builder.canister.def.path();
 
     quote! {

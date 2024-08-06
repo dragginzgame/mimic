@@ -137,6 +137,7 @@ pub fn ic_endpoints(builder: &mut ActorBuilder) {
         }
 
         // pre_upgrade
+        // be careful here because this can brick a canister
         #[::mimic::ic::pre_upgrade]
         fn pre_upgrade() {
             pre_upgrade2().unwrap();
@@ -146,6 +147,7 @@ pub fn ic_endpoints(builder: &mut ActorBuilder) {
         #[::mimic::ic::post_upgrade]
         fn post_upgrade() {
             post_upgrade2().unwrap();
+            startup().unwrap();
         }
 
         ///
