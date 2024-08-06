@@ -81,6 +81,6 @@ macro_rules! log {
             _ => formatted_message,
         };
 
-        ic::api::print(msg);
+        $crate::println!("{}", msg);
     }};
 }
