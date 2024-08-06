@@ -118,7 +118,6 @@ impl ActorBuilder {
         let actor_tokens = self.actor_tokens;
         let module_tokens = self.module_tokens;
         quote! {
-
             #actor_tokens
 
             #[allow(clippy::wildcard_imports)]
