@@ -37,6 +37,7 @@ pub fn process(command: Command) {
             "Canister '{}' not found in the schema",
             command.canister_name
         );
+
         process::exit(1);
     };
 

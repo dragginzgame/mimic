@@ -314,6 +314,7 @@ version = "0.0.3"
 dependencies = [
  "candid",
  "derive_more",
+ "ic",
  "orm_schema",
  "serde",
  "serde_json",

@@ -5,6 +5,7 @@ pub use auth::AuthService;
 pub use orm_schema::node::Schema;
 
 use candid::CandidType;
+use ic::{log, Log};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::sync::Mutex;
@@ -40,6 +41,8 @@ pub fn get_schema() -> Result<Schema, Error> {
         .lock()
         .map_err(|e| Error::Mutex { msg: e.to_string() })?;
 
+    log!(Log::Info, "get_schema {guard:?}");
+
     guard
         .as_ref()
         .map_or(Err(Error::NotInitialized), |schema| Ok(schema.clone()))
@@ -47,6 +50,8 @@ pub fn get_schema() -> Result<Schema, Error> {
 
 // init_schema
 fn init_schema(schema: Schema) -> Result<(), Error> {
+    log!(Log::Info, "init_schema {}", schema.hash);
+
     let mut guard = SCHEMA
         .lock()
         .map_err(|e| Error::Mutex { msg: e.to_string() })?;
