@@ -7,7 +7,24 @@
 #[macro_export]
 macro_rules! mimic_start {
     ($actor:expr) => {
+        // Include the actor-specific file
         include!(concat!("../../../../generated/actor/", $actor, ".rs"));
+
+        {
+            fn init_resources() {
+                // config
+                let config_str = include_str!("../../../config.toml");
+                ::mimic::config::init_config_toml(config_str)
+                    .expect("Failed to load configuration");
+
+                // schema
+                let schema_json = include_str!("../../../../generated/schema.json");
+                ::mimic::core::schema::init_schema_json(schema_json).unwrap();
+            }
+
+            // Call the initialization function
+            init_resources();
+        }
     };
 }
 
