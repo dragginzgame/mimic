@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Ok finally compiling and the Dragginz application is using mimic and working.  Back to
 how things were before the split.
 - removed Primitive::path from schema as it's just used in generated rust code
+- Constant now uses PrimitiveType and ArgNumber (for consistency, and to display the types
+and values in the schema)
 
 ## [0.0.3]
 

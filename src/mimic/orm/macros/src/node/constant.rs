@@ -28,6 +28,7 @@ impl Node for Constant {
 
         // strip annotatiobns
         let value = value.to_tokens_stripped();
+        panic!("{value}");
 
         // quote
         let schema = self.ctor_schema();
