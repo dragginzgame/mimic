@@ -1,8 +1,8 @@
-use crate::node::{Def, MacroNode, Node};
+use crate::node::{Arg, Def, MacroNode, Node};
 use darling::FromMeta;
+use orm::types::PrimitiveType;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use syn::{Expr, Type};
 use quote::quote;
 
 ///
@@ -17,8 +17,8 @@ pub struct Constant {
     #[darling(default)]
     pub debug: bool,
 
-    pub ty: Type,
-    pub value: Expr,
+    pub ty: PrimitiveType,
+    pub value: Arg,
 }
 
 impl Node for Constant {
@@ -50,10 +50,13 @@ impl MacroNode for Constant {
 impl Schemable for Constant {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
+        let Self { ty, value, .. } = self;
 
         quote! {
             ::mimic::orm::schema::node::SchemaNode::Constant(::mimic::orm::schema::node::Constant{
                 def: #def,
+                ty: #ty,
+                value: #value,
             })
         }
     }

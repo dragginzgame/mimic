@@ -1,4 +1,7 @@
-use crate::node::{Def, MacroNode, ValidateNode, VisitableNode};
+use crate::{
+    node::{Arg, Def, MacroNode, ValidateNode, VisitableNode},
+    types::PrimitiveType,
+};
 use serde::{Deserialize, Serialize};
 
 //
@@ -8,6 +11,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Constant {
     pub def: Def,
+    pub ty: PrimitiveType,
+    pub value: Arg,
 }
 
 impl MacroNode for Constant {
