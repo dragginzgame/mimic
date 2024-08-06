@@ -81,6 +81,6 @@ macro_rules! log {
             _ => formatted_message,
         };
 
-        println!("{}", msg);
+        ic::api::print(msg);
     }};
 }

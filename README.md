@@ -12,8 +12,6 @@ Make It [ Matter     ] on the Internet Computer
           Multiplayer
           Mainstream
           Mostly
-          Moribund
-          Memorable
 ```
 
 ## 👋 Introduction

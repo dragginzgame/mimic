@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.1.0]
+
+- Ok finally compiling and the Dragginz application is using mimic and working.  Back to
+how things were before the split.
+
 ## [0.0.3]
 
 - vanity release because now apps compile if they have mimic as a dependency!  go me!
