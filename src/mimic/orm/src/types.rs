@@ -173,6 +173,7 @@ pub enum PrimitiveType {
     I32,
     I64,
     I128,
+    Isize,
     Principal,
     String,
     Timestamp,
@@ -182,6 +183,7 @@ pub enum PrimitiveType {
     U64,
     U128,
     Ulid,
+    Usize,
 }
 
 impl PrimitiveType {
@@ -202,11 +204,13 @@ impl PrimitiveType {
             | Self::I32
             | Self::I64
             | Self::I128
+            | Self::Isize
             | Self::U8
             | Self::U16
             | Self::U32
             | Self::U64
-            | Self::U128 => PrimitiveGroup::Integer,
+            | Self::U128
+            | Self::Usize => PrimitiveGroup::Integer,
             Self::String | Self::Ulid | Self::Principal => PrimitiveGroup::String,
             Self::Decimal => PrimitiveGroup::Decimal,
         }
@@ -222,11 +226,13 @@ impl PrimitiveType {
             Self::I32 => "i32",
             Self::I64 => "i64",
             Self::I128 => "i128",
+            Self::Isize => "isize",
             Self::U8 => "u8",
             Self::U16 => "u16",
             Self::U32 => "u32",
             Self::U64 | Self::Timestamp => "u64",
             Self::U128 => "u128",
+            Self::Usize => "usize",
             _ => panic!("unexpected primitive type"),
         }
         .into()
@@ -260,15 +266,17 @@ impl ToTokens for PrimitiveType {
             Self::I32 => quote!(i32),
             Self::I64 => quote!(i64),
             Self::I128 => quote!(i128),
+            Self::Isize => quote!(isize),
             Self::Principal => quote!(::mimic::types::Principal),
             Self::String => quote!(String),
-            Self::Timestamp => quote!(::mimic::types::Timestamp),
-            Self::Ulid => quote!(::mimic::types::Ulid),
             Self::U8 => quote!(u8),
             Self::U16 => quote!(u16),
             Self::U32 => quote!(u32),
             Self::U64 => quote!(u64),
             Self::U128 => quote!(u128),
+            Self::Ulid => quote!(::mimic::types::Ulid),
+            Self::Usize => quote!(usize),
+            Self::Timestamp => quote!(::mimic::types::Timestamp),
         };
         tokens.extend(ty);
     }

@@ -52,6 +52,7 @@ pub enum PrimitiveType {
     I32,
     I64,
     I128,
+    Isize,
     Principal,
     String,
     Timestamp,
@@ -61,6 +62,7 @@ pub enum PrimitiveType {
     U64,
     U128,
     Ulid,
+    Usize,
 }
 
 ///
