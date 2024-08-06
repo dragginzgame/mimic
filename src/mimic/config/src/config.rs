@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 /// Config
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Config {
     pub ic: Ic,
     pub orm: Orm,
@@ -15,7 +15,7 @@ pub struct Config {
 /// Orm
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Orm {}
 
 ///
