@@ -1,13 +1,13 @@
 use crate::{
-    helper::{quote_one, to_string},
+    helper::quote_one,
     node::{Def, MacroNode, Node},
 };
 use darling::FromMeta;
 use orm::types::PrimitiveType;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use syn::Path;
 use quote::quote;
+use syn::Path;
 
 ///
 /// Primitive
@@ -54,13 +54,11 @@ impl Schemable for Primitive {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let ty = quote_one(&self.ty, PrimitiveType::schema);
-        let path = quote_one(&self.path, to_string);
 
         quote! {
             ::mimic::orm::schema::node::SchemaNode::Primitive(::mimic::orm::schema::node::Primitive {
                 def: #def,
                 ty: #ty,
-                path: #path,
             })
         }
     }

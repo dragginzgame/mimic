@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "shd101wyy.markdown-preview-enhanced",
+        "tamasfe.even-better-toml",
+        "dfinity-foundation.vscode-motoko",
+        "rust-lang.rust-analyzer"
+    ]
+}

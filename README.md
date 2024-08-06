@@ -10,8 +10,8 @@ Make It [ Matter     ] on the Internet Computer
           Monetise
           Modular
           Multiplayer
-          Mainstream
           Mostly
+          Mainstream
 ```
 
 ## 👋 Introduction
@@ -20,43 +20,78 @@ Hi, I'm @borovan and I LARP as a Rust developer. This is my ORM framework, origi
 
 ### WHAT IS THIS?!?!
 
-A picture paints a thousand words.  A picture of words doesn't paint as much but I'm in a rush.
+We want to be able to design entities using a customised macro language, and then have a query builder to access the data, like this :
 
 ![alt text](image-1.png)
 ![alt text](image-2.png)
 
-## 🚧 Work In Progress
+----------
 
-> [!NOTE]
-> NOW THINGS COMPILE BUT ITS STILL A HUGE MESS 😅
+### Installing
+
+##### Cargo.toml
+
+This is currently how it's set up in the private Dragginz repo.  You need to add the mimic crates into your Cargo.toml.
+
+```
+mimic = { git = "https://github.com/dragginzgame/mimic", package = "mimic" }
+mimic_base = { git = "https://github.com/dragginzgame/mimic", package = "mimic_base" }
+mimic_common = { git = "https://github.com/dragginzgame/mimic", package = "mimic_common" }
+mimic_derive = { git = "https://github.com/dragginzgame/mimic", package = "mimic_derive" }
+```
+
+##### Shared Crates
+
+Then you also need to add some (unavoidable) crates as we can't change the macros they emit (as far as I am aware - still working on that.)
+
+```
+derive_more = "0.99"
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+snafu = "0.8"
+strum = { version = "0.26", features = ["derive"] }
+```
+
+##### Setting up `mimicli`
+
+In order to work `mimicli` needs to read both your local design crate and the mimic_base crate.  We've put this code in `tools\mimicli` and added that crate to our Cargo.toml.
+
+```
+pub use design;
+pub use mimic_base;
+
+// main
+fn main() {
+    mimic::cli::run();
+}
+```
+
+MORE COMING SOON
+
+--------
 
 ### Current Situation
 
 - Documentation is a disaster because it's evolving so quickly I just make it look neat and forget about
 actually writing useful documentation
-- TESTING
 - HUGE emphasis on macros which slows down the IDE but it's also what makes it so easy to write game design
 
 ### Feature TODO
 
 - Indexing for B-Trees (no use-case yet however)
 - Caching of derive entities in each canister.  So you can do all these complex queries to build a type and then cache it automatically.
-- Stable structures for Cell/B-Tree, would like it if there was a few more options.  Making non-Copy Cells because
-of Strings seemed a bit of a stretch
+- Stable structures for Cell/B-Tree, would like it if there was a few more options.  Making non-Copy Cells because of Strings seemed a bit of a stretch
 
 ### Testing TODO
 
 - So far we have barely scratched the surface of how this code should be tested
 
-## ❓Open Questions
+-------------
 
-> [!NOTE]
-> I will move some of these to GitHub issues.
+## ❓Open Questions
 
 ### Macros
 
-- the `mimic_start!` macro - how should it know where the generated file is going to be?  Should I generate it into
-the same directory?  Can I pass an environment variable for WORKSPACE_ROOT or something like that?
+- the `mimic_start!` macro - how should it know where the generated file is going to be?  Should I generate it into the same directory?  Can I pass an environment variable for WORKSPACE_ROOT or something like that?
 
 ### Crates & Modules
 
@@ -65,16 +100,9 @@ for organising crates in a complicated project
 
 ### Errors
 
-> [!IMPORTANT]
-> I warmly welcome any input on this topic!
-
 - what's the best way to handle a framework that has about 50 different error types?
 
-### IDE
-
-- `rust-analyzer` gives false positives when negative numbers are used in macros, via the derive crate.  I know that
-you're supposed to put them in quotes, but the ArgNumber crate works just fine.
-- `rust-analyzer` false positive when including a file at the start of each actor
+-----
 
 ## 📦 Top-Level Crates
 

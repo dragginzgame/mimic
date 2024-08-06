@@ -13,7 +13,6 @@ use serde::{Deserialize, Serialize};
 pub struct Primitive {
     pub def: Def,
     pub ty: PrimitiveType,
-    pub path: String,
 }
 
 impl MacroNode for Primitive {
