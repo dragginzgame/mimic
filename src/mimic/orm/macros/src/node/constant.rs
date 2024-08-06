@@ -50,7 +50,8 @@ impl MacroNode for Constant {
 impl Schemable for Constant {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
-        let Self { ty, value, .. } = self;
+        let ty = self.ty.schema();
+        let value = self.value.schema();
 
         quote! {
             ::mimic::orm::schema::node::SchemaNode::Constant(::mimic::orm::schema::node::Constant{
