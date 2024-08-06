@@ -29,7 +29,7 @@ fn init_root(builder: &ActorBuilder) -> TokenStream {
             log!(Log::Info, "**********************************");
             log!(Log::Info, "init: root");
             log!(Log::Info, "**********************************");
-            startup().unwrap()
+            startup().unwrap();
 
             CanisterStateManager::set_path(#canister_path.to_string()).unwrap();
             CanisterStateManager::set_root_id(id).unwrap();
@@ -47,10 +47,9 @@ fn init_default(builder: &ActorBuilder) -> TokenStream {
     quote! {
         #[::mimic::ic::init]
         fn init(root_id: Principal, parent_id: Principal) {
-            startup().unwrap()
 
             log!(Log::Info, "init: {}", #canister_path);
-            startup().unwrap()
+            startup().unwrap();
 
             CanisterStateManager::set_path(#canister_path.to_string()).unwrap();
             CanisterStateManager::set_root_id(root_id).unwrap();
@@ -70,7 +69,7 @@ fn init_test(builder: &ActorBuilder) -> TokenStream {
         #[::mimic::ic::init]
         fn init() {
             log!(Log::Info, "init: test");
-            startup().unwrap()
+            startup().unwrap();
 
             CanisterStateManager::set_path(#canister_path.to_string()).unwrap();
 
