@@ -1,9 +1,8 @@
 ![MSRV](https://img.shields.io/badge/rustc-1.80+-blue.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Documentation](https://docs.rs/mimic/badge.svg)](https://docs.rs/mimic)
 
-# mimic
-## <marquee>Mimic Dapp Framework</marquee>
+# Mimic dApp Framework
 
-![alt text](image.png)
+![An appealing funny cover image to introduce Mimic](image.png)
 
 ```
 Make It [ Matter     ] on the Internet Computer
@@ -17,7 +16,9 @@ Make It [ Matter     ] on the Internet Computer
           Memorable
 ```
 
-Hi, I'm @borovan and I LARP as a rust developer.  This is my ORM framework, originally designed for the web3 game Dragginz but we have decided to open source it to get help making it better, and also provide a tool for others to develop on the [Internet Computer](https://internetcomputer.org).
+## 👋 Introduction
+
+Hi, I'm @borovan and I LARP as a Rust developer. This is my ORM framework, originally designed for the web3 game [Dragginz](https://dragginz.io/) but we have decided to open source it to get help making it better, and also provide a tool for others to develop on the [Internet Computer](https://internetcomputer.org).
 
 ### WHAT IS THIS?!?!
 
@@ -26,8 +27,10 @@ A picture paints a thousand words.  A picture of words doesn't paint as much but
 ![alt text](image-1.png)
 ![alt text](image-2.png)
 
-# ~~NOTHING WORKS YET THIS IS A HUGE MESS~~
-# NOW THINGS COMPILE BUT ITS STILL A HUGE MESS
+## 🚧 Work In Progress
+
+> [!NOTE]
+> NOW THINGS COMPILE BUT ITS STILL A HUGE MESS 😅
 
 ### Current Situation
 
@@ -47,39 +50,42 @@ of Strings seemed a bit of a stretch
 
 - So far we have barely scratched the surface of how this code should be tested
 
-### OPEN QUESTIONS (HELP PLZ!)
+## ❓Open Questions
 
-(will move some of these to github issues)
+> [!NOTE]
+> I will move some of these to GitHub issues.
 
-#### Macros
+### Macros
 
-- the mimic_start! macro - how should it know where the generated file is going to be?  Should I generate it into
+- the `mimic_start!` macro - how should it know where the generated file is going to be?  Should I generate it into
 the same directory?  Can I pass an environment variable for WORKSPACE_ROOT or something like that?
 
-#### Crates & Modules
+### Crates & Modules
 
-- feedback needed on the amount of crates in the framework.  Does it have to be so many?  What's the best practice
+- feedback needed on the amount of crates in the framework. Does it have to be so many?  What's the best practice
 for organising crates in a complicated project
 
-#### Errors
+### Errors
 
-- **HELP!** what's the best way to handle a framework that has about 50 different error types
+> [!IMPORTANT]
+> I warmly welcome any input on this topic!
 
-#### IDE
+- what's the best way to handle a framework that has about 50 different error types?
 
-- rust-analyzer gives false positives when negative numbers are used in macros, via the derive crate.  I know that
+### IDE
+
+- `rust-analyzer` gives false positives when negative numbers are used in macros, via the derive crate.  I know that
 you're supposed to put them in quotes, but the ArgNumber crate works just fine.
-- rust-analyzer false positive when including a file at the start of each actor
+- `rust-analyzer` false positive when including a file at the start of each actor
 
-----------
-## Top-Level Crates
+## 📦 Top-Level Crates
 
 - `mimic` - the codebase is here, plus a top level `mimic/src` crate that includes and organises everything
 - `mimic_base` - the design
 - `mimic_common` - common files that are used by macros at the framework level and also application level
 - `mimic_derive` - derive macros (currently just Storable)
 
-## Mimic
+### Mimic
 
 #### api
 
