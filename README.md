@@ -22,8 +22,49 @@ Hi, I'm @borovan and I LARP as a Rust developer. This is my ORM framework, origi
 
 We want to be able to design entities using a customised macro language, and then have a query builder to access the data, like this :
 
-![alt text](image-1.png)
-![alt text](image-2.png)
+```rust
+    /// Rarity
+    /// affects the chance of an item dropping or an event occurring
+    #[entity(
+        store = "canister::game_config::store::Data",
+        pks = "id",
+        fields(
+            field(name = "id", value(item(is = "types::Ulid"))),
+            field(name = "name", value(item(is = "text::Name"))),
+            field(name = "description", value(item(is = "text::Description"))),
+            field(name = "order", value(item(is = "game::Order"))),
+            field(name = "key", value(item(is = "types::orm::EnumHash"))),
+            field(name = "color", value(item(is = "types::color::RgbHex"))),
+            order(field = "order", direction = "asc"),
+        ),
+        source = "poly::discovery::Discovery",
+        crud(load(permission = "auth::permission::CrudLoad"))
+    )]
+    pub struct Rarity {}
+```
+
+```rust
+// rarities
+#[query]
+pub fn rarities(...) -> Result<Vec<Rarity>, Error> {
+    DB.with(|db| {
+        let rarities = mimic::db::query::load::<Rarity>(db)
+            .debug()
+            .all()
+            .offset(offset)
+            .filter(filter)
+            .order(order)
+            .limit_option(limit)
+            .execute()?
+            .entities()
+            .collect();
+
+        Ok(rarities)
+    })
+}
+
+```
+
 
 ----------
 
@@ -33,7 +74,7 @@ We want to be able to design entities using a customised macro language, and the
 
 This is currently how it's set up in the private Dragginz repo.  You need to add the mimic crates into your Cargo.toml.
 
-```
+```toml
 mimic = { git = "https://github.com/dragginzgame/mimic", package = "mimic" }
 mimic_base = { git = "https://github.com/dragginzgame/mimic", package = "mimic_base" }
 mimic_common = { git = "https://github.com/dragginzgame/mimic", package = "mimic_common" }
@@ -44,7 +85,7 @@ mimic_derive = { git = "https://github.com/dragginzgame/mimic", package = "mimic
 
 Then you also need to add some (unavoidable) crates as we can't change the macros they emit (as far as I am aware - still working on that.)
 
-```
+```toml
 derive_more = "0.99"
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 snafu = "0.8"
@@ -55,7 +96,7 @@ strum = { version = "0.26", features = ["derive"] }
 
 In order to work `mimicli` needs to read both your local design crate and the mimic_base crate.  We've put this code in `tools\mimicli` and added that crate to our Cargo.toml.
 
-```
+```rust
 pub use design;
 pub use mimic_base;
 
