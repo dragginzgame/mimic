@@ -5,6 +5,7 @@ edition = { workspace = true }
 publish = false
 
 [dependencies]
+quote = { workspace = true }
 
 [[test]]
 name = "mytest"

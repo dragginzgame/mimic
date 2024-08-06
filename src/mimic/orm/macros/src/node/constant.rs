@@ -1,4 +1,4 @@
-use crate::node::{Arg, Def, MacroNode, Node};
+use crate::node::{ArgNumber, Def, MacroNode, Node};
 use darling::FromMeta;
 use orm::types::PrimitiveType;
 use orm_schema::Schemable;
@@ -18,13 +18,16 @@ pub struct Constant {
     pub debug: bool,
 
     pub ty: PrimitiveType,
-    pub value: Arg,
+    pub value: ArgNumber,
 }
 
 impl Node for Constant {
     fn expand(&self) -> TokenStream {
         let Self { ty, value, .. } = self;
         let Def { ident, .. } = &self.def;
+
+        // strip annotatiobns
+        let value = value.to_tokens_stripped();
 
         // quote
         let schema = self.ctor_schema();

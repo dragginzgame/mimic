@@ -1281,6 +1281,9 @@ dependencies = [
 [[package]]
 name = "tests"
 version = "0.1.0"
+dependencies = [
+ "quote",
+]
 
 [[package]]
 name = "thiserror"

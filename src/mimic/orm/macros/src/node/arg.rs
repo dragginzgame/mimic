@@ -4,8 +4,8 @@ use derive_more::Deref;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-use strum::Display;
-use syn::{Lit, Path};
+use std::fmt::{self, Display};
+use syn::{parse_str, Lit, Path};
 
 ///
 /// Arg
@@ -190,7 +190,7 @@ mod arg_tests {
 /// ArgNumber
 ///
 
-#[derive(Clone, Debug, Display)]
+#[derive(Clone, Debug)]
 #[remain::sorted]
 pub enum ArgNumber {
     F32(f32),
@@ -239,6 +239,7 @@ impl_from_for_numeric_value! {
 }
 
 impl ArgNumber {
+    // parse_numeric_string
     fn parse_numeric_string(s: &str) -> Result<Self, DarlingError> {
         let s = s.replace('_', "");
 
@@ -276,6 +277,36 @@ impl ArgNumber {
         trimmed.parse::<isize>().map(ArgNumber::Isize).map_err(|_| {
             DarlingError::custom(format!("invalid or unsupported numeric literal '{s}'"))
         })
+    }
+
+    // to_tokens_stripped
+    pub fn to_tokens_stripped(&self) -> TokenStream {
+        let s = format!("{self}");
+
+        let t: Lit = parse_str(&s).unwrap();
+
+        quote!(#t)
+    }
+}
+
+impl Display for ArgNumber {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ArgNumber::F32(v) => write!(f, "{v}"),
+            ArgNumber::F64(v) => write!(f, "{v}"),
+            ArgNumber::I8(v) => write!(f, "{v}"),
+            ArgNumber::I16(v) => write!(f, "{v}"),
+            ArgNumber::I32(v) => write!(f, "{v}"),
+            ArgNumber::I64(v) => write!(f, "{v}"),
+            ArgNumber::I128(v) => write!(f, "{v}"),
+            ArgNumber::Isize(v) => write!(f, "{v}"),
+            ArgNumber::U8(v) => write!(f, "{v}"),
+            ArgNumber::U16(v) => write!(f, "{v}"),
+            ArgNumber::U32(v) => write!(f, "{v}"),
+            ArgNumber::U64(v) => write!(f, "{v}"),
+            ArgNumber::U128(v) => write!(f, "{v}"),
+            ArgNumber::Usize(v) => write!(f, "{v}"),
+        }
     }
 }
 

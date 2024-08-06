@@ -1,5 +1,5 @@
 use crate::{
-    node::{Arg, Def, MacroNode, ValidateNode, VisitableNode},
+    node::{ArgNumber, Def, MacroNode, ValidateNode, VisitableNode},
     types::PrimitiveType,
 };
 use serde::{Deserialize, Serialize};
@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 pub struct Constant {
     pub def: Def,
     pub ty: PrimitiveType,
-    pub value: Arg,
+    pub value: ArgNumber,
 }
 
 impl MacroNode for Constant {
