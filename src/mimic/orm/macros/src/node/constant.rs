@@ -26,9 +26,8 @@ impl Node for Constant {
         let Self { ty, value, .. } = self;
         let Def { ident, .. } = &self.def;
 
-        // strip annotatiobns
+        // strip annotations
         let value = value.to_tokens_stripped();
-        panic!("{value}");
 
         // quote
         let schema = self.ctor_schema();
