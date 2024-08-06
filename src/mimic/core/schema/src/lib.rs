@@ -41,8 +41,6 @@ pub fn get_schema() -> Result<Schema, Error> {
         .lock()
         .map_err(|e| Error::Mutex { msg: e.to_string() })?;
 
-    log!(Log::Info, "get_schema {guard:?}");
-
     guard
         .as_ref()
         .map_or(Err(Error::NotInitialized), |schema| Ok(schema.clone()))
