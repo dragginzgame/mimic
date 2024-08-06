@@ -7,7 +7,7 @@
 #[macro_export]
 macro_rules! mimic_start {
     ($actor:expr) => {{
-        include!(concat!("../../../../generated/actor/", $actor, ".rs"));
+        include!(concat!("../../../generated/actor/", $actor, ".rs"));
 
         // startup
         // code called on all canister startups (install, upgrade)
@@ -15,7 +15,7 @@ macro_rules! mimic_start {
             let config_str = include_str!("../../../config.toml");
             ::mimic::config::init_config_toml(config_str)?;
 
-            let schema_json = include_str!("../../../../generated/schema/schema.json");
+            let schema_json = include_str!("../../../generated/schema/schema.json");
             ::mimic::core::schema::init_schema_json(schema_json)?;
 
             startup2()
