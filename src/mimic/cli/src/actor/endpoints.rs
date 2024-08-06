@@ -146,8 +146,8 @@ pub fn ic_endpoints(builder: &mut ActorBuilder) {
         // post_upgrade
         #[::mimic::ic::post_upgrade]
         fn post_upgrade() {
-            post_upgrade2().unwrap();
             startup().unwrap();
+            post_upgrade2().unwrap();
         }
 
         ///

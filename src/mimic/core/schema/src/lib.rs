@@ -50,7 +50,7 @@ pub fn get_schema() -> Result<Schema, Error> {
 
 // init_schema
 fn init_schema(schema: Schema) -> Result<(), Error> {
-    log!(Log::Info, "init_schema {}", schema.hash);
+    log!(Log::Info, "init_schema: hash {}", schema.hash);
 
     let mut guard = SCHEMA
         .lock()

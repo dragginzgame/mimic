@@ -87,8 +87,8 @@ pub fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
     } else {
         let num_entities = inner.len();
         quote! {
-            log!(Log::Info, "added fixtures ({} entities)", #num_entities);
             #(#inner)*
+            log!(Log::Info, "added fixtures ({} entities)", #num_entities);
 
             Ok(())
         }
