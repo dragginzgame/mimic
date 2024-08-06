@@ -119,9 +119,13 @@ impl ActorBuilder {
         let module_tokens = self.module_tokens;
         quote! {
 
-            // load config
-        //    let config_str = include_str!("../../../config.toml");
-        //    ::mimic::config::init_toml(config_str).expect("Failed to load configuration");
+            // init config
+            let config_str = include_str!("../../../config.toml");
+            ::mimic::config::init_config_toml(config_str).expect("Failed to load configuration");
+
+            // init schema
+            let schema_json = include_str("../../../../generated/schema.json");
+            ::mimic::core::schema::init_schema_json(schema_json).unwrap();
 
             #actor_tokens
 

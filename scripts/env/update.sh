@@ -18,8 +18,5 @@ cargo audit
 cargo outdated
 cargo sort -w 1>/dev/null
 
-# test coverage
-cargo tarpaulin --out Xml
-
 # update last
 cargo update --verbose
