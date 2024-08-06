@@ -96,6 +96,13 @@ pub struct I64 {}
 pub struct I128 {}
 
 ///
+/// Isize
+///
+
+#[primitive(ty = "Isize", path = "isize")]
+pub struct Isize {}
+
+///
 /// Principal
 ///
 
@@ -172,3 +179,10 @@ pub struct U64 {}
 
 #[primitive(ty = "U128", path = "u128")]
 pub struct U128 {}
+
+///
+/// Usize
+///
+
+#[primitive(ty = "Usize", path = "usize")]
+pub struct Usize {}

@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 how things were before the split.
 - removed Primitive::path from schema as it's just used in generated rust code
 - Constant now uses PrimitiveType and ArgNumber (for consistency, and to display the types
-and values in the schema)
+and values in the schema).  It also strips the numeric annotation so you don't have to match the value to the type.
+- Isize and Usize are now both in PrimitiveType and ArgNumber for consistency
 
 ## [0.0.3]
 
