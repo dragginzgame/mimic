@@ -65,20 +65,16 @@ pub fn field_list(node: &FieldList) -> TokenStream {
     let default_fields_quoted = quote!([#(#default_fields),*]);
 
     quote! {
-        fn fields_contain_text(&self, fields: Option<&[String]>, text: &str) -> bool {
-            static DEFAULT_FIELDS: [&str; #default_fields_len] = #default_fields_quoted;
+        fn list_fields(&self) -> &'static [&'static str] {
+            static FIELDS: [&str; #default_fields_len] = #default_fields_quoted;
 
-            // Use the provided fields or fall back to DEFAULT_FIELDS
-            let field_strings = fields.map_or_else(|| DEFAULT_FIELDS
-                .iter()
-                .map(ToString::to_string)
-                .collect::<Vec<_>>(), |fields| fields.to_vec());
+            &FIELDS
+        }
 
-            for field in field_strings {
-                match field.as_str() {
-                    #(#matches)*
-                    _ => {},
-                }
+        fn filter_field(&self, field: &str, text: &str) -> bool {
+            match field {
+                #(#matches)*
+                _ => {},
             }
 
             false

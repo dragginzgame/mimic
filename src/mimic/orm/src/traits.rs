@@ -434,7 +434,32 @@ pub trait EnumHash: Sized {
 ///
 
 pub trait FieldFilter {
-    fn fields_contain_text(&self, fields: Option<&[String]>, text: &str) -> bool;
+    fn list_fields(&self) -> &'static [&'static str];
+    fn filter_field(&self, field: &str, text: &str) -> bool;
+
+    // filter_fields
+    // AND so we want to return if any specified field doesn't match
+    fn filter_fields(&self, fields: Vec<(String, String)>) -> bool {
+        for (field, text) in fields {
+            if !self.filter_field(&field, &text) {
+                return false;
+            }
+        }
+
+        true
+    }
+
+    // filter_all
+    // true if any field matches
+    fn filter_all(&self, text: &str) -> bool {
+        for field in self.list_fields() {
+            if self.filter_field(field, text) {
+                return true;
+            }
+        }
+
+        false
+    }
 }
 
 ///

@@ -301,30 +301,26 @@ pub struct DeleteResponse {
 ///
 
 #[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub struct Filter {
-    pub fields: Option<Vec<String>>,
-    pub text: String,
-}
-
-impl Filter {
-    #[must_use]
-    pub fn new(fields: Option<&[String]>, text: &str) -> Self {
-        Self {
-            fields: fields.map(Vec::from),
-            text: text.to_string(),
-        }
-    }
+pub enum Filter {
+    All(String),
+    Fields(Vec<(String, String)>),
 }
 
 impl From<String> for Filter {
     fn from(text: String) -> Self {
-        Self::new(None, &text)
+        Self::All(text)
     }
 }
 
 impl From<&str> for Filter {
     fn from(text: &str) -> Self {
-        Self::new(None, text)
+        Self::All(text.to_string())
+    }
+}
+
+impl From<Vec<(String, String)>> for Filter {
+    fn from(search: Vec<(String, String)>) -> Self {
+        Self::Fields(search)
     }
 }
 

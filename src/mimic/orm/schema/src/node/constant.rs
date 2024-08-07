@@ -4,9 +4,9 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 
-//
-// Constant
-//
+///
+/// Constant
+///
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Constant {

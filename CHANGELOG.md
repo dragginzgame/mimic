@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.1.1]
+
+- Filter now has different arguments.  It's an enum where you can specify All(String), or Fields(Vec<(String, String)>) to either search every field if it contains a string (OR), or multiple fields with multiple different strings (AND)
+
 ## [0.1.0]
 
 - Ok finally compiling and the Dragginz application is using mimic and working.  Back to

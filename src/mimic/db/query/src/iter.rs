@@ -64,13 +64,13 @@ where
         };
 
         // Map the optional Filter struct to an optional closure
-        let filter_closure = filter.map(|f| {
-            let Filter { fields, text } = f;
+        let filter_closure = filter.map(|filter| {
             Box::new(move |row: &EntityRow<E>| {
                 // Apply the captured filter criteria to each EntityRow<E>
-                row.value
-                    .entity
-                    .fields_contain_text(fields.as_deref(), &text)
+                match &filter {
+                    Filter::All(text) => row.value.entity.filter_all(text),
+                    Filter::Fields(fields) => row.value.entity.filter_fields(fields.clone()),
+                }
             }) as Box<dyn Fn(&EntityRow<E>) -> bool>
         });
 
