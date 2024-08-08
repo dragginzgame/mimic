@@ -6,7 +6,7 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
 ///
-/// Entity
+/// ENTITY
 ///
 
 // entity
@@ -69,7 +69,6 @@ fn composite_key(node: &Entity) -> TokenStream {
         }
     }
 }
-
 ///
 /// EntityDynamic
 ///

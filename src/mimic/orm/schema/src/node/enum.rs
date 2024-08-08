@@ -39,16 +39,6 @@ impl VisitableNode for Enum {
 }
 
 ///
-/// EnumDiscriminant
-///
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum EnumDiscriminant {
-    I32(i32),
-    Hash,
-}
-
-///
 /// EnumVariant
 ///
 
@@ -60,7 +50,7 @@ pub struct EnumVariant {
     pub value: Option<Value>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub discriminant: Option<EnumDiscriminant>,
+    pub discriminant: Option<i32>,
 
     #[serde(default, skip_serializing_if = "Not::not")]
     pub default: bool,

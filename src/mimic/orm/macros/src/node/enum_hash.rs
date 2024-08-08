@@ -7,8 +7,8 @@ use darling::FromMeta;
 use orm::types::Sorted;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use syn::Ident;
 use quote::quote;
+use syn::Ident;
 
 ///
 /// EnumHash
@@ -86,7 +86,7 @@ impl TraitNode for EnumHash {
 
     fn map_imp(&self, t: Trait) -> TokenStream {
         match t {
-            Trait::EnumHash => imp::node::enum_hash::enum_hash(self, t),
+            Trait::EnumHash => imp::enum_hash::enum_hash(self, t),
 
             _ => imp::any(self, t),
         }

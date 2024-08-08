@@ -6,8 +6,8 @@ use crate::{
 use darling::FromMeta;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use syn::{Ident, Path};
 use quote::quote;
+use syn::{Ident, Path};
 
 ///
 /// Entity
@@ -99,8 +99,8 @@ impl TraitNode for Entity {
     fn map_imp(&self, t: Trait) -> TokenStream {
         match t {
             Trait::Default if self.fields.has_default() => imp::default::entity(self, t),
-            Trait::Entity => imp::node::entity::entity(self, t),
-            Trait::EntityDynamic => imp::node::entity::entity_dynamic(self, t),
+            Trait::Entity => imp::entity::entity(self, t),
+            Trait::EntityDynamic => imp::entity::entity_dynamic(self, t),
             Trait::FieldFilter => imp::record_filter::entity(self, t),
             Trait::FieldSort => imp::record_sort::entity(self, t),
             Trait::Visitable => imp::visitable::entity(self, t),
