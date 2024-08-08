@@ -131,7 +131,7 @@ impl Schemable for Enum {
 
 #[derive(Clone, Debug, FromMeta)]
 pub struct EnumVariant {
-    #[darling(default = EnumVariant::default_ident)]
+    #[darling(default = EnumVariant::unspecified_ident)]
     pub name: Ident,
 
     #[darling(default)]
@@ -148,8 +148,8 @@ pub struct EnumVariant {
 }
 
 impl EnumVariant {
-    fn default_ident() -> Ident {
-        format_ident!("[none]")
+    fn unspecified_ident() -> Ident {
+        format_ident!("Unspecified")
     }
 }
 
@@ -158,8 +158,7 @@ impl Node for EnumVariant {
         let mut q = quote!();
 
         // unspecified fail
-        if self.unspecified && (self.value.is_some() || self.discriminant.is_some() || self.default)
-        {
+        if self.unspecified && (self.value.is_some() || self.discriminant.is_some()) {
             panic!("unspecified can only be used on its own");
         }
 

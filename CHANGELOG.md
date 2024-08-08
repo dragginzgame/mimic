@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Guides weren't working out, they're really better suited as enums, so removed
 all the guide code.
 - Unit enums now derive Display + Hash so they can be used as map keys
+- Enums can now use the variant(unspecified) directive
 
 ## [0.1.0]
 
