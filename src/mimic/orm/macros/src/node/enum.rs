@@ -7,7 +7,7 @@ use darling::FromMeta;
 use orm::types::Sorted;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{format_ident, quote};
 use syn::Ident;
 
 ///
@@ -131,6 +131,7 @@ impl Schemable for Enum {
 
 #[derive(Clone, Debug, FromMeta)]
 pub struct EnumVariant {
+    #[darling(default = EnumVariant::default_ident)]
     pub name: Ident,
 
     #[darling(default)]
@@ -143,19 +144,38 @@ pub struct EnumVariant {
     pub default: bool,
 
     #[darling(default)]
-    pub invalid: bool,
+    pub unspecified: bool,
+}
+
+impl EnumVariant {
+    fn default_ident() -> Ident {
+        format_ident!("[none]")
+    }
 }
 
 impl Node for EnumVariant {
     fn expand(&self) -> TokenStream {
         let mut q = quote!();
 
+        // unspecified fail
+        if self.unspecified && (self.value.is_some() || self.discriminant.is_some() || self.default)
+        {
+            panic!("unspecified can only be used on its own");
+        }
+
+        // default
         if self.default {
             q.extend(quote!(#[default]));
         }
 
+        // name
+        let name = if self.unspecified {
+            format_ident!("Unspecified")
+        } else {
+            self.name.clone()
+        };
+
         // quote
-        let name = &self.name;
         q.extend(match (&self.value, &self.discriminant) {
             (Some(_), Some(_)) => panic!("cannot set both value and discriminant"),
 
@@ -184,7 +204,9 @@ impl Node for EnumVariant {
 impl Schemable for EnumVariant {
     fn schema(&self) -> TokenStream {
         let Self {
-            default, invalid, ..
+            default,
+            unspecified,
+            ..
         } = self;
         let name = quote_one(&self.name, to_string);
         let value = quote_option(&self.value, Value::schema);
@@ -196,7 +218,7 @@ impl Schemable for EnumVariant {
                 value : #value,
                 discriminant : #discriminant,
                 default: #default,
-                invalid: #invalid,
+                unspecified: #unspecified,
             }
         }
     }

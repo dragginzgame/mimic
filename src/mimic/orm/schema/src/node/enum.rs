@@ -23,7 +23,37 @@ impl MacroNode for Enum {
     }
 }
 
-impl ValidateNode for Enum {}
+impl ValidateNode for Enum {
+    fn validate(&self) -> Result<(), ErrorVec> {
+        let mut errs = ErrorVec::new();
+
+        // check variants for unspecified
+        let mut un_count = 0;
+        let mut un_first = None;
+        for (i, variant) in self.variants.iter().enumerate() {
+            if variant.unspecified {
+                un_count += 1;
+                if un_first.is_none() {
+                    un_first = Some(i);
+                }
+            }
+        }
+
+        // Check if there's more than one unspecified variant
+        if un_count > 1 {
+            errs.add("there should not be more than one unspecified variant");
+        }
+
+        // Check if the unspecified variant is not the first in the list
+        if let Some(index) = un_first {
+            if index != 0 {
+                errs.add("the unspecified variant must be the first in the list");
+            }
+        }
+
+        errs.result()
+    }
+}
 
 impl VisitableNode for Enum {
     fn route_key(&self) -> String {
@@ -56,7 +86,7 @@ pub struct EnumVariant {
     pub default: bool,
 
     #[serde(default, skip_serializing_if = "Not::not")]
-    pub invalid: bool,
+    pub unspecified: bool,
 }
 
 impl ValidateNode for EnumVariant {

@@ -11,12 +11,12 @@ pub fn enum_(node: &Enum, t: Trait) -> TokenStream {
     let invalid_arms: TokenStream = node
         .variants
         .iter()
-        .filter(|v| v.invalid)
+        .filter(|v| v.unspecified)
         .map(|v| {
             let name = format!("{}", v.name);
             let ident = format_ident!("{}", v.name);
             quote! {
-                Self::#ident => Err(format!("invalid variant: {}", #name).into()),
+                Self::#ident => Err(format!("unspecified variant: {}", #name).into()),
             }
         })
         .collect();
