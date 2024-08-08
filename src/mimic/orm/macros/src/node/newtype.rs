@@ -1,9 +1,7 @@
 use crate::{
     helper::{quote_option, quote_vec},
     imp,
-    node::{
-        Def, Guide, MacroNode, Node, Trait, TraitNode, Traits, TypeSanitizer, TypeValidator, Value,
-    },
+    node::{Def, MacroNode, Node, Trait, TraitNode, Traits, TypeSanitizer, TypeValidator, Value},
 };
 use darling::FromMeta;
 use orm::types::{Cardinality, PrimitiveGroup, PrimitiveType};
@@ -27,9 +25,6 @@ pub struct Newtype {
 
     #[darling(default)]
     pub primitive: Option<PrimitiveType>,
-
-    #[darling(default)]
-    pub guide: Option<Guide>,
 
     #[darling(multiple, rename = "sanitizer")]
     pub sanitizers: Vec<TypeSanitizer>,
@@ -157,7 +152,6 @@ impl Schemable for Newtype {
         let def = self.def.schema();
         let value = self.value.schema();
         let primitive = quote_option(&self.primitive, PrimitiveType::schema);
-        let guide = quote_option(&self.guide, Guide::schema);
         let sanitizers = quote_vec(&self.sanitizers, TypeSanitizer::schema);
         let validators = quote_vec(&self.validators, TypeValidator::schema);
 
@@ -166,7 +160,6 @@ impl Schemable for Newtype {
                 def: #def,
                 value: #value,
                 primitive: #primitive,
-                guide: #guide,
                 sanitizers: #sanitizers,
                 validators: #validators,
             })

@@ -86,7 +86,6 @@ pub struct ComplexEntity {}
         field(name = "text_many", value(many, item(is = "types::String"))),
         field(name = "text_opt", value(opt, item(is = "types::String"))),
         field(name = "number_32", value(item(is = "types::U32"))),
-        field(name = "guide", value(item(is = "NewtypeGuide"))),
         field(name = "record_a", value(item(is = "RecordA"))),
         field(name = "record_opt", value(opt, item(is = "RecordB"))),
         field(name = "record_many", value(many, item(is = "RecordB"))),
@@ -221,23 +220,6 @@ pub struct MapStringString {}
 
 #[newtype(primitive = "String", value(item(is = "types::String")))]
 pub struct Newtype {}
-
-///
-/// NewtypeGuide
-///
-
-#[newtype(
-    primitive = "U32",
-    value(item(is = "types::U32"), default = 2_u32),
-    guide(
-        entry(value = 2),
-        entry(value = 3),
-        entry(value = 4),
-        entry(value = 5),
-        entry(value = 6)
-    )
-)]
-pub struct NewtypeGuide {}
 
 ///
 /// Tuple

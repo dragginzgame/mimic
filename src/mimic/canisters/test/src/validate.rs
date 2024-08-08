@@ -20,7 +20,6 @@ impl ValidateTester {
     fn test_record() {
         // ok
         let e = Validator {
-            guide: 5.into(),
             multiple_ten: 30.into(),
         };
         let res = orm::validate(&e);
@@ -28,7 +27,6 @@ impl ValidateTester {
 
         // fail
         let e = Validator {
-            guide: 0.into(),
             multiple_ten: 43.into(),
         };
         let res = orm::validate(&e);
@@ -37,11 +35,7 @@ impl ValidateTester {
         match res {
             Ok(()) => panic!("result is not an error"),
             Err(orm::Error::Validation { errors }) => {
-                assert_eq!(
-                    errors.len(),
-                    2,
-                    "both guide and multiple_ten fields expected to fail validation"
-                );
+                assert_eq!(errors.len(), 1, "one error expected");
             }
             Err(e) => panic!("unexpected error: {e}"),
         }

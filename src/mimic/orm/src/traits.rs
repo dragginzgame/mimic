@@ -246,8 +246,8 @@ impl_primitive!(Validate);
 ///
 /// ValidateAuto
 ///
-/// this is for extra derived methods, such as checking
-/// a field falls within a Guide's allowed set of values
+/// this is for extra derived methods, such as checking invalid
+/// variants of an enum
 ///
 
 pub trait ValidateAuto {

@@ -7,30 +7,12 @@ use mimic::orm::prelude::*;
 
 #[entity(
     store = "canister::test::store::Data",
-    fields(
-        field(name = "guide", value(item(is = "types::test::validate::GuideType"))),
-        field(
-            name = "multiple_ten",
-            value(item(is = "types::test::validate::MultipleTenType"))
-        ),
-    )
+    fields(field(
+        name = "multiple_ten",
+        value(item(is = "types::test::validate::MultipleTenType"))
+    ),)
 )]
 pub struct Validator {}
-
-///
-/// GuideType
-///
-
-#[newtype(
-    primitive = "U8",
-    value(item(is = "types::U8")),
-    guide(
-        entry(name = "Value A", value = 5),
-        entry(name = "Value B", value = 6),
-        entry(name = "Value C", value = 7),
-    )
-)]
-pub struct GuideType {}
 
 ///
 /// MultipleTenType
