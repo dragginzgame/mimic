@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.1.1]
 
 - Filter now has different arguments.  It's an enum where you can specify All(String), or Fields(Vec<(String, String)>) to either search every field if it contains a string (OR), or multiple fields with multiple different strings (AND)
+- Guides weren't working out, they're really better suited as enums, so removed
+all the guide code.
 
 ## [0.1.0]
 
