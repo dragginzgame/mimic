@@ -89,8 +89,9 @@ impl TraitNode for Enum {
         traits.add_db_traits();
 
         // extra traits
+        // unit enum needs both Hash and Display for hash keys
         if self.is_unit_enum() {
-            traits.extend(vec![Trait::Copy, Trait::Hash]);
+            traits.extend(vec![Trait::Copy, Trait::EnumDisplay, Trait::Hash]);
         }
         if self.is_orderable() {
             traits.extend(vec![Trait::Ord, Trait::PartialOrd]);
