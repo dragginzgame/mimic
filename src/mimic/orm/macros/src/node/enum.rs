@@ -7,8 +7,8 @@ use darling::FromMeta;
 use orm::types::Sorted;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use syn::Ident;
 use quote::quote;
+use syn::Ident;
 
 ///
 /// Enum
@@ -90,7 +90,7 @@ impl TraitNode for Enum {
 
         // extra traits
         if self.is_unit_enum() {
-            traits.extend(vec![Trait::Copy]);
+            traits.extend(vec![Trait::Copy, Trait::Hash]);
         }
         if self.is_orderable() {
             traits.extend(vec![Trait::Ord, Trait::PartialOrd]);
