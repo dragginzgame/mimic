@@ -130,12 +130,6 @@ pub fn ic_endpoints(builder: &mut ActorBuilder) {
         /// LIFECYCLE ENDPOINTS
         ///
 
-        // init_async
-        #[::mimic::ic::update]
-        async fn init_async() -> Result<(), Error> {
-            init_async2().await
-        }
-
         // pre_upgrade
         // be careful here because this can brick a canister
         #[::mimic::ic::pre_upgrade]

@@ -37,8 +37,8 @@ pub fn root_actor(builder: &mut ActorBuilder) {
 // root_module
 pub fn root_module(builder: &mut ActorBuilder) {
     let q = quote! {
-        // auto_create_canisters
-        pub async fn auto_create_canisters() -> Result<(), ::mimic::Error> {
+        // root_auto_create_canisters
+        pub async fn root_auto_create_canisters() -> Result<(), ::mimic::Error> {
             use ::mimic::orm::schema::node::Canister;
 
             guard(vec![Guard::Controller]).await?;

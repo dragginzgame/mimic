@@ -21,6 +21,7 @@ fn init_root(builder: &ActorBuilder) -> TokenStream {
     let canister_path = builder.canister.def.path();
 
     quote! {
+        // init
         #[::mimic::ic::init]
         fn init() {
 
@@ -36,6 +37,15 @@ fn init_root(builder: &ActorBuilder) -> TokenStream {
 
             #hooks
         }
+
+        // init_async
+        #[::mimic::ic::update]
+        async fn init_async() -> Result<(), Error> {
+            // root has to automatically create canisters
+            actorgen::root_auto_create_canisters().await?;
+
+            init_async2().await
+        }
     }
 }
 
@@ -45,6 +55,7 @@ fn init_default(builder: &ActorBuilder) -> TokenStream {
     let canister_path = builder.canister.def.path();
 
     quote! {
+        // init
         #[::mimic::ic::init]
         fn init(root_id: Principal, parent_id: Principal) {
 
@@ -57,6 +68,12 @@ fn init_default(builder: &ActorBuilder) -> TokenStream {
 
             #hooks
         }
+
+        // init_async
+        #[::mimic::ic::update]
+        async fn init_async() -> Result<(), Error> {
+            init_async2().await
+        }
     }
 }
 
@@ -66,6 +83,7 @@ fn init_test(builder: &ActorBuilder) -> TokenStream {
     let canister_path = builder.canister.def.path();
 
     quote! {
+        // init
         #[::mimic::ic::init]
         fn init() {
             log!(Log::Info, "init: test");
@@ -74,6 +92,12 @@ fn init_test(builder: &ActorBuilder) -> TokenStream {
             CanisterStateManager::set_path(#canister_path.to_string()).unwrap();
 
             #hooks
+        }
+
+        // init_async
+        #[::mimic::ic::update]
+        async fn init_async() -> Result<(), Error> {
+            init_async2().await
         }
     }
 }
