@@ -8,7 +8,7 @@
         "test": {
             "type": "custom",
             "candid": ".dfx/local/canisters/test/test.did",
-            "build": "bash -c 'backend/scripts/app/build.sh test'",
+            "build": "bash -c 'scripts/app/build.sh test'",
             "wasm": ".dfx/local/canisters/test/test.wasm",
             "shrink": true,
             "gzip": true,

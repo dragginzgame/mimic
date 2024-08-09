@@ -7,36 +7,22 @@ pub mod stores;
 pub mod timers;
 pub mod user;
 
-use clap::Parser;
 use orm_schema::{
-    build::schema,
+    build::schema_read,
     node::{Canister, CanisterBuild, Entity, Store},
+    Error,
 };
 use proc_macro2::TokenStream;
 use quote::quote;
 use std::process;
 
-///
-/// Command
-///
-
-#[derive(Parser)]
-pub struct Command {
-    #[clap(help = "Name of the canister to generate code for")]
-    canister_name: String,
-}
-
-// process
-pub fn process(command: Command) {
+// generate
+pub fn generate(canister_name: &str) -> Result<String, Error> {
     // load schema and get the specified canister
-    let schema = schema();
-    let mut canisters =
-        schema.filter_nodes::<Canister, _>(|node| node.name() == command.canister_name);
+    let schema = schema_read();
+    let mut canisters = schema.filter_nodes::<Canister, _>(|node| node.name() == canister_name);
     let Some((_, canister)) = canisters.next() else {
-        eprintln!(
-            "Canister '{}' not found in the schema",
-            command.canister_name
-        );
+        eprintln!("Canister '{canister_name}' not found in the schema",);
 
         process::exit(1);
     };
@@ -45,7 +31,7 @@ pub fn process(command: Command) {
     let code = ActorBuilder::new(canister.clone());
     let tokens = code.expand();
 
-    println!("{tokens}");
+    Ok(tokens.to_string())
 }
 
 ///
@@ -137,7 +123,7 @@ impl ActorBuilder {
         let mut stores = Vec::new();
 
         for (store_path, store) in
-            schema().filter_nodes::<Store, _>(|node| node.canister == canister_path)
+            schema_read().filter_nodes::<Store, _>(|node| node.canister == canister_path)
         {
             stores.push((store_path.to_string(), store.clone()));
         }
@@ -149,7 +135,7 @@ impl ActorBuilder {
     // helper function to get all the entities for the current canister
     #[must_use]
     pub fn get_entities(&self) -> Vec<(String, Entity)> {
-        let schema = schema();
+        let schema = schema_read();
         let canister_path = self.canister.def.path();
         let mut entities = Vec::new();
 

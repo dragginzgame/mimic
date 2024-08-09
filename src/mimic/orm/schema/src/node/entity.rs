@@ -1,5 +1,5 @@
 use crate::{
-    build::schema,
+    build::schema_read,
     node::{Crud, Def, FieldList, MacroNode, SortKey, Store, ValidateNode, VisitableNode},
     visit::Visitor,
 };
@@ -49,11 +49,11 @@ impl ValidateNode for Entity {
         let mut errs = ErrorVec::new();
 
         // store
-        errs.add_result(schema().check_node::<Store>(&self.store));
+        errs.add_result(schema_read().check_node::<Store>(&self.store));
 
         // sort keys
         for sk in &self.sort_keys {
-            errs.add_result(schema().check_node::<Self>(&sk.entity));
+            errs.add_result(schema_read().check_node::<Self>(&sk.entity));
         }
 
         // primary key check

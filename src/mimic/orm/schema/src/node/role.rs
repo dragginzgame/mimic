@@ -1,5 +1,5 @@
 use crate::{
-    build::schema,
+    build::schema_read,
     node::{Def, MacroNode, Permission, ValidateNode, VisitableNode},
     visit::Visitor,
 };
@@ -30,13 +30,13 @@ impl ValidateNode for Role {
 
         // parent check
         if let Some(parent) = &self.parent {
-            errs.add_result(schema().check_node::<Self>(parent));
+            errs.add_result(schema_read().check_node::<Self>(parent));
         }
 
         // permissions check
         let mut seen = HashSet::<String>::default();
         for perm in &self.permissions {
-            errs.add_result(schema().check_node::<Permission>(perm));
+            errs.add_result(schema_read().check_node::<Permission>(perm));
             if !seen.insert(perm.clone()) {
                 errs.push(format!("duplicate value for permission '{perm}'"));
             }

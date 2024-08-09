@@ -1,5 +1,5 @@
 use crate::{
-    build::schema,
+    build::schema_read,
     node::{Entity, Enum, Map, Newtype, Primitive, Record, Tuple, ValidateNode, VisitableNode},
     visit::Visitor,
 };
@@ -60,7 +60,7 @@ impl ValidateNode for ItemIs {
             TypeId::of::<Record>(),
             TypeId::of::<Tuple>(),
         ]);
-        errs.add_result(schema().check_node_types(&self.path, &acceptable_types));
+        errs.add_result(schema_read().check_node_types(&self.path, &acceptable_types));
 
         errs.result()
     }
@@ -82,12 +82,12 @@ impl ValidateNode for ItemRelation {
         let mut errs = ErrorVec::new();
 
         // entity
-        if let Some(entity) = schema().get_node::<Entity>(&self.path) {
+        if let Some(entity) = schema_read().get_node::<Entity>(&self.path) {
             if !entity.is_relatable() {
                 errs.add("entity does not meet the criteria to create a relation with");
             }
         }
-        errs.add_result(schema().check_node::<Entity>(&self.path));
+        errs.add_result(schema_read().check_node::<Entity>(&self.path));
 
         errs.result()
     }

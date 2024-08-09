@@ -1,5 +1,5 @@
 use crate::{
-    build::schema,
+    build::schema_read,
     node::{Args, Sanitizer, ValidateNode, Validator, VisitableNode},
 };
 use serde::{Deserialize, Serialize};
@@ -22,7 +22,7 @@ impl ValidateNode for TypeSanitizer {
         let mut errs = ErrorVec::new();
 
         // check path
-        let res = schema().check_node::<Sanitizer>(&self.path);
+        let res = schema_read().check_node::<Sanitizer>(&self.path);
         if let Err(e) = res {
             errs.add(e.to_string());
         }
@@ -50,7 +50,7 @@ impl ValidateNode for TypeValidator {
         let mut errs = ErrorVec::new();
 
         // check path
-        let res = schema().check_node::<Validator>(&self.path);
+        let res = schema_read().check_node::<Validator>(&self.path);
         if let Err(e) = res {
             errs.add(e.to_string());
         }

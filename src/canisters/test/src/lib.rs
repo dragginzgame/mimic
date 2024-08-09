@@ -3,8 +3,10 @@ mod default;
 mod sanitize;
 mod validate;
 
-use api::Error;
 use ic::{log, update, Log};
+use mimic::{prelude::*, Error};
+
+mimic_start!();
 
 // init2
 pub fn init2() -> Result<(), Error> {
@@ -13,6 +15,11 @@ pub fn init2() -> Result<(), Error> {
 
 // init_async2
 pub async fn init_async2() -> Result<(), Error> {
+    Ok(())
+}
+
+// startup2
+pub fn startup2() -> Result<(), Error> {
     Ok(())
 }
 
@@ -29,10 +36,6 @@ pub fn post_upgrade2() -> Result<(), Error> {
 // test
 #[update]
 pub fn test() {
-    // cache
-    //     let mut tester = cache::CacheTester::new(store);
-    //     tester.test();
-
     // default
     default::DefaultTester::test();
 
@@ -43,8 +46,12 @@ pub fn test() {
     validate::ValidateTester::test();
 
     // store
-    //    let tester = db::DbTester::new(db);
-    //    tester.test();
+    DB.with(|db| {
+        let tester = db::DbTester::new(db);
+        tester.test();
+    });
 
     log!(Log::Ok, "test: all tests passed successfully");
 }
+
+mimic_end!();

@@ -1,5 +1,5 @@
 use crate::{
-    build::schema,
+    build::schema_read,
     node::{Canister, Crud, Def, MacroNode, ValidateNode, VisitableNode},
     visit::Visitor,
 };
@@ -52,7 +52,7 @@ impl ValidateNode for Store {
         let mut errs = ErrorVec::new();
 
         // look up canister
-        let res = schema().check_node::<Canister>(&self.canister);
+        let res = schema_read().check_node::<Canister>(&self.canister);
         if let Err(e) = res {
             errs.add(e.to_string());
         }

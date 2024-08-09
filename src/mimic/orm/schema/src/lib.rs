@@ -4,7 +4,20 @@ pub mod node;
 pub mod types;
 pub mod visit;
 
+use candid::CandidType;
 use proc_macro2::TokenStream;
+use serde::{Deserialize, Serialize};
+use snafu::Snafu;
+
+///
+/// Error
+///
+
+#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+pub enum Error {
+    #[snafu(transparent)]
+    Build { source: build::BuildError },
+}
 
 ///
 /// Schemable

@@ -5,7 +5,6 @@ pub mod macros;
 /// [for external use only]
 ///
 pub use api;
-pub use cli;
 pub use config;
 pub use ic;
 pub use types;

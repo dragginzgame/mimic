@@ -11,12 +11,15 @@ workspace = true
 crate-type = ["cdylib"]
 
 [dependencies]
-api = { workspace = true }
 candid = { workspace = true }
 db = { workspace = true }
 db_query = { workspace = true }
 ic = { workspace = true }
 ic-cdk = { workspace = true }
 mimic_base = { workspace = true }
-mimic_common = { workspace = true }
+mimic = { workspace = true }
 orm = { workspace = true }
+
+[build-dependencies]
+build = { workspace = true }
+mimic_base = { workspace = true }

@@ -12,7 +12,6 @@ candid = { workspace = true }
 derive_more = { workspace = true }
 hex = { workspace = true }
 ic = { workspace = true }
-itertools = { workspace = true }
 lib_case = { workspace = true }
 proc-macro2 = { workspace = true }
 quote = { workspace = true }

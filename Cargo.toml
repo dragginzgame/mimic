@@ -1,10 +1,10 @@
 
 [workspace]
 members = [
+    "src/canisters/test",
     "src/mimic",
     "src/mimic/api",
-    "src/mimic/canisters/test",
-    "src/mimic/cli",
+    "src/mimic/build",
     "src/mimic/config",
     "src/mimic/core/schema",
     "src/mimic/core/state",
@@ -46,13 +46,10 @@ mimic_derive = { path = "src/mimic_derive" }
 
 # mimic
 api = { path = "src/mimic/api" }
-cli = { path = "src/mimic/cli" }
+build = { path = "src/mimic/build" }
 config = { path = "src/mimic/config" }
 ic = { path = "src/mimic/ic" }
 types = { path = "src/mimic/types" }
-
-# canisters
-canister_test = { path = "src/mimic/canisters/test" }
 
 # core
 core_schema = { path = "src/mimic/core/schema" }
@@ -89,7 +86,6 @@ quote = "1.0"
 
 # third party
 ciborium = "0.2"
-clap = { version = "4.5", features = ["derive"] }
 ctor = "0.2"
 convert_case = "0.6"
 defer = "0.2"
@@ -105,7 +101,6 @@ derive_more = { version = "0.99", default-features = false, features = [
     "mul_assign",
 ] }
 hex = "0.4"
-itertools = "0.13"
 num-traits = { version = "0.2", default-features = false, features = ["libm"] }
 remain = "0.2"
 rust_decimal = { version = "1.35", default-features = false, features = [
@@ -120,7 +115,7 @@ strum = { version = "0.26", features = ["derive"] }
 snafu = "0.8"
 tinyrand = "0.5"
 toml = "0.8"
-# std off because it imports rand.  serde feature doesn't compile without it
+# removed std because it imports rand.  serde feature doesn't compile without it
 ulid = { version = "1.1", default-features = false }
 
 # clippy

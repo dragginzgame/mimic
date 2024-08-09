@@ -49,7 +49,7 @@ pub use self::validator::*;
 pub use self::value::*;
 
 use crate::{
-    build::schema,
+    build::schema_read,
     visit::{Event, Visitor},
 };
 use candid::CandidType;
@@ -162,7 +162,7 @@ impl ValidateNode for AccessPolicy {
 
         match self {
             Self::Permission(permission) => {
-                errs.add_result(schema().check_node::<Permission>(permission));
+                errs.add_result(schema_read().check_node::<Permission>(permission));
             }
             Self::Allow | Self::Deny => {}
         }
