@@ -43,10 +43,9 @@ impl EntityCrudMap {
         let store = schema.try_get_node::<Store>(&entity.store)?;
 
         // entity overrides store
-        if let Some(entity_crud) = &entity.crud {
-            Ok(entity_crud.clone())
-        } else {
-            Ok(store.crud.clone())
-        }
+        entity
+            .crud
+            .as_ref()
+            .map_or_else(|| Ok(store.crud.clone()), |ec| Ok(ec.clone()))
     }
 }

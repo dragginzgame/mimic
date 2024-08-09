@@ -14,15 +14,6 @@ if [ $# -eq 0 ]; then
 fi
 CAN=$1
 
-
-#
-# Schema
-# DO THIS FIRST as it'll exit if there are any schema errors
-#
-
-#$ROOT/scripts/gen/actor.sh $CAN
-#$ROOT/scripts/gen/schema.sh
-
 #
 # Build Wasm
 #
@@ -33,3 +24,7 @@ WASM_TARGET=$ROOT/.dfx/local/canisters/$CAN/$CAN.wasm
 cargo build --target wasm32-unknown-unknown -p canister_$CAN --locked
 cp -f $ROOT/target/wasm32-unknown-unknown/debug/canister_$CAN.wasm $WASM_TARGET
 
+# extract candid
+
+candid-extractor "$ROOT/.dfx/local/canisters/$CAN/$CAN.wasm" \
+    > "$ROOT/.dfx/local/canisters/$CAN/${CAN}.did"

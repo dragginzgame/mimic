@@ -82,21 +82,24 @@ pub enum Error {
 ///
 
 pub mod prelude {
-    pub use crate::{mimic_end, mimic_start, perf};
-    pub use ::api::{
-        auth::{guard, Guard},
-        request::{Request, RequestKind, Response},
+    pub use crate::{
+        api::{
+            auth::{guard, Guard},
+            request::{Request, RequestKind, Response},
+        },
+        core::state::{
+            AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager,
+            SubnetIndex, SubnetIndexManager, User, UserIndex, UserIndexManager,
+        },
+        db::query as db_query,
+        ic::{caller, format_cycles, id, log, Log},
+        mimic_end, mimic_start,
+        orm::traits::{EntityFixture, Path},
+        perf,
+        types::Ulid,
     };
     pub use ::candid::{CandidType, Principal};
-    pub use ::core_state::{
-        AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager, SubnetIndex,
-        SubnetIndexManager, User, UserIndex, UserIndexManager,
-    };
-    pub use ::db_query;
-    pub use ::ic::{caller, format_cycles, id, log, Log};
-    pub use ::orm::traits::{EntityFixture, Path};
     pub use ::std::cell::RefCell;
-    pub use ::types::Ulid;
 }
 
 ///

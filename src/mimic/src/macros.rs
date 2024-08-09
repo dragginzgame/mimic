@@ -2,42 +2,6 @@
 /// MACROS
 ///
 
-#[macro_export]
-macro_rules! mimic_build {
-    ($actor:expr) => {
-        use std::env;
-        use std::fs::File;
-        use std::io::{self, Write};
-        use std::path::PathBuf;
-
-        // cargo directives
-        println!("cargo:rerun-if-changed=build.rs");
-
-        // Get the output directory set by Cargo
-        let out_dir = env::var("OUT_DIR").expect("OUT_DIR not set");
-
-        //
-        // actor
-        //
-        let output = ::mimic::build::actor($actor).unwrap();
-
-        // Write the output (stdout) to the specified file in OUT_DIR
-        let actor_file = PathBuf::from(out_dir.clone()).join("actor.rs");
-        let mut file = File::create(actor_file)?;
-        file.write_all(output.as_bytes())?;
-
-        //
-        // schema
-        //
-        let output = ::mimic::build::schema().unwrap();
-
-        // Write the output (stdout) to the specified file in OUT_DIR
-        let schema_file = PathBuf::from(out_dir).join("schema.rs");
-        let mut file = File::create(schema_file)?;
-        file.write_all(output.as_bytes())?;
-    };
-}
-
 // mimic_start
 // macro to be included at the start of each canister lib.rs file
 #[macro_export]

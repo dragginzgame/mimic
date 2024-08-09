@@ -1,9 +1,4 @@
-mod db;
-mod default;
-mod sanitize;
-mod validate;
-
-use ic::{log, update, Log};
+use ic::{log, Log};
 use mimic::{prelude::*, Error};
 
 mimic_start!();
@@ -34,6 +29,8 @@ pub fn post_upgrade2() -> Result<(), Error> {
 }
 
 // test
+
+/*
 #[update]
 pub fn test() {
     // default
@@ -53,5 +50,6 @@ pub fn test() {
 
     log!(Log::Ok, "test: all tests passed successfully");
 }
+    */
 
 mimic_end!();

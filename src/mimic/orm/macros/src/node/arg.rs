@@ -292,20 +292,20 @@ impl ArgNumber {
 impl Display for ArgNumber {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ArgNumber::F32(v) => write!(f, "{v}"),
-            ArgNumber::F64(v) => write!(f, "{v}"),
-            ArgNumber::I8(v) => write!(f, "{v}"),
-            ArgNumber::I16(v) => write!(f, "{v}"),
-            ArgNumber::I32(v) => write!(f, "{v}"),
-            ArgNumber::I64(v) => write!(f, "{v}"),
-            ArgNumber::I128(v) => write!(f, "{v}"),
-            ArgNumber::Isize(v) => write!(f, "{v}"),
-            ArgNumber::U8(v) => write!(f, "{v}"),
-            ArgNumber::U16(v) => write!(f, "{v}"),
-            ArgNumber::U32(v) => write!(f, "{v}"),
-            ArgNumber::U64(v) => write!(f, "{v}"),
-            ArgNumber::U128(v) => write!(f, "{v}"),
-            ArgNumber::Usize(v) => write!(f, "{v}"),
+            Self::F32(v) => write!(f, "{v}"),
+            Self::F64(v) => write!(f, "{v}"),
+            Self::I8(v) => write!(f, "{v}"),
+            Self::I16(v) => write!(f, "{v}"),
+            Self::I32(v) => write!(f, "{v}"),
+            Self::I64(v) => write!(f, "{v}"),
+            Self::I128(v) => write!(f, "{v}"),
+            Self::Isize(v) => write!(f, "{v}"),
+            Self::U8(v) => write!(f, "{v}"),
+            Self::U16(v) => write!(f, "{v}"),
+            Self::U32(v) => write!(f, "{v}"),
+            Self::U64(v) => write!(f, "{v}"),
+            Self::U128(v) => write!(f, "{v}"),
+            Self::Usize(v) => write!(f, "{v}"),
         }
     }
 }
