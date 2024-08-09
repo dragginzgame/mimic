@@ -24,16 +24,13 @@ fn init_root(builder: &ActorBuilder) -> TokenStream {
         // init
         #[::mimic::ic::init]
         fn init() {
-
-            let id = id();
-
             log!(Log::Info, "**********************************");
             log!(Log::Info, "init: root");
             log!(Log::Info, "**********************************");
             startup().unwrap();
 
             CanisterStateManager::set_path(#canister_path.to_string()).unwrap();
-            CanisterStateManager::set_root_id(id).unwrap();
+            CanisterStateManager::set_root_id(id()).unwrap();
 
             #hooks
         }

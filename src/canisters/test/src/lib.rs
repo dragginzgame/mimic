@@ -6,7 +6,8 @@ mod validate;
 use ic::{log, update, Log};
 use mimic::{prelude::*, Error};
 
-mimic_start!();
+// blank file so we get the default
+mimic_start!("../../../config.toml");
 
 // init2
 pub fn init2() -> Result<(), Error> {
