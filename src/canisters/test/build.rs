@@ -2,7 +2,7 @@ fn main() -> std::io::Result<()> {
     // init design dependencies
     mimic_base::init();
 
-    build::mimic_build!("test");
+    mimic::mimic_build!("test");
 
     Ok(())
 }
