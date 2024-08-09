@@ -160,7 +160,7 @@ async fn response_send_cycles(canister_id: Principal, cycles: u128) -> Result<Re
 
 // request
 pub async fn request(request: Request) -> Result<Response, Error> {
-    // ::ic::println!("request: {req:?}");
+    ::ic::println!("request: {request:?}");
 
     let root_id = crate::canister::root_id()?;
     let res = crate::call::<_, (Result<Response, Error>,)>(root_id, "response", (request,))

@@ -65,7 +65,7 @@ pub async fn create_canister(
         mode: CanisterInstallMode::Install,
         canister_id,
         wasm_module: WasmModule::from(bytes),
-        arg: ::candid::utils::encode_args((id(), parent_id)).unwrap(),
+        arg: ::candid::utils::encode_args((id(), parent_id)).expect("args encode"),
     };
     crate::mgmt::install_code(install_arg).await?;
 
