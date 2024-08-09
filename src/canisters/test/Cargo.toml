@@ -22,4 +22,5 @@ orm = { workspace = true }
 
 [build-dependencies]
 build = { workspace = true }
+mimic = { workspace = true }
 mimic_base = { workspace = true }
