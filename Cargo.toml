@@ -31,7 +31,7 @@ resolver = "2"
 [workspace.package]
 rust-version = "1.80.0"
 edition = "2021"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["borovan <spam@powlex.com>"]
 description = "ORM/Database framework for the Internet Computer"
 license = "MIT"

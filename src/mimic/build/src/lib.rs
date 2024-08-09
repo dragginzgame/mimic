@@ -1,4 +1,5 @@
 pub mod actor;
+pub mod macros;
 
 use orm_schema::build::schema_read;
 use serde::{Deserialize, Serialize};
