@@ -10,6 +10,5 @@ workspace = true
 [dependencies]
 candid = { workspace = true }
 ic = { workspace = true }
-mimic_common = { workspace = true }
 serde = { workspace = true }
 snafu = { workspace = true }

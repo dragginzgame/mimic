@@ -84,7 +84,6 @@ dependencies = [
 name = "build"
 version = "0.1.2"
 dependencies = [
- "orm",
  "orm_schema",
  "proc-macro2",
  "quote",
@@ -250,7 +249,6 @@ version = "0.1.2"
 dependencies = [
  "candid",
  "ic",
- "mimic_common",
  "serde",
  "snafu",
 ]
