@@ -1,6 +1,3 @@
-// darling(default) generates these warnings
-#![allow(clippy::unused_self)]
-
 use db::{DataKey, Db};
 use db_query::types::Order;
 use mimic_base::types::{self, Ulid};

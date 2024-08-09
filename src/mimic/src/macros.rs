@@ -12,15 +12,21 @@ macro_rules! mimic_start {
         // startup
         // code called on all canister startups (install, upgrade)
         fn startup() -> Result<(), Error> {
-            //let config_str = include_str!("../../../../../config.toml");
-            //::mimic::config::init_config_toml(config_str).map_err(::mimic::Error::from)?;
-
             let schema_json = include_str!(concat!(env!("OUT_DIR"), "/schema.rs"));
             ::mimic::core::schema::init_schema_json(schema_json).map_err(::mimic::Error::from)?;
 
             startup2()
         }
     };
+}
+
+// mimic_config
+#[macro_export]
+macro_rules! mimic_config {
+    ($file:expr) => {{
+        let toml = include_str!($file);
+        ::mimic::config::init_config_toml(toml).map_err(::mimic::Error::from)
+    }};
 }
 
 // mimic_end

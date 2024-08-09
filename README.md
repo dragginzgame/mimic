@@ -92,10 +92,6 @@ actually writing useful documentation
 
 ## ❓Open Questions
 
-### Macros
-
-- the `mimic_start!` macro - how should it know where the generated file is going to be?  Should I generate it into the same directory?  Can I pass an environment variable for WORKSPACE_ROOT or something like that?
-
 ### Crates & Modules
 
 - feedback needed on the amount of crates in the framework. Does it have to be so many?  What's the best practice

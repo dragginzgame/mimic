@@ -93,7 +93,7 @@ pub mod prelude {
         },
         db::query as db_query,
         ic::{caller, format_cycles, id, log, Log},
-        mimic_end, mimic_start,
+        mimic_config, mimic_end, mimic_start,
         orm::traits::{EntityFixture, Path},
         perf,
         types::Ulid,
