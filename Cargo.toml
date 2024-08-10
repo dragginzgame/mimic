@@ -24,7 +24,8 @@ members = [
     "src/mimic_base",
     "src/mimic_common",
     "src/mimic_derive",
-    "src/tests",
+    "benches",
+    "tests",
 ]
 resolver = "2"
 
@@ -85,6 +86,7 @@ syn = "2.0"
 quote = "1.0"
 
 # third party
+bencher = "0.1"
 ciborium = "0.2"
 ctor = "0.2"
 convert_case = "0.6"

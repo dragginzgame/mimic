@@ -10,9 +10,6 @@ cargo install \
     cargo-outdated cargo-sort cargo-udeps cargo-tarpaulin \
     candid-extractor ic-wasm
 
-# dfx
-dfxvm update
-
 # cleanup
 cargo audit
 cargo outdated
@@ -20,3 +17,6 @@ cargo sort -w 1>/dev/null
 
 # update last
 cargo update --verbose
+
+# dfx
+dfxvm update

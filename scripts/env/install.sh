@@ -5,7 +5,6 @@
 # set up most of the prerequisites needed to install Mimic
 #
 
-
 #
 # ERROR HANDLING
 #
