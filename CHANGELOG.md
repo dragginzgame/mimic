@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Build scripts!  No longer do we have to rely on a suite of bash scripts piping data to random
 files that may not get included properly when directories change.
+- mimic_start!() takes in the config file as an argument, couldn't think of a better way to do it
 
 ## [0.1.1]
 
