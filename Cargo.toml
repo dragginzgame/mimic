@@ -1,6 +1,7 @@
 
 [workspace]
 members = [
+    "benches",
     "src/canisters/test",
     "src/mimic",
     "src/mimic/api",
@@ -24,7 +25,6 @@ members = [
     "src/mimic_base",
     "src/mimic_common",
     "src/mimic_derive",
-    "benches",
     "tests",
 ]
 resolver = "2"
