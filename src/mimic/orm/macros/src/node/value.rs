@@ -66,7 +66,7 @@ impl ToTokens for Value {
                 });
             }
 
-            Item::Relation(_) => {
+            Item::Id | Item::Relation(_) => {
                 // always use the same ulid type
                 let item: Path = syn::parse_str(PRIM_ULID).unwrap();
 

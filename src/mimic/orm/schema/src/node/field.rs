@@ -92,21 +92,22 @@ impl ValidateNode for Field {
         }
 
         // check for relations with confusing idents
-        if self.value.item.is_relation() {
-            let cr = self.value.cardinality;
-            let one_suffix = ident.ends_with("_id");
-            let many_suffix = ident.ends_with("_ids");
-
-            if cr == Cardinality::Many && !many_suffix {
-                errs.add(format!(
-                    "many relationship '{ident}' should end with '_ids'"
-                ));
+        let one_suffix = ident.ends_with("id");
+        let many_suffix = ident.ends_with("ids");
+        if self.value.item.is_relation() || self.value.item.is_id() {
+            match self.value.cardinality {
+                Cardinality::Many if !many_suffix => {
+                    errs.add(format!("many relationship '{ident}' should end with 'ids'"));
+                }
+                Cardinality::One | Cardinality::Opt if !one_suffix => {
+                    errs.add(format!(
+                        "one or optional relationship '{ident}' should end with 'id'"
+                    ));
+                }
+                _ => {}
             }
-            if (cr == Cardinality::One || cr == Cardinality::Opt) && !one_suffix {
-                errs.add(format!(
-                    "one or optional relationship '{ident}' should end with '_id'"
-                ));
-            }
+        } else if one_suffix || many_suffix {
+            errs.add(format!("field '{ident}' should not end with 'id' or 'ids'"));
         }
 
         errs.result()

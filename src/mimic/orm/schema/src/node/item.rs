@@ -13,11 +13,18 @@ use types::ErrorVec;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Item {
+    Id,
     Is(ItemIs),
     Relation(ItemRelation),
 }
 
 impl Item {
+    // is_id
+    #[must_use]
+    pub const fn is_id(&self) -> bool {
+        matches!(self, Self::Id)
+    }
+
     // is_relation
     #[must_use]
     pub const fn is_relation(&self) -> bool {
@@ -30,6 +37,7 @@ impl ValidateNode for Item {}
 impl VisitableNode for Item {
     fn drive<V: Visitor>(&self, v: &mut V) {
         match self {
+            Self::Id => {}
             Self::Is(node) => node.accept(v),
             Self::Relation(node) => node.accept(v),
         }

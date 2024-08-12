@@ -14,6 +14,7 @@ use syn::{parse_str, Lit, Path};
 
 #[derive(Clone, Debug, FromMeta)]
 pub enum Item {
+    Id,
     Is(ItemIs),
 
     #[darling(rename = "rel")]
@@ -30,6 +31,9 @@ impl Item {
 impl Schemable for Item {
     fn schema(&self) -> TokenStream {
         match self {
+            Self::Id => {
+                quote!(::mimic::orm::schema::node::Item::Id)
+            }
             Self::Is(node) => node.schema(),
             Self::Relation(node) => node.schema(),
         }
@@ -39,6 +43,10 @@ impl Schemable for Item {
 impl ToTokens for Item {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
+            Self::Id => {
+                let ty: Path = parse_str(PRIM_ULID).unwrap();
+                tokens.extend(quote!(#ty));
+            }
             Self::Is(node) => node.to_tokens(tokens),
             Self::Relation(node) => node.to_tokens(tokens),
         }
@@ -84,7 +92,6 @@ impl Schemable for ItemIs {
 impl ToTokens for ItemIs {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let path = &self.path;
-
         tokens.extend(quote!(#path));
     }
 }
@@ -128,7 +135,6 @@ impl Schemable for ItemRelation {
 impl ToTokens for ItemRelation {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let ty: Path = parse_str(PRIM_ULID).unwrap();
-
         tokens.extend(quote!(#ty));
     }
 }

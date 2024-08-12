@@ -302,16 +302,16 @@ impl<'a> DbTester<'a> {
         use types::test::store::{MissingFieldLarge, MissingFieldSmall};
 
         let small = MissingFieldSmall {
-            a: Ulid::generate(),
-            b: Ulid::generate(),
+            a_id: Ulid::generate(),
+            b_id: Ulid::generate(),
         };
 
         // move from small to large
         let bytes = orm::serialize(&small).unwrap();
         let large = orm::deserialize::<MissingFieldLarge>(&bytes).unwrap();
 
-        assert!(!large.a.is_nil());
-        assert!(!large.b.is_nil());
-        assert!(large.c.is_nil());
+        assert!(!large.a_id.is_nil());
+        assert!(!large.b_id.is_nil());
+        assert!(large.c_id.is_nil());
     }
 }

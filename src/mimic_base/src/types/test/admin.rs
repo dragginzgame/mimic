@@ -12,7 +12,7 @@ use mimic::orm::prelude::*;
     store = "canister::test::store::Data",
     pks = "id",
     fields(
-        field(name = "id", value(item(is = "types::Ulid"))),
+        field(name = "id", value(item(id))),
         field(name = "string_test", value(item(is = "types::String"))),
         field(name = "principal_test", value(item(is = "types::Principal"))),
         field(name = "blob_test", value(item(is = "types::Blob"))),
@@ -80,7 +80,7 @@ pub struct ComplexEntity {}
     store = "canister::test::store::Data",
     pks = "id",
     fields(
-        field(name = "id", value(item(is = "types::Ulid"))),
+        field(name = "id", value(item(id))),
         field(name = "simple_text", value(item(is = "types::String"))),
         field(name = "tuple_test", value(item(is = "test::admin::Tuple"))),
         field(name = "text_many", value(many, item(is = "types::String"))),
@@ -120,7 +120,7 @@ pub struct AdminEntity {}
     store = "canister::test::store::Data",
     pks = "id",
     fields(
-        field(name = "id", value(item(is = "types::Ulid"))),
+        field(name = "id", value(item(id))),
         field(name = "name", value(item(is = "types::String"))),
     )
 )]

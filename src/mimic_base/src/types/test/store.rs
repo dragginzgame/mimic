@@ -8,7 +8,7 @@ use mimic::orm::prelude::*;
 #[entity(
     store = "canister::test::store::Data",
     pks = "id",
-    fields(field(name = "id", value(item(is = "types::Ulid"))))
+    fields(field(name = "id", value(item(id))))
 )]
 pub struct CreateBasic {}
 
@@ -20,7 +20,7 @@ pub struct CreateBasic {}
     store = "canister::test::store::Data",
     pks = "id",
     fields(
-        field(name = "id", value(item(is = "types::Ulid"))),
+        field(name = "id", value(item(id))),
         field(name = "name", value(item(is = "types::String"))),
         field(name = "description", value(item(is = "types::String"))),
     )
@@ -45,7 +45,7 @@ pub struct Limit {}
 #[entity(
     store = "canister::test::store::Data",
     pks = "id",
-    fields(field(name = "id", value(item(is = "types::Ulid"))))
+    fields(field(name = "id", value(item(id))))
 )]
 pub struct SortKeyOrder {}
 
@@ -56,7 +56,7 @@ pub struct SortKeyOrder {}
 #[entity(
     store = "canister::test::store::Data",
     pks = "a_id",
-    fields(field(name = "a_id", value(item(is = "types::Ulid"))))
+    fields(field(name = "a_id", value(item(id))))
 )]
 pub struct SortKeyA {}
 
@@ -69,9 +69,9 @@ pub struct SortKeyA {}
     sk(entity = "SortKeyA", fields = "a_id"),
     pks = "b_id, c_id",
     fields(
-        field(name = "a_id", value(item(is = "types::Ulid"))),
-        field(name = "b_id", value(item(is = "types::Ulid"))),
-        field(name = "c_id", value(item(is = "types::Ulid"))),
+        field(name = "a_id", value(item(rel = "SortKeyA"))),
+        field(name = "b_id", value(item(id))),
+        field(name = "c_id", value(item(id))),
     )
 )]
 pub struct SortKeyB {}
@@ -86,12 +86,12 @@ pub struct SortKeyB {}
     sk(entity = "SortKeyB", fields = "b_id, c_id"),
     pks = "d_id, e_id, f_id",
     fields(
-        field(name = "a_id", value(item(is = "types::Ulid"))),
-        field(name = "b_id", value(item(is = "types::Ulid"))),
-        field(name = "c_id", value(item(is = "types::Ulid"))),
-        field(name = "d_id", value(item(is = "types::Ulid"))),
-        field(name = "e_id", value(item(is = "types::Ulid"))),
-        field(name = "f_id", value(item(is = "types::Ulid"))),
+        field(name = "a_id", value(item(rel = "SortKeyA"))),
+        field(name = "b_id", value(item(id))),
+        field(name = "c_id", value(item(id))),
+        field(name = "d_id", value(item(id))),
+        field(name = "e_id", value(item(id))),
+        field(name = "f_id", value(item(id))),
     )
 )]
 pub struct SortKeyC {}
@@ -102,8 +102,8 @@ pub struct SortKeyC {}
 
 #[record(
     fields(
-        field(name = "a", value(item(is = "types::Ulid"))),
-        field(name = "b", value(item(is = "types::Ulid"))),
+        field(name = "a_id", value(item(id))),
+        field(name = "b_id", value(item(id))),
     ),
     traits(add(Default))
 )]
@@ -115,9 +115,9 @@ pub struct MissingFieldSmall {}
 
 #[record(
     fields(
-        field(name = "a", value(item(is = "types::Ulid"))),
-        field(name = "b", value(item(is = "types::Ulid"))),
-        field(name = "c", value(item(is = "types::Ulid"))),
+        field(name = "a_id", value(item(id))),
+        field(name = "b_id", value(item(id))),
+        field(name = "c_id", value(item(id))),
     ),
     traits(add(Default))
 )]
