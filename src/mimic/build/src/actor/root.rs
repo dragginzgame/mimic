@@ -29,6 +29,15 @@ pub fn root_actor(builder: &mut ActorBuilder) {
 
             Ok(res)
         }
+
+        // schema
+        #[::mimic::ic::query]
+        async fn schema() -> Result<String, ::mimic::Error> {
+            let schema = schema_read();
+            let output = serde_json::to_string(schema)?;
+
+            Ok(output)
+        }
     };
 
     builder.extend_actor(q);
