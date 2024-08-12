@@ -18,8 +18,6 @@ pub enum Error {
 pub fn actor(canister_name: &str) -> Result<String, Error> {
     orm_schema::build::validate()?;
 
-    eprintln!("asdaa {:?}", schema_read());
-
     let res = actor::generate(canister_name)?;
 
     Ok(res)
