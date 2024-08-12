@@ -1,3 +1,4 @@
+use crate::Error;
 use candid::CandidType;
 use orm_schema::node::Canister;
 use serde::{Deserialize, Serialize};
@@ -21,20 +22,23 @@ pub enum SchemaError {
 ///
 
 // as_json
-pub fn as_json() -> Result<String, SchemaError> {
+pub fn as_json() -> Result<String, Error> {
     let json = core_schema::get_schema_json().map_err(SchemaError::from)?;
 
     Ok(json)
 }
 
 // canister
-pub fn canister(path: &str) -> Result<Canister, SchemaError> {
+pub fn canister(path: &str) -> Result<Canister, Error> {
     let schema = core_schema::get_schema().map_err(SchemaError::from)?;
 
-    schema
-        .get_node::<Canister>(path)
-        .cloned()
-        .ok_or(SchemaError::CanisterNotFound {
-            path: path.to_string(),
-        })
+    let canister =
+        schema
+            .get_node::<Canister>(path)
+            .cloned()
+            .ok_or(SchemaError::CanisterNotFound {
+                path: path.to_string(),
+            })?;
+
+    Ok(canister)
 }
