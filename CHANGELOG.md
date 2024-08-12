@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.1.3]
 - Item now can be: id, is or rel.  Id is the addition, so you just type (value(item(id))) for a Ulid
 - Horrible circular dependency in mimic_base with the Ulid type fixed
-
+- root canister now has a schema() command that's guarded at the controller level
 
 ## [0.1.2]
 
