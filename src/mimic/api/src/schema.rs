@@ -1,5 +1,4 @@
 use candid::CandidType;
-use core_schema::get_schema;
 use orm_schema::node::Canister;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -21,9 +20,14 @@ pub enum SchemaError {
 /// SCHEMA FUNCTIONS
 ///
 
+// as_json
+pub fn as_json() -> Result<String, SchemaError> {
+    core_schema::get_schema_json().map_err(SchemaError::from)
+}
+
 // canister
 pub fn canister(path: &str) -> Result<Canister, SchemaError> {
-    let schema = get_schema().map_err(SchemaError::from)?;
+    let schema = core_schema::get_schema().map_err(SchemaError::from)?;
 
     schema
         .get_node::<Canister>(path)

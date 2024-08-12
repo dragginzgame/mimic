@@ -33,10 +33,11 @@ pub fn root_actor(builder: &mut ActorBuilder) {
         // schema
         #[::mimic::ic::query]
         async fn schema() -> Result<String, ::mimic::Error> {
-            let schema = schema_read();
-            let output = serde_json::to_string(schema)?;
+            guard(vec![Guard::Controller]).await?;
 
-            Ok(output)
+            let json = ::mimic::api::schema::as_json()?;
+
+            Ok(json)
         }
     };
 

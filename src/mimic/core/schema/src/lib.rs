@@ -35,16 +35,9 @@ pub enum Error {
     SerdeJson { msg: String },
 }
 
-// get_schema
-pub fn get_schema() -> Result<Schema, Error> {
-    let guard = SCHEMA
-        .lock()
-        .map_err(|e| Error::Mutex { msg: e.to_string() })?;
-
-    guard
-        .as_ref()
-        .map_or(Err(Error::NotInitialized), |schema| Ok(schema.clone()))
-}
+///
+/// INIT
+///
 
 // init_schema
 fn init_schema(schema: Schema) -> Result<(), Error> {
@@ -69,4 +62,26 @@ pub fn init_schema_json(schema_json: &str) -> Result<(), Error> {
         .map_err(|e| Error::SerdeJson { msg: e.to_string() })?;
 
     init_schema(schema)
+}
+
+///
+/// GET
+///
+
+// get_schema
+pub fn get_schema() -> Result<Schema, Error> {
+    let guard = SCHEMA
+        .lock()
+        .map_err(|e| Error::Mutex { msg: e.to_string() })?;
+
+    guard
+        .as_ref()
+        .map_or(Err(Error::NotInitialized), |schema| Ok(schema.clone()))
+}
+
+// get_schema_json
+pub fn get_schema_json() -> Result<String, Error> {
+    let schema = get_schema()?;
+
+    serde_json::to_string(&schema).map_err(|e| Error::SerdeJson { msg: e.to_string() })
 }
