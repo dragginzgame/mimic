@@ -22,7 +22,9 @@ pub enum SchemaError {
 
 // as_json
 pub fn as_json() -> Result<String, SchemaError> {
-    core_schema::get_schema_json().map_err(SchemaError::from)
+    let json = core_schema::get_schema_json().map_err(SchemaError::from)?;
+
+    Ok(json)
 }
 
 // canister
