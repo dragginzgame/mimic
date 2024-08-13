@@ -1,7 +1,7 @@
 use crate::helper::{as_string, quote_one, to_string};
 use proc_macro2::TokenStream;
-use syn::{Generics, Ident};
 use quote::{format_ident, quote};
+use syn::{Generics, Ident};
 
 ///
 /// Def

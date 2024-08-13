@@ -31,7 +31,6 @@ pub fn as_json() -> Result<String, Error> {
 // canister
 pub fn canister(path: &str) -> Result<Canister, Error> {
     let schema = core_schema::get_schema().map_err(SchemaError::from)?;
-
     let canister =
         schema
             .get_node::<Canister>(path)

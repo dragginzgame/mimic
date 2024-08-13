@@ -103,8 +103,11 @@ pub fn extract_comments(input: TokenStream) -> String {
                         inner_tokens.next(),
                     ) {
                         if ident == "doc" && punct.as_char() == '=' {
-                            let comment = lit.to_string().trim_matches('"').to_string();
-                            comments.push(comment);
+                            let comment = lit.to_string();
+                            // Remove the outermost quotes and the first space of each line
+                            let cleaned_comment = clean_comment(&comment);
+
+                            comments.push(cleaned_comment);
                         }
                     }
                 }
@@ -113,9 +116,37 @@ pub fn extract_comments(input: TokenStream) -> String {
         }
     }
 
-    let comments = comments.join("\n");
+    let comments = comments
+        .into_iter()
+        .filter(|line| !line.trim().is_empty())
+        .collect::<Vec<_>>()
+        .join("\n");
 
     comments
-        .trim_matches(|c| c == ' ' || c == '\n' || c == '"')
-        .to_string()
+}
+
+/// Trims the outermost quotes, if they are unescaped, and removes the first space of each line
+fn clean_comment(literal: &str) -> String {
+    let mut chars = literal.chars().peekable();
+    let mut result = String::new();
+
+    // Check if the first character is an unescaped quote
+    if let Some('"') = chars.peek() {
+        chars.next(); // Skip the starting quote
+    }
+
+    while let Some(c) = chars.next() {
+        if c == '"' && chars.peek().is_none() {
+            // Skip the ending quote if it's the last character
+            break;
+        }
+        result.push(c);
+    }
+
+    // Split the string into lines and remove the first space of each line if it exists
+    result
+        .lines()
+        .map(|line| line.strip_prefix(' ').unwrap_or(line)) // Remove the first space if present
+        .collect::<Vec<_>>()
+        .join("\n")
 }

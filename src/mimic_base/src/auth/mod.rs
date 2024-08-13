@@ -7,7 +7,7 @@ pub mod role {
     /// Basic
     ///
 
-    #[role()]
+    #[role]
     pub struct Basic {}
 }
 
@@ -19,7 +19,7 @@ pub mod permission {
     use super::*;
 
     ///
-    /// Basic
+    /// Basic"
     ///
 
     #[permission]
