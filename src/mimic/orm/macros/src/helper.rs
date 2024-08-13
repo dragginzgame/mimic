@@ -69,7 +69,7 @@ pub fn to_path<T: ToTokens>(t: &T) -> TokenStream {
 }
 
 ///
-/// READING`1
+/// READING
 ///
 
 // split_idents

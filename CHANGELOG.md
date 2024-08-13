@@ -23,8 +23,6 @@ files that may not get included properly when directories change.
 ## [0.1.1]
 
 - Filter now has different arguments.  It's an enum where you can specify All(String), or Fields(Vec<(String, String)>) to either search every field if it contains a string (OR), or multiple fields with multiple different strings (AND)
-- Guides weren't working out, they're really better suited as enums, so removed
-all the guide code.
 - Unit enums now derive Display + Hash so they can be used as map keys
 - Enums can now use the variant(unspecified) directive
 

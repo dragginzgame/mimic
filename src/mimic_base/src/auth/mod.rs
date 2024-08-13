@@ -19,7 +19,7 @@ pub mod permission {
     use super::*;
 
     ///
-    /// Basic"
+    /// Basic
     ///
 
     #[permission]

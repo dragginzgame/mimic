@@ -204,6 +204,23 @@ pub struct MapStringString {}
 pub struct Newtype {}
 
 ///
+/// NewtypeGuide
+///
+
+#[newtype(
+    primitive = "U32",
+    value(item(is = "types::U32"), default = 2_u32),
+    guide(
+        entry(value = 2),
+        entry(value = 3),
+        entry(value = 4),
+        entry(value = 5),
+        entry(value = 6)
+    )
+)]
+pub struct NewtypeGuide {}
+
+///
 /// Tuple
 ///
 
