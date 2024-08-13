@@ -754,6 +754,7 @@ dependencies = [
  "ctor",
  "db",
  "db_query",
+ "derive_more",
  "ic",
  "lib_case",
  "lib_cbor",
