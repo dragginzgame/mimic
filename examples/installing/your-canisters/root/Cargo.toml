@@ -1,5 +1,5 @@
 [package]
-name = "test_canister"
+name = "canister_root"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }
@@ -12,17 +12,14 @@ crate-type = ["cdylib"]
 
 [dependencies]
 candid = { workspace = true }
-db = { workspace = true }
-db_query = { workspace = true }
-ic = { workspace = true }
+design = { workspace = true }
+game = { workspace = true }
 ic-cdk = { workspace = true }
+ic-cdk-timers = { workspace = true }
 mimic = { workspace = true }
-mimic_base = { workspace = true }
-orm = { workspace = true }
-test_schema = { workspace = true }
+state = { workspace = true }
 
 [build-dependencies]
-build = { workspace = true }
+design = { workspace = true }
 mimic = { workspace = true }
 mimic_base = { workspace = true }
-test_schema = { workspace = true }
