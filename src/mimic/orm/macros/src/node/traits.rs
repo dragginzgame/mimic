@@ -1,7 +1,7 @@
 use darling::{ast::NestedMeta, Error as DarlingError, FromMeta};
 use derive_more::{Deref, DerefMut};
 use proc_macro2::TokenStream;
-use quote::{quote, format_ident, ToTokens};
+use quote::{format_ident, quote, ToTokens};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, hash::Hash, str::FromStr, sync::LazyLock};
 use strum::{Display, EnumString};
@@ -150,8 +150,8 @@ impl Trait {
             Self::Deref => Some(quote!(::derive_more::Deref)),
             Self::DerefMut => Some(quote!(::derive_more::DerefMut)),
             Self::Deserialize => Some(quote!(::serde::Deserialize)),
-            Self::EnumDisplay => Some(quote!(::strum::Display)),
-            Self::EnumStaticStr => Some(quote!(::strum::IntoStaticStr)),
+            Self::EnumDisplay => Some(quote!(::mimic::export::strum::Display)),
+            Self::EnumStaticStr => Some(quote!(::mimic::export::strum::IntoStaticStr)),
             Self::Eq => Some(quote!(Eq)),
             Self::FromStr => Some(quote!(::derive_more::FromStr)),
             Self::Hash => Some(quote!(Hash)),

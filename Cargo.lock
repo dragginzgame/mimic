@@ -766,6 +766,7 @@ dependencies = [
  "remain",
  "serde",
  "snafu",
+ "strum",
  "types",
 ]
 
