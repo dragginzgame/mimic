@@ -106,7 +106,8 @@ for organising crates in a complicated project
 ## 📦 Top-Level Crates
 
 - `mimic` - the codebase is here, plus a top level `mimic/src` crate that includes and organises everything
-- `mimic_base` - the design
+- `mimic_base` - the base design primitives, plus a selection of validators, sanitizers and other
+schema types
 - `mimic_common` - common files that are used by macros at the framework level and also application level
 - `mimic_derive` - derive macros (currently just Storable)
 
@@ -117,17 +118,9 @@ for organising crates in a complicated project
 This crate contains helper macros for the API/Actor classes.  This is also where a lot of the errors are defined and wrapped.  As the bin/actorgen
 crate generates a lot of code, this crate is mostly here to handle and organise where that code points to.
 
-#### canisters
+#### build
 
-Framework-level canisters.  Currently there's just the test canister which allows you to test things at IC runtime which cargo test can't do.
-
-#### cli
-
-This is the helper code to make a binary `mimicli` that can generate rust code for the actor classes, and also the
-schema.json file.
-
-`mimicli` needs to include your local design crate when compiling, so it isn't a binary in its own right.  You have to make
-it into a binary yourself.
+Support library for the `build.rs` scripts needed for canisters
 
 #### config
 
@@ -182,6 +175,10 @@ This is the home of all the macros that allow you to create the data model, for 
 
 [todo!()]
 
+#### test
+
+Internal test canister plus the associated schema
+
 #### types
 
 There are two layers of wrapping when it comes to most of the non-primitive Rust types.
@@ -189,4 +186,4 @@ There are two layers of wrapping when it comes to most of the non-primitive Rust
 Firstly we have the types like Ulid, Timestamp, Decimal.  We want to use these in endpoints (so we need serde/CandidType) but they're not ORM-ready, they don't have the
 20 or so derives needed to be part of the ORM.  candid::Principal is an example of this, it derives CandidType but doesn't do much else.
 
-The double-wrapped types are used inside the orm, in `mimic-base`.  God I suck at documentation.
+The double-wrapped types are used inside the orm, in `mimic-base`.
