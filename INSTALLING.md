@@ -20,6 +20,4 @@ serde = { version = "1.0", default-features = false, features = ["derive"] }
 snafu = "0.8"
 ```
 
-
-
 ## MORE COMING SOON
