@@ -1,5 +1,5 @@
 use crate::{
-    helper::{as_string, quote_option, quote_vec},
+    helper::{quote_option, quote_vec, to_string},
     node::ArgNumber,
 };
 use darling::FromMeta;
@@ -45,7 +45,7 @@ pub struct GuideEntry {
 impl Schemable for GuideEntry {
     fn schema(&self) -> TokenStream {
         // Lit types are automatically given quotes
-        let name = quote_option(&self.name, as_string);
+        let name = quote_option(&self.name, to_string);
         let value = &self.value.schema();
 
         quote! {

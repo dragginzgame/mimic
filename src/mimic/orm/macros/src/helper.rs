@@ -50,8 +50,8 @@ pub fn as_self<T: ToTokens>(t: &T) -> TokenStream {
 }
 
 /// as_string
-pub fn as_string<T: ToTokens>(t: &T) -> TokenStream {
-    quote!(#t.to_string())
+pub fn as_string(s: &String) -> TokenStream {
+    quote!(#s.to_string())
 }
 
 /// to_string
