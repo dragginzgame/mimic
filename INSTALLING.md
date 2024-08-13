@@ -13,27 +13,13 @@ mimic_derive = { git = "https://github.com/dragginzgame/mimic", package = "mimic
 
 ##### Shared Crates
 
-Then you also need to add some (unavoidable) crates as we can't change the macros they emit (as far as I am aware - still working on that.)
+Then you also need to add some (unavoidable) crates as we can't change the macros they emit.
 
 ```toml
-derive_more = "0.99"
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 snafu = "0.8"
-strum = { version = "0.26", features = ["derive"] }
 ```
 
-##### Setting up `mimicli`
 
-In order to work `mimicli` needs to read both your local design crate and the mimic_base crate.  We've put this code in `tools\mimicli` and added that crate to our Cargo.toml.
-
-```rust
-pub use design;
-pub use mimic_base;
-
-// main
-fn main() {
-    mimic::cli::run();
-}
-```
 
 ## MORE COMING SOON
