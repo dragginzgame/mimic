@@ -1,4 +1,4 @@
-use crate::{canister, types};
+use base::types;
 use mimic::orm::prelude::*;
 
 ///
@@ -6,7 +6,7 @@ use mimic::orm::prelude::*;
 ///
 
 #[entity(
-    store = "canister::test::store::Data",
+    store = "crate::Store",
     pks = "id",
     fields(field(name = "id", value(item(id))))
 )]
@@ -17,7 +17,7 @@ pub struct CreateBasic {}
 ///
 
 #[entity(
-    store = "canister::test::store::Data",
+    store = "crate::Store",
     pks = "id",
     fields(
         field(name = "id", value(item(id))),
@@ -32,7 +32,7 @@ pub struct Filterable {}
 ///
 
 #[entity(
-    store = "canister::test::store::Data",
+    store = "crate::Store",
     pks = "value",
     fields(field(name = "value", value(item(is = "types::U32"))))
 )]
@@ -43,7 +43,7 @@ pub struct Limit {}
 ///
 
 #[entity(
-    store = "canister::test::store::Data",
+    store = "crate::Store",
     pks = "id",
     fields(field(name = "id", value(item(id))))
 )]
@@ -54,7 +54,7 @@ pub struct SortKeyOrder {}
 ///
 
 #[entity(
-    store = "canister::test::store::Data",
+    store = "crate::Store",
     pks = "a_id",
     fields(field(name = "a_id", value(item(id))))
 )]
@@ -65,7 +65,7 @@ pub struct SortKeyA {}
 ///
 
 #[entity(
-    store = "canister::test::store::Data",
+    store = "crate::Store",
     sk(entity = "SortKeyA", fields = "a_id"),
     pks = "b_id, c_id",
     fields(
@@ -81,7 +81,7 @@ pub struct SortKeyB {}
 ///
 
 #[entity(
-    store = "canister::test::store::Data",
+    store = "crate::Store",
     sk(entity = "SortKeyA", fields = "a_id"),
     sk(entity = "SortKeyB", fields = "b_id, c_id"),
     pks = "d_id, e_id, f_id",

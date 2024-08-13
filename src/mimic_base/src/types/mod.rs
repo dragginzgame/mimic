@@ -5,7 +5,6 @@ pub mod lang;
 pub mod math;
 pub mod orm;
 pub mod prim;
-pub mod test;
 pub mod text;
 pub mod time;
 

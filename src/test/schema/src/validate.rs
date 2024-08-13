@@ -1,4 +1,4 @@
-use crate::{canister, types, validator};
+use base::{types, validator};
 use mimic::orm::prelude::*;
 
 ///
@@ -6,11 +6,8 @@ use mimic::orm::prelude::*;
 ///
 
 #[entity(
-    store = "canister::test::store::Data",
-    fields(field(
-        name = "multiple_ten",
-        value(item(is = "types::test::validate::MultipleTenType"))
-    ),)
+    store = "crate::Store",
+    fields(field(name = "multiple_ten", value(item(is = "MultipleTenType"))),)
 )]
 pub struct Validator {}
 

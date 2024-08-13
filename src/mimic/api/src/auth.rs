@@ -185,6 +185,7 @@ async fn guard_policy(id: Principal, policy: &AccessPolicy) -> Result<(), Error>
 }
 
 // guard_subnet
+//#[expect(clippy::unused_async)]
 pub async fn guard_subnet(_id: Principal) -> Result<(), Error> {
     // @todo - we need gabriel code here
 

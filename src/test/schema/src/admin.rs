@@ -1,7 +1,4 @@
-use crate::{
-    canister,
-    types::{self, test},
-};
+use base::types;
 use mimic::orm::prelude::*;
 
 ///
@@ -9,7 +6,7 @@ use mimic::orm::prelude::*;
 ///
 
 #[entity(
-    store = "canister::test::store::Data",
+    store = "crate::Store",
     pks = "id",
     fields(
         field(name = "id", value(item(id))),
@@ -34,7 +31,7 @@ use mimic::orm::prelude::*;
         field(name = "bytes_test", value(item(is = "types::bytes::Bytes<20>"))),
         field(name = "utf8_test", value(item(is = "types::bytes::Utf8<20>"))),
         field(name = "timestamp", value(item(is = "types::time::Timestamp"))),
-        field(name = "tuple_test", value(item(is = "test::admin::Tuple"))),
+        field(name = "tuple_test", value(item(is = "Tuple"))),
         field(name = "name_many", value(many, item(is = "types::String"))),
         field(name = "name_opt", value(opt, item(is = "types::String"))),
         field(name = "record_a", value(item(is = "RecordA"))),
@@ -46,26 +43,17 @@ use mimic::orm::prelude::*;
         field(name = "variant_simple", value(item(is = "EnumB"))),
         field(name = "variant_simple_many", value(many, item(is = "EnumB"))),
         field(name = "variant_simple_opt", value(opt, item(is = "EnumB"))),
-        field(name = "map_int_string", value(item(is = "test::admin::MapIntString"))),
-        field(
-            name = "map_int_string_many",
-            value(many, item(is = "test::admin::MapIntString"))
-        ),
-        field(
-            name = "map_string_string",
-            value(item(is = "test::admin::MapStringString"))
-        ),
+        field(name = "map_int_string", value(item(is = "MapIntString"))),
+        field(name = "map_int_string_many", value(many, item(is = "MapIntString"))),
+        field(name = "map_string_string", value(item(is = "MapStringString"))),
         field(
             name = "map_string_string_many",
-            value(many, item(is = "test::admin::MapStringString"))
+            value(many, item(is = "MapStringString"))
         ),
-        field(
-            name = "map_string_record",
-            value(item(is = "test::admin::MapStringRecord"))
-        ),
+        field(name = "map_string_record", value(item(is = "MapStringRecord"))),
         field(
             name = "map_string_record_many",
-            value(many, item(is = "test::admin::MapStringRecord"))
+            value(many, item(is = "MapStringRecord"))
         ),
     ),
     traits(remove(Eq))
@@ -77,12 +65,12 @@ pub struct ComplexEntity {}
 ///
 
 #[entity(
-    store = "canister::test::store::Data",
+    store = "crate::Store",
     pks = "id",
     fields(
         field(name = "id", value(item(id))),
         field(name = "simple_text", value(item(is = "types::String"))),
-        field(name = "tuple_test", value(item(is = "test::admin::Tuple"))),
+        field(name = "tuple_test", value(item(is = "Tuple"))),
         field(name = "text_many", value(many, item(is = "types::String"))),
         field(name = "text_opt", value(opt, item(is = "types::String"))),
         field(name = "number_32", value(item(is = "types::U32"))),
@@ -95,18 +83,12 @@ pub struct ComplexEntity {}
         field(name = "variant_simple", value(item(is = "EnumB"))),
         field(name = "variant_simple_many", value(many, item(is = "EnumB"))),
         field(name = "variant_simple_opt", value(opt, item(is = "EnumB"))),
-        field(name = "map_int_string", value(item(is = "test::admin::MapIntString"))),
-        field(
-            name = "map_int_string_many",
-            value(many, item(is = "test::admin::MapIntString"))
-        ),
-        field(
-            name = "map_string_string",
-            value(item(is = "test::admin::MapStringString"))
-        ),
+        field(name = "map_int_string", value(item(is = "MapIntString"))),
+        field(name = "map_int_string_many", value(many, item(is = "MapIntString"))),
+        field(name = "map_string_string", value(item(is = "MapStringString"))),
         field(
             name = "map_string_string_many",
-            value(many, item(is = "test::admin::MapStringString"))
+            value(many, item(is = "MapStringString"))
         ),
     )
 )]
@@ -117,7 +99,7 @@ pub struct AdminEntity {}
 ///
 
 #[entity(
-    store = "canister::test::store::Data",
+    store = "crate::Store",
     pks = "id",
     fields(
         field(name = "id", value(item(id))),

@@ -1,5 +1,5 @@
 [package]
-name = "canister_test"
+name = "test_canister"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }
@@ -19,8 +19,10 @@ ic-cdk = { workspace = true }
 mimic = { workspace = true }
 mimic_base = { workspace = true }
 orm = { workspace = true }
+test_schema = { workspace = true }
 
 [build-dependencies]
 build = { workspace = true }
 mimic = { workspace = true }
+test_schema = { workspace = true }
 mimic_base = { workspace = true }

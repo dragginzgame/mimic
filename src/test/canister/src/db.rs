@@ -1,13 +1,13 @@
 use db::{DataKey, Db};
 use db_query::types::Order;
-use mimic_base::types::{self, Ulid};
+use mimic_base::types::Ulid;
 use orm::traits::Path;
 
 ///
 /// DbTester
 ///
 
-const STORE: &str = ::mimic_base::canister::test::store::Data::PATH;
+const STORE: &str = ::test_schema::Store::PATH;
 
 pub struct DbTester<'a> {
     db: &'a Db,
@@ -42,7 +42,7 @@ impl<'a> DbTester<'a> {
 
     // entity_with_map
     fn entity_with_map(&self) {
-        use types::test::has_map::HasMap;
+        use test_schema::map::HasMap;
 
         // create with map data
         let mut e = HasMap::default();
@@ -66,7 +66,7 @@ impl<'a> DbTester<'a> {
 
     // data_key_order
     fn data_key_order(&self) {
-        use types::test::store::SortKeyOrder;
+        use test_schema::store::SortKeyOrder;
 
         const ROWS: u16 = 1_000;
 
@@ -102,7 +102,7 @@ impl<'a> DbTester<'a> {
 
     // clear
     fn clear(&self) {
-        use types::test::store::CreateBasic;
+        use test_schema::store::CreateBasic;
 
         // Insert rows
         for _ in 0..100 {
@@ -128,7 +128,7 @@ impl<'a> DbTester<'a> {
 
     // create
     fn create(&self) {
-        use types::test::store::CreateBasic;
+        use test_schema::store::CreateBasic;
 
         // clear
         let _ = self.db.with_store_mut(STORE, |store| {
@@ -168,7 +168,7 @@ impl<'a> DbTester<'a> {
 
     // create_lots
     fn create_lots(&self) {
-        use types::test::store::CreateBasic;
+        use test_schema::store::CreateBasic;
         const ROWS: usize = 5_000;
 
         // clear
@@ -196,7 +196,7 @@ impl<'a> DbTester<'a> {
 
     // filter_query
     fn filter_query(&self) {
-        use types::test::store::Filterable;
+        use test_schema::store::Filterable;
 
         // clear
         let _ = self.db.with_store_mut(STORE, |store| {
@@ -263,7 +263,7 @@ impl<'a> DbTester<'a> {
 
     // limit_query
     fn limit_query(&self) {
-        use types::test::store::Limit;
+        use test_schema::store::Limit;
 
         // clear
         let _ = self.db.with_store_mut(STORE, |store| {
@@ -299,7 +299,7 @@ impl<'a> DbTester<'a> {
 
     // missing_field
     fn missing_field(&self) {
-        use types::test::store::{MissingFieldLarge, MissingFieldSmall};
+        use test_schema::store::{MissingFieldLarge, MissingFieldSmall};
 
         let small = MissingFieldSmall {
             a_id: Ulid::generate(),

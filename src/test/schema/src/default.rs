@@ -1,4 +1,4 @@
-use crate::types;
+use base::types;
 use mimic::orm::prelude::*;
 
 ///
@@ -12,7 +12,7 @@ use mimic::orm::prelude::*;
             name = "u8_static_fn",
             value(
                 item(is = "types::U8"),
-                default = "types::test::default::Record::u8_static_fn"
+                default = "crate::default::Record::u8_static_fn"
             )
         ),
     ),

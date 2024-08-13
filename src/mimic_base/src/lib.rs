@@ -4,7 +4,6 @@
 #![allow(unused_imports)]
 
 pub mod auth;
-pub mod canister;
 pub mod sanitizer;
 pub mod types;
 pub mod validator;

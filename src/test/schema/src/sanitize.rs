@@ -1,11 +1,11 @@
-use crate::{sanitizer, types};
+use base::{sanitizer, types};
 use mimic::orm::prelude::*;
 
 ///
 /// ClampRecord
 ///
 
-#[record(fields(field(name = "value", value(item(is = "types::test::sanitize::U8Clamp")))))]
+#[record(fields(field(name = "value", value(item(is = "U8Clamp")))))]
 pub struct ClampRecord {}
 
 impl ClampRecord {

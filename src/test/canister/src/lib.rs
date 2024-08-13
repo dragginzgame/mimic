@@ -7,7 +7,7 @@ use ic::{log, update, Log};
 use mimic::{prelude::*, Error};
 
 // blank file so we get the default
-mimic_start!("../../../../config.toml");
+mimic_start!("../config.toml");
 
 // init2
 pub fn init2() -> Result<(), Error> {

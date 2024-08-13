@@ -2,7 +2,6 @@
 [workspace]
 members = [
     "benches",
-    "src/canisters/test",
     "src/mimic",
     "src/mimic/api",
     "src/mimic/build",
@@ -25,6 +24,8 @@ members = [
     "src/mimic_base",
     "src/mimic_common",
     "src/mimic_derive",
+    "src/test/canister",
+    "src/test/schema",
     "tests",
 ]
 resolver = "2"
@@ -72,6 +73,10 @@ lib_cbor = { path = "src/mimic/lib/cbor" }
 lib_rand = { path = "src/mimic/lib/rand" }
 lib_test = { path = "src/mimic/lib/test" }
 lib_time = { path = "src/mimic/lib/time" }
+
+# test
+test_canister = { path = "src/test/canister" }
+test_schema = { path = "src/test/schema" }
 
 # ic cdk
 candid = "0.10.9"

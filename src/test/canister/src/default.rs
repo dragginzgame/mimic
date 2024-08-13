@@ -1,4 +1,4 @@
-use mimic_base::types::test::default::Record;
+use test_schema::default::Record;
 
 ///
 /// DefaultTester
