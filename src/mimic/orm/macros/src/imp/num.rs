@@ -4,7 +4,7 @@ use crate::{
 };
 use orm::types::PrimitiveType;
 use proc_macro2::TokenStream;
-use quote::{quote, format_ident, ToTokens};
+use quote::{format_ident, quote, ToTokens};
 
 ///
 /// NumCast
@@ -87,11 +87,11 @@ pub mod to_primitive {
     pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
         let q = quote! {
             fn to_i64(&self) -> Option<i64> {
-                ::num_traits::NumCast::from(self.0)
+                ::mimic::export::num_traits::NumCast::from(self.0)
             }
 
             fn to_u64(&self) -> Option<u64> {
-                ::num_traits::NumCast::from(self.0)
+                ::mimic::export::num_traits::NumCast::from(self.0)
             }
         };
 
