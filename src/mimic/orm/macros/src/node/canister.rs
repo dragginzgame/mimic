@@ -5,8 +5,8 @@ use crate::{
 use darling::FromMeta;
 use orm::types::Cycles;
 use orm_schema::Schemable;
-use quote::quote;
 use proc_macro2::TokenStream;
+use quote::quote;
 
 ///
 /// Canister
@@ -40,7 +40,10 @@ impl Node for Canister {
         };
 
         // debug
-        assert!(!self.debug, "{q}");
+        if self.debug {
+            let s = q.to_string();
+            return quote!(compile_error!(#s));
+        }
 
         q
     }

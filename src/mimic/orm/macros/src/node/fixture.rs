@@ -7,8 +7,8 @@ use darling::FromMeta;
 use orm::types::Sorted;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use syn::{Ident, Path};
 use quote::quote;
+use syn::{Ident, Path};
 
 ///
 /// Fixture
@@ -52,7 +52,10 @@ impl Node for Fixture {
         };
 
         // debug
-        assert!(!self.debug, "{q}");
+        if self.debug {
+            let s = q.to_string();
+            return quote!(compile_error!(#s));
+        }
 
         q
     }

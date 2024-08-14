@@ -34,7 +34,10 @@ impl Node for Sanitizer {
         };
 
         // debug
-        assert!(!self.debug, "{q}");
+        if self.debug {
+            let s = q.to_string();
+            return quote!(compile_error!(#s));
+        }
 
         q
     }
