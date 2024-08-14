@@ -29,14 +29,13 @@ impl Default for Def {
 
 impl Def {
     pub fn schema(&self) -> TokenStream {
-        // don't double quote comments
         let comments = quote_one(&self.comments, as_string);
         let ident = quote_one(&self.ident, to_string);
 
         quote! {
             ::mimic::orm::schema::node::Def {
                 module_path: module_path!().to_string(),
-                comments: #comments.to_string(),
+                comments: #comments,
                 ident: #ident,
             }
         }

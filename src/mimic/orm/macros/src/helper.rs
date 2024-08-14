@@ -120,7 +120,8 @@ pub fn extract_comments(input: TokenStream) -> String {
         .into_iter()
         .filter(|line| !line.trim().is_empty())
         .collect::<Vec<_>>()
-        .join("\n");
+        .join("\n")
+        .replace(r#"\""#, r#"""#);
 
     comments
 }

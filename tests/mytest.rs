@@ -10,8 +10,8 @@ mod tests {
 
     #[test]
     fn test_something() {
-        let i = 3;
+        let s = "hell\"o";
 
-        println!("{}", quote!(#i));
+        println!("{}", quote!(#s));
     }
 }
