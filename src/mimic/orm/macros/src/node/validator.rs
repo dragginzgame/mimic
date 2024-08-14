@@ -15,9 +15,6 @@ use quote::quote;
 pub struct Validator {
     #[darling(default, skip)]
     pub def: Def,
-
-    #[darling(default)]
-    pub debug: bool,
 }
 
 impl Node for Validator {
@@ -36,7 +33,7 @@ impl Node for Validator {
         };
 
         // debug
-        if self.debug {
+        if self.def.debug {
             let s = q.to_string();
             return quote!(compile_error!(#s));
         }

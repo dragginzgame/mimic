@@ -18,9 +18,6 @@ pub struct Canister {
     #[darling(skip, default)]
     pub def: Def,
 
-    #[darling(default)]
-    pub debug: bool,
-
     pub initial_cycles: Cycles,
     pub min_cycles: Cycles,
     pub build: CanisterBuild,
@@ -40,7 +37,7 @@ impl Node for Canister {
         };
 
         // debug
-        if self.debug {
+        if self.def.debug {
             let s = q.to_string();
             return quote!(compile_error!(#s));
         }

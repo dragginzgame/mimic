@@ -15,9 +15,6 @@ use quote::quote;
 pub struct Sanitizer {
     #[darling(default, skip)]
     pub def: Def,
-
-    #[darling(default)]
-    pub debug: bool,
 }
 
 impl Node for Sanitizer {
@@ -34,7 +31,7 @@ impl Node for Sanitizer {
         };
 
         // debug
-        if self.debug {
+        if self.def.debug {
             let s = q.to_string();
             return quote!(compile_error!(#s));
         }

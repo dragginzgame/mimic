@@ -19,9 +19,6 @@ pub struct Fixture {
     #[darling(default, skip)]
     pub def: Def,
 
-    #[darling(default)]
-    pub debug: bool,
-
     pub entity: Path,
 
     #[darling(default)]
@@ -52,7 +49,7 @@ impl Node for Fixture {
         };
 
         // debug
-        if self.debug {
+        if self.def.debug {
             let s = q.to_string();
             return quote!(compile_error!(#s));
         }

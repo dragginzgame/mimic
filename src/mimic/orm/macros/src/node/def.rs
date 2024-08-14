@@ -15,6 +15,7 @@ pub struct Def {
     pub comments: String,
     pub ident: Ident,
     pub generics: Generics,
+    pub debug: bool,
 }
 
 impl Default for Def {
@@ -23,6 +24,7 @@ impl Default for Def {
             comments: String::default(),
             ident: format_ident!("temp"),
             generics: Generics::default(),
+            debug: false,
         }
     }
 }

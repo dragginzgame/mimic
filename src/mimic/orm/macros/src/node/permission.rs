@@ -15,9 +15,6 @@ use quote::quote;
 pub struct Permission {
     #[darling(default, skip)]
     pub def: Def,
-
-    #[darling(default)]
-    pub debug: bool,
 }
 
 impl Node for Permission {
@@ -34,7 +31,10 @@ impl Node for Permission {
         };
 
         // debug
-        assert!(!self.debug, "{q}");
+        if self.def.debug {
+            let s = q.to_string();
+            return quote!(compile_error!(#s));
+        }
 
         q
     }

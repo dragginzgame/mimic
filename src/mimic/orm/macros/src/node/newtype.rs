@@ -20,9 +20,6 @@ pub struct Newtype {
     #[darling(default, skip)]
     pub def: Def,
 
-    #[darling(default)]
-    pub debug: bool,
-
     pub value: Value,
 
     #[darling(default)]
@@ -60,7 +57,7 @@ impl Node for Newtype {
         };
 
         // debug
-        if self.debug {
+        if self.def.debug {
             let s = q.to_string();
             return quote!(compile_error!(#s));
         }

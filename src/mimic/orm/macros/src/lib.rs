@@ -36,12 +36,16 @@ macro_rules! macro_node {
                         );
                     }
 
+                    // Check if the `#[debug]` attribute is present
+                    let debug = item.attrs.iter().any(|attr| attr.path().is_ident("debug"));
+
                     // build def
                     let mut node = <$node_type>::from_list(&args).unwrap();
                     node.def = Def {
                         comments,
                         ident: item.ident.clone(),
                         generics: item.generics.clone(),
+                        debug,
                     };
 
                     // expand tokens

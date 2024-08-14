@@ -20,9 +20,6 @@ pub struct EnumHash {
     pub def: Def,
 
     #[darling(default)]
-    pub debug: bool,
-
-    #[darling(default)]
     pub sorted: Sorted,
 
     #[darling(multiple, rename = "key")]
@@ -50,7 +47,10 @@ impl Node for EnumHash {
         };
 
         // debug
-        assert!(!self.debug, "{q}");
+        if self.def.debug {
+            let s = q.to_string();
+            return quote!(compile_error!(#s));
+        }
 
         q
     }

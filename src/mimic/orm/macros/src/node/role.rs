@@ -6,8 +6,8 @@ use crate::{
 use darling::FromMeta;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use syn::Path;
 use quote::quote;
+use syn::Path;
 
 ///
 /// Role
@@ -17,9 +17,6 @@ use quote::quote;
 pub struct Role {
     #[darling(default, skip)]
     pub def: Def,
-
-    #[darling(default)]
-    pub debug: bool,
 
     #[darling(default)]
     pub parent: Option<Path>,
@@ -42,7 +39,10 @@ impl Node for Role {
         };
 
         // debug
-        assert!(!self.debug, "{q}");
+        if self.def.debug {
+            let s = q.to_string();
+            return quote!(compile_error!(#s));
+        }
 
         q
     }

@@ -17,9 +17,6 @@ pub struct Tuple {
     #[darling(default, skip)]
     pub def: Def,
 
-    #[darling(default)]
-    pub debug: bool,
-
     #[darling(multiple, rename = "value")]
     pub values: Vec<Value>,
 
@@ -46,7 +43,7 @@ impl Node for Tuple {
         };
 
         // debug
-        if self.debug {
+        if self.def.debug {
             let s = q.to_string();
             return quote!(compile_error!(#s));
         }

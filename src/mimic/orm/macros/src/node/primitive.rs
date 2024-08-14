@@ -20,9 +20,6 @@ pub struct Primitive {
 
     pub ty: PrimitiveType,
     pub path: Path,
-
-    #[darling(default)]
-    pub debug: bool,
 }
 
 impl Node for Primitive {
@@ -38,7 +35,10 @@ impl Node for Primitive {
         };
 
         // debug
-        assert!(!self.debug, "{q}");
+        if self.def.debug {
+            let s = q.to_string();
+            return quote!(compile_error!(#s));
+        }
 
         q
     }

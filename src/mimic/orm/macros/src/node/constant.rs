@@ -14,9 +14,6 @@ pub struct Constant {
     #[darling(default, skip)]
     pub def: Def,
 
-    #[darling(default)]
-    pub debug: bool,
-
     pub ty: PrimitiveType,
     pub value: ArgNumber,
 }
@@ -38,7 +35,7 @@ impl Node for Constant {
         };
 
         // debug
-        if self.debug {
+        if self.def.debug {
             let s = q.to_string();
             return quote!(compile_error!(#s));
         }

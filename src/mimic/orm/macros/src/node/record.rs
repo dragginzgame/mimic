@@ -17,9 +17,6 @@ pub struct Record {
     pub def: Def,
 
     #[darling(default)]
-    pub debug: bool,
-
-    #[darling(default)]
     pub fields: FieldList,
 
     #[darling(default)]
@@ -45,7 +42,10 @@ impl Node for Record {
         };
 
         // debug
-        assert!(!self.debug, "{q}");
+        if self.def.debug {
+            let s = q.to_string();
+            return quote!(compile_error!(#s));
+        }
 
         q
     }

@@ -20,9 +20,6 @@ pub struct Enum {
     pub def: Def,
 
     #[darling(default)]
-    pub debug: bool,
-
-    #[darling(default)]
     pub sorted: Sorted,
 
     #[darling(multiple, rename = "variant")]
@@ -71,7 +68,7 @@ impl Node for Enum {
         };
 
         // debug
-        if self.debug {
+        if self.def.debug {
             let s = q.to_string();
             return quote!(compile_error!(#s));
         }
