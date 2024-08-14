@@ -37,7 +37,7 @@ impl Node for Primitive {
         // debug
         if self.def.debug {
             let s = q.to_string();
-            return quote!(compile_error!(#s));
+            return quote!(compile_error!(#s););
         }
 
         q
