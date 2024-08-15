@@ -29,16 +29,6 @@ pub fn root_actor(builder: &mut ActorBuilder) {
 
             Ok(res)
         }
-
-        // schema
-        #[::mimic::ic::query]
-        async fn schema() -> Result<String, ::mimic::Error> {
-            guard(vec![Guard::Controller]).await?;
-
-            let json = ::mimic::api::schema::as_json()?;
-
-            Ok(json)
-        }
     };
 
     builder.extend_actor(q);
