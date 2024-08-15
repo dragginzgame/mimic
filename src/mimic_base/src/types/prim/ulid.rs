@@ -1,5 +1,3 @@
-pub mod fixture;
-
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, FromStr};
 use mimic::orm::prelude::*;
@@ -67,33 +65,6 @@ impl Ulid {
     #[must_use]
     pub fn generate() -> Self {
         Self(WrappedUlid::generate())
-    }
-
-    /// fixture
-    /// both paths are used in case two Fixture entities are trying to write to
-    /// the same Entity and use the same ID
-    #[must_use]
-    pub fn fixture<T>(t: T) -> Self
-    where
-        T: Into<&'static str> + Path,
-    {
-        let digest = format!("{}-{}", T::PATH, t.into());
-        Self::from_string_digest(&digest)
-    }
-
-    /// fixtures
-    /// helper function for a many relation
-    #[must_use]
-    pub fn fixtures<T>(ts: Vec<T>) -> HashSet<Self>
-    where
-        T: Into<&'static str> + Path,
-    {
-        ts.into_iter()
-            .map(|t| {
-                let digest = format!("{}-{}", T::PATH, t.into());
-                Self::from_string_digest(&digest)
-            })
-            .collect()
     }
 }
 

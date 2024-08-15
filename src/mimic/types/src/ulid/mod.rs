@@ -1,3 +1,4 @@
+pub mod fixture;
 pub mod generator;
 
 use candid::CandidType;

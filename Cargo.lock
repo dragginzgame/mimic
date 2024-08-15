@@ -1312,6 +1312,7 @@ dependencies = [
  "rust_decimal",
  "serde",
  "serde_bytes",
+ "sha2",
  "snafu",
  "ulid",
 ]

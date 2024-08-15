@@ -6,6 +6,7 @@ pub use num_traits::{FromPrimitive as NumFromPrimitive, NumCast, ToPrimitive as 
 pub use serde::{de::DeserializeOwned, Deserialize, Serialize};
 pub use std::{
     cmp::Ordering,
+    collections::HashSet,
     convert::{AsRef, From},
     default::Default,
     fmt::{Debug, Display},
@@ -16,7 +17,7 @@ pub use std::{
 };
 
 use crate::{types::SortDirection, visit::Visitor, Error};
-use ::types::ErrorVec;
+use ::types::{ErrorVec, Ulid};
 
 ///
 /// MACROS
@@ -400,14 +401,26 @@ pub trait EntityDynamic: Debug + Visitable {
 /// an enum that can generate fixture data for an Entity
 ///
 
-pub trait EntityFixture: Into<&'static str> {
+pub trait EntityFixture: Path + Display {
+    // get_fixture_data
+    // must be implemented, returns the list of all the Entities as
+    // a boxed dynamic trait
     #[must_use]
-    fn fixtures() -> Vec<Box<dyn EntityDynamic>>;
+    fn get_fixture_data() -> Vec<Box<dyn EntityDynamic>>;
 
     // boxed
     // create a boxed trait object for fixtures
     fn boxed<E: EntityDynamic + 'static>(entity: E) -> Box<dyn EntityDynamic> {
         Box::new(entity) as Box<dyn EntityDynamic>
+    }
+
+    /// fixture
+    /// both paths are used in case two Fixture entities are trying to write to
+    /// the same Entity and use the same ID
+    #[must_use]
+    fn fixture(&self) -> types::Ulid {
+        let digest = format!("{}-{}", Self::PATH, self);
+        Ulid::from_string_digest(&digest)
     }
 }
 
