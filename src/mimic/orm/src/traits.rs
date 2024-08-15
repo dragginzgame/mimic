@@ -401,7 +401,7 @@ pub trait EntityDynamic: Debug + Visitable {
 /// an enum that can generate fixture data for an Entity
 ///
 
-pub trait EntityFixture: Path + Display {
+pub trait EntityFixture: Display + Path {
     // get_fixture_data
     // must be implemented, returns the list of all the Entities as
     // a boxed dynamic trait
@@ -414,11 +414,11 @@ pub trait EntityFixture: Path + Display {
         Box::new(entity) as Box<dyn EntityDynamic>
     }
 
-    /// fixture
+    /// ulif
     /// both paths are used in case two Fixture entities are trying to write to
     /// the same Entity and use the same ID
     #[must_use]
-    fn fixture(&self) -> types::Ulid {
+    fn ulid(&self) -> types::Ulid {
         let digest = format!("{}-{}", Self::PATH, self);
         Ulid::from_string_digest(&digest)
     }
