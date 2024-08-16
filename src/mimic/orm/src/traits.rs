@@ -414,7 +414,7 @@ pub trait EntityFixture: Display + Path {
         Box::new(entity) as Box<dyn EntityDynamic>
     }
 
-    /// ulif
+    /// ulid
     /// both paths are used in case two Fixture entities are trying to write to
     /// the same Entity and use the same ID
     #[must_use]

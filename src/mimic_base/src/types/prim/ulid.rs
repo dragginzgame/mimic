@@ -4,7 +4,10 @@ use mimic::orm::prelude::*;
 use mimic::{
     orm::{
         collections::HashSet,
-        traits::{Filterable, Orderable, Path, PrimaryKey, SanitizeAuto, Validate, ValidateAuto},
+        traits::{
+            EntityFixture, Filterable, Orderable, Path, PrimaryKey, SanitizeAuto, Validate,
+            ValidateAuto,
+        },
     },
     types::{ErrorVec, Ulid as WrappedUlid},
 };
@@ -86,9 +89,12 @@ impl Filterable for Ulid {
     }
 }
 
-impl<T: Into<WrappedUlid>> From<T> for Ulid {
-    fn from(t: T) -> Self {
-        Self(t.into())
+impl<T> From<T> for Ulid
+where
+    T: EntityFixture,
+{
+    fn from(entity: T) -> Self {
+        Self(entity.ulid())
     }
 }
 
