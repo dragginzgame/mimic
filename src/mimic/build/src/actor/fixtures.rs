@@ -76,7 +76,7 @@ pub fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
         {
             let fixture_ident: Path = parse_str(fixture_path).unwrap();
             inner.push(quote! {
-                fixtures_replace_helper(#fixture_ident::fixtures())?;
+                fixtures_replace_helper(#fixture_ident::get_fixture_data())?;
             });
         }
     }
