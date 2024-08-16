@@ -69,6 +69,12 @@ impl Ulid {
     pub fn generate() -> Self {
         Self(WrappedUlid::generate())
     }
+
+    // from_string_digest
+    #[must_use]
+    pub fn from_string_digest(name: &str) -> Self {
+        Self(WrappedUlid::from_string_digest(name))
+    }
 }
 
 impl Default for Ulid {
