@@ -10,7 +10,7 @@ use mimic::{prelude::*, Error};
 mimic_start!("../config.toml");
 
 // init2
-pub fn init2() -> Result<(), Error> {
+pub const fn init2() -> Result<(), Error> {
     Ok(())
 }
 
@@ -20,17 +20,17 @@ pub async fn init_async2() -> Result<(), Error> {
 }
 
 // startup2
-pub fn startup2() -> Result<(), Error> {
+pub const fn startup2() -> Result<(), Error> {
     Ok(())
 }
 
 // pre_upgrade2
-pub fn pre_upgrade2() -> Result<(), Error> {
+pub const fn pre_upgrade2() -> Result<(), Error> {
     Ok(())
 }
 
 // post_upgrade2
-pub fn post_upgrade2() -> Result<(), Error> {
+pub const fn post_upgrade2() -> Result<(), Error> {
     Ok(())
 }
 

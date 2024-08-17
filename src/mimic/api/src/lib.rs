@@ -7,6 +7,7 @@ pub mod mgmt;
 pub mod request;
 pub mod schema;
 pub mod state;
+pub mod subnet;
 pub mod upgrade;
 
 // re-export
@@ -49,6 +50,9 @@ pub enum Error {
 
     #[snafu(transparent)]
     Schema { source: schema::SchemaError },
+
+    #[snafu(transparent)]
+    Subnet { source: subnet::SubnetError },
 
     #[snafu(transparent)]
     Upgrade { source: upgrade::UpgradeError },

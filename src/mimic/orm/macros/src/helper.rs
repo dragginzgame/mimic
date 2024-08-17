@@ -132,7 +132,7 @@ fn clean_comment(literal: &str) -> String {
     let mut result = String::new();
 
     // Check if the first character is an unescaped quote
-    if let Some('"') = chars.peek() {
+    if chars.peek() == Some(&'"') {
         chars.next(); // Skip the starting quote
     }
 

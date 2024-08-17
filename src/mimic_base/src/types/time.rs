@@ -21,7 +21,7 @@ pub struct DurationMs {}
 
 impl DurationMs {
     #[must_use]
-    pub fn hour(n: usize) -> Self {
+    pub const fn hour(n: usize) -> Self {
         Self((n * 3_600_000) as u64)
     }
 }
