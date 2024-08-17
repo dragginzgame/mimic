@@ -12,8 +12,8 @@ use std::collections::BTreeMap;
 pub struct EntityCache {
     #[deref]
     #[deref_mut]
-    data: BTreeMap<DataKey, DataValue>,
-    created: u64,
+    pub data: BTreeMap<DataKey, DataValue>,
+    pub created: u64,
 }
 
 impl EntityCache {
