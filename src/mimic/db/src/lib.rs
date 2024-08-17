@@ -1,3 +1,4 @@
+pub mod cache;
 pub mod types;
 
 pub use types::{DataKey, DataRow, DataValue, Metadata};

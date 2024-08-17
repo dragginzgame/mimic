@@ -11,13 +11,20 @@ use mimic::orm::prelude::*;
 pub struct Duration {}
 
 ///
-/// DurationMilli
+/// DurationMs
 ///
 /// Duration in milliseconds
 ///
 
 #[newtype(primitive = "U64", value(item(is = "types::U64")))]
-pub struct DurationMilli {}
+pub struct DurationMs {}
+
+impl DurationMs {
+    #[must_use]
+    pub fn hour(n: usize) -> Self {
+        Self((n * 3_600_000) as u64)
+    }
+}
 
 ///
 /// Timestamp
