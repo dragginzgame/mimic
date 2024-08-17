@@ -15,6 +15,9 @@ pub enum AuthError {
     #[snafu(display("one or more rules must be defined"))]
     NoRulesDefined,
 
+    #[snafu(display("there has to be a user canister defined in the schema"))]
+    NoUserCanister,
+
     #[snafu(display("this action is not allowed due to configuration settings"))]
     NotAllowed,
 
@@ -158,9 +161,14 @@ fn guard_parent(id: Principal) -> Result<(), Error> {
 }
 
 // guard_permission
+// will find the user canister from the schema
 pub async fn guard_permission(id: Principal, permission: &str) -> Result<(), Error> {
-    let user_canister_id = SubnetIndexManager::try_get_canister("design::canister::user::User")
-        .map_err(AuthError::from)?;
+    let user_canisters =
+        crate::schema::canisters_by_build(::orm_schema::node::CanisterBuild::User)?;
+    let user_canister = user_canisters.first().ok_or(AuthError::NoUserCanister)?;
+
+    let user_canister_id =
+        SubnetIndexManager::try_get_canister(&user_canister.def.path()).map_err(AuthError::from)?;
 
     crate::call::<_, (Result<(), Error>,)>(
         user_canister_id,

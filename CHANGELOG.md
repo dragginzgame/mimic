@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - root canister now has a schema() command that's guarded at the controller level
 - tests have been moved out of mimic_base so they don't interfere with the application tests
 - removed application dependency on derive-more, num-traits and strum
+- the user canister path is no longer hard coded and its pulled from the schema
 
 ## [0.1.2]
 
