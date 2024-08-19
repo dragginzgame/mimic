@@ -18,7 +18,10 @@ use candid::{
     utils::{ArgumentDecoder, ArgumentEncoder},
     CandidType, Principal,
 };
-use ic::api::call::{call_raw, RejectionCode};
+use ic::{
+    api::call::{call_raw, RejectionCode},
+    log, Log,
+};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::future::Future;
@@ -81,7 +84,7 @@ pub fn call<T: ArgumentEncoder, R: for<'a> ArgumentDecoder<'a>>(
     method: &str,
     args: T,
 ) -> impl Future<Output = Result<R, Error>> + Send + Sync {
-    // log!(Log::Info, "call: {method}@{id}");
+    log!(Log::Info, "call: {method}@{id}");
 
     let args_raw = encode_args(args).expect("Failed to encode arguments.");
     let fut = call_raw(id, method, args_raw, 0);
