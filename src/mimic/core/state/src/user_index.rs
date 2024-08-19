@@ -15,15 +15,16 @@ use types::Ulid;
 ///
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+
 pub enum UserIndexError {
+    #[snafu(display("role '{role}' not found"))]
+    RoleNotFound { role: String },
+
     #[snafu(display("user id '{id}' already exists"))]
     UserExists { id: Principal },
 
     #[snafu(display("user id '{id}' not found"))]
     UserNotFound { id: Principal },
-
-    #[snafu(display("role '{role}' not found"))]
-    RoleNotFound { role: String },
 
     #[snafu(display("user already has role '{role}'"))]
     UserHasRole { role: String },
