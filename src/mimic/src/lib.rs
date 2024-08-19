@@ -30,7 +30,7 @@ pub mod lib {
 
 pub mod orm {
     pub mod prelude {
-        pub use ::candid::CandidType;
+        pub use ::candid::{CandidType, Principal};
         pub use ::ic::structures::storable::Bound;
         pub use ::lib_case::{Case, Casing};
         pub use ::num_traits::{NumCast, ToPrimitive};
