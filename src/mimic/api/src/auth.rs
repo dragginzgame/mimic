@@ -165,17 +165,20 @@ fn guard_parent(id: Principal) -> Result<(), Error> {
 pub async fn guard_permission(id: Principal, permission: &str) -> Result<(), Error> {
     let user_canister_id = crate::subnet::user_canister_id()?;
 
-    crate::call::<_, (Result<(), String>,)>(
+    crate::call::<_, (Result<(), Error>,)>(
         user_canister_id,
-        "guard_permission2",
-        ((id, permission),),
+        "guard_permission",
+        ((id, permission.to_string()),),
     )
-    .await?;
+    .await
+    .map_err(Error::from)?
+    .0?;
 
     Ok(())
 }
 
 // guard_policy
+// only from non-PlayerHub canisters
 async fn guard_policy(id: Principal, policy: &AccessPolicy) -> Result<(), Error> {
     match policy {
         AccessPolicy::Allow => Ok(()),
