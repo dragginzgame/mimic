@@ -88,13 +88,6 @@ pub fn user_index(builder: &mut ActorBuilder) {
             Ok(())
         }
 
-                // guard_permission2
-        #[::mimic::ic::query]
-        pub async fn guard_permission2(id: Principal, permission: String) -> Result<(), String> {
-            Ok(())
-        }
-
-
         // guard_permission
         // endpoint only works on the User canister
         // has to return api::Error as it's called by the api crate
