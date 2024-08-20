@@ -97,6 +97,7 @@ pub mod prelude {
 /// ::mimic module code
 ///
 use candid::CandidType;
+use ic::api::call::RejectionCode;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
@@ -128,4 +129,17 @@ pub enum Error {
 
     #[snafu(transparent)]
     CoreWasm { source: core_wasm::Error },
+
+    ///
+    /// call error (special)
+    ///
+
+    #[snafu(display("ic call: {msg}"))]
+    Call { msg: String },
+}
+
+impl From<(RejectionCode, String)> for Error {
+    fn from(error: (RejectionCode, String)) -> Self {
+        Self::Call { msg: error.1 }
+    }
 }
