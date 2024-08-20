@@ -165,7 +165,7 @@ fn guard_parent(id: Principal) -> Result<(), Error> {
 pub async fn guard_permission(id: Principal, permission: &str) -> Result<(), Error> {
     let user_canister_id = crate::subnet::user_canister_id()?;
 
-    crate::call::<_, (Result<(), Error>,)>(
+    ic_cdk::call::<_, (Result<(), Error>,)>(
         user_canister_id,
         "guard_permission",
         ((id, permission.to_string()),),

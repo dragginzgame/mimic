@@ -21,6 +21,7 @@ dependencies = [
  "db_query",
  "defer",
  "ic",
+ "ic-cdk",
  "mimic_common",
  "orm",
  "orm_schema",
