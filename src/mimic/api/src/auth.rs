@@ -165,13 +165,12 @@ fn guard_parent(id: Principal) -> Result<(), Error> {
 pub async fn guard_permission(id: Principal, permission: &str) -> Result<(), Error> {
     let user_canister_id = crate::subnet::user_canister_id()?;
 
-    crate::call::<_, (Result<(), Error>,)>(
+    crate::call::<_, (Result<(), String>,)>(
         user_canister_id,
         "guard_permission2",
         ((id, permission),),
     )
-    .await?
-    .0?;
+    .await?;
 
     Ok(())
 }

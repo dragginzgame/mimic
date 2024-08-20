@@ -90,7 +90,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
 
                 // guard_permission2
         #[::mimic::ic::query]
-        pub async fn guard_permission2(id: Principal, permission: String) -> Result<(), ::mimic::api::Error> {
+        pub async fn guard_permission2(id: Principal, permission: String) -> Result<(), String> {
             Ok(())
         }
 
