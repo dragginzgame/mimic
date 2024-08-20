@@ -11,6 +11,7 @@ pub mod subnet;
 pub mod upgrade;
 
 // re-export
+pub use defer::defer;
 pub use ic::api::call::call;
 
 use candid::CandidType;
