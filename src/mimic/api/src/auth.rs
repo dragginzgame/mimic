@@ -167,7 +167,7 @@ pub async fn guard_permission(id: Principal, permission: &str) -> Result<(), Err
 
     crate::call::<_, (Result<(), Error>,)>(
         user_canister_id,
-        "guard_permission",
+        "guard_permission2",
         ((id, permission),),
     )
     .await?
