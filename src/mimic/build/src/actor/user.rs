@@ -93,12 +93,12 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // has to return api::Error as it's called by the api crate
         #[::mimic::ic::query]
         pub async fn guard_permission(id: Principal, permission: String) -> Result<(), ::mimic::api::Error> {
-            ::ic::println!("asdasd 1");
+            ::mimic::ic::println!("asdasd 1");
 
             let user = UserIndexManager::try_get_user(id)
                 .map_err(::mimic::api::auth::AuthError::from)?;
 
-            ::ic::println!("asdasd 2");
+            ::mimic::ic::println!("asdasd 2");
 
             // return Ok if any role has the permission, otherwise return an error
             if user
@@ -106,10 +106,10 @@ pub fn user_index(builder: &mut ActorBuilder) {
                 .iter()
                 .any(|role| ::mimic::core::schema::AuthService::role_has_permission(role, &permission))
             {
-            ::ic::println!("asdasd 3");
+            ::mimic::ic::println!("asdasd 3");
                 Ok(())
             } else {
-            ::ic::println!("asdasd 4");
+            ::mimic::ic::println!("asdasd 4");
                 Err(::mimic::api::auth::AuthError::NotPermitted {
                     id,
                     permission,
