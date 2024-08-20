@@ -170,8 +170,7 @@ pub async fn guard_permission(id: Principal, permission: &str) -> Result<(), Err
         "guard_permission",
         ((id, permission.to_string()),),
     )
-    .await
-    .map_err(Error::from)?
+    .await?
     .0?;
 
     Ok(())
