@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.1.4]
+- fixed a bug in api::call that was affecting calls with more than one argument
+
 ## [0.1.3]
 - Item now can be: id, is or rel.  Id is the addition, so you just type (value(item(id))) for a Ulid
 - Horrible circular dependency in mimic_base with the Ulid type fixed
