@@ -15,7 +15,6 @@ use types::Ulid;
 ///
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
-
 pub enum UserIndexError {
     #[snafu(display("role '{role}' not found"))]
     RoleNotFound { role: String },

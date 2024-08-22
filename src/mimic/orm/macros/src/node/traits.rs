@@ -62,6 +62,7 @@ pub enum Trait {
     EnumDisplay,
     EnumHash,
     EnumStaticStr,
+    EnumValue,
     FieldFilter,
     FieldSort,
     Filterable,

@@ -16,7 +16,7 @@ pub fn enum_hash(node: &EnumHash, t: Trait) -> TokenStream {
     let mut try_from_inner = quote!();
     let ident = &node.def.ident;
 
-    // iterate variants
+    // iterate keys
     for key in &node.keys {
         let digest = format!("{ident}::{key}");
         let value = compute_hash(&digest);

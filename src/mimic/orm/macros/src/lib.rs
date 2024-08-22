@@ -57,11 +57,13 @@ macro_rules! macro_node {
     };
 }
 
+// macro macros
 macro_node!(canister, node::Canister);
 macro_node!(constant, node::Constant);
 macro_node!(entity, node::Entity);
 macro_node!(enum_, node::Enum);
 macro_node!(enum_hash, node::EnumHash);
+macro_node!(enum_value, node::EnumValue);
 macro_node!(fixture, node::Fixture);
 macro_node!(map, node::Map);
 macro_node!(newtype, node::Newtype);

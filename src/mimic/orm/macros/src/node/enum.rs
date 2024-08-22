@@ -1,5 +1,5 @@
 use crate::{
-    helper::{as_self, quote_one, quote_option, quote_vec, to_string},
+    helper::{quote_one, quote_option, quote_vec, to_string},
     imp,
     node::{Def, MacroNode, Node, Trait, TraitNode, Traits, Value},
 };
@@ -62,7 +62,7 @@ impl Node for Enum {
             #sorted
             #repr
             pub enum #ident {
-                #(#variants)*
+                #(#variants,)*
             }
             #imp
         };
@@ -138,9 +138,6 @@ pub struct EnumVariant {
     pub value: Option<Value>,
 
     #[darling(default)]
-    pub discriminant: Option<i32>,
-
-    #[darling(default)]
     pub default: bool,
 
     #[darling(default)]
@@ -157,11 +154,6 @@ impl Node for EnumVariant {
     fn expand(&self) -> TokenStream {
         let mut q = quote!();
 
-        // unspecified fail
-        if self.unspecified && (self.value.is_some() || self.discriminant.is_some()) {
-            panic!("unspecified can only be used on its own");
-        }
-
         // default
         if self.default {
             q.extend(quote!(#[default]));
@@ -175,25 +167,9 @@ impl Node for EnumVariant {
         };
 
         // quote
-        q.extend(match (&self.value, &self.discriminant) {
-            (Some(_), Some(_)) => panic!("cannot set both value and discriminant"),
-
-            // value
-            (Some(value), None) => quote! {
-                #name(#value),
-            },
-
-            // discriminant
-            (None, Some(disc)) => {
-                quote! {
-                    #name = #disc,
-                }
-            }
-
-            // none
-            (None, None) => quote! {
-                #name,
-            },
+        q.extend(match &self.value {
+            Some(value) => quote! (#name(#value)),
+            None => quote! (#name),
         });
 
         q
@@ -209,13 +185,11 @@ impl Schemable for EnumVariant {
         } = self;
         let name = quote_one(&self.name, to_string);
         let value = quote_option(&self.value, Value::schema);
-        let discriminant = quote_option(&self.discriminant, as_self);
 
         quote! {
             ::mimic::orm::schema::node::EnumVariant {
                 name: #name,
                 value : #value,
-                discriminant : #discriminant,
                 default: #default,
                 unspecified: #unspecified,
             }

@@ -79,9 +79,6 @@ pub struct EnumVariant {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub value: Option<Value>,
 
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub discriminant: Option<i32>,
-
     #[serde(default, skip_serializing_if = "Not::not")]
     pub default: bool,
 
@@ -99,11 +96,6 @@ impl ValidateNode for EnumVariant {
                 "variant name '{}' must be in UpperCamelCase",
                 self.name
             ));
-        }
-
-        // value + discriminant
-        if self.value.is_some() && self.discriminant.is_some() {
-            errs.add("cannot set both a value and a discriminant");
         }
 
         errs.result()

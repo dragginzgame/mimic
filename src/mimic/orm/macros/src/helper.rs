@@ -44,11 +44,6 @@ where
 /// TRANSFORM HELPERS
 ///
 
-/// as_self
-pub fn as_self<T: ToTokens>(t: &T) -> TokenStream {
-    quote!(#t)
-}
-
 /// as_string
 pub fn as_string(s: &String) -> TokenStream {
     quote!(#s.to_string())

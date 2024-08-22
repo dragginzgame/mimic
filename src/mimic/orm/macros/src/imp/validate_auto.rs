@@ -46,32 +46,7 @@ pub fn enum_(node: &Enum, t: Trait) -> TokenStream {
 // newtype
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
     // validators
-    let mut rules = validators(&node.validators);
-
-    // guide
-    if let Some(guide) = &node.guide {
-        let values: Vec<_> = guide
-            .entries
-            .iter()
-            .map(|entry| {
-                let ev = &entry.value;
-                quote! { #ev }
-            })
-            .collect();
-
-        rules.extend(quote! {
-            let valid_values = [#(#values),*];
-
-            match NumCast::from(self.0) {
-                Some(value) => {
-                    if !valid_values.contains(&value) {
-                        errs.add(format!("value {} does not appear in guide", &self.0));
-                    }
-                }
-                None => errs.add("failed to convert value to isize")
-            }
-        });
-    };
+    let rules = validators(&node.validators);
 
     // inner
     let inner = if rules.is_empty() {

@@ -2,6 +2,7 @@ pub mod default;
 pub mod display;
 pub mod entity;
 pub mod enum_hash;
+pub mod enum_value;
 pub mod filterable;
 pub mod from;
 pub mod inner;
