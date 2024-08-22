@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.1.5]
+- guides were a code smell, so they've been removed.  Instead we have EnumValue
+which allows you to specify a unit enum with an additional value argument that
+is stored in the schema JSON
+
 ## [0.1.4]
 - fixed a bug in api::call that was affecting calls with more than one argument
 
