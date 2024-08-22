@@ -1,4 +1,4 @@
-use crate::node::{Def, MacroNode, ValidateNode, VisitableNode};
+use crate::node::{Def, MacroNode, ValidateNode, VisitableNode, Visitor};
 use lib_case::{Case, Casing};
 use serde::{Deserialize, Serialize};
 use std::ops::Not;
@@ -27,6 +27,13 @@ impl ValidateNode for EnumValue {}
 impl VisitableNode for EnumValue {
     fn route_key(&self) -> String {
         self.def.path()
+    }
+
+    fn drive<V: Visitor>(&self, v: &mut V) {
+        self.def.accept(v);
+        for node in &self.variants {
+            node.accept(v);
+        }
     }
 }
 

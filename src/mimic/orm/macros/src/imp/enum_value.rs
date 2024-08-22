@@ -25,7 +25,7 @@ pub fn enum_value(node: &EnumValue, t: Trait) -> TokenStream {
 
     // quote
     let q = quote! {
-        fn value(&self) -> u32 {
+        fn value(&self) -> i64 {
             match self {
                 #inner
             }

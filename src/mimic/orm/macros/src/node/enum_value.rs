@@ -20,6 +20,9 @@ pub struct EnumValue {
 
     #[darling(multiple, rename = "variant")]
     pub variants: Vec<EnumValueVariant>,
+
+    #[darling(default)]
+    pub traits: Traits,
 }
 
 impl Node for EnumValue {
@@ -74,8 +77,14 @@ impl Schemable for EnumValue {
 
 impl TraitNode for EnumValue {
     fn traits(&self) -> Vec<Trait> {
-        let mut traits = Traits::default();
-        traits.extend(vec![Trait::Copy, Trait::EnumValue]);
+        let mut traits = self.traits.clone();
+        traits.add_db_traits();
+        traits.extend(vec![
+            Trait::Copy,
+            Trait::EnumDisplay,
+            Trait::EnumValue,
+            Trait::Hash,
+        ]);
 
         traits.list()
     }
@@ -130,7 +139,9 @@ impl Node for EnumValueVariant {
         };
 
         // quote
-        quote!(#name)
+        q.extend(quote! (#name));
+
+        q
     }
 }
 
@@ -145,7 +156,7 @@ impl Schemable for EnumValueVariant {
         let value = self.value;
 
         quote! {
-            ::mimic::orm::schema::node::EnumVariant {
+            ::mimic::orm::schema::node::EnumValueVariant {
                 name: #name,
                 value : #value,
                 default: #default,

@@ -44,13 +44,6 @@ impl Node for Enum {
         let Self { sorted, .. } = self;
         let Def { ident, .. } = &self.def;
 
-        // repr
-        let repr = if self.is_unit_enum() {
-            quote!(#[repr(i32)])
-        } else {
-            quote!()
-        };
-
         // quote
         let derive = self.derive();
         let schema = self.ctor_schema();
@@ -60,7 +53,6 @@ impl Node for Enum {
             #schema
             #derive
             #sorted
-            #repr
             pub enum #ident {
                 #(#variants,)*
             }

@@ -1,6 +1,9 @@
 use crate::{
     build::schema_read,
-    node::{Entity, Enum, Map, Newtype, Primitive, Record, Tuple, ValidateNode, VisitableNode},
+    node::{
+        Entity, Enum, EnumValue, Map, Newtype, Primitive, Record, Tuple, ValidateNode,
+        VisitableNode,
+    },
     visit::Visitor,
 };
 use serde::{Deserialize, Serialize};
@@ -62,6 +65,7 @@ impl ValidateNode for ItemIs {
         acceptable_types.extend(vec![
             TypeId::of::<Entity>(),
             TypeId::of::<Enum>(),
+            TypeId::of::<EnumValue>(),
             TypeId::of::<Map>(),
             TypeId::of::<Newtype>(),
             TypeId::of::<Primitive>(),
