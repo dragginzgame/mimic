@@ -37,8 +37,8 @@ pub mod orm {
         pub use ::orm::{
             collections::HashSet,
             traits::{
-                EntityDynamic, EntityFixture, EnumHash, Filterable, Inner, Orderable, Path,
-                PrimaryKey, Sanitize, Storable, Validate, Visitable,
+                EntityDynamic, EntityFixture, EnumHash, EnumValue, Filterable, Inner, Orderable,
+                Path, PrimaryKey, Sanitize, Storable, Validate, Visitable,
             },
         };
         pub use ::orm_macros::*;
