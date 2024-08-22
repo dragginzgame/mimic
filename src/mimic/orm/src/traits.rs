@@ -440,6 +440,14 @@ pub trait EnumHash: Sized {
 }
 
 ///
+/// EnumValue
+///
+
+pub trait EnumValue {
+    fn value(&self) -> i32;
+}
+
+///
 /// FieldFilter
 ///
 /// allows anything with a collection of fields to be filtered
