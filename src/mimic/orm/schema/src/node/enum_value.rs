@@ -12,7 +12,7 @@ use types::ErrorVec;
 pub struct EnumValue {
     pub def: Def,
 
-    #[serde(default, skip_serializing)]
+    #[serde(default)]
     pub variants: Vec<EnumValueVariant>,
 }
 
