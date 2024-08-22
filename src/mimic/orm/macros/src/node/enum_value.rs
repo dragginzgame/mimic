@@ -107,6 +107,7 @@ pub struct EnumValueVariant {
     #[darling(default = EnumValueVariant::unspecified_ident)]
     pub name: Ident,
 
+    #[darling(default)]
     pub value: i64,
 
     #[darling(default)]
