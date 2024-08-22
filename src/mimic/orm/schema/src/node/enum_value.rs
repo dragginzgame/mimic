@@ -1,7 +1,4 @@
-use crate::{
-    node::{Arg, Def, MacroNode, ValidateNode, VisitableNode},
-    visit::Visitor,
-};
+use crate::node::{Def, MacroNode, ValidateNode, VisitableNode};
 use lib_case::{Case, Casing};
 use serde::{Deserialize, Serialize};
 use std::ops::Not;
@@ -40,7 +37,7 @@ impl VisitableNode for EnumValue {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EnumValueVariant {
     pub name: String,
-    pub value: Arg,
+    pub value: i64,
 
     #[serde(default, skip_serializing_if = "Not::not")]
     pub default: bool,
@@ -65,8 +62,4 @@ impl ValidateNode for EnumValueVariant {
     }
 }
 
-impl VisitableNode for EnumValueVariant {
-    fn drive<V: Visitor>(&self, v: &mut V) {
-        self.value.accept(v);
-    }
-}
+impl VisitableNode for EnumValueVariant {}

@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_vec, to_string},
     imp,
-    node::{Arg, Def, MacroNode, Node, Trait, TraitNode, Traits},
+    node::{Def, MacroNode, Node, Trait, TraitNode, Traits},
 };
 use darling::FromMeta;
 use orm_schema::Schemable;
@@ -98,7 +98,7 @@ pub struct EnumValueVariant {
     #[darling(default = EnumValueVariant::unspecified_ident)]
     pub name: Ident,
 
-    pub value: Arg,
+    pub value: i64,
 
     #[darling(default)]
     pub default: bool,
@@ -142,7 +142,7 @@ impl Schemable for EnumValueVariant {
             ..
         } = self;
         let name = quote_one(&self.name, to_string);
-        let value = quote_one(&self.value, Arg::schema);
+        let value = self.value;
 
         quote! {
             ::mimic::orm::schema::node::EnumVariant {
