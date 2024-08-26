@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_one, quote_vec, to_string},
+    helper::{as_quote, quote_one, quote_option, quote_vec, to_string},
     imp,
     node::{Def, MacroNode, Node, Trait, TraitNode, Traits},
 };
@@ -108,7 +108,7 @@ pub struct EnumValueVariant {
     pub name: Ident,
 
     #[darling(default)]
-    pub value: i64,
+    pub value: Option<i64>,
 
     #[darling(default)]
     pub default: bool,
@@ -154,7 +154,7 @@ impl Schemable for EnumValueVariant {
             ..
         } = self;
         let name = quote_one(&self.name, to_string);
-        let value = self.value;
+        let value = quote_option(&self.value, as_quote);
 
         quote! {
             ::mimic::orm::schema::node::EnumValueVariant {

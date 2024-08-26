@@ -44,6 +44,11 @@ where
 /// TRANSFORM HELPERS
 ///
 
+/// as_quote
+pub fn as_quote<T: ToTokens>(t: &T) -> TokenStream {
+    quote!(#t)
+}
+
 /// as_string
 pub fn as_string(s: &String) -> TokenStream {
     quote!(#s.to_string())

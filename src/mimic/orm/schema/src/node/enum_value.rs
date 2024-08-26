@@ -44,7 +44,7 @@ impl VisitableNode for EnumValue {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EnumValueVariant {
     pub name: String,
-    pub value: i64,
+    pub value: Option<i64>,
 
     #[serde(default, skip_serializing_if = "Not::not")]
     pub default: bool,
@@ -56,6 +56,11 @@ pub struct EnumValueVariant {
 impl ValidateNode for EnumValueVariant {
     fn validate(&self) -> Result<(), ErrorVec> {
         let mut errs = ErrorVec::new();
+
+        // unspecified
+        if self.value.is_some() == self.unspecified {
+            errs.add("unspecified must be the only variant without a value");
+        }
 
         // name
         if !self.name.is_case(Case::UpperCamel) {
