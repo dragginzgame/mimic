@@ -444,7 +444,7 @@ pub trait EnumHash: Sized {
 ///
 
 pub trait EnumValue {
-    fn value(&self) -> i64;
+    fn value(&self) -> Option<i64>;
 }
 
 ///

@@ -18,14 +18,15 @@ pub fn enum_value(node: &EnumValue, t: Trait) -> TokenStream {
         let name = &variant.name;
         let value = &variant.value;
 
-        inner.extend(quote! {
-            Self::#name => #value,
+        inner.extend(match value {
+            Some(value) => quote! ( Self::#name => Some(#value) ),
+            None => quote!( Self::#name => None ),
         });
     }
 
     // quote
     let q = quote! {
-        fn value(&self) -> i64 {
+        fn value(&self) -> Option<i64> {
             match self {
                 #inner
             }
