@@ -59,7 +59,6 @@ pub mod schema {
 
 pub mod export {
     pub use ctor;
-    pub use derive_more::derive as derive_more;
     pub use num_traits;
     pub use remain;
     pub use strum;
