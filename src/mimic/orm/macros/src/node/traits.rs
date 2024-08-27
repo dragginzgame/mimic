@@ -140,9 +140,9 @@ impl Trait {
     pub fn derive_path(self) -> Option<TokenStream> {
         #[remain::sorted]
         match self {
-            Self::Add => Some(quote!(::mimic::export::derive_more::Add)),
-            Self::AddAssign => Some(quote!(::mimic::export::derive_more::AddAssign)),
-            Self::AsRef => Some(quote!(::mimic::export::derive_more::AsRef)),
+            Self::Add => Some(quote!(::derive_more::Add)),
+            Self::AddAssign => Some(quote!(::derive_more::AddAssign)),
+            Self::AsRef => Some(quote!(::derive_more::AsRef)),
             Self::CandidType => Some(quote!(::candid::CandidType)),
             Self::Clone => Some(quote!(Clone)),
             Self::Copy => Some(quote!(Copy)),
