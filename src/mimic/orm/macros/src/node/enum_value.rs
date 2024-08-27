@@ -107,6 +107,7 @@ pub struct EnumValueVariant {
     #[darling(default = EnumValueVariant::unspecified_ident)]
     pub name: Ident,
 
+    #[darling(default)]
     pub value: i64,
 
     #[darling(default)]
@@ -153,7 +154,7 @@ impl Schemable for EnumValueVariant {
             ..
         } = self;
 
-        // skip unspecified
+        // skip unspecified, the front end doesn't need to know
         if self.unspecified {
             return quote!();
         }
