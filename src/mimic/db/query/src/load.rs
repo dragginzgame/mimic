@@ -185,8 +185,22 @@ where
 
     // filter_option
     #[must_use]
-    pub fn filter_option<T: Into<Filter>>(mut self, filter: Option<T>) -> Self {
+    pub fn filter_option(mut self, filter: Option<Filter>) -> Self {
         self.filter = filter.map(Into::into);
+        self
+    }
+
+    // filter_all
+    #[must_use]
+    pub fn filter_all(mut self, text: &str) -> Self {
+        self.filter = Some(Filter::all(text.to_string()));
+        self
+    }
+
+    // filter_fields
+    #[must_use]
+    pub fn filter_fields(mut self, fields: &[(String, String)]) -> Self {
+        self.filter = Some(Filter::fields(fields.into()));
         self
     }
 

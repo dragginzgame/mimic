@@ -248,7 +248,7 @@ impl<'a> DbTester<'a> {
         for (search, expected_count) in tests {
             let count = db_query::load::<Filterable>(self.db)
                 .all()
-                .filter(search)
+                .filter_all(search)
                 .execute()
                 .unwrap()
                 .keys()

@@ -306,20 +306,14 @@ pub enum Filter {
     Fields(Vec<(String, String)>),
 }
 
-impl From<String> for Filter {
-    fn from(text: String) -> Self {
+impl Filter {
+    #[must_use]
+    pub fn all(text: String) -> Self {
         Self::All(text)
     }
-}
 
-impl From<&str> for Filter {
-    fn from(text: &str) -> Self {
-        Self::All(text.to_string())
-    }
-}
-
-impl From<Vec<(String, String)>> for Filter {
-    fn from(search: Vec<(String, String)>) -> Self {
+    #[must_use]
+    pub fn fields(search: Vec<(String, String)>) -> Self {
         Self::Fields(search)
     }
 }
