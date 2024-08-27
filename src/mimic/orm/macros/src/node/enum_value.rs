@@ -134,7 +134,7 @@ impl Node for EnumValueVariant {
 
         // name
         let name = if self.unspecified {
-            format_ident!("Unspecified")
+            Self::unspecified_ident()
         } else {
             self.name.clone()
         };

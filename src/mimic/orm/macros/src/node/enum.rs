@@ -153,7 +153,7 @@ impl Node for EnumVariant {
 
         // name
         let name = if self.unspecified {
-            format_ident!("Unspecified")
+            Self::unspecified_ident()
         } else {
             self.name.clone()
         };
@@ -175,6 +175,8 @@ impl Schemable for EnumVariant {
             unspecified,
             ..
         } = self;
+
+        // quote
         let name = quote_one(&self.name, to_string);
         let value = quote_option(&self.value, Value::schema);
 
