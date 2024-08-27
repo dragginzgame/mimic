@@ -45,6 +45,8 @@ where
 ///
 
 /// as_quote
+//#[expect(dead_code)]
+#[allow(dead_code)]
 pub fn as_quote<T: ToTokens>(t: &T) -> TokenStream {
     quote!(#t)
 }
