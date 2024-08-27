@@ -154,11 +154,6 @@ impl Schemable for EnumValueVariant {
             ..
         } = self;
 
-        // skip unspecified, the front end doesn't need to know
-        if self.unspecified {
-            return quote!();
-        }
-
         // quote
         let name = quote_one(&self.name, to_string);
         let value = self.value;

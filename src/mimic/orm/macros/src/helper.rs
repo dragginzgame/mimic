@@ -34,7 +34,12 @@ pub fn quote_vec<T, F>(vec: &[T], transform: F) -> TokenStream
 where
     F: Fn(&T) -> TokenStream,
 {
-    let items: Vec<TokenStream> = vec.iter().map(transform).collect();
+    let items: Vec<TokenStream> = vec
+        .iter()
+        .map(transform)
+        .filter(|ts| !ts.is_empty())
+        .collect();
+
     quote! {
         vec![#(#items),*]
     }
