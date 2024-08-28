@@ -290,6 +290,16 @@ pub trait PrimaryKey: FromStr {
     fn format(&self) -> String;
 }
 
+impl PrimaryKey for String {
+    fn on_create(&self) -> Self {
+        self.clone()
+    }
+
+    fn format(&self) -> String {
+        self.clone()
+    }
+}
+
 macro_rules! impl_primary_key_for_ints {
     ($($t:ty, $ut:ty, $len:expr),* $(,)?) => {
         $(

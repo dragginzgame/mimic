@@ -5,7 +5,7 @@ use orm_schema::Schemable;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use std::fmt::{self, Display};
-use syn::{parse_str, Lit, Path};
+use syn::{Lit, Path};
 
 ///
 /// Arg
@@ -277,15 +277,6 @@ impl ArgNumber {
         trimmed.parse::<isize>().map(ArgNumber::Isize).map_err(|_| {
             DarlingError::custom(format!("invalid or unsupported numeric literal '{s}'"))
         })
-    }
-
-    // to_tokens_stripped
-    pub fn to_tokens_stripped(&self) -> TokenStream {
-        let s = format!("{self}");
-
-        let t: Lit = parse_str(&s).unwrap();
-
-        quote!(#t)
     }
 }
 

@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 which allows you to specify a unit enum with an additional value argument that
 is stored in the schema JSON
 - EnumValue now returns an Option type to handle Unspecified
+- Removed the Constant schema node because there are better ways to handle it
+- PrimaryKey implemented for String
 
 ## [0.1.4]
 - fixed a bug in api::call that was affecting calls with more than one argument
