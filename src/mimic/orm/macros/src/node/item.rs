@@ -66,6 +66,11 @@ pub struct ItemIs {
 impl FromMeta for ItemIs {
     fn from_value(value: &Lit) -> Result<Self, DarlingError> {
         if let Lit::Str(s) = value {
+            // no ::std
+            if s.value().starts_with("::std") || s.value().starts_with("std::string::") {
+                return Err(DarlingError::custom("direct use of ::std not permitted"));
+            }
+
             // parse the entire darling value into the path
             // is = "path::to::thing"
             let path = parse_str::<Path>(&s.value())?;
