@@ -7,13 +7,26 @@
 #[macro_export]
 macro_rules! mimic_build {
     ($actor:expr) => {
-        use std::fs::File;
-        use std::io::{self, Write};
-        use std::path::PathBuf;
+        use std::{fs::File, io::Write, path::PathBuf};
 
+        //
         // cargo directives
+        //
+
+        // Retrieve the target triple from the environment
+        let target = std::env::var("TARGET").unwrap();
+
+        // all
         println!("cargo:rerun-if-changed=build.rs");
-        //    println!("cargo:rustc-link-arg=-Wl,-all_load");
+
+        // macOS linker
+        if target.contains("apple") {
+            println!("cargo:rustc-link-arg=-Wl,-all_load");
+        }
+
+        //
+        //
+        //
 
         // Get the output directory set by Cargo
         let out_dir = ::std::env::var("OUT_DIR").expect("OUT_DIR not set");
