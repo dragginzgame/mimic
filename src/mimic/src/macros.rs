@@ -13,7 +13,7 @@ macro_rules! mimic_build {
 
         // cargo directives
         println!("cargo:rerun-if-changed=build.rs");
-        println!("cargo:rustc-link-arg=\"-Wl,-all_load\"");
+        //    println!("cargo:rustc-link-arg=-Wl,-all_load");
 
         // Get the output directory set by Cargo
         let out_dir = ::std::env::var("OUT_DIR").expect("OUT_DIR not set");
@@ -21,7 +21,6 @@ macro_rules! mimic_build {
         //
         // actor
         //
-
         let output = ::mimic::build::actor($actor).unwrap();
 
         // write the file
