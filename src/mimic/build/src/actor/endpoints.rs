@@ -28,12 +28,6 @@ pub fn canister_endpoints(builder: &mut ActorBuilder) {
                 .0
         }
 
-        // canister_balance
-        #[::mimic::ic::query]
-        fn canister_balance() -> u128 {
-            ::mimic::api::canister::balance()
-        }
-
         // canister_caller
         #[::mimic::ic::query]
         fn canister_caller() -> Principal {
