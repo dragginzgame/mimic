@@ -97,6 +97,7 @@ pub mod prelude {
 ///
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
+use std::fmt::{self, Display};
 
 ///
 /// ERROR
@@ -119,6 +120,12 @@ impl Error {
     #[must_use]
     pub fn new(code: u8, text: String) -> Self {
         Self(code, text)
+    }
+}
+
+impl Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}: {}", self.0, self.1)
     }
 }
 
