@@ -115,6 +115,13 @@ pub const ERROR_CORE_WASM: u8 = 107;
 #[derive(CandidType, Debug, Serialize, Deserialize)]
 pub struct Error(u8, String);
 
+impl Error {
+    #[must_use]
+    pub fn new(code: u8, text: String) -> Self {
+        Self(code, text)
+    }
+}
+
 impl From<api::Error> for Error {
     fn from(error: api::Error) -> Self {
         Self(ERROR_API, error.to_string())
