@@ -1,4 +1,3 @@
-use candid::CandidType;
 use ic::{log, Log};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -19,7 +18,7 @@ pub static WASM_FILES: LazyLock<Mutex<HashMap<&'static str, &'static [u8]>>> =
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("mutex lock failed"))]
     LockFailed,

@@ -12,7 +12,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
 
         // user_index
         #[::mimic::ic::query]
-        async fn user_index() -> Result<UserIndex, ::mimic::Error> {
+        async fn user_index() -> Result<UserIndex, ::mimic::api::Error> {
             guard(vec![Guard::Controller]).await?;
 
             Ok(::mimic::api::state::user_index())
@@ -21,7 +21,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // get_caller
         // no auth needed as it's just looking up the current caller
         #[::mimic::ic::query]
-        fn get_caller() -> Result<User, ::mimic::Error> {
+        fn get_caller() -> Result<User, ::mimic::api::Error> {
             let user = UserIndexManager::try_get_user(caller())?;
 
             Ok(user)
@@ -30,7 +30,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // get_user
         // look up any user by principal, requires an auth check
         #[::mimic::ic::query]
-        async fn get_user(id: Principal) -> Result<User, ::mimic::Error> {
+        async fn get_user(id: Principal) -> Result<User, ::mimic::api::Error> {
             if id != caller() {
                 guard(vec![Guard::Controller]).await?;
             }
@@ -42,7 +42,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
 
         // register_caller
         #[::mimic::ic::update]
-        async fn register_caller() -> Result<User, ::mimic::Error> {
+        async fn register_caller() -> Result<User, ::mimic::api::Error> {
             let user = register(caller()).await?;
 
             Ok(user)
@@ -51,7 +51,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // register_principal
         // register ANY principal, requires controller or parent
         #[::mimic::ic::update]
-        async fn register_principal(id: Principal) -> Result<User, ::mimic::Error> {
+        async fn register_principal(id: Principal) -> Result<User, ::mimic::api::Error> {
             guard(vec![
                 Guard::This,
                 Guard::Controller,
@@ -64,7 +64,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
 
         // add_role
         #[::mimic::ic::update]
-        async fn add_role(id: Principal, role: String) -> Result<(), ::mimic::Error> {
+        async fn add_role(id: Principal, role: String) -> Result<(), ::mimic::api::Error> {
             guard(vec![
                 Guard::Parent,
                 Guard::Controller,
@@ -77,13 +77,13 @@ pub fn user_index(builder: &mut ActorBuilder) {
 
         // remove_role
         #[::mimic::ic::update]
-        async fn remove_role(id: Principal, role: String) -> Result<(), ::mimic::Error> {
+        async fn remove_role(id: Principal, role: String) -> Result<(), ::mimic::api::Error> {
             guard(vec![
                 Guard::Parent,
                 Guard::Controller,
             ]).await?;
 
-            UserIndexManager::remove_role(id, role).map_err(::mimic::Error::from)?;
+            UserIndexManager::remove_role(id, role).map_err(::mimic::api::Error::from)?;
 
             Ok(())
         }

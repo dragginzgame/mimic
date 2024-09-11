@@ -1,5 +1,4 @@
 use crate::Error;
-use candid::CandidType;
 use core_schema::get_schema;
 use db::DataKey;
 use orm_schema::node::Entity;
@@ -10,7 +9,7 @@ use snafu::Snafu;
 /// ResolverError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum ResolverError {
     #[snafu(display("entity not found: {path}"))]
     EntityNotFound { path: String },

@@ -23,54 +23,149 @@ use ic::{
     log, Log,
 };
 use serde::{Deserialize, Serialize};
-use snafu::Snafu;
-use std::future::Future;
+use std::{
+    fmt::{self, Display},
+    future::Future,
+};
 
 ///
-/// Error
+/// ERROR
+/// consolidates all the different crate errors into one place
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
-    ///
-    /// api errors
-    ///
+pub const ERROR_IC: u8 = 100;
 
-    #[snafu(transparent)]
-    Auth { source: auth::AuthError },
+pub const ERROR_AUTH: u8 = 101;
+pub const ERROR_CANISTER: u8 = 102;
+pub const ERROR_CREATE: u8 = 103;
+pub const ERROR_CRUD: u8 = 104;
+pub const ERROR_REQUEST: u8 = 105;
+pub const ERROR_SCHEMA: u8 = 106;
+pub const ERROR_SUBNET: u8 = 107;
+pub const ERROR_UPGRADE: u8 = 108;
 
-    #[snafu(transparent)]
-    Canister { source: canister::CanisterError },
+pub const ERROR_CONFIG: u8 = 109;
+pub const ERROR_CORE_SCHEMA: u8 = 110;
+pub const ERROR_CORE_STATE: u8 = 111;
+pub const ERROR_CORE_WASM: u8 = 112;
+pub const ERROR_DB: u8 = 113;
+pub const ERROR_QUERY: u8 = 114;
 
-    #[snafu(transparent)]
-    Create { source: create::CreateError },
+#[derive(CandidType, Debug, Serialize, Deserialize)]
+pub struct Error(u8, String);
 
-    #[snafu(transparent)]
-    Crud { source: crud::CrudError },
-
-    #[snafu(transparent)]
-    Request { source: request::RequestError },
-
-    #[snafu(transparent)]
-    Schema { source: schema::SchemaError },
-
-    #[snafu(transparent)]
-    Subnet { source: subnet::SubnetError },
-
-    #[snafu(transparent)]
-    Upgrade { source: upgrade::UpgradeError },
-
-    ///
-    /// call error (special)
-    ///
-
-    #[snafu(display("ic call: {msg}"))]
-    Call { msg: String },
+impl Error {
+    #[must_use]
+    pub fn new(code: u8, text: String) -> Self {
+        Self(code, text)
+    }
 }
+
+impl Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}: {}", self.0, self.1)
+    }
+}
+
+//
+// ic
+//
 
 impl From<(RejectionCode, String)> for Error {
     fn from(error: (RejectionCode, String)) -> Self {
-        Self::Call { msg: error.1 }
+        Self(ERROR_IC, error.1)
+    }
+}
+
+//
+// api
+//
+
+impl From<auth::AuthError> for Error {
+    fn from(error: auth::AuthError) -> Self {
+        Self(ERROR_AUTH, error.to_string())
+    }
+}
+
+impl From<canister::CanisterError> for Error {
+    fn from(error: canister::CanisterError) -> Self {
+        Self(ERROR_CANISTER, error.to_string())
+    }
+}
+
+impl From<create::CreateError> for Error {
+    fn from(error: create::CreateError) -> Self {
+        Self(ERROR_CREATE, error.to_string())
+    }
+}
+
+impl From<crud::CrudError> for Error {
+    fn from(error: crud::CrudError) -> Self {
+        Self(ERROR_CRUD, error.to_string())
+    }
+}
+
+impl From<request::RequestError> for Error {
+    fn from(error: request::RequestError) -> Self {
+        Self(ERROR_REQUEST, error.to_string())
+    }
+}
+
+impl From<schema::SchemaError> for Error {
+    fn from(error: schema::SchemaError) -> Self {
+        Self(ERROR_SCHEMA, error.to_string())
+    }
+}
+
+impl From<subnet::SubnetError> for Error {
+    fn from(error: subnet::SubnetError) -> Self {
+        Self(ERROR_SUBNET, error.to_string())
+    }
+}
+
+impl From<upgrade::UpgradeError> for Error {
+    fn from(error: upgrade::UpgradeError) -> Self {
+        Self(ERROR_UPGRADE, error.to_string())
+    }
+}
+
+//
+// crates
+//
+
+impl From<config::Error> for Error {
+    fn from(error: config::Error) -> Self {
+        Self(ERROR_CONFIG, error.to_string())
+    }
+}
+
+impl From<core_schema::Error> for Error {
+    fn from(error: core_schema::Error) -> Self {
+        Self(ERROR_CORE_SCHEMA, error.to_string())
+    }
+}
+
+impl From<core_state::Error> for Error {
+    fn from(error: core_state::Error) -> Self {
+        Self(ERROR_CORE_STATE, error.to_string())
+    }
+}
+
+impl From<core_wasm::Error> for Error {
+    fn from(error: core_wasm::Error) -> Self {
+        Self(ERROR_CORE_WASM, error.to_string())
+    }
+}
+
+impl From<db::Error> for Error {
+    fn from(error: db::Error) -> Self {
+        Self(ERROR_DB, error.to_string())
+    }
+}
+
+impl From<db_query::Error> for Error {
+    fn from(error: db_query::Error) -> Self {
+        Self(ERROR_QUERY, error.to_string())
     }
 }
 

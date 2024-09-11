@@ -4,7 +4,6 @@ pub mod entity;
 pub use auth::AuthService;
 pub use orm_schema::node::Schema;
 
-use candid::CandidType;
 use ic::{log, Log};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -20,7 +19,7 @@ static SCHEMA: Mutex<Option<Schema>> = Mutex::new(None);
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("config has already been initialized"))]
     AlreadyInitialized,

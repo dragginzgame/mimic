@@ -1,5 +1,5 @@
 use crate::Error;
-use candid::{CandidType, Principal};
+use candid::Principal;
 use config::get_config;
 use ic::{
     api::management_canister::{
@@ -15,7 +15,7 @@ use snafu::Snafu;
 /// CreateError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum CreateError {
     #[snafu(transparent)]
     Config { source: config::Error },

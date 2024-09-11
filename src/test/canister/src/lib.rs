@@ -4,7 +4,7 @@ mod sanitize;
 mod validate;
 
 use ic::{log, update, Log};
-use mimic::{prelude::*, Error};
+use mimic::{api::Error, prelude::*};
 
 // blank file so we get the default
 mimic_start!("../config.toml");

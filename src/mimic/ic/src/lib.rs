@@ -9,7 +9,6 @@ pub mod helper;
 pub mod structures;
 pub use helper::get_wasm_hash;
 
-use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
@@ -35,7 +34,7 @@ pub fn format_cycles(cycles: u128) -> String {
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
     Cell { source: structures::cell::CellError },

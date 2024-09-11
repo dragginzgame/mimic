@@ -1,6 +1,5 @@
 use super::Ulid;
 use crate::Timestamp;
-use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::sync::{LazyLock, Mutex};
@@ -9,7 +8,7 @@ use std::sync::{LazyLock, Mutex};
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("monotonic error - overflow"))]
     Overflow,

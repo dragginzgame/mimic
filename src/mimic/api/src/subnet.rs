@@ -1,5 +1,5 @@
 use crate::Error;
-use candid::{CandidType, Principal};
+use candid::Principal;
 use core_state::SubnetIndexManager;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -8,7 +8,7 @@ use snafu::Snafu;
 /// SubnetError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum SubnetError {
     #[snafu(display("no user canister defined in schema"))]
     NoUserCanister,

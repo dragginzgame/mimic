@@ -18,7 +18,7 @@ pub fn fixture_actor(builder: &mut ActorBuilder) {
 
         // fixtures_replace_all
         #[::mimic::ic::update]
-        async fn fixtures_replace_all() -> Result<(), ::mimic::Error> {
+        async fn fixtures_replace_all() -> Result<(), ::mimic::api::Error> {
             guard(vec![Guard::Controller]).await?;
 
             actorgen::fixtures_replace_all()?;
@@ -37,7 +37,7 @@ pub fn fixture_module(builder: &mut ActorBuilder) {
     let q = quote! {
 
         // init_fixtures
-        pub fn init_fixtures() -> Result<(), ::mimic::Error> {
+        pub fn init_fixtures() -> Result<(), ::mimic::api::Error> {
             fixtures_replace_all()
         }
 
@@ -45,7 +45,7 @@ pub fn fixture_module(builder: &mut ActorBuilder) {
         #[allow(dead_code)]
         fn fixtures_replace_helper(
             fixtures: Vec<Box<dyn ::mimic::orm::traits::EntityDynamic>>,
-        ) -> Result<(), ::mimic::Error> {
+        ) -> Result<(), ::mimic::api::Error> {
             DB.with(|db| {
                 ::mimic::db::query::replace(db)
             //     .debug()
@@ -96,7 +96,7 @@ pub fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
 
     quote! {
         #[allow(clippy::too_many_lines)]
-        pub fn fixtures_replace_all() -> Result<(), ::mimic::Error> {
+        pub fn fixtures_replace_all() -> Result<(), ::mimic::api::Error> {
             #inner
         }
     }

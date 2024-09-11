@@ -22,7 +22,7 @@ pub fn extend(builder: &mut ActorBuilder) {
 #[must_use]
 pub fn guard_crud(_: &ActorBuilder) -> TokenStream {
     quote! {
-        async fn guard_crud(entity: &str, action: ::mimic::orm::types::CrudAction) -> Result<(), ::mimic::Error> {
+        async fn guard_crud(entity: &str, action: ::mimic::orm::types::CrudAction) -> Result<(), ::mimic::api::Error> {
             // are there crud permissions?
             let crud = ::mimic::core::schema::entity::ENTITY_CRUD_MAP.get(entity)
                 .ok_or_else(|| ::mimic::api::crud::CrudError::entity_not_found(entity))
@@ -63,7 +63,7 @@ pub fn crud_load(builder: &ActorBuilder) -> TokenStream {
         #[allow(clippy::too_many_lines)]
         #[allow(clippy::match_single_binding)]
         #[allow(unused_variables)]
-        async fn crud_load(request: ::mimic::db::query::LoadRequest) -> Result<::mimic::db::query::LoadResponse, ::mimic::Error> {
+        async fn crud_load(request: ::mimic::db::query::LoadRequest) -> Result<::mimic::db::query::LoadResponse, ::mimic::api::Error> {
             guard_crud(&request.entity, ::mimic::orm::types::CrudAction::Load).await?;
 
             let res = DB.with(|db| {
@@ -71,7 +71,7 @@ pub fn crud_load(builder: &ActorBuilder) -> TokenStream {
                     #(#calls)*
                     _ => Err(::mimic::api::Error::from(::mimic::api::crud::CrudError::entity_not_found(&request.entity)))
                 }
-            }).map_err(::mimic::Error::from)?;
+            }).map_err(::mimic::api::Error::from)?;
 
             Ok(res)
         }
@@ -95,7 +95,7 @@ pub fn crud_save(builder: &ActorBuilder) -> TokenStream {
         #[allow(clippy::too_many_lines)]
         #[allow(clippy::match_single_binding)]
         #[allow(unused_variables)]
-        async fn crud_save(request: ::mimic::db::query::SaveRequest) -> Result<::mimic::db::query::SaveResponse, ::mimic::Error> {
+        async fn crud_save(request: ::mimic::db::query::SaveRequest) -> Result<::mimic::db::query::SaveResponse, ::mimic::api::Error> {
             guard_crud(&request.entity, ::mimic::orm::types::CrudAction::Save).await?;
 
             let res = DB.with(|db| {
@@ -103,7 +103,7 @@ pub fn crud_save(builder: &ActorBuilder) -> TokenStream {
                     #(#calls)*
                     _ => Err(::mimic::api::Error::from(::mimic::api::crud::CrudError::entity_not_found(&request.entity)))
                 }
-            }).map_err(::mimic::Error::from)?;
+            }).map_err(::mimic::api::Error::from)?;
 
             Ok(res)
         }
@@ -127,7 +127,7 @@ pub fn crud_delete(builder: &ActorBuilder) -> TokenStream {
         #[allow(clippy::too_many_lines)]
         #[allow(clippy::match_single_binding)]
         #[allow(unused_variables)]
-        async fn crud_delete(request: ::mimic::db::query::DeleteRequest) -> Result<::mimic::db::query::DeleteResponse, ::mimic::Error> {
+        async fn crud_delete(request: ::mimic::db::query::DeleteRequest) -> Result<::mimic::db::query::DeleteResponse, ::mimic::api::Error> {
             guard_crud(&request.entity, ::mimic::orm::types::CrudAction::Delete).await?;
 
             let res = DB.with(|db| {
@@ -137,7 +137,7 @@ pub fn crud_delete(builder: &ActorBuilder) -> TokenStream {
                         ::mimic::api::crud::CrudError::entity_not_found(&request.entity)
                     ))
                 }
-            }).map_err(::mimic::Error::from)?;
+            })?;
 
             Ok(res)
         }

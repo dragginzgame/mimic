@@ -4,7 +4,7 @@ use mimic::orm::prelude::*;
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("length of {len} is not equal to {to}"))]
     NotEqual { len: usize, to: usize },

@@ -1,4 +1,3 @@
-use candid::CandidType;
 use derive_more::{Deref, DerefMut, FromStr};
 use mimic::orm::prelude::*;
 use mimic::{
@@ -20,7 +19,7 @@ use std::{cmp::Ordering, fmt};
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
     Ulid { source: mimic::types::ulid::Error },

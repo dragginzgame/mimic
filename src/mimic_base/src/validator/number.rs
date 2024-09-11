@@ -5,7 +5,7 @@ use num_traits::{CheckedRem, NumCast, Zero};
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("failed to convert value to the validator's native type"))]
     ConversionFailed,

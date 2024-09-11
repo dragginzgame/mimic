@@ -52,7 +52,6 @@ use crate::{
     build::schema_read,
     visit::{Event, Visitor},
 };
-use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::any::Any;
@@ -62,7 +61,7 @@ use types::ErrorVec;
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("error downcasting schema node: {path}"))]
     DowncastFail { path: String },

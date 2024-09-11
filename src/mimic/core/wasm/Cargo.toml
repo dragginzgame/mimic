@@ -8,7 +8,6 @@ version = { workspace = true }
 workspace = true
 
 [dependencies]
-candid = { workspace = true }
 ic = { workspace = true }
 serde = { workspace = true }
 snafu = { workspace = true }

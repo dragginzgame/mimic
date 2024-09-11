@@ -5,7 +5,7 @@ use snafu::Snafu;
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("RGB string '{hex}' should be 6 hexadecimal characters"))]
     InvalidRgbHex { hex: String },

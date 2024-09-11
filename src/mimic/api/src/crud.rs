@@ -1,5 +1,4 @@
 use crate::Error;
-use candid::CandidType;
 use db::Db;
 use db_query::types::{
     CreateResponse, DeleteRequest, DeleteResponse, LoadFormat, LoadRequest, LoadResponse, QueryRow,
@@ -13,7 +12,7 @@ use snafu::Snafu;
 /// CrudError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum CrudError {
     #[snafu(display("entity '{path}' not found"))]
     EntityNotFound { path: String },

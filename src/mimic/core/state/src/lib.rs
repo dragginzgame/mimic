@@ -12,7 +12,6 @@ pub use {
     user_index::{User, UserIndex, UserIndexManager},
 };
 
-use candid::CandidType;
 use ic::structures::{
     memory::{MemoryId, MemoryManager},
     DefaultMemoryImpl,
@@ -32,7 +31,7 @@ use {
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
     AppState { source: AppStateError },

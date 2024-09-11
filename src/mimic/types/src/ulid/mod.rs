@@ -13,7 +13,7 @@ use ulid::Ulid as WrappedUlid;
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("ulid is nil"))]
     Nil,

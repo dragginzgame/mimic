@@ -7,7 +7,7 @@ use mimic::orm::prelude::*;
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("string contains non-ascii characters"))]
     NonAscii,

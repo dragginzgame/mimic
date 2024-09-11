@@ -1,4 +1,3 @@
-use candid::CandidType;
 use mimic::lib::case::{Case, Casing};
 use mimic::orm::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -8,7 +7,7 @@ use snafu::Snafu;
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("'{s}' is not alphabetic with underscores"))]
     NotAlphaUscore { s: String },

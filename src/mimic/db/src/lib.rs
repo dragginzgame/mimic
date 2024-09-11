@@ -3,7 +3,6 @@ pub mod types;
 
 pub use types::{DataKey, DataRow, DataValue, Metadata};
 
-use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use ic::structures::{memory::VirtualMemory, BTreeMap};
 use serde::{Deserialize, Serialize};
@@ -14,7 +13,7 @@ use std::{cell::RefCell, collections::HashMap, thread::LocalKey};
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("store not found: {path}"))]
     StoreNotFound { path: String },

@@ -1,4 +1,3 @@
-use candid::CandidType;
 use ciborium::{de::from_reader, ser::into_writer, Value};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use snafu::Snafu;
@@ -8,7 +7,7 @@ use std::fmt::Debug;
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("serialize error: {msg}"))]
     Serialize { msg: String },

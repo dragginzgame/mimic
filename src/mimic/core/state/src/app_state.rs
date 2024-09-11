@@ -15,7 +15,7 @@ use strum::Display;
 /// AppStateError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum AppStateError {
     #[snafu(display("app is already in {mode} mode"))]
     AlreadyInMode { mode: AppMode },

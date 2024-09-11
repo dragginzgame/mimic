@@ -1,5 +1,5 @@
 use crate::Error;
-use candid::{CandidType, Principal};
+use candid::Principal;
 use core_state::{ChildIndexManager, SubnetIndexManager};
 use ic::{api::is_controller, caller};
 use orm_schema::node::AccessPolicy;
@@ -10,7 +10,7 @@ use snafu::Snafu;
 /// AuthError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum AuthError {
     #[snafu(display("one or more rules must be defined"))]
     NoRulesDefined,

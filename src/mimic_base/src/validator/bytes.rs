@@ -1,4 +1,3 @@
-use candid::CandidType;
 use mimic::orm::prelude::*;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -7,7 +6,7 @@ use snafu::Snafu;
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("Invalid UTF-8 data"))]
     InvalidUTF8,

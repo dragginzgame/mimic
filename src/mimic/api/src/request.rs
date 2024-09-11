@@ -11,7 +11,7 @@ use strum::Display;
 /// RequestError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum RequestError {
     #[snafu(display("invalid response: {response}"))]
     InvalidResponse { response: Response },

@@ -2,7 +2,6 @@ mod reserved;
 
 pub use reserved::is_reserved;
 
-use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
@@ -10,7 +9,7 @@ use snafu::Snafu;
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("empty ident"))]
     EmptyIdent,

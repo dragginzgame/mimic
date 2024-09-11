@@ -1,4 +1,4 @@
-use candid::{types::principal::PrincipalError, CandidType, Principal as WrappedPrincipal};
+use candid::{types::principal::PrincipalError, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut};
 use mimic::orm::prelude::*;
 use mimic::orm::traits::{
@@ -19,7 +19,7 @@ use std::{
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("principal is empty"))]
     EmptyPrincipal,

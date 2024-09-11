@@ -4,7 +4,7 @@ use mimic::orm::prelude::*;
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("invalid ISO 3166-1 alpha-2 country code"))]
     InvalidIso6391Code,

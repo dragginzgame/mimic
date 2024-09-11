@@ -218,7 +218,6 @@ dependencies = [
 name = "core_schema"
 version = "0.1.6"
 dependencies = [
- "candid",
  "derive_more",
  "ic",
  "orm_schema",
@@ -248,7 +247,6 @@ dependencies = [
 name = "core_wasm"
 version = "0.1.6"
 dependencies = [
- "candid",
  "ic",
  "serde",
  "snafu",
@@ -713,7 +711,6 @@ dependencies = [
 name = "lib_cbor"
 version = "0.1.6"
 dependencies = [
- "candid",
  "ciborium",
  "serde",
  "snafu",

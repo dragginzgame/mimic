@@ -4,7 +4,6 @@ pub mod types;
 pub mod visit;
 
 use ::types::ErrorTree;
-use candid::CandidType;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use snafu::Snafu;
 use traits::Visitable;
@@ -14,7 +13,7 @@ use visit::{perform_visit, perform_visit_mut, SanitizeVisitor, ValidateVisitor};
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("invalid enum hash '{key}'"))]
     InvalidEnumHash { key: u64 },

@@ -1,5 +1,5 @@
 use crate::Error;
-use candid::{CandidType, Principal};
+use candid::Principal;
 use core_state::CanisterStateManager;
 use orm_schema::node::Canister;
 use serde::{Deserialize, Serialize};
@@ -9,7 +9,7 @@ use snafu::Snafu;
 /// CanisterError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum CanisterError {
     #[snafu(transparent)]
     State { source: core_state::Error },

@@ -1,5 +1,4 @@
 use super::get_schema;
-use candid::CandidType;
 use derive_more::Deref;
 use orm_schema::node::{Crud, Entity, Store};
 use serde::{Deserialize, Serialize};
@@ -10,7 +9,7 @@ use std::{collections::HashMap, sync::LazyLock};
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
     Schema { source: orm_schema::node::Error },
