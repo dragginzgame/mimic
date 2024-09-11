@@ -4,13 +4,13 @@ version = 3
 
 [[package]]
 name = "anyhow"
-version = "1.0.87"
+version = "1.0.88"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "10f00e1f6e58a40e807377c75c6a7f97bf9044fab57816f2414e6f5f4499d7b8"
+checksum = "4e1496f8fb1fbf272686b8d37f523dab3e4a7443300055e74cdaa449f3114356"
 
 [[package]]
 name = "api"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "candid",
  "config",
@@ -56,7 +56,7 @@ checksum = "7dfdb4953a096c551ce9ace855a604d702e6e62d77fac690575ae347571717f5"
 
 [[package]]
 name = "benches"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "bencher",
 ]
@@ -95,7 +95,7 @@ dependencies = [
 
 [[package]]
 name = "build"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "orm_schema",
  "proc-macro2",
@@ -197,7 +197,7 @@ dependencies = [
 
 [[package]]
 name = "config"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "candid",
  "serde",
@@ -216,7 +216,7 @@ dependencies = [
 
 [[package]]
 name = "core_schema"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "candid",
  "derive_more",
@@ -229,7 +229,7 @@ dependencies = [
 
 [[package]]
 name = "core_state"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "candid",
  "core_schema",
@@ -246,7 +246,7 @@ dependencies = [
 
 [[package]]
 name = "core_wasm"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "candid",
  "ic",
@@ -341,7 +341,7 @@ checksum = "e8566979429cf69b49a5c740c60791108e86440e8be149bbea4fe54d2c32d6e2"
 
 [[package]]
 name = "db"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "candid",
  "derive_more",
@@ -357,7 +357,7 @@ dependencies = [
 
 [[package]]
 name = "db_query"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "candid",
  "core_schema",
@@ -568,7 +568,7 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "ic"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "candid",
  "derive_more",
@@ -703,7 +703,7 @@ checksum = "884e2677b40cc8c339eaefcb701c32ef1fd2493d71118dc0ca4b6a736c93bd67"
 
 [[package]]
 name = "lib_case"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "convert_case",
  "strum",
@@ -711,7 +711,7 @@ dependencies = [
 
 [[package]]
 name = "lib_cbor"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "candid",
  "ciborium",
@@ -721,7 +721,7 @@ dependencies = [
 
 [[package]]
 name = "lib_rand"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "lib_time",
  "tinyrand",
@@ -729,11 +729,11 @@ dependencies = [
 
 [[package]]
 name = "lib_test"
-version = "0.1.5"
+version = "0.1.6"
 
 [[package]]
 name = "lib_time"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "ic-cdk",
 ]
@@ -764,7 +764,7 @@ checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 
 [[package]]
 name = "mimic"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "api",
  "build",
@@ -795,7 +795,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_base"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "candid",
  "derive_more",
@@ -811,7 +811,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_common"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "ic",
  "lib_case",
@@ -822,7 +822,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_derive"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "quote",
  "syn 2.0.77",
@@ -866,7 +866,7 @@ checksum = "3fdb12b2476b595f9358c5161aa467c2438859caa136dec86c26fdd2efe17b92"
 
 [[package]]
 name = "orm"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "candid",
  "darling",
@@ -887,7 +887,7 @@ dependencies = [
 
 [[package]]
 name = "orm_macros"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "darling",
  "derive_more",
@@ -904,7 +904,7 @@ dependencies = [
 
 [[package]]
 name = "orm_schema"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "candid",
  "derive_more",
@@ -1197,7 +1197,7 @@ dependencies = [
 
 [[package]]
 name = "test_canister"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "build",
  "candid",
@@ -1213,7 +1213,7 @@ dependencies = [
 
 [[package]]
 name = "test_schema"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "candid",
  "db",
@@ -1231,7 +1231,7 @@ dependencies = [
 
 [[package]]
 name = "tests"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "quote",
 ]
@@ -1310,7 +1310,7 @@ checksum = "42ff0bf0c66b8238c6f3b578df37d0b7848e55df8577b3f74f92a69acceeb825"
 
 [[package]]
 name = "types"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "candid",
  "derive_more",
@@ -1339,9 +1339,9 @@ dependencies = [
 
 [[package]]
 name = "unicode-ident"
-version = "1.0.12"
+version = "1.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
+checksum = "e91b56cd4cadaeb79bbf1a5645f6b4f8dc5bde8834ad5894a8db35fda9efa1fe"
 
 [[package]]
 name = "unicode-segmentation"

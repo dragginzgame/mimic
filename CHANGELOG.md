@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.1.6]
+- changed the concrete error types to a (Code, String) tuple, as dealing with two tiers of
+candid error variants (mimic and app) was a nightmare
+
 ## [0.1.5]
 - guides were a code smell, so they've been removed.  Instead we have EnumValue
 which allows you to specify a unit enum with an additional value argument that
