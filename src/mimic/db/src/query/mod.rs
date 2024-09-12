@@ -34,6 +34,9 @@ pub enum Error {
 
     #[snafu(transparent)]
     Iter { source: iter::Error },
+
+    #[snafu(transparent)]
+    Orm { source: orm::Error },
 }
 
 ///

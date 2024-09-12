@@ -7,7 +7,7 @@ use db::{
 };
 use orm::traits::Entity;
 use serde::{Deserialize, Serialize};
-use snafu::Snafu;
+use snafu::prelude::*;
 
 ///
 /// Error
@@ -19,7 +19,7 @@ pub enum Error {
     EntityNotFound { path: String },
 
     #[snafu(transparent)]
-    Db { source: db::Error },
+    Query { source: db::query::Error },
 
     #[snafu(transparent)]
     Orm { source: orm::Error },
@@ -59,8 +59,8 @@ where
             let rows = iter
                 .into_iter()
                 .map(QueryRow::try_from)
-                .collect::<Result<Vec<_>, _>>();
-            let rows = rows.map_err(Error::from)?;
+                .collect::<Result<Vec<_>, _>>()
+                .map_err(Error::from)?;
 
             LoadResponse::Rows(rows)
         }

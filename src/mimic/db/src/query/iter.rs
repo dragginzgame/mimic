@@ -1,5 +1,8 @@
 use crate::{
-    query::types::{EntityRow, Filter, Order, QueryRow},
+    query::{
+        types::{EntityRow, Filter, Order, QueryRow},
+        Error as QueryError,
+    },
     types::{DataKey, DataRow},
 };
 use orm::traits::Entity;
@@ -174,7 +177,7 @@ impl RowIteratorDynamic {
     }
 
     // key
-    pub fn key(mut self) -> Result<String, Error> {
+    pub fn key(mut self) -> Result<String, QueryError> {
         let row = self.move_next().ok_or(Error::NoResultsFound)?;
 
         Ok(row.key.to_string())
@@ -186,7 +189,7 @@ impl RowIteratorDynamic {
     }
 
     // query_row
-    pub fn query_row(mut self) -> Result<QueryRow, Error> {
+    pub fn query_row(mut self) -> Result<QueryRow, QueryError> {
         let row = self.move_next().ok_or(Error::NoResultsFound)?;
 
         Ok(row.into())
@@ -198,7 +201,7 @@ impl RowIteratorDynamic {
     }
 
     // blob
-    pub fn blob(mut self) -> Result<Vec<u8>, Error> {
+    pub fn blob(mut self) -> Result<Vec<u8>, QueryError> {
         let blob = self
             .iter
             .next()

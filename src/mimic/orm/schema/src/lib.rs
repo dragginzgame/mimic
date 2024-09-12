@@ -15,7 +15,7 @@ use snafu::Snafu;
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
-    Build { source: build::BuildError },
+    Build { source: build::Error },
 
     #[snafu(display("serde json error: {msg}"))]
     SerdeJson { msg: String },

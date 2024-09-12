@@ -48,10 +48,13 @@ impl Db {
     where
         F: FnOnce(&Store) -> Result<R, Error>,
     {
-        self.stores
+        let res = self
+            .stores
             .get(name)
             .ok_or_else(|| Error::store_not_found(name))
-            .and_then(|local_key| local_key.with(|store| f(&store.borrow())))
+            .and_then(|local_key| local_key.with(|store| f(&store.borrow())))?;
+
+        Ok(res)
     }
 
     // with_store_mut
@@ -59,9 +62,12 @@ impl Db {
     where
         F: FnOnce(&mut Store) -> Result<R, Error>,
     {
-        self.stores
+        let res = self
+            .stores
             .get(name)
             .ok_or_else(|| Error::store_not_found(name))
-            .and_then(|local_key| local_key.with(|store| f(&mut store.borrow_mut())))
+            .and_then(|local_key| local_key.with(|store| f(&mut store.borrow_mut())))?;
+
+        Ok(res)
     }
 }

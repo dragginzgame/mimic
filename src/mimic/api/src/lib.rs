@@ -27,18 +27,21 @@ pub const ERROR_INIT: u8 = 10;
 
 pub const ERROR_CALL_REJECTED: u8 = 100;
 
+// api modules
 pub const ERROR_AUTH: u8 = 101;
 pub const ERROR_CANISTER: u8 = 102;
-pub const ERROR_CASCADE: u8 = 103;
-pub const ERROR_CREATE: u8 = 104;
-pub const ERROR_CRUD: u8 = 105;
-pub const ERROR_MGMT: u8 = 106;
-pub const ERROR_REQUEST: u8 = 107;
-pub const ERROR_SCHEMA: u8 = 108;
-pub const ERROR_SUBNET: u8 = 109;
-pub const ERROR_UPGRADE: u8 = 11;
+pub const ERROR_CREATE: u8 = 103;
+pub const ERROR_CRUD: u8 = 104;
+pub const ERROR_MGMT: u8 = 105;
+pub const ERROR_REQUEST: u8 = 106;
+pub const ERROR_SCHEMA: u8 = 107;
+pub const ERROR_SUBNET: u8 = 108;
+pub const ERROR_UPGRADE: u8 = 109;
 
-pub const ERROR_DB: u8 = 120;
+// other crates
+pub const ERROR_CORE_STATE: u8 = 120;
+pub const ERROR_DB: u8 = 121;
+pub const ERROR_QUERY: u8 = 122;
 
 #[derive(CandidType, Debug, Serialize, Deserialize)]
 pub struct Error(u8, String);
@@ -57,15 +60,18 @@ impl Display for Error {
 }
 
 //
-// from
+// ic call
 //
 
-// ic call
 impl From<(RejectionCode, String)> for Error {
     fn from(error: (RejectionCode, String)) -> Self {
         Self(ERROR_CALL_REJECTED, error.1.to_string())
     }
 }
+
+//
+// api modules
+//
 
 impl From<auth::Error> for Error {
     fn from(error: auth::Error) -> Self {
@@ -76,12 +82,6 @@ impl From<auth::Error> for Error {
 impl From<canister::Error> for Error {
     fn from(error: canister::Error) -> Self {
         Self(ERROR_CANISTER, error.to_string())
-    }
-}
-
-impl From<cascade::Error> for Error {
-    fn from(error: cascade::Error) -> Self {
-        Self(ERROR_CASCADE, error.to_string())
     }
 }
 
@@ -109,12 +109,6 @@ impl From<schema::Error> for Error {
     }
 }
 
-impl From<state::Error> for Error {
-    fn from(error: state::Error) -> Self {
-        Self(ERROR_STATE, error.to_string())
-    }
-}
-
 impl From<subnet::Error> for Error {
     fn from(error: subnet::Error) -> Self {
         Self(ERROR_SUBNET, error.to_string())
@@ -124,5 +118,27 @@ impl From<subnet::Error> for Error {
 impl From<upgrade::Error> for Error {
     fn from(error: upgrade::Error) -> Self {
         Self(ERROR_UPGRADE, error.to_string())
+    }
+}
+
+//
+// other crates
+//
+
+impl From<core_state::Error> for Error {
+    fn from(error: core_state::Error) -> Self {
+        Self(ERROR_CORE_STATE, error.to_string())
+    }
+}
+
+impl From<db::Error> for Error {
+    fn from(error: db::Error) -> Self {
+        Self(ERROR_DB, error.to_string())
+    }
+}
+
+impl From<db::query::Error> for Error {
+    fn from(error: db::query::Error) -> Self {
+        Self(ERROR_QUERY, error.to_string())
     }
 }

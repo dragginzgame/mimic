@@ -1,5 +1,5 @@
 use crate::{
-    query::{DebugContext, Resolver},
+    query::{DebugContext, Error as QueryError, Resolver},
     types::DataKey,
     Db,
 };
@@ -59,7 +59,7 @@ where
     }
 
     // one
-    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteBuilderResult, crate::Error> {
+    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteBuilderResult, QueryError> {
         let key: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let executor = DeleteBuilderExecutor::new(self, vec![key]);
 
@@ -147,7 +147,7 @@ impl DeleteBuilderResult {
     }
 
     // keys
-    pub fn keys(self) -> Result<Vec<DataKey>, crate::Error> {
+    pub fn keys(self) -> Result<Vec<DataKey>, QueryError> {
         Ok(self.results)
     }
 }

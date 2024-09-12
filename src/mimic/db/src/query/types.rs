@@ -1,4 +1,7 @@
-use crate::types::{DataKey, DataRow, DataValue, Metadata};
+use crate::{
+    query::Error as QueryError,
+    types::{DataKey, DataRow, DataValue, Metadata},
+};
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use orm::types::SortDirection;
@@ -28,7 +31,7 @@ impl<E> TryFrom<EntityRow<E>> for QueryRow
 where
     E: Serialize + DeserializeOwned,
 {
-    type Error = crate::Error;
+    type Error = QueryError;
 
     fn try_from(row: EntityRow<E>) -> Result<Self, Self::Error> {
         Ok(Self {
@@ -61,7 +64,7 @@ impl<E> TryFrom<EntityValue<E>> for QueryValue
 where
     E: Serialize + DeserializeOwned,
 {
-    type Error = crate::Error;
+    type Error = QueryError;
 
     fn try_from(value: EntityValue<E>) -> Result<Self, Self::Error> {
         let data = orm::serialize::<E>(&value.entity)?;

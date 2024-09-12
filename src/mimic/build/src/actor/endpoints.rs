@@ -94,7 +94,7 @@ pub fn cascade_endpoints(builder: &mut ActorBuilder) {
             guard(vec![Guard::Parent]).await.map_err(::mimic::api::Error::from)?;
 
             // set state and cascade
-            ::mimic::api::state::app_state().set(state)?;
+            AppStateManager::set(state)?;
             ::mimic::api::cascade::app_state_cascade().await?;
 
             Ok(())
@@ -201,7 +201,8 @@ pub fn store_endpoints(builder: &mut ActorBuilder) {
                 db.with_store(&store_name, |store| {
                     Ok(store.data.keys().map(|k| k.to_string()).collect())
                 })
-            }).map_err(::mimic::api::Error::from)?;
+            })
+            .map_err(::mimic::db::Error::from)?;
 
             Ok(keys)
         }

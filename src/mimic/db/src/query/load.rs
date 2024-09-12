@@ -1,7 +1,7 @@
 use crate::query::{
     iter::{RowIterator, RowIteratorDynamic},
     types::{EntityRow, Filter, LoadMethod, Order},
-    DebugContext, Resolver,
+    DebugContext, Error as QueryError, Resolver,
 };
 use crate::{
     types::{DataKey, DataRow},
@@ -110,7 +110,7 @@ where
         self,
         start: &[T],
         end: &[T],
-    ) -> Result<LoadBuilderOptions<'a, E>, crate::Error> {
+    ) -> Result<LoadBuilderOptions<'a, E>, Error> {
         let start = start.iter().map(ToString::to_string).collect();
         let end = end.iter().map(ToString::to_string).collect();
 
@@ -118,10 +118,7 @@ where
     }
 
     // prefix
-    pub fn prefix<T: ToString>(
-        self,
-        prefix: &[T],
-    ) -> Result<LoadBuilderOptions<'a, E>, crate::Error> {
+    pub fn prefix<T: ToString>(self, prefix: &[T]) -> Result<LoadBuilderOptions<'a, E>, Error> {
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
 
         Ok(self.build_options(LoadMethod::Prefix(prefix)))
@@ -233,7 +230,7 @@ where
     }
 
     // execute
-    pub fn execute(self) -> Result<RowIterator<E>, crate::Error> {
+    pub fn execute(self) -> Result<RowIterator<E>, QueryError> {
         let executor = LoadBuilderExecutor::new(self);
         let iter = executor.execute()?;
 
@@ -241,7 +238,7 @@ where
     }
 
     // execute_dyn
-    pub fn execute_dyn(self) -> Result<RowIteratorDynamic, crate::Error> {
+    pub fn execute_dyn(self) -> Result<RowIteratorDynamic, QueryError> {
         let executor = LoadBuilderExecutor::new(self);
         let iter = executor.execute_dyn()?;
 
@@ -290,11 +287,12 @@ where
 
     // execute
     // convert into EntityRows and return a RowIterator
-    pub fn execute(self) -> Result<RowIterator<E>, Error> {
+    pub fn execute(self) -> Result<RowIterator<E>, QueryError> {
         let iter = self
             .do_execute()?
             .map(TryFrom::try_from)
-            .collect::<Result<Vec<EntityRow<E>>, _>>()?;
+            .collect::<Result<Vec<EntityRow<E>>, _>>()
+            .map_err(Error::from)?;
 
         let boxed_iter = Box::new(iter.into_iter()) as Box<dyn Iterator<Item = EntityRow<E>>>;
 
@@ -309,7 +307,7 @@ where
 
     // execute_dyn
     // cannot currently use filter here
-    pub fn execute_dyn(self) -> Result<RowIteratorDynamic, Error> {
+    pub fn execute_dyn(self) -> Result<RowIteratorDynamic, QueryError> {
         if self.filter.is_some() {
             Err(Error::FilterNotAllowed)?;
         }
@@ -369,7 +367,9 @@ where
         let start_sk = self.resolver.data_key(&start)?;
         let end_sk = start_sk.create_upper_bound();
 
-        self.by_range(start_sk, end_sk)
+        let res = self.by_range(start_sk, end_sk)?;
+
+        Ok(res)
     }
 
     // load_range
@@ -410,13 +410,15 @@ where
         // iterate range
         let mut results = Vec::new();
         let store_path = self.resolver.store()?;
-        self.db.with_store(&store_path, |store| {
-            for (key, value) in store.data.range(start..=end) {
-                results.push(DataRow { key, value });
-            }
+        self.db
+            .with_store(&store_path, |store| {
+                for (key, value) in store.data.range(start..=end) {
+                    results.push(DataRow { key, value });
+                }
 
-            Ok(())
-        })?;
+                Ok(())
+            })
+            .map_err(Error::from)?;
 
         Ok(results.into_iter())
     }
@@ -424,8 +426,9 @@ where
     // by_ck
     fn by_ck(&self, ck: &[String]) -> Result<DataRow, Error> {
         let key = self.resolver.data_key(ck)?;
+        let res = self.by_key(key)?;
 
-        self.by_key(key)
+        Ok(res)
     }
 
     // by_key
@@ -433,8 +436,9 @@ where
         let store_path = &self.resolver.store()?;
         let value = self
             .db
-            .with_store(store_path, |store| Ok(store.data.get(&key)))?
-            .ok_or_else(|| Error::KeyNotFound { key: key.clone() })?;
+            .with_store(store_path, |store| Ok(store.data.get(&key)))?;
+
+        let value = value.ok_or_else(|| Error::KeyNotFound { key: key.clone() })?;
 
         Ok(DataRow { key, value })
     }

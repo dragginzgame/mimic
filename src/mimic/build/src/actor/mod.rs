@@ -10,11 +10,22 @@ pub mod user;
 use orm_schema::{
     build::schema_read,
     node::{Canister, CanisterBuild, Entity, Store},
-    Error,
 };
 use proc_macro2::TokenStream;
 use quote::quote;
+use serde::{Deserialize, Serialize};
+use snafu::Snafu;
 use std::process;
+
+///
+/// Error
+///
+
+#[derive(Debug, Serialize, Deserialize, Snafu)]
+pub enum Error {
+    #[snafu(transparent)]
+    OrmSchema { source: orm_schema::Error },
+}
 
 // generate
 pub fn generate(canister_name: &str) -> Result<String, Error> {

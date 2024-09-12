@@ -1,7 +1,6 @@
 use crate::{
     node::{Schema, VisitableNode},
     visit::Validator,
-    Error,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -10,11 +9,11 @@ use std::sync::{LazyLock, RwLock, RwLockReadGuard, RwLockWriteGuard};
 use types::ErrorTree;
 
 ///
-/// BuildError
+/// Error
 ///
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
-pub enum BuildError {
+pub enum Error {
     #[snafu(display("validation failed: {errors}"))]
     Validation { errors: ErrorTree },
 }
@@ -45,7 +44,7 @@ pub fn validate() -> Result<(), Error> {
     visitor
         .errors()
         .result()
-        .map_err(|errors| BuildError::Validation { errors })?;
+        .map_err(|errors| Error::Validation { errors })?;
 
     Ok(())
 }

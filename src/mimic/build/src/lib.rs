@@ -11,7 +11,10 @@ use snafu::Snafu;
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
-    Schema { source: orm_schema::Error },
+    Actor { source: actor::Error },
+
+    #[snafu(transparent)]
+    Build { source: orm_schema::build::Error },
 }
 
 // actor
