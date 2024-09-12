@@ -1,4 +1,4 @@
-use crate::mgmt::{install_code, module_hash};
+use crate::ic::mgmt::{install_code, module_hash};
 use candid::Principal;
 use ic::{
     api::management_canister::main::{CanisterInstallMode, InstallCodeArgument, WasmModule},
@@ -18,7 +18,7 @@ pub enum Error {
     WasmHashMatches,
 
     #[snafu(transparent)]
-    Mgmt { source: crate::mgmt::Error },
+    Mgmt { source: crate::ic::mgmt::Error },
 }
 
 /// upgrade_canister

@@ -11,7 +11,7 @@ use snafu::Snafu;
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
-    Schema { source: crate::schema::Error },
+    Schema { source: crate::core::schema::Error },
 
     #[snafu(transparent)]
     CanisterState {
@@ -40,7 +40,7 @@ pub fn id() -> Principal {
 // schema
 pub fn schema() -> Result<Canister, Error> {
     let path = path()?;
-    let cs = crate::schema::canister(&path)?;
+    let cs = crate::core::schema::canister(&path)?;
 
     Ok(cs)
 }

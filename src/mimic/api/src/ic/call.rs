@@ -39,7 +39,7 @@ pub fn call<T: ArgumentEncoder, R: for<'a> ArgumentDecoder<'a>>(
     id: Principal,
     method: &str,
     args: T,
-) -> impl Future<Output = Result<R, crate::Error>> + Send + Sync {
+) -> impl Future<Output = Result<R, Error>> + Send + Sync {
     log!(Log::Info, "call: {method}@{id}");
 
     let args_raw = encode_args(args).expect("Failed to encode arguments.");

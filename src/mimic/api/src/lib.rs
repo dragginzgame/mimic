@@ -1,21 +1,13 @@
-pub mod actor;
 pub mod auth;
-pub mod call;
-pub mod canister;
-pub mod cascade;
-pub mod config;
+pub mod core;
 pub mod crud;
-pub mod mgmt;
-pub mod request;
-pub mod schema;
-pub mod state;
+pub mod ic;
 pub mod subnet;
 
 // re-export
 pub use defer::defer;
 
 use candid::CandidType;
-use ic::api::call::RejectionCode;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
 
@@ -26,24 +18,22 @@ use std::fmt::{self, Display};
 
 pub const ERROR_INIT: u8 = 10;
 
-pub const ERROR_CALL_REJECTED: u8 = 100;
-
-// api modules
-pub const ERROR_ACTOR: u8 = 101;
-pub const ERROR_AUTH: u8 = 102;
-pub const ERROR_CALL: u8 = 103;
-pub const ERROR_CANISTER: u8 = 104;
-pub const ERROR_CONFIG: u8 = 105;
-pub const ERROR_CRUD: u8 = 106;
-pub const ERROR_MGMT: u8 = 107;
-pub const ERROR_REQUEST: u8 = 108;
-pub const ERROR_SCHEMA: u8 = 109;
-pub const ERROR_SUBNET: u8 = 110;
+pub const ERROR_AUTH: u8 = 101;
+pub const ERROR_CRUD: u8 = 102;
+pub const ERROR_CORE_CONFIG: u8 = 110;
+pub const ERROR_CORE_SCHEMA: u8 = 111;
+pub const ERROR_CORE_STATE: u8 = 112;
+pub const ERROR_IC_CALL: u8 = 120;
+pub const ERROR_IC_CANISTER: u8 = 121;
+pub const ERROR_IC_CREATE: u8 = 122;
+pub const ERROR_IC_MGMT: u8 = 123;
+pub const ERROR_IC_UPGRADE: u8 = 124;
+pub const ERROR_SUBNET_CASCADE: u8 = 130;
+pub const ERROR_SUBNET_REQUEST: u8 = 131;
 
 // other crates
-pub const ERROR_CORE_STATE: u8 = 120;
-pub const ERROR_DB: u8 = 121;
-pub const ERROR_QUERY: u8 = 122;
+pub const ERROR_DB: u8 = 140;
+pub const ERROR_QUERY: u8 = 141;
 
 #[derive(CandidType, Debug, Serialize, Deserialize)]
 pub struct Error(u8, String);
@@ -62,52 +52,12 @@ impl Display for Error {
 }
 
 //
-// ic call
+// api
 //
-
-impl From<(RejectionCode, String)> for Error {
-    fn from(error: (RejectionCode, String)) -> Self {
-        Self(ERROR_CALL_REJECTED, error.1.to_string())
-    }
-}
-
-//
-// api modules
-//
-
-impl From<actor::Error> for Error {
-    fn from(error: actor::Error) -> Self {
-        Self(ERROR_CANISTER, error.to_string())
-    }
-}
 
 impl From<auth::Error> for Error {
     fn from(error: auth::Error) -> Self {
         Self(ERROR_AUTH, error.to_string())
-    }
-}
-
-impl From<call::Error> for Error {
-    fn from(error: call::Error) -> Self {
-        Self(ERROR_CALL, error.to_string())
-    }
-}
-
-impl From<canister::create::Error> for Error {
-    fn from(error: canister::create::Error) -> Self {
-        Self(ERROR_CANISTER, error.to_string())
-    }
-}
-
-impl From<canister::upgrade::Error> for Error {
-    fn from(error: canister::upgrade::Error) -> Self {
-        Self(ERROR_CANISTER, error.to_string())
-    }
-}
-
-impl From<config::Error> for Error {
-    fn from(error: config::Error) -> Self {
-        Self(ERROR_CONFIG, error.to_string())
     }
 }
 
@@ -117,33 +67,75 @@ impl From<crud::Error> for Error {
     }
 }
 
-impl From<request::Error> for Error {
-    fn from(error: request::Error) -> Self {
-        Self(ERROR_REQUEST, error.to_string())
+//
+// core
+//
+
+impl From<core::config::Error> for Error {
+    fn from(error: core::config::Error) -> Self {
+        Self(ERROR_CORE_CONFIG, error.to_string())
     }
 }
 
-impl From<schema::Error> for Error {
-    fn from(error: schema::Error) -> Self {
-        Self(ERROR_SCHEMA, error.to_string())
+impl From<core::schema::Error> for Error {
+    fn from(error: core::schema::Error) -> Self {
+        Self(ERROR_CORE_SCHEMA, error.to_string())
     }
 }
 
-impl From<subnet::Error> for Error {
-    fn from(error: subnet::Error) -> Self {
-        Self(ERROR_SUBNET, error.to_string())
+impl From<core::state::Error> for Error {
+    fn from(error: core::state::Error) -> Self {
+        Self(ERROR_CORE_STATE, error.to_string())
+    }
+}
+
+//
+// ic
+//
+
+impl From<ic::call::Error> for Error {
+    fn from(error: ic::call::Error) -> Self {
+        Self(ERROR_IC_CALL, error.to_string())
+    }
+}
+
+impl From<ic::canister::Error> for Error {
+    fn from(error: ic::canister::Error) -> Self {
+        Self(ERROR_IC_CANISTER, error.to_string())
+    }
+}
+
+impl From<ic::create::Error> for Error {
+    fn from(error: ic::create::Error) -> Self {
+        Self(ERROR_IC_CREATE, error.to_string())
+    }
+}
+
+impl From<ic::upgrade::Error> for Error {
+    fn from(error: ic::upgrade::Error) -> Self {
+        Self(ERROR_IC_UPGRADE, error.to_string())
+    }
+}
+
+//
+// subnet
+//
+
+impl From<subnet::cascade::Error> for Error {
+    fn from(error: subnet::cascade::Error) -> Self {
+        Self(ERROR_SUBNET_CASCADE, error.to_string())
+    }
+}
+
+impl From<subnet::request::Error> for Error {
+    fn from(error: subnet::request::Error) -> Self {
+        Self(ERROR_SUBNET_REQUEST, error.to_string())
     }
 }
 
 //
 // other crates
 //
-
-impl From<core_state::Error> for Error {
-    fn from(error: core_state::Error) -> Self {
-        Self(ERROR_CORE_STATE, error.to_string())
-    }
-}
 
 impl From<db::Error> for Error {
     fn from(error: db::Error) -> Self {

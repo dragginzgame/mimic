@@ -1,4 +1,4 @@
-use crate::call::call;
+use crate::ic::call::call;
 use candid::Principal;
 use core_state::{ChildIndexManager, SubnetIndexManager};
 use ic::{api::is_controller, caller};
@@ -49,18 +49,13 @@ pub enum Error {
     RoleNotFound { role: String },
 
     #[snafu(transparent)]
-    Call { source: crate::call::Error },
+    Call { source: crate::ic::call::Error },
 
     #[snafu(transparent)]
-    Canister { source: crate::actor::Error },
+    Canister { source: crate::ic::canister::Error },
 
     #[snafu(transparent)]
-    Create {
-        source: crate::canister::create::Error,
-    },
-
-    #[snafu(transparent)]
-    Ic { source: ic::Error },
+    Create { source: crate::ic::create::Error },
 
     #[snafu(transparent)]
     Subnet { source: crate::subnet::Error },
@@ -158,7 +153,7 @@ fn guard_controller(id: Principal) -> Result<(), Error> {
 
 // guard_root
 fn guard_root(id: Principal) -> Result<(), Error> {
-    let root_id = crate::actor::root_id()?;
+    let root_id = crate::ic::canister::root_id()?;
 
     if id == root_id {
         Ok(())
@@ -169,7 +164,7 @@ fn guard_root(id: Principal) -> Result<(), Error> {
 
 // guard_parent
 fn guard_parent(id: Principal) -> Result<(), Error> {
-    match crate::actor::parent_id() {
+    match crate::ic::canister::parent_id() {
         Some(parent_id) if parent_id == id => Ok(()),
         _ => Err(Error::NotParent { id })?,
     }
@@ -180,9 +175,13 @@ fn guard_parent(id: Principal) -> Result<(), Error> {
 pub async fn guard_permission(id: Principal, permission: &str) -> Result<(), Error> {
     let user_canister_id = crate::subnet::user_canister_id()?;
 
-    call::<_, (Result<(), crate::Error>,)>(user_canister_id, "guard_permission", (id, permission))
-        .await?
-        .0?;
+    call::<_, (Result<(), crate::ic::call::Error>,)>(
+        user_canister_id,
+        "guard_permission",
+        (id, permission),
+    )
+    .await?
+    .0?;
 
     Ok(())
 }

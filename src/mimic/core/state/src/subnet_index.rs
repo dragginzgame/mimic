@@ -45,7 +45,7 @@ impl SubnetIndexManager {
     }
 
     // try_get_canister
-    pub fn try_get_canister(path: &str) -> Result<Principal, crate::Error> {
+    pub fn try_get_canister(path: &str) -> Result<Principal, Error> {
         let canister = Self::get_canister(path).ok_or(Error::CanisterTypeNotFound {
             path: path.to_string(),
         })?;

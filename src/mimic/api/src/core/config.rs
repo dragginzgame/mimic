@@ -1,3 +1,4 @@
+use core_config::Config;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
@@ -9,6 +10,11 @@ use snafu::Snafu;
 pub enum Error {
     #[snafu(transparent)]
     CoreConfig { source: core_config::Error },
+}
+
+// get_config
+pub fn get_config() -> Result<Config, Error> {
+    core_config::get_config().map_err(Error::from)
 }
 
 // init_config_toml
