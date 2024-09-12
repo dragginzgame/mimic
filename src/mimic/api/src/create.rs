@@ -1,5 +1,5 @@
 use candid::Principal;
-use config::get_config;
+use core_config::get_config;
 use ic::{
     api::management_canister::{
         main::{CanisterInstallMode, InstallCodeArgument, WasmModule},
@@ -17,7 +17,7 @@ use snafu::Snafu;
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
-    Config { source: config::Error },
+    CoreConfig { source: core_config::Error },
 
     #[snafu(transparent)]
     Ic { source: ic::Error },

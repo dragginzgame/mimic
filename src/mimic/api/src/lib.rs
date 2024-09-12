@@ -1,6 +1,7 @@
 pub mod auth;
 pub mod canister;
 pub mod cascade;
+pub mod config;
 pub mod create;
 pub mod crud;
 pub mod mgmt;
@@ -30,13 +31,14 @@ pub const ERROR_CALL_REJECTED: u8 = 100;
 // api modules
 pub const ERROR_AUTH: u8 = 101;
 pub const ERROR_CANISTER: u8 = 102;
-pub const ERROR_CREATE: u8 = 103;
-pub const ERROR_CRUD: u8 = 104;
-pub const ERROR_MGMT: u8 = 105;
-pub const ERROR_REQUEST: u8 = 106;
-pub const ERROR_SCHEMA: u8 = 107;
-pub const ERROR_SUBNET: u8 = 108;
-pub const ERROR_UPGRADE: u8 = 109;
+pub const ERROR_CONFIG: u8 = 103;
+pub const ERROR_CREATE: u8 = 104;
+pub const ERROR_CRUD: u8 = 105;
+pub const ERROR_MGMT: u8 = 106;
+pub const ERROR_REQUEST: u8 = 107;
+pub const ERROR_SCHEMA: u8 = 108;
+pub const ERROR_SUBNET: u8 = 109;
+pub const ERROR_UPGRADE: u8 = 110;
 
 // other crates
 pub const ERROR_CORE_STATE: u8 = 120;
@@ -82,6 +84,12 @@ impl From<auth::Error> for Error {
 impl From<canister::Error> for Error {
     fn from(error: canister::Error) -> Self {
         Self(ERROR_CANISTER, error.to_string())
+    }
+}
+
+impl From<config::Error> for Error {
+    fn from(error: config::Error) -> Self {
+        Self(ERROR_CONFIG, error.to_string())
     }
 }
 

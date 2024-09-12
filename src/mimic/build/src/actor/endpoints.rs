@@ -160,25 +160,25 @@ pub fn state_endpoints(builder: &mut ActorBuilder) {
 
         // app_state
         #[::mimic::ic::query]
-        fn app_state() -> ::mimic::core::state::AppState {
+        fn app_state() -> ::mimic::api::state::AppState {
             ::mimic::api::state::app_state()
         }
 
         // canister_state
         #[::mimic::ic::query]
-        fn canister_state() -> ::mimic::core::state::CanisterState {
+        fn canister_state() -> ::mimic::api::state::CanisterState {
             ::mimic::api::state::canister_state()
         }
 
         // child_index
         #[::mimic::ic::query]
-        fn child_index() -> ::mimic::core::state::ChildIndex {
+        fn child_index() -> ::mimic::api::state::ChildIndex {
             ::mimic::api::state::child_index()
         }
 
         // subnet_index
         #[::mimic::ic::query]
-        fn subnet_index() -> ::mimic::core::state::SubnetIndex {
+        fn subnet_index() -> ::mimic::api::state::SubnetIndex {
             ::mimic::api::state::subnet_index()
         }
     };

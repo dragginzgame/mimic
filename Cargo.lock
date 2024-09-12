@@ -13,7 +13,7 @@ name = "api"
 version = "0.1.6"
 dependencies = [
  "candid",
- "config",
+ "core_config",
  "core_schema",
  "core_state",
  "core_wasm",
@@ -195,22 +195,22 @@ dependencies = [
 ]
 
 [[package]]
-name = "config"
-version = "0.1.6"
-dependencies = [
- "candid",
- "serde",
- "snafu",
- "toml",
-]
-
-[[package]]
 name = "convert_case"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec182b0ca2f35d8fc196cf3404988fd8b8c739a4d270ff118a398feb0cbec1ca"
 dependencies = [
  "unicode-segmentation",
+]
+
+[[package]]
+name = "core_config"
+version = "0.1.6"
+dependencies = [
+ "candid",
+ "serde",
+ "snafu",
+ "toml",
 ]
 
 [[package]]
@@ -752,10 +752,8 @@ dependencies = [
  "api",
  "build",
  "candid",
- "config",
- "core_schema",
+ "core_config",
  "core_state",
- "core_wasm",
  "ctor",
  "db",
  "derive_more",
@@ -781,6 +779,7 @@ version = "0.1.6"
 dependencies = [
  "candid",
  "derive_more",
+ "lib_case",
  "mimic",
  "mimic_common",
  "mimic_derive",

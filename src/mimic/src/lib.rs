@@ -6,23 +6,9 @@ pub mod macros;
 ///
 pub use api;
 pub use build;
-pub use config;
 pub use db;
 pub use ic;
 pub use types;
-
-pub mod core {
-    pub use core_schema as schema;
-    pub use core_state as state;
-    pub use core_wasm as wasm;
-}
-
-pub mod lib {
-    pub use lib_case as case;
-    pub use lib_cbor as cbor;
-    pub use lib_rand as rand;
-    pub use lib_time as time;
-}
 
 pub mod orm {
     pub mod prelude {
@@ -49,10 +35,6 @@ pub mod orm {
     pub use orm_schema as schema;
 }
 
-pub mod schema {
-    pub use core_schema::{get_schema, Schema};
-}
-
 pub mod export {
     pub use ctor;
     pub use num_traits;
@@ -72,11 +54,12 @@ pub mod prelude {
         api::{
             auth::{guard, Guard},
             request::{Request, RequestKind, Response},
+            state::{
+                AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager,
+                SubnetIndex, SubnetIndexManager, User, UserIndex, UserIndexManager,
+            },
         },
-        core::state::{
-            AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager,
-            SubnetIndex, SubnetIndexManager, User, UserIndex, UserIndexManager,
-        },
+        db::query as db_query,
         ic::{caller, format_cycles, id, log, Log},
         mimic_end, mimic_start,
         orm::traits::{EntityFixture, Path},

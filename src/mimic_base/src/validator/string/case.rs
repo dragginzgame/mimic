@@ -1,4 +1,4 @@
-use mimic::lib::case::{Case, Casing};
+use lib_case::{Case, Casing};
 use mimic::orm::prelude::*;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
