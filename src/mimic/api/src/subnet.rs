@@ -1,15 +1,14 @@
-use crate::Error;
 use candid::Principal;
 use core_state::SubnetIndexManager;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// SubnetError
+/// Error
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum SubnetError {
+pub enum Error {
     #[snafu(display("no user canister defined in schema"))]
     NoUserCanister,
 
@@ -18,13 +17,13 @@ pub enum SubnetError {
 }
 
 // user_canister_id
-pub fn user_canister_id() -> Result<Principal, Error> {
+pub fn user_canister_id() -> Result<Principal, crate::Error> {
     let user_canisters =
         crate::schema::canisters_by_build(::orm_schema::node::CanisterBuild::User)?;
-    let user_canister = user_canisters.first().ok_or(SubnetError::NoUserCanister)?;
+    let user_canister = user_canisters.first().ok_or(Error::NoUserCanister)?;
 
-    let user_canister_id = SubnetIndexManager::try_get_canister(&user_canister.def.path())
-        .map_err(SubnetError::from)?;
+    let user_canister_id =
+        SubnetIndexManager::try_get_canister(&user_canister.def.path()).map_err(Error::from)?;
 
     Ok(user_canister_id)
 }

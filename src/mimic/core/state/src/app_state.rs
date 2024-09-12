@@ -1,4 +1,4 @@
-use super::{Error, APP_STATE};
+use super::APP_STATE;
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use ic::{
@@ -12,11 +12,11 @@ use snafu::Snafu;
 use strum::Display;
 
 ///
-/// AppStateError
+/// Error
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum AppStateError {
+pub enum Error {
     #[snafu(display("app is already in {mode} mode"))]
     AlreadyInMode { mode: AppMode },
 
@@ -38,10 +38,10 @@ impl AppStateManager {
     }
 
     // set
-    pub fn set(new_state: AppState) -> Result<(), Error> {
+    pub fn set(new_state: AppState) -> Result<(), crate::Error> {
         APP_STATE
             .with_borrow_mut(|state| state.set(new_state))
-            .map_err(AppStateError::from)?;
+            .map_err(Error::from)?;
 
         Ok(())
     }
@@ -53,7 +53,7 @@ impl AppStateManager {
     }
 
     // set_mode
-    pub fn set_mode(mode: AppMode) -> Result<(), Error> {
+    pub fn set_mode(mode: AppMode) -> Result<(), crate::Error> {
         APP_STATE
             .with_borrow_mut(|state| {
                 let mut cur_state = state.get();
@@ -61,13 +61,13 @@ impl AppStateManager {
                 cur_state.mode = mode;
                 state.set(cur_state)
             })
-            .map_err(AppStateError::from)?;
+            .map_err(Error::from)?;
 
         Ok(())
     }
 
     // command
-    pub fn command(cmd: AppCommand) -> Result<(), Error> {
+    pub fn command(cmd: AppCommand) -> Result<(), crate::Error> {
         let old_mode = Self::get_mode();
         let new_mode = match cmd {
             AppCommand::Start => AppMode::Enabled,
@@ -77,7 +77,7 @@ impl AppStateManager {
 
         // update mode
         if old_mode == new_mode {
-            Err(AppStateError::AlreadyInMode { mode: old_mode })?;
+            Err(Error::AlreadyInMode { mode: old_mode })?;
         }
         Self::set_mode(new_mode)?;
 

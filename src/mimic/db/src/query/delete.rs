@@ -1,7 +1,28 @@
-use crate::{DebugContext, Error, Resolver};
-use db::{DataKey, Db};
+use crate::{
+    query::{DebugContext, Resolver},
+    types::DataKey,
+    Db,
+};
 use orm::traits::Entity;
+use serde::{Deserialize, Serialize};
+use snafu::Snafu;
 use std::{fmt::Display, marker::PhantomData};
+
+///
+/// Error
+///
+
+#[derive(Debug, Serialize, Deserialize, Snafu)]
+pub enum Error {
+    #[snafu(display("filtering not allowed on dynamic loads"))]
+    FilterNotAllowed,
+
+    #[snafu(transparent)]
+    Db { source: crate::db::Error },
+
+    #[snafu(transparent)]
+    Resolver { source: super::resolver::Error },
+}
 
 ///
 /// DeleteBuilder
@@ -22,7 +43,7 @@ where
 {
     // new
     #[must_use]
-    pub fn new(db: &'a Db) -> Self {
+    pub(crate) fn new(db: &'a Db) -> Self {
         Self {
             db,
             debug: DebugContext::default(),
@@ -38,11 +59,13 @@ where
     }
 
     // one
-    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteBuilderResult, Error> {
+    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteBuilderResult, crate::Error> {
         let key: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let executor = DeleteBuilderExecutor::new(self, vec![key]);
 
-        executor.execute()
+        let res = executor.execute()?;
+
+        Ok(res)
     }
 }
 
@@ -70,7 +93,7 @@ where
 {
     // new
     #[must_use]
-    pub fn new(prev: DeleteBuilder<'a, E>, keys: Vec<Vec<String>>) -> Self {
+    fn new(prev: DeleteBuilder<'a, E>, keys: Vec<Vec<String>>) -> Self {
         Self {
             db: prev.db,
             debug: prev.debug,
@@ -81,7 +104,7 @@ where
     }
 
     // execute
-    pub fn execute(&self) -> Result<DeleteBuilderResult, Error> {
+    fn execute(&self) -> Result<DeleteBuilderResult, Error> {
         let mut results = Vec::new();
         ic::println!("delete: keys {:?}", &self.keys);
 
@@ -124,7 +147,7 @@ impl DeleteBuilderResult {
     }
 
     // keys
-    pub fn keys(self) -> Result<Vec<DataKey>, Error> {
+    pub fn keys(self) -> Result<Vec<DataKey>, crate::Error> {
         Ok(self.results)
     }
 }

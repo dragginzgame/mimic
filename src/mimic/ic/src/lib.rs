@@ -5,6 +5,7 @@ pub use ic_cdk::*;
 pub use ic_cdk_timers as timers;
 
 // re-exports
+pub mod call;
 pub mod helper;
 pub mod structures;
 pub use helper::get_wasm_hash;
@@ -37,7 +38,10 @@ pub fn format_cycles(cycles: u128) -> String {
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
-    Cell { source: structures::cell::CellError },
+    Call { source: call::Error },
+
+    #[snafu(transparent)]
+    Cell { source: structures::cell::Error },
 }
 
 ///
@@ -76,8 +80,6 @@ macro_rules! log {
             Log::Info => format!("\x1b[34mINFO\x1b[0m: {}", formatted_message),
             Log::Warn => format!("\x1b[33mWARN\x1b[0m: {}", formatted_message),
             Log::Error => format!("\x1b[31mERROR\x1b[0m: {}", formatted_message),
-
-            _ => formatted_message,
         };
 
         $crate::println!("{}", msg);

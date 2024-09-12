@@ -17,7 +17,6 @@ core_state = { workspace = true }
 core_wasm = { workspace = true }
 ctor = { workspace = true }
 db = { workspace = true }
-db_query = { workspace = true }
 derive_more = { workspace = true }
 ic = { workspace = true }
 lib_case = { workspace = true }

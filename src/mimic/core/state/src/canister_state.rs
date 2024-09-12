@@ -1,4 +1,4 @@
-use super::{Error, CANISTER_STATE};
+use super::CANISTER_STATE;
 use candid::{CandidType, Principal};
 use derive_more::{Deref, DerefMut};
 use ic::structures::{memory::VirtualMemory, Cell};
@@ -7,11 +7,11 @@ use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// CanisterStateError
+/// Error
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum CanisterStateError {
+pub enum Error {
     #[snafu(display("path has not been set"))]
     PathNotSet,
 
@@ -36,23 +36,23 @@ impl CanisterStateManager {
     }
 
     // set
-    pub fn set(new_state: CanisterState) -> Result<(), Error> {
+    pub fn set(new_state: CanisterState) -> Result<(), crate::Error> {
         CANISTER_STATE
             .with_borrow_mut(|state| state.set(new_state))
-            .map_err(CanisterStateError::from)?;
+            .map_err(Error::from)?;
 
         Ok(())
     }
 
     // get_path
-    pub fn get_path() -> Result<String, Error> {
-        let path = Self::get().path.ok_or(CanisterStateError::PathNotSet)?;
+    pub fn get_path() -> Result<String, crate::Error> {
+        let path = Self::get().path.ok_or(Error::PathNotSet)?;
 
         Ok(path)
     }
 
     // set_path
-    pub fn set_path(canister_type: String) -> Result<(), Error> {
+    pub fn set_path(canister_type: String) -> Result<(), crate::Error> {
         let mut state = Self::get();
         state.path = Some(canister_type);
 
@@ -60,16 +60,14 @@ impl CanisterStateManager {
     }
 
     // get_root_id
-    pub fn get_root_id() -> Result<Principal, Error> {
-        let root_id = Self::get()
-            .root_id
-            .ok_or(CanisterStateError::RootIdNotSet)?;
+    pub fn get_root_id() -> Result<Principal, crate::Error> {
+        let root_id = Self::get().root_id.ok_or(Error::RootIdNotSet)?;
 
         Ok(root_id)
     }
 
     // set_root_id
-    pub fn set_root_id(id: Principal) -> Result<(), Error> {
+    pub fn set_root_id(id: Principal) -> Result<(), crate::Error> {
         let mut state = Self::get();
         state.root_id = Some(id);
 
@@ -83,7 +81,7 @@ impl CanisterStateManager {
     }
 
     // set_parent_id
-    pub fn set_parent_id(id: Principal) -> Result<(), Error> {
+    pub fn set_parent_id(id: Principal) -> Result<(), crate::Error> {
         let mut state = Self::get();
         state.parent_id = Some(id);
 

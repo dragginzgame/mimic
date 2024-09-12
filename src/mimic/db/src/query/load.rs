@@ -1,21 +1,23 @@
-use crate::{
+use crate::query::{
     iter::{RowIterator, RowIteratorDynamic},
     types::{EntityRow, Filter, LoadMethod, Order},
-    DebugContext, Error, Resolver,
+    DebugContext, Resolver,
 };
-use candid::CandidType;
-use db::{DataKey, DataRow, Db};
+use crate::{
+    types::{DataKey, DataRow},
+    Db,
+};
 use orm::traits::Entity;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::marker::PhantomData;
 
 ///
-/// LoadError
+/// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
-pub enum LoadError {
+#[derive(Debug, Serialize, Deserialize, Snafu)]
+pub enum Error {
     #[snafu(display("filtering not allowed on dynamic loads"))]
     FilterNotAllowed,
 
@@ -27,6 +29,15 @@ pub enum LoadError {
 
     #[snafu(display("range queries not allowed on composite keys"))]
     RangeNotAllowed,
+
+    #[snafu(transparent)]
+    Db { source: crate::db::Error },
+
+    #[snafu(transparent)]
+    Orm { source: orm::Error },
+
+    #[snafu(transparent)]
+    Resolver { source: super::resolver::Error },
 }
 
 ///
@@ -99,7 +110,7 @@ where
         self,
         start: &[T],
         end: &[T],
-    ) -> Result<LoadBuilderOptions<'a, E>, Error> {
+    ) -> Result<LoadBuilderOptions<'a, E>, crate::Error> {
         let start = start.iter().map(ToString::to_string).collect();
         let end = end.iter().map(ToString::to_string).collect();
 
@@ -107,7 +118,10 @@ where
     }
 
     // prefix
-    pub fn prefix<T: ToString>(self, prefix: &[T]) -> Result<LoadBuilderOptions<'a, E>, Error> {
+    pub fn prefix<T: ToString>(
+        self,
+        prefix: &[T],
+    ) -> Result<LoadBuilderOptions<'a, E>, crate::Error> {
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
 
         Ok(self.build_options(LoadMethod::Prefix(prefix)))
@@ -219,7 +233,7 @@ where
     }
 
     // execute
-    pub fn execute(self) -> Result<RowIterator<E>, Error> {
+    pub fn execute(self) -> Result<RowIterator<E>, crate::Error> {
         let executor = LoadBuilderExecutor::new(self);
         let iter = executor.execute()?;
 
@@ -227,7 +241,7 @@ where
     }
 
     // execute_dyn
-    pub fn execute_dyn(self) -> Result<RowIteratorDynamic, Error> {
+    pub fn execute_dyn(self) -> Result<RowIteratorDynamic, crate::Error> {
         let executor = LoadBuilderExecutor::new(self);
         let iter = executor.execute_dyn()?;
 
@@ -297,7 +311,7 @@ where
     // cannot currently use filter here
     pub fn execute_dyn(self) -> Result<RowIteratorDynamic, Error> {
         if self.filter.is_some() {
-            Err(Error::from(LoadError::FilterNotAllowed))?;
+            Err(Error::FilterNotAllowed)?;
         }
         let iter = self.do_execute()?;
 
@@ -367,7 +381,7 @@ where
     ) -> Result<impl Iterator<Item = DataRow>, Error> {
         let start = E::composite_key(start)?;
         if start.len() != 1 {
-            Err(LoadError::RangeNotAllowed)?;
+            Err(Error::RangeNotAllowed)?;
         }
         let start_sk = self.resolver.data_key(&start)?;
 
@@ -420,7 +434,7 @@ where
         let value = self
             .db
             .with_store(store_path, |store| Ok(store.data.get(&key)))?
-            .ok_or_else(|| LoadError::KeyNotFound { key: key.clone() })?;
+            .ok_or_else(|| Error::KeyNotFound { key: key.clone() })?;
 
         Ok(DataRow { key, value })
     }

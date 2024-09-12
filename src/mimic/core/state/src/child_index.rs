@@ -1,4 +1,4 @@
-use super::{Error, CHILD_INDEX};
+use super::CHILD_INDEX;
 use candid::{CandidType, Principal};
 use derive_more::{Deref, DerefMut};
 use ic::structures::{memory::VirtualMemory, BTreeMap};
@@ -6,11 +6,11 @@ use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// ChildIndexError
+/// Error
 ///
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
-pub enum ChildIndexError {
+pub enum Error {
     #[snafu(display("canister not found: {id}"))]
     CanisterNotFound { id: Principal },
 }
@@ -42,8 +42,8 @@ impl ChildIndexManager {
     }
 
     // try_get_canister
-    pub fn try_get_canister(id: Principal) -> Result<String, Error> {
-        let canister = Self::get_canister(id).ok_or(ChildIndexError::CanisterNotFound { id })?;
+    pub fn try_get_canister(id: Principal) -> Result<String, crate::Error> {
+        let canister = Self::get_canister(id).ok_or(Error::CanisterNotFound { id })?;
 
         Ok(canister)
     }

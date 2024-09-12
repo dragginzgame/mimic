@@ -10,12 +10,6 @@ use snafu::Snafu;
 use std::sync::Mutex;
 
 ///
-/// SCHEMA
-///
-
-static SCHEMA: Mutex<Option<Schema>> = Mutex::new(None);
-
-///
 /// Error
 ///
 
@@ -32,7 +26,16 @@ pub enum Error {
 
     #[snafu(display("serde json error: {msg}"))]
     SerdeJson { msg: String },
+
+    #[snafu(transparent)]
+    Entity { source: entity::Error },
 }
+
+///
+/// SCHEMA
+///
+
+static SCHEMA: Mutex<Option<Schema>> = Mutex::new(None);
 
 ///
 /// INIT

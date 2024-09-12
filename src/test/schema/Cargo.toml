@@ -10,7 +10,6 @@ workspace = true
 [dependencies]
 candid = { workspace = true }
 db = { workspace = true }
-db_query = { workspace = true }
 derive_more = { workspace = true }
 ic = { workspace = true }
 ic-cdk = { workspace = true }

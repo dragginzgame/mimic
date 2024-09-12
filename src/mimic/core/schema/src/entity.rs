@@ -37,9 +37,11 @@ impl EntityCrudMap {
     }
 
     // get_crud
-    fn get_crud(entity: &Entity) -> Result<Crud, Error> {
+    fn get_crud(entity: &Entity) -> Result<Crud, crate::Error> {
         let schema = get_schema().unwrap();
-        let store = schema.try_get_node::<Store>(&entity.store)?;
+        let store = schema
+            .try_get_node::<Store>(&entity.store)
+            .map_err(Error::from)?;
 
         // entity overrides store
         entity

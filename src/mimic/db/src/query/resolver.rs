@@ -1,16 +1,15 @@
-use crate::Error;
+use crate::types::DataKey;
 use core_schema::get_schema;
-use db::DataKey;
 use orm_schema::node::Entity;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// ResolverError
+/// Error
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum ResolverError {
+pub enum Error {
     #[snafu(display("entity not found: {path}"))]
     EntityNotFound { path: String },
 
@@ -18,7 +17,7 @@ pub enum ResolverError {
     Schema { source: core_schema::Error },
 }
 
-impl ResolverError {
+impl Error {
     #[must_use]
     pub fn entity_not_found(path: &str) -> Self {
         Self::EntityNotFound {
@@ -48,10 +47,10 @@ impl Resolver {
 
     // store
     pub fn store(&self) -> Result<String, Error> {
-        let schema = get_schema().map_err(ResolverError::from)?;
+        let schema = get_schema().map_err(Error::from)?;
         let entity = schema
             .get_node::<Entity>(&self.entity)
-            .ok_or_else(|| ResolverError::entity_not_found(&self.entity))?;
+            .ok_or_else(|| Error::entity_not_found(&self.entity))?;
 
         Ok(entity.store.clone())
     }
@@ -82,21 +81,21 @@ impl Resolver {
     // chain_format
     // returns the data used to format the sort key
     fn chain_format(&self) -> Result<Vec<(String, usize)>, Error> {
-        let schema = get_schema().map_err(ResolverError::from)?;
+        let schema = get_schema().map_err(Error::from)?;
 
         //
         // Create the chain from the Schema
         //
         let entity = schema
             .get_node::<Entity>(&self.entity)
-            .ok_or_else(|| ResolverError::entity_not_found(&self.entity))?;
+            .ok_or_else(|| Error::entity_not_found(&self.entity))?;
 
         // create an ordered vec from the parents
         let mut chain = Vec::new();
         for sk in &entity.sort_keys {
             let sk_entity = schema
                 .get_node::<Entity>(&sk.entity)
-                .ok_or_else(|| ResolverError::entity_not_found(&sk.entity))?;
+                .ok_or_else(|| Error::entity_not_found(&sk.entity))?;
 
             chain.push(sk_entity);
         }

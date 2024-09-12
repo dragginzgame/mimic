@@ -1,5 +1,14 @@
-use crate::{call, Error};
-use ic::{log, Log};
+use crate::Error;
+use ic::{call, log, Log};
+use serde::{Deserialize, Serialize};
+use snafu::Snafu;
+
+///
+/// CascadeError
+///
+
+#[derive(Debug, Serialize, Deserialize, Snafu)]
+pub enum CascadeError {}
 
 // app_state_cascade
 pub async fn app_state_cascade() -> Result<(), Error> {

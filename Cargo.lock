@@ -18,7 +18,6 @@ dependencies = [
  "core_state",
  "core_wasm",
  "db",
- "db_query",
  "defer",
  "ic",
  "mimic_common",
@@ -342,26 +341,13 @@ name = "db"
 version = "0.1.6"
 dependencies = [
  "candid",
+ "core_schema",
  "derive_more",
  "ic",
  "lib_cbor",
  "lib_time",
  "mimic_common",
  "mimic_derive",
- "serde",
- "snafu",
- "types",
-]
-
-[[package]]
-name = "db_query"
-version = "0.1.6"
-dependencies = [
- "candid",
- "core_schema",
- "db",
- "derive_more",
- "ic",
  "orm",
  "orm_schema",
  "serde",
@@ -772,7 +758,6 @@ dependencies = [
  "core_wasm",
  "ctor",
  "db",
- "db_query",
  "derive_more",
  "ic",
  "lib_case",
@@ -1199,7 +1184,6 @@ dependencies = [
  "build",
  "candid",
  "db",
- "db_query",
  "ic",
  "ic-cdk",
  "mimic",
@@ -1214,7 +1198,6 @@ version = "0.1.6"
 dependencies = [
  "candid",
  "db",
- "db_query",
  "derive_more",
  "ic",
  "ic-cdk",

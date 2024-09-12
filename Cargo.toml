@@ -10,7 +10,6 @@ members = [
     "src/mimic/core/state",
     "src/mimic/core/wasm",
     "src/mimic/db",
-    "src/mimic/db/query",
     "src/mimic/ic",
     "src/mimic/lib/case",
     "src/mimic/lib/cbor",
@@ -60,7 +59,6 @@ core_wasm = { path = "src/mimic/core/wasm" }
 
 # db
 db = { path = "src/mimic/db" }
-db_query = { path = "src/mimic/db/query" }
 
 # orm
 orm = { path = "src/mimic/orm" }

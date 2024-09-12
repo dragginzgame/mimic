@@ -1,20 +1,18 @@
 use crate::{
-    types::{EntityRow, Filter, Order, QueryRow},
-    Error,
+    query::types::{EntityRow, Filter, Order, QueryRow},
+    types::{DataKey, DataRow},
 };
-use candid::CandidType;
-use db::{DataKey, DataRow};
 use orm::traits::Entity;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::iter;
 
 ///
-/// IterError
+/// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
-pub enum IterError {
+#[derive(Debug, Serialize, Deserialize, Snafu)]
+pub enum Error {
     #[snafu(display("no results found"))]
     NoResultsFound,
 }
@@ -90,7 +88,7 @@ where
 
     // key
     pub fn key(mut self) -> Result<DataKey, Error> {
-        let row = self.move_next().ok_or(IterError::NoResultsFound)?;
+        let row = self.move_next().ok_or(Error::NoResultsFound)?;
 
         Ok(row.key)
     }
@@ -105,7 +103,7 @@ where
         self.move_next()
             .as_ref()
             .map(|row| row.value.entity.clone())
-            .ok_or(IterError::NoResultsFound)
+            .ok_or(Error::NoResultsFound)
             .map_err(Error::from)
     }
 
@@ -121,7 +119,7 @@ where
     // entity_row
     pub fn entity_row(mut self) -> Result<EntityRow<E>, Error> {
         self.move_next()
-            .ok_or(IterError::NoResultsFound)
+            .ok_or(Error::NoResultsFound)
             .map_err(Error::from)
     }
 
@@ -177,7 +175,7 @@ impl RowIteratorDynamic {
 
     // key
     pub fn key(mut self) -> Result<String, Error> {
-        let row = self.move_next().ok_or(IterError::NoResultsFound)?;
+        let row = self.move_next().ok_or(Error::NoResultsFound)?;
 
         Ok(row.key.to_string())
     }
@@ -189,7 +187,7 @@ impl RowIteratorDynamic {
 
     // query_row
     pub fn query_row(mut self) -> Result<QueryRow, Error> {
-        let row = self.move_next().ok_or(IterError::NoResultsFound)?;
+        let row = self.move_next().ok_or(Error::NoResultsFound)?;
 
         Ok(row.into())
     }
@@ -205,7 +203,7 @@ impl RowIteratorDynamic {
             .iter
             .next()
             .map(|row| row.value.data)
-            .ok_or(IterError::NoResultsFound)?;
+            .ok_or(Error::NoResultsFound)?;
 
         Ok(blob)
     }

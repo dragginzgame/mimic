@@ -1,7 +1,4 @@
-use crate::{
-    mgmt::{install_code, module_hash},
-    Error,
-};
+use crate::mgmt::{install_code, module_hash};
 use candid::{CandidType, Principal};
 use ic::{
     api::management_canister::main::{CanisterInstallMode, InstallCodeArgument, WasmModule},
@@ -12,21 +9,21 @@ use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// UpgradeError
+/// Error
 ///
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
-pub enum UpgradeError {
+pub enum Error {
     #[snafu(display("wasm hash matches"))]
     WasmHashMatches,
 }
 
 /// upgrade_canister
-pub async fn upgrade_canister(canister_id: Principal, bytes: &[u8]) -> Result<(), Error> {
+pub async fn upgrade_canister(canister_id: Principal, bytes: &[u8]) -> Result<(), crate::Error> {
     // module_hash
     let module_hash = module_hash(canister_id).await?;
     if module_hash == Some(get_wasm_hash(bytes)) {
-        Err(UpgradeError::WasmHashMatches)?;
+        Err(Error::WasmHashMatches)?;
     }
 
     // args

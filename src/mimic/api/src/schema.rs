@@ -1,19 +1,18 @@
-use crate::Error;
 use orm_schema::node::{Canister, CanisterBuild};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// SchemaError
+/// Error
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum SchemaError {
+pub enum Error {
     #[snafu(display("canister not found in schema: {path}"))]
     CanisterNotFound { path: String },
 
     #[snafu(transparent)]
-    Schema { source: core_schema::Error },
+    CoreSchema { source: core_schema::Error },
 }
 
 ///
@@ -21,8 +20,8 @@ pub enum SchemaError {
 ///
 
 // canisters_by_build
-pub fn canisters_by_build(build: CanisterBuild) -> Result<Vec<Canister>, Error> {
-    let schema = core_schema::get_schema().map_err(SchemaError::from)?;
+pub fn canisters_by_build(build: CanisterBuild) -> Result<Vec<Canister>, crate::Error> {
+    let schema = core_schema::get_schema().map_err(Error::from)?;
     let canisters: Vec<Canister> = schema
         .filter_nodes::<Canister, _>(|canister| canister.build == build)
         .map(|(_, v)| v)
@@ -33,15 +32,14 @@ pub fn canisters_by_build(build: CanisterBuild) -> Result<Vec<Canister>, Error> 
 }
 
 // canister
-pub fn canister(path: &str) -> Result<Canister, Error> {
-    let schema = core_schema::get_schema().map_err(SchemaError::from)?;
-    let canister =
-        schema
-            .get_node::<Canister>(path)
-            .cloned()
-            .ok_or(SchemaError::CanisterNotFound {
-                path: path.to_string(),
-            })?;
+pub fn canister(path: &str) -> Result<Canister, crate::Error> {
+    let schema = core_schema::get_schema().map_err(Error::from)?;
+    let canister = schema
+        .get_node::<Canister>(path)
+        .cloned()
+        .ok_or(Error::CanisterNotFound {
+            path: path.to_string(),
+        })?;
 
     Ok(canister)
 }

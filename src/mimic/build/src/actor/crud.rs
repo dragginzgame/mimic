@@ -25,7 +25,7 @@ pub fn guard_crud(_: &ActorBuilder) -> TokenStream {
         async fn guard_crud(entity: &str, action: ::mimic::orm::types::CrudAction) -> Result<(), ::mimic::api::Error> {
             // are there crud permissions?
             let crud = ::mimic::core::schema::entity::ENTITY_CRUD_MAP.get(entity)
-                .ok_or_else(|| ::mimic::api::crud::CrudError::entity_not_found(entity))
+                .ok_or_else(|| ::mimic::api::crud::Error::entity_not_found(entity))
                 .map_err(::mimic::api::Error::from)?;
 
             // check permission action
@@ -69,7 +69,7 @@ pub fn crud_load(builder: &ActorBuilder) -> TokenStream {
             let res = DB.with(|db| {
                 match request.entity.as_str() {
                     #(#calls)*
-                    _ => Err(::mimic::api::Error::from(::mimic::api::crud::CrudError::entity_not_found(&request.entity)))
+                    _ => Err(::mimic::api::Error::from(::mimic::api::crud::Error::entity_not_found(&request.entity)))
                 }
             }).map_err(::mimic::api::Error::from)?;
 
@@ -101,7 +101,7 @@ pub fn crud_save(builder: &ActorBuilder) -> TokenStream {
             let res = DB.with(|db| {
                 match request.entity.as_str() {
                     #(#calls)*
-                    _ => Err(::mimic::api::Error::from(::mimic::api::crud::CrudError::entity_not_found(&request.entity)))
+                    _ => Err(::mimic::api::Error::from(::mimic::api::crud::Error::entity_not_found(&request.entity)))
                 }
             }).map_err(::mimic::api::Error::from)?;
 
@@ -134,7 +134,7 @@ pub fn crud_delete(builder: &ActorBuilder) -> TokenStream {
                 match request.entity.as_str() {
                     #(#calls)*
                     _ => Err(::mimic::api::Error::from(
-                        ::mimic::api::crud::CrudError::entity_not_found(&request.entity)
+                        ::mimic::api::crud::Error::entity_not_found(&request.entity)
                     ))
                 }
             })?;

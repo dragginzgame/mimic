@@ -7,6 +7,7 @@ pub mod macros;
 pub use api;
 pub use build;
 pub use config;
+pub use db;
 pub use ic;
 pub use types;
 
@@ -14,11 +15,6 @@ pub mod core {
     pub use core_schema as schema;
     pub use core_state as state;
     pub use core_wasm as wasm;
-}
-
-pub mod db {
-    pub use db::*;
-    pub use db_query as query;
 }
 
 pub mod lib {
@@ -81,7 +77,6 @@ pub mod prelude {
             AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager,
             SubnetIndex, SubnetIndexManager, User, UserIndex, UserIndexManager,
         },
-        db::query as db_query,
         ic::{caller, format_cycles, id, log, Log},
         mimic_end, mimic_start,
         orm::traits::{EntityFixture, Path},

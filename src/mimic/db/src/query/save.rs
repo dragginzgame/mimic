@@ -1,9 +1,11 @@
 use crate::{
-    types::{EntityRow, QueryRow},
-    DebugContext, Error, Resolver,
+    query::{
+        types::{EntityRow, QueryRow},
+        DebugContext, Resolver,
+    },
+    types::{DataKey, DataRow, DataValue, Metadata},
+    Db,
 };
-use candid::CandidType;
-use db::{DataKey, DataRow, DataValue, Db, Metadata};
 use orm::traits::{Entity, EntityDynamic};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -11,11 +13,11 @@ use std::mem;
 use strum::Display;
 
 ///
-/// SaveError
+/// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
-pub enum SaveError {
+#[derive(Debug, Serialize, Deserialize, Snafu)]
+pub enum Error {
     #[snafu(display("key exists: {key}"))]
     KeyExists { key: DataKey },
 
@@ -24,6 +26,15 @@ pub enum SaveError {
 
     #[snafu(display("no results found"))]
     NoResultsFound,
+
+    #[snafu(transparent)]
+    Db { source: crate::db::Error },
+
+    #[snafu(transparent)]
+    Orm { source: orm::Error },
+
+    #[snafu(transparent)]
+    Resolver { source: super::resolver::Error },
 }
 
 ///
@@ -110,37 +121,45 @@ impl<'a> SaveBuilder<'a> {
     pub fn from_entity<E: EntityDynamic + 'static>(
         self,
         entity: E,
-    ) -> Result<SaveBuilderResult, Error> {
-        self.execute(vec![Box::new(entity)])
+    ) -> Result<SaveBuilderResult, crate::Error> {
+        let res = self.execute(vec![Box::new(entity)])?;
+
+        Ok(res)
     }
 
     // from_entities
     pub fn from_entities<E: EntityDynamic + 'static>(
         self,
         entities: Vec<E>,
-    ) -> Result<SaveBuilderResult, Error> {
+    ) -> Result<SaveBuilderResult, crate::Error> {
         let boxed_entities = entities
             .into_iter()
             .map(|entity| Box::new(entity) as Box<dyn EntityDynamic>)
             .collect();
 
-        self.execute(boxed_entities)
+        let res = self.execute(boxed_entities)?;
+
+        Ok(res)
     }
 
     // from_entity_dynamic
     pub fn from_entity_dynamic(
         self,
         entity: Box<dyn EntityDynamic>,
-    ) -> Result<SaveBuilderResult, Error> {
-        self.execute(vec![entity])
+    ) -> Result<SaveBuilderResult, crate::Error> {
+        let res = self.execute(vec![entity])?;
+
+        Ok(res)
     }
 
     // from_entities_dynamic
     pub fn from_entities_dynamic(
         self,
         entities: Vec<Box<dyn EntityDynamic>>,
-    ) -> Result<SaveBuilderResult, Error> {
-        self.execute(entities)
+    ) -> Result<SaveBuilderResult, crate::Error> {
+        let res = self.execute(entities)?;
+
+        Ok(res)
     }
 
     // execute
@@ -243,7 +262,7 @@ impl<'a> SaveBuilderExecutor<'a> {
         let (created, modified) = match mode {
             SaveMode::Create => {
                 if result.is_some() {
-                    Err(SaveError::KeyExists { key: key.clone() })?;
+                    Err(Error::KeyExists { key: key.clone() })?;
                 }
 
                 (now, now)
@@ -259,7 +278,7 @@ impl<'a> SaveBuilderExecutor<'a> {
 
                     (old.metadata.created, modified)
                 }
-                None => Err(SaveError::KeyNotFound { key: key.clone() })?,
+                None => Err(Error::KeyNotFound { key: key.clone() })?,
             },
 
             SaveMode::Replace => match result {
@@ -314,13 +333,15 @@ impl SaveBuilderResult {
     }
 
     // query_row
-    pub fn query_row(&self) -> Result<QueryRow, Error> {
-        self.results
+    pub fn query_row(&self) -> Result<QueryRow, crate::Error> {
+        let res = self
+            .results
             .first()
             .cloned()
             .map(Into::into)
-            .ok_or(SaveError::NoResultsFound)
-            .map_err(Error::from)
+            .ok_or(Error::NoResultsFound)?;
+
+        Ok(res)
     }
 
     // query_rows
@@ -329,12 +350,8 @@ impl SaveBuilderResult {
     }
 
     // entity_row
-    pub fn entity_row<E: Entity>(self) -> Result<EntityRow<E>, Error> {
-        let row = self
-            .results
-            .first()
-            .ok_or(SaveError::NoResultsFound)?
-            .clone();
+    pub fn entity_row<E: Entity>(self) -> Result<EntityRow<E>, crate::Error> {
+        let row = self.results.first().ok_or(Error::NoResultsFound)?.clone();
 
         let entity_row: EntityRow<E> = row.try_into()?;
 
@@ -342,14 +359,17 @@ impl SaveBuilderResult {
     }
 
     // entity_rows
-    pub fn entity_rows<E: Entity>(self) -> impl Iterator<Item = Result<EntityRow<E>, Error>> {
+    pub fn entity_rows<E: Entity>(
+        self,
+    ) -> impl Iterator<Item = Result<EntityRow<E>, crate::Error>> {
         self.results
             .into_iter()
-            .map(|row| row.try_into().map_err(Error::from))
+            .map(|row| row.try_into().map_err(crate::Error::from))
     }
 
-    pub fn entity<E: Entity>(self) -> Result<E, Error> {
-        let row_ref = self.results.first().ok_or(SaveError::NoResultsFound)?;
+    //
+    pub fn entity<E: Entity>(self) -> Result<E, crate::Error> {
+        let row_ref = self.results.first().ok_or(Error::NoResultsFound)?;
 
         let entity_row: EntityRow<E> = row_ref.clone().try_into()?;
 
@@ -357,11 +377,11 @@ impl SaveBuilderResult {
     }
 
     // entities
-    pub fn entities<E: Entity>(self) -> impl Iterator<Item = Result<E, Error>> {
+    pub fn entities<E: Entity>(self) -> impl Iterator<Item = Result<E, crate::Error>> {
         self.results.into_iter().map(|row| {
             row.try_into()
                 .map(|row: EntityRow<E>| row.value.entity)
-                .map_err(Error::from)
+                .map_err(crate::Error::from)
         })
     }
 }

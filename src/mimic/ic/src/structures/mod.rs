@@ -11,7 +11,4 @@ pub mod memory {
 pub use ic_stable_structures::*;
 
 // local
-pub use {
-    btreemap::BTreeMap,
-    cell::{Cell, CellError},
-};
+pub use {btreemap::BTreeMap, cell::Cell};

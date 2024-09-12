@@ -20,11 +20,8 @@ use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::cell::RefCell;
 use {
-    app_state::{AppStateError, AppStateStable},
-    canister_state::{CanisterStateError, CanisterStateStable},
-    child_index::{ChildIndexError, ChildIndexStable},
-    subnet_index::{SubnetIndexError, SubnetIndexStable},
-    user_index::{UserIndexError, UserIndexStable},
+    app_state::AppStateStable, canister_state::CanisterStateStable, child_index::ChildIndexStable,
+    subnet_index::SubnetIndexStable, user_index::UserIndexStable,
 };
 
 ///
@@ -34,19 +31,19 @@ use {
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
-    AppState { source: AppStateError },
+    AppState { source: app_state::Error },
 
     #[snafu(transparent)]
-    CanisterState { source: CanisterStateError },
+    CanisterState { source: canister_state::Error },
 
     #[snafu(transparent)]
-    ChildIndex { source: ChildIndexError },
+    ChildIndex { source: child_index::Error },
 
     #[snafu(transparent)]
-    SubnetIndex { source: SubnetIndexError },
+    SubnetIndex { source: subnet_index::Error },
 
     #[snafu(transparent)]
-    UserIndex { source: UserIndexError },
+    UserIndex { source: user_index::Error },
 }
 
 ///

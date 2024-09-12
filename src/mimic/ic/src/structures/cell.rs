@@ -1,19 +1,15 @@
-use crate::{
-    structures::{memory::VirtualMemory, Storable},
-    Error,
-};
-use candid::CandidType;
+use crate::structures::{memory::VirtualMemory, Storable};
 use derive_more::{Deref, DerefMut};
 use ic_stable_structures::cell::{Cell as WrappedCell, InitError, ValueError};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// CellError
+/// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
-pub enum CellError {
+#[derive(Debug, Serialize, Deserialize, Snafu)]
+pub enum Error {
     #[snafu(display("init error: {error}"))]
     Init { error: String },
 
@@ -21,7 +17,7 @@ pub enum CellError {
     ValueTooLarge { size: u64 },
 }
 
-impl From<InitError> for CellError {
+impl From<InitError> for Error {
     fn from(error: InitError) -> Self {
         Self::Init {
             error: error.to_string(),
@@ -29,7 +25,7 @@ impl From<InitError> for CellError {
     }
 }
 
-impl From<ValueError> for CellError {
+impl From<ValueError> for Error {
     fn from(error: ValueError) -> Self {
         match error {
             ValueError::ValueTooLarge { value_size } => Self::ValueTooLarge { size: value_size },
@@ -55,15 +51,15 @@ where
     T: Clone + Storable,
 {
     // new
-    pub fn new(memory: VirtualMemory, value: T) -> Result<Self, Error> {
-        let data = WrappedCell::new(memory, value).map_err(CellError::from)?;
+    pub fn new(memory: VirtualMemory, value: T) -> Result<Self, crate::Error> {
+        let data = WrappedCell::new(memory, value).map_err(Error::from)?;
 
         Ok(Self { data })
     }
 
     // init
-    pub fn init(memory: VirtualMemory, default_value: T) -> Result<Self, Error> {
-        let data = WrappedCell::init(memory, default_value).map_err(CellError::from)?;
+    pub fn init(memory: VirtualMemory, default_value: T) -> Result<Self, crate::Error> {
+        let data = WrappedCell::init(memory, default_value).map_err(Error::from)?;
 
         Ok(Self { data })
     }
@@ -75,8 +71,8 @@ where
     }
 
     // set
-    pub fn set(&mut self, value: T) -> Result<T, Error> {
-        let res = self.data.set(value).map_err(CellError::from)?;
+    pub fn set(&mut self, value: T) -> Result<T, crate::Error> {
+        let res = self.data.set(value).map_err(Error::from)?;
 
         Ok(res)
     }

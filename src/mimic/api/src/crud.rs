@@ -1,30 +1,31 @@
-use crate::Error;
-use db::Db;
-use db_query::types::{
-    CreateResponse, DeleteRequest, DeleteResponse, LoadFormat, LoadRequest, LoadResponse, QueryRow,
-    SaveRequest, SaveRequestAction, SaveResponse, UpdateResponse,
+use db::{
+    db::Db,
+    query::types::{
+        CreateResponse, DeleteRequest, DeleteResponse, LoadFormat, LoadRequest, LoadResponse,
+        QueryRow, SaveRequest, SaveRequestAction, SaveResponse, UpdateResponse,
+    },
 };
 use orm::traits::Entity;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// CrudError
+/// Error
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum CrudError {
+pub enum Error {
     #[snafu(display("entity '{path}' not found"))]
     EntityNotFound { path: String },
 
     #[snafu(transparent)]
-    Query { source: db_query::Error },
+    Db { source: db::Error },
 
     #[snafu(transparent)]
     Orm { source: orm::Error },
 }
 
-impl CrudError {
+impl Error {
     #[must_use]
     pub fn entity_not_found(path: &str) -> Self {
         Self::EntityNotFound {
@@ -44,14 +45,13 @@ pub fn load<E>(db: &Db, request: LoadRequest) -> Result<LoadResponse, Error>
 where
     E: Entity + 'static,
 {
-    let iter = db_query::load::<E>(db)
+    let iter = db::query::load::<E>(db)
         .method(request.method)
         .order_option(request.order)
         .filter_option(request.filter)
         .limit_option(request.limit)
         .offset(request.offset)
-        .execute()
-        .map_err(CrudError::from)?;
+        .execute()?;
 
     let res = match request.format {
         LoadFormat::Rows => {
@@ -60,7 +60,7 @@ where
                 .into_iter()
                 .map(QueryRow::try_from)
                 .collect::<Result<Vec<_>, _>>();
-            let rows = rows.map_err(CrudError::from)?;
+            let rows = rows.map_err(Error::from)?;
 
             LoadResponse::Rows(rows)
         }
@@ -75,11 +75,7 @@ pub fn delete<E>(db: &Db, request: &DeleteRequest) -> Result<DeleteResponse, Err
 where
     E: Entity,
 {
-    let keys = db_query::delete::<E>(db)
-        .one(&request.key)
-        .map_err(CrudError::from)?
-        .keys()
-        .map_err(CrudError::from)?;
+    let keys = db::query::delete::<E>(db).one(&request.key)?.keys()?;
 
     Ok(DeleteResponse { keys })
 }
@@ -90,26 +86,22 @@ where
     E: Entity + 'static,
 {
     // convert data into entity
-    let entity: E = orm::deserialize(&request.data).map_err(CrudError::from)?;
+    let entity: E = orm::deserialize(&request.data)?;
     let boxed_entity = Box::new(entity) as Box<dyn orm::traits::EntityDynamic>;
 
     match request.action {
         SaveRequestAction::Create => {
-            let row = db_query::create(db)
-                .from_entity_dynamic(boxed_entity)
-                .map_err(CrudError::from)?
-                .query_row()
-                .map_err(CrudError::from)?;
+            let row = db::query::create(db)
+                .from_entity_dynamic(boxed_entity)?
+                .query_row()?;
 
             Ok(SaveResponse::Create(CreateResponse { row }))
         }
 
         SaveRequestAction::Update => {
-            let row = db_query::update(db)
-                .from_entity_dynamic(boxed_entity)
-                .map_err(CrudError::from)?
-                .query_row()
-                .map_err(CrudError::from)?;
+            let row = db::query::update(db)
+                .from_entity_dynamic(boxed_entity)?
+                .query_row()?;
 
             Ok(SaveResponse::Update(UpdateResponse { row }))
         }

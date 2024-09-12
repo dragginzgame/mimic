@@ -1,4 +1,4 @@
-use super::{Error, SUBNET_INDEX};
+use super::SUBNET_INDEX;
 use candid::{CandidType, Principal};
 use derive_more::{Deref, DerefMut};
 use ic::structures::{memory::VirtualMemory, BTreeMap};
@@ -6,11 +6,11 @@ use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// SubnetIndexError
+/// Error
 ///
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
-pub enum SubnetIndexError {
+pub enum Error {
     #[snafu(display("canister type not found: {path}"))]
     CanisterTypeNotFound { path: String },
 }
@@ -45,8 +45,8 @@ impl SubnetIndexManager {
     }
 
     // try_get_canister
-    pub fn try_get_canister(path: &str) -> Result<Principal, Error> {
-        let canister = Self::get_canister(path).ok_or(SubnetIndexError::CanisterTypeNotFound {
+    pub fn try_get_canister(path: &str) -> Result<Principal, crate::Error> {
+        let canister = Self::get_canister(path).ok_or(Error::CanisterTypeNotFound {
             path: path.to_string(),
         })?;
 

@@ -12,7 +12,7 @@ pub use resolver::Resolver;
 pub use save::{SaveBuilder, SaveMode};
 pub use types::*;
 
-use db::Db;
+use crate::Db;
 use orm::traits::Entity;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -24,22 +24,16 @@ use snafu::Snafu;
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
-    Db { source: db::Error },
+    Delete { source: delete::Error },
 
     #[snafu(transparent)]
-    Orm { source: orm::Error },
+    Load { source: load::Error },
 
     #[snafu(transparent)]
-    Resolver { source: resolver::ResolverError },
+    Save { source: save::Error },
 
     #[snafu(transparent)]
-    Load { source: load::LoadError },
-
-    #[snafu(transparent)]
-    Save { source: save::SaveError },
-
-    #[snafu(transparent)]
-    Iter { source: iter::IterError },
+    Iter { source: iter::Error },
 }
 
 ///

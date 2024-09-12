@@ -94,7 +94,7 @@ pub fn cascade_endpoints(builder: &mut ActorBuilder) {
             guard(vec![Guard::Parent]).await.map_err(::mimic::api::Error::from)?;
 
             // set state and cascade
-            AppStateManager::set(state)?;
+            ::mimic::api::state::app_state().set(state)?;
             ::mimic::api::cascade::app_state_cascade().await?;
 
             Ok(())

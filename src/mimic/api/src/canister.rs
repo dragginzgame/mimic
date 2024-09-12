@@ -1,4 +1,3 @@
-use crate::Error;
 use candid::Principal;
 use core_state::CanisterStateManager;
 use orm_schema::node::Canister;
@@ -6,11 +5,11 @@ use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// CanisterError
+/// Error
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum CanisterError {
+pub enum Error {
     #[snafu(transparent)]
     State { source: core_state::Error },
 }
@@ -38,7 +37,7 @@ pub fn id() -> Principal {
 }
 
 // schema
-pub fn schema() -> Result<Canister, Error> {
+pub fn schema() -> Result<Canister, crate::Error> {
     let path = path()?;
     let cs = crate::schema::canister(&path)?;
 
@@ -62,15 +61,15 @@ pub fn version() -> u64 {
 ///
 
 // path
-pub fn path() -> Result<String, Error> {
-    let path = CanisterStateManager::get_path().map_err(CanisterError::from)?;
+pub fn path() -> Result<String, crate::Error> {
+    let path = CanisterStateManager::get_path().map_err(Error::from)?;
 
     Ok(path)
 }
 
 // root_id
 pub fn root_id() -> Result<Principal, Error> {
-    let root_id = CanisterStateManager::get_root_id().map_err(CanisterError::from)?;
+    let root_id = CanisterStateManager::get_root_id().map_err(Error::from)?;
 
     Ok(root_id)
 }
