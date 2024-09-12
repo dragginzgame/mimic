@@ -19,7 +19,7 @@ pub enum Error {
     RootIdNotSet,
 
     #[snafu(transparent)]
-    Ic { source: ic::Error },
+    Cell { source: ic::structures::cell::Error },
 }
 
 ///

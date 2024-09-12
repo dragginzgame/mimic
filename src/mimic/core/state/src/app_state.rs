@@ -21,7 +21,7 @@ pub enum Error {
     AlreadyInMode { mode: AppMode },
 
     #[snafu(transparent)]
-    Ic { source: ic::Error },
+    Cell { source: ic::structures::cell::Error },
 }
 
 ///

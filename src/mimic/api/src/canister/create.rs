@@ -20,6 +20,12 @@ pub enum Error {
     CoreConfig { source: core_config::Error },
 
     #[snafu(transparent)]
+    Schema { source: crate::schema::Error },
+
+    #[snafu(transparent)]
+    Mgmt { source: crate::mgmt::Error },
+
+    #[snafu(transparent)]
     Ic { source: ic::Error },
 }
 
@@ -53,7 +59,7 @@ pub async fn create_canister(
         ..Default::default()
     });
 
-    let canister_id = super::mgmt::create_canister(
+    let canister_id = crate::mgmt::create_canister(
         ::ic::api::management_canister::main::CreateCanisterArgument { settings },
         cycles,
     )

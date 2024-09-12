@@ -42,7 +42,7 @@ pub async fn module_hash(canister_id: Principal) -> Result<Option<Vec<u8>>, Erro
 ///
 
 // canister_status
-pub async fn canister_status(canister_id: Principal) -> Result<CanisterStatusResponse, cr::Error> {
+pub async fn canister_status(canister_id: Principal) -> Result<CanisterStatusResponse, Error> {
     let res = ic_canister_status(CanisterIdRecord { canister_id })
         .await?
         .0;

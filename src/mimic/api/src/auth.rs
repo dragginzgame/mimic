@@ -52,10 +52,12 @@ pub enum Error {
     Call { source: crate::call::Error },
 
     #[snafu(transparent)]
-    Canister { source: crate::canister::Error },
+    Canister { source: crate::actor::Error },
 
     #[snafu(transparent)]
-    Create { source: crate::create::Error },
+    Create {
+        source: crate::canister::create::Error,
+    },
 
     #[snafu(transparent)]
     Ic { source: ic::Error },
@@ -156,7 +158,7 @@ fn guard_controller(id: Principal) -> Result<(), Error> {
 
 // guard_root
 fn guard_root(id: Principal) -> Result<(), Error> {
-    let root_id = crate::canister::root_id()?;
+    let root_id = crate::actor::root_id()?;
 
     if id == root_id {
         Ok(())
@@ -167,7 +169,7 @@ fn guard_root(id: Principal) -> Result<(), Error> {
 
 // guard_parent
 fn guard_parent(id: Principal) -> Result<(), Error> {
-    match crate::canister::parent_id() {
+    match crate::actor::parent_id() {
         Some(parent_id) if parent_id == id => Ok(()),
         _ => Err(Error::NotParent { id })?,
     }

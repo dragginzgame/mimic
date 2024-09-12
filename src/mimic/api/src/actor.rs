@@ -11,12 +11,13 @@ use snafu::Snafu;
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
-    State { source: core_state::Error },
-}
+    Schema { source: crate::schema::Error },
 
-///
-/// CANISTER IC FUNCTIONS
-///
+    #[snafu(transparent)]
+    CanisterState {
+        source: core_state::canister_state::Error,
+    },
+}
 
 // balance
 #[must_use]
@@ -57,7 +58,7 @@ pub fn version() -> u64 {
 }
 
 ///
-/// CANISTER STATE FUNCTIONS
+/// STATE FUNCTIONS
 ///
 
 // path

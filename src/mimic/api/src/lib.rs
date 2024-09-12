@@ -1,16 +1,15 @@
+pub mod actor;
 pub mod auth;
 pub mod call;
 pub mod canister;
 pub mod cascade;
 pub mod config;
-pub mod create;
 pub mod crud;
 pub mod mgmt;
 pub mod request;
 pub mod schema;
 pub mod state;
 pub mod subnet;
-pub mod upgrade;
 
 // re-export
 pub use defer::defer;
@@ -30,17 +29,16 @@ pub const ERROR_INIT: u8 = 10;
 pub const ERROR_CALL_REJECTED: u8 = 100;
 
 // api modules
-pub const ERROR_AUTH: u8 = 101;
-pub const ERROR_CALL: u8 = 102;
-pub const ERROR_CANISTER: u8 = 103;
-pub const ERROR_CONFIG: u8 = 104;
-pub const ERROR_CREATE: u8 = 105;
+pub const ERROR_ACTOR: u8 = 101;
+pub const ERROR_AUTH: u8 = 102;
+pub const ERROR_CALL: u8 = 103;
+pub const ERROR_CANISTER: u8 = 104;
+pub const ERROR_CONFIG: u8 = 105;
 pub const ERROR_CRUD: u8 = 106;
 pub const ERROR_MGMT: u8 = 107;
 pub const ERROR_REQUEST: u8 = 108;
 pub const ERROR_SCHEMA: u8 = 109;
 pub const ERROR_SUBNET: u8 = 110;
-pub const ERROR_UPGRADE: u8 = 111;
 
 // other crates
 pub const ERROR_CORE_STATE: u8 = 120;
@@ -77,6 +75,12 @@ impl From<(RejectionCode, String)> for Error {
 // api modules
 //
 
+impl From<actor::Error> for Error {
+    fn from(error: actor::Error) -> Self {
+        Self(ERROR_CANISTER, error.to_string())
+    }
+}
+
 impl From<auth::Error> for Error {
     fn from(error: auth::Error) -> Self {
         Self(ERROR_AUTH, error.to_string())
@@ -89,8 +93,14 @@ impl From<call::Error> for Error {
     }
 }
 
-impl From<canister::Error> for Error {
-    fn from(error: canister::Error) -> Self {
+impl From<canister::create::Error> for Error {
+    fn from(error: canister::create::Error) -> Self {
+        Self(ERROR_CANISTER, error.to_string())
+    }
+}
+
+impl From<canister::upgrade::Error> for Error {
+    fn from(error: canister::upgrade::Error) -> Self {
         Self(ERROR_CANISTER, error.to_string())
     }
 }
@@ -98,12 +108,6 @@ impl From<canister::Error> for Error {
 impl From<config::Error> for Error {
     fn from(error: config::Error) -> Self {
         Self(ERROR_CONFIG, error.to_string())
-    }
-}
-
-impl From<create::Error> for Error {
-    fn from(error: create::Error) -> Self {
-        Self(ERROR_CREATE, error.to_string())
     }
 }
 
@@ -128,12 +132,6 @@ impl From<schema::Error> for Error {
 impl From<subnet::Error> for Error {
     fn from(error: subnet::Error) -> Self {
         Self(ERROR_SUBNET, error.to_string())
-    }
-}
-
-impl From<upgrade::Error> for Error {
-    fn from(error: upgrade::Error) -> Self {
-        Self(ERROR_UPGRADE, error.to_string())
     }
 }
 
