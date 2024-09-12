@@ -37,7 +37,7 @@ pub fn id() -> Principal {
 }
 
 // schema
-pub fn schema() -> Result<Canister, crate::Error> {
+pub fn schema() -> Result<Canister, Error> {
     let path = path()?;
     let cs = crate::schema::canister(&path)?;
 
@@ -61,7 +61,7 @@ pub fn version() -> u64 {
 ///
 
 // path
-pub fn path() -> Result<String, crate::Error> {
+pub fn path() -> Result<String, Error> {
     let path = CanisterStateManager::get_path().map_err(Error::from)?;
 
     Ok(path)

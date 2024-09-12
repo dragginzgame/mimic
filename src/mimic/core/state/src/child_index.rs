@@ -42,7 +42,7 @@ impl ChildIndexManager {
     }
 
     // try_get_canister
-    pub fn try_get_canister(id: Principal) -> Result<String, crate::Error> {
+    pub fn try_get_canister(id: Principal) -> Result<String, Error> {
         let canister = Self::get_canister(id).ok_or(Error::CanisterNotFound { id })?;
 
         Ok(canister)

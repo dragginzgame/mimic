@@ -29,7 +29,7 @@ pub fn init_schema_json(schema_json: &str) -> Result<(), Error> {
 ///
 
 // canisters_by_build
-pub fn canisters_by_build(build: CanisterBuild) -> Result<Vec<Canister>, crate::Error> {
+pub fn canisters_by_build(build: CanisterBuild) -> Result<Vec<Canister>, Error> {
     let schema = core_schema::get_schema().map_err(Error::from)?;
     let canisters: Vec<Canister> = schema
         .filter_nodes::<Canister, _>(|canister| canister.build == build)
@@ -41,7 +41,7 @@ pub fn canisters_by_build(build: CanisterBuild) -> Result<Vec<Canister>, crate::
 }
 
 // canister
-pub fn canister(path: &str) -> Result<Canister, crate::Error> {
+pub fn canister(path: &str) -> Result<Canister, Error> {
     let schema = core_schema::get_schema().map_err(Error::from)?;
     let canister = schema
         .get_node::<Canister>(path)

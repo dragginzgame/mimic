@@ -14,10 +14,13 @@ pub enum Error {
 
     #[snafu(transparent)]
     CoreState { source: core_state::Error },
+
+    #[snafu(transparent)]
+    Schema { source: crate::schema::Error },
 }
 
 // user_canister_id
-pub fn user_canister_id() -> Result<Principal, crate::Error> {
+pub fn user_canister_id() -> Result<Principal, Error> {
     let user_canisters =
         crate::schema::canisters_by_build(::orm_schema::node::CanisterBuild::User)?;
     let user_canister = user_canisters.first().ok_or(Error::NoUserCanister)?;

@@ -30,7 +30,7 @@ impl From<(RejectionCode, String)> for Error {
 }
 
 // module_hash
-pub async fn module_hash(canister_id: Principal) -> Result<Option<Vec<u8>>, crate::Error> {
+pub async fn module_hash(canister_id: Principal) -> Result<Option<Vec<u8>>, Error> {
     let response = canister_status(canister_id).await?;
 
     Ok(response.module_hash)
@@ -42,9 +42,7 @@ pub async fn module_hash(canister_id: Principal) -> Result<Option<Vec<u8>>, crat
 ///
 
 // canister_status
-pub async fn canister_status(
-    canister_id: Principal,
-) -> Result<CanisterStatusResponse, crate::Error> {
+pub async fn canister_status(canister_id: Principal) -> Result<CanisterStatusResponse, cr::Error> {
     let res = ic_canister_status(CanisterIdRecord { canister_id })
         .await?
         .0;
@@ -57,21 +55,21 @@ pub async fn canister_status(
 pub async fn create_canister(
     arg: CreateCanisterArgument,
     cycles: u128,
-) -> Result<Principal, crate::Error> {
+) -> Result<Principal, Error> {
     let res = ic_create_canister(arg, cycles).await?.0;
 
     Ok(res.canister_id)
 }
 
 // deposit_cycles
-pub async fn deposit_cycles(canister_id: Principal, cycles: u128) -> Result<(), crate::Error> {
+pub async fn deposit_cycles(canister_id: Principal, cycles: u128) -> Result<(), Error> {
     ic_deposit_cycles(CanisterIdRecord { canister_id }, cycles).await?;
 
     Ok(())
 }
 
 // install_code
-pub async fn install_code(arg: InstallCodeArgument) -> Result<(), crate::Error> {
+pub async fn install_code(arg: InstallCodeArgument) -> Result<(), Error> {
     ic_install_code(arg).await?;
 
     Ok(())

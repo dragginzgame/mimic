@@ -51,14 +51,14 @@ where
     T: Clone + Storable,
 {
     // new
-    pub fn new(memory: VirtualMemory, value: T) -> Result<Self, crate::Error> {
+    pub fn new(memory: VirtualMemory, value: T) -> Result<Self, Error> {
         let data = WrappedCell::new(memory, value).map_err(Error::from)?;
 
         Ok(Self { data })
     }
 
     // init
-    pub fn init(memory: VirtualMemory, default_value: T) -> Result<Self, crate::Error> {
+    pub fn init(memory: VirtualMemory, default_value: T) -> Result<Self, Error> {
         let data = WrappedCell::init(memory, default_value).map_err(Error::from)?;
 
         Ok(Self { data })
@@ -71,7 +71,7 @@ where
     }
 
     // set
-    pub fn set(&mut self, value: T) -> Result<T, crate::Error> {
+    pub fn set(&mut self, value: T) -> Result<T, Error> {
         let res = self.data.set(value).map_err(Error::from)?;
 
         Ok(res)

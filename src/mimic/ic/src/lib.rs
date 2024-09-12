@@ -5,7 +5,6 @@ pub use ic_cdk::*;
 pub use ic_cdk_timers as timers;
 
 // re-exports
-pub mod call;
 pub mod helper;
 pub mod structures;
 pub use helper::get_wasm_hash;
@@ -37,9 +36,6 @@ pub fn format_cycles(cycles: u128) -> String {
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
-    #[snafu(transparent)]
-    Call { source: call::Error },
-
     #[snafu(transparent)]
     Cell { source: structures::cell::Error },
 }

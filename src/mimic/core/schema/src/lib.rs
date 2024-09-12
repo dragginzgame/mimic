@@ -1,5 +1,5 @@
 pub mod auth;
-pub mod entity;
+pub mod entity_crud;
 
 pub use auth::AuthService;
 pub use orm_schema::node::Schema;
@@ -28,7 +28,7 @@ pub enum Error {
     SerdeJson { msg: String },
 
     #[snafu(transparent)]
-    Entity { source: entity::Error },
+    Entity { source: entity_crud::Error },
 }
 
 ///

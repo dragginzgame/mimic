@@ -36,7 +36,7 @@ impl CanisterStateManager {
     }
 
     // set
-    pub fn set(new_state: CanisterState) -> Result<(), crate::Error> {
+    pub fn set(new_state: CanisterState) -> Result<(), Error> {
         CANISTER_STATE
             .with_borrow_mut(|state| state.set(new_state))
             .map_err(Error::from)?;
@@ -45,14 +45,14 @@ impl CanisterStateManager {
     }
 
     // get_path
-    pub fn get_path() -> Result<String, crate::Error> {
+    pub fn get_path() -> Result<String, Error> {
         let path = Self::get().path.ok_or(Error::PathNotSet)?;
 
         Ok(path)
     }
 
     // set_path
-    pub fn set_path(canister_type: String) -> Result<(), crate::Error> {
+    pub fn set_path(canister_type: String) -> Result<(), Error> {
         let mut state = Self::get();
         state.path = Some(canister_type);
 
@@ -60,14 +60,14 @@ impl CanisterStateManager {
     }
 
     // get_root_id
-    pub fn get_root_id() -> Result<Principal, crate::Error> {
+    pub fn get_root_id() -> Result<Principal, Error> {
         let root_id = Self::get().root_id.ok_or(Error::RootIdNotSet)?;
 
         Ok(root_id)
     }
 
     // set_root_id
-    pub fn set_root_id(id: Principal) -> Result<(), crate::Error> {
+    pub fn set_root_id(id: Principal) -> Result<(), Error> {
         let mut state = Self::get();
         state.root_id = Some(id);
 
@@ -81,7 +81,7 @@ impl CanisterStateManager {
     }
 
     // set_parent_id
-    pub fn set_parent_id(id: Principal) -> Result<(), crate::Error> {
+    pub fn set_parent_id(id: Principal) -> Result<(), Error> {
         let mut state = Self::get();
         state.parent_id = Some(id);
 

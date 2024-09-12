@@ -19,7 +19,7 @@ pub enum Error {
 }
 
 /// upgrade_canister
-pub async fn upgrade_canister(canister_id: Principal, bytes: &[u8]) -> Result<(), crate::Error> {
+pub async fn upgrade_canister(canister_id: Principal, bytes: &[u8]) -> Result<(), Error> {
     // module_hash
     let module_hash = module_hash(canister_id).await?;
     if module_hash == Some(get_wasm_hash(bytes)) {

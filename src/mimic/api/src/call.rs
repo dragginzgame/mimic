@@ -1,11 +1,11 @@
-use crate::{
-    api::call::{call_raw, RejectionCode},
-    log, Log,
-};
 use candid::{
     decode_args, encode_args,
     utils::{ArgumentDecoder, ArgumentEncoder},
-    Principal,
+    CandidType, Principal,
+};
+use ic::{
+    api::call::{call_raw, RejectionCode},
+    log, Log,
 };
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -15,7 +15,7 @@ use std::future::Future;
 /// Error
 ///
 
-#[derive(Debug, Serialize, Deserialize, Snafu)]
+#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(display("candid error: {error}"))]
     Candid { error: String },

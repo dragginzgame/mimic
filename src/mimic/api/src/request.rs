@@ -112,7 +112,7 @@ pub enum Response {
 ///
 
 // response
-pub async fn response(req: Request) -> Result<Response, crate::Error> {
+pub async fn response(req: Request) -> Result<Response, Error> {
     // ::ic::println!("root response : {req:?}");
 
     match req.kind {
@@ -125,7 +125,7 @@ pub async fn response(req: Request) -> Result<Response, crate::Error> {
 }
 
 // response_create_canister
-async fn response_create_canister(path: &str) -> Result<Response, crate::Error> {
+async fn response_create_canister(path: &str) -> Result<Response, Error> {
     let bytes = WasmManager::get_wasm(path).map_err(Error::from)?;
     let new_canister_id = crate::create::create_canister(path, bytes, caller()).await?;
 
@@ -133,10 +133,7 @@ async fn response_create_canister(path: &str) -> Result<Response, crate::Error> 
 }
 
 // response_upgrade_canister
-async fn response_upgrade_canister(
-    canister_id: Principal,
-    path: &str,
-) -> Result<Response, crate::Error> {
+async fn response_upgrade_canister(canister_id: Principal, path: &str) -> Result<Response, Error> {
     let bytes = WasmManager::get_wasm(path).map_err(Error::from)?;
     crate::upgrade::upgrade_canister(canister_id, bytes).await?;
 
@@ -144,10 +141,7 @@ async fn response_upgrade_canister(
 }
 
 // response_send_cycles
-async fn response_send_cycles(
-    canister_id: Principal,
-    cycles: u128,
-) -> Result<Response, crate::Error> {
+async fn response_send_cycles(canister_id: Principal, cycles: u128) -> Result<Response, Error> {
     // actually send cycles
     crate::mgmt::deposit_cycles(canister_id, cycles).await?;
 
@@ -170,7 +164,7 @@ async fn response_send_cycles(
 ///
 
 // request
-pub async fn request(request: Request) -> Result<Response, crate::Error> {
+pub async fn request(request: Request) -> Result<Response, Error> {
     ::ic::println!("request: {request:?}");
 
     let root_canister_id = crate::canister::root_id()?;
@@ -184,7 +178,7 @@ pub async fn request(request: Request) -> Result<Response, crate::Error> {
 
 // request_canister_create
 // create a Request and pass it to the request shared endpoint
-pub async fn request_canister_create(canister_path: &str) -> Result<Principal, crate::Error> {
+pub async fn request_canister_create(canister_path: &str) -> Result<Principal, Error> {
     let req = Request::new_canister_create(canister_path.to_string());
 
     match request(req).await {
@@ -205,7 +199,7 @@ pub async fn request_canister_create(canister_path: &str) -> Result<Principal, c
 pub async fn request_canister_upgrade(
     canister_id: Principal,
     canister_path: String,
-) -> Result<(), crate::Error> {
+) -> Result<(), Error> {
     let req = Request::new_canister_upgrade(canister_id, canister_path);
     let _res = request(req).await?;
 
@@ -213,7 +207,7 @@ pub async fn request_canister_upgrade(
 }
 
 // request_cycles
-pub async fn request_cycles() -> Result<(), crate::Error> {
+pub async fn request_cycles() -> Result<(), Error> {
     // Get the schema and balance, handling potential errors early
     let canister_schema = crate::canister::schema()?;
     let balance = crate::canister::balance();

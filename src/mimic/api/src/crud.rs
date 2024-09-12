@@ -1,3 +1,4 @@
+use core_schema::entity_crud::EntityCrudManager;
 use db::{
     db::Db,
     query::types::{
@@ -6,6 +7,7 @@ use db::{
     },
 };
 use orm::traits::Entity;
+use orm_schema::node::Crud;
 use serde::{Deserialize, Serialize};
 use snafu::prelude::*;
 
@@ -31,6 +33,16 @@ impl Error {
         Self::EntityNotFound {
             path: path.to_string(),
         }
+    }
+}
+
+// get_entity
+pub fn get_entity(entity: &str) -> Result<&Crud, Error> {
+    match EntityCrudManager::get(entity) {
+        Some(crud) => Ok(crud),
+        None => Err(Error::EntityNotFound {
+            path: entity.to_string(),
+        }),
     }
 }
 

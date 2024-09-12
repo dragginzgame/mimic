@@ -31,7 +31,7 @@ pub async fn create_canister(
     canister_path: &str,
     bytes: &[u8],
     parent_id: Principal,
-) -> Result<Principal, crate::Error> {
+) -> Result<Principal, Error> {
     let config = get_config().map_err(Error::from)?;
 
     //

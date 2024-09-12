@@ -38,7 +38,7 @@ impl AppStateManager {
     }
 
     // set
-    pub fn set(new_state: AppState) -> Result<(), crate::Error> {
+    pub fn set(new_state: AppState) -> Result<(), Error> {
         APP_STATE
             .with_borrow_mut(|state| state.set(new_state))
             .map_err(Error::from)?;
@@ -53,7 +53,7 @@ impl AppStateManager {
     }
 
     // set_mode
-    pub fn set_mode(mode: AppMode) -> Result<(), crate::Error> {
+    pub fn set_mode(mode: AppMode) -> Result<(), Error> {
         APP_STATE
             .with_borrow_mut(|state| {
                 let mut cur_state = state.get();
@@ -67,7 +67,7 @@ impl AppStateManager {
     }
 
     // command
-    pub fn command(cmd: AppCommand) -> Result<(), crate::Error> {
+    pub fn command(cmd: AppCommand) -> Result<(), Error> {
         let old_mode = Self::get_mode();
         let new_mode = match cmd {
             AppCommand::Start => AppMode::Enabled,

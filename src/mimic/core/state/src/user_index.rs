@@ -55,7 +55,7 @@ impl UserIndexManager {
     }
 
     // try_get_user
-    pub fn try_get_user(id: Principal) -> Result<User, crate::Error> {
+    pub fn try_get_user(id: Principal) -> Result<User, Error> {
         let user =
             USER_INDEX.with_borrow(|index| index.get(&id).ok_or(Error::UserNotFound { id }))?;
 
@@ -63,7 +63,7 @@ impl UserIndexManager {
     }
 
     // register_user
-    pub fn register_user(id: Principal, user: User) -> Result<(), crate::Error> {
+    pub fn register_user(id: Principal, user: User) -> Result<(), Error> {
         USER_INDEX.with_borrow_mut(|index| {
             if index.contains_key(&id) {
                 Err(Error::UserExists { id })?;
@@ -75,7 +75,7 @@ impl UserIndexManager {
     }
 
     // add_role
-    pub fn add_role(id: Principal, role: String) -> Result<(), crate::Error> {
+    pub fn add_role(id: Principal, role: String) -> Result<(), Error> {
         let schema = get_schema().map_err(Error::from)?;
 
         // check its a valid role
@@ -96,7 +96,7 @@ impl UserIndexManager {
     }
 
     // remove_role
-    pub fn remove_role(id: Principal, role: String) -> Result<(), crate::Error> {
+    pub fn remove_role(id: Principal, role: String) -> Result<(), Error> {
         let schema = get_schema().map_err(Error::from)?;
 
         // check its a valid role

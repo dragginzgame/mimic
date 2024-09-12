@@ -6,7 +6,7 @@ use ic::{call, log, Log};
 ///
 
 // app_state_cascade
-pub async fn app_state_cascade() -> Result<(), crate::Error> {
+pub async fn app_state_cascade() -> Result<(), Error> {
     let app_state = crate::state::app_state();
 
     // iterate child canisters

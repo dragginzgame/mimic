@@ -17,16 +17,17 @@ pub enum Error {
 
 ///
 /// EntityCrudMap
+/// internal static HashMap
 ///
 
-pub static ENTITY_CRUD_MAP: LazyLock<EntityCrudMap> = LazyLock::new(EntityCrudMap::init);
+static ENTITY_CRUD_MAP: LazyLock<EntityCrudMap> = LazyLock::new(EntityCrudMap::init);
 
 #[derive(Clone, Debug, Default, Deref)]
 pub struct EntityCrudMap(HashMap<String, Crud>);
 
 impl EntityCrudMap {
     #[must_use]
-    pub fn init() -> Self {
+    fn init() -> Self {
         let mut map = HashMap::new();
 
         for (entity_path, entity) in get_schema().unwrap().get_nodes::<Entity>() {
@@ -37,7 +38,7 @@ impl EntityCrudMap {
     }
 
     // get_crud
-    fn get_crud(entity: &Entity) -> Result<Crud, crate::Error> {
+    fn get_crud(entity: &Entity) -> Result<Crud, Error> {
         let schema = get_schema().unwrap();
         let store = schema
             .try_get_node::<Store>(&entity.store)
@@ -48,5 +49,17 @@ impl EntityCrudMap {
             .crud
             .as_ref()
             .map_or_else(|| Ok(store.crud.clone()), |ec| Ok(ec.clone()))
+    }
+}
+
+///
+/// EntityCrudManager
+///
+
+pub struct EntityCrudManager {}
+
+impl EntityCrudManager {
+    pub fn get(entity: &str) -> Option<&Crud> {
+        ENTITY_CRUD_MAP.get(entity)
     }
 }
