@@ -65,6 +65,7 @@ pub mod prelude {
                 SubnetIndex, SubnetIndexManager, User, UserIndex, UserIndexManager,
             },
             subnet::request::{Request, RequestKind, Response},
+            Error,
         },
         mimic_end, mimic_start,
         orm::traits::{EntityFixture, Path},
