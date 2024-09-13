@@ -110,7 +110,7 @@ where
         self,
         start: &[T],
         end: &[T],
-    ) -> Result<LoadBuilderOptions<'a, E>, Error> {
+    ) -> Result<LoadBuilderOptions<'a, E>, QueryError> {
         let start = start.iter().map(ToString::to_string).collect();
         let end = end.iter().map(ToString::to_string).collect();
 
@@ -118,7 +118,10 @@ where
     }
 
     // prefix
-    pub fn prefix<T: ToString>(self, prefix: &[T]) -> Result<LoadBuilderOptions<'a, E>, Error> {
+    pub fn prefix<T: ToString>(
+        self,
+        prefix: &[T],
+    ) -> Result<LoadBuilderOptions<'a, E>, QueryError> {
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
 
         Ok(self.build_options(LoadMethod::Prefix(prefix)))

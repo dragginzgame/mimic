@@ -16,9 +16,9 @@ core_state = { workspace = true }
 ctor = { workspace = true }
 db = { workspace = true }
 derive_more = { workspace = true }
-lib_ic = { workspace = true }
 lib_case = { workspace = true }
 lib_cbor = { workspace = true }
+lib_ic = { workspace = true }
 lib_rand = { workspace = true }
 lib_time = { workspace = true }
 num-traits = { workspace = true }
