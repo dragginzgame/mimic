@@ -43,6 +43,11 @@ impl Error {
     pub fn init(text: String) -> Self {
         Self(ERROR_INIT, text)
     }
+
+    #[must_use]
+    pub fn new(code: u8, text: String) -> Self {
+        Self(code, text)
+    }
 }
 
 impl Display for Error {
@@ -135,6 +140,7 @@ impl From<subnet::request::Error> for Error {
 
 //
 // other crates
+// (fluent methods make it hard to return a compatible error)
 //
 
 impl From<db::Error> for Error {
