@@ -90,7 +90,7 @@ where
     }
 
     // key
-    pub fn key(mut self) -> Result<DataKey, Error> {
+    pub fn key(mut self) -> Result<DataKey, QueryError> {
         let row = self.move_next().ok_or(Error::NoResultsFound)?;
 
         Ok(row.key)
@@ -102,12 +102,15 @@ where
     }
 
     // entity
-    pub fn entity(mut self) -> Result<E, Error> {
-        self.move_next()
+    pub fn entity(mut self) -> Result<E, QueryError> {
+        let res = self
+            .move_next()
             .as_ref()
             .map(|row| row.value.entity.clone())
             .ok_or(Error::NoResultsFound)
-            .map_err(Error::from)
+            .map_err(Error::from)?;
+
+        Ok(res)
     }
 
     // entities
@@ -120,10 +123,13 @@ where
     }
 
     // entity_row
-    pub fn entity_row(mut self) -> Result<EntityRow<E>, Error> {
-        self.move_next()
+    pub fn entity_row(mut self) -> Result<EntityRow<E>, QueryError> {
+        let res = self
+            .move_next()
             .ok_or(Error::NoResultsFound)
-            .map_err(Error::from)
+            .map_err(Error::from)?;
+
+        Ok(res)
     }
 
     // entity_rows
