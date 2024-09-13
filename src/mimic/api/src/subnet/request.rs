@@ -2,7 +2,7 @@ use crate::ic::call::call;
 use candid::{CandidType, Principal};
 use core_state::ChildIndexManager;
 use core_wasm::WasmManager;
-use ic::{caller, format_cycles, log, Log};
+use lib_ic::{caller, format_cycles, log, println, Log};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use strum::Display;
@@ -13,14 +13,14 @@ use strum::Display;
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
+    #[snafu(transparent)]
+    Call { source: crate::ic::call::Error },
+
     #[snafu(display("invalid response: {response}"))]
     InvalidResponse { response: Response },
 
     #[snafu(transparent)]
     Canister { source: crate::ic::canister::Error },
-
-    #[snafu(transparent)]
-    Call { source: crate::ic::call::Error },
 
     #[snafu(transparent)]
     Mgmt { source: crate::ic::mgmt::Error },
@@ -175,7 +175,7 @@ async fn response_send_cycles(canister_id: Principal, cycles: u128) -> Result<Re
 
 // request
 pub async fn request(request: Request) -> Result<Response, Error> {
-    ::ic::println!("request: {request:?}");
+    println!("request: {request:?}");
 
     let root_canister_id = crate::ic::canister::root_id()?;
     let res = call::<_, (Result<Response, crate::ic::call::Error>,)>(

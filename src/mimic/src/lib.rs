@@ -7,14 +7,21 @@ pub mod macros;
 pub use api;
 pub use build;
 pub use db;
-pub use ic;
 pub use types;
+
+// re-export libraries
+pub mod lib {
+    pub use lib_case as case;
+    pub use lib_ic as ic;
+    pub use lib_rand as rand;
+    pub use lib_time as time;
+}
 
 pub mod orm {
     pub mod prelude {
         pub use ::candid::{CandidType, Principal};
-        pub use ::ic::structures::storable::Bound;
         pub use ::lib_case::{Case, Casing};
+        pub use ::lib_ic::structures::storable::Bound;
         pub use ::num_traits::{NumCast, ToPrimitive};
         pub use ::orm::{
             collections::HashSet,
@@ -53,19 +60,19 @@ pub mod prelude {
     pub use crate::{
         api::{
             auth::{guard, Guard},
-            request::{Request, RequestKind, Response},
-            state::{
+            core::state::{
                 AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager,
                 SubnetIndex, SubnetIndexManager, User, UserIndex, UserIndexManager,
             },
+            subnet::request::{Request, RequestKind, Response},
         },
         db::query as db_query,
-        ic::{caller, format_cycles, id, log, Log},
         mimic_end, mimic_start,
         orm::traits::{EntityFixture, Path},
         perf,
         types::Ulid,
     };
     pub use ::candid::{CandidType, Principal};
+    pub use ::lib_ic::{caller, format_cycles, id, log, Log};
     pub use ::std::cell::RefCell;
 }

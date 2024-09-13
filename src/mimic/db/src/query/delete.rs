@@ -106,7 +106,7 @@ where
     // execute
     fn execute(&self) -> Result<DeleteBuilderResult, Error> {
         let mut results = Vec::new();
-        ic::println!("delete: keys {:?}", &self.keys);
+        lib_ic::println!("delete: keys {:?}", &self.keys);
 
         for key in &self.keys {
             // Attempt to remove the item from the store
@@ -115,7 +115,7 @@ where
 
             self.db.with_store_mut(&store_path, |store| {
                 if store.remove(&data_key).is_none() {
-                    ic::println!("key {data_key:?} not found");
+                    lib_ic::println!("key {data_key:?} not found");
                 }
 
                 Ok(())

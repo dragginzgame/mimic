@@ -15,52 +15,52 @@ pub fn canister_endpoints(builder: &mut ActorBuilder) {
     let q = quote! {
 
         // canister_info
-        #[::mimic::ic::update]
-        async fn canister_info() -> ::mimic::ic::api::management_canister::main::CanisterInfoResponse {
-            let req = ::mimic::ic::api::management_canister::main::CanisterInfoRequest {
+        #[::mimic::lib::ic::update]
+        async fn canister_info() -> ::mimic::lib::ic::api::management_canister::main::CanisterInfoResponse {
+            let req = ::mimic::lib::ic::api::management_canister::main::CanisterInfoRequest {
                 canister_id: id(),
                 num_requested_changes: None,
             };
 
-            ::mimic::ic::api::management_canister::main::canister_info(req)
+            ::mimic::lib::ic::api::management_canister::main::canister_info(req)
                 .await
                 .unwrap()
                 .0
         }
 
         // canister_caller
-        #[::mimic::ic::query]
+        #[::mimic::lib::ic::query]
         fn canister_caller() -> Principal {
-            ::mimic::api::canister::caller()
+            ::mimic::api::ic::canister::caller()
         }
 
         // canister_id
-        #[::mimic::ic::query]
+        #[::mimic::lib::ic::query]
         fn canister_id() -> Principal {
-            ::mimic::api::canister::id()
+            ::mimic::api::ic::canister::id()
         }
 
         // canister_path
-        #[::mimic::ic::query]
+        #[::mimic::lib::ic::query]
         fn canister_path() -> Result<String, ::mimic::api::Error> {
-            ::mimic::api::canister::path().map_err(::mimic::api::Error::from)
+            ::mimic::api::ic::canister::path().map_err(::mimic::api::Error::from)
         }
 
         // canister_time
-        #[::mimic::ic::query]
+        #[::mimic::lib::ic::query]
         fn canister_time() -> u64 {
-            ::mimic::api::canister::time()
+            ::mimic::api::ic::canister::time()
         }
 
         // canister_version
-        #[::mimic::ic::query]
+        #[::mimic::lib::ic::query]
         fn canister_version() -> u64 {
-            ::mimic::api::canister::version()
+            ::mimic::api::ic::canister::version()
         }
 
         // canister_upgrade_children
         // canister_id : None means upgrade all children
-        #[::mimic::ic::update]
+        #[::mimic::lib::ic::update]
         async fn canister_upgrade_children(
             canister_id: Option<Principal>,
         ) -> Result<(), ::mimic::api::Error> {
@@ -70,7 +70,7 @@ pub fn canister_endpoints(builder: &mut ActorBuilder) {
             for (child_id, path) in child_index() {
                 if canister_id.is_none() || canister_id == Some(child_id) {
                     if let Err(e) =
-                        ::mimic::api::request::request_canister_upgrade(child_id, path.clone()).await
+                        ::mimic::api::subnet::request::request_canister_upgrade(child_id, path.clone()).await
                     {
                         log!(Log::Warn, "{child_id} ({path}): {e}");
                     }
@@ -89,25 +89,25 @@ pub fn cascade_endpoints(builder: &mut ActorBuilder) {
     let q = quote! {
 
         // app_state_cascade
-        #[::mimic::ic::update]
+        #[::mimic::lib::ic::update]
         async fn app_state_cascade(state: AppState) -> Result<(), ::mimic::api::Error> {
             guard(vec![Guard::Parent]).await.map_err(::mimic::api::Error::from)?;
 
             // set state and cascade
             AppStateManager::set(state)?;
-            ::mimic::api::cascade::app_state_cascade().await?;
+            ::mimic::api::subnet::cascade::app_state_cascade().await?;
 
             Ok(())
         }
 
         // subnet_index_cascade
-        #[::mimic::ic::update]
+        #[::mimic::lib::ic::update]
         async fn subnet_index_cascade(index: SubnetIndex) -> Result<(), ::mimic::api::Error> {
             guard(vec![Guard::Parent]).await?;
 
             // set index and cascade
             SubnetIndexManager::set(index);
-            ::mimic::api::cascade::subnet_index_cascade().await?;
+            ::mimic::api::subnet::cascade::subnet_index_cascade().await?;
 
             Ok(())
         }
@@ -126,13 +126,13 @@ pub fn ic_endpoints(builder: &mut ActorBuilder) {
 
         // pre_upgrade
         // be careful here because this can brick a canister
-        #[::mimic::ic::pre_upgrade]
+        #[::mimic::lib::ic::pre_upgrade]
         fn pre_upgrade() {
             pre_upgrade2().unwrap();
         }
 
         // post_upgrade
-        #[::mimic::ic::post_upgrade]
+        #[::mimic::lib::ic::post_upgrade]
         fn post_upgrade() {
             startup().unwrap();
             post_upgrade2().unwrap();
@@ -144,9 +144,9 @@ pub fn ic_endpoints(builder: &mut ActorBuilder) {
         ///
 
         // ic_cycles_accept
-        #[::mimic::ic::update]
+        #[::mimic::lib::ic::update]
         fn ic_cycles_accept(max_amount: u64) -> u64 {
-            ::mimic::ic::api::call::msg_cycles_accept(max_amount)
+            ::mimic::lib::ic::api::call::msg_cycles_accept(max_amount)
         }
 
     };
@@ -159,27 +159,27 @@ pub fn state_endpoints(builder: &mut ActorBuilder) {
     let q = quote! {
 
         // app_state
-        #[::mimic::ic::query]
-        fn app_state() -> ::mimic::api::state::AppState {
-            ::mimic::api::state::app_state()
+        #[::mimic::lib::ic::query]
+        fn app_state() -> ::mimic::api::core::state::AppState {
+            ::mimic::api::core::state::app_state()
         }
 
         // canister_state
-        #[::mimic::ic::query]
-        fn canister_state() -> ::mimic::api::state::CanisterState {
-            ::mimic::api::state::canister_state()
+        #[::mimic::lib::ic::query]
+        fn canister_state() -> ::mimic::api::core::state::CanisterState {
+            ::mimic::api::core::state::canister_state()
         }
 
         // child_index
-        #[::mimic::ic::query]
-        fn child_index() -> ::mimic::api::state::ChildIndex {
-            ::mimic::api::state::child_index()
+        #[::mimic::lib::ic::query]
+        fn child_index() -> ::mimic::api::core::state::ChildIndex {
+            ::mimic::api::core::state::child_index()
         }
 
         // subnet_index
-        #[::mimic::ic::query]
-        fn subnet_index() -> ::mimic::api::state::SubnetIndex {
-            ::mimic::api::state::subnet_index()
+        #[::mimic::lib::ic::query]
+        fn subnet_index() -> ::mimic::api::core::state::SubnetIndex {
+            ::mimic::api::core::state::subnet_index()
         }
     };
 
@@ -191,7 +191,7 @@ pub fn store_endpoints(builder: &mut ActorBuilder) {
     let q = quote! {
 
         // store_keys
-        #[::mimic::ic::query(composite = true)]
+        #[::mimic::lib::ic::query(composite = true)]
         #[allow(clippy::needless_pass_by_value)]
         async fn store_keys(store_name: String) -> Result<Vec<String>, ::mimic::api::Error> {
             guard(vec![Guard::Controller]).await?;

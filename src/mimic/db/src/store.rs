@@ -1,6 +1,6 @@
 use crate::types::{DataKey, DataValue};
 use derive_more::{Deref, DerefMut};
-use ic::structures::{memory::VirtualMemory, BTreeMap};
+use lib_ic::structures::{memory::VirtualMemory, BTreeMap};
 
 ///
 /// Store

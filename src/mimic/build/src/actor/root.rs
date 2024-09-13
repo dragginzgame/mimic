@@ -13,19 +13,19 @@ pub fn root_actor(builder: &mut ActorBuilder) {
         // app
         // modify app-level state
         // @todo eventually this will cascade down from an orchestrator canister
-        #[::mimic::ic::update]
+        #[::mimic::lib::ic::update]
         async fn app(cmd: AppCommand) -> Result<(), ::mimic::api::Error> {
             AppStateManager::command(cmd)?;
 
-            ::mimic::api::cascade::app_state_cascade().await?;
+            ::mimic::api::subnet::cascade::app_state_cascade().await?;
 
             Ok(())
         }
 
         // response
-        #[::mimic::ic::update]
+        #[::mimic::lib::ic::update]
         async fn response(req: Request) -> Result<Response, ::mimic::api::Error> {
-            let res = ::mimic::api::request::response(req).await?;
+            let res = ::mimic::api::subnet::request::response(req).await?;
 
             Ok(res)
         }
@@ -53,7 +53,7 @@ pub fn root_module(builder: &mut ActorBuilder) {
             for path in paths {
                 if SubnetIndexManager::get_canister(path).is_none() {
                     // set the canister within the service index
-                    let new_canister_id = ::mimic::api::request::request_canister_create(path)
+                    let new_canister_id = ::mimic::api::subnet::request::request_canister_create(path)
                         .await?;
 
                     SubnetIndexManager::set_canister(path, new_canister_id);
@@ -66,7 +66,7 @@ pub fn root_module(builder: &mut ActorBuilder) {
             }
 
             // cascade subnet_index
-            ::mimic::api::cascade::subnet_index_cascade().await?;
+            ::mimic::api::subnet::cascade::subnet_index_cascade().await?;
 
             Ok(())
         }

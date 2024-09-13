@@ -65,12 +65,13 @@ macro_rules! mimic_start {
         // code called on all canister startups (install, upgrade)
         fn startup() -> Result<(), Error> {
             let schema_json = include_str!(concat!(env!("OUT_DIR"), "/schema.rs"));
-            ::mimic::api::schema::init_schema_json(schema_json)
+            ::mimic::api::core::schema::init_schema_json(schema_json)
                 .map_err(|e| Error::init(e.to_string()))?;
 
             // config
             let toml = include_str!($config);
-            ::mimic::api::config::init_config_toml(toml).map_err(|e| Error::init(e.to_string()))?;
+            ::mimic::api::core::config::init_config_toml(toml)
+                .map_err(|e| Error::init(e.to_string()))?;
 
             startup2()
         }
@@ -84,7 +85,7 @@ macro_rules! mimic_end {
     () => {
         // export_candid
         // has to be at the end
-        ::mimic::ic::export_candid!();
+        ::mimic::lib::ic::export_candid!();
     };
 }
 
@@ -92,10 +93,10 @@ macro_rules! mimic_end {
 #[macro_export]
 macro_rules! perf {
     () => {
-        ::mimic::api::defer!(::mimic::ic::log!(
+        ::mimic::api::defer!(::mimic::lib::ic::log!(
             Log::Perf,
             "api call used {} instructions ({})",
-            ::mimic::ic::api::performance_counter(1),
+            ::mimic::lib::ic::api::performance_counter(1),
             module_path!()
         ));
     };

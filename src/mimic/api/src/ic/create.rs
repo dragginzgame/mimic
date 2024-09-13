@@ -1,11 +1,11 @@
-use super::call::call;
+use crate::ic::call::call;
 use candid::Principal;
-use ic::{
+use lib_ic::{
     api::management_canister::{
-        main::{CanisterInstallMode, InstallCodeArgument, WasmModule},
+        main::{CanisterInstallMode, CreateCanisterArgument, InstallCodeArgument, WasmModule},
         provisional::CanisterSettings,
     },
-    id, log, Log,
+    format_cycles, id, log, Log,
 };
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -59,11 +59,8 @@ pub async fn create_canister(
         ..Default::default()
     });
 
-    let canister_id = crate::ic::mgmt::create_canister(
-        ::ic::api::management_canister::main::CreateCanisterArgument { settings },
-        cycles,
-    )
-    .await?;
+    let canister_id =
+        crate::ic::mgmt::create_canister(CreateCanisterArgument { settings }, cycles).await?;
 
     //
     // install code
@@ -97,7 +94,7 @@ pub async fn create_canister(
         canister_path,
         bytes_fmt,
         canister_id,
-        ::ic::format_cycles(cycles)
+        format_cycles(cycles)
     );
 
     Ok(canister_id)

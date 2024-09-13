@@ -1,5 +1,5 @@
 use candid::CandidType;
-use ic::structures::{storable::Bound, Storable};
+use lib_ic::structures::{storable::Bound, Storable};
 use mimic_derive::Storable;
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, fmt};

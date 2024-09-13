@@ -1,7 +1,7 @@
 use super::APP_STATE;
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
-use ic::{
+use lib_ic::{
     log,
     structures::{memory::VirtualMemory, Cell},
     Log,
@@ -21,7 +21,9 @@ pub enum Error {
     AlreadyInMode { mode: AppMode },
 
     #[snafu(transparent)]
-    Cell { source: ic::structures::cell::Error },
+    Cell {
+        source: lib_ic::structures::cell::Error,
+    },
 }
 
 ///

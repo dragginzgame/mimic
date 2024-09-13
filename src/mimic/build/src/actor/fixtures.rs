@@ -17,7 +17,7 @@ pub fn fixture_actor(builder: &mut ActorBuilder) {
     let q = quote! {
 
         // fixtures_replace_all
-        #[::mimic::ic::update]
+        #[::mimic::lib::ic::update]
         async fn fixtures_replace_all() -> Result<(), ::mimic::api::Error> {
             guard(vec![Guard::Controller]).await?;
 

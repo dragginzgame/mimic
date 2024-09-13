@@ -8,6 +8,6 @@ version = { workspace = true }
 workspace = true
 
 [dependencies]
-ic = { workspace = true }
+lib_ic = { workspace = true }
 serde = { workspace = true }
 snafu = { workspace = true }

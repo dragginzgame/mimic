@@ -1,6 +1,6 @@
 use crate::ic::mgmt::{install_code, module_hash};
 use candid::Principal;
-use ic::{
+use lib_ic::{
     api::management_canister::main::{CanisterInstallMode, InstallCodeArgument, WasmModule},
     helper::get_wasm_hash,
     log, Log,

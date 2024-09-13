@@ -13,7 +13,7 @@ crate-type = ["cdylib"]
 [dependencies]
 candid = { workspace = true }
 db = { workspace = true }
-ic = { workspace = true }
+lib_ic = { workspace = true }
 ic-cdk = { workspace = true }
 mimic = { workspace = true }
 mimic_base = { workspace = true }

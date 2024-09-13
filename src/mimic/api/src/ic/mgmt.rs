@@ -1,5 +1,5 @@
 use candid::Principal;
-use ic::api::{
+use lib_ic::api::{
     call::RejectionCode,
     management_canister::main::{
         canister_status as ic_canister_status, create_canister as ic_create_canister,
@@ -16,9 +16,6 @@ use snafu::Snafu;
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
-    #[snafu(transparent)]
-    Ic { source: ic::Error },
-
     #[snafu(display("call rejected: {error}"))]
     CallRejected { error: String },
 }

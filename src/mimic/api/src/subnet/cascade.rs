@@ -1,4 +1,5 @@
-use ic::{call, log, Log};
+use crate::ic::call::call;
+use lib_ic::{log, Log};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 

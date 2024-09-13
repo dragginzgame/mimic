@@ -1,4 +1,4 @@
-use ic::{log, Log};
+use lib_ic::{log, Log};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::{

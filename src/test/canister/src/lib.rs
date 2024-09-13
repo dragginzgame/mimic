@@ -3,7 +3,7 @@ mod default;
 mod sanitize;
 mod validate;
 
-use ic::{log, update, Log};
+use lib_ic::{log, update, Log};
 use mimic::{api::Error, prelude::*};
 
 // blank file so we get the default

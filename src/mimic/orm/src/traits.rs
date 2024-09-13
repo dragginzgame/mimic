@@ -1,7 +1,7 @@
 // re-exports of other traits
 // for the standard traits::X pattern
 pub use candid::CandidType;
-pub use ic::structures::storable::Storable;
+pub use lib_ic::structures::storable::Storable;
 pub use num_traits::{FromPrimitive as NumFromPrimitive, NumCast, ToPrimitive as NumToPrimitive};
 pub use serde::{de::DeserializeOwned, Deserialize, Serialize};
 pub use std::{

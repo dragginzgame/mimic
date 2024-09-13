@@ -57,7 +57,7 @@ pub fn crud_load(builder: &ActorBuilder) -> TokenStream {
     }
 
     quote! {
-        #[::mimic::ic::query(composite = true)]
+        #[::mimic::lib::ic::query(composite = true)]
         #[allow(clippy::too_many_lines)]
         #[allow(clippy::match_single_binding)]
         #[allow(unused_variables)]
@@ -89,7 +89,7 @@ pub fn crud_save(builder: &ActorBuilder) -> TokenStream {
     }
 
     quote! {
-        #[::mimic::ic::update]
+        #[::mimic::lib::ic::update]
         #[allow(clippy::too_many_lines)]
         #[allow(clippy::match_single_binding)]
         #[allow(unused_variables)]
@@ -121,7 +121,7 @@ pub fn crud_delete(builder: &ActorBuilder) -> TokenStream {
     }
 
     quote! {
-        #[::mimic::ic::update]
+        #[::mimic::lib::ic::update]
         #[allow(clippy::too_many_lines)]
         #[allow(clippy::match_single_binding)]
         #[allow(unused_variables)]

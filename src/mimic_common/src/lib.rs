@@ -4,7 +4,6 @@
 ///
 /// TODO - this should mirror mimic:: as much as possible
 ///
-pub use ic;
 
 pub mod case {
     pub use lib_case::*;
@@ -12,6 +11,10 @@ pub mod case {
 
 pub mod cbor {
     pub use lib_cbor::*;
+}
+
+pub mod ic {
+    pub use lib_ic::*;
 }
 
 pub mod rand {

@@ -1,7 +1,7 @@
 use super::CANISTER_STATE;
 use candid::{CandidType, Principal};
 use derive_more::{Deref, DerefMut};
-use ic::structures::{memory::VirtualMemory, Cell};
+use lib_ic::structures::{memory::VirtualMemory, Cell};
 use mimic_derive::Storable;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -19,7 +19,9 @@ pub enum Error {
     RootIdNotSet,
 
     #[snafu(transparent)]
-    Cell { source: ic::structures::cell::Error },
+    Cell {
+        source: lib_ic::structures::cell::Error,
+    },
 }
 
 ///

@@ -3,7 +3,7 @@ use candid::{
     utils::{ArgumentDecoder, ArgumentEncoder},
     CandidType, Principal,
 };
-use ic::{
+use lib_ic::{
     api::call::{call_raw, RejectionCode},
     log, Log,
 };
