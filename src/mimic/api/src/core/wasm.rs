@@ -16,3 +16,8 @@ pub enum Error {
 pub fn get_wasm(path: &str) -> Result<&'static [u8], Error> {
     WasmManager::get_wasm(path).map_err(Error::from)
 }
+
+// info
+pub fn info() -> Result<Vec<(String, usize)>, Error> {
+    WasmManager::info().map_err(Error::from)
+}
