@@ -10,7 +10,7 @@ checksum = "4e1496f8fb1fbf272686b8d37f523dab3e4a7443300055e74cdaa449f3114356"
 
 [[package]]
 name = "api"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "candid",
  "core_config",
@@ -55,7 +55,7 @@ checksum = "7dfdb4953a096c551ce9ace855a604d702e6e62d77fac690575ae347571717f5"
 
 [[package]]
 name = "benches"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "bencher",
 ]
@@ -94,7 +94,7 @@ dependencies = [
 
 [[package]]
 name = "build"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "orm_schema",
  "proc-macro2",
@@ -205,7 +205,7 @@ dependencies = [
 
 [[package]]
 name = "core_config"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "candid",
  "serde",
@@ -215,7 +215,7 @@ dependencies = [
 
 [[package]]
 name = "core_schema"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "derive_more",
  "lib_ic",
@@ -227,7 +227,7 @@ dependencies = [
 
 [[package]]
 name = "core_state"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "candid",
  "core_schema",
@@ -244,7 +244,7 @@ dependencies = [
 
 [[package]]
 name = "core_wasm"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "lib_ic",
  "serde",
@@ -338,7 +338,7 @@ checksum = "e8566979429cf69b49a5c740c60791108e86440e8be149bbea4fe54d2c32d6e2"
 
 [[package]]
 name = "db"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "candid",
  "core_schema",
@@ -673,7 +673,7 @@ checksum = "884e2677b40cc8c339eaefcb701c32ef1fd2493d71118dc0ca4b6a736c93bd67"
 
 [[package]]
 name = "lib_case"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "convert_case",
  "strum",
@@ -681,7 +681,7 @@ dependencies = [
 
 [[package]]
 name = "lib_cbor"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "ciborium",
  "serde",
@@ -690,7 +690,7 @@ dependencies = [
 
 [[package]]
 name = "lib_ic"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "candid",
  "derive_more",
@@ -704,7 +704,7 @@ dependencies = [
 
 [[package]]
 name = "lib_rand"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "lib_time",
  "tinyrand",
@@ -712,11 +712,11 @@ dependencies = [
 
 [[package]]
 name = "lib_test"
-version = "0.1.6"
+version = "0.1.7"
 
 [[package]]
 name = "lib_time"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "ic-cdk",
 ]
@@ -747,7 +747,7 @@ checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 
 [[package]]
 name = "mimic"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "api",
  "build",
@@ -775,7 +775,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_base"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "candid",
  "derive_more",
@@ -792,7 +792,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_common"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "lib_case",
  "lib_cbor",
@@ -803,7 +803,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_derive"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "quote",
  "syn 2.0.77",
@@ -847,7 +847,7 @@ checksum = "3fdb12b2476b595f9358c5161aa467c2438859caa136dec86c26fdd2efe17b92"
 
 [[package]]
 name = "orm"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "candid",
  "darling",
@@ -868,7 +868,7 @@ dependencies = [
 
 [[package]]
 name = "orm_macros"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "darling",
  "derive_more",
@@ -885,7 +885,7 @@ dependencies = [
 
 [[package]]
 name = "orm_schema"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "candid",
  "derive_more",
@@ -1178,7 +1178,7 @@ dependencies = [
 
 [[package]]
 name = "test_canister"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "build",
  "candid",
@@ -1193,7 +1193,7 @@ dependencies = [
 
 [[package]]
 name = "test_schema"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "candid",
  "db",
@@ -1210,7 +1210,7 @@ dependencies = [
 
 [[package]]
 name = "tests"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "quote",
 ]
@@ -1289,7 +1289,7 @@ checksum = "42ff0bf0c66b8238c6f3b578df37d0b7848e55df8577b3f74f92a69acceeb825"
 
 [[package]]
 name = "types"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "candid",
  "derive_more",

@@ -2,7 +2,7 @@ pub mod macros;
 
 ///
 /// mimic
-/// [for external use only]
+/// [for external use only, keep away from children]
 ///
 pub use api;
 pub use build;
@@ -66,7 +66,6 @@ pub mod prelude {
             },
             subnet::request::{Request, RequestKind, Response},
         },
-        db::query as db_query,
         mimic_end, mimic_start,
         orm::traits::{EntityFixture, Path},
         perf,
