@@ -160,6 +160,12 @@ impl From<core_state::subnet_index::Error> for Error {
     }
 }
 
+impl From<core_state::user_index::Error> for Error {
+    fn from(error: core_state::user_index::Error) -> Self {
+        Self(ERROR_CORE_STATE, error.to_string())
+    }
+}
+
 impl From<core_wasm::Error> for Error {
     fn from(error: core_wasm::Error) -> Self {
         Self(ERROR_CORE_WASM, error.to_string())
