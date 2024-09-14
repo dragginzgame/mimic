@@ -65,12 +65,12 @@ macro_rules! mimic_start {
         // code called on all canister startups (install, upgrade)
         fn startup() -> Result<(), Error> {
             let schema_json = include_str!(concat!(env!("OUT_DIR"), "/schema.rs"));
-            ::mimic::api::core::schema::init_schema_json(schema_json)
+            ::mimic::core::schema::init_schema_json(schema_json)
                 .map_err(|e| Error::init(e.to_string()))?;
 
             // config
             let toml = include_str!($config);
-            ::mimic::api::core::config::init_config_toml(toml)
+            ::mimic::core::config::init_config_toml(toml)
                 .map_err(|e| Error::init(e.to_string()))?;
 
             startup2()

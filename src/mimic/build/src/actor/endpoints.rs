@@ -94,8 +94,7 @@ pub fn cascade_endpoints(builder: &mut ActorBuilder) {
             guard(vec![Guard::Parent]).await.map_err(::mimic::api::Error::from)?;
 
             // set state and cascade
-            ::mimic::api::core::state::AppStateManager::set(state)
-                .map_err(::mimic::api::core::state::Error::from)?;
+            ::mimic::core::state::AppStateManager::set(state)?;
             ::mimic::api::subnet::cascade::app_state_cascade().await?;
 
             Ok(())
@@ -161,26 +160,26 @@ pub fn state_endpoints(builder: &mut ActorBuilder) {
 
         // app_state
         #[::mimic::lib::ic::query]
-        fn app_state() -> ::mimic::api::core::state::AppState {
-            ::mimic::api::core::state::AppStateManager::get()
+        fn app_state() -> ::mimic::core::state::AppState {
+            ::mimic::core::state::AppStateManager::get()
         }
 
         // canister_state
         #[::mimic::lib::ic::query]
-        fn canister_state() -> ::mimic::api::core::state::CanisterState {
-            ::mimic::api::core::state::CanisterStateManager::get()
+        fn canister_state() -> ::mimic::core::state::CanisterState {
+            ::mimic::core::state::CanisterStateManager::get()
         }
 
         // child_index
         #[::mimic::lib::ic::query]
-        fn child_index() -> ::mimic::api::core::state::ChildIndex {
-            ::mimic::api::core::state::ChildIndexManager::get()
+        fn child_index() -> ::mimic::core::state::ChildIndex {
+            ::mimic::core::state::ChildIndexManager::get()
         }
 
         // subnet_index
         #[::mimic::lib::ic::query]
-        fn subnet_index() -> ::mimic::api::core::state::SubnetIndex {
-            ::mimic::api::core::state::SubnetIndexManager::get()
+        fn subnet_index() -> ::mimic::core::state::SubnetIndex {
+            ::mimic::core::state::SubnetIndexManager::get()
         }
     };
 

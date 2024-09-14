@@ -59,9 +59,6 @@ pub enum Error {
 
     #[snafu(transparent)]
     Subnet { source: crate::subnet::Error },
-
-    #[snafu(transparent)]
-    CoreState { source: core_state::Error },
 }
 
 ///

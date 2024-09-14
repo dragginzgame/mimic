@@ -17,13 +17,13 @@ use snafu::Snafu;
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
+    Config { source: core_config::Error },
+
+    #[snafu(transparent)]
     Call { source: crate::ic::call::Error },
 
     #[snafu(transparent)]
     Mgmt { source: crate::ic::mgmt::Error },
-
-    #[snafu(transparent)]
-    Config { source: crate::core::config::Error },
 
     #[snafu(transparent)]
     Schema { source: crate::core::schema::Error },
@@ -38,7 +38,7 @@ pub async fn create_canister(
     bytes: &[u8],
     parent_id: Principal,
 ) -> Result<Principal, Error> {
-    let config = crate::core::config::get_config()?;
+    let config = core_config::get_config()?;
 
     //
     // controllers

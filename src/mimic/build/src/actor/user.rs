@@ -15,7 +15,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         async fn user_index() -> Result<UserIndex, ::mimic::api::Error> {
             guard(vec![Guard::Controller]).await?;
 
-            Ok(::mimic::api::core::state::user_index())
+            Ok(::mimic::core::state::user_index())
         }
 
         // get_caller

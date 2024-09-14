@@ -16,35 +16,11 @@ use lib_ic::structures::{
     memory::{MemoryId, MemoryManager},
     DefaultMemoryImpl,
 };
-use serde::{Deserialize, Serialize};
-use snafu::Snafu;
 use std::cell::RefCell;
 use {
     app_state::AppStateStable, canister_state::CanisterStateStable, child_index::ChildIndexStable,
     subnet_index::SubnetIndexStable, user_index::UserIndexStable,
 };
-
-///
-/// Error
-///
-
-#[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
-    #[snafu(transparent)]
-    AppState { source: app_state::Error },
-
-    #[snafu(transparent)]
-    CanisterState { source: canister_state::Error },
-
-    #[snafu(transparent)]
-    ChildIndex { source: child_index::Error },
-
-    #[snafu(transparent)]
-    SubnetIndex { source: subnet_index::Error },
-
-    #[snafu(transparent)]
-    UserIndex { source: user_index::Error },
-}
 
 ///
 /// RUNTIME STATE

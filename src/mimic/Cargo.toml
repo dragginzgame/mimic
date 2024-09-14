@@ -12,7 +12,9 @@ api = { workspace = true }
 build = { workspace = true }
 candid = { workspace = true }
 core_config = { workspace = true }
+core_schema = { workspace = true }
 core_state = { workspace = true }
+core_wasm = { workspace = true }
 ctor = { workspace = true }
 db = { workspace = true }
 derive_more = { workspace = true }

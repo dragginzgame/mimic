@@ -2,14 +2,27 @@ pub mod macros;
 
 ///
 /// mimic
-/// [for external use only, keep away from children]
+/// [for external use only, keep out of reach of children]
 ///
 pub use api;
 pub use build;
 pub use db;
 pub use types;
 
-// re-export libraries
+pub mod core {
+    pub use core_config as config;
+    pub use core_schema as schema;
+    pub use core_state as state;
+    pub use core_wasm as wasm;
+}
+
+pub mod export {
+    pub use ctor;
+    pub use num_traits;
+    pub use remain;
+    pub use strum;
+}
+
 pub mod lib {
     pub use lib_case as case;
     pub use lib_ic as ic;
@@ -42,13 +55,6 @@ pub mod orm {
     pub use orm_schema as schema;
 }
 
-pub mod export {
-    pub use ctor;
-    pub use num_traits;
-    pub use remain;
-    pub use strum;
-}
-
 ///
 /// MIMIC PRELUDE
 ///
@@ -60,10 +66,6 @@ pub mod prelude {
     pub use crate::{
         api::{
             auth::{guard, Guard},
-            core::state::{
-                AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager,
-                SubnetIndex, SubnetIndexManager, User, UserIndex, UserIndexManager,
-            },
             subnet::request::{Request, RequestKind, Response},
             Error,
         },
@@ -73,6 +75,10 @@ pub mod prelude {
         types::Ulid,
     };
     pub use ::candid::{CandidType, Principal};
+    pub use ::core_state::{
+        AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager, SubnetIndex,
+        SubnetIndexManager, User, UserIndex, UserIndexManager,
+    };
     pub use ::lib_ic::{caller, format_cycles, id, log, Log};
     pub use ::std::cell::RefCell;
 }

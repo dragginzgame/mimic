@@ -16,24 +16,30 @@ use std::fmt::{self, Display};
 /// consolidates all the different crate errors into one place
 ///
 
+// misc
 pub const ERROR_INIT: u8 = 10;
 
-pub const ERROR_AUTH: u8 = 101;
-pub const ERROR_CRUD: u8 = 102;
-pub const ERROR_CORE_CONFIG: u8 = 110;
-pub const ERROR_CORE_SCHEMA: u8 = 111;
-pub const ERROR_CORE_STATE: u8 = 112;
-pub const ERROR_IC_CALL: u8 = 120;
-pub const ERROR_IC_CANISTER: u8 = 121;
-pub const ERROR_IC_CREATE: u8 = 122;
-pub const ERROR_IC_MGMT: u8 = 123;
-pub const ERROR_IC_UPGRADE: u8 = 124;
-pub const ERROR_SUBNET_CASCADE: u8 = 130;
-pub const ERROR_SUBNET_REQUEST: u8 = 131;
+// api
+pub const ERROR_API_AUTH: u8 = 101;
+pub const ERROR_API_CRUD: u8 = 102;
+pub const ERROR_API_CORE_SCHEMA: u8 = 110;
+pub const ERROR_API_IC_CALL: u8 = 120;
+pub const ERROR_API_IC_CANISTER: u8 = 121;
+pub const ERROR_API_IC_CREATE: u8 = 122;
+pub const ERROR_API_IC_MGMT: u8 = 123;
+pub const ERROR_API_IC_UPGRADE: u8 = 124;
+pub const ERROR_API_SUBNET_CASCADE: u8 = 130;
+pub const ERROR_API_SUBNET_REQUEST: u8 = 131;
 
-// other crates
-pub const ERROR_DB: u8 = 140;
-pub const ERROR_QUERY: u8 = 141;
+// core
+pub const ERROR_CORE_CONFIG: u8 = 140;
+pub const ERROR_CORE_SCHEMA: u8 = 141;
+pub const ERROR_CORE_STATE: u8 = 142;
+pub const ERROR_CORE_WASM: u8 = 143;
+
+// db
+pub const ERROR_DB: u8 = 150;
+pub const ERROR_DB_QUERY: u8 = 151;
 
 #[derive(CandidType, Debug, Serialize, Deserialize)]
 pub struct Error(u8, String);
@@ -62,13 +68,67 @@ impl Display for Error {
 
 impl From<auth::Error> for Error {
     fn from(error: auth::Error) -> Self {
-        Self(ERROR_AUTH, error.to_string())
+        Self(ERROR_API_AUTH, error.to_string())
     }
 }
 
 impl From<crud::Error> for Error {
     fn from(error: crud::Error) -> Self {
-        Self(ERROR_CRUD, error.to_string())
+        Self(ERROR_API_CRUD, error.to_string())
+    }
+}
+
+//
+// api core
+//
+
+impl From<core::schema::Error> for Error {
+    fn from(error: core::schema::Error) -> Self {
+        Self(ERROR_API_CORE_SCHEMA, error.to_string())
+    }
+}
+
+//
+// api ic
+//
+
+impl From<ic::call::Error> for Error {
+    fn from(error: ic::call::Error) -> Self {
+        Self(ERROR_API_IC_CALL, error.to_string())
+    }
+}
+
+impl From<ic::canister::Error> for Error {
+    fn from(error: ic::canister::Error) -> Self {
+        Self(ERROR_API_IC_CANISTER, error.to_string())
+    }
+}
+
+impl From<ic::create::Error> for Error {
+    fn from(error: ic::create::Error) -> Self {
+        Self(ERROR_API_IC_CREATE, error.to_string())
+    }
+}
+
+impl From<ic::upgrade::Error> for Error {
+    fn from(error: ic::upgrade::Error) -> Self {
+        Self(ERROR_API_IC_UPGRADE, error.to_string())
+    }
+}
+
+//
+// api subnet
+//
+
+impl From<subnet::cascade::Error> for Error {
+    fn from(error: subnet::cascade::Error) -> Self {
+        Self(ERROR_API_SUBNET_CASCADE, error.to_string())
+    }
+}
+
+impl From<subnet::request::Error> for Error {
+    fn from(error: subnet::request::Error) -> Self {
+        Self(ERROR_API_SUBNET_REQUEST, error.to_string())
     }
 }
 
@@ -76,70 +136,32 @@ impl From<crud::Error> for Error {
 // core
 //
 
-impl From<core::config::Error> for Error {
-    fn from(error: core::config::Error) -> Self {
+impl From<core_config::Error> for Error {
+    fn from(error: core_config::Error) -> Self {
         Self(ERROR_CORE_CONFIG, error.to_string())
     }
 }
 
-impl From<core::schema::Error> for Error {
-    fn from(error: core::schema::Error) -> Self {
+impl From<core_schema::Error> for Error {
+    fn from(error: core_schema::Error) -> Self {
         Self(ERROR_CORE_SCHEMA, error.to_string())
     }
 }
 
-impl From<core::state::Error> for Error {
-    fn from(error: core::state::Error) -> Self {
+impl From<core_state::app_state::Error> for Error {
+    fn from(error: core_state::app_state::Error) -> Self {
         Self(ERROR_CORE_STATE, error.to_string())
     }
 }
 
-//
-// ic
-//
-
-impl From<ic::call::Error> for Error {
-    fn from(error: ic::call::Error) -> Self {
-        Self(ERROR_IC_CALL, error.to_string())
-    }
-}
-
-impl From<ic::canister::Error> for Error {
-    fn from(error: ic::canister::Error) -> Self {
-        Self(ERROR_IC_CANISTER, error.to_string())
-    }
-}
-
-impl From<ic::create::Error> for Error {
-    fn from(error: ic::create::Error) -> Self {
-        Self(ERROR_IC_CREATE, error.to_string())
-    }
-}
-
-impl From<ic::upgrade::Error> for Error {
-    fn from(error: ic::upgrade::Error) -> Self {
-        Self(ERROR_IC_UPGRADE, error.to_string())
+impl From<core_wasm::Error> for Error {
+    fn from(error: core_wasm::Error) -> Self {
+        Self(ERROR_CORE_WASM, error.to_string())
     }
 }
 
 //
-// subnet
-//
-
-impl From<subnet::cascade::Error> for Error {
-    fn from(error: subnet::cascade::Error) -> Self {
-        Self(ERROR_SUBNET_CASCADE, error.to_string())
-    }
-}
-
-impl From<subnet::request::Error> for Error {
-    fn from(error: subnet::request::Error) -> Self {
-        Self(ERROR_SUBNET_REQUEST, error.to_string())
-    }
-}
-
-//
-// other crates
+// db
 // (fluent methods make it hard to return a compatible error)
 //
 
@@ -151,6 +173,6 @@ impl From<db::Error> for Error {
 
 impl From<db::query::Error> for Error {
     fn from(error: db::query::Error) -> Self {
-        Self(ERROR_QUERY, error.to_string())
+        Self(ERROR_DB_QUERY, error.to_string())
     }
 }

@@ -16,15 +16,6 @@ pub enum Error {
 }
 
 ///
-/// CORE SCHEMA WRAPPER
-///
-
-// init_schema_json
-pub fn init_schema_json(schema_json: &str) -> Result<(), Error> {
-    core_schema::init_schema_json(schema_json).map_err(Error::from)
-}
-
-///
 /// SCHEMA FUNCTIONS
 ///
 
