@@ -44,7 +44,7 @@ pub fn root_module(builder: &mut ActorBuilder) {
             guard(vec![Guard::Controller]).await?;
 
             // Collect all service canister paths directly into a vector of tokens.
-            let schema = ::mimic::api::schema::get_schema()?;
+            let schema = ::mimic::core::schema::get_schema()?;
             let paths: Vec<_> = schema
                 .filter_nodes::<Canister, _>(|node| node.build.is_auto_created())
                 .map(|(key, _)| key)
