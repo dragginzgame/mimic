@@ -99,7 +99,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
             if user
                 .roles
                 .iter()
-                .any(|role| ::mimic::schema::AuthService::role_has_permission(role, &permission))
+                .any(|role| ::mimic::core::schema::AuthService::role_has_permission(role, &permission))
             {
                 Ok(())
             } else {
