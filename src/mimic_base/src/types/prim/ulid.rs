@@ -10,7 +10,6 @@ use mimic::{
     },
     types::{ErrorVec, Ulid as WrappedUlid},
 };
-use mimic_derive::Storable;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::{cmp::Ordering, fmt};
@@ -44,7 +43,6 @@ pub enum Error {
     PartialOrd,
     Serialize,
     Deserialize,
-    Storable,
 )]
 pub struct Ulid(WrappedUlid);
 

@@ -1,10 +1,11 @@
 use super::CANISTER_STATE;
 use candid::{CandidType, Principal};
 use derive_more::{Deref, DerefMut};
-use lib_ic::structures::{memory::VirtualMemory, Cell};
-use mimic_derive::Storable;
+use lib_cbor::{deserialize, serialize};
+use lib_ic::structures::{memory::VirtualMemory, storable::Bound, Cell, Storable};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
+use std::borrow::Cow;
 
 ///
 /// Error
@@ -109,9 +110,21 @@ impl CanisterStateStable {
 /// CanisterState
 ///
 
-#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize, Storable)]
+#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
 pub struct CanisterState {
     path: Option<String>,
     root_id: Option<Principal>,
     parent_id: Option<Principal>,
+}
+
+impl Storable for CanisterState {
+    fn to_bytes(&self) -> Cow<[u8]> {
+        Cow::Owned(serialize(self).unwrap())
+    }
+
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        deserialize(&bytes).unwrap()
+    }
+
+    const BOUND: Bound = Bound::Unbounded;
 }

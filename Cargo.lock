@@ -20,7 +20,6 @@ dependencies = [
  "db",
  "defer",
  "lib_ic",
- "mimic_common",
  "orm",
  "orm_schema",
  "remain",
@@ -232,9 +231,8 @@ dependencies = [
  "candid",
  "core_schema",
  "derive_more",
+ "lib_cbor",
  "lib_ic",
- "mimic_common",
- "mimic_derive",
  "orm_schema",
  "serde",
  "snafu",
@@ -346,8 +344,6 @@ dependencies = [
  "lib_cbor",
  "lib_ic",
  "lib_time",
- "mimic_common",
- "mimic_derive",
  "orm",
  "orm_schema",
  "serde",
@@ -782,33 +778,13 @@ dependencies = [
  "candid",
  "derive_more",
  "lib_case",
+ "lib_ic",
  "mimic",
- "mimic_common",
- "mimic_derive",
  "num-traits",
  "serde",
  "sha2",
  "snafu",
  "strum",
-]
-
-[[package]]
-name = "mimic_common"
-version = "0.1.7"
-dependencies = [
- "lib_case",
- "lib_cbor",
- "lib_ic",
- "lib_rand",
- "lib_time",
-]
-
-[[package]]
-name = "mimic_derive"
-version = "0.1.7"
-dependencies = [
- "quote",
- "syn 2.0.77",
 ]
 
 [[package]]
@@ -1295,10 +1271,10 @@ version = "0.1.7"
 dependencies = [
  "candid",
  "derive_more",
+ "lib_cbor",
+ "lib_ic",
  "lib_rand",
  "lib_time",
- "mimic_common",
- "mimic_derive",
  "num-traits",
  "rust_decimal",
  "serde",

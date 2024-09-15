@@ -1,11 +1,13 @@
 use candid::{types::principal::PrincipalError, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut};
-use mimic::orm::prelude::*;
-use mimic::orm::traits::{
-    Filterable, Inner, Orderable, PrimaryKey, Sanitize, SanitizeAuto, Storable, Validate,
-    ValidateAuto, Visitable,
+use lib_ic::{api::caller, structures::storable::Bound};
+use mimic::orm::{
+    prelude::*,
+    traits::{
+        Filterable, Inner, Orderable, PrimaryKey, Sanitize, SanitizeAuto, Storable, Validate,
+        ValidateAuto, Visitable,
+    },
 };
-use mimic_common::ic::{api::caller, structures::storable::Bound};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::{

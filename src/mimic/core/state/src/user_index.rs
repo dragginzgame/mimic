@@ -2,12 +2,12 @@ use super::USER_INDEX;
 use candid::{CandidType, Principal};
 use core_schema::get_schema;
 use derive_more::{Deref, DerefMut};
-use lib_ic::structures::{memory::VirtualMemory, BTreeMap};
-use mimic_derive::Storable;
+use lib_cbor::{deserialize, serialize};
+use lib_ic::structures::{memory::VirtualMemory, storable::Bound, BTreeMap, Storable};
 use orm_schema::node::Role;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
-use std::collections::HashSet;
+use std::{borrow::Cow, collections::HashSet};
 use types::Ulid;
 
 ///
@@ -151,7 +151,7 @@ impl UserIndexStable {
 /// roles: for Role-based access control
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize, Storable)]
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
 pub struct User {
     pub canister_principal: Principal,
     pub user_id: Ulid,
@@ -174,4 +174,16 @@ impl User {
             roles: roles.iter().cloned().collect(),
         }
     }
+}
+
+impl Storable for User {
+    fn to_bytes(&self) -> Cow<[u8]> {
+        Cow::Owned(serialize(self).unwrap())
+    }
+
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        deserialize(&bytes).unwrap()
+    }
+
+    const BOUND: Bound = Bound::Unbounded;
 }

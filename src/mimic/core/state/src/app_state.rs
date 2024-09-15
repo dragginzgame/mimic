@@ -1,14 +1,15 @@
 use super::APP_STATE;
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
+use lib_cbor::{deserialize, serialize};
 use lib_ic::{
     log,
-    structures::{memory::VirtualMemory, Cell},
+    structures::{memory::VirtualMemory, storable::Bound, Cell, Storable},
     Log,
 };
-use mimic_derive::Storable;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
+use std::borrow::Cow;
 use strum::Display;
 
 ///
@@ -118,7 +119,7 @@ impl AppStateStable {
 /// AppState
 ///
 
-#[derive(CandidType, Clone, Copy, Debug, Serialize, Deserialize, Storable)]
+#[derive(CandidType, Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct AppState {
     mode: AppMode,
 }
@@ -129,6 +130,18 @@ impl Default for AppState {
             mode: AppMode::Disabled,
         }
     }
+}
+
+impl Storable for AppState {
+    fn to_bytes(&self) -> Cow<[u8]> {
+        Cow::Owned(serialize(self).unwrap())
+    }
+
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        deserialize(&bytes).unwrap()
+    }
+
+    const BOUND: Bound = Bound::Unbounded;
 }
 
 ///

@@ -1,6 +1,6 @@
 use candid::CandidType;
+use lib_cbor::{deserialize, serialize};
 use lib_ic::structures::{storable::Bound, Storable};
-use mimic_derive::Storable;
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, fmt};
 use types::Timestamp;
@@ -31,10 +31,22 @@ impl DataRow {
 /// DataValue
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize, Storable)]
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
 pub struct DataValue {
     pub data: Vec<u8>,
     pub metadata: Metadata,
+}
+
+impl Storable for DataValue {
+    fn to_bytes(&self) -> Cow<[u8]> {
+        Cow::Owned(serialize(self).unwrap())
+    }
+
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        deserialize(&bytes).unwrap()
+    }
+
+    const BOUND: Bound = Bound::Unbounded;
 }
 
 ///

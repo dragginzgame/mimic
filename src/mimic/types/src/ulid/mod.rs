@@ -3,10 +3,11 @@ pub mod generator;
 
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, FromStr};
-use mimic_derive::Storable;
+use lib_cbor::{deserialize, serialize};
+use lib_ic::structures::{storable::Bound, Storable};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use snafu::Snafu;
-use std::fmt;
+use std::{borrow::Cow, fmt};
 use ulid::Ulid as WrappedUlid;
 
 ///
@@ -39,9 +40,7 @@ impl From<ulid::DecodeError> for Error {
 /// a wrapper around ulid::Ulid
 ///
 
-#[derive(
-    Clone, Copy, Debug, Deref, DerefMut, Eq, FromStr, PartialEq, Hash, Ord, PartialOrd, Storable,
-)]
+#[derive(Clone, Copy, Debug, Deref, DerefMut, Eq, FromStr, PartialEq, Hash, Ord, PartialOrd)]
 pub struct Ulid(WrappedUlid);
 
 impl Ulid {
@@ -125,4 +124,16 @@ impl<'de> Deserialize<'de> for Ulid {
 
         Ok(Self(ulid))
     }
+}
+
+impl Storable for Ulid {
+    fn to_bytes(&self) -> Cow<[u8]> {
+        Cow::Owned(serialize(self).unwrap())
+    }
+
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        deserialize(&bytes).unwrap()
+    }
+
+    const BOUND: Bound = Bound::Unbounded;
 }
