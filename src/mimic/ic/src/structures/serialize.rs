@@ -4,6 +4,11 @@ use snafu::Snafu;
 use std::fmt::Debug;
 
 ///
+/// Serialize/Deserialize
+/// forces use of cbor (ciborium)
+///
+
+///
 /// Error
 ///
 
@@ -16,8 +21,8 @@ pub enum Error {
     Deserialize { msg: String },
 }
 
-// serialize
-pub fn serialize<T>(ty: &T) -> Result<Vec<u8>, Error>
+// to_binary
+pub fn to_binary<T>(ty: &T) -> Result<Vec<u8>, Error>
 where
     T: Serialize,
 {
@@ -27,8 +32,8 @@ where
     Ok(writer)
 }
 
-// deserialize
-pub fn deserialize<T>(bytes: &[u8]) -> Result<T, Error>
+// from_binary
+pub fn from_binary<T>(bytes: &[u8]) -> Result<T, Error>
 where
     T: DeserializeOwned,
 {

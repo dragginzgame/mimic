@@ -12,7 +12,6 @@ members = [
     "src/mimic/db",
     "src/mimic/ic",
     "src/mimic/lib/case",
-    "src/mimic/lib/cbor",
     "src/mimic/lib/rand",
     "src/mimic/lib/test",
     "src/mimic/lib/time",
@@ -63,7 +62,6 @@ orm_macros = { path = "src/mimic/orm/macros" }
 
 # core
 lib_case = { path = "src/mimic/lib/case" }
-lib_cbor = { path = "src/mimic/lib/cbor" }
 lib_rand = { path = "src/mimic/lib/rand" }
 lib_test = { path = "src/mimic/lib/test" }
 lib_time = { path = "src/mimic/lib/time" }

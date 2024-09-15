@@ -1,5 +1,6 @@
 pub mod btreemap;
 pub mod cell;
+pub mod serialize;
 
 // re-export
 pub mod memory {

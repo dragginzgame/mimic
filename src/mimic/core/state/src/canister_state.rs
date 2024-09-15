@@ -1,8 +1,12 @@
 use super::CANISTER_STATE;
 use candid::{CandidType, Principal};
 use derive_more::{Deref, DerefMut};
-use ic::structures::{memory::VirtualMemory, storable::Bound, Cell, Storable};
-use lib_cbor::{deserialize, serialize};
+use ic::structures::{
+    memory::VirtualMemory,
+    serialize::{from_binary, to_binary},
+    storable::Bound,
+    Cell, Storable,
+};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::borrow::Cow;
@@ -117,11 +121,11 @@ pub struct CanisterState {
 
 impl Storable for CanisterState {
     fn to_bytes(&self) -> Cow<[u8]> {
-        Cow::Owned(serialize(self).unwrap())
+        Cow::Owned(to_binary(self).unwrap())
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        deserialize(&bytes).unwrap()
+        from_binary(&bytes).unwrap()
     }
 
     const BOUND: Bound = Bound::Unbounded;

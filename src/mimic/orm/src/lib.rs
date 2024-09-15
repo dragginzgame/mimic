@@ -4,6 +4,7 @@ pub mod types;
 pub mod visit;
 
 use ::types::ErrorTree;
+use ic::structures::serialize::{from_binary, to_binary};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use snafu::Snafu;
 use traits::Visitable;
@@ -25,7 +26,9 @@ pub enum Error {
     Validation { errors: ErrorTree },
 
     #[snafu(transparent)]
-    Cbor { source: lib_cbor::Error },
+    Serialize {
+        source: ic::structures::serialize::Error,
+    },
 }
 
 impl Error {
@@ -47,7 +50,7 @@ pub fn serialize<T>(ty: &T) -> Result<Vec<u8>, Error>
 where
     T: Serialize,
 {
-    lib_cbor::serialize::<T>(ty).map_err(Error::from)
+    to_binary::<T>(ty).map_err(Error::from)
 }
 
 // deserialize
@@ -55,7 +58,7 @@ pub fn deserialize<T>(bytes: &[u8]) -> Result<T, Error>
 where
     T: DeserializeOwned,
 {
-    lib_cbor::deserialize::<T>(bytes).map_err(Error::from)
+    from_binary::<T>(bytes).map_err(Error::from)
 }
 
 // sanitize

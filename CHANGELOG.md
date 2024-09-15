@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - moved the five startup functions into a single StartupManager trait with defaults
 - removed mimic_common and mimic_derive as they were only used for Storable, and we need a more
 flexible implementation of Storable anyway
+- removed lib_cbor and added from_binary and to_binary into the ic::structures module, accessible
+to whatever apps use mimic
 
 ## [0.1.6]
 - changed the concrete error types to a (Code, String) tuple, as dealing with two tiers of

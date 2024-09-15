@@ -3,10 +3,14 @@ use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use ic::{
     log,
-    structures::{memory::VirtualMemory, storable::Bound, Cell, Storable},
+    structures::{
+        memory::VirtualMemory,
+        serialize::{from_binary, to_binary},
+        storable::Bound,
+        Cell, Storable,
+    },
     Log,
 };
-use lib_cbor::{deserialize, serialize};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::borrow::Cow;
@@ -132,11 +136,11 @@ impl Default for AppState {
 
 impl Storable for AppState {
     fn to_bytes(&self) -> Cow<[u8]> {
-        Cow::Owned(serialize(self).unwrap())
+        Cow::Owned(to_binary(self).unwrap())
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        deserialize(&bytes).unwrap()
+        from_binary(&bytes).unwrap()
     }
 
     const BOUND: Bound = Bound::Unbounded;

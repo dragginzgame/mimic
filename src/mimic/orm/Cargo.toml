@@ -11,7 +11,6 @@ workspace = true
 candid = { workspace = true }
 darling = { workspace = true }
 derive_more = { workspace = true }
-lib_cbor = { workspace = true }
 ic = { workspace = true }
 num-traits = { workspace = true }
 orm_schema = { workspace = true }

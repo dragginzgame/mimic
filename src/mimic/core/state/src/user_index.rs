@@ -2,8 +2,12 @@ use super::USER_INDEX;
 use candid::{CandidType, Principal};
 use core_schema::get_schema;
 use derive_more::{Deref, DerefMut};
-use ic::structures::{memory::VirtualMemory, storable::Bound, BTreeMap, Storable};
-use lib_cbor::{deserialize, serialize};
+use ic::structures::{
+    memory::VirtualMemory,
+    serialize::{from_binary, to_binary},
+    storable::Bound,
+    BTreeMap, Storable,
+};
 use orm_schema::node::Role;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -178,11 +182,11 @@ impl User {
 
 impl Storable for User {
     fn to_bytes(&self) -> Cow<[u8]> {
-        Cow::Owned(serialize(self).unwrap())
+        Cow::Owned(to_binary(self).unwrap())
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        deserialize(&bytes).unwrap()
+        from_binary(&bytes).unwrap()
     }
 
     const BOUND: Bound = Bound::Unbounded;

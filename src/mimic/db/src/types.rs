@@ -1,6 +1,9 @@
 use candid::CandidType;
-use ic::structures::{storable::Bound, Storable};
-use lib_cbor::{deserialize, serialize};
+use ic::structures::{
+    serialize::{from_binary, to_binary},
+    storable::Bound,
+    Storable,
+};
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, fmt};
 use types::Timestamp;
@@ -39,11 +42,11 @@ pub struct DataValue {
 
 impl Storable for DataValue {
     fn to_bytes(&self) -> Cow<[u8]> {
-        Cow::Owned(serialize(self).unwrap())
+        Cow::Owned(to_binary(self).unwrap())
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        deserialize(&bytes).unwrap()
+        from_binary(&bytes).unwrap()
     }
 
     const BOUND: Bound = Bound::Unbounded;
@@ -96,11 +99,11 @@ impl fmt::Display for DataKey {
 
 impl Storable for DataKey {
     fn to_bytes(&self) -> Cow<[u8]> {
-        Cow::Owned(lib_cbor::serialize(self).unwrap())
+        Cow::Owned(to_binary(self).unwrap())
     }
 
     fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
-        lib_cbor::deserialize(&bytes).unwrap()
+        from_binary(&bytes).unwrap()
     }
 
     const BOUND: Bound = Bound::Bounded {
