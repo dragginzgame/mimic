@@ -73,7 +73,7 @@ macro_rules! mimic_start {
             ::mimic::core::config::init_config_toml(toml)
                 .map_err(|e| Error::init(e.to_string()))?;
 
-            startup2()
+            StartupManager::startup()
         }
     };
 }

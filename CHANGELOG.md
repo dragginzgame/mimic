@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.1.7]
 - refactor of entire api crate with new error handling, and grouped submodules
 - moved ic to lib_ic to keep the libraries consistent
+- moved the five startup functions into a single StartupManager trait with defaults
 
 ## [0.1.6]
 - changed the concrete error types to a (Code, String) tuple, as dealing with two tiers of

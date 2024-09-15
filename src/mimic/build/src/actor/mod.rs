@@ -106,7 +106,7 @@ impl ActorBuilder {
 
         // init
         // this goes last because it has registered hooks
-        self.add_init_hook("init2");
+        self.add_init_hook("StartupManager::init");
         init::extend(&mut self);
 
         //

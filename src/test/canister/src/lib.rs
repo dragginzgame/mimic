@@ -9,30 +9,9 @@ use mimic::{api::Error, prelude::*};
 // blank file so we get the default
 mimic_start!("../config.toml");
 
-// init2
-pub const fn init2() -> Result<(), Error> {
-    Ok(())
-}
-
-// init_async2
-pub async fn init_async2() -> Result<(), Error> {
-    Ok(())
-}
-
-// startup2
-pub const fn startup2() -> Result<(), Error> {
-    Ok(())
-}
-
-// pre_upgrade2
-pub const fn pre_upgrade2() -> Result<(), Error> {
-    Ok(())
-}
-
-// post_upgrade2
-pub const fn post_upgrade2() -> Result<(), Error> {
-    Ok(())
-}
+// StartupManager
+pub struct StartupManager {}
+impl StartupHooks for StartupManager {}
 
 // test
 #[update]

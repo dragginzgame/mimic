@@ -67,7 +67,7 @@ pub mod prelude {
         api::{
             auth::{guard, Guard},
             subnet::request::{Request, RequestKind, Response},
-            Error,
+            Error, StartupHooks,
         },
         mimic_end, mimic_start,
         orm::traits::{EntityFixture, Path},
