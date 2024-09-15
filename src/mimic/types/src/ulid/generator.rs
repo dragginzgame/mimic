@@ -64,7 +64,7 @@ impl Generator {
         }
 
         // generate
-        let rand = lib_rand::next_u128();
+        let rand = ic::rand::next_u128();
         let ulid = Ulid::from_parts(*ts, rand);
 
         self.previous = ulid;

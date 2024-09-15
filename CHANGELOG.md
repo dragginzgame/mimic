@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 flexible implementation of Storable anyway
 - removed lib_cbor and added from_binary and to_binary into the ic::structures module, accessible
 to whatever apps use mimic
+- removed lib_time and moved it to the public ic:: crate
+- removed lib_rand and moved it to ic too
 
 ## [0.1.6]
 - changed the concrete error types to a (Code, String) tuple, as dealing with two tiers of

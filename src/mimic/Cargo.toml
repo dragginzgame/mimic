@@ -20,7 +20,6 @@ db = { workspace = true }
 derive_more = { workspace = true }
 lib_case = { workspace = true }
 ic = { workspace = true }
-lib_rand = { workspace = true }
 num-traits = { workspace = true }
 orm = { workspace = true }
 orm_macros = { workspace = true }

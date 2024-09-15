@@ -556,6 +556,7 @@ dependencies = [
  "serde",
  "sha2",
  "snafu",
+ "tinyrand",
 ]
 
 [[package]]
@@ -688,14 +689,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "lib_rand"
-version = "0.1.7"
-dependencies = [
- "ic",
- "tinyrand",
-]
-
-[[package]]
 name = "lib_test"
 version = "0.1.7"
 
@@ -739,7 +732,6 @@ dependencies = [
  "derive_more",
  "ic",
  "lib_case",
- "lib_rand",
  "num-traits",
  "orm",
  "orm_macros",
@@ -829,7 +821,7 @@ version = "0.1.7"
 dependencies = [
  "darling",
  "derive_more",
- "lib_rand",
+ "ic",
  "orm",
  "orm_schema",
  "proc-macro2",
@@ -1251,7 +1243,6 @@ dependencies = [
  "candid",
  "derive_more",
  "ic",
- "lib_rand",
  "num-traits",
  "rust_decimal",
  "serde",

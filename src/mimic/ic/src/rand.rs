@@ -1,4 +1,4 @@
-use ic::time::now_millis;
+use crate::time::now_nanos;
 use std::sync::{LazyLock, Mutex};
 use tinyrand::{Rand, Seeded, StdRand};
 
@@ -7,7 +7,7 @@ use tinyrand::{Rand, Seeded, StdRand};
 ///
 
 pub static STD_RAND: LazyLock<Mutex<StdRand>> =
-    LazyLock::new(|| Mutex::new(StdRand::seed(now_millis())));
+    LazyLock::new(|| Mutex::new(StdRand::seed(now_nanos())));
 
 // next_u8
 // (uses u16 because there is no next_u8)
@@ -61,8 +61,8 @@ mod tests {
 
     #[test]
     fn test_rng_reseeding() {
-        let mut rng1 = StdRand::seed(now_millis());
-        let mut rng2 = StdRand::seed(now_millis() + 1);
+        let mut rng1 = StdRand::seed(now_nanos());
+        let mut rng2 = StdRand::seed(now_nanos() + 1);
 
         let mut matched = false;
         for _ in 0..100 {

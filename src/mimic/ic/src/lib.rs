@@ -6,6 +6,7 @@ pub use ic_cdk_timers as timers;
 
 // re-exports
 pub mod helper;
+pub mod rand;
 pub mod structures;
 pub mod time;
 

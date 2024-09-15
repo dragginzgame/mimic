@@ -17,3 +17,4 @@ serde = { workspace = true }
 sha2 = { workspace = true }
 snafu = { workspace = true }
 ciborium = { workspace = true }
+tinyrand = { workspace = true }
