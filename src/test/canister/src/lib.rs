@@ -9,8 +9,7 @@ use mimic::{api::Error, prelude::*};
 // blank file so we get the default
 mimic_start!("../config.toml");
 
-// StartupManager
-pub struct StartupManager {}
+// Startup
 impl StartupHooks for StartupManager {}
 
 // test
