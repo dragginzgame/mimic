@@ -1,6 +1,6 @@
 use crate::ic::call::call;
 use candid::Principal;
-use lib_ic::{
+use ic::{
     api::management_canister::{
         main::{CanisterInstallMode, CreateCanisterArgument, InstallCodeArgument, WasmModule},
         provisional::CanisterSettings,

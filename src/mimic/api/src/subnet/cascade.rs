@@ -1,6 +1,6 @@
 use crate::ic::call::call;
 use core_state::{AppStateManager, ChildIndexManager, SubnetIndexManager};
-use lib_ic::{log, Log};
+use ic::{log, Log};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 

@@ -2,7 +2,7 @@ use crate::ic::call::call;
 use candid::{CandidType, Principal};
 use core_state::ChildIndexManager;
 use core_wasm::WasmManager;
-use lib_ic::{caller, format_cycles, log, println, Log};
+use ic::{caller, format_cycles, log, println, Log};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use strum::Display;

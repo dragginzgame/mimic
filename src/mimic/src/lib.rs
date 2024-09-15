@@ -7,6 +7,7 @@ pub mod macros;
 pub use api;
 pub use build;
 pub use db;
+pub use ic;
 pub use types;
 
 pub mod core {
@@ -23,19 +24,11 @@ pub mod export {
     pub use strum;
 }
 
-pub mod lib {
-    pub use lib_case as case;
-    pub use lib_cbor as cbor;
-    pub use lib_ic as ic;
-    pub use lib_rand as rand;
-    pub use lib_time as time;
-}
-
 pub mod orm {
     pub mod prelude {
         pub use ::candid::{CandidType, Principal};
+        pub use ::ic::structures::storable::Bound;
         pub use ::lib_case::{Case, Casing};
-        pub use ::lib_ic::structures::storable::Bound;
         pub use ::num_traits::{NumCast, ToPrimitive};
         pub use ::orm::{
             collections::HashSet,
@@ -80,6 +73,6 @@ pub mod prelude {
         AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager, SubnetIndex,
         SubnetIndexManager, User, UserIndex, UserIndexManager,
     };
-    pub use ::lib_ic::{caller, format_cycles, id, log, Log};
+    pub use ::ic::{caller, format_cycles, id, log, Log};
     pub use ::std::cell::RefCell;
 }

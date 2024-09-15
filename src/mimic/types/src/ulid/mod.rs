@@ -3,8 +3,8 @@ pub mod generator;
 
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, FromStr};
+use ic::structures::{storable::Bound, Storable};
 use lib_cbor::{deserialize, serialize};
-use lib_ic::structures::{storable::Bound, Storable};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use snafu::Snafu;
 use std::{borrow::Cow, fmt};

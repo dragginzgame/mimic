@@ -20,7 +20,7 @@ fn stores(builder: &mut ActorBuilder) {
             static #cell_ident: RefCell<::mimic::db::Store> = RefCell::new(
                 ::mimic::db::Store::init(
                     ::mimic::core::state::MEMORY_MANAGER.with(|mm| mm.borrow().get(
-                        ::mimic::lib::ic::structures::memory::MemoryId::new(#memory_id)
+                        ::mimic::ic::structures::memory::MemoryId::new(#memory_id)
                     ))
                 )
             );

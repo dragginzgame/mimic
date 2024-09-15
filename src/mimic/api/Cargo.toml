@@ -15,7 +15,7 @@ core_state = { workspace = true }
 core_wasm = { workspace = true }
 db = { workspace = true }
 defer = { workspace = true }
-lib_ic = { workspace = true }
+ic = { workspace = true }
 orm = { workspace = true }
 orm_schema = { workspace = true }
 remain = { workspace = true }

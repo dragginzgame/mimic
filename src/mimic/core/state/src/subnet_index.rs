@@ -1,7 +1,7 @@
 use super::SUBNET_INDEX;
 use candid::{CandidType, Principal};
 use derive_more::{Deref, DerefMut};
-use lib_ic::structures::{memory::VirtualMemory, BTreeMap};
+use ic::structures::{memory::VirtualMemory, BTreeMap};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 

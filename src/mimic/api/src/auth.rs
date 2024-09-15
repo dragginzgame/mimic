@@ -1,7 +1,7 @@
 use crate::ic::call::call;
 use candid::Principal;
 use core_state::{ChildIndexManager, SubnetIndexManager};
-use lib_ic::{api::is_controller, caller};
+use ic::{api::is_controller, caller};
 use orm_schema::node::AccessPolicy;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -203,7 +203,7 @@ pub async fn guard_subnet(_id: Principal) -> Result<(), Error> {
 
 // guard_this
 fn guard_this(id: Principal) -> Result<(), Error> {
-    if id == lib_ic::api::id() {
+    if id == ic::api::id() {
         Ok(())
     } else {
         Err(Error::NotThis { id })?

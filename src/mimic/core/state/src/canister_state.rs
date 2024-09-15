@@ -1,8 +1,8 @@
 use super::CANISTER_STATE;
 use candid::{CandidType, Principal};
 use derive_more::{Deref, DerefMut};
+use ic::structures::{memory::VirtualMemory, storable::Bound, Cell, Storable};
 use lib_cbor::{deserialize, serialize};
-use lib_ic::structures::{memory::VirtualMemory, storable::Bound, Cell, Storable};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::borrow::Cow;
@@ -20,9 +20,7 @@ pub enum Error {
     RootIdNotSet,
 
     #[snafu(transparent)]
-    Cell {
-        source: lib_ic::structures::cell::Error,
-    },
+    Cell { source: ic::structures::cell::Error },
 }
 
 ///

@@ -22,7 +22,7 @@ fn init_root(builder: &ActorBuilder) -> TokenStream {
 
     quote! {
         // init
-        #[::mimic::lib::ic::init]
+        #[::mimic::ic::init]
         fn init() {
             log!(Log::Info, "**********************************");
             log!(Log::Info, "init: root");
@@ -36,7 +36,7 @@ fn init_root(builder: &ActorBuilder) -> TokenStream {
         }
 
         // init_async
-        #[::mimic::lib::ic::update]
+        #[::mimic::ic::update]
         async fn init_async() -> Result<(), Error> {
             // root has to automatically create canisters
             actorgen::root_auto_create_canisters().await?;
@@ -53,7 +53,7 @@ fn init_default(builder: &ActorBuilder) -> TokenStream {
 
     quote! {
         // init
-        #[::mimic::lib::ic::init]
+        #[::mimic::ic::init]
         fn init(root_id: Principal, parent_id: Principal) {
 
             log!(Log::Info, "init: {}", #canister_path);
@@ -67,7 +67,7 @@ fn init_default(builder: &ActorBuilder) -> TokenStream {
         }
 
         // init_async
-        #[::mimic::lib::ic::update]
+        #[::mimic::ic::update]
         async fn init_async() -> Result<(), Error> {
             StartupManager::init_async().await
         }
@@ -81,7 +81,7 @@ fn init_test(builder: &ActorBuilder) -> TokenStream {
 
     quote! {
         // init
-        #[::mimic::lib::ic::init]
+        #[::mimic::ic::init]
         fn init() {
             log!(Log::Info, "init: test");
             startup().unwrap();
@@ -92,7 +92,7 @@ fn init_test(builder: &ActorBuilder) -> TokenStream {
         }
 
         // init_async
-        #[::mimic::lib::ic::update]
+        #[::mimic::ic::update]
         async fn init_async() -> Result<(), Error> {
             StartupManager::init_async().await
         }

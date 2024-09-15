@@ -1,12 +1,12 @@
 use super::APP_STATE;
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
-use lib_cbor::{deserialize, serialize};
-use lib_ic::{
+use ic::{
     log,
     structures::{memory::VirtualMemory, storable::Bound, Cell, Storable},
     Log,
 };
+use lib_cbor::{deserialize, serialize};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::borrow::Cow;
@@ -22,9 +22,7 @@ pub enum Error {
     AlreadyInMode { mode: AppMode },
 
     #[snafu(transparent)]
-    Cell {
-        source: lib_ic::structures::cell::Error,
-    },
+    Cell { source: ic::structures::cell::Error },
 }
 
 ///

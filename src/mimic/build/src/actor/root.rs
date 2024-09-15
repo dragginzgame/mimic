@@ -13,7 +13,7 @@ pub fn root_actor(builder: &mut ActorBuilder) {
         // app
         // modify app-level state
         // @todo eventually this will cascade down from an orchestrator canister
-        #[::mimic::lib::ic::update]
+        #[::mimic::ic::update]
         async fn app(cmd: AppCommand) -> Result<(), ::mimic::api::Error> {
             AppStateManager::command(cmd)?;
 
@@ -23,7 +23,7 @@ pub fn root_actor(builder: &mut ActorBuilder) {
         }
 
         // response
-        #[::mimic::lib::ic::update]
+        #[::mimic::ic::update]
         async fn response(req: Request) -> Result<Response, ::mimic::api::Error> {
             let res = ::mimic::api::subnet::request::response(req).await?;
 

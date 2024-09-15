@@ -22,19 +22,19 @@ pub enum Error {
 // balance
 #[must_use]
 pub fn balance() -> u128 {
-    lib_ic::api::canister_balance128()
+    ic::api::canister_balance128()
 }
 
 // caller
 #[must_use]
 pub fn caller() -> Principal {
-    lib_ic::api::caller()
+    ic::api::caller()
 }
 
 // id
 #[must_use]
 pub fn id() -> Principal {
-    lib_ic::api::id()
+    ic::api::id()
 }
 
 // schema
@@ -48,13 +48,13 @@ pub fn schema() -> Result<Canister, Error> {
 // time
 #[must_use]
 pub fn time() -> u64 {
-    lib_ic::api::time()
+    ic::api::time()
 }
 
 // version
 #[must_use]
 pub fn version() -> u64 {
-    lib_ic::api::canister_version()
+    ic::api::canister_version()
 }
 
 ///

@@ -1,5 +1,5 @@
 use candid::Principal;
-use lib_ic::api::{
+use ic::api::{
     call::RejectionCode,
     management_canister::main::{
         canister_status as ic_canister_status, create_canister as ic_create_canister,

@@ -85,7 +85,7 @@ macro_rules! mimic_end {
     () => {
         // export_candid
         // has to be at the end
-        ::mimic::lib::ic::export_candid!();
+        ::mimic::ic::export_candid!();
     };
 }
 
@@ -93,10 +93,10 @@ macro_rules! mimic_end {
 #[macro_export]
 macro_rules! perf {
     () => {
-        ::mimic::api::defer!(::mimic::lib::ic::log!(
+        ::mimic::api::defer!(::mimic::ic::log!(
             Log::Perf,
             "api call used {} instructions ({})",
-            ::mimic::lib::ic::api::performance_counter(1),
+            ::mimic::ic::api::performance_counter(1),
             module_path!()
         ));
     };

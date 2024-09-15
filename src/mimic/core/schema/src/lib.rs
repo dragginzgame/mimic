@@ -4,7 +4,7 @@ pub mod entity_crud;
 pub use auth::AuthService;
 pub use orm_schema::node::Schema;
 
-use lib_ic::{log, Log};
+use ic::{log, Log};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::sync::Mutex;

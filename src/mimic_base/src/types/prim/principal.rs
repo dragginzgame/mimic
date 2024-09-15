@@ -1,6 +1,6 @@
 use candid::{types::principal::PrincipalError, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut};
-use lib_ic::{api::caller, structures::storable::Bound};
+use ic::{api::caller, structures::storable::Bound};
 use mimic::orm::{
     prelude::*,
     traits::{

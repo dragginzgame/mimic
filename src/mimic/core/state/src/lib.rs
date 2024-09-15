@@ -12,7 +12,7 @@ pub use {
     user_index::{User, UserIndex, UserIndexManager},
 };
 
-use lib_ic::structures::{
+use ic::structures::{
     memory::{MemoryId, MemoryManager},
     DefaultMemoryImpl,
 };
