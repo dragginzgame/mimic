@@ -341,7 +341,6 @@ dependencies = [
  "core_schema",
  "derive_more",
  "ic",
- "lib_time",
  "orm",
  "orm_schema",
  "serde",
@@ -692,20 +691,13 @@ dependencies = [
 name = "lib_rand"
 version = "0.1.7"
 dependencies = [
- "lib_time",
+ "ic",
  "tinyrand",
 ]
 
 [[package]]
 name = "lib_test"
 version = "0.1.7"
-
-[[package]]
-name = "lib_time"
-version = "0.1.7"
-dependencies = [
- "ic-cdk",
-]
 
 [[package]]
 name = "libc"
@@ -748,7 +740,6 @@ dependencies = [
  "ic",
  "lib_case",
  "lib_rand",
- "lib_time",
  "num-traits",
  "orm",
  "orm_macros",
@@ -1261,7 +1252,6 @@ dependencies = [
  "derive_more",
  "ic",
  "lib_rand",
- "lib_time",
  "num-traits",
  "rust_decimal",
  "serde",

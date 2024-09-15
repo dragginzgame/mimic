@@ -31,11 +31,11 @@ impl From<u64> for Timestamp {
 impl Timestamp {
     #[must_use]
     pub fn now() -> Self {
-        Self(lib_time::now())
+        Self(ic::time::now_secs())
     }
 
     #[must_use]
     pub fn now_millis() -> Self {
-        Self(lib_time::now_millis())
+        Self(ic::time::now_millis())
     }
 }

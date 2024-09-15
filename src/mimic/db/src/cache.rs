@@ -1,6 +1,6 @@
 use crate::types::{DataKey, DataValue};
 use derive_more::{Deref, DerefMut};
-use lib_time::now;
+use ic::time::now_secs;
 use std::collections::BTreeMap;
 
 ///
@@ -21,7 +21,7 @@ impl EntityCache {
     pub fn init() -> Self {
         Self {
             data: BTreeMap::new(),
-            created: now(),
+            created: now_secs(),
         }
     }
 }

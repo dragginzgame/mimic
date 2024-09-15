@@ -8,5 +8,5 @@ version = { workspace = true }
 workspace = true
 
 [dependencies]
-lib_time = { workspace = true }
+ic = { workspace = true }
 tinyrand = { workspace = true }

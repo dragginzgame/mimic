@@ -11,9 +11,9 @@ members = [
     "src/mimic/core/wasm",
     "src/mimic/db",
     "src/mimic/ic",
+    "src/mimic/lib/case",
     "src/mimic/lib/rand",
     "src/mimic/lib/test",
-    "src/mimic/lib/time",
     "src/mimic/orm",
     "src/mimic/orm/macros",
     "src/mimic/orm/schema",
@@ -63,7 +63,6 @@ orm_macros = { path = "src/mimic/orm/macros" }
 lib_case = { path = "src/mimic/lib/case" }
 lib_rand = { path = "src/mimic/lib/rand" }
 lib_test = { path = "src/mimic/lib/test" }
-lib_time = { path = "src/mimic/lib/time" }
 
 # test
 test_canister = { path = "src/test/canister" }

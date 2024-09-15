@@ -1,4 +1,4 @@
-use lib_time::now_millis;
+use ic::time::now_millis;
 use std::sync::{LazyLock, Mutex};
 use tinyrand::{Rand, Seeded, StdRand};
 
