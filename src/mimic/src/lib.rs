@@ -25,6 +25,7 @@ pub mod export {
 
 pub mod lib {
     pub use lib_case as case;
+    pub use lib_cbor as cbor;
     pub use lib_ic as ic;
     pub use lib_rand as rand;
     pub use lib_time as time;
