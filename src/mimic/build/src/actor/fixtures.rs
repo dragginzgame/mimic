@@ -18,6 +18,7 @@ pub fn fixture_actor(builder: &mut ActorBuilder) {
 
         // fixtures_replace_all
         #[::mimic::ic::update]
+        #[allow(clippy::missing_const_for_fn)]
         async fn fixtures_replace_all() -> Result<(), ::mimic::api::Error> {
             guard(vec![Guard::Controller]).await?;
 
