@@ -122,7 +122,6 @@ nursery = { level = "allow", priority = -1 }
 must-use-candidate = "warn"
 
 # always allow
-allow_wildcard_imports = "allow"
 doc_markdown = "allow"
 empty_line_after_doc_comments = "allow"
 missing_errors_doc = "allow"
@@ -130,3 +129,4 @@ missing_panics_doc = "allow"
 module_inception = "allow"
 module_name_repetitions = "allow"
 needless_pass_by_value = "allow"
+wildcard_imports = "allow"

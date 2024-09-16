@@ -9,6 +9,7 @@ workspace = true
 
 [dependencies]
 candid = { workspace = true }
+ciborium = { workspace = true }
 derive_more = { workspace = true }
 ic-cdk = { workspace = true }
 ic-cdk-timers = { workspace = true }
@@ -16,5 +17,4 @@ ic-stable-structures = { workspace = true }
 serde = { workspace = true }
 sha2 = { workspace = true }
 snafu = { workspace = true }
-ciborium = { workspace = true }
 tinyrand = { workspace = true }
