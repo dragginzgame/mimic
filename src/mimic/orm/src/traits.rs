@@ -239,7 +239,7 @@ pub trait ValidateVisit: Validate + ValidateAuto {
         errs.merge(self.validate());
         errs.merge(self.validate_auto());
 
-        ::ic::println!("visiting: {errs:?}");
+        eprintln!("visiting: {errs:?}");
 
         errs.result()
     }
