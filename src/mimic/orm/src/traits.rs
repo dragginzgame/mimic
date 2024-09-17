@@ -197,16 +197,24 @@ impl_primitive_list!(
 );
 
 ///
+/// SanitizeVisit
+///
+
+pub trait SanitizeVisit: Sanitize + SanitizeAuto {
+    fn sanitize_visit(&mut self) {
+        self.sanitize();
+        self.sanitize_auto();
+    }
+}
+
+impl<T> SanitizeVisit for T where T: Sanitize + SanitizeAuto {}
+
+///
 /// Sanitize
 ///
 
 pub trait Sanitize: SanitizeAuto {
-    fn sanitize(&mut self) {
-        self.sanitize_manual();
-        self.sanitize_auto();
-    }
-
-    fn sanitize_manual(&mut self) {}
+    fn sanitize(&mut self) {}
 }
 
 impl_primitive!(Sanitize);
@@ -222,22 +230,30 @@ pub trait SanitizeAuto {
 impl_primitive!(SanitizeAuto);
 
 ///
+/// ValidateVisit
+///
+
+pub trait ValidateVisit: Validate + ValidateAuto {
+    fn validate_visit(&self) -> Result<(), ErrorVec> {
+        let mut errs = ErrorVec::new();
+        errs.merge(self.validate());
+        errs.merge(self.validate_auto());
+
+        errs.result()
+    }
+}
+
+impl<T> ValidateVisit for T where T: Validate + ValidateAuto {}
+
+///
 /// Validate
 ///
 /// The default behaviour is Ok() so no errors unless
 /// this method is overridden
 ///
 
-pub trait Validate: ValidateAuto {
+pub trait Validate {
     fn validate(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
-        errs.merge(self.validate_manual());
-        errs.merge(self.validate_auto());
-
-        errs.result()
-    }
-
-    fn validate_manual(&self) -> Result<(), ErrorVec> {
         Ok(())
     }
 }
@@ -263,7 +279,7 @@ impl_primitive!(ValidateAuto);
 /// Visitable
 ///
 
-pub trait Visitable: Validate + Sanitize {
+pub trait Visitable: ValidateVisit + SanitizeVisit {
     fn drive(&self, _: &mut dyn Visitor) {}
     fn drive_mut(&mut self, _: &mut dyn Visitor) {}
 }

@@ -67,7 +67,7 @@ impl Visitor for SanitizeVisitor {
     fn visit_mut(&mut self, item: &mut dyn Visitable, event: Event) {
         match event {
             Event::Enter => {
-                item.sanitize();
+                item.sanitize_visit();
             }
             Event::Exit => {}
         }
@@ -94,7 +94,7 @@ impl ValidateVisitor {
 impl Visitor for ValidateVisitor {
     fn visit(&mut self, item: &dyn Visitable, event: Event) {
         match event {
-            Event::Enter => match item.validate() {
+            Event::Enter => match item.validate_visit() {
                 Ok(()) => {}
                 Err(errs) => {
                     if !errs.is_empty() {
