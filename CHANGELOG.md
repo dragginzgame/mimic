@@ -17,6 +17,7 @@ flexible implementation of Storable anyway
 to whatever apps use mimic
 - removed lib_time and moved it to the public ic:: crate
 - removed lib_rand and moved it to ic too
+- added the semver crate so we can validate Version
 
 ## [0.1.6]
 - changed the concrete error types to a (Code, String) tuple, as dealing with two tiers of

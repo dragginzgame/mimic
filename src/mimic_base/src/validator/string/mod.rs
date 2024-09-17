@@ -11,6 +11,9 @@ use mimic::orm::prelude::*;
 pub enum Error {
     #[snafu(display("string contains non-ascii characters"))]
     NonAscii,
+
+    #[snafu(display("{error}"))]
+    InvalidVersion { error: String },
 }
 
 ///
@@ -26,6 +29,25 @@ impl Ascii {
             Ok(())
         } else {
             Err(Error::NonAscii)
+        }
+    }
+}
+
+///
+/// Version
+/// (semver crate)
+///
+
+#[validator]
+pub struct Version {}
+
+impl Version {
+    pub fn validate<D: Display>(d: &D) -> Result<(), Error> {
+        match semver::Version::parse(&d.to_string()) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(Error::InvalidVersion {
+                error: e.to_string(),
+            }),
         }
     }
 }
