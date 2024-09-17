@@ -239,7 +239,7 @@ pub trait ValidateVisit: Validate + ValidateAuto {
         errs.merge(self.validate());
         errs.merge(self.validate_auto());
 
-        eprintln!("visiting: {errs:?}");
+        panic!("visiting: {errs:?}");
 
         errs.result()
     }
