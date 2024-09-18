@@ -2,7 +2,8 @@ use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
 use mimic::{
     orm::traits::{
-        Filterable, Inner, Orderable, Sanitize, SanitizeAuto, Validate, ValidateAuto, Visitable,
+        Filterable, Inner, Orderable, SanitizeAuto, SanitizeManual, ValidateAuto, ValidateManual,
+        Visitable,
     },
     types::Decimal as WrappedDecimal,
 };
@@ -164,11 +165,11 @@ impl ToPrimitive for Decimal {
     }
 }
 
-impl Sanitize for Decimal {}
+impl SanitizeManual for Decimal {}
 
 impl SanitizeAuto for Decimal {}
 
-impl Validate for Decimal {}
+impl ValidateManual for Decimal {}
 
 impl ValidateAuto for Decimal {}
 

@@ -33,10 +33,12 @@ mod tests {
 
         for (key, expected) in test_cases {
             let code = Code(key.into());
-            assert_eq!(
-                code.validate().is_ok(),
+            assert!(
+                code.validate().is_ok() == expected,
+                "testing: '{}' - expected: {}, got: {}",
+                key,
                 expected,
-                "testing: {key} - expected: {expected}",
+                code.validate().is_ok()
             );
         }
     }

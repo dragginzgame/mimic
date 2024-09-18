@@ -27,11 +27,11 @@ pub struct Timestamp(u64);
 
 impl Orderable for Timestamp {}
 
-impl Sanitize for Timestamp {}
+impl SanitizeManual for Timestamp {}
 
 impl SanitizeAuto for Timestamp {}
 
-impl Validate for Timestamp {}
+impl ValidateManual for Timestamp {}
 
 impl ValidateAuto for Timestamp {}
 

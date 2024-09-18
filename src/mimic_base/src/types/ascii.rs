@@ -9,13 +9,13 @@ use mimic::orm::prelude::*;
 #[newtype(
     primitive = "String",
     value(item(is = "types::String")),
-    traits(add(Hash), remove(Validate))
+    traits(add(Hash), remove(ValidateManual))
 )]
 pub struct Text<const LEN: usize> {}
 
 #[allow(clippy::cast_possible_wrap)]
-impl<const LEN: usize> Validate for Text<LEN> {
-    fn validate(&self) -> Result<(), ErrorVec> {
+impl<const LEN: usize> ValidateManual for Text<LEN> {
+    fn validate_manual(&self) -> Result<(), ErrorVec> {
         let mut errs = ErrorVec::new();
 
         // ascii check

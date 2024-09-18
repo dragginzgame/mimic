@@ -117,12 +117,12 @@ impl PrimaryKey for Ulid {
     }
 }
 
-impl Sanitize for Ulid {}
+impl SanitizeManual for Ulid {}
 
 impl SanitizeAuto for Ulid {}
 
-impl Validate for Ulid {
-    fn validate(&self) -> Result<(), ErrorVec> {
+impl ValidateManual for Ulid {
+    fn validate_manual(&self) -> Result<(), ErrorVec> {
         if self.is_nil() {
             Err(mimic::types::ulid::Error::Nil.into())
         } else {

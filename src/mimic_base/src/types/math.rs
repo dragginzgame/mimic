@@ -8,7 +8,7 @@ use mimic::orm::prelude::*;
 #[newtype(
     primitive = "Decimal",
     value(item(is = "types::Decimal")),
-    traits(remove(Validate))
+    traits(remove(ValidateManual))
 )]
 pub struct DecimalFormat<const I: usize, const F: usize> {}
 
@@ -21,8 +21,8 @@ pub enum DecimalFormatError {
     FractionalLengthExceeded { flen: usize, max: usize },
 }
 
-impl<const I: usize, const F: usize> Validate for DecimalFormat<I, F> {
-    fn validate(&self) -> Result<(), ErrorVec> {
+impl<const I: usize, const F: usize> ValidateManual for DecimalFormat<I, F> {
+    fn validate_manual(&self) -> Result<(), ErrorVec> {
         let (ilen, flen) = self.0.count_digits();
 
         // integer part I

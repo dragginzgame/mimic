@@ -61,9 +61,9 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> TokenStream {
         // empty implementations are generated for these traits
         Trait::Filterable
         | Trait::Orderable
-        | Trait::Sanitize
+        | Trait::SanitizeManual
         | Trait::SanitizeAuto
-        | Trait::Validate
+        | Trait::ValidateManual
         | Trait::ValidateAuto
         | Trait::Visitable => Implementor::new(def, t).to_token_stream(),
 

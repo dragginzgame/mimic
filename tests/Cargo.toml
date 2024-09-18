@@ -6,6 +6,7 @@ publish = false
 
 [dependencies]
 quote = { workspace = true }
+mimic_base = { workspace = true }
 
 [[test]]
 name = "mytest"

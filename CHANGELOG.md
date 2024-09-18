@@ -18,6 +18,7 @@ to whatever apps use mimic
 - removed lib_time and moved it to the public ic:: crate
 - removed lib_rand and moved it to ic too
 - added the semver crate so we can validate Version
+- Validate renamed to ValidateManual, Sanitize to SanitizeManual to clean up how those traits work
 
 ## [0.1.6]
 - changed the concrete error types to a (Code, String) tuple, as dealing with two tiers of

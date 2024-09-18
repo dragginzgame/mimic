@@ -4,8 +4,8 @@ use ic::{api::caller, structures::storable::Bound};
 use mimic::orm::{
     prelude::*,
     traits::{
-        Filterable, Inner, Orderable, PrimaryKey, Sanitize, SanitizeAuto, Storable, Validate,
-        ValidateAuto, Visitable,
+        Filterable, Inner, Orderable, PrimaryKey, SanitizeAuto, SanitizeManual, Storable,
+        ValidateAuto, ValidateManual, Visitable,
     },
 };
 use serde::{Deserialize, Serialize};
@@ -115,7 +115,7 @@ impl PrimaryKey for Principal {
     }
 }
 
-impl Sanitize for Principal {}
+impl SanitizeManual for Principal {}
 
 impl SanitizeAuto for Principal {}
 
@@ -134,8 +134,8 @@ impl Storable for Principal {
     };
 }
 
-impl Validate for Principal {
-    fn validate(&self) -> Result<(), ErrorVec> {
+impl ValidateManual for Principal {
+    fn validate_manual(&self) -> Result<(), ErrorVec> {
         if self.0.as_slice().is_empty() {
             Err(Error::EmptyPrincipal.into())
         } else {

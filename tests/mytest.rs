@@ -9,9 +9,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_something() {
-        let s = "hell\"o";
+    fn test_default_validates() { /*
+                                  use mimic_base::test::player::builder::chunk::Chunk;
 
-        println!("{}", quote!(#s));
+                                  let e = Chunk::default();
+                                  println!("{e:?}");
+
+                                  let errs = e.validate();
+                                  println!("{errs:?}");*/
     }
 }

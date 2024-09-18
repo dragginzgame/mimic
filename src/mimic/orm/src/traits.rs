@@ -197,27 +197,27 @@ impl_primitive_list!(
 );
 
 ///
-/// SanitizeVisit
+/// Sanitize
 ///
 
-pub trait SanitizeVisit: Sanitize + SanitizeAuto {
-    fn sanitize_visit(&mut self) {
-        self.sanitize();
+pub trait Sanitize: SanitizeManual + SanitizeAuto {
+    fn sanitize(&mut self) {
+        self.sanitize_manual();
         self.sanitize_auto();
     }
 }
 
-impl<T> SanitizeVisit for T where T: Sanitize + SanitizeAuto {}
+impl<T> Sanitize for T where T: SanitizeManual + SanitizeAuto {}
 
 ///
-/// Sanitize
+/// SanitizeManual
 ///
 
-pub trait Sanitize: SanitizeAuto {
-    fn sanitize(&mut self) {}
+pub trait SanitizeManual {
+    fn sanitize_manual(&mut self) {}
 }
 
-impl_primitive!(Sanitize);
+impl_primitive!(SanitizeManual);
 
 ///
 /// SanitizeAuto
@@ -230,37 +230,35 @@ pub trait SanitizeAuto {
 impl_primitive!(SanitizeAuto);
 
 ///
-/// ValidateVisit
+/// Validate
 ///
 
-pub trait ValidateVisit: Validate + ValidateAuto {
-    fn validate_visit(&self) -> Result<(), ErrorVec> {
+pub trait Validate: ValidateManual + ValidateAuto {
+    fn validate(&self) -> Result<(), ErrorVec> {
         let mut errs = ErrorVec::new();
-        errs.merge(self.validate());
+        errs.merge(self.validate_manual());
         errs.merge(self.validate_auto());
-
-        panic!("visiting: {errs:?}");
 
         errs.result()
     }
 }
 
-impl<T> ValidateVisit for T where T: Validate + ValidateAuto {}
+impl<T> Validate for T where T: ValidateManual + ValidateAuto {}
 
 ///
-/// Validate
+/// ValidateManual
 ///
 /// The default behaviour is Ok() so no errors unless
 /// this method is overridden
 ///
 
-pub trait Validate {
-    fn validate(&self) -> Result<(), ErrorVec> {
+pub trait ValidateManual {
+    fn validate_manual(&self) -> Result<(), ErrorVec> {
         Ok(())
     }
 }
 
-impl_primitive!(Validate);
+impl_primitive!(ValidateManual);
 
 ///
 /// ValidateAuto
@@ -281,7 +279,7 @@ impl_primitive!(ValidateAuto);
 /// Visitable
 ///
 
-pub trait Visitable: ValidateVisit + SanitizeVisit {
+pub trait Visitable: Validate + Sanitize {
     fn drive(&self, _: &mut dyn Visitor) {}
     fn drive_mut(&mut self, _: &mut dyn Visitor) {}
 }

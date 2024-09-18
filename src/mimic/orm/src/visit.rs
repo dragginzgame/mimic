@@ -1,4 +1,6 @@
-use crate::traits::{EntityDynamic, Sanitize, SanitizeAuto, Validate, ValidateAuto, Visitable};
+use crate::traits::{
+    EntityDynamic, SanitizeAuto, SanitizeManual, ValidateAuto, ValidateManual, Visitable,
+};
 use types::ErrorTree;
 
 ///
@@ -67,7 +69,7 @@ impl Visitor for SanitizeVisitor {
     fn visit_mut(&mut self, item: &mut dyn Visitable, event: Event) {
         match event {
             Event::Enter => {
-                item.sanitize_visit();
+                item.sanitize();
             }
             Event::Exit => {}
         }
@@ -94,7 +96,7 @@ impl ValidateVisitor {
 impl Visitor for ValidateVisitor {
     fn visit(&mut self, item: &dyn Visitable, event: Event) {
         match event {
-            Event::Enter => match item.validate_visit() {
+            Event::Enter => match item.validate() {
                 Ok(()) => {}
                 Err(errs) => {
                     if !errs.is_empty() {
@@ -142,9 +144,9 @@ impl<'a> Visitable for EntityAdapter<'a> {
     }
 }
 
-impl<'a> Sanitize for EntityAdapter<'a> {}
+impl<'a> SanitizeManual for EntityAdapter<'a> {}
 impl<'a> SanitizeAuto for EntityAdapter<'a> {}
-impl<'a> Validate for EntityAdapter<'a> {}
+impl<'a> ValidateManual for EntityAdapter<'a> {}
 impl<'a> ValidateAuto for EntityAdapter<'a> {}
 
 ///
@@ -159,7 +161,7 @@ impl<'a> Visitable for EntityAdapterMut<'a> {
     }
 }
 
-impl<'a> Sanitize for EntityAdapterMut<'a> {}
+impl<'a> SanitizeManual for EntityAdapterMut<'a> {}
 impl<'a> SanitizeAuto for EntityAdapterMut<'a> {}
-impl<'a> Validate for EntityAdapterMut<'a> {}
+impl<'a> ValidateManual for EntityAdapterMut<'a> {}
 impl<'a> ValidateAuto for EntityAdapterMut<'a> {}

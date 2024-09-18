@@ -54,11 +54,11 @@ impl Inner<Self> for Blob {
 
 impl Orderable for Blob {}
 
-impl Sanitize for Blob {}
+impl SanitizeManual for Blob {}
 
 impl SanitizeAuto for Blob {}
 
-impl Validate for Blob {}
+impl ValidateManual for Blob {}
 
 impl ValidateAuto for Blob {}
 
