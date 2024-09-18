@@ -1,7 +1,7 @@
 {
     "dfx": "0.23.0",
     "canisters": {
-        "test_canister": {
+        "test": {
             "type": "custom",
             "candid": ".dfx/local/canisters/test_canister/test_canister.did",
             "build": "bash -c 'scripts/app/build.sh test_canister'",

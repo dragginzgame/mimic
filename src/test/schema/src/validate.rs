@@ -7,7 +7,7 @@ use mimic::orm::prelude::*;
 
 #[entity(
     store = "crate::Store",
-    fields(field(name = "multiple_ten", value(item(is = "MultipleTenType"))),)
+    fields(field(name = "multiple_ten", value(item(is = "MultipleTenType"))))
 )]
 pub struct Validator {}
 
