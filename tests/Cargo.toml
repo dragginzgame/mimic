@@ -6,7 +6,8 @@ publish = false
 
 [dependencies]
 quote = { workspace = true }
-mimic_base = { workspace = true }
+orm = { workspace = true }
+test_schema = { workspace = true }
 
 [[test]]
 name = "mytest"
