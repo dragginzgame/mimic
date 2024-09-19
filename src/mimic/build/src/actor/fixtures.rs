@@ -81,7 +81,11 @@ pub fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
             // check the fixture data length matches the number of keys
             inner.push(quote! {
                 let fixture_data = #fixture_ident::get_fixture_data();
-                assert!(fixture_data.len() == #fixture_keys);
+                assert!(fixture_data.len() == #fixture_keys,
+                    "{}: fixtures should have {} entries",
+                    stringify!(#fixture_ident),
+                    #fixture_keys
+                );
 
                 fixtures_replace_helper(fixture_data)?;
             });
