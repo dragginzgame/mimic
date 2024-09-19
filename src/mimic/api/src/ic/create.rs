@@ -16,6 +16,9 @@ use snafu::Snafu;
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
+    #[snafu(display("api error: {error}"))]
+    Api { error: crate::Error },
+
     #[snafu(transparent)]
     Config { source: core_config::Error },
 
@@ -27,6 +30,12 @@ pub enum Error {
 
     #[snafu(transparent)]
     Schema { source: crate::core::schema::Error },
+}
+
+impl From<crate::Error> for Error {
+    fn from(error: crate::Error) -> Self {
+        Self::Api { error }
+    }
 }
 
 ///
@@ -78,7 +87,7 @@ pub async fn create_canister(
     // call init_async
     //
 
-    call::<_, (Result<(), crate::ic::call::Error>,)>(canister_id, "init_async", ((),))
+    call::<_, (Result<(), crate::Error>,)>(canister_id, "init_async", ((),))
         .await?
         .0?;
 

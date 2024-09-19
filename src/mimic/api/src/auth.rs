@@ -12,6 +12,9 @@ use snafu::Snafu;
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
+    #[snafu(display("api error: {error}"))]
+    Api { error: crate::Error },
+
     #[snafu(display("one or more rules must be defined"))]
     NoRulesDefined,
 
@@ -59,6 +62,12 @@ pub enum Error {
 
     #[snafu(transparent)]
     Subnet { source: crate::subnet::Error },
+}
+
+impl From<crate::Error> for Error {
+    fn from(error: crate::Error) -> Self {
+        Self::Api { error }
+    }
 }
 
 ///

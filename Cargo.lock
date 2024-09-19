@@ -547,7 +547,6 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 name = "ic"
 version = "0.1.7"
 dependencies = [
- "candid",
  "ciborium",
  "derive_more",
  "ic-cdk",
@@ -642,15 +641,6 @@ checksum = "68b900aa2f7301e21c36462b170ee99994de34dff39a4a6a528e80e7376d07e5"
 dependencies = [
  "equivalent",
  "hashbrown",
-]
-
-[[package]]
-name = "itertools"
-version = "0.13.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "413ee7dfc52ee1a4949ceeb7dbc8a33f2d6c088194d9f922fb8318faf1f01186"
-dependencies = [
- "either",
 ]
 
 [[package]]
@@ -837,7 +827,6 @@ dependencies = [
  "derive_more",
  "hex",
  "ic",
- "itertools",
  "lib_case",
  "proc-macro2",
  "quote",

@@ -13,6 +13,9 @@ use strum::Display;
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
+    #[snafu(display("api error: {error}"))]
+    Api { error: crate::Error },
+
     #[snafu(transparent)]
     Call { source: crate::ic::call::Error },
 
@@ -33,6 +36,12 @@ pub enum Error {
 
     #[snafu(transparent)]
     CoreWasm { source: core_wasm::Error },
+}
+
+impl From<crate::Error> for Error {
+    fn from(error: crate::Error) -> Self {
+        Self::Api { error }
+    }
 }
 
 ///
@@ -178,13 +187,10 @@ pub async fn request(request: Request) -> Result<Response, Error> {
     println!("request: {request:?}");
 
     let root_canister_id = crate::ic::canister::root_id()?;
-    let res = call::<_, (Result<Response, crate::ic::call::Error>,)>(
-        root_canister_id,
-        "response",
-        (request,),
-    )
-    .await?
-    .0?;
+    let res =
+        call::<_, (Result<Response, crate::Error>,)>(root_canister_id, "response", (request,))
+            .await?
+            .0?;
 
     Ok(res)
 }

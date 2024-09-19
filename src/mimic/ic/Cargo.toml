@@ -8,7 +8,6 @@ version = { workspace = true }
 workspace = true
 
 [dependencies]
-candid = { workspace = true }
 ciborium = { workspace = true }
 derive_more = { workspace = true }
 ic-cdk = { workspace = true }
