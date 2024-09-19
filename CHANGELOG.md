@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.1.8]
+- fixtures that have unused keys now throw an error during canister install
+
 ## [0.1.7]
 - refactor of entire api crate with new error handling, and grouped submodules
 - moved ic to lib_ic to keep the libraries consistent

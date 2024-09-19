@@ -26,13 +26,13 @@ pub enum Error {
     Canister { source: crate::ic::canister::Error },
 
     #[snafu(transparent)]
-    Mgmt { source: crate::ic::mgmt::Error },
-
-    #[snafu(transparent)]
     CreateCanister { source: crate::ic::create::Error },
 
     #[snafu(transparent)]
     UpgradeCanister { source: crate::ic::upgrade::Error },
+
+    #[snafu(transparent)]
+    Mgmt { source: crate::ic::mgmt::Error },
 
     #[snafu(transparent)]
     CoreWasm { source: core_wasm::Error },

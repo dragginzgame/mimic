@@ -14,6 +14,8 @@ pub struct Fixture {
     pub def: Def,
     pub entity: String,
 
+    // keys are needed because the schema has to check for duplicate values
+    // of entity-key, we just don't need them in the schema.json
     #[serde(default, skip_serializing)]
     pub keys: Vec<String>,
 }
