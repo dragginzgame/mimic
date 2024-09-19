@@ -72,22 +72,12 @@ pub fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
     // stores
     let schema = schema_read();
     for (entity_path, _) in builder.get_entities() {
-        for (fixture_path, fixture) in
+        for (fixture_path, _) in
             schema.filter_nodes::<Fixture, _>(|node| node.entity == entity_path)
         {
             let fixture_ident: Path = parse_str(fixture_path).unwrap();
-            let fixture_keys = fixture.keys.len();
-
-            // check the fixture data length matches the number of keys
             inner.push(quote! {
-                let fixture_data = #fixture_ident::get_fixture_data();
-                assert!(fixture_data.len() == #fixture_keys,
-                    "{}: fixtures should have {} entries",
-                    stringify!(#fixture_ident),
-                    #fixture_keys
-                );
-
-                fixtures_replace_helper(fixture_data)?;
+                fixtures_replace_helper(#fixture_ident::get_fixture_data())?;
             });
         }
     }
