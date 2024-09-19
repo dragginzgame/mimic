@@ -172,13 +172,13 @@ fn guard_parent(id: Principal) -> Result<(), Error> {
 pub async fn guard_permission(id: Principal, permission: &str) -> Result<(), Error> {
     let user_canister_id = crate::subnet::user_canister_id()?;
 
-    call::<_, (Result<(), crate::ic::call::Error>,)>(
-        user_canister_id,
-        "guard_permission",
-        (id, permission),
-    )
-    .await?
-    .0?;
+    call::<_, (Result<(), crate::Error>,)>(user_canister_id, "guard_permission", (id, permission))
+        .await?
+        .0
+        .map_err(|_| Error::NotPermitted {
+            id,
+            permission: permission.to_string(),
+        })?;
 
     Ok(())
 }
