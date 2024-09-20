@@ -134,6 +134,8 @@ pub fn ic_endpoints(builder: &mut ActorBuilder) {
         // post_upgrade
         #[::mimic::ic::post_upgrade]
         fn post_upgrade() {
+            log!(Log::Info, "post_upgrade()");
+
             // post_upgrade is considered a startup along with init
             // this will also call the StartupManager::startup
             startup().unwrap();
