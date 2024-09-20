@@ -64,6 +64,7 @@ macro_rules! mimic_start {
         // startup
         // code called on all canister startups (install, upgrade)
         fn startup() -> Result<(), Error> {
+            // schema
             let schema_json = include_str!(concat!(env!("OUT_DIR"), "/schema.rs"));
             ::mimic::core::schema::init_schema_json(schema_json)
                 .map_err(|e| Error::init(e.to_string()))?;
