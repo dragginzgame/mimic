@@ -15,10 +15,10 @@ use std::sync::Mutex;
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
-    #[snafu(display("config has already been initialized"))]
+    #[snafu(display("schema has already been initialized"))]
     AlreadyInitialized,
 
-    #[snafu(display("config not yet initialized"))]
+    #[snafu(display("schema not yet initialized"))]
     NotInitialized,
 
     #[snafu(display("mutex error: {msg}"))]
