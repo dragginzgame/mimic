@@ -22,6 +22,7 @@ macro_rules! mimic_build {
 
         // macOS linker
         if target.contains("apple") {
+            panic!("hsds");
             println!("cargo:rustc-link-arg=-Wl,-all_load");
             println!("cargo:rustc-flags=-C opt-level=0");
             println!("cargo:rerun-if-env-changed=IOS_SDK_VERSION");
