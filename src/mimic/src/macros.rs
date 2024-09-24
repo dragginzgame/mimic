@@ -22,6 +22,11 @@ macro_rules! mimic_build {
         // macOS linker
         if target.contains("apple") {
             println!("cargo:rustc-link-arg=-Wl,-all_load");
+
+            // For Apple Silicon (M1, M2, etc.)
+            if target.contains("aarch64") {
+                println!("cargo:rustc-link-arg=-arch arm64");
+            }
         }
 
         //

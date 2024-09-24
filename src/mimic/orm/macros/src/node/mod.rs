@@ -84,12 +84,10 @@ pub trait MacroNode: Schemable {
     fn ctor_schema(&self) -> TokenStream {
         let ctor_fn = format_ident!("ctor_{}", ic::rand::next_u64());
         let schema = self.schema();
-        let ctor_fn_str = format!("{ctor_fn}");
 
         quote! {
             #[cfg(not(target_arch = "wasm32"))]
             #[::mimic::export::ctor::ctor]
-            #[export_name = #ctor_fn_str]
             fn #ctor_fn() {
                 ::mimic::orm::schema::build::schema_write().add_node(
                     #schema
