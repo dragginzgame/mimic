@@ -21,17 +21,10 @@ macro_rules! mimic_build {
         println!("cargo:rerun-if-changed=build.rs");
 
         // macOS linker
-        if target.contains("apple") {
-            panic!("hsds");
-            println!("cargo:rustc-link-arg=-Wl,-all_load");
-            println!("cargo:rustc-flags=-C opt-level=0");
-            println!("cargo:rerun-if-env-changed=IOS_SDK_VERSION");
-
-            // For Apple Silicon (M1, M2, etc.)
-            if target.contains("aarch64") {
-                println!("cargo:rustc-link-arg=-arch arm64");
-            }
-        }
+        //  if target.contains("apple") {
+        println!("cargo:rustc-link-arg=-Wl,-all_load");
+        println!("cargo:rustc-flags=-C opt-level=0");
+        //  }
 
         // Get the output directory set by Cargo
         let out_dir = ::std::env::var("OUT_DIR").expect("OUT_DIR not set");
