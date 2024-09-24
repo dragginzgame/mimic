@@ -55,6 +55,12 @@ impl Node for Entity {
                 #fields
             }
             #imp
+
+            impl #ident {
+                pub const fn touch() {}
+            }
+
+            const _ : () = { #ident::touch() };
         };
 
         // debug
