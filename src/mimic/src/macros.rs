@@ -7,6 +7,7 @@
 #[macro_export]
 macro_rules! mimic_build {
     ($actor:expr) => {
+        use mimic_base::*;
         use std::{fs::File, io::Write, path::PathBuf};
 
         //
@@ -22,16 +23,14 @@ macro_rules! mimic_build {
         // macOS linker
         if target.contains("apple") {
             println!("cargo:rustc-link-arg=-Wl,-all_load");
+            println!("cargo:rustc-flags=-C opt-level=0");
+            println!("cargo:rerun-if-env-changed=IOS_SDK_VERSION");
 
             // For Apple Silicon (M1, M2, etc.)
             if target.contains("aarch64") {
                 println!("cargo:rustc-link-arg=-arch arm64");
             }
         }
-
-        //
-        //
-        //
 
         // Get the output directory set by Cargo
         let out_dir = ::std::env::var("OUT_DIR").expect("OUT_DIR not set");
@@ -49,7 +48,6 @@ macro_rules! mimic_build {
         //
         // schema
         //
-
         let output = ::mimic::build::schema().unwrap();
 
         // write the file
