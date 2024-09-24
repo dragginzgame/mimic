@@ -5,8 +5,8 @@ edition = { workspace = true }
 publish = false
 
 [dependencies]
-quote = { workspace = true }
 orm = { workspace = true }
+quote = { workspace = true }
 test_schema = { workspace = true }
 
 [[test]]
