@@ -40,7 +40,7 @@ fn stores(builder: &mut ActorBuilder) {
     } else {
         quote! {
             {
-                let mut db = ::mimic::db::Db::new();
+                let mut db =::mimic::db::Db::new();
                 #db_inserts
                 db
             }
@@ -52,7 +52,7 @@ fn stores(builder: &mut ActorBuilder) {
         thread_local! {
             #store_defs
 
-            static DB: ::mimic::db::Db = #db;
+            static DB: ::std::sync::Arc<::mimic::db::Db> = ::std::sync::Arc::new(#db);
         }
     };
 
