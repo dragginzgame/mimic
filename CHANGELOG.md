@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 
 ## [0.1.8]
-- nothing yet
+- wrapped Db in an Arc so that it's easier to pass through to await code
 
 ## [0.1.7]
 - refactor of entire api crate with new error handling, and grouped submodules

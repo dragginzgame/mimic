@@ -64,6 +64,7 @@ pub mod prelude {
             subnet::request::{Request, RequestKind, Response},
             Error, StartupHooks,
         },
+        db::Db,
         mimic_end, mimic_start,
         orm::traits::{EntityFixture, Path},
         perf,
