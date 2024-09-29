@@ -28,6 +28,9 @@ pub enum Error {
     #[snafu(display("no results found"))]
     NoResultsFound,
 
+    #[snafu(display("validaton failed: {path} {source}"))]
+    Validation { path: String, source: orm::Error },
+
     #[snafu(transparent)]
     Db { source: crate::db::Error },
 
@@ -239,7 +242,6 @@ impl<'a> SaveBuilderExecutor<'a> {
         let key = resolver.data_key(&ck).map(DataKey::from)?;
 
         // debug
-        // (before validation so we can see what the entity is)
         self.config.debug.println(&format!(
             "store.{}: {}",
             mode.to_string().to_lowercase(),
@@ -249,7 +251,10 @@ impl<'a> SaveBuilderExecutor<'a> {
         // validate
         if self.config.options.validate {
             let adapter = orm::visit::EntityAdapter(entity);
-            orm::validate(&adapter)?;
+            orm::validate(&adapter).map_err(|e| Error::Validation {
+                path: entity.path_dyn(),
+                source: e,
+            })?;
         }
 
         // serialize

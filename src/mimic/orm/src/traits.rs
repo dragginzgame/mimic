@@ -377,19 +377,6 @@ impl_primary_key_for_uints!(
 ///
 
 ///
-/// EntityDerive
-///
-
-pub trait EntityDerive: Serialize + DeserializeOwned {
-    type Entity: Entity;
-
-    // assemble
-    fn assemble(entity: Self::Entity) -> Result<Self, Error>
-    where
-        Self: Sized;
-}
-
-///
 /// Entity
 ///
 

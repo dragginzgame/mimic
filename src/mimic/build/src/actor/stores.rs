@@ -52,7 +52,7 @@ fn stores(builder: &mut ActorBuilder) {
         thread_local! {
             #store_defs
 
-            static DB: ::std::sync::Arc<::mimic::db::Db> = ::std::sync::Arc::new(#db);
+            static DB: ::std::rc::Rc<::mimic::db::Db> = ::std::rc::Rc::new(#db);
         }
     };
 
