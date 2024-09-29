@@ -119,7 +119,7 @@ impl<'a> SaveBuilder<'a> {
         self,
         data: &[u8],
     ) -> Result<SaveBuilderResult, QueryError> {
-        let entity: E = orm::deserialize(data).map_err(Error::from)?;
+        let entity: E = orm::deserialize(data)?;
 
         self.execute(vec![Box::new(entity)])
     }
@@ -269,8 +269,7 @@ impl<'a> SaveBuilderExecutor<'a> {
         let store_path = resolver.store()?;
         let result = self
             .db
-            .with_store(&store_path, |store| Ok(store.get(&key)))
-            .map_err(Error::from)?;
+            .with_store(&store_path, |store| Ok(store.get(&key)))?;
 
         let (created, modified) = match mode {
             SaveMode::Create => {
@@ -366,25 +365,23 @@ impl SaveBuilderResult {
     pub fn entity_row<E: Entity>(self) -> Result<EntityRow<E>, QueryError> {
         let row = self.results.first().ok_or(Error::NoResultsFound)?.clone();
 
-        let entity_row: EntityRow<E> = row.try_into().map_err(Error::from)?;
+        let entity_row: EntityRow<E> = row.try_into()?;
 
         Ok(entity_row)
     }
 
     // entity_rows
     pub fn entity_rows<E: Entity>(self) -> impl Iterator<Item = Result<EntityRow<E>, QueryError>> {
-        self.results.into_iter().map(|row| {
-            row.try_into()
-                .map_err(Error::from)
-                .map_err(QueryError::from)
-        })
+        self.results
+            .into_iter()
+            .map(|row| row.try_into().map_err(QueryError::from))
     }
 
-    //
+    // entity
     pub fn entity<E: Entity>(self) -> Result<E, QueryError> {
         let row_ref = self.results.first().ok_or(Error::NoResultsFound)?;
 
-        let entity_row: EntityRow<E> = row_ref.clone().try_into().map_err(Error::from)?;
+        let entity_row: EntityRow<E> = row_ref.clone().try_into()?;
 
         Ok(entity_row.value.entity)
     }
@@ -394,7 +391,6 @@ impl SaveBuilderResult {
         self.results.into_iter().map(|row| {
             row.try_into()
                 .map(|row: EntityRow<E>| row.value.entity)
-                .map_err(Error::from)
                 .map_err(QueryError::from)
         })
     }
