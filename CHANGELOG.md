@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 
 ## [0.1.8]
-- wrapped Db in an Arc so that it's easier to pass through to await code
+- wrapped Db in an Rc so that it's easier to pass through to await code
+- added better fixture validation, it tells you the entity path now
 
 ## [0.1.7]
 - refactor of entire api crate with new error handling, and grouped submodules
