@@ -92,9 +92,12 @@ impl Filterable for Ulid {
     }
 }
 
-impl From<WrappedUlid> for Ulid {
-    fn from(ulid: WrappedUlid) -> Self {
-        Self(ulid)
+impl<T> From<T> for Ulid
+where
+    T: EntityFixture,
+{
+    fn from(entity: T) -> Self {
+        Self(entity.ulid())
     }
 }
 
