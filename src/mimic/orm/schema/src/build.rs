@@ -14,6 +14,9 @@ use types::ErrorTree;
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
+    #[snafu(display("serde json error: {msg}"))]
+    SerdeJson { msg: String },
+
     #[snafu(display("validation failed: {errors}"))]
     Validation { errors: ErrorTree },
 }
@@ -30,15 +33,17 @@ pub fn schema_write() -> RwLockWriteGuard<'static, Schema> {
 }
 
 // schema_read
-pub fn schema_read() -> RwLockReadGuard<'static, Schema> {
+// just reads the schema directly without validation
+pub(crate) fn schema_read() -> RwLockReadGuard<'static, Schema> {
     SCHEMA.read().unwrap()
 }
 
-/// validate
-pub fn validate() -> Result<(), Error> {
-    // validate using the visitor
+/// schema
+pub fn schema() -> Result<RwLockReadGuard<'static, Schema>, Error> {
+    // validate
     let mut visitor = Validator::new();
-    schema_read().accept(&mut visitor);
+    let schema = schema_read();
+    schema.accept(&mut visitor);
 
     // result
     visitor
@@ -46,5 +51,15 @@ pub fn validate() -> Result<(), Error> {
         .result()
         .map_err(|errors| Error::Validation { errors })?;
 
-    Ok(())
+    Ok(schema)
+}
+
+// schema_json
+// to get the built schema via an executable
+pub fn schema_json() -> Result<String, Error> {
+    let schema = schema()?;
+    let json =
+        serde_json::to_string(&*schema).map_err(|e| Error::SerdeJson { msg: e.to_string() })?;
+
+    Ok(json)
 }

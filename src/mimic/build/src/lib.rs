@@ -1,6 +1,5 @@
 pub mod actor;
 
-use orm_schema::build::schema_read;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
@@ -19,8 +18,6 @@ pub enum Error {
 
 // actor
 pub fn actor(canister_name: &str) -> Result<String, Error> {
-    orm_schema::build::validate()?;
-
     let res = actor::generate(canister_name)?;
 
     Ok(res)
@@ -28,9 +25,8 @@ pub fn actor(canister_name: &str) -> Result<String, Error> {
 
 // schema
 pub fn schema() -> Result<String, Error> {
-    orm_schema::build::validate()?;
-
-    let output = serde_json::to_string(&*schema_read()).unwrap();
+    let schema = orm_schema::build::schema()?;
+    let output = serde_json::to_string(&*schema).unwrap();
 
     Ok(output)
 }

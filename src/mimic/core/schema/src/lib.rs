@@ -26,9 +26,6 @@ pub enum Error {
 
     #[snafu(display("serde json error: {msg}"))]
     SerdeJson { msg: String },
-
-    #[snafu(transparent)]
-    Entity { source: entity_crud::Error },
 }
 
 ///
@@ -79,11 +76,4 @@ pub fn get_schema() -> Result<Schema, Error> {
     guard
         .as_ref()
         .map_or(Err(Error::NotInitialized), |schema| Ok(schema.clone()))
-}
-
-// get_schema_json
-pub fn get_schema_json() -> Result<String, Error> {
-    let schema = get_schema()?;
-
-    serde_json::to_string(&schema).map_err(|e| Error::SerdeJson { msg: e.to_string() })
 }

@@ -120,6 +120,7 @@ static FE_WORDS: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
         "delegate",
         "do",
         "double",
+        "editor",
         "else",
         "enum",
         "event",

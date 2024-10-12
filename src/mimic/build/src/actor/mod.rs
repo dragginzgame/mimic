@@ -9,7 +9,7 @@ pub mod timers;
 pub mod user;
 
 use orm_schema::{
-    build::schema_read,
+    build::schema,
     node::{Canister, CanisterBuild, Entity, Store},
 };
 use proc_macro2::TokenStream;
@@ -31,7 +31,7 @@ pub enum Error {
 // generate
 pub fn generate(canister_name: &str) -> Result<String, Error> {
     // load schema and get the specified canister
-    let schema = schema_read();
+    let schema = schema().unwrap();
     let mut canisters = schema.filter_nodes::<Canister, _>(|node| node.name() == canister_name);
     let Some((_, canister)) = canisters.next() else {
         eprintln!("Canister '{canister_name}' not found in the schema",);
@@ -136,8 +136,9 @@ impl ActorBuilder {
         let canister_path = self.canister.def.path();
         let mut stores = Vec::new();
 
-        for (store_path, store) in
-            schema_read().filter_nodes::<Store, _>(|node| node.canister == canister_path)
+        for (store_path, store) in schema()
+            .unwrap()
+            .filter_nodes::<Store, _>(|node| node.canister == canister_path)
         {
             stores.push((store_path.to_string(), store.clone()));
         }
@@ -149,7 +150,7 @@ impl ActorBuilder {
     // helper function to get all the entities for the current canister
     #[must_use]
     pub fn get_entities(&self) -> Vec<(String, Entity)> {
-        let schema = schema_read();
+        let schema = schema().unwrap();
         let canister_path = self.canister.def.path();
         let mut entities = Vec::new();
 
