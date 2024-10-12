@@ -27,6 +27,9 @@ pub enum Error {
 
 static SCHEMA: LazyLock<RwLock<Schema>> = LazyLock::new(|| RwLock::new(Schema::new()));
 
+// This flag tracks whether validation has been performed
+static VALIDATION_DONE: LazyLock<RwLock<bool>> = LazyLock::new(|| RwLock::new(false));
+
 // schema_write
 pub fn schema_write() -> RwLockWriteGuard<'static, Schema> {
     SCHEMA.write().unwrap()
@@ -40,16 +43,14 @@ pub(crate) fn schema_read() -> RwLockReadGuard<'static, Schema> {
 
 /// schema
 pub fn schema() -> Result<RwLockReadGuard<'static, Schema>, Error> {
-    // validate
-    let mut visitor = Validator::new();
     let schema = schema_read();
-    schema.accept(&mut visitor);
 
-    // result
-    visitor
-        .errors()
-        .result()
-        .map_err(|errors| Error::Validation { errors })?;
+    // Check if validation has already been done
+    let mut validation_done = VALIDATION_DONE.write().unwrap();
+    if !*validation_done {
+        validate(&schema)?;
+        *validation_done = true;
+    }
 
     Ok(schema)
 }
@@ -62,4 +63,19 @@ pub fn schema_json() -> Result<String, Error> {
         serde_json::to_string(&*schema).map_err(|e| Error::SerdeJson { msg: e.to_string() })?;
 
     Ok(json)
+}
+
+// validate
+fn validate(schema: &Schema) -> Result<(), Error> {
+    let mut visitor = Validator::new();
+    schema.accept(&mut visitor);
+    ic::println!("schema.validate()");
+
+    // result
+    visitor
+        .errors()
+        .result()
+        .map_err(|errors| Error::Validation { errors })?;
+
+    Ok(())
 }
