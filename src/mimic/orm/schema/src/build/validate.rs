@@ -24,6 +24,9 @@ pub fn validate_ident(ident: &str) -> Result<(), Error> {
         return Err(Error::EmptyIdent);
     }
 
+    // reserved?
+    is_reserved(ident)?;
+
     Ok(())
 }
 
@@ -46,8 +49,6 @@ pub fn is_reserved(word: &str) -> Result<(), Error> {
 
 // has_reserved_prefix
 fn has_reserved_prefix(s: &str) -> bool {
-    println!("here {:?}", schema_builder().reserved_prefixes);
-
     schema_builder()
         .reserved_prefixes
         .iter()
