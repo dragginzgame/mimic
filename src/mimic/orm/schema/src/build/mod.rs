@@ -1,3 +1,6 @@
+pub mod reserved;
+pub mod validate;
+
 use crate::{
     node::{Schema, VisitableNode},
     visit::Validator,
@@ -5,7 +8,10 @@ use crate::{
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
-use std::sync::{LazyLock, RwLock, RwLockReadGuard, RwLockWriteGuard};
+use std::{
+    collections::HashSet,
+    sync::{LazyLock, RwLock, RwLockReadGuard, RwLockWriteGuard},
+};
 use types::ErrorTree;
 
 ///
@@ -22,12 +28,50 @@ pub enum Error {
 }
 
 ///
+/// Builder
+/// hooks that can be registered in advance of building
+///
+
+pub struct Builder {
+    pub reserved_prefixes: HashSet<&'static str>,
+    pub reserved_words: HashSet<&'static str>,
+}
+
+impl Builder {
+    pub fn add_reserved_prefixes(prefixes: &[&'static str]) {
+        let mut builder = BUILDER.write().unwrap();
+
+        builder.reserved_prefixes.extend(prefixes);
+    }
+
+    pub fn add_reserved_words(words: &[&'static str]) {
+        let mut builder = BUILDER.write().unwrap();
+
+        builder.reserved_words.extend(words);
+    }
+}
+
+/// Static Singleton Instance of the Builder
+static BUILDER: LazyLock<RwLock<Builder>> = LazyLock::new(|| {
+    RwLock::new(Builder {
+        reserved_prefixes: HashSet::new(),
+        reserved_words: reserved::WORDS.clone(),
+    })
+});
+
+// schema_builder
+// To interact with the singleton builder
+pub fn schema_builder() -> RwLockReadGuard<'static, Builder> {
+    BUILDER.read().unwrap()
+}
+
+///
 /// SCHEMA
+/// the static data structure
 ///
 
 static SCHEMA: LazyLock<RwLock<Schema>> = LazyLock::new(|| RwLock::new(Schema::new()));
 
-// This flag tracks whether validation has been performed
 static VALIDATION_DONE: LazyLock<RwLock<bool>> = LazyLock::new(|| RwLock::new(false));
 
 // schema_write
@@ -69,9 +113,8 @@ pub fn schema_json() -> Result<String, Error> {
 fn validate(schema: &Schema) -> Result<(), Error> {
     let mut visitor = Validator::new();
     schema.accept(&mut visitor);
-    ic::println!("schema.validate()");
 
-    // result
+    // errors?
     visitor
         .errors()
         .result()

@@ -1,5 +1,5 @@
 use crate::{
-    helper::{is_reserved, validate_ident},
+    build::validate::{is_reserved, validate_ident},
     node::{ValidateNode, Value, VisitableNode},
     types::{Cardinality, SortDirection},
     visit::Visitor,
@@ -79,7 +79,7 @@ impl ValidateNode for Field {
             // reverse the check
             // as only a reserved word can end with a _
             let new_name = &self.name[0..&self.name.len() - 1];
-            if !is_reserved(new_name) {
+            if is_reserved(new_name).is_err() {
                 errs.add("only reserved words can end with _");
             }
 

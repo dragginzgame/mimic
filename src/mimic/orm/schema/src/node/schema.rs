@@ -304,28 +304,6 @@ impl ValidateNode for Schema {
             }
         }
 
-        // check canister build max
-        /*
-            @todo put this back when the schema is fixed
-
-                for build in [
-                    CanisterBuild::Root,
-                    CanisterBuild::Test,
-                    CanisterBuild::User,
-                ] {
-                    let count = self
-                        .filter_nodes::<Canister, _>(|node| node.build == build)
-                        .take(2)
-                        .count();
-
-                    match count {
-                        0 => errs.add(format!("no canister build '{build}' found")),
-                        1 => {}
-                        _ => errs.add(format!("multiple canister builds '{build}' found")),
-                    }
-                }
-        */
-
         // canister dir
         let mut dirs_seen = HashSet::new();
         for canister in self.get_node_values::<Canister>() {
