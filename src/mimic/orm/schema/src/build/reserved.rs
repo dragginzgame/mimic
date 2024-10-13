@@ -2,6 +2,7 @@ use std::{collections::HashSet, sync::LazyLock};
 
 ///
 /// WORDS
+/// basic reserved words list for anything using candid and rust
 ///
 
 pub(crate) static WORDS: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {

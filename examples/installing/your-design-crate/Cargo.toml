@@ -10,7 +10,6 @@ workspace = true
 [dependencies]
 candid = { workspace = true }
 derive_more = { workspace = true }
-lib_string = { workspace = true }
 mimic = { workspace = true }
 mimic_base = { workspace = true }
 num-traits = { workspace = true }
