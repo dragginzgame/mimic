@@ -51,7 +51,6 @@ impl Builder {
     }
 }
 
-/// Static Singleton Instance of the Builder
 static BUILDER: LazyLock<RwLock<Builder>> = LazyLock::new(|| {
     RwLock::new(Builder {
         reserved_prefixes: HashSet::new(),
