@@ -67,7 +67,7 @@ pub mod prelude {
         },
         db::Db,
         mimic_end, mimic_start,
-        orm::traits::{EntityFixture, Path},
+        orm::traits::{EntityDynamic, EntityFixture, Path},
         perf,
         types::Ulid,
     };
