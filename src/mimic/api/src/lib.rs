@@ -77,9 +77,12 @@ pub const ERROR_CORE_SCHEMA: u8 = 141;
 pub const ERROR_CORE_STATE: u8 = 142;
 pub const ERROR_CORE_WASM: u8 = 143;
 
+// orm
+pub const ERROR_ORM: u8 = 150;
+
 // db
-pub const ERROR_DB: u8 = 150;
-pub const ERROR_DB_QUERY: u8 = 151;
+pub const ERROR_DB: u8 = 160;
+pub const ERROR_DB_QUERY: u8 = 161;
 
 #[derive(CandidType, Debug, Serialize, Deserialize)]
 pub struct Error(u8, String);
@@ -209,6 +212,16 @@ impl From<core_state::user_index::Error> for Error {
 impl From<core_wasm::Error> for Error {
     fn from(error: core_wasm::Error) -> Self {
         Self(ERROR_CORE_WASM, error.to_string())
+    }
+}
+
+//
+// orm
+//
+
+impl From<orm::Error> for Error {
+    fn from(error: orm::Error) -> Self {
+        Self(ERROR_ORM, error.to_string())
     }
 }
 
