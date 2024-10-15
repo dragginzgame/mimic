@@ -43,8 +43,7 @@ impl Timestamp {
 ///
 /// Created
 ///
-/// A Timestamp that defaults to the current now() time
-/// when it is created
+/// A Timestamp that defaults to the current now() time when it is created
 ///
 
 #[newtype(

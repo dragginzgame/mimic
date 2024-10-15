@@ -37,6 +37,7 @@ pub mod orm {
                 Path, PrimaryKey, Sanitize, SanitizeManual, Storable, Validate, ValidateManual,
                 Visitable,
             },
+            Error,
         };
         pub use ::orm_macros::*;
         pub use ::serde::{Deserialize, Serialize};

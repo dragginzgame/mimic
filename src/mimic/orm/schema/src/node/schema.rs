@@ -286,7 +286,7 @@ impl ValidateNode for Schema {
 
                 if !set.insert(map_key) {
                     errs.add(format!(
-                        "entity '{}' has duplicate fixture '{}'",
+                        "entity '{}' has duplicate fixture: {}",
                         fixture.entity, key,
                     ));
                 }
@@ -298,7 +298,7 @@ impl ValidateNode for Schema {
             let mut memory_values = HashSet::new();
             if !memory_values.insert(store.memory_id) {
                 errs.add(format!(
-                    "duplicate store memory_id value '{}'",
+                    "duplicate store memory_id value: {}",
                     store.memory_id
                 ));
             }
@@ -310,7 +310,7 @@ impl ValidateNode for Schema {
             // Check for duplicate names
             if !dirs_seen.insert(canister.name().clone()) {
                 errs.push(format!(
-                    "Duplicate canister name found: {}",
+                    "duplicate canister name found: {}",
                     canister.name()
                 ));
             }
