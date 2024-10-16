@@ -58,6 +58,7 @@ impl Resolver {
     // data_key
     pub fn data_key(&self, ck: &[String]) -> Result<DataKey, Error> {
         let chain_format = self.chain_format()?;
+        ::ic::println!("data_key 1: chain_format: {chain_format:?}, ck: {ck:?}");
 
         // Initialize data_key_parts with empty vectors for each part
         let mut data_key_parts: Vec<(String, Vec<String>)> = chain_format
@@ -74,6 +75,8 @@ impl Resolver {
             part_keys.1.extend_from_slice(&ck[index..index + count]);
             index += count;
         }
+
+        ::ic::println!("data_key 2: parts: {data_key_parts:?}");
 
         Ok(DataKey::new(data_key_parts))
     }
