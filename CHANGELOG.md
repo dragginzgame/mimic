@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.1.9]
+- we need to store the Path of an entity inside the db, so we can tell what data it's
+supposed to be
+
 ## [0.1.8]
 - wrapped Db in an Rc so that it's easier to pass through to await code
 - added better fixture validation, it tells you the entity path now

@@ -310,6 +310,7 @@ impl<'a> SaveBuilderExecutor<'a> {
         // insert data
         let value = DataValue {
             data,
+            path: entity.path_dyn(),
             metadata: Metadata { created, modified },
         };
         self.db.with_store_mut(&store_path, |store| {

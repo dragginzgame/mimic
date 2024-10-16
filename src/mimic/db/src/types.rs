@@ -37,6 +37,7 @@ impl DataRow {
 #[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
 pub struct DataValue {
     pub data: Vec<u8>,
+    pub path: String,
     pub metadata: Metadata,
 }
 
