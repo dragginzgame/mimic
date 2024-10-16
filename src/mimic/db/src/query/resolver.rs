@@ -68,7 +68,7 @@ impl Resolver {
         // Fill the parts with keys from ck as available
         let mut index = 0;
         for (part_keys, (_, count)) in data_key_parts.iter_mut().zip(chain_format.iter()) {
-            if index + count >= ck.len() {
+            if index + count > ck.len() {
                 break; // not enough keys
             }
             part_keys.1.extend_from_slice(&ck[index..index + count]);
