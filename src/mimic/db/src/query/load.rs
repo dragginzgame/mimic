@@ -124,10 +124,6 @@ where
     ) -> Result<LoadBuilderOptions<'a, E>, QueryError> {
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
 
-        // debug
-        self.debug
-            .println(&format!("store.load: prefix : {prefix:?}"));
-
         Ok(self.build_options(LoadMethod::Prefix(prefix)))
     }
 
