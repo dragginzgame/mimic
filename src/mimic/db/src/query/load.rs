@@ -290,9 +290,11 @@ where
 
     // execute
     // convert into EntityRows and return a RowIterator
+    // also make sure we're deserializing the correct entity path
     pub fn execute(self) -> Result<RowIterator<E>, QueryError> {
         let iter = self
             .do_execute()?
+            .filter(|row| row.value.path == E::path())
             .map(TryFrom::try_from)
             .collect::<Result<Vec<EntityRow<E>>, _>>()
             .map_err(Error::from)?;
