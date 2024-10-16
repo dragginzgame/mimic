@@ -60,22 +60,26 @@ impl Resolver {
         let chain_format = self.chain_format()?;
         ::ic::println!("data_key 1: chain_format: {chain_format:?}, ck: {ck:?}");
 
-        // Initialize data_key_parts with empty vectors for each part
-        let mut data_key_parts: Vec<(String, Vec<String>)> = chain_format
-            .iter()
-            .map(|(part, _)| (part.clone(), Vec::new()))
-            .collect();
+        // Initialize an empty vector to store parts that have keys
+        let mut data_key_parts: Vec<(String, Vec<String>)> = Vec::new();
 
-        // Fill the parts with keys from ck as available
         let mut index = 0;
-        for (part_keys, (_, count)) in data_key_parts.iter_mut().zip(chain_format.iter()) {
-            if index + count > ck.len() {
-                break; // not enough keys
+        for (part, count) in chain_format.iter() {
+            // If there are no more keys to process, break early
+            if index >= ck.len() {
+                break;
             }
-            part_keys.1.extend_from_slice(&ck[index..index + count]);
-            index += count;
-        }
 
+            // Calculate how many keys to take for this part
+            let available_count = usize::min(*count, ck.len() - index);
+
+            if available_count > 0 {
+                // Add the part with associated keys to the result
+                let part_keys = ck[index..index + available_count].to_vec();
+                data_key_parts.push((part.clone(), part_keys));
+                index += available_count;
+            }
+        }
         ::ic::println!("data_key 2: parts: {data_key_parts:?}");
 
         Ok(DataKey::new(data_key_parts))
