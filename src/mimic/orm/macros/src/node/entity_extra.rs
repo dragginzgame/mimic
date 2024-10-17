@@ -77,10 +77,7 @@ impl Schemable for EntityExtra {
 
 impl TraitNode for EntityExtra {
     fn traits(&self) -> Vec<Trait> {
-        let mut traits = Traits::default();
-        traits.extend(vec![Trait::Copy, Trait::EnumDisplay, Trait::EnumStaticStr]);
-
-        traits.list()
+        Traits::default().list()
     }
 
     fn map_imp(&self, t: Trait) -> TokenStream {
