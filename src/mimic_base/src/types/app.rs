@@ -22,7 +22,7 @@ impl Version {
         if let Ok(config) = ::core_config::get_config() {
             config.app.version.clone()
         } else {
-            "".to_string()
+            "[no config]".to_string()
         }
     }
 }
