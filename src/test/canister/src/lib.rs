@@ -7,7 +7,7 @@ use ic::{log, update, Log};
 use mimic::{api::Error, prelude::*};
 
 // blank file so we get the default
-mimic_start!("../config.toml");
+mimic_start!("../mimic.toml");
 
 // Startup
 impl StartupHooks for StartupManager {}

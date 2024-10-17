@@ -8,18 +8,8 @@ use serde::{Deserialize, Serialize};
 #[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Config {
-    pub app: App,
     pub ic: Ic,
     pub orm: Orm,
-}
-
-///
-/// App
-///
-
-#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
-pub struct App {
-    pub version: String,
 }
 
 ///
