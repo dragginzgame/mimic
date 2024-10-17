@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.1.9]
 - we need to store the Path of an entity inside the db, so we can tell what data it's
 supposed to be
-- changed Fixture to EntityFixture, and removed source from Entity.  Added new schema type EntityExtra which has a list of sources
+- changed Fixture to EntityFixture, and removed source from Entity.  Added new schema type EntityExtra which allows you to specify a list of data sources
+- bumped rust to 1.82 and did a clippy pass
 
 ## [0.1.8]
 - wrapped Db in an Rc so that it's easier to pass through to await code

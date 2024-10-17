@@ -311,12 +311,12 @@ pub enum Filter {
 
 impl Filter {
     #[must_use]
-    pub fn all(text: String) -> Self {
+    pub const fn all(text: String) -> Self {
         Self::All(text)
     }
 
     #[must_use]
-    pub fn fields(search: Vec<(String, String)>) -> Self {
+    pub const fn fields(search: Vec<(String, String)>) -> Self {
         Self::Fields(search)
     }
 }

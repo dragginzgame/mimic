@@ -159,9 +159,10 @@ impl Node for EnumVariant {
         };
 
         // quote
-        q.extend(match &self.value {
-            Some(value) => quote! (#name(#value)),
-            None => quote! (#name),
+        q.extend(if let Some(value) = &self.value {
+            quote! (#name(#value))
+        } else {
+            quote! (#name)
         });
 
         q

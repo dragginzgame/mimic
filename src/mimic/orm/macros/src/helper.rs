@@ -20,12 +20,11 @@ pub fn quote_option<T, F>(opt: &Option<T>, transform: F) -> TokenStream
 where
     F: FnOnce(&T) -> TokenStream,
 {
-    match opt {
-        Some(v) => {
-            let transformed = transform(v);
-            quote!(Some(#transformed))
-        }
-        None => quote!(None),
+    if let Some(v) = opt {
+        let transformed = transform(v);
+        quote!(Some(#transformed))
+    } else {
+        quote!(None)
     }
 }
 

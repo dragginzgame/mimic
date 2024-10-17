@@ -29,8 +29,7 @@ impl Error {
 ///
 /// Resolver
 ///
-/// based on the entity path knows the store and how to generate
-/// a sort key
+/// generates a sort key using the Entity's path
 ///
 
 pub struct Resolver {
@@ -61,7 +60,6 @@ impl Resolver {
 
         // Initialize an empty vector to store parts that have keys
         let mut data_key_parts: Vec<(String, Vec<String>)> = Vec::new();
-
         let mut index = 0;
 
         for (i, (part, count)) in chain_format.iter().enumerate() {

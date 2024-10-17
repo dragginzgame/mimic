@@ -34,12 +34,13 @@ pub fn canisters_by_build(build: CanisterBuild) -> Result<Vec<Canister>, Error> 
 // canister
 pub fn canister(path: &str) -> Result<Canister, Error> {
     let schema = core_schema::get_schema().map_err(Error::from)?;
-    let canister = schema
-        .get_node::<Canister>(path)
-        .cloned()
-        .ok_or(Error::CanisterNotFound {
-            path: path.to_string(),
-        })?;
+    let canister =
+        schema
+            .get_node::<Canister>(path)
+            .cloned()
+            .ok_or_else(|| Error::CanisterNotFound {
+                path: path.to_string(),
+            })?;
 
     Ok(canister)
 }

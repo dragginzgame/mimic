@@ -89,12 +89,12 @@ pub struct Error(u8, String);
 
 impl Error {
     #[must_use]
-    pub fn init(text: String) -> Self {
+    pub const fn init(text: String) -> Self {
         Self(ERROR_INIT, text)
     }
 
     #[must_use]
-    pub fn new(code: u8, text: String) -> Self {
+    pub const fn new(code: u8, text: String) -> Self {
         Self(code, text)
     }
 }
