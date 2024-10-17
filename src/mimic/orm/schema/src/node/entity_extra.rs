@@ -6,27 +6,23 @@ use serde::{Deserialize, Serialize};
 use types::ErrorVec;
 
 ///
-/// Fixture
+/// EntityExtra
 ///
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Fixture {
+pub struct EntityExtra {
     pub def: Def,
     pub entity: String,
-
-    // keys are needed because the schema has to check for duplicate values
-    // of entity-key, we just don't need them in the schema.json
-    #[serde(default, skip_serializing)]
-    pub keys: Vec<String>,
+    pub sources: Vec<EntityExtraSource>,
 }
 
-impl MacroNode for Fixture {
+impl MacroNode for EntityExtra {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }
 }
 
-impl ValidateNode for Fixture {
+impl ValidateNode for EntityExtra {
     fn validate(&self) -> Result<(), ErrorVec> {
         let mut errs = ErrorVec::new();
 
@@ -37,8 +33,18 @@ impl ValidateNode for Fixture {
     }
 }
 
-impl VisitableNode for Fixture {
+impl VisitableNode for EntityExtra {
     fn route_key(&self) -> String {
         self.def.path()
     }
+}
+
+///
+/// EntityExtraSource
+///
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct EntityExtraSource {
+    pub name: String,
+    pub path: String,
 }

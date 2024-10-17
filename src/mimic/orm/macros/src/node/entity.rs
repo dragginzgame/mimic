@@ -29,9 +29,6 @@ pub struct Entity {
     #[darling(default)]
     pub fields: FieldList,
 
-    #[darling(multiple, rename = "source")]
-    pub sources: Vec<Path>,
-
     #[darling(default)]
     pub crud: Option<Crud>,
 
@@ -117,7 +114,6 @@ impl Schemable for Entity {
         let sort_keys = quote_vec(&self.sort_keys, SortKey::schema);
         let fields = &self.fields.schema();
         let primary_keys = quote_vec(&self.primary_keys, to_string);
-        let sources = quote_vec(&self.sources, to_path);
         let crud = quote_option(&self.crud, Crud::schema);
 
         quote! {
@@ -127,7 +123,6 @@ impl Schemable for Entity {
                 sort_keys: #sort_keys,
                 fields: #fields,
                 primary_keys: #primary_keys,
-                sources: #sources,
                 crud: #crud,
             })
         }

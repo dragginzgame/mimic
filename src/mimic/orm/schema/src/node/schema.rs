@@ -1,8 +1,8 @@
 use crate::{
     node::{
-        Canister, Def, Entity, Enum, EnumHash, EnumValue, Error, Fixture, MacroNode, Map, Newtype,
-        Permission, Primitive, Record, Role, Sanitizer, Store, Tuple, ValidateNode, Validator,
-        VisitableNode,
+        Canister, Def, Entity, EntityExtra, EntityFixture, Enum, EnumHash, EnumValue, Error,
+        MacroNode, Map, Newtype, Permission, Primitive, Record, Role, Sanitizer, Store, Tuple,
+        ValidateNode, Validator, VisitableNode,
     },
     visit::Visitor,
 };
@@ -26,10 +26,11 @@ use types::{ErrorVec, Timestamp};
 pub enum SchemaNode {
     Canister(Canister),
     Entity(Entity),
+    EntityExtra(EntityExtra),
+    EntityFixture(EntityFixture),
     Enum(Enum),
     EnumHash(EnumHash),
     EnumValue(EnumValue),
-    Fixture(Fixture),
     Map(Map),
     Newtype(Newtype),
     Permission(Permission),
@@ -47,10 +48,11 @@ impl SchemaNode {
         match self {
             Self::Canister(n) => &n.def,
             Self::Entity(n) => &n.def,
+            Self::EntityExtra(n) => &n.def,
+            Self::EntityFixture(n) => &n.def,
             Self::Enum(n) => &n.def,
             Self::EnumHash(n) => &n.def,
             Self::EnumValue(n) => &n.def,
-            Self::Fixture(n) => &n.def,
             Self::Map(n) => &n.def,
             Self::Newtype(n) => &n.def,
             Self::Permission(n) => &n.def,
@@ -70,10 +72,11 @@ impl MacroNode for SchemaNode {
         match self {
             Self::Canister(n) => n.as_any(),
             Self::Entity(n) => n.as_any(),
+            Self::EntityExtra(n) => n.as_any(),
+            Self::EntityFixture(n) => n.as_any(),
             Self::Enum(n) => n.as_any(),
             Self::EnumHash(n) => n.as_any(),
             Self::EnumValue(n) => n.as_any(),
-            Self::Fixture(n) => n.as_any(),
             Self::Map(n) => n.as_any(),
             Self::Newtype(n) => n.as_any(),
             Self::Permission(n) => n.as_any(),
@@ -95,10 +98,11 @@ impl VisitableNode for SchemaNode {
         match self {
             Self::Canister(n) => n.accept(v),
             Self::Entity(n) => n.accept(v),
+            Self::EntityExtra(n) => n.accept(v),
+            Self::EntityFixture(n) => n.accept(v),
             Self::Enum(n) => n.accept(v),
             Self::EnumHash(n) => n.accept(v),
             Self::EnumValue(n) => n.accept(v),
-            Self::Fixture(n) => n.accept(v),
             Self::Map(n) => n.accept(v),
             Self::Newtype(n) => n.accept(v),
             Self::Permission(n) => n.accept(v),
@@ -280,7 +284,7 @@ impl ValidateNode for Schema {
 
         // duplicate fixtures for the same entity
         let mut set = HashSet::new();
-        for fixture in self.get_node_values::<Fixture>() {
+        for fixture in self.get_node_values::<EntityFixture>() {
             for key in &fixture.keys {
                 let map_key = format!("{}-{}", fixture.entity, key);
 

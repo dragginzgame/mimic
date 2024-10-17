@@ -1,5 +1,5 @@
 use super::ActorBuilder;
-use orm_schema::{build::schema, node::Fixture};
+use orm_schema::{build::schema, node::EntityFixture};
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{parse_str, Path};
@@ -73,7 +73,7 @@ pub fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
     let schema = schema().unwrap();
     for (entity_path, _) in builder.get_entities() {
         for (fixture_path, _) in
-            schema.filter_nodes::<Fixture, _>(|node| node.entity == entity_path)
+            schema.filter_nodes::<EntityFixture, _>(|node| node.entity == entity_path)
         {
             let fixture_ident: Path = parse_str(fixture_path).unwrap();
             inner.push(quote! {

@@ -21,9 +21,6 @@ pub struct Entity {
 
     pub primary_keys: Vec<String>,
 
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub sources: Vec<String>,
-
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub crud: Option<Crud>,
 
