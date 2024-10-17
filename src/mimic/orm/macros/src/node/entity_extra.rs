@@ -7,7 +7,7 @@ use darling::FromMeta;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::Path;
+use syn::{Ident, Path};
 
 ///
 /// EntityExtra
@@ -94,7 +94,7 @@ impl TraitNode for EntityExtra {
 
 #[derive(Debug, FromMeta)]
 pub struct EntityExtraSource {
-    pub name: String,
+    pub name: Ident,
     pub path: Path,
 }
 
@@ -104,7 +104,7 @@ impl Node for EntityExtraSource {
         let path = &self.path;
 
         let q = quote! {
-            #name: #path,
+            #name: #path
         };
 
         q
@@ -114,8 +114,8 @@ impl Node for EntityExtraSource {
 impl Schemable for EntityExtraSource {
     fn schema(&self) -> TokenStream {
         // quote
-        let name = quote_one(&self.name, to_path);
-        let path = quote_one(&self.path, to_string);
+        let name = quote_one(&self.name, to_string);
+        let path = quote_one(&self.path, to_path);
 
         quote! {
             ::mimic::orm::schema::node::EntityExtraSource {
