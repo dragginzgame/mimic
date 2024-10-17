@@ -76,7 +76,7 @@ impl Schemable for EntityFixture {
                     def: #def,
                     entity: #entity,
                     keys: #keys,
-                s}
+                }
             )
         }
     }
