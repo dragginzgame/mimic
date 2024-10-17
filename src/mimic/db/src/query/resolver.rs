@@ -58,29 +58,30 @@ impl Resolver {
     // data_key
     pub fn data_key(&self, ck: &[String]) -> Result<DataKey, Error> {
         let chain_format = self.chain_format()?;
-        //    ::ic::println!("data_key 1: chain_format: {chain_format:?}, ck: {ck:?}");
 
         // Initialize an empty vector to store parts that have keys
         let mut data_key_parts: Vec<(String, Vec<String>)> = Vec::new();
 
         let mut index = 0;
-        for (part, count) in chain_format.iter() {
-            // If there are no more keys to process, break early
-            if index >= ck.len() {
-                break;
-            }
 
-            // Calculate how many keys to take for this part
-            let available_count = usize::min(*count, ck.len() - index);
+        for (i, (part, count)) in chain_format.iter().enumerate() {
+            let available_count = if index < ck.len() {
+                usize::min(*count, ck.len() - index)
+            } else {
+                0
+            };
 
-            if available_count > 0 {
-                // Add the part with associated keys to the result
+            // Add the new part if it's the root part of the chain, or if
+            // it isn't and we have keys
+            if i == 0 || available_count > 0 {
                 let part_keys = ck[index..index + available_count].to_vec();
+
                 data_key_parts.push((part.clone(), part_keys));
-                index += available_count;
-            }
+            };
+
+            // Stop processing after consuming all keys
+            index += available_count;
         }
-        //   ::ic::println!("data_key 2: parts: {data_key_parts:?}");
 
         Ok(DataKey::new(data_key_parts))
     }
