@@ -101,7 +101,7 @@ impl Node for EntityExtraSource {
         let path = &self.path;
 
         let q = quote! {
-            #name: #path
+            pub #name: #path
         };
 
         q
