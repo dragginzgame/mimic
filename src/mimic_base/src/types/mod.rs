@@ -1,3 +1,4 @@
+pub mod app;
 pub mod ascii;
 pub mod bytes;
 pub mod color;

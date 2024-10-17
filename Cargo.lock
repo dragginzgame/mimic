@@ -734,6 +734,7 @@ name = "mimic_base"
 version = "0.1.9"
 dependencies = [
  "candid",
+ "core_config",
  "derive_more",
  "ic",
  "lib_case",
