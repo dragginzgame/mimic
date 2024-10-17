@@ -32,10 +32,12 @@ impl Node for EntityExtra {
         let schema = self.ctor_schema();
         let derive = self.derive();
         let imp = self.imp();
+        let sources = self.sources.iter().map(Node::expand);
         let q = quote! {
             #schema
             #derive
-            pub enum #ident {
+            pub struct #ident {
+                #(#sources,)*
             }
             #imp
         };
