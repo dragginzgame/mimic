@@ -1,4 +1,4 @@
-use crate::helper::{quote_option, to_path};
+use super::helper::{quote_option, to_path};
 use darling::FromMeta;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;

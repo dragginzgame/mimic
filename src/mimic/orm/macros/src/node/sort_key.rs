@@ -1,9 +1,9 @@
-use crate::helper::{quote_one, quote_vec, split_idents, to_path, to_string};
+use super::helper::{quote_one, quote_vec, split_idents, to_path, to_string};
 use darling::FromMeta;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use syn::{Ident, Path};
 use quote::quote;
+use syn::{Ident, Path};
 
 ///
 /// SortKey

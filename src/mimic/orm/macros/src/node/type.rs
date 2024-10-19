@@ -1,12 +1,12 @@
-use crate::{
+use super::{
     helper::{quote_one, to_path},
-    node::Args,
+    Args,
 };
 use darling::FromMeta;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
-use syn::Path;
 use quote::quote;
+use syn::Path;
 
 ///
 /// TypeSanitizer

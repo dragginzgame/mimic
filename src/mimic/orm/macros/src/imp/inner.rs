@@ -1,7 +1,5 @@
-use crate::{
-    imp::Implementor,
-    node::{MacroNode, Newtype, Trait},
-};
+use super::Implementor;
+use crate::node::{MacroNode, Newtype, Trait};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
@@ -10,9 +8,10 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
     let primitive = node.primitive.expect("node has a primitive type");
 
     // quote
+    let field = &node.field_imp();
     let q = quote! {
         fn inner(&self) -> &#primitive {
-            self.0.inner()
+            #field.inner()
         }
     };
 

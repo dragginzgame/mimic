@@ -1,4 +1,4 @@
-use crate::helper::{quote_one, quote_vec, to_string};
+use super::helper::{quote_one, quote_vec, to_string};
 use darling::{ast::NestedMeta, Error as DarlingError, FromMeta};
 use derive_more::Deref;
 use orm_schema::Schemable;

@@ -92,9 +92,10 @@ impl ValidateNode for Field {
         }
 
         // check for relations with confusing idents
-        let one_suffix = ident.ends_with("id");
-        let many_suffix = ident.ends_with("ids");
         if self.value.item.is_relation() {
+            let one_suffix = ident.ends_with("id");
+            let many_suffix = ident.ends_with("ids");
+
             match self.value.cardinality {
                 Cardinality::Many if !many_suffix => {
                     errs.add(format!("many relationship '{ident}' should end with 'ids'"));

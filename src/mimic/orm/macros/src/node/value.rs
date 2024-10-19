@@ -1,7 +1,4 @@
-use crate::{
-    helper::quote_option,
-    node::{Arg, Item},
-};
+use super::{helper::quote_option, Arg, Item};
 use darling::FromMeta;
 use orm::types::Cardinality;
 use orm_schema::Schemable;

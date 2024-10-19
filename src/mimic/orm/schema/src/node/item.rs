@@ -15,7 +15,7 @@ use types::ErrorVec;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Item {
-    #[serde(skip_serializing_if = "Not::not")]
+    #[serde(default, skip_serializing_if = "Not::not")]
     pub indirect: bool,
 
     pub is: Option<String>,

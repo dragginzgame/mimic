@@ -1,6 +1,6 @@
-use crate::{
-    imp::{Implementor, Trait},
-    node::{Entity, Enum, EnumVariant, FieldList, MacroNode, Map, Newtype, Record, Tuple, Value},
+use super::{Implementor, Trait};
+use crate::node::{
+    Entity, Enum, EnumVariant, FieldList, MacroNode, Map, Newtype, Record, Tuple, Value,
 };
 use orm::types::Cardinality;
 use proc_macro2::TokenStream;

@@ -1,7 +1,4 @@
-use crate::{
-    helper::quote_one,
-    node::{Def, MacroNode, Node},
-};
+use super::{helper::quote_one, Def, MacroNode, Node};
 use darling::FromMeta;
 use orm::types::PrimitiveType;
 use orm_schema::Schemable;

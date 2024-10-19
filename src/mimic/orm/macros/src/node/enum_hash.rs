@@ -1,8 +1,8 @@
-use crate::{
+use super::{
     helper::{quote_vec, to_string},
-    imp,
-    node::{Def, MacroNode, Node, Trait, TraitNode, Traits},
+    Def, MacroNode, Node, Trait, TraitNode, Traits,
 };
+use crate::imp;
 use darling::FromMeta;
 use orm::types::Sorted;
 use orm_schema::Schemable;

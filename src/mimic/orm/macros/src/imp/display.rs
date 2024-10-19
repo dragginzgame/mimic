@@ -1,7 +1,5 @@
-use crate::{
-    imp::Implementor,
-    node::{MacroNode, Newtype, Trait},
-};
+use super::Implementor;
+use crate::node::{MacroNode, Newtype, Trait};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 

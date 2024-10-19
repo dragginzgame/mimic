@@ -1,7 +1,9 @@
 use crate::{
-    helper::{quote_one, quote_option, quote_vec, to_string},
     imp,
-    node::{Def, MacroNode, Node, Trait, TraitNode, Traits, Value},
+    node::{
+        helper::{quote_one, quote_option, quote_vec, to_string},
+        Def, MacroNode, Node, Trait, TraitNode, Traits, Value,
+    },
 };
 use darling::FromMeta;
 use orm::types::Sorted;

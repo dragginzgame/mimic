@@ -3,16 +3,12 @@
 #![allow(clippy::option_if_let_else)]
 #![allow(clippy::manual_unwrap_or_default)]
 
-mod helper;
 mod imp;
 mod node;
 
-use crate::{
-    helper::extract_comments,
-    node::{Def, Node},
-};
+use crate::node::{Def, Node};
 use darling::{ast::NestedMeta, Error as DarlingError, FromMeta};
-use proc_macro::TokenStream;
+use proc_macro2::{Delimiter, TokenStream, TokenTree};
 use syn::{parse_macro_input, ItemStruct, Visibility};
 
 ///
@@ -22,7 +18,10 @@ use syn::{parse_macro_input, ItemStruct, Visibility};
 macro_rules! macro_node {
     ($fn_name:ident, $node_type:ty) => {
         #[proc_macro_attribute]
-        pub fn $fn_name(args: TokenStream, input: TokenStream) -> TokenStream {
+        pub fn $fn_name(
+            args: proc_macro::TokenStream,
+            input: proc_macro::TokenStream,
+        ) -> proc_macro::TokenStream {
             let comments = extract_comments(input.clone().into());
 
             match NestedMeta::parse_meta_list(args.into()) {
@@ -31,7 +30,7 @@ macro_rules! macro_node {
 
                     // validate
                     if !matches!(item.vis, Visibility::Public(_)) {
-                        return TokenStream::from(
+                        return proc_macro::TokenStream::from(
                             DarlingError::custom("expected public visibility").write_errors(),
                         );
                     }
@@ -51,7 +50,7 @@ macro_rules! macro_node {
                     // expand tokens
                     node.expand().into()
                 }
-                Err(e) => TokenStream::from(DarlingError::from(e).write_errors()),
+                Err(e) => proc_macro::TokenStream::from(DarlingError::from(e).write_errors()),
             }
         }
     };
@@ -75,3 +74,76 @@ macro_node!(sanitizer, node::Sanitizer);
 macro_node!(store, node::Store);
 macro_node!(tuple, node::Tuple);
 macro_node!(validator, node::Validator);
+
+///
+/// Helper Functions
+///
+
+// extract_comments
+#[must_use]
+fn extract_comments(input: TokenStream) -> String {
+    let mut comments = Vec::new();
+
+    for token in input {
+        match token {
+            TokenTree::Group(group) => {
+                if group.delimiter() == Delimiter::Bracket {
+                    let mut inner_tokens = group.stream().into_iter();
+                    if let (
+                        Some(TokenTree::Ident(ident)),
+                        Some(TokenTree::Punct(punct)),
+                        Some(TokenTree::Literal(lit)),
+                    ) = (
+                        inner_tokens.next(),
+                        inner_tokens.next(),
+                        inner_tokens.next(),
+                    ) {
+                        if ident == "doc" && punct.as_char() == '=' {
+                            let comment = lit.to_string();
+                            // Remove the outermost quotes and the first space of each line
+                            let cleaned_comment = clean_comment(&comment);
+
+                            comments.push(cleaned_comment);
+                        }
+                    }
+                }
+            }
+            _ => continue,
+        }
+    }
+
+    let comments = comments
+        .into_iter()
+        .filter(|line| !line.trim().is_empty())
+        .collect::<Vec<_>>()
+        .join("\n")
+        .replace(r#"\""#, r#"""#);
+
+    comments
+}
+
+/// Trims the outermost quotes, if they are unescaped, and removes the first space of each line
+fn clean_comment(literal: &str) -> String {
+    let mut chars = literal.chars().peekable();
+    let mut result = String::new();
+
+    // Check if the first character is an unescaped quote
+    if chars.peek() == Some(&'"') {
+        chars.next(); // Skip the starting quote
+    }
+
+    while let Some(c) = chars.next() {
+        if c == '"' && chars.peek().is_none() {
+            // Skip the ending quote if it's the last character
+            break;
+        }
+        result.push(c);
+    }
+
+    // Split the string into lines and remove the first space of each line if it exists
+    result
+        .lines()
+        .map(|line| line.strip_prefix(' ').unwrap_or(line)) // Remove the first space if present
+        .collect::<Vec<_>>()
+        .join("\n")
+}

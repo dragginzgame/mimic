@@ -1,8 +1,8 @@
-use crate::{
+use super::{
     helper::{quote_option, quote_vec},
-    imp,
-    node::{Def, MacroNode, Node, Trait, TraitNode, Traits, TypeSanitizer, TypeValidator, Value},
+    Def, MacroNode, Node, Trait, TraitNode, Traits, TypeSanitizer, TypeValidator, Value,
 };
+use crate::imp;
 use darling::FromMeta;
 use orm::types::{Cardinality, PrimitiveGroup, PrimitiveType};
 use orm_schema::Schemable;
@@ -31,6 +31,16 @@ pub struct Newtype {
 
     #[darling(default)]
     pub traits: Traits,
+}
+
+impl Newtype {
+    pub fn field_imp(&self) -> TokenStream {
+        if self.value.item.indirect {
+            quote!(*self.0)
+        } else {
+            quote!(self.0)
+        }
+    }
 }
 
 impl Node for Newtype {

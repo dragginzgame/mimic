@@ -1,8 +1,8 @@
-use crate::{
+use super::{
     helper::{quote_one, quote_vec, to_path, to_string},
-    imp,
-    node::{Def, MacroNode, Node, Trait, TraitNode, Traits},
+    Def, MacroNode, Node, Trait, TraitNode, Traits,
 };
+use crate::imp;
 use darling::FromMeta;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;

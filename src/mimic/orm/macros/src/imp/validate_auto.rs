@@ -1,7 +1,5 @@
-use crate::{
-    imp::{Implementor, Trait},
-    node::{Enum, Newtype, TypeValidator},
-};
+use super::{Implementor, Trait};
+use crate::node::{Enum, Newtype, TypeValidator};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
 

@@ -8,6 +8,7 @@ mod r#enum;
 mod enum_hash;
 mod enum_value;
 mod field;
+mod helper;
 mod item;
 mod map;
 mod newtype;
@@ -51,7 +52,7 @@ pub use self::tuple::*;
 pub use self::validator::*;
 pub use self::value::*;
 
-use crate::helper::{quote_one, to_path};
+use crate::node::helper::{quote_one, to_path};
 use darling::FromMeta;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;

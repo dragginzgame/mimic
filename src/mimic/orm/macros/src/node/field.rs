@@ -1,6 +1,6 @@
-use crate::{
+use super::{
     helper::{quote_one, quote_vec, to_string},
-    node::Value,
+    Value,
 };
 use darling::FromMeta;
 use orm::types::SortDirection;
@@ -62,6 +62,17 @@ impl ToTokens for FieldList {
 pub struct Field {
     pub name: Ident,
     pub value: Value,
+}
+
+impl Field {
+    pub fn field_imp(&self) -> TokenStream {
+        let name = &self.name;
+        if self.value.item.indirect {
+            quote!(*self.#name)
+        } else {
+            quote!(self.#name)
+        }
+    }
 }
 
 impl Schemable for Field {

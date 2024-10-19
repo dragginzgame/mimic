@@ -1,4 +1,4 @@
-use crate::helper::{as_string, quote_one, to_string};
+use super::helper::{as_string, quote_one, to_string};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::{Generics, Ident};
