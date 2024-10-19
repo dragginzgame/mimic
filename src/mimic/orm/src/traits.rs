@@ -65,6 +65,8 @@ pub trait Filterable {
     }
 }
 
+impl<T: Filterable> Filterable for Box<T> {}
+
 impl Filterable for String {
     fn as_text(&self) -> Option<String> {
         Some(self.to_string())
@@ -122,6 +124,7 @@ pub trait Orderable {
 
 impl Orderable for f32 {}
 impl Orderable for f64 {}
+impl<T: Orderable> Orderable for Box<T> {}
 
 // impl_primitive_order
 #[macro_export]
