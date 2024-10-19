@@ -3,7 +3,7 @@ use ic_cdk::query;
 use mimic::{core::wasm::WasmManager, prelude::*};
 
 // start
-mimic_start!("path/to/config.toml");
+mimic_start!("path/to/mimic.toml");
 
 // init2
 pub fn init2() -> Result<(), Error> {

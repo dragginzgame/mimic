@@ -51,8 +51,6 @@ pub use self::tuple::*;
 pub use self::validator::*;
 pub use self::value::*;
 
-pub const PRIM_ULID: &str = "::mimic_base::types::Ulid";
-
 use crate::helper::{quote_one, to_path};
 use darling::FromMeta;
 use orm_schema::Schemable;

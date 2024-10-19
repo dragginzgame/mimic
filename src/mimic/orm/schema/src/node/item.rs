@@ -4,10 +4,9 @@ use crate::{
         Entity, Enum, EnumValue, Map, Newtype, Primitive, Record, Tuple, ValidateNode,
         VisitableNode,
     },
-    visit::Visitor,
 };
 use serde::{Deserialize, Serialize};
-use std::{any::TypeId, collections::HashSet};
+use std::{any::TypeId, collections::HashSet, ops::Not, sync::LazyLock};
 use types::ErrorVec;
 
 ///
@@ -15,94 +14,68 @@ use types::ErrorVec;
 ///
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum Item {
-    Id,
-    Is(ItemIs),
-    Relation(ItemRelation),
+pub struct Item {
+    #[serde(skip_serializing_if = "Not::not")]
+    pub indirect: bool,
+
+    pub is: Option<String>,
+    pub relation: Option<String>,
 }
 
 impl Item {
-    // is_id
-    #[must_use]
-    pub const fn is_id(&self) -> bool {
-        matches!(self, Self::Id)
-    }
-
     // is_relation
     #[must_use]
     pub const fn is_relation(&self) -> bool {
-        matches!(self, Self::Relation(_))
+        self.relation.is_some()
     }
 }
 
-impl ValidateNode for Item {}
+// define acceptable types for an 'is' Item
+static ACCEPTABLE_TYPES: LazyLock<HashSet<TypeId>> = LazyLock::new(|| {
+    let mut acceptable_types = HashSet::new();
+    acceptable_types.extend(vec![
+        TypeId::of::<Entity>(),
+        TypeId::of::<Enum>(),
+        TypeId::of::<EnumValue>(),
+        TypeId::of::<Map>(),
+        TypeId::of::<Newtype>(),
+        TypeId::of::<Primitive>(),
+        TypeId::of::<Record>(),
+        TypeId::of::<Tuple>(),
+    ]);
+    acceptable_types
+});
 
-impl VisitableNode for Item {
-    fn drive<V: Visitor>(&self, v: &mut V) {
-        match self {
-            Self::Id => {}
-            Self::Is(node) => node.accept(v),
-            Self::Relation(node) => node.accept(v),
+impl ValidateNode for Item {
+    fn validate(&self) -> Result<(), ErrorVec> {
+        let mut errs = ErrorVec::new();
+
+        // both
+        if self.is.is_some() == self.relation.is_some() {
+            errs.add("only one of is or relation should be set");
         }
-    }
-}
 
-///
-/// ItemIs
-///
+        // is
+        if let Some(path) = &self.is {
+            errs.add_result(schema_read().check_node_types(path, &ACCEPTABLE_TYPES));
+        }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct ItemIs {
-    pub path: String,
-}
-
-impl ValidateNode for ItemIs {
-    fn validate(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
-
-        // check path type
-        let mut acceptable_types = HashSet::default();
-        acceptable_types.extend(vec![
-            TypeId::of::<Entity>(),
-            TypeId::of::<Enum>(),
-            TypeId::of::<EnumValue>(),
-            TypeId::of::<Map>(),
-            TypeId::of::<Newtype>(),
-            TypeId::of::<Primitive>(),
-            TypeId::of::<Record>(),
-            TypeId::of::<Tuple>(),
-        ]);
-        errs.add_result(schema_read().check_node_types(&self.path, &acceptable_types));
-
-        errs.result()
-    }
-}
-
-impl VisitableNode for ItemIs {}
-
-///
-/// ItemRelation
-///
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct ItemRelation {
-    pub path: String,
-}
-
-impl ValidateNode for ItemRelation {
-    fn validate(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
-
-        // entity
-        if let Some(entity) = schema_read().get_node::<Entity>(&self.path) {
-            if !entity.is_relatable() {
-                errs.add("entity does not meet the criteria to create a relation with");
+        // relation
+        if let Some(path) = &self.relation {
+            if self.indirect {
+                errs.add("relations cannot be set to indirect");
             }
+
+            if let Some(entity) = schema_read().get_node::<Entity>(path) {
+                if !entity.is_relatable() {
+                    errs.add("entity does not meet the criteria to create a relation with");
+                }
+            }
+            errs.add_result(schema_read().check_node::<Entity>(path));
         }
-        errs.add_result(schema_read().check_node::<Entity>(&self.path));
 
         errs.result()
     }
 }
 
-impl VisitableNode for ItemRelation {}
+impl VisitableNode for Item {}

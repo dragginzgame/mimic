@@ -9,7 +9,7 @@ use mimic::orm::prelude::*;
     store = "crate::Store",
     pks = "id",
     fields(
-        field(name = "id", value(item(id))),
+        field(name = "id", value(item(is = "types::Ulid"))),
         field(name = "string_test", value(item(is = "types::String"))),
         field(name = "principal_test", value(item(is = "types::Principal"))),
         field(name = "blob_test", value(item(is = "types::Blob"))),
@@ -69,7 +69,7 @@ pub struct ComplexEntity {}
     store = "crate::Store",
     pks = "id",
     fields(
-        field(name = "id", value(item(id))),
+        field(name = "id", value(item(is = "types::Ulid"))),
         field(name = "simple_text", value(item(is = "types::String"))),
         field(name = "tuple_test", value(item(is = "Tuple"))),
         field(name = "text_many", value(many, item(is = "types::String"))),
@@ -103,7 +103,7 @@ pub struct AdminEntity {}
     store = "crate::Store",
     pks = "id",
     fields(
-        field(name = "id", value(item(id))),
+        field(name = "id", value(item(is = "types::Ulid"))),
         field(name = "name", value(item(is = "types::String"))),
     )
 )]

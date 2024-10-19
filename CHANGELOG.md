@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 supposed to be
 - changed Fixture to EntityFixture, and removed source from Entity.  Added new schema type EntityExtra which allows you to specify a list of data sources
 - bumped rust to 1.82 and did a clippy pass
+- added an 'indirect' directive to item so you can wrap things in Box<>
 
 ## [0.1.8]
 - wrapped Db in an Rc so that it's easier to pass through to await code
@@ -48,7 +49,6 @@ is stored in the schema JSON
 - fixed a bug in api::call that was affecting calls with more than one argument
 
 ## [0.1.3]
-- Item now can be: id, is or rel.  Id is the addition, so you just type (value(item(id))) for a Ulid
 - Horrible circular dependency in mimic_base with the Ulid type fixed
 - root canister now has a schema() command that's guarded at the controller level
 - tests have been moved out of mimic_base so they don't interfere with the application tests

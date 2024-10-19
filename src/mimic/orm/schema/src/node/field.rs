@@ -94,7 +94,7 @@ impl ValidateNode for Field {
         // check for relations with confusing idents
         let one_suffix = ident.ends_with("id");
         let many_suffix = ident.ends_with("ids");
-        if self.value.item.is_relation() || self.value.item.is_id() {
+        if self.value.item.is_relation() {
             match self.value.cardinality {
                 Cardinality::Many if !many_suffix => {
                     errs.add(format!("many relationship '{ident}' should end with 'ids'"));
@@ -106,8 +106,6 @@ impl ValidateNode for Field {
                 }
                 _ => {}
             }
-        } else if one_suffix || many_suffix {
-            errs.add(format!("field '{ident}' should not end with 'id' or 'ids'"));
         }
 
         errs.result()

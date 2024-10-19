@@ -1,6 +1,6 @@
-pub mod config;
+pub mod types;
 
-pub use config::Config;
+pub use types::Config;
 
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;

@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Value {
     pub cardinality: Cardinality,
+
     pub item: Item,
 
     #[serde(skip_serializing_if = "Option::is_none")]

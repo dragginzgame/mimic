@@ -1,13 +1,12 @@
 use crate::{
     helper::quote_option,
-    node::{Arg, Item, PRIM_ULID},
+    node::{Arg, Item},
 };
 use darling::FromMeta;
 use orm::types::Cardinality;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-use syn::Path;
 
 ///
 /// Value
@@ -57,25 +56,20 @@ impl Schemable for Value {
 
 impl ToTokens for Value {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        match &self.item {
-            Item::Is(item) => {
-                tokens.extend(match self.cardinality() {
-                    Cardinality::One => quote!(#item),
-                    Cardinality::Opt => quote!(Option<#item>),
-                    Cardinality::Many => quote!(Vec<#item>),
-                });
-            }
+        let item = &self.item;
 
-            Item::Id | Item::Relation(_) => {
-                // always use the same ulid type
-                let item: Path = syn::parse_str(PRIM_ULID).unwrap();
-
-                tokens.extend(match self.cardinality() {
-                    Cardinality::One => quote!(#item),
-                    Cardinality::Opt => quote!(Option<#item>),
-                    Cardinality::Many => quote!(::mimic::orm::collections::HashSet<#item>),
-                });
-            }
+        if item.is_relation() {
+            tokens.extend(match self.cardinality() {
+                Cardinality::One => quote!(#item),
+                Cardinality::Opt => quote!(Option<#item>),
+                Cardinality::Many => quote!(::mimic::orm::collections::HashSet<#item>),
+            });
+        } else {
+            tokens.extend(match self.cardinality() {
+                Cardinality::One => quote!(#item),
+                Cardinality::Opt => quote!(Option<#item>),
+                Cardinality::Many => quote!(Vec<#item>),
+            });
         }
     }
 }
