@@ -210,16 +210,6 @@ pub trait Sanitize: SanitizeManual + SanitizeAuto {
 impl<T> Sanitize for T where T: SanitizeManual + SanitizeAuto {}
 
 ///
-/// SanitizeManual
-///
-
-pub trait SanitizeManual {
-    fn sanitize_manual(&mut self) {}
-}
-
-impl_primitive!(SanitizeManual);
-
-///
 /// SanitizeAuto
 ///
 
@@ -227,7 +217,19 @@ pub trait SanitizeAuto {
     fn sanitize_auto(&mut self) {}
 }
 
+impl<T: SanitizeAuto> SanitizeAuto for Box<T> {}
 impl_primitive!(SanitizeAuto);
+
+///
+/// SanitizeManual
+///
+
+pub trait SanitizeManual {
+    fn sanitize_manual(&mut self) {}
+}
+
+impl<T: SanitizeManual> SanitizeManual for Box<T> {}
+impl_primitive!(SanitizeManual);
 
 ///
 /// Validate
@@ -246,21 +248,6 @@ pub trait Validate: ValidateManual + ValidateAuto {
 impl<T> Validate for T where T: ValidateManual + ValidateAuto {}
 
 ///
-/// ValidateManual
-///
-/// The default behaviour is Ok() so no errors unless
-/// this method is overridden
-///
-
-pub trait ValidateManual {
-    fn validate_manual(&self) -> Result<(), ErrorVec> {
-        Ok(())
-    }
-}
-
-impl_primitive!(ValidateManual);
-
-///
 /// ValidateAuto
 ///
 /// this is for extra derived methods, such as checking invalid
@@ -273,7 +260,24 @@ pub trait ValidateAuto {
     }
 }
 
+impl<T: ValidateAuto> ValidateAuto for Box<T> {}
 impl_primitive!(ValidateAuto);
+
+///
+/// ValidateManual
+///
+/// The default behaviour is Ok() so no errors unless
+/// this method is overridden
+///
+
+pub trait ValidateManual {
+    fn validate_manual(&self) -> Result<(), ErrorVec> {
+        Ok(())
+    }
+}
+
+impl<T: ValidateManual> ValidateManual for Box<T> {}
+impl_primitive!(ValidateManual);
 
 ///
 /// Visitable
@@ -282,6 +286,16 @@ impl_primitive!(ValidateAuto);
 pub trait Visitable: Validate + Sanitize {
     fn drive(&self, _: &mut dyn Visitor) {}
     fn drive_mut(&mut self, _: &mut dyn Visitor) {}
+}
+
+impl<T: Visitable> Visitable for Box<T> {
+    fn drive(&self, visitor: &mut dyn Visitor) {
+        (**self).drive(visitor);
+    }
+
+    fn drive_mut(&mut self, visitor: &mut dyn Visitor) {
+        (**self).drive_mut(visitor);
+    }
 }
 
 impl_primitive!(Visitable);

@@ -76,7 +76,6 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
 }
 
 // map
-// HashMap keys are not mutable
 pub fn map(node: &Map, t: Trait) -> TokenStream {
     let inner = quote! {
         for (map_key, map_value) in self.0.iter() {
@@ -85,6 +84,8 @@ pub fn map(node: &Map, t: Trait) -> TokenStream {
             ::mimic::orm::visit::perform_visit(visitor, map_value, &key);
         }
     };
+
+    // HashMap keys are not mutable
     let inner_mut = quote! {
         for (map_key, map_value) in self.0.iter_mut() {
             let key = map_key.to_string();

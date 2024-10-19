@@ -8,10 +8,9 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
     let primitive = node.primitive.expect("node has a primitive type");
 
     // quote
-    let field = &node.field_imp();
     let q = quote! {
         fn inner(&self) -> &#primitive {
-            #field.inner()
+            self.0.inner()
         }
     };
 

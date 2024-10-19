@@ -33,16 +33,6 @@ pub struct Newtype {
     pub traits: Traits,
 }
 
-impl Newtype {
-    pub fn field_imp(&self) -> TokenStream {
-        if self.value.item.indirect {
-            quote!(*self.0)
-        } else {
-            quote!(self.0)
-        }
-    }
-}
-
 impl Node for Newtype {
     fn expand(&self) -> TokenStream {
         let Self { value, .. } = self;

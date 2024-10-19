@@ -64,17 +64,6 @@ pub struct Field {
     pub value: Value,
 }
 
-impl Field {
-    pub fn field_imp(&self) -> TokenStream {
-        let name = &self.name;
-        if self.value.item.indirect {
-            quote!(*self.#name)
-        } else {
-            quote!(self.#name)
-        }
-    }
-}
-
 impl Schemable for Field {
     fn schema(&self) -> TokenStream {
         let name = quote_one(&self.name, to_string);
