@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 supposed to be
 - changed Fixture to EntityFixture, and removed source from Entity.  Added new schema type EntityExtra which allows you to specify a list of data sources
 - bumped rust to 1.82 and did a clippy pass
-- added an 'indirect' directive to item so you can wrap things in Box<>
+- added an 'indirect' directive to item so you can wrap things in Box<T>
 
 ## [0.1.8]
 - wrapped Db in an Rc so that it's easier to pass through to await code
