@@ -18,7 +18,10 @@ pub struct Item {
     #[serde(default, skip_serializing_if = "Not::not")]
     pub indirect: bool,
 
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub is: Option<String>,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub relation: Option<String>,
 }
 
