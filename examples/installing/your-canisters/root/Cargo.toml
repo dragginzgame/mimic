@@ -17,6 +17,5 @@ ic-cdk-timers = { workspace = true }
 mimic = { workspace = true }
 
 [build-dependencies]
-design = { workspace = true }
 mimic = { workspace = true }
 mimic_base = { workspace = true }
