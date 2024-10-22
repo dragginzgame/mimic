@@ -10,21 +10,21 @@ use quote::quote;
 use syn::{Ident, Path};
 
 ///
-/// EntityExtra
+/// EntitySource
 ///
 
 #[derive(Debug, FromMeta)]
-pub struct EntityExtra {
+pub struct EntitySource {
     #[darling(default, skip)]
     pub def: Def,
 
     pub entity: Path,
 
     #[darling(multiple, rename = "source")]
-    pub sources: Vec<EntityExtraSource>,
+    pub sources: Vec<EntitySourceEntry>,
 }
 
-impl Node for EntityExtra {
+impl Node for EntitySource {
     fn expand(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
 
@@ -52,17 +52,17 @@ impl Node for EntityExtra {
     }
 }
 
-impl MacroNode for EntityExtra {
+impl MacroNode for EntitySource {
     fn def(&self) -> &Def {
         &self.def
     }
 }
 
-impl Schemable for EntityExtra {
+impl Schemable for EntitySource {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let entity = quote_one(&self.entity, to_path);
-        let sources = quote_vec(&self.sources, EntityExtraSource::schema);
+        let sources = quote_vec(&self.sources, EntitySourceEntry::schema);
 
         quote! {
             ::mimic::orm::schema::node::SchemaNode::EntityExtra(
@@ -75,7 +75,7 @@ impl Schemable for EntityExtra {
     }
 }
 
-impl TraitNode for EntityExtra {
+impl TraitNode for EntitySource {
     fn traits(&self) -> Vec<Trait> {
         Traits::default().list()
     }
@@ -86,16 +86,16 @@ impl TraitNode for EntityExtra {
 }
 
 ///
-/// EntityExtraSource
+/// EntitySourceEntry
 ///
 
 #[derive(Debug, FromMeta)]
-pub struct EntityExtraSource {
+pub struct EntitySourceEntry {
     pub name: Ident,
     pub path: Path,
 }
 
-impl Node for EntityExtraSource {
+impl Node for EntitySourceEntry {
     fn expand(&self) -> TokenStream {
         let name = &self.name;
         let path = &self.path;
@@ -108,14 +108,14 @@ impl Node for EntityExtraSource {
     }
 }
 
-impl Schemable for EntityExtraSource {
+impl Schemable for EntitySourceEntry {
     fn schema(&self) -> TokenStream {
         // quote
         let name = quote_one(&self.name, to_string);
         let path = quote_one(&self.path, to_path);
 
         quote! {
-            ::mimic::orm::schema::node::EntityExtraSource {
+            ::mimic::orm::schema::node::EntitySourceEntry {
                 name: #name,
                 path: #path,
             }

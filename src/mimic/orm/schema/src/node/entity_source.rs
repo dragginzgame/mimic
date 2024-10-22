@@ -6,23 +6,23 @@ use serde::{Deserialize, Serialize};
 use types::ErrorVec;
 
 ///
-/// EntityExtra
+/// EntitySource
 ///
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct EntityExtra {
+pub struct EntitySource {
     pub def: Def,
     pub entity: String,
-    pub sources: Vec<EntityExtraSource>,
+    pub sources: Vec<EntitySourceEntry>,
 }
 
-impl MacroNode for EntityExtra {
+impl MacroNode for EntitySource {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }
 }
 
-impl ValidateNode for EntityExtra {
+impl ValidateNode for EntitySource {
     fn validate(&self) -> Result<(), ErrorVec> {
         let mut errs = ErrorVec::new();
 
@@ -33,18 +33,18 @@ impl ValidateNode for EntityExtra {
     }
 }
 
-impl VisitableNode for EntityExtra {
+impl VisitableNode for EntitySource {
     fn route_key(&self) -> String {
         self.def.path()
     }
 }
 
 ///
-/// EntityExtraSource
+/// EntitySourceEntry
 ///
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct EntityExtraSource {
+pub struct EntitySourceEntry {
     pub name: String,
     pub path: String,
 }
