@@ -65,8 +65,8 @@ impl Schemable for EntitySource {
         let sources = quote_vec(&self.sources, EntitySourceEntry::schema);
 
         quote! {
-            ::mimic::orm::schema::node::SchemaNode::EntityExtra(
-                ::mimic::orm::schema::node::EntityExtra{
+            ::mimic::orm::schema::node::SchemaNode::EntitySource(
+                ::mimic::orm::schema::node::EntitySource{
                 def: #def,
                 entity: #entity,
                 sources: #sources,
