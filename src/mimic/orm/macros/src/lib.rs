@@ -62,7 +62,6 @@ macro_node!(entity, node::Entity);
 macro_node!(entity_fixture, node::EntityFixture);
 macro_node!(entity_source, node::EntitySource);
 macro_node!(enum_, node::Enum);
-macro_node!(enum_hash, node::EnumHash);
 macro_node!(enum_value, node::EnumValue);
 macro_node!(map, node::Map);
 macro_node!(newtype, node::Newtype);

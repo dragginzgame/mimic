@@ -60,7 +60,6 @@ pub enum Trait {
     EntityDynamic,
     EntityFixture,
     EnumDisplay,
-    EnumHash,
     EnumStaticStr,
     EnumValue,
     FieldFilter,

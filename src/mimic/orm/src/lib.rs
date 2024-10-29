@@ -16,9 +16,6 @@ use visit::{perform_visit, perform_visit_mut, SanitizeVisitor, ValidateVisitor};
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
-    #[snafu(display("invalid enum hash '{key}'"))]
-    InvalidEnumHash { key: u64 },
-
     #[snafu(display("cannot parse field '{field}'"))]
     ParseField { field: String },
 

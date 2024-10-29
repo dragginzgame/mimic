@@ -1,8 +1,8 @@
 use crate::{
     node::{
-        Canister, Def, Entity, EntityFixture, EntitySource, Enum, EnumHash, EnumValue, Error,
-        MacroNode, Map, Newtype, Permission, Primitive, Record, Role, Sanitizer, Store, Tuple,
-        ValidateNode, Validator, VisitableNode,
+        Canister, Def, Entity, EntityFixture, EntitySource, Enum, EnumValue, Error, MacroNode, Map,
+        Newtype, Permission, Primitive, Record, Role, Sanitizer, Store, Tuple, ValidateNode,
+        Validator, VisitableNode,
     },
     visit::Visitor,
 };
@@ -29,7 +29,6 @@ pub enum SchemaNode {
     EntityFixture(EntityFixture),
     EntitySource(EntitySource),
     Enum(Enum),
-    EnumHash(EnumHash),
     EnumValue(EnumValue),
     Map(Map),
     Newtype(Newtype),
@@ -51,7 +50,6 @@ impl SchemaNode {
             Self::EntityFixture(n) => &n.def,
             Self::EntitySource(n) => &n.def,
             Self::Enum(n) => &n.def,
-            Self::EnumHash(n) => &n.def,
             Self::EnumValue(n) => &n.def,
             Self::Map(n) => &n.def,
             Self::Newtype(n) => &n.def,
@@ -75,7 +73,6 @@ impl MacroNode for SchemaNode {
             Self::EntityFixture(n) => n.as_any(),
             Self::EntitySource(n) => n.as_any(),
             Self::Enum(n) => n.as_any(),
-            Self::EnumHash(n) => n.as_any(),
             Self::EnumValue(n) => n.as_any(),
             Self::Map(n) => n.as_any(),
             Self::Newtype(n) => n.as_any(),
@@ -101,7 +98,6 @@ impl VisitableNode for SchemaNode {
             Self::EntityFixture(n) => n.accept(v),
             Self::EntitySource(n) => n.accept(v),
             Self::Enum(n) => n.accept(v),
-            Self::EnumHash(n) => n.accept(v),
             Self::EnumValue(n) => n.accept(v),
             Self::Map(n) => n.accept(v),
             Self::Newtype(n) => n.accept(v),

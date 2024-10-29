@@ -455,21 +455,6 @@ pub trait EntityFixture: Display + Path {
 }
 
 ///
-/// EnumHash
-///
-/// allows an enum's variants to always anchor to the same ID so they
-/// can have a permanent relation to the backend code and services
-///
-/// don't mix this with Fixtures as otherwise we could have a situation where
-/// we can't delete the Fixture data because it would destroy the Key logic
-///
-
-pub trait EnumHash: Sized {
-    fn to_hash(&self) -> u64;
-    fn try_from_hash(n: u64) -> Result<Self, Error>;
-}
-
-///
 /// EnumValue
 ///
 

@@ -33,8 +33,8 @@ pub mod orm {
         pub use ::orm::{
             collections::HashSet,
             traits::{
-                EntityDynamic, EntityFixture, EnumHash, EnumValue, Filterable, Inner, Orderable,
-                Path, PrimaryKey, Sanitize, SanitizeManual, Storable, Validate, ValidateManual,
+                EntityDynamic, EntityFixture, EnumValue, Filterable, Inner, Orderable, Path,
+                PrimaryKey, Sanitize, SanitizeManual, Storable, Validate, ValidateManual,
                 Visitable,
             },
             Error,
