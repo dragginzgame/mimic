@@ -78,6 +78,7 @@ impl TraitNode for Entity {
             Trait::Default,
             Trait::Entity,
             Trait::EntityDynamic,
+            Trait::EntityFixture,
             Trait::FieldSort,
             Trait::FieldFilter,
             Trait::SortKey,

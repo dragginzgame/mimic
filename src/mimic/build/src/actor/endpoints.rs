@@ -198,12 +198,12 @@ pub fn store_endpoints(builder: &mut ActorBuilder) {
         // store_keys
         #[::mimic::ic::query(composite = true)]
         #[allow(clippy::needless_pass_by_value)]
-        async fn store_keys(store_name: String) -> Result<Vec<String>, ::mimic::api::Error> {
+        async fn store_keys(store_path: String) -> Result<Vec<String>, ::mimic::api::Error> {
             guard(vec![Guard::Controller]).await?;
 
             // get keys
             let keys: Vec<String> = DB.with(|db| {
-                db.with_store(&store_name, |store| {
+                db.with_store(&store_path, |store| {
                     Ok(store.data.keys().map(|k| k.to_string()).collect())
                 })
             })
@@ -213,14 +213,14 @@ pub fn store_endpoints(builder: &mut ActorBuilder) {
         }
 
         // store_clear
-        #[::mimic::ic::query(composite = true)]
+        #[::mimic::ic::update]
         #[allow(clippy::needless_pass_by_value)]
-        async fn store_clear(store_name: String) -> Result<(), ::mimic::api::Error> {
+        async fn store_clear(store_path: String) -> Result<(), ::mimic::api::Error> {
             guard(vec![Guard::Controller]).await?;
 
             // clear canister
             DB.with(|db| {
-                db.with_store_mut(&store_name, |store| {
+                db.with_store_mut(&store_path, |store| {
                     Ok(store.clear())
                 })
             })

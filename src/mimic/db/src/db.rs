@@ -44,28 +44,28 @@ impl Db {
     }
 
     // with_store
-    pub fn with_store<F, R>(&self, name: &str, f: F) -> Result<R, Error>
+    pub fn with_store<F, R>(&self, path: &str, f: F) -> Result<R, Error>
     where
         F: FnOnce(&Store) -> Result<R, Error>,
     {
         let res = self
             .stores
-            .get(name)
-            .ok_or_else(|| Error::store_not_found(name))
+            .get(path)
+            .ok_or_else(|| Error::store_not_found(path))
             .and_then(|local_key| local_key.with(|store| f(&store.borrow())))?;
 
         Ok(res)
     }
 
     // with_store_mut
-    pub fn with_store_mut<F, R>(&self, name: &str, f: F) -> Result<R, Error>
+    pub fn with_store_mut<F, R>(&self, path: &str, f: F) -> Result<R, Error>
     where
         F: FnOnce(&mut Store) -> Result<R, Error>,
     {
         let res = self
             .stores
-            .get(name)
-            .ok_or_else(|| Error::store_not_found(name))
+            .get(path)
+            .ok_or_else(|| Error::store_not_found(path))
             .and_then(|local_key| local_key.with(|store| f(&mut store.borrow_mut())))?;
 
         Ok(res)
