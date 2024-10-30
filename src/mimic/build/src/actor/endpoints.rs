@@ -211,6 +211,23 @@ pub fn store_endpoints(builder: &mut ActorBuilder) {
 
             Ok(keys)
         }
+
+        // store_clear
+        #[::mimic::ic::query(composite = true)]
+        #[allow(clippy::needless_pass_by_value)]
+        async fn store_clear(store_name: String) -> Result<(), ::mimic::api::Error> {
+            guard(vec![Guard::Controller]).await?;
+
+            // clear canister
+            DB.with(|db| {
+                db.with_store_mut(&store_name, |store| {
+                    Ok(store.clear())
+                })
+            })
+            .map_err(::mimic::db::Error::from)?;
+
+            Ok(())
+        }
     };
 
     builder.extend_actor(q);

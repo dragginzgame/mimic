@@ -440,6 +440,8 @@ pub trait EntityFixture: Entity {
     }
 }
 
+impl<T: Entity> EntityFixture for T {}
+
 ///
 /// EntityKey
 ///
