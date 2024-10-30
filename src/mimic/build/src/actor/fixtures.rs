@@ -1,6 +1,7 @@
 use super::ActorBuilder;
 use proc_macro2::TokenStream;
 use quote::quote;
+use syn::{parse_str, Path};
 
 // extend
 pub fn extend(builder: &mut ActorBuilder) {
@@ -69,8 +70,9 @@ pub fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
 
     // stores
     for (entity_path, _) in builder.get_entities() {
+        let entity_ident: Path = parse_str(&entity_path).unwrap();
         inner.push(quote! {
-            fixtures_replace_helper(#entity_path::fixtures())?;
+            fixtures_replace_helper(#entity_ident::get_fixture_data())?;
         });
     }
 

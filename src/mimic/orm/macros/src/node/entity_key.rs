@@ -1,5 +1,5 @@
 use super::{
-    helper::{quote_one, quote_vec, to_path, to_string},
+    helper::{quote_vec, to_string},
     Def, MacroNode, Node, Trait, TraitNode, Traits,
 };
 use crate::imp;
@@ -8,7 +8,7 @@ use orm::types::Sorted;
 use orm_schema::Schemable;
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{Ident, Path};
+use syn::Ident;
 
 ///
 /// EntityKey
@@ -18,8 +18,6 @@ use syn::{Ident, Path};
 pub struct EntityKey {
     #[darling(default, skip)]
     pub def: Def,
-
-    pub entity: Path,
 
     #[darling(default)]
     pub sorted: Sorted,
@@ -67,14 +65,12 @@ impl MacroNode for EntityKey {
 impl Schemable for EntityKey {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
-        let entity = quote_one(&self.entity, to_path);
         let keys = quote_vec(&self.keys, to_string);
 
         quote! {
             ::mimic::orm::schema::node::SchemaNode::EntityKey(
                 ::mimic::orm::schema::node::EntityKey{
                     def: #def,
-                    entity: #entity,
                     keys: #keys,
                 }
             )
