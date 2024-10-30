@@ -92,9 +92,9 @@ impl Filterable for Ulid {
     }
 }
 
-impl From<WrappedUlid> for Ulid {
-    fn from(ulid: WrappedUlid) -> Self {
-        Self(ulid)
+impl<T: Into<WrappedUlid>> From<T> for Ulid {
+    fn from(t: T) -> Self {
+        Self(t.into())
     }
 }
 
