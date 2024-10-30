@@ -433,10 +433,11 @@ pub trait EntityDynamic: Debug + Visitable {
 
 pub trait EntityFixture: Entity {
     // fixtures
-    // must be implemented, returns the list of all the Entities as
-    // a boxed dynamic trait
+    // returns the list of all the Entities as a boxed dynamic trait
     #[must_use]
-    fn fixtures() -> Vec<Box<dyn EntityDynamic>>;
+    fn fixtures() -> Vec<Box<dyn EntityDynamic>> {
+        Vec::new()
+    }
 }
 
 ///
