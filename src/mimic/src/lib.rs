@@ -34,8 +34,8 @@ pub mod orm {
             collections::HashSet,
             helper::FixtureList,
             traits::{
-                EntityDynamic, EntityFixture, EnumValue, Filterable, Inner, Orderable, Path,
-                PrimaryKey, Sanitize, SanitizeManual, Storable, Validate, ValidateManual,
+                EntityDynamic, EntityFixture, EntityKey, EnumValue, Filterable, Inner, Orderable,
+                Path, PrimaryKey, Sanitize, SanitizeManual, Storable, Validate, ValidateManual,
                 Visitable,
             },
             Error,
