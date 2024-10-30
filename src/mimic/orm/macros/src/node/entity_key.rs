@@ -1,11 +1,7 @@
-use super::{
-    helper::{quote_vec, to_string},
-    Def, MacroNode, Node, Trait, TraitNode, Traits,
-};
+use super::{Def, MacroNode, Node, Trait, TraitNode, Traits};
 use crate::imp;
 use darling::FromMeta;
 use orm::types::Sorted;
-use orm_schema::Schemable;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::Ident;
@@ -32,12 +28,10 @@ impl Node for EntityKey {
         let Def { ident, .. } = &self.def;
 
         // quote
-        let schema = self.ctor_schema();
         let derive = self.derive();
         let keys = self.keys.iter().map(quote::ToTokens::to_token_stream);
         let imp = self.imp();
         let q = quote! {
-            #schema
             #derive
             #sorted
             pub enum #ident {
@@ -59,22 +53,6 @@ impl Node for EntityKey {
 impl MacroNode for EntityKey {
     fn def(&self) -> &Def {
         &self.def
-    }
-}
-
-impl Schemable for EntityKey {
-    fn schema(&self) -> TokenStream {
-        let def = &self.def.schema();
-        let keys = quote_vec(&self.keys, to_string);
-
-        quote! {
-            ::mimic::orm::schema::node::SchemaNode::EntityKey(
-                ::mimic::orm::schema::node::EntityKey{
-                    def: #def,
-                    keys: #keys,
-                }
-            )
-        }
     }
 }
 

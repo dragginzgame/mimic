@@ -446,8 +446,6 @@ pub trait EntityFixture: Entity {
 
 pub trait EntityKey: Display + Path {
     /// ulid
-    /// both paths are used in case two Fixture entities are trying to write to
-    /// the same Entity and use the same ID
     #[must_use]
     fn ulid(&self) -> types::Ulid {
         let digest = format!("{}-{}", Self::PATH, self);
