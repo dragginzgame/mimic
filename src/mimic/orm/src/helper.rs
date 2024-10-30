@@ -17,3 +17,10 @@ impl FixtureList {
         self.0.push(Box::new(entity));
     }
 }
+
+#[allow(clippy::from_over_into)]
+impl Into<Vec<Box<dyn EntityDynamic>>> for FixtureList {
+    fn into(self) -> Vec<Box<dyn EntityDynamic>> {
+        self.0
+    }
+}
