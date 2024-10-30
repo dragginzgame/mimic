@@ -81,7 +81,12 @@ impl Schemable for EntityKey {
 impl TraitNode for EntityKey {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = Traits::default();
-        traits.extend(vec![Trait::Copy, Trait::EnumDisplay, Trait::EnumStaticStr]);
+        traits.extend(vec![
+            Trait::Copy,
+            Trait::EntityKey,
+            Trait::EnumDisplay,
+            Trait::EnumStaticStr,
+        ]);
 
         traits.list()
     }
