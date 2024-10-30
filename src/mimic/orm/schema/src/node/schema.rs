@@ -1,6 +1,6 @@
 use crate::{
     node::{
-        Canister, Def, Entity, EntityFixture, EntitySource, Enum, EnumValue, Error, MacroNode, Map,
+        Canister, Def, Entity, EntityKey, EntitySource, Enum, EnumValue, Error, MacroNode, Map,
         Newtype, Permission, Primitive, Record, Role, Sanitizer, Store, Tuple, ValidateNode,
         Validator, VisitableNode,
     },
@@ -26,7 +26,7 @@ use types::{ErrorVec, Timestamp};
 pub enum SchemaNode {
     Canister(Canister),
     Entity(Entity),
-    EntityFixture(EntityFixture),
+    EntityKey(EntityKey),
     EntitySource(EntitySource),
     Enum(Enum),
     EnumValue(EnumValue),
@@ -47,7 +47,7 @@ impl SchemaNode {
         match self {
             Self::Canister(n) => &n.def,
             Self::Entity(n) => &n.def,
-            Self::EntityFixture(n) => &n.def,
+            Self::EntityKey(n) => &n.def,
             Self::EntitySource(n) => &n.def,
             Self::Enum(n) => &n.def,
             Self::EnumValue(n) => &n.def,
@@ -70,7 +70,7 @@ impl MacroNode for SchemaNode {
         match self {
             Self::Canister(n) => n.as_any(),
             Self::Entity(n) => n.as_any(),
-            Self::EntityFixture(n) => n.as_any(),
+            Self::EntityKey(n) => n.as_any(),
             Self::EntitySource(n) => n.as_any(),
             Self::Enum(n) => n.as_any(),
             Self::EnumValue(n) => n.as_any(),
@@ -95,7 +95,7 @@ impl VisitableNode for SchemaNode {
         match self {
             Self::Canister(n) => n.accept(v),
             Self::Entity(n) => n.accept(v),
-            Self::EntityFixture(n) => n.accept(v),
+            Self::EntityKey(n) => n.accept(v),
             Self::EntitySource(n) => n.accept(v),
             Self::Enum(n) => n.accept(v),
             Self::EnumValue(n) => n.accept(v),
@@ -277,21 +277,6 @@ impl Default for Schema {
 impl ValidateNode for Schema {
     fn validate(&self) -> Result<(), ErrorVec> {
         let mut errs = ErrorVec::new();
-
-        // duplicate fixtures for the same entity
-        let mut set = HashSet::new();
-        for fixture in self.get_node_values::<EntityFixture>() {
-            for key in &fixture.keys {
-                let map_key = format!("{}-{}", fixture.entity, key);
-
-                if !set.insert(map_key) {
-                    errs.add(format!(
-                        "entity '{}' has duplicate fixture: {}",
-                        fixture.entity, key,
-                    ));
-                }
-            }
-        }
 
         // no two stores can use the same memory_id
         for store in self.get_node_values::<Store>() {

@@ -431,19 +431,25 @@ pub trait EntityDynamic: Debug + Visitable {
 /// an enum that can generate fixture data for an Entity
 ///
 
-pub trait EntityFixture: Display + Path {
-    // get_fixture_data
+pub trait EntityFixture: Entity {
+    // fixtures
     // must be implemented, returns the list of all the Entities as
     // a boxed dynamic trait
     #[must_use]
-    fn get_fixture_data() -> Vec<Box<dyn EntityDynamic>>;
+    fn fixtures() -> Vec<Box<dyn EntityDynamic>>;
 
     // boxed
-    // create a boxed trait object for fixtures
+    // helper method to create a boxed trait object for fixtures
     fn boxed<E: EntityDynamic + 'static>(entity: E) -> Box<dyn EntityDynamic> {
         Box::new(entity) as Box<dyn EntityDynamic>
     }
+}
 
+///
+/// EntityKey
+///
+
+pub trait EntityKey: Display + Path {
     /// ulid
     /// both paths are used in case two Fixture entities are trying to write to
     /// the same Entity and use the same ID

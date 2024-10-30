@@ -59,6 +59,7 @@ pub enum Trait {
     Entity,
     EntityDynamic,
     EntityFixture,
+    EntityKey,
     EnumDisplay,
     EnumStaticStr,
     EnumValue,

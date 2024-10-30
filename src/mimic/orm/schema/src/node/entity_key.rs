@@ -6,11 +6,11 @@ use serde::{Deserialize, Serialize};
 use types::ErrorVec;
 
 ///
-/// EntityFixture
+/// EntityKey
 ///
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct EntityFixture {
+pub struct EntityKey {
     pub def: Def,
     pub entity: String,
 
@@ -20,13 +20,13 @@ pub struct EntityFixture {
     pub keys: Vec<String>,
 }
 
-impl MacroNode for EntityFixture {
+impl MacroNode for EntityKey {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }
 }
 
-impl ValidateNode for EntityFixture {
+impl ValidateNode for EntityKey {
     fn validate(&self) -> Result<(), ErrorVec> {
         let mut errs = ErrorVec::new();
 
@@ -37,7 +37,7 @@ impl ValidateNode for EntityFixture {
     }
 }
 
-impl VisitableNode for EntityFixture {
+impl VisitableNode for EntityKey {
     fn route_key(&self) -> String {
         self.def.path()
     }

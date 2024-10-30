@@ -59,7 +59,7 @@ macro_rules! macro_node {
 // macro macros
 macro_node!(canister, node::Canister);
 macro_node!(entity, node::Entity);
-macro_node!(entity_fixture, node::EntityFixture);
+macro_node!(entity_key, node::EntityKey);
 macro_node!(entity_source, node::EntitySource);
 macro_node!(enum_, node::Enum);
 macro_node!(enum_value, node::EnumValue);

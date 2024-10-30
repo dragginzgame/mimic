@@ -11,11 +11,11 @@ use quote::quote;
 use syn::{Ident, Path};
 
 ///
-/// EntityFixture
+/// EntityKey
 ///
 
 #[derive(Debug, FromMeta)]
-pub struct EntityFixture {
+pub struct EntityKey {
     #[darling(default, skip)]
     pub def: Def,
 
@@ -28,7 +28,7 @@ pub struct EntityFixture {
     pub keys: Vec<Ident>,
 }
 
-impl Node for EntityFixture {
+impl Node for EntityKey {
     fn expand(&self) -> TokenStream {
         let Self { sorted, .. } = self;
         let Def { ident, .. } = &self.def;
@@ -58,21 +58,21 @@ impl Node for EntityFixture {
     }
 }
 
-impl MacroNode for EntityFixture {
+impl MacroNode for EntityKey {
     fn def(&self) -> &Def {
         &self.def
     }
 }
 
-impl Schemable for EntityFixture {
+impl Schemable for EntityKey {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let entity = quote_one(&self.entity, to_path);
         let keys = quote_vec(&self.keys, to_string);
 
         quote! {
-            ::mimic::orm::schema::node::SchemaNode::EntityFixture(
-                ::mimic::orm::schema::node::EntityFixture{
+            ::mimic::orm::schema::node::SchemaNode::EntityKey(
+                ::mimic::orm::schema::node::EntityKey{
                     def: #def,
                     entity: #entity,
                     keys: #keys,
@@ -82,7 +82,7 @@ impl Schemable for EntityFixture {
     }
 }
 
-impl TraitNode for EntityFixture {
+impl TraitNode for EntityKey {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = Traits::default();
         traits.extend(vec![Trait::Copy, Trait::EnumDisplay, Trait::EnumStaticStr]);
