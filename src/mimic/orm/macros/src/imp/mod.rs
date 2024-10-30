@@ -60,6 +60,7 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> TokenStream {
 
         // empty implementations are generated for these traits
         Trait::EntityFixture
+        | Trait::EntityKey
         | Trait::Filterable
         | Trait::Orderable
         | Trait::SanitizeManual
