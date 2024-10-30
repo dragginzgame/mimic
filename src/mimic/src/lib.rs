@@ -32,6 +32,7 @@ pub mod orm {
         pub use ::num_traits::{NumCast, ToPrimitive};
         pub use ::orm::{
             collections::HashSet,
+            helper::FixtureList,
             traits::{
                 EntityDynamic, EntityFixture, EnumValue, Filterable, Inner, Orderable, Path,
                 PrimaryKey, Sanitize, SanitizeManual, Storable, Validate, ValidateManual,

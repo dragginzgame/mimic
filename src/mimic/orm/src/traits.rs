@@ -437,12 +437,6 @@ pub trait EntityFixture: Entity {
     // a boxed dynamic trait
     #[must_use]
     fn fixtures() -> Vec<Box<dyn EntityDynamic>>;
-
-    // boxed
-    // helper method to create a boxed trait object for fixtures
-    fn boxed<E: EntityDynamic + 'static>(entity: E) -> Box<dyn EntityDynamic> {
-        Box::new(entity) as Box<dyn EntityDynamic>
-    }
 }
 
 ///
