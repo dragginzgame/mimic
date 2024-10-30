@@ -213,7 +213,7 @@ pub fn store_endpoints(builder: &mut ActorBuilder) {
         }
 
         // store_clear
-        #[::mimic::ic::query(composite = true)]
+        #[::mimic::ic::update]
         #[allow(clippy::needless_pass_by_value)]
         async fn store_clear(store_name: String) -> Result<(), ::mimic::api::Error> {
             guard(vec![Guard::Controller]).await?;
