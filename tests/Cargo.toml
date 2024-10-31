@@ -5,9 +5,9 @@ edition = { workspace = true }
 publish = false
 
 [dependencies]
+mimic_base = { workspace = true }
 orm = { workspace = true }
 quote = { workspace = true }
-mimic_base = { workspace = true }
 test_schema = { workspace = true }
 
 [[test]]

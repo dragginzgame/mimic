@@ -477,7 +477,6 @@ pub trait EntityFixture: Entity {
 ///
 
 pub trait EntityKey: NodeDyn + Display {
-    /// ulid
     #[must_use]
     fn ulid(&self) -> types::Ulid {
         let digest = format!("{}-{}", self.path_dyn(), self);

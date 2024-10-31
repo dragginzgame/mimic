@@ -42,7 +42,7 @@ pub mod orm {
         pub use ::orm_macros::*;
         pub use ::serde::{Deserialize, Serialize};
         pub use ::snafu::Snafu;
-        pub use ::std::{cmp::Ordering, fmt::Display};
+        pub use ::std::{cmp::Ordering, collections::HashSet, fmt::Display};
         pub use ::types::ErrorVec;
     }
 
