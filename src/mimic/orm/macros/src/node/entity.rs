@@ -73,7 +73,7 @@ impl MacroNode for Entity {
 impl TraitNode for Entity {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
-        traits.add_db_traits();
+        traits.add_type_traits();
         traits.extend(vec![
             Trait::Default,
             Trait::Entity,

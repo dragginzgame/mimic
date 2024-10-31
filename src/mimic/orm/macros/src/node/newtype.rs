@@ -70,7 +70,7 @@ impl MacroNode for Newtype {
 impl TraitNode for Newtype {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
-        traits.add_db_traits();
+        traits.add_type_traits();
         traits.extend(vec![
             Trait::AsRef,
             Trait::Default,

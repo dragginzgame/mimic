@@ -102,24 +102,17 @@ static DEFAULT_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
     ]
 });
 
-#[rustfmt::skip]
-static CANDID_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
+static TYPE_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
     vec![
         Trait::CandidType,
-        Trait::Serialize,
-        Trait::Deserialize,
-    ]
-});
-
-#[rustfmt::skip]
-static DB_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
-    vec![
         Trait::Eq,
+        Trait::Deserialize,
         Trait::Filterable,
         Trait::Orderable,
         Trait::PartialEq,
         Trait::SanitizeManual,
         Trait::SanitizeAuto,
+        Trait::Serialize,
         Trait::ValidateManual,
         Trait::ValidateAuto,
         Trait::Visitable,
@@ -211,15 +204,9 @@ pub struct Traits {
 }
 
 impl Traits {
-    // add_candid_traits
-    //  pub fn add_candid_traits(&mut self) {
-    //      self.add.extend(CANDID_TRAITS.to_vec());
-    //  }
-
-    // add_db_traits
-    pub fn add_db_traits(&mut self) {
-        self.add.extend(CANDID_TRAITS.to_vec());
-        self.add.extend(DB_TRAITS.to_vec());
+    // add_type_traits
+    pub fn add_type_traits(&mut self) {
+        self.add.extend(TYPE_TRAITS.to_vec());
     }
 
     // add

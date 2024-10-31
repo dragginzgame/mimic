@@ -74,7 +74,7 @@ impl Schemable for Record {
 impl TraitNode for Record {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
-        traits.add_db_traits();
+        traits.add_type_traits();
 
         traits.list()
     }
