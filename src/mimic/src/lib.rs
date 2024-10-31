@@ -31,7 +31,6 @@ pub mod orm {
         pub use ::lib_case::{Case, Casing};
         pub use ::num_traits::{NumCast, ToPrimitive};
         pub use ::orm::{
-            collections::HashSet,
             helper::FixtureList,
             traits::{
                 EntityDyn, EntityFixture, EntityKey, EnumValue, Filterable, Inner, Orderable, Path,

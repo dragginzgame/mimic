@@ -1,12 +1,9 @@
 use derive_more::{Deref, DerefMut, FromStr};
 use mimic::orm::prelude::*;
 use mimic::{
-    orm::{
-        collections::HashSet,
-        traits::{
-            EntityFixture, Filterable, Orderable, Path, PrimaryKey, SanitizeAuto, Validate,
-            ValidateAuto,
-        },
+    orm::traits::{
+        EntityFixture, Filterable, Orderable, Path, PrimaryKey, SanitizeAuto, Validate,
+        ValidateAuto,
     },
     types::{ErrorVec, Ulid as WrappedUlid},
 };
