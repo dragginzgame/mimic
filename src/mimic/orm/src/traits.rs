@@ -476,7 +476,7 @@ pub trait EntityFixture: Entity {
 /// EntityKey
 ///
 
-pub trait EntityKey: NodeDyn + Display {
+pub trait EntityKey: NodeDyn + Display + Sized {
     /// ulid
     #[must_use]
     fn ulid(&self) -> types::Ulid {
