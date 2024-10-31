@@ -36,9 +36,6 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> TokenStream {
                 fn path_dyn(&self) -> String {
                     <Self as ::mimic::orm::traits::Path>::path()
                 }
-                fn serialize_dyn(&self) -> Result<Vec<u8>, ::mimic::orm::Error> {
-                    ::mimic::orm::serialize(&self)
-                }
             };
 
             Implementor::new(def, t).set_tokens(q).to_token_stream()

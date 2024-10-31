@@ -407,10 +407,8 @@ impl<T> Node for T where T: Clone + Path + Serialize + DeserializeOwned {}
 
 pub trait NodeDyn {
     // path_dyn
+    // as every node needs path, this makes creating dynamic traits easier
     fn path_dyn(&self) -> String;
-
-    // serialize_dyn
-    fn serialize_dyn(&self) -> Result<Vec<u8>, Error>;
 }
 
 ///
@@ -419,7 +417,7 @@ pub trait NodeDyn {
 
 pub trait Entity: Node + EntityDyn + FieldSort + FieldFilter {
     // composite_key
-    // allows you to construct a key by passing in values
+    // returns the record's composite key (parent keys + primary key) as a Vec<String>
     fn composite_key(_keys: &[String]) -> Result<Vec<String>, Error>;
 }
 
@@ -434,8 +432,11 @@ pub trait EntityDyn: NodeDyn + Debug + Visitable {
     fn on_create(&mut self) {}
 
     // composite_key_dyn
-    // returns the record's composite key (parent keys + primary key) as a Vec<String>
     fn composite_key_dyn(&self) -> Vec<String>;
+
+    // serialize_dyn
+    // entities need dynamic serialization when saving different types
+    fn serialize_dyn(&self) -> Result<Vec<u8>, Error>;
 }
 
 ///
