@@ -397,25 +397,34 @@ impl_primary_key_for_uints!(
 /// Node
 ///
 
-pub trait Node: Clone + Path + Serialize + DeserializeOwned {}
+pub trait Node: Path {}
 
-impl<T> Node for T where T: Clone + Path + Serialize + DeserializeOwned {}
+impl<T> Node for T where T: Path {}
 
 ///
 /// NodeDyn
 ///
 
-pub trait NodeDyn {
+pub trait NodeDyn: Debug {
     // path_dyn
     // as every node needs path, this makes creating dynamic traits easier
     fn path_dyn(&self) -> String;
 }
 
 ///
+/// Type
+/// a Node that can act as a data type
+///
+
+pub trait Type: Node + Clone + Serialize + DeserializeOwned {}
+
+impl<T> Type for T where T: Node + Clone + Serialize + DeserializeOwned {}
+
+///
 /// Entity
 ///
 
-pub trait Entity: Node + EntityDyn + FieldSort + FieldFilter {
+pub trait Entity: Type + EntityDyn + FieldSort + FieldFilter {
     // composite_key
     // returns the record's composite key (parent keys + primary key) as a Vec<String>
     fn composite_key(_keys: &[String]) -> Result<Vec<String>, Error>;
@@ -426,7 +435,7 @@ pub trait Entity: Node + EntityDyn + FieldSort + FieldFilter {
 /// everything the Entity needs to interact with the Store dynamically
 ///
 
-pub trait EntityDyn: NodeDyn + Debug + Visitable {
+pub trait EntityDyn: NodeDyn + Visitable {
     // on_create
     // modifies the entity's record in-place before saving it to the database
     fn on_create(&mut self) {}
@@ -450,19 +459,6 @@ pub trait EntityFixture: Entity {
     #[must_use]
     fn fixtures() -> Vec<Box<dyn EntityDyn>> {
         Vec::new()
-    }
-}
-
-///
-/// EntityKey
-///
-
-pub trait EntityKey: NodeDyn + Display {
-    /// ulid
-    #[must_use]
-    fn ulid(&self) -> types::Ulid {
-        let digest = format!("{}-{}", self.path_dyn(), self);
-        Ulid::from_string_digest(&digest)
     }
 }
 
@@ -535,4 +531,17 @@ pub trait FieldSort {
     }
 
     fn generate_sorter(order: &[(String, SortDirection)]) -> Box<FieldSortFn<Self>>;
+}
+
+///
+/// Key
+///
+
+pub trait Key: NodeDyn + Display {
+    /// ulid
+    #[must_use]
+    fn ulid(&self) -> types::Ulid {
+        let digest = format!("{}-{}", self.path_dyn(), self);
+        Ulid::from_string_digest(&digest)
+    }
 }
