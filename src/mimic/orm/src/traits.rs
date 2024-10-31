@@ -473,6 +473,19 @@ pub trait EntityFixture: Entity {
 }
 
 ///
+/// EntityKey
+///
+
+pub trait EntityKey: NodeDyn + Display {
+    /// ulid
+    #[must_use]
+    fn ulid(&self) -> types::Ulid {
+        let digest = format!("{}-{}", self.path_dyn(), self);
+        Ulid::from_string_digest(&digest)
+    }
+}
+
+///
 /// EnumValue
 ///
 
@@ -541,17 +554,4 @@ pub trait FieldSort {
     }
 
     fn generate_sorter(order: &[(String, SortDirection)]) -> Box<FieldSortFn<Self>>;
-}
-
-///
-/// Key
-///
-
-pub trait Key: NodeDyn + Display {
-    /// ulid
-    #[must_use]
-    fn ulid(&self) -> types::Ulid {
-        let digest = format!("{}-{}", self.path_dyn(), self);
-        Ulid::from_string_digest(&digest)
-    }
 }
