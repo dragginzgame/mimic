@@ -105,6 +105,7 @@ static DEFAULT_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
 static CANDID_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
     vec![
         Trait::CandidType,
+        Trait::NodeDyn,
         Trait::Serialize,
         Trait::Deserialize,
     ]
@@ -115,7 +116,6 @@ static DB_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
     vec![
         Trait::Eq,
         Trait::Filterable,
-        Trait::NodeDyn,
         Trait::Orderable,
         Trait::PartialEq,
         Trait::SanitizeManual,
