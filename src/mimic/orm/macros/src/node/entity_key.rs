@@ -7,11 +7,11 @@ use quote::quote;
 use syn::Ident;
 
 ///
-/// Key
+/// EntityKey
 ///
 
 #[derive(Debug, FromMeta)]
-pub struct Key {
+pub struct EntityKey {
     #[darling(default, skip)]
     pub def: Def,
 
@@ -22,7 +22,7 @@ pub struct Key {
     pub keys: Vec<Ident>,
 }
 
-impl Node for Key {
+impl Node for EntityKey {
     fn expand(&self) -> TokenStream {
         let Self { sorted, .. } = self;
         let Def { ident, .. } = &self.def;
@@ -50,18 +50,18 @@ impl Node for Key {
     }
 }
 
-impl MacroNode for Key {
+impl MacroNode for EntityKey {
     fn def(&self) -> &Def {
         &self.def
     }
 }
 
-impl TraitNode for Key {
+impl TraitNode for EntityKey {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = Traits::default();
         traits.extend(vec![
             Trait::Copy,
-            Trait::Key,
+            Trait::EntityKey,
             Trait::EnumDisplay,
             Trait::EnumStaticStr,
         ]);

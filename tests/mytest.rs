@@ -5,6 +5,8 @@
 #[cfg(test)]
 mod tests {
 
+    fn test_stuff() {}
+
     #[test]
     fn test_default_validates() {
         use test_schema::validate::{MultipleTenType, Validator};
