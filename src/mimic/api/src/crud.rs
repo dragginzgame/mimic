@@ -6,7 +6,7 @@ use db::{
         QueryRow, SaveRequest, SaveRequestAction, SaveResponse, UpdateResponse,
     },
 };
-use orm::traits::Entity;
+use orm::traits::{Entity, EntityDyn};
 use orm_schema::node::Crud;
 use serde::{Deserialize, Serialize};
 use snafu::prelude::*;
@@ -99,7 +99,7 @@ where
 {
     // convert data into entity
     let entity: E = orm::deserialize(&request.data)?;
-    let boxed_entity = Box::new(entity) as Box<dyn orm::traits::EntityDynamic>;
+    let boxed_entity = Box::new(entity) as Box<dyn EntityDyn>;
 
     match request.action {
         SaveRequestAction::Create => {

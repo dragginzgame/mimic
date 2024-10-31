@@ -34,8 +34,8 @@ pub mod orm {
             collections::HashSet,
             helper::FixtureList,
             traits::{
-                EntityDynamic, EntityFixture, EntityKey, EnumValue, Filterable, Inner, Orderable,
-                Path, PrimaryKey, Sanitize, SanitizeManual, Storable, Validate, ValidateManual,
+                EntityDyn, EntityFixture, EntityKey, EnumValue, Filterable, Inner, Orderable, Path,
+                PrimaryKey, Sanitize, SanitizeManual, Storable, Validate, ValidateManual,
                 Visitable,
             },
             Error,
@@ -68,7 +68,7 @@ pub mod prelude {
         },
         db::Db,
         mimic_end, mimic_start,
-        orm::traits::{EntityDynamic, EntityFixture, Path},
+        orm::traits::{EntityDyn, EntityFixture, Path},
         perf,
         types::Ulid,
     };

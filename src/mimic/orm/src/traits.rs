@@ -394,11 +394,23 @@ impl_primary_key_for_uints!(
 ///
 
 ///
+/// NodeDyn
+///
+
+pub trait NodeDyn {
+    // path_dyn
+    fn path_dyn(&self) -> String;
+
+    // serialize_dyn
+    fn serialize_dyn(&self) -> Result<Vec<u8>, Error>;
+}
+
+///
 /// Entity
 ///
 
 pub trait Entity:
-    EntityDynamic + Clone + Path + FieldSort + FieldFilter + Serialize + DeserializeOwned
+    EntityDyn + NodeDyn + Clone + Path + FieldSort + FieldFilter + Serialize + DeserializeOwned
 {
     // composite_key
     // allows you to construct a key by passing in values
@@ -406,11 +418,11 @@ pub trait Entity:
 }
 
 ///
-/// EntityDynamic
+/// EntityDyn
 /// everything the Entity needs to interact with the Store dynamically
 ///
 
-pub trait EntityDynamic: Debug + Visitable {
+pub trait EntityDyn: Debug + Visitable {
     // on_create
     // modifies the entity's record in-place before saving it to the database
     fn on_create(&mut self) {}
@@ -418,12 +430,6 @@ pub trait EntityDynamic: Debug + Visitable {
     // composite_key_dyn
     // returns the record's composite key (parent keys + primary key) as a Vec<String>
     fn composite_key_dyn(&self) -> Vec<String>;
-
-    // path_dyn
-    fn path_dyn(&self) -> String;
-
-    // serialize_dyn
-    fn serialize_dyn(&self) -> Result<Vec<u8>, Error>;
 }
 
 ///
@@ -435,7 +441,7 @@ pub trait EntityFixture: Entity {
     // fixtures
     // returns the list of all the Entities as a boxed dynamic trait
     #[must_use]
-    fn fixtures() -> Vec<Box<dyn EntityDynamic>> {
+    fn fixtures() -> Vec<Box<dyn EntityDyn>> {
         Vec::new()
     }
 }

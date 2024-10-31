@@ -44,7 +44,7 @@ pub fn fixture_module(builder: &mut ActorBuilder) {
         // fixtures_replace_helper
         #[allow(dead_code)]
         fn fixtures_replace_helper(
-            fixtures: Vec<Box<dyn ::mimic::orm::traits::EntityDynamic>>,
+            fixtures: Vec<Box<dyn ::mimic::orm::traits::EntityDyn>>,
         ) -> Result<(), ::mimic::api::Error> {
             DB.with(|db| {
                 ::mimic::db::query::replace(db)

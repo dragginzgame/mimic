@@ -1,11 +1,11 @@
-use crate::traits::EntityDynamic;
+use crate::traits::EntityDyn;
 
 ///
 /// FixtureList
 ///
 
 #[derive(Debug, Default)]
-pub struct FixtureList(Vec<Box<dyn EntityDynamic + 'static>>);
+pub struct FixtureList(Vec<Box<dyn EntityDyn + 'static>>);
 
 impl FixtureList {
     #[must_use]
@@ -13,14 +13,14 @@ impl FixtureList {
         Self(Vec::new())
     }
 
-    pub fn push(&mut self, entity: impl EntityDynamic + 'static) {
+    pub fn push(&mut self, entity: impl EntityDyn + 'static) {
         self.0.push(Box::new(entity));
     }
 }
 
 #[allow(clippy::from_over_into)]
-impl Into<Vec<Box<dyn EntityDynamic>>> for FixtureList {
-    fn into(self) -> Vec<Box<dyn EntityDynamic>> {
+impl Into<Vec<Box<dyn EntityDyn>>> for FixtureList {
+    fn into(self) -> Vec<Box<dyn EntityDyn>> {
         self.0
     }
 }

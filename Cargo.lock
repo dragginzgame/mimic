@@ -1152,6 +1152,7 @@ dependencies = [
 name = "tests"
 version = "0.2.0"
 dependencies = [
+ "mimic_base",
  "orm",
  "quote",
  "test_schema",

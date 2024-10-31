@@ -6,7 +6,7 @@ use crate::{
     types::{DataKey, DataRow, DataValue, Metadata},
     Db,
 };
-use orm::traits::{Entity, EntityDynamic};
+use orm::traits::{Entity, EntityDyn};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::mem;
@@ -125,7 +125,7 @@ impl<'a> SaveBuilder<'a> {
     }
 
     // from_entity
-    pub fn from_entity<E: EntityDynamic + 'static>(
+    pub fn from_entity<E: EntityDyn + 'static>(
         self,
         entity: E,
     ) -> Result<SaveBuilderResult, QueryError> {
@@ -135,13 +135,13 @@ impl<'a> SaveBuilder<'a> {
     }
 
     // from_entities
-    pub fn from_entities<E: EntityDynamic + 'static>(
+    pub fn from_entities<E: EntityDyn + 'static>(
         self,
         entities: Vec<E>,
     ) -> Result<SaveBuilderResult, QueryError> {
         let boxed_entities = entities
             .into_iter()
-            .map(|entity| Box::new(entity) as Box<dyn EntityDynamic>)
+            .map(|entity| Box::new(entity) as Box<dyn EntityDyn>)
             .collect();
 
         let res = self.execute(boxed_entities)?;
@@ -152,7 +152,7 @@ impl<'a> SaveBuilder<'a> {
     // from_entity_dynamic
     pub fn from_entity_dynamic(
         self,
-        entity: Box<dyn EntityDynamic>,
+        entity: Box<dyn EntityDyn>,
     ) -> Result<SaveBuilderResult, QueryError> {
         let res = self.execute(vec![entity])?;
 
@@ -162,7 +162,7 @@ impl<'a> SaveBuilder<'a> {
     // from_entities_dynamic
     pub fn from_entities_dynamic(
         self,
-        entities: Vec<Box<dyn EntityDynamic>>,
+        entities: Vec<Box<dyn EntityDyn>>,
     ) -> Result<SaveBuilderResult, QueryError> {
         let res = self.execute(entities)?;
 
@@ -170,10 +170,7 @@ impl<'a> SaveBuilder<'a> {
     }
 
     // execute
-    fn execute(
-        self,
-        entities: Vec<Box<dyn EntityDynamic>>,
-    ) -> Result<SaveBuilderResult, QueryError> {
+    fn execute(self, entities: Vec<Box<dyn EntityDyn>>) -> Result<SaveBuilderResult, QueryError> {
         let mut executor = SaveBuilderExecutor::new(self, entities);
         let results = executor.execute()?;
 
@@ -188,12 +185,12 @@ impl<'a> SaveBuilder<'a> {
 pub struct SaveBuilderExecutor<'a> {
     db: &'a Db,
     config: SaveBuilderConfig,
-    entities: Vec<Box<dyn EntityDynamic>>,
+    entities: Vec<Box<dyn EntityDyn>>,
 }
 
 impl<'a> SaveBuilderExecutor<'a> {
     #[must_use]
-    pub fn new(prev: SaveBuilder<'a>, entities: Vec<Box<dyn EntityDynamic>>) -> Self {
+    pub fn new(prev: SaveBuilder<'a>, entities: Vec<Box<dyn EntityDyn>>) -> Self {
         Self {
             db: prev.db,
             config: prev.config,
@@ -217,7 +214,7 @@ impl<'a> SaveBuilderExecutor<'a> {
     }
 
     // execute_one
-    fn execute_one(&self, entity: &mut dyn EntityDynamic) -> Result<DataRow, Error> {
+    fn execute_one(&self, entity: &mut dyn EntityDyn) -> Result<DataRow, Error> {
         let mode = &self.config.mode;
 
         //

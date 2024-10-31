@@ -68,11 +68,11 @@ fn composite_key(node: &Entity) -> TokenStream {
     }
 }
 ///
-/// EntityDynamic
+/// EntityDyn
 ///
 
-// entity_dynamic
-pub fn entity_dynamic(node: &Entity, t: Trait) -> TokenStream {
+// entity_dyn
+pub fn entity_dyn(node: &Entity, t: Trait) -> TokenStream {
     let mut q = quote! {};
 
     q.extend(on_create(node));

@@ -77,7 +77,7 @@ impl TraitNode for Entity {
         traits.extend(vec![
             Trait::Default,
             Trait::Entity,
-            Trait::EntityDynamic,
+            Trait::EntityDyn,
             Trait::EntityFixture,
             Trait::FieldSort,
             Trait::FieldFilter,
@@ -98,7 +98,7 @@ impl TraitNode for Entity {
         match t {
             Trait::Default if self.fields.has_default() => imp::default::entity(self, t),
             Trait::Entity => imp::entity::entity(self, t),
-            Trait::EntityDynamic => imp::entity::entity_dynamic(self, t),
+            Trait::EntityDyn => imp::entity::entity_dyn(self, t),
             Trait::FieldFilter => imp::record_filter::entity(self, t),
             Trait::FieldSort => imp::record_sort::entity(self, t),
             Trait::Visitable => imp::visitable::entity(self, t),

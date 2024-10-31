@@ -1,5 +1,5 @@
 use crate::traits::{
-    EntityDynamic, SanitizeAuto, SanitizeManual, ValidateAuto, ValidateManual, Visitable,
+    EntityDyn, SanitizeAuto, SanitizeManual, ValidateAuto, ValidateManual, Visitable,
 };
 use types::ErrorTree;
 
@@ -136,7 +136,7 @@ impl Visitor for ValidateVisitor {
 /// `<https://github.com/rust-lang/rust/issues/65991>`
 ///
 
-pub struct EntityAdapter<'a>(pub &'a dyn EntityDynamic);
+pub struct EntityAdapter<'a>(pub &'a dyn EntityDyn);
 
 impl<'a> Visitable for EntityAdapter<'a> {
     fn drive(&self, visitor: &mut dyn Visitor) {
@@ -153,7 +153,7 @@ impl<'a> ValidateAuto for EntityAdapter<'a> {}
 /// EntityAdapterMut
 ///
 
-pub struct EntityAdapterMut<'a>(pub &'a mut dyn EntityDynamic);
+pub struct EntityAdapterMut<'a>(pub &'a mut dyn EntityDyn);
 
 impl<'a> Visitable for EntityAdapterMut<'a> {
     fn drive_mut(&mut self, visitor: &mut dyn Visitor) {

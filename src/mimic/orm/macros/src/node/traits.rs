@@ -57,7 +57,7 @@ pub enum Trait {
     // orm
     CandidType,
     Entity,
-    EntityDynamic,
+    EntityDyn,
     EntityFixture,
     EntityKey,
     EnumDisplay,
