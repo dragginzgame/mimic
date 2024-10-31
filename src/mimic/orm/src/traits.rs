@@ -394,6 +394,14 @@ impl_primary_key_for_uints!(
 ///
 
 ///
+/// Node
+///
+
+pub trait Node: Clone + Path + Serialize + DeserializeOwned {}
+
+impl<T> Node for T where T: Clone + Path + Serialize + DeserializeOwned {}
+
+///
 /// NodeDyn
 ///
 
@@ -409,9 +417,7 @@ pub trait NodeDyn {
 /// Entity
 ///
 
-pub trait Entity:
-    EntityDyn + NodeDyn + Clone + Path + FieldSort + FieldFilter + Serialize + DeserializeOwned
-{
+pub trait Entity: Node + EntityDyn + FieldSort + FieldFilter {
     // composite_key
     // allows you to construct a key by passing in values
     fn composite_key(_keys: &[String]) -> Result<Vec<String>, Error>;
@@ -422,7 +428,7 @@ pub trait Entity:
 /// everything the Entity needs to interact with the Store dynamically
 ///
 
-pub trait EntityDyn: Debug + Visitable {
+pub trait EntityDyn: NodeDyn + Debug + Visitable {
     // on_create
     // modifies the entity's record in-place before saving it to the database
     fn on_create(&mut self) {}
@@ -450,11 +456,11 @@ pub trait EntityFixture: Entity {
 /// EntityKey
 ///
 
-pub trait EntityKey: Display + Path {
+pub trait EntityKey: NodeDyn + Display {
     /// ulid
     #[must_use]
     fn ulid(&self) -> types::Ulid {
-        let digest = format!("{}-{}", Self::PATH, self);
+        let digest = format!("{}-{}", self.path_dyn(), self);
         Ulid::from_string_digest(&digest)
     }
 }

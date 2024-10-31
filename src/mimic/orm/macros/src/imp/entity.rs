@@ -67,6 +67,7 @@ fn composite_key(node: &Entity) -> TokenStream {
         }
     }
 }
+
 ///
 /// EntityDyn
 ///
@@ -77,8 +78,6 @@ pub fn entity_dyn(node: &Entity, t: Trait) -> TokenStream {
 
     q.extend(on_create(node));
     q.extend(composite_key_dyn(node));
-    q.extend(path_dyn(node));
-    q.extend(serialize_dyn(node));
 
     Implementor::new(&node.def, t)
         .set_tokens(q)
@@ -114,24 +113,6 @@ fn on_create(node: &Entity) -> TokenStream {
     quote! {
         fn on_create(&mut self) {
             #inner
-        }
-    }
-}
-
-// path_dyn
-fn path_dyn(_: &Entity) -> TokenStream {
-    quote! {
-        fn path_dyn(&self) -> String {
-            <Self as ::mimic::orm::traits::Path>::path()
-        }
-    }
-}
-
-// serialize_dyn
-fn serialize_dyn(_: &Entity) -> TokenStream {
-    quote! {
-        fn serialize_dyn(&self) -> Result<Vec<u8>, ::mimic::orm::Error> {
-            ::mimic::orm::serialize(&self)
         }
     }
 }

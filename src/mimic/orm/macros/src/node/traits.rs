@@ -67,6 +67,7 @@ pub enum Trait {
     FieldSort,
     Filterable,
     Inner,
+    NodeDyn,
     NumFromPrimitive,
     NumToPrimitive,
     Path,
@@ -114,6 +115,7 @@ static DB_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
     vec![
         Trait::Eq,
         Trait::Filterable,
+        Trait::NodeDyn,
         Trait::Orderable,
         Trait::PartialEq,
         Trait::SanitizeManual,
