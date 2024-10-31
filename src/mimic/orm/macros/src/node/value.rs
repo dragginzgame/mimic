@@ -59,7 +59,7 @@ impl ToTokens for Value {
             tokens.extend(match self.cardinality() {
                 Cardinality::One => quote!(#item),
                 Cardinality::Opt => quote!(Option<#item>),
-                Cardinality::Many => quote!(::mimic::orm::collections::HashSet<#item>),
+                Cardinality::Many => quote!(::std::collections::HashSet<#item>),
             });
         } else {
             tokens.extend(match self.cardinality() {
