@@ -97,6 +97,7 @@ static DEFAULT_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
     vec![
         Trait::Clone,
         Trait::Debug,
+        Trait::NodeDyn,
         Trait::Path,
     ]
 });
@@ -105,7 +106,6 @@ static DEFAULT_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
 static CANDID_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
     vec![
         Trait::CandidType,
-        Trait::NodeDyn,
         Trait::Serialize,
         Trait::Deserialize,
     ]

@@ -405,7 +405,7 @@ impl<T> Node for T where T: Path {}
 /// NodeDyn
 ///
 
-pub trait NodeDyn: Debug {
+pub trait NodeDyn {
     // path_dyn
     // as every node needs path, this makes creating dynamic traits easier
     fn path_dyn(&self) -> String;
@@ -419,6 +419,16 @@ pub trait NodeDyn: Debug {
 pub trait Type: Node + Clone + Serialize + DeserializeOwned {}
 
 impl<T> Type for T where T: Node + Clone + Serialize + DeserializeOwned {}
+
+///
+/// TypeDyn
+/// just to keep things symmetrical, not actually used yet other than
+/// making sure all types have Debug
+///
+
+pub trait TypeDyn: NodeDyn + Debug {}
+
+impl<T> TypeDyn for T where T: NodeDyn + Debug {}
 
 ///
 /// Entity
@@ -435,7 +445,7 @@ pub trait Entity: Type + EntityDyn + FieldSort + FieldFilter {
 /// everything the Entity needs to interact with the Store dynamically
 ///
 
-pub trait EntityDyn: NodeDyn + Visitable {
+pub trait EntityDyn: TypeDyn + Visitable {
     // on_create
     // modifies the entity's record in-place before saving it to the database
     fn on_create(&mut self) {}
