@@ -1,11 +1,13 @@
 use crate::{
-    orm::schema::{
-        build::validate::{is_reserved, validate_ident},
-        node::{ValidateNode, Value, VisitableNode},
-        types::{Cardinality, SortDirection},
-        visit::Visitor,
+    orm::{
+        schema::{
+            build::validate::{is_reserved, validate_ident},
+            node::{ValidateNode, Value, VisitableNode},
+            types::{Cardinality, SortDirection},
+            visit::Visitor,
+        },
+        types::ErrorVec,
     },
-    types::ErrorVec,
     utils::case::{Case, Casing},
 };
 use serde::{Deserialize, Serialize};

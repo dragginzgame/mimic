@@ -267,7 +267,7 @@ impl<'a> SaveBuilderExecutor<'a> {
         // on Update and Replace compare old and new data
         //
 
-        let now = crate::types::Timestamp::now();
+        let now = crate::utils::time::now_secs();
         let store_path = resolver.store()?;
         let result = self
             .db

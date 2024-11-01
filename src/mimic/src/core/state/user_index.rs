@@ -7,8 +7,7 @@ use crate::{
         storable::Bound,
         BTreeMap, Storable,
     },
-    orm::schema::node::Role,
-    types::Ulid,
+    orm::{base::types::Ulid, schema::node::Role},
 };
 use candid::{CandidType, Principal};
 use derive_more::{Deref, DerefMut};

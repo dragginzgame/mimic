@@ -1,8 +1,8 @@
 pub mod reserved;
 pub mod validate;
 
-use crate::{
-    orm::schema::{
+use crate::orm::{
+    schema::{
         node::{Schema, VisitableNode},
         visit::Validator,
     },

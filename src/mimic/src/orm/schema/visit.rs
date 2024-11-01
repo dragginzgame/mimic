@@ -1,5 +1,5 @@
 use super::node::VisitableNode;
-use crate::types::ErrorTree;
+use crate::orm::types::ErrorTree;
 
 ///
 /// Event

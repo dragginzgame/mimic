@@ -1,10 +1,12 @@
 use crate::{
-    orm::schema::{
-        build::schema_read,
-        node::{Canister, Crud, Def, MacroNode, ValidateNode, VisitableNode},
-        visit::Visitor,
+    orm::{
+        schema::{
+            build::schema_read,
+            node::{Canister, Crud, Def, MacroNode, ValidateNode, VisitableNode},
+            visit::Visitor,
+        },
+        types::ErrorVec,
     },
-    types::ErrorVec,
     utils::case::{Case, Casing},
 };
 use quote::format_ident;

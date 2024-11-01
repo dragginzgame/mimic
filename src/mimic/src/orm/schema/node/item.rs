@@ -1,5 +1,5 @@
-use crate::{
-    orm::schema::{
+use crate::orm::{
+    schema::{
         build::schema_read,
         node::{
             Entity, Enum, EnumValue, Map, Newtype, Primitive, Record, Tuple, ValidateNode,

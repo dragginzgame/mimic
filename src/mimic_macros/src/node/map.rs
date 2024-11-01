@@ -106,7 +106,7 @@ impl ToTokens for Map {
         let value = &self.value;
 
         tokens.extend(quote! {
-            ::mimic::types::collections::StrHashMap<#key, #value>
+            ::mimic::orm::types::StrHashMap<#key, #value>
         });
     }
 }

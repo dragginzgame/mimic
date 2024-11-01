@@ -1,16 +1,17 @@
 pub mod fixture;
 pub mod generator;
 
-use crate::ic::structures::{
-    serialize::{from_binary, to_binary},
-    storable::Bound,
-    Storable,
+use crate::{
+    ic::structures::serialize::{from_binary, to_binary},
+    orm::{
+        prelude::*,
+        traits::{Filterable, Orderable, PrimaryKey, SanitizeAuto, ValidateAuto},
+    },
 };
-use candid::CandidType;
 use derive_more::{Deref, DerefMut, FromStr};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use snafu::Snafu;
-use std::{borrow::Cow, fmt};
+use std::{borrow::Cow, cmp::Ordering, fmt};
 use ulid::Ulid as WrappedUlid;
 
 ///
@@ -40,7 +41,6 @@ impl From<ulid::DecodeError> for Error {
 
 ///
 /// Ulid
-/// a wrapper around ulid::Ulid
 ///
 
 #[derive(Clone, Copy, Debug, Deref, DerefMut, Eq, FromStr, PartialEq, Hash, Ord, PartialOrd)]
@@ -99,9 +99,31 @@ impl fmt::Display for Ulid {
     }
 }
 
+impl Filterable for Ulid {
+    fn as_text(&self) -> Option<String> {
+        Some(self.to_string())
+    }
+}
+
 impl<T: Into<WrappedUlid>> From<T> for Ulid {
     fn from(t: T) -> Self {
         Self(t.into())
+    }
+}
+
+impl Orderable for Ulid {
+    fn cmp(&self, other: &Self) -> Ordering {
+        Ord::cmp(self, other)
+    }
+}
+
+impl PrimaryKey for Ulid {
+    fn on_create(&self) -> Self {
+        Self::generate()
+    }
+
+    fn format(&self) -> String {
+        self.0.to_string()
     }
 }
 
@@ -129,6 +151,10 @@ impl<'de> Deserialize<'de> for Ulid {
     }
 }
 
+impl SanitizeManual for Ulid {}
+
+impl SanitizeAuto for Ulid {}
+
 impl Storable for Ulid {
     fn to_bytes(&self) -> Cow<[u8]> {
         Cow::Owned(to_binary(self).unwrap())
@@ -140,3 +166,17 @@ impl Storable for Ulid {
 
     const BOUND: Bound = Bound::Unbounded;
 }
+
+impl ValidateManual for Ulid {
+    fn validate_manual(&self) -> Result<(), ErrorVec> {
+        if self.is_nil() {
+            Err(Error::Nil.into())
+        } else {
+            Ok(())
+        }
+    }
+}
+
+impl ValidateAuto for Ulid {}
+
+impl Visitable for Ulid {}

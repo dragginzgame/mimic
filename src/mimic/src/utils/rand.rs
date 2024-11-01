@@ -1,4 +1,4 @@
-use crate::ic::time::now_nanos;
+use super::time::now_nanos;
 use std::sync::{LazyLock, Mutex};
 use tinyrand::{Rand, Seeded, StdRand};
 

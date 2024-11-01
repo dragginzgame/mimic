@@ -1,5 +1,5 @@
 use super::types::{DataKey, DataValue};
-use crate::ic::time::now_secs;
+use crate::utils::time::now_secs;
 use derive_more::{Deref, DerefMut};
 use std::collections::BTreeMap;
 

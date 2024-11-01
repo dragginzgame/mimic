@@ -1,11 +1,9 @@
-use crate::{
-    orm::{
-        prelude::*,
-        traits::{Inner, SanitizeAuto, ValidateAuto},
-    },
-    types::Blob as WrappedBlob,
+use crate::orm::{
+    prelude::*,
+    traits::{Inner, SanitizeAuto, ValidateAuto},
 };
 use derive_more::{Deref, DerefMut};
+use serde_bytes::ByteBuf;
 
 ///
 /// Blob
@@ -26,7 +24,7 @@ use derive_more::{Deref, DerefMut};
     Serialize,
     Deserialize,
 )]
-pub struct Blob(WrappedBlob);
+pub struct Blob(ByteBuf);
 
 impl Blob {
     #[must_use]
@@ -44,7 +42,7 @@ impl Filterable for Blob {}
 
 impl From<Vec<u8>> for Blob {
     fn from(bytes: Vec<u8>) -> Self {
-        Self(WrappedBlob::from(bytes))
+        Self(ByteBuf::from(bytes))
     }
 }
 

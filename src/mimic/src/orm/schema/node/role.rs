@@ -1,5 +1,5 @@
-use crate::{
-    orm::schema::{
+use crate::orm::{
+    schema::{
         build::schema_read,
         node::{Def, MacroNode, Permission, ValidateNode, VisitableNode},
         visit::Visitor,

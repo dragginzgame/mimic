@@ -1,14 +1,12 @@
-use crate::{
-    orm::traits::{
-        Filterable, Inner, Orderable, SanitizeAuto, SanitizeManual, ValidateAuto, ValidateManual,
-        Visitable,
-    },
-    types::Decimal as WrappedDecimal,
+use crate::orm::traits::{
+    Filterable, Inner, Orderable, SanitizeAuto, SanitizeManual, ValidateAuto, ValidateManual,
+    Visitable,
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
 use num_traits::{FromPrimitive, ToPrimitive};
-use serde::{Deserialize, Serialize};
+use rust_decimal::Decimal as WrappedDecimal;
+use serde::{ser::Error, Deserialize, Serialize};
 use std::{cmp::Ordering, fmt};
 
 ///
@@ -18,7 +16,6 @@ use std::{cmp::Ordering, fmt};
 #[derive(
     Add,
     AddAssign,
-    CandidType,
     Clone,
     Copy,
     Debug,
@@ -54,6 +51,24 @@ impl Decimal {
         let fd = if parts.len() > 1 { parts[1].len() } else { 0 };
 
         (id, fd)
+    }
+}
+
+impl CandidType for Decimal {
+    fn _ty() -> candid::types::Type {
+        candid::types::TypeInner::Float64.into()
+    }
+
+    fn idl_serialize<S>(&self, serializer: S) -> Result<(), S::Error>
+    where
+        S: candid::types::Serializer,
+    {
+        let v: f64 = self
+            .0
+            .to_f64()
+            .ok_or_else(|| S::Error::custom("Failed to convert Decimal to f64"))?;
+
+        serializer.serialize_float64(v)
     }
 }
 

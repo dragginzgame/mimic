@@ -1,7 +1,9 @@
 use crate::{
     ic::TC,
-    orm::schema::node::{Def, MacroNode, ValidateNode, VisitableNode},
-    types::ErrorVec,
+    orm::{
+        schema::node::{Def, MacroNode, ValidateNode, VisitableNode},
+        types::ErrorVec,
+    },
     utils::case::{Case, Casing},
 };
 use candid::CandidType;

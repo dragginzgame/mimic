@@ -1,6 +1,8 @@
 use crate::{
-    orm::schema::node::{Def, MacroNode, ValidateNode, VisitableNode, Visitor},
-    types::ErrorVec,
+    orm::{
+        schema::node::{Def, MacroNode, ValidateNode, VisitableNode, Visitor},
+        types::ErrorVec,
+    },
     utils::case::{Case, Casing},
 };
 use serde::{Deserialize, Serialize};

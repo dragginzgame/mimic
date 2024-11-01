@@ -2,11 +2,12 @@ pub mod base;
 pub mod helper;
 pub mod schema;
 pub mod traits;
+pub mod types;
 pub mod visit;
 
 use crate::{
     ic::structures::serialize::{from_binary, to_binary},
-    types::ErrorTree,
+    orm::types::ErrorTree,
 };
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use snafu::Snafu;
@@ -27,9 +28,9 @@ pub mod prelude {
                 PrimaryKey, Sanitize, SanitizeManual, Storable, Validate, ValidateManual,
                 Visitable,
             },
+            types::ErrorVec,
             Error,
         },
-        types::ErrorVec,
         utils::case::{Case, Casing},
     };
     pub use ::candid::{CandidType, Principal};

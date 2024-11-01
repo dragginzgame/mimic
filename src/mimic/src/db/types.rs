@@ -1,10 +1,7 @@
-use crate::{
-    ic::structures::{
-        serialize::{from_binary, to_binary},
-        storable::Bound,
-        Storable,
-    },
-    types::Timestamp,
+use crate::ic::structures::{
+    serialize::{from_binary, to_binary},
+    storable::Bound,
+    Storable,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -121,8 +118,8 @@ impl Storable for DataKey {
 
 #[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
 pub struct Metadata {
-    pub created: Timestamp,
-    pub modified: Timestamp,
+    pub created: u64,
+    pub modified: u64,
 }
 
 #[cfg(test)]

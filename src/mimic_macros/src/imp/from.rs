@@ -13,7 +13,7 @@ pub fn map(node: &Map, t: Trait) -> TokenStream {
 
     let q = quote! {
         fn from(t: Vec<(#key, #value)>) -> Self {
-            let map: ::mimic::types::collections::StrHashMap<#key, #value> = t.into_iter().collect();
+            let map: ::mimic::orm::types::StrHashMap<#key, #value> = t.into_iter().collect();
 
             Self(map)
         }

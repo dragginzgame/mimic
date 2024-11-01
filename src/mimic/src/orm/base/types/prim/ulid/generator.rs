@@ -1,5 +1,5 @@
 use super::Ulid;
-use crate::types::Timestamp;
+use crate::utils::time::now_millis;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::sync::{LazyLock, Mutex};
@@ -14,10 +14,10 @@ pub enum Error {
     Overflow,
 }
 
-//
-// GENERATOR is lazily initiated with a Mutex
-// it has to keep state to make sure key order is maintained
-//
+///
+/// GENERATOR is lazily initiated with a Mutex
+/// it has to keep state to make sure key order is maintained
+///
 
 static GENERATOR: LazyLock<Mutex<Generator>> = LazyLock::new(|| Mutex::new(Generator::new()));
 
@@ -26,12 +26,12 @@ pub fn generate() -> Result<Ulid, Error> {
     generator.generate()
 }
 
-//
-// Generator
-//
-// hacked from https://github.com/dylanhart/ulid-rs/blob/master/src/generator.rs
-// as the ulid crate doesn't support a no-std generator
-//
+///
+/// Generator
+///
+/// hacked from https://github.com/dylanhart/ulid-rs/blob/master/src/generator.rs
+/// as the ulid crate doesn't support a no-std generator
+///
 
 pub struct Generator {
     previous: Ulid,
@@ -47,8 +47,8 @@ impl Generator {
 
     // generate
     pub fn generate(&mut self) -> Result<Ulid, Error> {
-        let last_ts: Timestamp = self.previous.timestamp_ms().into();
-        let ts = Timestamp::now_millis();
+        let last_ts = self.previous.timestamp_ms();
+        let ts = now_millis();
 
         // maybe time went backward, or it is the same ms.
         // increment instead of generating a new random so that it is monotonic
@@ -64,8 +64,8 @@ impl Generator {
         }
 
         // generate
-        let rand = crate::ic::rand::next_u128();
-        let ulid = Ulid::from_parts(*ts, rand);
+        let rand = crate::utils::rand::next_u128();
+        let ulid = Ulid::from_parts(ts, rand);
 
         self.previous = ulid;
 

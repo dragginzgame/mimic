@@ -1,5 +1,5 @@
-use crate::{
-    orm::schema::{
+use crate::orm::{
+    schema::{
         node::{
             Canister, Def, Entity, EntitySource, Enum, EnumValue, Error, MacroNode, Map, Newtype,
             Permission, Primitive, Record, Role, Sanitizer, Store, Tuple, ValidateNode, Validator,
@@ -7,7 +7,7 @@ use crate::{
         },
         visit::Visitor,
     },
-    types::{ErrorVec, Timestamp},
+    types::ErrorVec,
 };
 use serde::{
     ser::{SerializeStruct, Serializer},
@@ -119,7 +119,7 @@ impl VisitableNode for SchemaNode {
 pub struct Schema {
     pub nodes: BTreeMap<String, SchemaNode>,
     pub hash: String,
-    pub timestamp: Timestamp,
+    pub timestamp: u64,
 }
 
 impl Serialize for Schema {
@@ -158,7 +158,7 @@ impl Schema {
         Self {
             nodes: BTreeMap::new(),
             hash: String::new(),
-            timestamp: Timestamp::now(),
+            timestamp: crate::utils::time::now_secs(),
         }
     }
 

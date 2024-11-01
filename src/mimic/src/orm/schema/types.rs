@@ -50,7 +50,6 @@ pub enum PrimitiveType {
     Isize,
     Principal,
     String,
-    Timestamp,
     U8,
     U16,
     U32,

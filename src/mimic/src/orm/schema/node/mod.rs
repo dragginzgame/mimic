@@ -46,8 +46,8 @@ pub use self::tuple::*;
 pub use self::validator::*;
 pub use self::value::*;
 
-use crate::{
-    orm::schema::{
+use crate::orm::{
+    schema::{
         build::schema_read,
         visit::{Event, Visitor},
     },

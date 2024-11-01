@@ -450,8 +450,8 @@ impl ToTokens for PrimitiveType {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let ty = match self {
             Self::Bool => quote!(bool),
-            Self::Blob => quote!(::mimic::types::Blob),
-            Self::Decimal => quote!(::mimic::types::Decimal),
+            Self::Blob => quote!(::mimic::orm::base::types::Blob),
+            Self::Decimal => quote!(::mimic::orm::base::types::Decimal),
             Self::F32 => quote!(f32),
             Self::F64 => quote!(f64),
             Self::I8 => quote!(i8),
@@ -460,16 +460,16 @@ impl ToTokens for PrimitiveType {
             Self::I64 => quote!(i64),
             Self::I128 => quote!(i128),
             Self::Isize => quote!(isize),
-            Self::Principal => quote!(::mimic::types::Principal),
+            Self::Principal => quote!(::mimic::orm::base::types::Principal),
             Self::String => quote!(String),
             Self::U8 => quote!(u8),
             Self::U16 => quote!(u16),
             Self::U32 => quote!(u32),
             Self::U64 => quote!(u64),
             Self::U128 => quote!(u128),
-            Self::Ulid => quote!(::mimic::types::Ulid),
+            Self::Ulid => quote!(::mimic::orm::base::types::Ulid),
             Self::Usize => quote!(usize),
-            Self::Timestamp => quote!(::mimic::types::Timestamp),
+            Self::Timestamp => quote!(::mimic::orm::base::types::Timestamp),
         };
         tokens.extend(ty);
     }

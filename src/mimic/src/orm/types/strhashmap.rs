@@ -37,7 +37,7 @@ where
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_map(HashMapVisitor {
+        deserializer.deserialize_map(StrHashMapVisitor {
             marker: PhantomData,
         })
     }
@@ -59,15 +59,26 @@ where
     }
 }
 
+impl<K, V> FromIterator<(K, V)> for StrHashMap<K, V>
+where
+    K: Eq + Hash,
+{
+    fn from_iter<I: IntoIterator<Item = (K, V)>>(iter: I) -> Self {
+        Self(iter.into_iter().collect::<HashMap<K, V>>())
+    }
+}
+
+impl<K, V> Orderable for StrHashMap<K, V> where K: Eq + Hash {}
+
 ///
-/// HashMapVisitor
+/// StrHashMapVisitor
 ///
 
-struct HashMapVisitor<K, V> {
+struct StrHashMapVisitor<K, V> {
     marker: PhantomData<fn() -> (K, V)>,
 }
 
-impl<'de, K, V> Visitor<'de> for HashMapVisitor<K, V>
+impl<'de, K, V> Visitor<'de> for StrHashMapVisitor<K, V>
 where
     K: Eq + Hash + Deserialize<'de>,
     V: Deserialize<'de>,
@@ -90,14 +101,3 @@ where
         Ok(StrHashMap(map))
     }
 }
-
-impl<K, V> FromIterator<(K, V)> for StrHashMap<K, V>
-where
-    K: Eq + Hash,
-{
-    fn from_iter<I: IntoIterator<Item = (K, V)>>(iter: I) -> Self {
-        Self(iter.into_iter().collect::<HashMap<K, V>>())
-    }
-}
-
-impl<K, V> Orderable for StrHashMap<K, V> where K: Eq + Hash {}

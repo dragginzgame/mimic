@@ -120,18 +120,6 @@ impl Path for Principal {
 pub struct String {}
 
 ///
-/// Timestamp
-///
-
-#[primitive(ty = "Timestamp", path = "types::prim::Timestamp")]
-pub struct Timestamp {}
-
-impl Path for Timestamp {
-    const IDENT: &'static str = "Timestamp";
-    const PATH: &'static str = "mimic::orm::base::types::Timestamp";
-}
-
-///
 /// Ulid
 ///
 

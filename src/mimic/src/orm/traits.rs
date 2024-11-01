@@ -16,10 +16,7 @@ pub use std::{
     str::FromStr,
 };
 
-use crate::{
-    orm::{schema::types::SortDirection, visit::Visitor, Error},
-    types::{ErrorVec, Ulid},
-};
+use crate::orm::{schema::types::SortDirection, types::ErrorVec, visit::Visitor, Error};
 
 ///
 /// MACROS
@@ -480,9 +477,9 @@ pub trait EntityFixture: Entity {
 
 pub trait EntityKey: NodeDyn + Display {
     #[must_use]
-    fn ulid(&self) -> Ulid {
+    fn ulid(&self) -> crate::orm::base::types::Ulid {
         let digest = format!("{}-{}", self.path_dyn(), self);
-        Ulid::from_string_digest(&digest)
+        crate::orm::base::types::Ulid::from_string_digest(&digest)
     }
 }
 

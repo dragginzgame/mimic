@@ -35,7 +35,7 @@ pub struct Timestamp {}
 impl Timestamp {
     #[must_use]
     pub fn now() -> Self {
-        Self(*crate::types::Timestamp::now())
+        Self(crate::utils::time::now_secs())
     }
 }
 

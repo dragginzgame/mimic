@@ -9,7 +9,6 @@ pub mod db;
 pub mod ic;
 pub mod macros;
 pub mod orm;
-pub mod types;
 pub mod utils;
 
 pub mod export {
@@ -43,9 +42,7 @@ pub mod prelude {
         ic::{caller, format_cycles, id},
         log, mimic_end, mimic_start,
         orm::traits::{EntityDyn, EntityFixture, Path},
-        perf,
-        types::Ulid,
-        Log,
+        perf, Log,
     };
     pub use ::candid::{CandidType, Principal};
     pub use ::std::cell::RefCell;

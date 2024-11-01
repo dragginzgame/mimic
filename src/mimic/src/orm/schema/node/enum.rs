@@ -1,9 +1,11 @@
 use crate::{
-    orm::schema::{
-        node::{Def, MacroNode, ValidateNode, Value, VisitableNode},
-        visit::Visitor,
+    orm::{
+        schema::{
+            node::{Def, MacroNode, ValidateNode, Value, VisitableNode},
+            visit::Visitor,
+        },
+        types::ErrorVec,
     },
-    types::ErrorVec,
     utils::case::{Case, Casing},
 };
 use serde::{Deserialize, Serialize};
