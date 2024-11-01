@@ -3,8 +3,7 @@ mod default;
 mod sanitize;
 mod validate;
 
-use ic::{log, update, Log};
-use mimic::{api::Error, prelude::*};
+use mimic::{api::Error, ic::update, log, prelude::*, Log};
 
 // blank file so we get the default
 mimic_start!("../mimic.toml");

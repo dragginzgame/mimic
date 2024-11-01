@@ -7,7 +7,6 @@
 #[macro_export]
 macro_rules! mimic_build {
     ($actor:expr) => {
-        use mimic_base::*;
         use std::{fs::File, io::Write, path::PathBuf};
 
         //

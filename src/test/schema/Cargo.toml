@@ -9,12 +9,9 @@ workspace = true
 
 [dependencies]
 candid = { workspace = true }
-db = { workspace = true }
 derive_more = { workspace = true }
-ic = { workspace = true }
 ic-cdk = { workspace = true }
 mimic = { workspace = true }
 num-traits = { workspace = true }
-orm = { workspace = true }
 serde = { workspace = true }
 strum = { workspace = true }

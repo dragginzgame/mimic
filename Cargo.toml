@@ -3,19 +3,7 @@
 members = [
     "benches",
     "src/mimic",
-    "src/mimic/api",
-    "src/mimic/build",
-    "src/mimic/core/config",
-    "src/mimic/core/schema",
-    "src/mimic/core/state",
-    "src/mimic/core/wasm",
-    "src/mimic/db",
-    "src/mimic/ic",
-    "src/mimic/lib/case",
-    "src/mimic/orm",
-    "src/mimic/orm/macros",
-    "src/mimic/orm/schema",
-    "src/mimic/types",
+    "src/mimic_macros",
     "src/test/canister",
     "src/test/schema",
     "tests",
@@ -34,29 +22,7 @@ license = "MIT"
 
 # top level
 mimic = { path = "src/mimic" }
-
-# mimic
-api = { path = "src/mimic/api" }
-build = { path = "src/mimic/build" }
-ic = { path = "src/mimic/ic" }
-types = { path = "src/mimic/types" }
-
-# core
-core_config = { path = "src/mimic/core/config" }
-core_schema = { path = "src/mimic/core/schema" }
-core_state = { path = "src/mimic/core/state" }
-core_wasm = { path = "src/mimic/core/wasm" }
-
-# db
-db = { path = "src/mimic/db" }
-
-# lib
-lib_case = { path = "src/mimic/lib/case" }
-
-# orm
-orm = { path = "src/mimic/orm" }
-orm_schema = { path = "src/mimic/orm/schema" }
-orm_macros = { path = "src/mimic/orm/macros" }
+mimic_macros = { path = "src/mimic_macros" }
 
 # test
 test_canister = { path = "src/test/canister" }

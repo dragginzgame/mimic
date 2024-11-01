@@ -1,5 +1,4 @@
-use base::types;
-use mimic::orm::prelude::*;
+use mimic::orm::{base::types, prelude::*};
 
 ///
 /// CreateBasic

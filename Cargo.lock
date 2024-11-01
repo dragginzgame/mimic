@@ -4,29 +4,9 @@ version = 3
 
 [[package]]
 name = "anyhow"
-version = "1.0.91"
+version = "1.0.92"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c042108f3ed77fd83760a5fd79b53be043192bb3b9dba91d8c574c0ada7850c8"
-
-[[package]]
-name = "api"
-version = "0.2.0"
-dependencies = [
- "candid",
- "core_config",
- "core_schema",
- "core_state",
- "core_wasm",
- "db",
- "defer",
- "ic",
- "orm",
- "orm_schema",
- "remain",
- "serde",
- "snafu",
- "strum",
-]
+checksum = "74f37166d7d48a0284b99dd824694c26119c700b53bf0d1540cdb147dbdaaf13"
 
 [[package]]
 name = "arrayvec"
@@ -92,19 +72,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "build"
-version = "0.2.0"
-dependencies = [
- "orm_schema",
- "proc-macro2",
- "quote",
- "serde",
- "serde_json",
- "snafu",
- "syn 2.0.85",
-]
-
-[[package]]
 name = "bumpalo"
 version = "3.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -148,7 +115,7 @@ dependencies = [
  "lazy_static",
  "proc-macro2",
  "quote",
- "syn 2.0.85",
+ "syn 2.0.86",
 ]
 
 [[package]]
@@ -203,52 +170,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "core_config"
-version = "0.2.0"
-dependencies = [
- "candid",
- "serde",
- "snafu",
- "toml",
-]
-
-[[package]]
-name = "core_schema"
-version = "0.2.0"
-dependencies = [
- "derive_more",
- "ic",
- "orm_schema",
- "serde",
- "serde_json",
- "snafu",
-]
-
-[[package]]
-name = "core_state"
-version = "0.2.0"
-dependencies = [
- "candid",
- "core_schema",
- "derive_more",
- "ic",
- "orm_schema",
- "serde",
- "snafu",
- "strum",
- "types",
-]
-
-[[package]]
-name = "core_wasm"
-version = "0.2.0"
-dependencies = [
- "ic",
- "serde",
- "snafu",
-]
-
-[[package]]
 name = "cpufeatures"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -289,7 +210,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "edb49164822f3ee45b17acd4a208cfc1251410cf0cad9a833234c9890774dd9f"
 dependencies = [
  "quote",
- "syn 2.0.85",
+ "syn 2.0.86",
 ]
 
 [[package]]
@@ -313,7 +234,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "strsim",
- "syn 2.0.85",
+ "syn 2.0.86",
 ]
 
 [[package]]
@@ -324,7 +245,7 @@ checksum = "d336a2a514f6ccccaa3e09b02d41d35330c07ddf03a62165fcec10bb561c7806"
 dependencies = [
  "darling_core",
  "quote",
- "syn 2.0.85",
+ "syn 2.0.86",
 ]
 
 [[package]]
@@ -332,22 +253,6 @@ name = "data-encoding"
 version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e8566979429cf69b49a5c740c60791108e86440e8be149bbea4fe54d2c32d6e2"
-
-[[package]]
-name = "db"
-version = "0.2.0"
-dependencies = [
- "candid",
- "core_schema",
- "derive_more",
- "ic",
- "orm",
- "orm_schema",
- "serde",
- "snafu",
- "strum",
- "types",
-]
 
 [[package]]
 name = "defer"
@@ -372,7 +277,7 @@ checksum = "cb7330aeadfbe296029522e6c40f315320aba36fc43a5b3632f3795348f3bd22"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.85",
+ "syn 2.0.86",
 ]
 
 [[package]]
@@ -459,7 +364,7 @@ checksum = "162ee34ebcb7c64a8abebc059ce0fee27c2262618d7b60ed8faf72fef13c3650"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.85",
+ "syn 2.0.86",
 ]
 
 [[package]]
@@ -544,21 +449,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
-name = "ic"
-version = "0.2.0"
-dependencies = [
- "ciborium",
- "derive_more",
- "ic-cdk",
- "ic-cdk-timers",
- "ic-stable-structures",
- "serde",
- "sha2",
- "snafu",
- "tinyrand",
-]
-
-[[package]]
 name = "ic-cdk"
 version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -582,7 +472,7 @@ dependencies = [
  "quote",
  "serde",
  "serde_tokenstream",
- "syn 2.0.85",
+ "syn 2.0.86",
 ]
 
 [[package]]
@@ -671,14 +561,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "884e2677b40cc8c339eaefcb701c32ef1fd2493d71118dc0ca4b6a736c93bd67"
 
 [[package]]
-name = "lib_case"
-version = "0.2.0"
-dependencies = [
- "convert_case",
- "strum",
-]
-
-[[package]]
 name = "libc"
 version = "0.2.161"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -706,27 +588,48 @@ checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 name = "mimic"
 version = "0.2.0"
 dependencies = [
- "api",
- "build",
  "candid",
- "core_config",
- "core_schema",
- "core_state",
- "core_wasm",
+ "ciborium",
+ "convert_case",
  "ctor",
- "db",
+ "defer",
  "derive_more",
- "ic",
- "lib_case",
+ "hex",
+ "ic-cdk",
+ "ic-cdk-timers",
+ "ic-stable-structures",
+ "mimic_macros",
  "num-traits",
- "orm",
- "orm_macros",
- "orm_schema",
+ "proc-macro2",
+ "quote",
  "remain",
+ "rust_decimal",
+ "semver",
  "serde",
+ "serde_bytes",
+ "serde_json",
+ "sha2",
  "snafu",
  "strum",
- "types",
+ "syn 2.0.86",
+ "tinyrand",
+ "toml",
+ "ulid",
+]
+
+[[package]]
+name = "mimic_macros"
+version = "0.2.0"
+dependencies = [
+ "darling",
+ "derive_more",
+ "proc-macro2",
+ "quote",
+ "remain",
+ "serde",
+ "strum",
+ "syn 2.0.86",
+ "tinyrand",
 ]
 
 [[package]]
@@ -764,66 +667,6 @@ name = "once_cell"
 version = "1.20.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1261fe7e33c73b354eab43b1273a57c8f967d0391e80353e51f764ac02cf6775"
-
-[[package]]
-name = "orm"
-version = "0.2.0"
-dependencies = [
- "candid",
- "darling",
- "derive_more",
- "ic",
- "lib_case",
- "num-traits",
- "orm_macros",
- "orm_schema",
- "proc-macro2",
- "quote",
- "remain",
- "serde",
- "snafu",
- "strum",
- "syn 2.0.85",
- "types",
-]
-
-[[package]]
-name = "orm_macros"
-version = "0.2.0"
-dependencies = [
- "darling",
- "derive_more",
- "ic",
- "orm_schema",
- "proc-macro2",
- "quote",
- "remain",
- "serde",
- "strum",
- "syn 2.0.85",
-]
-
-[[package]]
-name = "orm_schema"
-version = "0.2.0"
-dependencies = [
- "candid",
- "darling",
- "derive_more",
- "hex",
- "ic",
- "lib_case",
- "proc-macro2",
- "quote",
- "remain",
- "serde",
- "serde_json",
- "sha2",
- "snafu",
- "strum",
- "syn 2.0.85",
- "types",
-]
 
 [[package]]
 name = "paste"
@@ -889,7 +732,7 @@ checksum = "46aef80f842736de545ada6ec65b81ee91504efd6853f4b96de7414c42ae7443"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.85",
+ "syn 2.0.86",
 ]
 
 [[package]]
@@ -914,6 +757,12 @@ name = "ryu"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f3cb5ba0dc43242ce17de99c180e96db90b235b8a9fdc9543c96d2209116bd9f"
+
+[[package]]
+name = "semver"
+version = "1.0.23"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "61697e0a1c7e512e84a621326239844a24d8207b4669b41bc18b32ea5cbf988b"
 
 [[package]]
 name = "serde"
@@ -941,7 +790,7 @@ checksum = "de523f781f095e28fa605cdce0f8307e451cc0fd14e2eb4cd2e98a355b147766"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.85",
+ "syn 2.0.86",
 ]
 
 [[package]]
@@ -974,7 +823,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "serde",
- "syn 2.0.85",
+ "syn 2.0.86",
 ]
 
 [[package]]
@@ -1030,7 +879,7 @@ dependencies = [
  "heck",
  "proc-macro2",
  "quote",
- "syn 2.0.85",
+ "syn 2.0.86",
 ]
 
 [[package]]
@@ -1071,7 +920,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "rustversion",
- "syn 2.0.85",
+ "syn 2.0.86",
 ]
 
 [[package]]
@@ -1087,9 +936,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.85"
+version = "2.0.86"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5023162dfcd14ef8f32034d8bcd4cc5ddc61ef7a247c024a33e24e1f24d21b56"
+checksum = "e89275301d38033efb81a6e60e3497e734dfcc62571f2854bf4b16690398824c"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1100,13 +949,9 @@ dependencies = [
 name = "test_canister"
 version = "0.2.0"
 dependencies = [
- "build",
  "candid",
- "db",
- "ic",
  "ic-cdk",
  "mimic",
- "orm",
  "test_schema",
 ]
 
@@ -1115,13 +960,10 @@ name = "test_schema"
 version = "0.2.0"
 dependencies = [
  "candid",
- "db",
  "derive_more",
- "ic",
  "ic-cdk",
  "mimic",
  "num-traits",
- "orm",
  "serde",
  "strum",
 ]
@@ -1130,29 +972,29 @@ dependencies = [
 name = "tests"
 version = "0.2.0"
 dependencies = [
- "orm",
+ "mimic",
  "quote",
  "test_schema",
 ]
 
 [[package]]
 name = "thiserror"
-version = "1.0.65"
+version = "1.0.66"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d11abd9594d9b38965ef50805c5e469ca9cc6f197f883f717e0269a3057b3d5"
+checksum = "5d171f59dbaa811dbbb1aee1e73db92ec2b122911a48e1390dfe327a821ddede"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.65"
+version = "1.0.66"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae71770322cbd277e69d762a16c444af02aa0575ac0d174f0b9562d3b37f8602"
+checksum = "b08be0f17bd307950653ce45db00cd31200d82b624b36e181337d9c7d92765b5"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.85",
+ "syn 2.0.86",
 ]
 
 [[package]]
@@ -1206,22 +1048,6 @@ name = "typenum"
 version = "1.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42ff0bf0c66b8238c6f3b578df37d0b7848e55df8577b3f74f92a69acceeb825"
-
-[[package]]
-name = "types"
-version = "0.2.0"
-dependencies = [
- "candid",
- "derive_more",
- "ic",
- "num-traits",
- "rust_decimal",
- "serde",
- "serde_bytes",
- "sha2",
- "snafu",
- "ulid",
-]
 
 [[package]]
 name = "ulid"
@@ -1285,7 +1111,7 @@ dependencies = [
  "once_cell",
  "proc-macro2",
  "quote",
- "syn 2.0.85",
+ "syn 2.0.86",
  "wasm-bindgen-shared",
 ]
 
@@ -1307,7 +1133,7 @@ checksum = "26c6ab57572f7a24a4985830b120de1594465e5d500f24afe89e16b4e833ef68"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.85",
+ "syn 2.0.86",
  "wasm-bindgen-backend",
  "wasm-bindgen-shared",
 ]

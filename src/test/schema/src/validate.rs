@@ -1,5 +1,7 @@
-use mimic::orm::prelude::*;
-use orm::base::{types, validator};
+use mimic::orm::{
+    base::{types, validator},
+    prelude::*,
+};
 
 ///
 /// Validator
