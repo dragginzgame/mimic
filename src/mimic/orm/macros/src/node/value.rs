@@ -1,7 +1,9 @@
-use super::{helper::quote_option, Arg, Item};
+use crate::{
+    helper::quote_option,
+    node::{Arg, Cardinality, Item},
+};
 use darling::FromMeta;
-use orm::types::Cardinality;
-use orm_schema::Schemable;
+use orm_schema::traits::Schemable;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 

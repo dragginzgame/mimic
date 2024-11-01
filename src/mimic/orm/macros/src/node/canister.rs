@@ -1,10 +1,9 @@
 use crate::{
     imp,
-    node::{Def, MacroNode, Node, Trait, TraitNode, Traits},
+    node::{Cycles, Def, MacroNode, Node, Trait, TraitNode, Traits},
 };
 use darling::FromMeta;
-use orm::types::Cycles;
-use orm_schema::Schemable;
+use orm_schema::traits::Schemable;
 use proc_macro2::TokenStream;
 use quote::quote;
 

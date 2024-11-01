@@ -1,13 +1,10 @@
 use crate::{
+    helper::{quote_one, quote_option, quote_vec, to_string},
     imp,
-    node::{
-        helper::{quote_one, quote_option, quote_vec, to_string},
-        Def, MacroNode, Node, Trait, TraitNode, Traits, Value,
-    },
+    node::{Def, MacroNode, Node, Trait, TraitNode, Traits, Value},
 };
 use darling::FromMeta;
-use orm::types::Sorted;
-use orm_schema::Schemable;
+use orm_schema::traits::Schemable;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::Ident;
@@ -22,7 +19,7 @@ pub struct Enum {
     pub def: Def,
 
     #[darling(default)]
-    pub sorted: Sorted,
+    pub sorted: bool,
 
     #[darling(multiple, rename = "variant")]
     pub variants: Vec<EnumVariant>,

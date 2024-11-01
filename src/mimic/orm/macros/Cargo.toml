@@ -14,7 +14,6 @@ workspace = true
 darling = { workspace = true }
 derive_more = { workspace = true }
 ic = { workspace = true }
-orm = { workspace = true }
 orm_schema = { workspace = true }
 proc-macro2 = { workspace = true }
 quote = { workspace = true }

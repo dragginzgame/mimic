@@ -29,12 +29,6 @@ pub enum CrudAction {
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct Cycles(pub u128);
 
-impl From<u128> for Cycles {
-    fn from(n: u128) -> Self {
-        Self(n)
-    }
-}
-
 ///
 /// PrimitiveType
 ///
@@ -89,10 +83,3 @@ pub enum SortDirection {
     Asc,
     Desc,
 }
-
-///
-/// Sorted
-///
-
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
-pub struct Sorted(bool);

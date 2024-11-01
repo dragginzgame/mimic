@@ -1,6 +1,5 @@
 use super::Implementor;
-use crate::node::{Newtype, Trait};
-use orm::types::PrimitiveType;
+use crate::node::{Newtype, PrimitiveType, Trait};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
 

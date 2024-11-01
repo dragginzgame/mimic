@@ -1,11 +1,13 @@
-use super::{
+use crate::{
     helper::{quote_option, quote_vec},
-    Def, MacroNode, Node, Trait, TraitNode, Traits, TypeSanitizer, TypeValidator, Value,
+    imp,
+    node::{
+        Cardinality, Def, MacroNode, Node, PrimitiveGroup, PrimitiveType, Trait, TraitNode, Traits,
+        TypeSanitizer, TypeValidator, Value,
+    },
 };
-use crate::imp;
 use darling::FromMeta;
-use orm::types::{Cardinality, PrimitiveGroup, PrimitiveType};
-use orm_schema::Schemable;
+use orm_schema::traits::Schemable;
 use proc_macro2::TokenStream;
 use quote::quote;
 

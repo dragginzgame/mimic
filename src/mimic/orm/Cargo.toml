@@ -14,10 +14,12 @@ derive_more = { workspace = true }
 ic = { workspace = true }
 num-traits = { workspace = true }
 orm_schema = { workspace = true }
+orm_macros = { workspace = true }
 proc-macro2 = { workspace = true }
 quote = { workspace = true }
 remain = { workspace = true }
 serde = { workspace = true }
+lib_case = { workspace = true }
 snafu = { workspace = true }
 strum = { workspace = true }
 syn = { workspace = true }

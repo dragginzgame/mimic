@@ -1,5 +1,4 @@
-use crate::{types, validator};
-use mimic::orm::prelude::*;
+use crate::prelude;
 
 ///
 /// Text

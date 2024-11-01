@@ -1,7 +1,6 @@
 pub mod case;
 
-use crate::sanitizer::string;
-use mimic::orm::prelude::*;
+use crate::{base::sanitizer::string, prelude::*};
 
 ///
 /// CollapseWhitespace

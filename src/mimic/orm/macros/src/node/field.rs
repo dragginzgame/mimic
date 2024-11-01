@@ -1,10 +1,9 @@
-use super::{
+use crate::{
     helper::{quote_one, quote_vec, to_string},
-    Value,
+    node::{SortDirection, Value},
 };
 use darling::FromMeta;
-use orm::types::SortDirection;
-use orm_schema::Schemable;
+use orm_schema::traits::Schemable;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use syn::Ident;

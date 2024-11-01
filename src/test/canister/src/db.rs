@@ -1,6 +1,5 @@
 use db::{query::types::Order, types::DataKey, Db};
-use mimic_base::types::Ulid;
-use orm::traits::Path;
+use orm::{base::types::Ulid, traits::path};
 
 ///
 /// DbTester

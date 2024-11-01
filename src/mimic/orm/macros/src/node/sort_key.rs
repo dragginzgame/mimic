@@ -1,6 +1,6 @@
-use super::helper::{quote_one, quote_vec, split_idents, to_path, to_string};
+use crate::helper::{quote_one, quote_vec, split_idents, to_path, to_string};
 use darling::FromMeta;
-use orm_schema::Schemable;
+use orm_schema::traits::Schemable;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Ident, Path};

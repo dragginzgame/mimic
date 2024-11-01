@@ -1,6 +1,6 @@
-use super::helper::{quote_option, to_path};
+use crate::helper::{quote_option, to_path};
 use darling::FromMeta;
-use orm_schema::Schemable;
+use orm_schema::traits::Schemable;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use syn::{parse_str, Path};
@@ -9,7 +9,7 @@ use syn::{parse_str, Path};
 /// Item
 ///
 
-pub static PRIM_ULID: &str = "::mimic_base::types::Ulid";
+pub static PRIM_ULID: &str = "::orm::base::types::Ulid";
 
 #[derive(Clone, Debug, FromMeta)]
 pub struct Item {

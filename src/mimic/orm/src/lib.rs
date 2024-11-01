@@ -1,7 +1,7 @@
+pub mod base;
 pub mod collections;
 pub mod helper;
 pub mod traits;
-pub mod types;
 pub mod visit;
 
 use ::types::ErrorTree;
@@ -10,6 +10,30 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use snafu::Snafu;
 use traits::Visitable;
 use visit::{perform_visit, perform_visit_mut, SanitizeVisitor, ValidateVisitor};
+
+///
+/// PRELUDE
+///
+
+pub mod prelude {
+    pub use crate::{
+        helper::FixtureList,
+        traits::{
+            EntityDyn, EntityFixture, EntityKey, EnumValue, Filterable, Inner, Orderable, Path,
+            PrimaryKey, Sanitize, SanitizeManual, Storable, Validate, ValidateManual, Visitable,
+        },
+        Error,
+    };
+    pub use ::candid::{CandidType, Principal};
+    pub use ::ic::structures::storable::Bound;
+    pub use ::lib_case::{Case, Casing};
+    pub use ::num_traits::{NumCast, ToPrimitive};
+    pub use ::orm_macros::*;
+    pub use ::serde::{Deserialize, Serialize};
+    pub use ::snafu::Snafu;
+    pub use ::std::{cmp::Ordering, collections::HashSet, fmt::Display};
+    pub use ::types::ErrorVec;
+}
 
 ///
 /// Error

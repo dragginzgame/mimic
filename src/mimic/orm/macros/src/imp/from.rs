@@ -1,6 +1,5 @@
 use super::Implementor;
-use crate::node::{MacroNode, Map, Newtype, Trait, Tuple};
-use orm::types::{Cardinality, PrimitiveGroup};
+use crate::node::{Cardinality, MacroNode, Map, Newtype, PrimitiveGroup, Trait, Tuple};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 

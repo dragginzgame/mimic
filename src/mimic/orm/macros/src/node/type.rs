@@ -1,9 +1,9 @@
-use super::{
+use crate::{
     helper::{quote_one, to_path},
-    Args,
+    node::Args,
 };
 use darling::FromMeta;
-use orm_schema::Schemable;
+use orm_schema::traits::Schemable;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::Path;

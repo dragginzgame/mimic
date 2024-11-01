@@ -1,7 +1,6 @@
 use super::{Def, MacroNode, Node, Trait, TraitNode, Traits};
 use crate::imp;
 use darling::FromMeta;
-use orm::types::Sorted;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::Ident;
@@ -16,7 +15,7 @@ pub struct EntityKey {
     pub def: Def,
 
     #[darling(default)]
-    pub sorted: Sorted,
+    pub sorted: bool,
 
     #[darling(multiple, rename = "key")]
     pub keys: Vec<Ident>,

@@ -1,4 +1,4 @@
-use mimic::orm::prelude::*;
+use crate::prelude::*;
 
 ///
 /// Error
@@ -17,6 +17,7 @@ pub enum Error {
 /// https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 ///
 
+#[debug]
 #[validator]
 pub struct Iso6391 {}
 

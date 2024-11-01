@@ -8,8 +8,7 @@ pub mod prim;
 pub mod text;
 pub mod time;
 
-use crate::types;
-pub use mimic::orm::prelude::*;
+use crate::{base::types, prelude::*};
 
 // re-exports and aliases
 pub type Todo = Bool;
@@ -110,7 +109,7 @@ pub struct Principal {}
 
 impl Path for Principal {
     const IDENT: &'static str = "Principal";
-    const PATH: &'static str = "mimic_base::types::Principal";
+    const PATH: &'static str = "orm::base::types::Principal";
 }
 
 ///
@@ -129,7 +128,7 @@ pub struct Timestamp {}
 
 impl Path for Timestamp {
     const IDENT: &'static str = "Timestamp";
-    const PATH: &'static str = "mimic_base::types::Timestamp";
+    const PATH: &'static str = "orm::base::types::Timestamp";
 }
 
 ///
@@ -141,7 +140,7 @@ pub struct Ulid {}
 
 impl Path for Ulid {
     const IDENT: &'static str = "Ulid";
-    const PATH: &'static str = "mimic_base::types::Ulid";
+    const PATH: &'static str = "orm::base::types::Ulid";
 }
 
 ///

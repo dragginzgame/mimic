@@ -1,5 +1,7 @@
-use crate::{types, validator};
-use mimic::orm::prelude::*;
+use crate::{
+    base::{types, validator},
+    prelude::*,
+};
 
 ///
 /// Bytes

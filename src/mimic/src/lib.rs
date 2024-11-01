@@ -25,27 +25,6 @@ pub mod export {
 }
 
 pub mod orm {
-    pub mod prelude {
-        pub use ::candid::{CandidType, Principal};
-        pub use ::ic::structures::storable::Bound;
-        pub use ::lib_case::{Case, Casing};
-        pub use ::num_traits::{NumCast, ToPrimitive};
-        pub use ::orm::{
-            helper::FixtureList,
-            traits::{
-                EntityDyn, EntityFixture, EntityKey, EnumValue, Filterable, Inner, Orderable, Path,
-                PrimaryKey, Sanitize, SanitizeManual, Storable, Validate, ValidateManual,
-                Visitable,
-            },
-            Error,
-        };
-        pub use ::orm_macros::*;
-        pub use ::serde::{Deserialize, Serialize};
-        pub use ::snafu::Snafu;
-        pub use ::std::{cmp::Ordering, collections::HashSet, fmt::Display};
-        pub use ::types::ErrorVec;
-    }
-
     pub use orm::*;
     pub use orm_macros as macros;
     pub use orm_schema as schema;

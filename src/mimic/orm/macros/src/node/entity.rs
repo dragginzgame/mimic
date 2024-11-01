@@ -1,10 +1,10 @@
-use super::{
-    helper::{quote_one, quote_option, quote_vec, split_idents, to_path, to_string},
-    Crud, Def, FieldList, MacroNode, Node, SortKey, Trait, TraitNode, Traits,
-};
 use crate::imp;
+use crate::{
+    helper::{quote_one, quote_option, quote_vec, split_idents, to_path, to_string},
+    node::{Crud, Def, FieldList, MacroNode, Node, SortKey, Trait, TraitNode, Traits},
+};
 use darling::FromMeta;
-use orm_schema::Schemable;
+use orm_schema::traits::Schemable;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Ident, Path};

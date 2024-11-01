@@ -3,7 +3,7 @@ use crate::{
     node::{Def, FieldList, MacroNode, Node, Trait, TraitNode, Traits},
 };
 use darling::FromMeta;
-use orm_schema::Schemable;
+use orm_schema::traits::Schemable;
 use proc_macro2::TokenStream;
 use quote::quote;
 

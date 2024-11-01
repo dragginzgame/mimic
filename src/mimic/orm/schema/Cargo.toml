@@ -10,6 +10,7 @@ workspace = true
 [dependencies]
 candid = { workspace = true }
 derive_more = { workspace = true }
+darling = { workspace = true }
 hex = { workspace = true }
 ic = { workspace = true }
 lib_case = { workspace = true }

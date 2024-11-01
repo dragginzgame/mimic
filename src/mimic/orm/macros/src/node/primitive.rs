@@ -1,7 +1,9 @@
-use super::{helper::quote_one, Def, MacroNode, Node};
+use crate::{
+    helper::quote_one,
+    node::{Def, MacroNode, Node, PrimitiveType},
+};
 use darling::FromMeta;
-use orm::types::PrimitiveType;
-use orm_schema::Schemable;
+use orm_schema::traits::Schemable;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::Path;

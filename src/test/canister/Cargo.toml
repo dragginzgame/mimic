@@ -16,12 +16,11 @@ db = { workspace = true }
 ic = { workspace = true }
 ic-cdk = { workspace = true }
 mimic = { workspace = true }
-mimic_base = { workspace = true }
 orm = { workspace = true }
 test_schema = { workspace = true }
 
 [build-dependencies]
 build = { workspace = true }
 mimic = { workspace = true }
-mimic_base = { workspace = true }
+orm = { workspace = true }
 test_schema = { workspace = true }

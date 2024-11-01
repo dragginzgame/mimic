@@ -16,7 +16,6 @@ members = [
     "src/mimic/orm/macros",
     "src/mimic/orm/schema",
     "src/mimic/types",
-    "src/mimic_base",
     "src/test/canister",
     "src/test/schema",
     "tests",
@@ -35,7 +34,6 @@ license = "MIT"
 
 # top level
 mimic = { path = "src/mimic" }
-mimic_base = { path = "src/mimic_base" }
 
 # mimic
 api = { path = "src/mimic/api" }
