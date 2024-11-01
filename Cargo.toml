@@ -20,7 +20,7 @@ license = "MIT"
 
 [workspace.dependencies]
 
-# top level
+# mimic
 mimic = { path = "src/mimic" }
 mimic_macros = { path = "src/mimic_macros" }
 

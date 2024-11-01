@@ -51,6 +51,12 @@ pub mod prelude {
     pub use ::std::cell::RefCell;
 }
 
+// init
+// schema generation requires a function stub to work on OSX
+pub const fn init() {
+    crate::orm::base::init()
+}
+
 ///
 /// Logging
 ///

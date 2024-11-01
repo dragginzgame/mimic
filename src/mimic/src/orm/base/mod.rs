@@ -9,6 +9,4 @@ pub mod types;
 pub mod validator;
 
 // init
-// schema generation requires a function stub
-// to work on OSX
-pub const fn init() {}
+pub(crate) const fn init() {}
