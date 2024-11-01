@@ -51,7 +51,7 @@ pub mod prelude {
 // init
 // schema generation requires a function stub to work on OSX
 pub const fn init() {
-    crate::orm::base::init()
+    crate::orm::base::init();
 }
 
 ///

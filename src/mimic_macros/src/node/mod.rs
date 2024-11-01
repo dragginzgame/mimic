@@ -381,12 +381,12 @@ pub enum PrimitiveType {
 
 impl PrimitiveType {
     #[must_use]
-    pub const fn is_orderable(&self) -> bool {
-        !matches!(*self, Self::Blob | Self::F32 | Self::F64)
+    pub const fn is_orderable(self) -> bool {
+        !matches!(self, Self::Blob | Self::F32 | Self::F64)
     }
 
     #[must_use]
-    pub const fn group(&self) -> PrimitiveGroup {
+    pub const fn group(self) -> PrimitiveGroup {
         match self {
             Self::Blob => PrimitiveGroup::Blob,
             Self::Bool => PrimitiveGroup::Bool,
@@ -410,7 +410,7 @@ impl PrimitiveType {
     }
 
     #[must_use]
-    pub fn num_cast_fn(&self) -> String {
+    pub fn num_cast_fn(self) -> String {
         match self {
             Self::F32 => "f32",
             Self::Decimal | Self::F64 => "f64",

@@ -1,5 +1,7 @@
 use super::Implementor;
-use crate::node::{Cardinality, MacroNode, Map, Newtype, PrimitiveGroup, Trait, Tuple};
+use crate::node::{
+    Cardinality, MacroNode, Map, Newtype, PrimitiveGroup, PrimitiveType, Trait, Tuple,
+};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
@@ -36,7 +38,7 @@ pub fn map(node: &Map, t: Trait) -> TokenStream {
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
     let mut q = quote!();
 
-    match node.primitive.map(|p| p.group()) {
+    match node.primitive.map(PrimitiveType::group) {
         Some(PrimitiveGroup::Bool | PrimitiveGroup::Float) | None => {
             q.extend(newtype_inner(node, t));
         }

@@ -59,6 +59,6 @@ impl ToTokens for Item {
                 quote!(#ty)
             }
             _ => panic!("either is or relation should be set"),
-        })
+        });
     }
 }

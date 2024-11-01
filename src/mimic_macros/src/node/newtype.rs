@@ -94,7 +94,7 @@ impl TraitNode for Newtype {
         }
 
         // primitive
-        match self.primitive.map(|p| p.group()) {
+        match self.primitive.map(PrimitiveType::group) {
             Some(PrimitiveGroup::Integer | PrimitiveGroup::Decimal) => {
                 traits.extend(vec![
                     Trait::Add,

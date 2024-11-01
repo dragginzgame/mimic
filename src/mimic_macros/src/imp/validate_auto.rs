@@ -31,7 +31,7 @@ pub fn enum_(node: &Enum, t: Trait) -> TokenStream {
         }
     };
     let q = quote! {
-        fn validate_auto(&self) -> ::std::result::Result<(), ::mimic::types::ErrorVec> {
+        fn validate_auto(&self) -> ::std::result::Result<(), ::mimic::orm::types::ErrorVec> {
             #inner
         }
     };
@@ -51,7 +51,7 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
         quote!(Ok(()))
     } else {
         quote! {
-            let mut errs = ::mimic::types::ErrorVec::new();
+            let mut errs = ::mimic::orm::types::ErrorVec::new();
             #rules
 
             errs.result()
@@ -60,7 +60,7 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
 
     // quote
     let q = quote! {
-        fn validate_auto(&self) -> ::std::result::Result<(), ::mimic::types::ErrorVec> {
+        fn validate_auto(&self) -> ::std::result::Result<(), ::mimic::orm::types::ErrorVec> {
             #inner
         }
     };

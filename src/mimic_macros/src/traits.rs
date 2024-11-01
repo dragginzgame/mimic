@@ -14,8 +14,9 @@ static RNG: LazyLock<Mutex<StdRand>> = LazyLock::new(|| {
         .duration_since(SystemTime::UNIX_EPOCH)
         .expect("time went backwards")
         .as_nanos();
+    let now_u64 = u64::try_from(now).unwrap();
 
-    Mutex::new(StdRand::seed(now as u64))
+    Mutex::new(StdRand::seed(now_u64))
 });
 
 ///
