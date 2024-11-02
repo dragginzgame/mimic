@@ -42,7 +42,10 @@ pub mod prelude {
         db::Db,
         ic::{caller, format_cycles, id},
         log, mimic_end, mimic_start,
-        orm::traits::{EntityDyn, EntityFixture, Path},
+        orm::{
+            base::types::Ulid,
+            traits::{EntityDyn, EntityFixture, Path},
+        },
         perf, Log,
     };
     pub use ::candid::{CandidType, Principal};
