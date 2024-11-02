@@ -1,4 +1,9 @@
-use crate::{log, Log};
+use crate::{
+    core::schema::{get_schema, Error as CoreSchemaError},
+    log,
+    orm::schema::node::Canister,
+    Log,
+};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::{
@@ -20,8 +25,14 @@ pub static WASM_FILES: LazyLock<Mutex<HashMap<&'static str, &'static [u8]>>> =
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
+    #[snafu(transparent)]
+    Schema { source: CoreSchemaError },
+
     #[snafu(display("mutex lock failed"))]
     LockFailed,
+
+    #[snafu(display("schema canister not found for path {path}"))]
+    PathNotFound { path: String },
 
     #[snafu(display("wasm not found for path {path}"))]
     WasmNotFound { path: String },
@@ -51,6 +62,15 @@ impl WasmManager {
     // add_wasm
     #[allow(clippy::cast_precision_loss)]
     pub fn add_wasm(path: &'static str, wasm: &'static [u8]) -> Result<(), Error> {
+        // check if in schema
+        let schema = get_schema()?;
+        if schema.get_node::<Canister>(path).is_none() {
+            return Err(Error::PathNotFound {
+                path: path.to_string(),
+            });
+        }
+
+        // add wasm
         WASM_FILES
             .lock()
             .map_err(|_| Error::LockFailed)?
