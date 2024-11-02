@@ -4,9 +4,6 @@ pub mod crud;
 pub mod ic;
 pub mod subnet;
 
-// re-export
-pub use defer::defer;
-
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use std::{

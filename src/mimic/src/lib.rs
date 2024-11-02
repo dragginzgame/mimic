@@ -13,6 +13,7 @@ pub mod utils;
 
 pub mod export {
     pub use ctor;
+    pub use defer;
     pub use num_traits;
     pub use remain;
     pub use strum;
