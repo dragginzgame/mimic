@@ -369,7 +369,6 @@ pub enum PrimitiveType {
     Isize,
     Principal,
     String,
-    Timestamp,
     U8,
     U16,
     U32,
@@ -391,8 +390,7 @@ impl PrimitiveType {
             Self::Blob => PrimitiveGroup::Blob,
             Self::Bool => PrimitiveGroup::Bool,
             Self::F32 | Self::F64 => PrimitiveGroup::Float,
-            Self::Timestamp
-            | Self::I8
+            Self::I8
             | Self::I16
             | Self::I32
             | Self::I64
@@ -423,7 +421,7 @@ impl PrimitiveType {
             Self::U8 => "u8",
             Self::U16 => "u16",
             Self::U32 => "u32",
-            Self::U64 | Self::Timestamp => "u64",
+            Self::U64 => "u64",
             Self::U128 => "u128",
             Self::Usize => "usize",
             _ => panic!("unexpected primitive type"),
@@ -469,7 +467,6 @@ impl ToTokens for PrimitiveType {
             Self::U128 => quote!(u128),
             Self::Ulid => quote!(::mimic::orm::base::types::Ulid),
             Self::Usize => quote!(usize),
-            Self::Timestamp => quote!(::mimic::orm::base::types::Timestamp),
         };
         tokens.extend(ty);
     }
