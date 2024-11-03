@@ -9,7 +9,7 @@ pub fn entity_key(node: &EntityKey, t: Trait) -> TokenStream {
 
     // match cardinality
     let q = quote! {
-        fn into(&self) -> mimic::orm::base::types::Ulid {
+        fn into(self) -> mimic::orm::base::types::Ulid {
             self.ulid()
         }
     };
