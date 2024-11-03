@@ -63,12 +63,17 @@ impl TraitNode for EntityKey {
             Trait::EntityKey,
             Trait::EnumDisplay,
             Trait::EnumStaticStr,
+            Trait::Into,
         ]);
 
         traits.list()
     }
 
     fn map_imp(&self, t: Trait) -> TokenStream {
-        imp::any(self, t)
+        match t {
+            Trait::Into => imp::into::entity_key(self, t),
+
+            _ => imp::any(self, t),
+        }
     }
 }

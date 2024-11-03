@@ -6,6 +6,7 @@ pub mod filterable;
 pub mod from;
 pub mod implementor;
 pub mod inner;
+pub mod into;
 pub mod num;
 pub mod orderable;
 pub mod primary_key;

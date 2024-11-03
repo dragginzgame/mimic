@@ -42,6 +42,7 @@ pub enum Trait {
     From,
     FromStr,
     Hash,
+    Into,
     Mul,
     MulAssign,
     NumCast,
