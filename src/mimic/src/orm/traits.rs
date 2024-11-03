@@ -7,7 +7,7 @@ pub use serde::{de::DeserializeOwned, Deserialize, Serialize};
 pub use std::{
     cmp::Ordering,
     collections::HashSet,
-    convert::{AsRef, From},
+    convert::{AsRef, From, Into},
     default::Default,
     fmt::{Debug, Display},
     hash::Hash,
