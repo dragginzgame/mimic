@@ -53,8 +53,8 @@ pub fn user_index(builder: &mut ActorBuilder) {
         #[::mimic::ic::update(guard = "guard_app")]
         async fn register_principal(id: Principal) -> Result<User, ::mimic::api::Error> {
             allow_one(vec![
-                Auth::This,
                 Auth::Controller,
+                Auth::SameCanister,
             ]).await?;
 
             let user = register(id).await?;
