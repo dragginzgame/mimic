@@ -32,7 +32,7 @@ pub mod prelude {
     pub use crate::{
         api::{
             auth::{allow_one, Auth},
-            guard::guard_app,
+            guard::{guard_query, guard_update},
             subnet::request::{Request, RequestKind, Response},
             Error, StartupHooks,
         },

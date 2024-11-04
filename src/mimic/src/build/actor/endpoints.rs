@@ -15,7 +15,7 @@ pub fn canister_endpoints(builder: &mut ActorBuilder) {
     let q = quote! {
 
         // canister_info
-        #[::mimic::ic::update(guard = "guard_app")]
+        #[::mimic::ic::update(guard = "guard_update")]
         async fn canister_info() -> ::mimic::ic::api::management_canister::main::CanisterInfoResponse {
             let req = ::mimic::ic::api::management_canister::main::CanisterInfoRequest {
                 canister_id: id(),
@@ -213,7 +213,7 @@ pub fn store_endpoints(builder: &mut ActorBuilder) {
         }
 
         // store_clear
-        #[::mimic::ic::update(guard = "guard_app")]
+        #[::mimic::ic::update(guard = "guard_update")]
         #[allow(clippy::needless_pass_by_value)]
         async fn store_clear(store_path: String) -> Result<(), ::mimic::api::Error> {
             allow_one(vec![Auth::Controller]).await?;

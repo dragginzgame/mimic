@@ -41,7 +41,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         }
 
         // register_caller
-        #[::mimic::ic::update(guard = "guard_app")]
+        #[::mimic::ic::update(guard = "guard_update")]
         async fn register_caller() -> Result<User, ::mimic::api::Error> {
             let user = register(caller()).await?;
 
@@ -50,7 +50,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
 
         // register_principal
         // register ANY principal, requires controller or parent
-        #[::mimic::ic::update(guard = "guard_app")]
+        #[::mimic::ic::update(guard = "guard_update")]
         async fn register_principal(id: Principal) -> Result<User, ::mimic::api::Error> {
             allow_one(vec![
                 Auth::Controller,
@@ -63,7 +63,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         }
 
         // add_role
-        #[::mimic::ic::update(guard = "guard_app")]
+        #[::mimic::ic::update(guard = "guard_update")]
         async fn add_role(id: Principal, role: String) -> Result<(), ::mimic::api::Error> {
             allow_one(vec![
                 Auth::Parent,
@@ -76,7 +76,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         }
 
         // remove_role
-        #[::mimic::ic::update(guard = "guard_app")]
+        #[::mimic::ic::update(guard = "guard_update")]
         async fn remove_role(id: Principal, role: String) -> Result<(), ::mimic::api::Error> {
             allow_one(vec![
                 Auth::Parent,
