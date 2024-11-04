@@ -13,7 +13,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // user_index
         #[::mimic::ic::query]
         async fn user_index() -> Result<UserIndex, ::mimic::api::Error> {
-            guard(vec![Guard::Controller]).await?;
+            allow_one(vec![Auth::Controller]).await?;
 
             Ok(UserIndexManager::get())
         }
@@ -32,7 +32,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         #[::mimic::ic::query]
         async fn get_user(id: Principal) -> Result<User, ::mimic::api::Error> {
             if id != caller() {
-                guard(vec![Guard::Controller]).await?;
+                allow_one(vec![Auth::Controller]).await?;
             }
 
             let user = UserIndexManager::try_get_user(id)?;
@@ -41,7 +41,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         }
 
         // register_caller
-        #[::mimic::ic::update]
+        #[::mimic::ic::update(guard = "mimic::api::guard::guard_app")]
         async fn register_caller() -> Result<User, ::mimic::api::Error> {
             let user = register(caller()).await?;
 
@@ -50,11 +50,11 @@ pub fn user_index(builder: &mut ActorBuilder) {
 
         // register_principal
         // register ANY principal, requires controller or parent
-        #[::mimic::ic::update]
+        #[::mimic::ic::update(guard = "mimic::api::guard::guard_app")]
         async fn register_principal(id: Principal) -> Result<User, ::mimic::api::Error> {
-            guard(vec![
-                Guard::This,
-                Guard::Controller,
+            allow_one(vec![
+                Auth::This,
+                Auth::Controller,
             ]).await?;
 
             let user = register(id).await?;
@@ -63,11 +63,11 @@ pub fn user_index(builder: &mut ActorBuilder) {
         }
 
         // add_role
-        #[::mimic::ic::update]
+        #[::mimic::ic::update(guard = "mimic::api::guard::guard_app")]
         async fn add_role(id: Principal, role: String) -> Result<(), ::mimic::api::Error> {
-            guard(vec![
-                Guard::Parent,
-                Guard::Controller,
+            allow_one(vec![
+                Auth::Parent,
+                Auth::Controller,
             ]).await?;
 
             UserIndexManager::add_role(id, role)?;
@@ -76,11 +76,11 @@ pub fn user_index(builder: &mut ActorBuilder) {
         }
 
         // remove_role
-        #[::mimic::ic::update]
+        #[::mimic::ic::update(guard = "mimic::api::guard::guard_app")]
         async fn remove_role(id: Principal, role: String) -> Result<(), ::mimic::api::Error> {
-            guard(vec![
-                Guard::Parent,
-                Guard::Controller,
+            allow_one(vec![
+                Auth::Parent,
+                Auth::Controller,
             ]).await?;
 
             UserIndexManager::remove_role(id, role).map_err(::mimic::api::Error::from)?;

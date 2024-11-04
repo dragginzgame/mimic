@@ -33,8 +33,8 @@ pub fn guard_crud(_: &ActorBuilder) -> TokenStream {
                 ::mimic::orm::schema::types::CrudAction::Delete => crud.delete.clone(),
             };
 
-            guard(
-                vec![Guard::Policy(policy)]
+            allow_one(
+                vec![Auth::Policy(policy)]
             )
             .await?;
 
@@ -57,7 +57,7 @@ pub fn crud_load(builder: &ActorBuilder) -> TokenStream {
     }
 
     quote! {
-        #[::mimic::ic::query(composite = true)]
+        #[::mimic::ic::query(guard = "guard_app", composite = true)]
         #[allow(clippy::too_many_lines)]
         #[allow(clippy::match_single_binding)]
         #[allow(unused_variables)]
@@ -89,7 +89,7 @@ pub fn crud_save(builder: &ActorBuilder) -> TokenStream {
     }
 
     quote! {
-        #[::mimic::ic::update]
+        #[::mimic::ic::update(guard = "guard_app")]
         #[allow(clippy::too_many_lines)]
         #[allow(clippy::match_single_binding)]
         #[allow(unused_variables)]
@@ -121,7 +121,7 @@ pub fn crud_delete(builder: &ActorBuilder) -> TokenStream {
     }
 
     quote! {
-        #[::mimic::ic::update]
+        #[::mimic::ic::update(guard = "guard_app")]
         #[allow(clippy::too_many_lines)]
         #[allow(clippy::match_single_binding)]
         #[allow(unused_variables)]

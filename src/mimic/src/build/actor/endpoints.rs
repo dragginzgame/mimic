@@ -15,7 +15,7 @@ pub fn canister_endpoints(builder: &mut ActorBuilder) {
     let q = quote! {
 
         // canister_info
-        #[::mimic::ic::update]
+        #[::mimic::ic::update(guard = "guard_app")]
         async fn canister_info() -> ::mimic::ic::api::management_canister::main::CanisterInfoResponse {
             let req = ::mimic::ic::api::management_canister::main::CanisterInfoRequest {
                 canister_id: id(),
@@ -64,7 +64,7 @@ pub fn canister_endpoints(builder: &mut ActorBuilder) {
         async fn canister_upgrade_children(
             canister_id: Option<Principal>,
         ) -> Result<(), ::mimic::api::Error> {
-            guard(vec![Guard::Controller]).await?;
+            allow_one(vec![Auth::Controller]).await?;
 
             // send a request for each matching canister
             for (child_id, path) in child_index() {
@@ -91,7 +91,7 @@ pub fn cascade_endpoints(builder: &mut ActorBuilder) {
         // app_state_cascade
         #[::mimic::ic::update]
         async fn app_state_cascade(state: AppState) -> Result<(), ::mimic::api::Error> {
-            guard(vec![Guard::Parent]).await.map_err(::mimic::api::Error::from)?;
+            allow_one(vec![Auth::Parent]).await.map_err(::mimic::api::Error::from)?;
 
             // set state and cascade
             ::mimic::core::state::AppStateManager::set(state)?;
@@ -103,7 +103,7 @@ pub fn cascade_endpoints(builder: &mut ActorBuilder) {
         // subnet_index_cascade
         #[::mimic::ic::update]
         async fn subnet_index_cascade(index: SubnetIndex) -> Result<(), ::mimic::api::Error> {
-            guard(vec![Guard::Parent]).await?;
+            allow_one(vec![Auth::Parent]).await?;
 
             // set index and cascade
             SubnetIndexManager::set(index);
@@ -199,7 +199,7 @@ pub fn store_endpoints(builder: &mut ActorBuilder) {
         #[::mimic::ic::query(composite = true)]
         #[allow(clippy::needless_pass_by_value)]
         async fn store_keys(store_path: String) -> Result<Vec<String>, ::mimic::api::Error> {
-            guard(vec![Guard::Controller]).await?;
+            allow_one(vec![Auth::Controller]).await?;
 
             // get keys
             let keys: Vec<String> = DB.with(|db| {
@@ -213,10 +213,10 @@ pub fn store_endpoints(builder: &mut ActorBuilder) {
         }
 
         // store_clear
-        #[::mimic::ic::update]
+        #[::mimic::ic::update(guard = "guard_app")]
         #[allow(clippy::needless_pass_by_value)]
         async fn store_clear(store_path: String) -> Result<(), ::mimic::api::Error> {
-            guard(vec![Guard::Controller]).await?;
+            allow_one(vec![Auth::Controller]).await?;
 
             // clear canister
             DB.with(|db| {

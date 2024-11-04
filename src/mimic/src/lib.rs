@@ -31,7 +31,8 @@ extern crate self as mimic;
 pub mod prelude {
     pub use crate::{
         api::{
-            auth::{guard, Guard},
+            auth::{allow_one, Auth},
+            guard::guard_app,
             subnet::request::{Request, RequestKind, Response},
             Error, StartupHooks,
         },

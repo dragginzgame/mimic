@@ -12,7 +12,7 @@ mimic_start!("../mimic.toml");
 impl StartupHooks for StartupManager {}
 
 // test
-#[update]
+#[update(guard = "guard_app")]
 pub fn test() {
     // default
     default::DefaultTester::test();
