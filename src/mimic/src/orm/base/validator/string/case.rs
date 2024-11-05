@@ -26,6 +26,9 @@ pub enum Error {
     #[snafu(display("'{s}' is not snake_case"))]
     NotSnake { s: String },
 
+    #[snafu(display("'{s}' is not Title Case"))]
+    NotTitle { s: String },
+
     #[snafu(display("'{s}' is not upper case"))]
     NotUpper { s: String },
 }
@@ -142,6 +145,25 @@ impl Snake {
             Ok(())
         } else {
             Err(Error::NotSnake { s })
+        }
+    }
+}
+
+///
+/// Title
+///
+
+#[validator]
+pub struct Title {}
+
+impl Title {
+    pub fn validate<D: Display>(d: &D) -> Result<(), Error> {
+        let s = d.to_string();
+
+        if s.is_case(Case::Title) {
+            Ok(())
+        } else {
+            Err(Error::NotTitle { s })
         }
     }
 }
