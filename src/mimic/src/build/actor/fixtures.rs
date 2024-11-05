@@ -19,7 +19,7 @@ pub fn fixture_actor(builder: &mut ActorBuilder) {
         #[::mimic::ic::update]
         #[allow(clippy::missing_const_for_fn)]
         async fn fixtures_replace_all() -> Result<(), ::mimic::api::Error> {
-            allow_one(vec![Auth::Controller]).await?;
+            allow_any(vec![Auth::Controller]).await?;
 
             actorgen::fixtures_replace_all()?;
 

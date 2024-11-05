@@ -1,4 +1,7 @@
-use mimic::core::state::app_state::{AppMode, AppStateManager};
+use mimic::{
+    core::state::app_state::{AppMode, AppStateManager},
+    ic::api::{caller, is_controller},
+};
 use serde::{Deserialize, Serialize};
 use snafu::prelude::*;
 
@@ -20,6 +23,10 @@ pub enum Error {
 
 // guard_query
 pub fn guard_query() -> Result<(), String> {
+    if is_controller(&caller()) {
+        return Ok(());
+    }
+
     match AppStateManager::get_mode() {
         AppMode::Enabled | AppMode::Readonly => Ok(()),
         AppMode::Disabled => Err(Error::AppDisabled.to_string()),
@@ -28,6 +35,10 @@ pub fn guard_query() -> Result<(), String> {
 
 // guard_update
 pub fn guard_update() -> Result<(), String> {
+    if is_controller(&caller()) {
+        return Ok(());
+    }
+
     match AppStateManager::get_mode() {
         AppMode::Enabled => Ok(()),
         AppMode::Readonly => Err(Error::AppReadonly.to_string()),

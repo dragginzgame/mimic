@@ -110,7 +110,7 @@ impl Auth {
 }
 
 // allow_any
-pub async fn allow_one(rules: Vec<Auth>) -> Result<(), Error> {
+pub async fn allow_any(rules: Vec<Auth>) -> Result<(), Error> {
     // only works for caller now
     let caller = caller();
 

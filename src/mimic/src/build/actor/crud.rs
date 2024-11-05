@@ -33,7 +33,7 @@ pub fn guard_crud(_: &ActorBuilder) -> TokenStream {
                 ::mimic::orm::schema::types::CrudAction::Delete => crud.delete.clone(),
             };
 
-            allow_one(
+            allow_any(
                 vec![Auth::Policy(policy)]
             )
             .await?;

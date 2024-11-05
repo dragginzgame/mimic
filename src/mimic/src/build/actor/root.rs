@@ -41,7 +41,7 @@ pub fn root_module(builder: &mut ActorBuilder) {
         pub async fn root_auto_create_canisters() -> Result<(), ::mimic::api::Error> {
             use ::mimic::orm::schema::node::Canister;
 
-            allow_one(vec![Auth::Controller]).await?;
+            allow_any(vec![Auth::Controller]).await?;
 
             // Collect all service canister paths directly into a vector of tokens.
             let schema = ::mimic::core::schema::get_schema()?;

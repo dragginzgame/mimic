@@ -13,7 +13,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // user_index
         #[::mimic::ic::query]
         async fn user_index() -> Result<UserIndex, ::mimic::api::Error> {
-            allow_one(vec![Auth::Controller]).await?;
+            allow_any(vec![Auth::Controller]).await?;
 
             Ok(UserIndexManager::get())
         }
@@ -32,7 +32,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         #[::mimic::ic::query]
         async fn get_user(id: Principal) -> Result<User, ::mimic::api::Error> {
             if id != caller() {
-                allow_one(vec![Auth::Controller]).await?;
+                allow_any(vec![Auth::Controller]).await?;
             }
 
             let user = UserIndexManager::try_get_user(id)?;
@@ -50,9 +50,9 @@ pub fn user_index(builder: &mut ActorBuilder) {
 
         // register_principal
         // register ANY principal, requires controller or parent
-        #[::mimic::ic::update(guard = "guard_update")]
+        #[::mimic::ic::update]
         async fn register_principal(id: Principal) -> Result<User, ::mimic::api::Error> {
-            allow_one(vec![
+            allow_any(vec![
                 Auth::Controller,
                 Auth::SameCanister,
             ]).await?;
@@ -63,9 +63,9 @@ pub fn user_index(builder: &mut ActorBuilder) {
         }
 
         // add_role
-        #[::mimic::ic::update(guard = "guard_update")]
+        #[::mimic::ic::update]
         async fn add_role(id: Principal, role: String) -> Result<(), ::mimic::api::Error> {
-            allow_one(vec![
+            allow_any(vec![
                 Auth::Parent,
                 Auth::Controller,
             ]).await?;
@@ -78,7 +78,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // remove_role
         #[::mimic::ic::update(guard = "guard_update")]
         async fn remove_role(id: Principal, role: String) -> Result<(), ::mimic::api::Error> {
-            allow_one(vec![
+            allow_any(vec![
                 Auth::Parent,
                 Auth::Controller,
             ]).await?;
