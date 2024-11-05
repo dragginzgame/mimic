@@ -89,7 +89,7 @@ impl fmt::Display for DataKey {
             .iter()
             .map(|(path, keys)| {
                 if keys.is_empty() {
-                    format!("{path}")
+                    path.to_string()
                 } else {
                     format!("{} ({})", path, keys.join(", "))
                 }
