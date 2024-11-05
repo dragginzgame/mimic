@@ -1,6 +1,6 @@
 pub mod case;
 
-use crate::orm::{base::sanitizer, prelude::*};
+use crate::orm::prelude::*;
 
 ///
 /// CollapseWhitespace
@@ -16,24 +16,6 @@ impl CollapseWhitespace {
             .split_whitespace()
             .collect::<Vec<&str>>()
             .join(" ")
-    }
-}
-
-///
-/// Title
-/// formats with title case, and strips and collapses whitespace
-///
-
-#[sanitizer]
-pub struct Title {}
-
-impl Title {
-    #[must_use]
-    pub fn sanitize<S: Display>(s: S) -> String {
-        let s = s.to_string();
-        let s = CollapseWhitespace::sanitize(s);
-
-        sanitizer::string::case::Title::sanitize(s)
     }
 }
 
