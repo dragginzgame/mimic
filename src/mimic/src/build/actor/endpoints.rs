@@ -89,7 +89,8 @@ pub fn cascade_endpoints(builder: &mut ActorBuilder) {
     let q = quote! {
 
         // app_state_cascade
-        #[::mimic::ic::update(guard = "guard_update")]
+        // NO guard because this is set from the parent
+        #[::mimic::ic::update]
         async fn app_state_cascade(state: AppState) -> Result<(), ::mimic::api::Error> {
             allow_any(vec![Auth::Parent]).await.map_err(::mimic::api::Error::from)?;
 
@@ -101,6 +102,7 @@ pub fn cascade_endpoints(builder: &mut ActorBuilder) {
         }
 
         // subnet_index_cascade
+        // NO guard because this is set from the parent
         #[::mimic::ic::update]
         async fn subnet_index_cascade(index: SubnetIndex) -> Result<(), ::mimic::api::Error> {
             allow_any(vec![Auth::Parent]).await?;
