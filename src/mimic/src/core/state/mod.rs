@@ -51,21 +51,24 @@ thread_local! {
         RefCell::new(MemoryManager::init(DefaultMemoryImpl::default()));
 
     ///
-    /// APP_STATE (root)
+    /// APP_STATE
     ///
     /// Scope     : Application
     /// Structure : Cell
     ///
-    /// a Cell that's only really meant for small data structures
-    /// used for the global app state
+    /// a Cell that's only really meant for small data structures used for global app state
+    ///
+    /// defaults to Enabled as then it's possible for non-controllers to call
+    /// endpoints in order to initialise
     ///
 
     pub(crate) static APP_STATE: RefCell<AppStateStable> = RefCell::new(AppStateStable::init(
         MEMORY_MANAGER.with_borrow(|mm| mm.get(MemoryId::new(APP_STATE_MEMORY_ID))),
+        AppMode::Enabled,
     ));
 
     ///
-    /// SUBNET_INDEX (root)
+    /// SUBNET_INDEX
     ///
     /// Scope     : Subnet
     /// Structure : BTreeMap

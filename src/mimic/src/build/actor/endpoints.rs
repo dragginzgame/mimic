@@ -60,7 +60,7 @@ pub fn canister_endpoints(builder: &mut ActorBuilder) {
 
         // canister_upgrade_children
         // canister_id : None means upgrade all children
-        #[::mimic::ic::update(guard = "guard_controller")]
+        #[::mimic::ic::update(guard = "guard_update")]
         async fn canister_upgrade_children(
             canister_id: Option<Principal>,
         ) -> Result<(), ::mimic::api::Error> {
@@ -89,7 +89,7 @@ pub fn cascade_endpoints(builder: &mut ActorBuilder) {
     let q = quote! {
 
         // app_state_cascade
-        #[::mimic::ic::update]
+        #[::mimic::ic::update(guard = "guard_update")]
         async fn app_state_cascade(state: AppState) -> Result<(), ::mimic::api::Error> {
             allow_any(vec![Auth::Parent]).await.map_err(::mimic::api::Error::from)?;
 
@@ -153,7 +153,6 @@ pub fn ic_endpoints(builder: &mut ActorBuilder) {
         fn ic_cycles_accept(max_amount: u64) -> u64 {
             ::mimic::ic::api::call::msg_cycles_accept(max_amount)
         }
-
     };
 
     builder.extend_actor(q);

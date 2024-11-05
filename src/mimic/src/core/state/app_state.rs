@@ -113,8 +113,8 @@ pub struct AppStateStable(Cell<AppState>);
 
 impl AppStateStable {
     #[must_use]
-    pub fn init(memory: VirtualMemory) -> Self {
-        Self(Cell::init(memory, AppState::default()).unwrap())
+    pub fn init(memory: VirtualMemory, mode: AppMode) -> Self {
+        Self(Cell::init(memory, AppState { mode }).unwrap())
     }
 }
 
@@ -125,14 +125,6 @@ impl AppStateStable {
 #[derive(CandidType, Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct AppState {
     mode: AppMode,
-}
-
-impl Default for AppState {
-    fn default() -> Self {
-        Self {
-            mode: AppMode::Disabled,
-        }
-    }
 }
 
 impl Storable for AppState {
