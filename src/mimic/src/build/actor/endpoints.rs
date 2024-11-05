@@ -60,7 +60,7 @@ pub fn canister_endpoints(builder: &mut ActorBuilder) {
 
         // canister_upgrade_children
         // canister_id : None means upgrade all children
-        #[::mimic::ic::update]
+        #[::mimic::ic::update(guard = "guard_controller")]
         async fn canister_upgrade_children(
             canister_id: Option<Principal>,
         ) -> Result<(), ::mimic::api::Error> {
@@ -196,7 +196,7 @@ pub fn store_endpoints(builder: &mut ActorBuilder) {
     let q = quote! {
 
         // store_keys
-        #[::mimic::ic::query(composite = true)]
+        #[::mimic::ic::query(guard = "guard_query", composite = true)]
         #[allow(clippy::needless_pass_by_value)]
         async fn store_keys(store_path: String) -> Result<Vec<String>, ::mimic::api::Error> {
             allow_any(vec![Auth::Controller]).await?;

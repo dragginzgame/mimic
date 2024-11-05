@@ -11,7 +11,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
     let q = quote! {
 
         // user_index
-        #[::mimic::ic::query]
+        #[::mimic::ic::query(guard = "guard_query")]
         async fn user_index() -> Result<UserIndex, ::mimic::api::Error> {
             allow_any(vec![Auth::Controller]).await?;
 
@@ -20,7 +20,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
 
         // get_caller
         // no auth needed as it's just looking up the current caller
-        #[::mimic::ic::query]
+        #[::mimic::ic::query(guard = "guard_query")]
         fn get_caller() -> Result<User, ::mimic::api::Error> {
             let user = UserIndexManager::try_get_user(caller())?;
 
@@ -29,7 +29,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
 
         // get_user
         // look up any user by principal, requires an auth check
-        #[::mimic::ic::query]
+        #[::mimic::ic::query(guard = "guard_query")]
         async fn get_user(id: Principal) -> Result<User, ::mimic::api::Error> {
             if id != caller() {
                 allow_any(vec![Auth::Controller]).await?;
@@ -50,7 +50,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
 
         // register_principal
         // register ANY principal, requires controller or parent
-        #[::mimic::ic::update]
+        #[::mimic::ic::update(guard = "guard_update")]
         async fn register_principal(id: Principal) -> Result<User, ::mimic::api::Error> {
             allow_any(vec![
                 Auth::Controller,
@@ -63,7 +63,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         }
 
         // add_role
-        #[::mimic::ic::update]
+        #[::mimic::ic::update(guard = "guard_update")]
         async fn add_role(id: Principal, role: String) -> Result<(), ::mimic::api::Error> {
             allow_any(vec![
                 Auth::Parent,
@@ -91,7 +91,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // guard_permission
         // endpoint only works on the User canister
         // has to return api::Error as it's called by the api crate
-        #[::mimic::ic::query]
+        #[::mimic::ic::update(guard = "guard_query")]
         pub async fn guard_permission(id: ::candid::Principal, permission: String) -> Result<(), ::mimic::api::Error> {
             let user = UserIndexManager::try_get_user(id)?;
 
