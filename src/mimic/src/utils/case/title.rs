@@ -1,20 +1,21 @@
 // to_title_case
 pub fn to_title_case(input: &str) -> String {
-    // These are common small words that are not usually capitalized in titles
-    let small_words = [
+    // Common small words that are not usually capitalized in titles
+    const SMALL_WORDS: [&str; 14] = [
         "a", "and", "as", "at", "by", "for", "in", "nor", "of", "on", "or", "the", "to", "with",
     ];
 
-    // Split the input into words and map them to a new vector with proper capitalization
-    let words: Vec<String> = input
-        .split_whitespace()
+    // Split the input into words once and store it in a vector
+    let words: Vec<&str> = input.split_whitespace().collect();
+    let len = words.len();
+
+    // Map the words to a new vector with proper capitalization
+    let capitalized_words: Vec<String> = words
+        .iter()
         .enumerate()
-        .map(|(i, word)| {
-            // Always capitalize the first and last word or words not in small_words
-            if i == 0
-                || i == input.split_whitespace().count() - 1
-                || !small_words.contains(&word.to_lowercase().as_str())
-            {
+        .map(|(i, &word)| {
+            // Always capitalize the first and last word or words not in SMALL_WORDS
+            if i == 0 || i == len - 1 || !SMALL_WORDS.contains(&word.to_lowercase().as_str()) {
                 capitalize_first(word)
             } else {
                 word.to_lowercase()
@@ -22,7 +23,7 @@ pub fn to_title_case(input: &str) -> String {
         })
         .collect();
 
-    words.join(" ")
+    capitalized_words.join(" ")
 }
 
 // Helper function to capitalize the first letter of a word
