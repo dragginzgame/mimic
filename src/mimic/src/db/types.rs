@@ -84,16 +84,19 @@ impl DataKey {
 
 impl fmt::Display for DataKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut first = true;
-        for (path, keys) in &self.0 {
-            if !first {
-                write!(f, ", ")?;
-            }
-            first = false;
+        let formatted_parts: Vec<String> = self
+            .0
+            .iter()
+            .map(|(path, keys)| {
+                if keys.is_empty() {
+                    format!("{path}")
+                } else {
+                    format!("{} ({})", path, keys.join(", "))
+                }
+            })
+            .collect();
 
-            write!(f, "{}({})", path, keys.join(", "))?;
-        }
-        Ok(())
+        write!(f, "[{}]", formatted_parts.join(", "))
     }
 }
 
