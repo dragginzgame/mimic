@@ -4,29 +4,35 @@ pub fn to_title_case(input: &str) -> String {
     let small_words = [
         "a", "and", "as", "at", "by", "for", "in", "nor", "of", "on", "or", "the", "to", "with",
     ];
-    let mut result = String::new();
 
-    // Split the input into words
-    let words: Vec<&str> = input.split_whitespace().collect();
+    // Split the input into words and map them to a new vector with proper capitalization
+    let words: Vec<String> = input
+        .split_whitespace()
+        .enumerate()
+        .map(|(i, word)| {
+            // Always capitalize the first and last word or words not in small_words
+            if i == 0
+                || i == input.split_whitespace().count() - 1
+                || !small_words.contains(&word.to_lowercase().as_str())
+            {
+                capitalize_first(word)
+            } else {
+                word.to_lowercase()
+            }
+        })
+        .collect();
 
-    for (i, &word) in words.iter().enumerate() {
-        // Always capitalize the first and last word
-        // For other words, capitalize them unless they are small words
-        if i == 0 || i == words.len() - 1 || !small_words.contains(&word) {
-            let mut c = word.chars();
-            let upper = c.next().unwrap().to_uppercase().collect::<String>();
-            result.push_str(&upper);
-            result.push_str(c.as_str());
-        } else {
-            result.push_str(word);
-        }
+    words.join(" ")
+}
 
-        // Append a space after each word
-        result.push(' ');
+// Helper function to capitalize the first letter of a word
+fn capitalize_first(word: &str) -> String {
+    let mut chars = word.chars();
+    if let Some(first) = chars.next() {
+        first.to_uppercase().collect::<String>() + chars.as_str()
+    } else {
+        String::new()
     }
-
-    // Remove the trailing space and return the result
-    result.trim().to_owned()
 }
 
 //
@@ -43,6 +49,7 @@ mod tests {
             ("Come by", "Come By"),
             ("test me", "Test Me"),
             ("Test Me", "Test Me"),
+            ("Group Of Green Sacks", "Group of Green Sacks"),
             ("Spaces ", "Spaces"),
             ("Spaces   ", "Spaces"),
             ("   Spaces", "Spaces"),
