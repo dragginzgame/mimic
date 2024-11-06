@@ -14,14 +14,21 @@ pub fn map(node: &Map, t: Trait) -> TokenStream {
     let value = &node.value;
 
     let q = quote! {
-        fn from(entries: Vec<(#key, #value)>) -> Self {
-            Self(entries)
+        fn from(entries: Vec<(IK, IV)>) -> Self {
+            Self(entries
+                .into_iter()
+                .map(|(k, v)| (k.into(), v.into()))
+                .collect())
         }
     };
 
     Implementor::new(node.def(), t)
         .set_tokens(q)
-        .add_trait_generic(quote!(Vec<(#key, #value)>))
+        .add_impl_constraint(quote!(IK: Into<#key>))
+        .add_impl_constraint(quote!(IV: Into<#value>))
+        .add_impl_generic(quote!(IK))
+        .add_impl_generic(quote!(IV))
+        .add_trait_generic(quote!(Vec<(IK, IV)>))
         .to_token_stream()
 }
 
