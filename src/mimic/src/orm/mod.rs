@@ -35,7 +35,6 @@ pub mod prelude {
     };
     pub use ::candid::{CandidType, Principal};
     pub use ::mimic_macros::*;
-    pub use ::num_traits::{NumCast, ToPrimitive};
     pub use ::serde::{Deserialize, Serialize};
     pub use ::snafu::Snafu;
     pub use ::std::{cmp::Ordering, collections::HashSet, fmt::Display};

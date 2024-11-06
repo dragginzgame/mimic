@@ -1,4 +1,4 @@
-use crate::orm::prelude::*;
+use crate::orm::{prelude::*, traits::NumCast};
 
 ///
 /// Clamp
