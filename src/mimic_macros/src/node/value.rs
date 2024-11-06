@@ -57,18 +57,10 @@ impl ToTokens for Value {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let item = &self.item;
 
-        if item.is_relation() {
-            tokens.extend(match self.cardinality() {
-                Cardinality::One => quote!(#item),
-                Cardinality::Opt => quote!(Option<#item>),
-                Cardinality::Many => quote!(::std::collections::HashSet<#item>),
-            });
-        } else {
-            tokens.extend(match self.cardinality() {
-                Cardinality::One => quote!(#item),
-                Cardinality::Opt => quote!(Option<#item>),
-                Cardinality::Many => quote!(Vec<#item>),
-            });
-        }
+        tokens.extend(match self.cardinality() {
+            Cardinality::One => quote!(#item),
+            Cardinality::Opt => quote!(Option<#item>),
+            Cardinality::Many => quote!(Vec<#item>),
+        });
     }
 }
