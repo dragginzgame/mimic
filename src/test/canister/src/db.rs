@@ -50,8 +50,8 @@ impl<'a> DbTester<'a> {
 
         // create with map data
         let mut e = HasMap::default();
-        e.map_int_string.insert(3, "value".to_string());
-        e.map_int_string.insert(4, "value".to_string());
+        e.map_int_string.push((3, "value".to_string()));
+        e.map_int_string.push((4, "value".to_string()));
         query::create(self.db)
             .from_entity(e)
             .unwrap()
