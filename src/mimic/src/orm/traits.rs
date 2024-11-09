@@ -474,10 +474,10 @@ pub trait EntityFixture: Entity {
 }
 
 ///
-/// EntityKey
+/// EntityId
 ///
 
-pub trait EntityKey: NodeDyn + Display {
+pub trait EntityId: NodeDyn + Display {
     #[must_use]
     fn ulid(&self) -> Ulid {
         let digest = format!("{}-{}", self.path_dyn(), self);

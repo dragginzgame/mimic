@@ -6,11 +6,11 @@ use quote::quote;
 use syn::Ident;
 
 ///
-/// EntityKey
+/// EntityId
 ///
 
 #[derive(Debug, FromMeta)]
-pub struct EntityKey {
+pub struct EntityId {
     #[darling(default, skip)]
     pub def: Def,
 
@@ -21,7 +21,7 @@ pub struct EntityKey {
     pub keys: Vec<Ident>,
 }
 
-impl Node for EntityKey {
+impl Node for EntityId {
     fn expand(&self) -> TokenStream {
         let Self { sorted, .. } = self;
         let Def { ident, .. } = &self.def;
@@ -49,18 +49,18 @@ impl Node for EntityKey {
     }
 }
 
-impl MacroNode for EntityKey {
+impl MacroNode for EntityId {
     fn def(&self) -> &Def {
         &self.def
     }
 }
 
-impl TraitNode for EntityKey {
+impl TraitNode for EntityId {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = Traits::default();
         traits.extend(vec![
             Trait::Copy,
-            Trait::EntityKey,
+            Trait::EntityId,
             Trait::EnumDisplay,
             Trait::EnumStaticStr,
             Trait::Into,
@@ -71,7 +71,7 @@ impl TraitNode for EntityKey {
 
     fn map_imp(&self, t: Trait) -> TokenStream {
         match t {
-            Trait::Into => imp::into::entity_key(self, t),
+            Trait::Into => imp::into::entity_id(self, t),
 
             _ => imp::any(self, t),
         }

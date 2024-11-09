@@ -67,7 +67,7 @@ pub enum Trait {
     FieldSort,
     Filterable,
     Inner,
-    EntityKey,
+    EntityId,
     NodeDyn,
     NumFromPrimitive,
     NumToPrimitive,

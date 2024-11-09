@@ -24,7 +24,7 @@ pub mod prelude {
         orm::{
             helper::FixtureList,
             traits::{
-                EntityDyn, EntityFixture, EntityKey, EnumValue, Filterable, Inner, Orderable, Path,
+                EntityDyn, EntityFixture, EntityId, EnumValue, Filterable, Inner, Orderable, Path,
                 PrimaryKey, Sanitize, SanitizeManual, Storable, Validate, ValidateManual,
                 Visitable,
             },

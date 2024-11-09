@@ -1,10 +1,10 @@
 use super::Implementor;
-use crate::node::{EntityKey, MacroNode, Trait};
+use crate::node::{EntityId, MacroNode, Trait};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
-// entity_key
-pub fn entity_key(node: &EntityKey, t: Trait) -> TokenStream {
+// entity_id
+pub fn entity_id(node: &EntityId, t: Trait) -> TokenStream {
     let imp = Implementor::new(node.def(), t);
 
     // match cardinality
