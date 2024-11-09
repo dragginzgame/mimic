@@ -1,5 +1,6 @@
 mod arg;
 mod canister;
+mod constant;
 mod def;
 mod entity;
 mod entity_id;
@@ -25,6 +26,7 @@ mod value;
 // mostly just one or two types in each file so wildcard should be ok
 pub use self::arg::*;
 pub use self::canister::*;
+pub use self::constant::*;
 pub use self::def::*;
 pub use self::entity::*;
 pub use self::entity_id::*;
@@ -210,6 +212,67 @@ impl Schemable for Cardinality {
             Self::Opt => quote!(::mimic::orm::schema::types::Cardinality::Opt),
             Self::Many => quote!(::mimic::orm::schema::types::Cardinality::Many),
         }
+    }
+}
+
+///
+/// ConstantType
+///
+
+#[derive(
+    Debug, Clone, Copy, Deserialize, Display, EnumString, Eq, Hash, PartialEq, PartialOrd, Serialize,
+)]
+#[remain::sorted]
+pub enum ConstantType {
+    Bool,
+    I8,
+    I16,
+    I32,
+    I64,
+    I128,
+    Isize,
+    Str,
+    U8,
+    U16,
+    U32,
+    U64,
+    U128,
+    Usize,
+}
+
+impl FromMeta for ConstantType {
+    fn from_string(s: &str) -> Result<Self, darling::Error> {
+        s.parse().map_err(|_| darling::Error::unknown_value(s))
+    }
+}
+
+impl Schemable for ConstantType {
+    fn schema(&self) -> TokenStream {
+        let ident = format_ident!("{}", self.to_string());
+
+        quote!(::mimic::orm::schema::types::ConstantType::#ident)
+    }
+}
+
+impl ToTokens for ConstantType {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let ty = match self {
+            Self::Bool => quote!(bool),
+            Self::I8 => quote!(i8),
+            Self::I16 => quote!(i16),
+            Self::I32 => quote!(i32),
+            Self::I64 => quote!(i64),
+            Self::I128 => quote!(i128),
+            Self::Isize => quote!(isize),
+            Self::Str => quote!(&str),
+            Self::U8 => quote!(u8),
+            Self::U16 => quote!(u16),
+            Self::U32 => quote!(u32),
+            Self::U64 => quote!(u64),
+            Self::U128 => quote!(u128),
+            Self::Usize => quote!(usize),
+        };
+        tokens.extend(ty);
     }
 }
 

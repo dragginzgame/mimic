@@ -1,5 +1,6 @@
 mod arg;
 mod canister;
+mod constant;
 mod def;
 mod entity;
 mod r#enum;
@@ -23,6 +24,7 @@ mod value;
 
 pub use self::arg::*;
 pub use self::canister::*;
+pub use self::constant::*;
 pub use self::def::*;
 pub use self::entity::*;
 pub use self::enum_value::*;

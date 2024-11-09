@@ -60,6 +60,7 @@ macro_rules! macro_node {
 
 // macro macros
 macro_node!(canister, node::Canister);
+macro_node!(constant, node::Constant);
 macro_node!(entity, node::Entity);
 macro_node!(entity_id, node::EntityId);
 macro_node!(enum_, node::Enum);

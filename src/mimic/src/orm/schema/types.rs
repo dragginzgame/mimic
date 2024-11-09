@@ -13,6 +13,29 @@ pub enum Cardinality {
 }
 
 ///
+/// ConstantType
+///
+
+#[derive(CandidType, Clone, Copy, Debug, Serialize, Deserialize)]
+#[remain::sorted]
+pub enum ConstantType {
+    Bool,
+    I8,
+    I16,
+    I32,
+    I64,
+    I128,
+    Isize,
+    Str,
+    U8,
+    U16,
+    U32,
+    U64,
+    U128,
+    Usize,
+}
+
+///
 /// CrudAction
 ///
 

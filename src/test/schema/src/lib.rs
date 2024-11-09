@@ -1,4 +1,5 @@
 pub mod admin;
+pub mod constant;
 pub mod default;
 pub mod map;
 pub mod sanitize;
