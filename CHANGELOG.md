@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - split EntityDynamic into EntityDyn and NodeDyn
 - mimic is now just two crates, as everything else has been incorporated into the main crate
 - guard_update and guard_query back
+- constants added to schema
 
 ## [0.1.9]
 - we need to store the Path of an entity inside the db, so we can tell what data it's
