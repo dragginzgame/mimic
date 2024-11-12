@@ -81,16 +81,20 @@ impl TraitNode for Newtype {
             Trait::From,
         ]);
 
-        match &self.value.cardinality() {
-            Cardinality::One | Cardinality::Opt => {
-                traits.extend(vec![Trait::Ord, Trait::PartialOrd]);
-            }
-            Cardinality::Many => {}
-        }
-
-        // inner
-        if self.primitive.is_some() {
+        // primitive
+        if let Some(primitive) = &self.primitive {
+            // inner
             traits.add(Trait::Inner);
+
+            // ord
+            if primitive.is_orderable() {
+                match &self.value.cardinality() {
+                    Cardinality::One | Cardinality::Opt => {
+                        traits.extend(vec![Trait::Ord, Trait::PartialOrd]);
+                    }
+                    Cardinality::Many => {}
+                }
+            }
         }
 
         // primitive
