@@ -108,7 +108,7 @@ pub struct EnumValueVariant {
     pub name: Ident,
 
     #[darling(default)]
-    pub value: i64,
+    pub value: i32,
 
     #[darling(default)]
     pub default: bool,

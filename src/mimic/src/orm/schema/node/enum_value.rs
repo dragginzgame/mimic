@@ -48,7 +48,7 @@ impl VisitableNode for EnumValue {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EnumValueVariant {
     pub name: String,
-    pub value: i64,
+    pub value: i32,
 
     #[serde(default, skip_serializing_if = "Not::not")]
     pub default: bool,

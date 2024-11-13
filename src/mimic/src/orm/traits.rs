@@ -490,7 +490,7 @@ pub trait EntityId: NodeDyn + Display {
 ///
 
 pub trait EnumValue {
-    fn value(&self) -> i64;
+    fn value(&self) -> i32;
 }
 
 ///
