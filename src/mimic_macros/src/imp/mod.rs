@@ -32,6 +32,14 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> TokenStream {
     let def = node.def();
 
     let imp = match t {
+        Trait::EntityFixture => {
+            let q = quote! {
+                type Id = ::mimic::orm::base::default::EntityIdDefault;
+            };
+
+            Implementor::new(def, t).set_tokens(q).to_token_stream()
+        }
+
         Trait::NodeDyn => {
             let q = quote! {
                 fn path_dyn(&self) -> String {
@@ -70,8 +78,7 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> TokenStream {
         }
 
         // empty implementations are generated for these traits
-        Trait::EntityFixture
-        | Trait::EntityId
+        Trait::EntityId
         | Trait::Filterable
         | Trait::Orderable
         | Trait::SanitizeManual
