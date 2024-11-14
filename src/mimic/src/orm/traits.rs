@@ -465,6 +465,8 @@ pub trait EntityDyn: TypeDyn + Visitable {
 ///
 
 pub trait EntityFixture: Entity {
+    type Id: EntityId;
+
     // fixtures
     // returns the list of all the Entities as a boxed dynamic trait
     #[must_use]
