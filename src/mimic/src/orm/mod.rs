@@ -26,9 +26,9 @@ pub mod prelude {
             base::types::{self, Ulid},
             helper::FixtureList,
             traits::{
-                EntityDyn, EntityFixture, EntityId as _, Filterable, Inner as _, Orderable as _,
-                Path, PrimaryKey as _, Sanitize as _, SanitizeManual, Sanitizer, Storable,
-                Validate as _, ValidateManual, Validator, Visitable,
+                EntityDyn, EntityFixture, EntityId as _, Filterable, Inner as _, Orderable, Path,
+                PrimaryKey as _, Sanitize as _, SanitizeManual, Sanitizer, Storable, Validate as _,
+                ValidateManual, Validator, Visitable,
             },
             types::ErrorVec,
             Error,
