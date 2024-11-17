@@ -7,9 +7,9 @@ mod tests {
 
     #[test]
     fn test_default_validates() {
-        use test_schema::validate::{MultipleTenType, Validator};
+        use test_schema::validate::{MultipleTenType, ValidateTest};
 
-        let e = Validator {
+        let e = ValidateTest {
             multiple_ten: 5.into(),
         };
         println!("{e:?}");

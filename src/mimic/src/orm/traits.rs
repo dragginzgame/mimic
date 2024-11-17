@@ -33,17 +33,139 @@ macro_rules! impl_primitive {
         impl $trait for i32 {}
         impl $trait for i64 {}
         impl $trait for i128 {}
+        impl $trait for isize {}
         impl $trait for u8 {}
         impl $trait for u16 {}
         impl $trait for u32 {}
         impl $trait for u64 {}
         impl $trait for u128 {}
+        impl $trait for usize {}
         impl $trait for f32 {}
         impl $trait for f64 {}
         impl $trait for bool {}
         impl $trait for String {}
     };
 }
+
+///
+/// NODE TRAITS
+///
+
+///
+/// Node
+///
+
+pub trait Node: Path {}
+
+impl<T> Node for T where T: Path {}
+
+///
+/// NodeDyn
+///
+
+pub trait NodeDyn {
+    // path_dyn
+    // as every node needs path, this makes creating dynamic traits easier
+    fn path_dyn(&self) -> String;
+}
+
+///
+/// Path
+///
+/// any node created via a macro has a Path
+/// ie. design::game::rarity::Rarity
+///
+/// primitives are used unwrapped so we can't declare the impl anywhere else
+///
+
+pub trait Path {
+    const IDENT: &'static str;
+    const PATH: &'static str;
+
+    #[must_use]
+    fn ident() -> String {
+        Self::IDENT.to_string()
+    }
+
+    #[must_use]
+    fn path() -> String {
+        Self::PATH.to_string()
+    }
+}
+
+macro_rules! impl_primitive_list {
+    ($($t:ty => $name:expr),* $(,)?) => {
+        $(
+            impl Path for $t {
+                const IDENT: &'static str = $name;
+                const PATH: &'static str = concat!("mimic::orm::base::types::", $name);
+            }
+        )*
+    };
+}
+
+impl_primitive_list!(
+    i8 => "I8", i16 => "I16", i32 => "I32", i64 => "I64", i128 => "I128", isize => "ISize",
+    u8 => "U8", u16 => "U16", u32 => "U32", u64 => "U64", u128 => "U128", usize => "USize",
+    f32 => "F32", f64 => "F64", bool => "Bool", String => "String"
+);
+
+///
+/// Sanitizer
+/// allows a node to act as a validator
+///
+
+pub trait Sanitizer: Default {
+    fn sanitize_string<S: ToString>(&self, s: &S) -> String {
+        s.to_string()
+    }
+}
+
+///
+/// Validator
+/// allows a type to act as a validator
+///
+
+pub trait Validator: Default {
+    fn validate_blob(&self, _: &[u8]) -> Result<(), String> {
+        Ok(())
+    }
+
+    fn validate_number<N>(&self, _: &N) -> Result<(), String>
+    where
+        N: Copy + Display + NumCast,
+    {
+        Ok(())
+    }
+
+    fn validate_string<S: ToString>(&self, _: &S) -> Result<(), String> {
+        Ok(())
+    }
+}
+
+///
+/// TYPE TRAITS
+/// (for any trait that works on a Type)
+///
+
+///
+/// Type
+/// a Node that can act as a data type
+///
+
+pub trait Type: Node + Clone + Serialize + DeserializeOwned {}
+
+impl<T> Type for T where T: Node + Clone + Serialize + DeserializeOwned {}
+
+///
+/// TypeDyn
+/// just to keep things symmetrical, not actually used yet other than
+/// making sure all types have Debug
+///
+
+pub trait TypeDyn: NodeDyn + Debug {}
+
+impl<T> TypeDyn for T where T: NodeDyn + Debug {}
 
 ///
 /// Filterable
@@ -160,47 +282,6 @@ impl<T: Orderable> Orderable for Option<T> {
 }
 
 ///
-/// Path
-///
-/// any node created via a macro has a Path
-/// ie. design::game::rarity::Rarity
-///
-/// primitives are used unwrapped so we can't declare the impl anywhere else
-///
-
-pub trait Path {
-    const IDENT: &'static str;
-    const PATH: &'static str;
-
-    #[must_use]
-    fn ident() -> String {
-        Self::IDENT.to_string()
-    }
-
-    #[must_use]
-    fn path() -> String {
-        Self::PATH.to_string()
-    }
-}
-
-macro_rules! impl_primitive_list {
-    ($($t:ty => $name:expr),* $(,)?) => {
-        $(
-            impl Path for $t {
-                const IDENT: &'static str = $name;
-                const PATH: &'static str = concat!("mimic::orm::base::types::", $name);
-            }
-        )*
-    };
-}
-
-impl_primitive_list!(
-    i8 => "I8", i16 => "I16", i32 => "I32", i64 => "I64", i128 => "I128",
-    u8 => "U8", u16 => "U16", u32 => "U32", u64 => "U64", u128 => "U128",
-    f32 => "F32", f64 => "F64", bool => "Bool", String => "String"
-);
-
-///
 /// Sanitize
 ///
 
@@ -305,8 +386,125 @@ impl<T: Visitable> Visitable for Box<T> {
 impl_primitive!(Visitable);
 
 ///
-/// OPTIONAL
+/// ENTITY TRAITS
 ///
+
+///
+/// Entity
+///
+
+pub trait Entity: Type + EntityDyn + FieldSort + FieldFilter {
+    // composite_key
+    // returns the record's composite key (parent keys + primary key) as a Vec<String>
+    fn composite_key(_keys: &[String]) -> Result<Vec<String>, Error>;
+}
+
+///
+/// EntityDyn
+/// everything the Entity needs to interact with the Store dynamically
+///
+
+pub trait EntityDyn: TypeDyn + Visitable {
+    // on_create
+    // modifies the entity's record in-place before saving it to the database
+    fn on_create(&mut self) {}
+
+    // composite_key_dyn
+    fn composite_key_dyn(&self) -> Vec<String>;
+
+    // serialize_dyn
+    // entities need dynamic serialization when saving different types
+    fn serialize_dyn(&self) -> Result<Vec<u8>, Error>;
+}
+
+///
+/// EntityFixture
+/// an enum that can generate fixture data for an Entity
+///
+
+pub trait EntityFixture: Entity {
+    // fixtures
+    // returns the list of all the Entities as a boxed dynamic trait
+    #[must_use]
+    fn fixtures() -> Vec<Box<dyn EntityDyn>> {
+        Vec::new()
+    }
+}
+
+///
+/// EntityId
+///
+
+pub trait EntityId: NodeDyn + Display {
+    #[must_use]
+    fn ulid(&self) -> Ulid {
+        let digest = format!("{}-{}", self.path_dyn(), self);
+        Ulid::from_string_digest(&digest)
+    }
+}
+
+///
+/// FieldFilter
+///
+/// allows anything with a collection of fields to be filtered
+/// None means search all fields
+///
+
+pub trait FieldFilter {
+    fn list_fields(&self) -> &'static [&'static str];
+    fn filter_field(&self, field: &str, text: &str) -> bool;
+
+    // filter_fields
+    // AND so we want to return if any specified field doesn't match
+    fn filter_fields(&self, fields: Vec<(String, String)>) -> bool {
+        for (field, text) in fields {
+            if !self.filter_field(&field, &text) {
+                return false;
+            }
+        }
+
+        true
+    }
+
+    // filter_all
+    // true if any field matches
+    fn filter_all(&self, text: &str) -> bool {
+        for field in self.list_fields() {
+            if self.filter_field(field, text) {
+                return true;
+            }
+        }
+
+        false
+    }
+}
+
+///
+/// FieldSort
+///
+/// allows anything with a collection of fields to be sorted
+///
+
+type FieldSortFn<E> = dyn Fn(&E, &E) -> ::std::cmp::Ordering;
+
+pub trait FieldSort {
+    fn default_order() -> Vec<(String, SortDirection)>;
+
+    // sort
+    // pass in a blank slice to sort by the default
+    #[must_use]
+    fn sort(order: &[(String, SortDirection)]) -> Box<FieldSortFn<Self>> {
+        let order = if order.is_empty() {
+            &Self::default_order()
+        } else {
+            order
+        };
+
+        Self::generate_sorter(order)
+    }
+
+    fn generate_sorter(order: &[(String, SortDirection)]) -> Box<FieldSortFn<Self>>;
+}
 
 ///
 /// PrimaryKey
@@ -389,169 +587,3 @@ impl_primary_key_for_uints!(
     u64, 20,
     u128, 40
 );
-
-///
-/// NODE TRAITS
-///
-
-///
-/// Node
-///
-
-pub trait Node: Path {}
-
-impl<T> Node for T where T: Path {}
-
-///
-/// NodeDyn
-///
-
-pub trait NodeDyn {
-    // path_dyn
-    // as every node needs path, this makes creating dynamic traits easier
-    fn path_dyn(&self) -> String;
-}
-
-///
-/// Type
-/// a Node that can act as a data type
-///
-
-pub trait Type: Node + Clone + Serialize + DeserializeOwned {}
-
-impl<T> Type for T where T: Node + Clone + Serialize + DeserializeOwned {}
-
-///
-/// TypeDyn
-/// just to keep things symmetrical, not actually used yet other than
-/// making sure all types have Debug
-///
-
-pub trait TypeDyn: NodeDyn + Debug {}
-
-impl<T> TypeDyn for T where T: NodeDyn + Debug {}
-
-///
-/// Entity
-///
-
-pub trait Entity: Type + EntityDyn + FieldSort + FieldFilter {
-    // composite_key
-    // returns the record's composite key (parent keys + primary key) as a Vec<String>
-    fn composite_key(_keys: &[String]) -> Result<Vec<String>, Error>;
-}
-
-///
-/// EntityDyn
-/// everything the Entity needs to interact with the Store dynamically
-///
-
-pub trait EntityDyn: TypeDyn + Visitable {
-    // on_create
-    // modifies the entity's record in-place before saving it to the database
-    fn on_create(&mut self) {}
-
-    // composite_key_dyn
-    fn composite_key_dyn(&self) -> Vec<String>;
-
-    // serialize_dyn
-    // entities need dynamic serialization when saving different types
-    fn serialize_dyn(&self) -> Result<Vec<u8>, Error>;
-}
-
-///
-/// EntityFixture
-/// an enum that can generate fixture data for an Entity
-///
-
-pub trait EntityFixture: Entity {
-    // fixtures
-    // returns the list of all the Entities as a boxed dynamic trait
-    #[must_use]
-    fn fixtures() -> Vec<Box<dyn EntityDyn>> {
-        Vec::new()
-    }
-}
-
-///
-/// EntityId
-///
-
-pub trait EntityId: NodeDyn + Display {
-    #[must_use]
-    fn ulid(&self) -> Ulid {
-        let digest = format!("{}-{}", self.path_dyn(), self);
-        Ulid::from_string_digest(&digest)
-    }
-}
-
-///
-/// EnumValue
-///
-
-pub trait EnumValue {
-    fn value(&self) -> i32;
-}
-
-///
-/// FieldFilter
-///
-/// allows anything with a collection of fields to be filtered
-/// None means search all fields
-///
-
-pub trait FieldFilter {
-    fn list_fields(&self) -> &'static [&'static str];
-    fn filter_field(&self, field: &str, text: &str) -> bool;
-
-    // filter_fields
-    // AND so we want to return if any specified field doesn't match
-    fn filter_fields(&self, fields: Vec<(String, String)>) -> bool {
-        for (field, text) in fields {
-            if !self.filter_field(&field, &text) {
-                return false;
-            }
-        }
-
-        true
-    }
-
-    // filter_all
-    // true if any field matches
-    fn filter_all(&self, text: &str) -> bool {
-        for field in self.list_fields() {
-            if self.filter_field(field, text) {
-                return true;
-            }
-        }
-
-        false
-    }
-}
-
-///
-/// FieldSort
-///
-/// allows anything with a collection of fields to be sorted
-///
-
-type FieldSortFn<E> = dyn Fn(&E, &E) -> ::std::cmp::Ordering;
-
-pub trait FieldSort {
-    fn default_order() -> Vec<(String, SortDirection)>;
-
-    // sort
-    // pass in a blank slice to sort by the default
-    #[must_use]
-    fn sort(order: &[(String, SortDirection)]) -> Box<FieldSortFn<Self>> {
-        let order = if order.is_empty() {
-            &Self::default_order()
-        } else {
-            order
-        };
-
-        Self::generate_sorter(order)
-    }
-
-    fn generate_sorter(order: &[(String, SortDirection)]) -> Box<FieldSortFn<Self>>;
-}

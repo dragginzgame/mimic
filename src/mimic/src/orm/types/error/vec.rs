@@ -1,7 +1,7 @@
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, IntoIterator};
 use serde::{Deserialize, Serialize};
-use std::{error::Error, fmt::Display};
+use std::fmt::Display;
 
 ///
 /// ErrorVec
@@ -21,22 +21,22 @@ impl ErrorVec {
     }
 
     // from_result
-    pub fn from_result<E: Error>(result: Result<(), E>) -> Self {
+    pub fn from_result<S: ToString>(res: Result<(), S>) -> Self {
         let mut errs = Self::new();
-        errs.add_result(result);
+        errs.add_result(res);
 
         errs
     }
 
     // add
-    pub fn add<S: Into<String>>(&mut self, s: S) {
-        self.push(s.into());
+    pub fn add<S: ToString>(&mut self, s: S) {
+        self.push(s.to_string());
     }
 
     // add_result
-    pub fn add_result<E: Error>(&mut self, result: Result<(), E>) {
-        if let Err(e) = result {
-            self.add(e.to_string());
+    pub fn add_result<S: ToString>(&mut self, res: Result<(), S>) {
+        if let Err(s) = res {
+            self.add(s.to_string());
         }
     }
 

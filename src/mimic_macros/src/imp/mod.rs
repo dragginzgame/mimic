@@ -1,7 +1,6 @@
 pub mod default;
 pub mod display;
 pub mod entity;
-pub mod enum_value;
 pub mod filterable;
 pub mod from;
 pub mod implementor;
@@ -14,6 +13,7 @@ pub mod record_filter;
 pub mod record_sort;
 pub mod sanitize_auto;
 pub mod validate_auto;
+pub mod validator;
 pub mod visitable;
 
 use crate::node::{MacroNode, Trait};

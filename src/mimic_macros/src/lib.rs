@@ -11,6 +11,7 @@ mod traits;
 use crate::node::{Def, Node};
 use darling::{ast::NestedMeta, Error as DarlingError, FromMeta};
 use proc_macro2::{Delimiter, TokenStream, TokenTree};
+use quote::quote;
 use syn::{parse_macro_input, ItemStruct, Visibility};
 
 ///
@@ -37,6 +38,9 @@ macro_rules! macro_node {
                         );
                     }
 
+                    // Save the struct's code as tokens
+                    let tokens = quote! { #item };
+
                     // Check if the `#[debug]` attribute is present
                     let debug = item.attrs.iter().any(|attr| attr.path().is_ident("debug"));
 
@@ -44,6 +48,7 @@ macro_rules! macro_node {
                     let mut node = <$node_type>::from_list(&args).unwrap();
                     node.def = Def {
                         comments,
+                        tokens,
                         ident: item.ident.clone(),
                         generics: item.generics.clone(),
                         debug,
@@ -64,7 +69,6 @@ macro_node!(constant, node::Constant);
 macro_node!(entity, node::Entity);
 macro_node!(entity_id, node::EntityId);
 macro_node!(enum_, node::Enum);
-macro_node!(enum_value, node::EnumValue);
 macro_node!(map, node::Map);
 macro_node!(newtype, node::Newtype);
 macro_node!(permission, node::Permission);
@@ -72,6 +76,7 @@ macro_node!(primitive, node::Primitive);
 macro_node!(record, node::Record);
 macro_node!(role, node::Role);
 macro_node!(sanitizer, node::Sanitizer);
+macro_node!(selector, node::Selector);
 macro_node!(store, node::Store);
 macro_node!(tuple, node::Tuple);
 macro_node!(validator, node::Validator);

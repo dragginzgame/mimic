@@ -17,10 +17,10 @@ pub struct Bytes<const LEN: usize> {}
 #[allow(clippy::cast_possible_wrap)]
 impl<const LEN: usize> ValidateManual for Bytes<LEN> {
     fn validate_manual(&self) -> Result<(), ErrorVec> {
-        let errs = ErrorVec::from_result(validator::len::Max::validate(
-            &self.0.to_vec(),
-            LEN as isize,
-        ));
+        let mut errs = ErrorVec::default();
+
+        // len
+        errs.add_result(validator::len::Max::new(LEN).validate_blob(&self.0));
 
         errs.result()
     }
@@ -43,13 +43,10 @@ impl<const LEN: usize> ValidateManual for Utf8<LEN> {
         let mut errs = ErrorVec::default();
 
         // utf8
-        errs.add_result(validator::bytes::Utf8::validate(self));
+        errs.add_result(validator::bytes::Utf8::default().validate_blob(&self.0));
 
         // len
-        errs.add_result(validator::len::Max::validate(
-            &self.0.to_vec(),
-            LEN as isize,
-        ));
+        errs.add_result(validator::len::Max::new(LEN).validate_blob(&self.0));
 
         errs.result()
     }

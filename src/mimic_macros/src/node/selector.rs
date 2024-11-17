@@ -1,31 +1,31 @@
 use crate::imp;
 use crate::{
     helper::{quote_one, quote_vec, to_string},
-    node::{Def, MacroNode, Node, Trait, TraitNode, Traits},
+    node::{Arg, Def, MacroNode, Node, Trait, TraitNode, Traits},
     traits::Schemable,
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::quote;
 use syn::Ident;
 
 ///
-/// EnumValue
+/// Selector
 ///
 
 #[derive(Debug, FromMeta)]
-pub struct EnumValue {
+pub struct Selector {
     #[darling(default, skip)]
     pub def: Def,
 
     #[darling(multiple, rename = "variant")]
-    pub variants: Vec<EnumValueVariant>,
+    pub variants: Vec<SelectorVariant>,
 
     #[darling(default)]
     pub traits: Traits,
 }
 
-impl Node for EnumValue {
+impl Node for Selector {
     fn expand(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
 
@@ -53,20 +53,20 @@ impl Node for EnumValue {
     }
 }
 
-impl MacroNode for EnumValue {
+impl MacroNode for Selector {
     fn def(&self) -> &Def {
         &self.def
     }
 }
 
-impl Schemable for EnumValue {
+impl Schemable for Selector {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
-        let variants = quote_vec(&self.variants, EnumValueVariant::schema);
+        let variants = quote_vec(&self.variants, SelectorVariant::schema);
 
         quote! {
-            ::mimic::orm::schema::node::SchemaNode::EnumValue(
-                ::mimic::orm::schema::node::EnumValue{
+            ::mimic::orm::schema::node::SchemaNode::Selector(
+                ::mimic::orm::schema::node::Selector{
                     def: #def,
                     variants: #variants,
                 }
@@ -75,23 +75,18 @@ impl Schemable for EnumValue {
     }
 }
 
-impl TraitNode for EnumValue {
+impl TraitNode for Selector {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
-        traits.extend(vec![
-            Trait::Copy,
-            Trait::EnumDisplay,
-            Trait::EnumValue,
-            Trait::Hash,
-        ]);
+        traits.extend(vec![Trait::EnumDisplay, Trait::ValidateAuto]);
 
         traits.list()
     }
 
     fn map_imp(&self, t: Trait) -> TokenStream {
         match t {
-            Trait::EnumValue => imp::enum_value::enum_value(self, t),
+            Trait::Validator => imp::validator::selector(self, t),
 
             _ => imp::any(self, t),
         }
@@ -99,71 +94,32 @@ impl TraitNode for EnumValue {
 }
 
 ///
-/// EnumValueVariant
+/// SelectorVariant
 ///
 
 #[derive(Clone, Debug, FromMeta)]
-pub struct EnumValueVariant {
-    #[darling(default = EnumValueVariant::unspecified_ident)]
+pub struct SelectorVariant {
     pub name: Ident,
-
-    #[darling(default)]
-    pub value: i32,
-
-    #[darling(default)]
-    pub default: bool,
-
-    #[darling(default)]
-    pub unspecified: bool,
+    pub value: Arg,
 }
 
-impl EnumValueVariant {
-    fn unspecified_ident() -> Ident {
-        format_ident!("Unspecified")
-    }
-}
-
-impl Node for EnumValueVariant {
+impl Node for SelectorVariant {
     fn expand(&self) -> TokenStream {
-        let mut q = quote!();
+        let name = &self.name;
 
-        // default
-        if self.default {
-            q.extend(quote!(#[default]));
-        }
-
-        // name
-        let name = if self.unspecified {
-            Self::unspecified_ident()
-        } else {
-            self.name.clone()
-        };
-
-        // quote
-        q.extend(quote! (#name));
-
-        q
+        quote! (#name)
     }
 }
 
-impl Schemable for EnumValueVariant {
+impl Schemable for SelectorVariant {
     fn schema(&self) -> TokenStream {
-        let Self {
-            default,
-            unspecified,
-            ..
-        } = self;
-
-        // quote
         let name = quote_one(&self.name, to_string);
-        let value = self.value;
+        let value = self.value.schema();
 
         quote! {
-            ::mimic::orm::schema::node::EnumValueVariant {
+            ::mimic::orm::schema::node::SelectorVariant {
                 name: #name,
                 value : #value,
-                default: #default,
-                unspecified: #unspecified,
             }
         }
     }

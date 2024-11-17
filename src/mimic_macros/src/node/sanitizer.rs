@@ -19,14 +19,16 @@ pub struct Sanitizer {
 
 impl Node for Sanitizer {
     fn expand(&self) -> TokenStream {
-        let Def { ident, .. } = &self.def;
+        let Def { tokens, .. } = &self.def;
 
         // quote
         let schema = self.ctor_schema();
+        let derive = self.derive();
         let imp = &self.imp();
         let q = quote! {
             #schema
-            pub struct #ident {}
+            #derive
+            #tokens
             #imp
         };
 
@@ -60,7 +62,10 @@ impl Schemable for Sanitizer {
 
 impl TraitNode for Sanitizer {
     fn traits(&self) -> Vec<Trait> {
-        Traits::default().list()
+        let mut traits = Traits::default().list();
+        traits.push(Trait::Default);
+
+        traits
     }
 
     fn map_imp(&self, t: Trait) -> TokenStream {

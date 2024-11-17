@@ -1,71 +1,31 @@
 use crate::orm::prelude::*;
-
-///
-/// Error
-///
-
-#[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
-    #[snafu(display("length of {len} is not equal to {to}"))]
-    NotEqual { len: usize, to: usize },
-
-    #[snafu(display("length of {len} is lower than minimum of {min}"))]
-    BelowMinimum { len: usize, min: usize },
-
-    #[snafu(display("length of {len} exceeds the maximum of {max}"))]
-    AboveMaximum { len: usize, max: usize },
-
-    #[snafu(display("conversion error"))]
-    Conversion,
-}
-
-///
-/// Len
-/// Trait implemented on foreign types
-///
-
-pub trait Len {
-    fn len(&self) -> usize;
-
-    fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
-}
-
-impl Len for String {
-    fn len(&self) -> usize {
-        self.len()
-    }
-}
-
-impl<T> Len for Vec<T> {
-    fn len(&self) -> usize {
-        self.len()
-    }
-}
-
-impl<T> Len for [T] {
-    fn len(&self) -> usize {
-        self.len()
-    }
-}
+use num_traits::NumCast;
 
 ///
 /// Equal
 ///
 
 #[validator]
-pub struct Equal {}
+pub struct Equal {
+    target: usize,
+}
 
 impl Equal {
-    pub fn validate<T: Len>(t: &T, to: isize) -> Result<(), Error> {
-        let len = t.len();
-        let to = usize::try_from(to).map_err(|_| Error::Conversion)?;
+    pub fn new<N: NumCast>(target: N) -> Self {
+        Self {
+            target: NumCast::from(target).unwrap(),
+        }
+    }
+}
 
-        if len == to {
+impl Validator for Equal {
+    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+        let len = s.to_string().len();
+
+        if len == self.target {
             Ok(())
         } else {
-            Err(Error::NotEqual { len, to })
+            Err(format!("length of {len} is not equal to {}", self.target))
         }
     }
 }
@@ -75,15 +35,27 @@ impl Equal {
 ///
 
 #[validator]
-pub struct Min {}
+pub struct Min {
+    target: usize,
+}
 
 impl Min {
-    pub fn validate<T: Len>(t: &T, min: isize) -> Result<(), Error> {
-        let len = t.len();
-        let min = usize::try_from(min).map_err(|_| Error::Conversion)?;
+    pub fn new<N: NumCast>(target: N) -> Self {
+        Self {
+            target: NumCast::from(target).unwrap(),
+        }
+    }
+}
 
-        if len < min {
-            Err(Error::BelowMinimum { len, min })
+impl Validator for Min {
+    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+        let len = s.to_string().len();
+
+        if len < self.target {
+            Err(format!(
+                "length of {len} is lower than minimum of {}",
+                self.target
+            ))
         } else {
             Ok(())
         }
@@ -95,15 +67,27 @@ impl Min {
 ///
 
 #[validator]
-pub struct Max {}
+pub struct Max {
+    target: usize,
+}
 
 impl Max {
-    pub fn validate<T: Len>(t: &T, max: isize) -> Result<(), Error> {
-        let len = t.len();
-        let max = usize::try_from(max).map_err(|_| Error::Conversion)?;
+    pub fn new<N: NumCast>(target: N) -> Self {
+        Self {
+            target: NumCast::from(target).unwrap(),
+        }
+    }
+}
 
-        if len > max {
-            Err(Error::AboveMaximum { len, max })
+impl Validator for Max {
+    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+        let len = s.to_string().len();
+
+        if len > self.target {
+            Err(format!(
+                "length of {len} is lower than minimum of {}",
+                self.target
+            ))
         } else {
             Ok(())
         }
@@ -115,18 +99,34 @@ impl Max {
 ///
 
 #[validator]
-pub struct Range {}
+pub struct Range {
+    min: usize,
+    max: usize,
+}
 
 impl Range {
-    pub fn validate<T: Len>(t: &T, min: isize, max: isize) -> Result<(), Error> {
-        let len = t.len();
-        let min = usize::try_from(min).map_err(|_| Error::Conversion)?;
-        let max = usize::try_from(max).map_err(|_| Error::Conversion)?;
+    pub fn new<N: NumCast>(min: N, max: N) -> Self {
+        Self {
+            min: NumCast::from(min).unwrap(),
+            max: NumCast::from(max).unwrap(),
+        }
+    }
+}
 
-        if len < min {
-            Err(Error::BelowMinimum { len, min })
-        } else if len > max {
-            Err(Error::AboveMaximum { len, max })
+impl Validator for Range {
+    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+        let len = s.to_string().len();
+
+        if len < self.min {
+            Err(format!(
+                "length of {len} is lower than the minimum of {}",
+                self.min
+            ))
+        } else if len > self.max {
+            Err(format!(
+                "length of {len} exceeds the maximum of {}",
+                self.max
+            ))
         } else {
             Ok(())
         }

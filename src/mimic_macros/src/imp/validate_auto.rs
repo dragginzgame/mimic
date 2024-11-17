@@ -1,5 +1,5 @@
 use super::Implementor;
-use crate::node::{Enum, Newtype, Trait, TypeValidator};
+use crate::node::{Enum, Newtype, PrimitiveGroup, Trait};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
 
@@ -43,17 +43,40 @@ pub fn enum_(node: &Enum, t: Trait) -> TokenStream {
 
 // newtype
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
-    // validators
-    let rules = validators(&node.validators);
-
-    // inner
-    let inner = if rules.is_empty() {
+    // Generate inner logic
+    let inner = if node.validators.is_empty() {
         quote!(Ok(()))
     } else {
+        // validate function name
+        let validate_fn = match node.primitive {
+            Some(prim) => match prim.group() {
+                PrimitiveGroup::Blob => quote! { validate_blob },
+                PrimitiveGroup::Decimal | PrimitiveGroup::Integer => quote! { validate_number },
+                PrimitiveGroup::String => quote! { validate_string },
+
+                _ => panic!("validator error - invalid primitive group"),
+            },
+            None => panic!("validator error - no primitive"),
+        };
+
+        // Generate rules
+        let rules = node.validators.iter().map(|val| {
+            let path = &val.path;
+            let args = &val.args;
+
+            let constructor = match args.len() {
+                0 => quote! { #path::default() },
+                _ => quote! { #path::new(#(#args),*) },
+            };
+
+            quote! {
+                errs.add_result(#constructor.#validate_fn(&self.0));
+            }
+        });
+
         quote! {
             let mut errs = ::mimic::orm::types::ErrorVec::new();
-            #rules
-
+            #( #rules )*
             errs.result()
         }
     };
@@ -68,28 +91,4 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
     Implementor::new(&node.def, t)
         .set_tokens(q)
         .to_token_stream()
-}
-
-// validators
-// takes a slice of Validators and turns it into the #inner of the function
-fn validators(validators: &[TypeValidator]) -> TokenStream {
-    let rules: Vec<TokenStream> = validators
-        .iter()
-        .map(|val| {
-            let path = &val.path;
-            let args = &val.args;
-            quote! {
-                errs.add_result(#path::validate(&self.0, #(#args),*));
-            }
-        })
-        .collect();
-
-    // inner
-    if rules.is_empty() {
-        quote!()
-    } else {
-        quote! {
-            #( #rules )*
-        }
-    }
 }

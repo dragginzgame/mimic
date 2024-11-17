@@ -45,7 +45,7 @@ pub mod prelude {
         log, mimic_end, mimic_start,
         orm::{
             base::types::Ulid,
-            traits::{EntityDyn, EntityFixture, NumFromPrimitive, NumToPrimitive, Path},
+            traits::{EntityDyn, EntityFixture, NumFromPrimitive, NumToPrimitive, Path, Validator},
         },
         perf, Log,
     };

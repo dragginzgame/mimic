@@ -13,6 +13,7 @@ use syn::{Generics, Ident};
 #[derive(Clone, Debug)]
 pub struct Def {
     pub comments: String,
+    pub tokens: TokenStream,
     pub ident: Ident,
     pub generics: Generics,
     pub debug: bool,
@@ -22,6 +23,7 @@ impl Default for Def {
     fn default() -> Self {
         Self {
             comments: String::default(),
+            tokens: TokenStream::default(),
             ident: format_ident!("temp"),
             generics: Generics::default(),
             debug: false,

@@ -19,7 +19,11 @@ pub struct Text<const LEN: usize> {}
 #[allow(clippy::cast_possible_wrap)]
 impl<const LEN: usize> ValidateManual for Text<LEN> {
     fn validate_manual(&self) -> Result<(), ErrorVec> {
-        ErrorVec::from_result(validator::len::Max::validate(&self.0, LEN as isize)).result()
+        let mut errs = ErrorVec::default();
+
+        errs.add_result(validator::len::Max::new(LEN).validate_string(&self.0));
+
+        errs.result()
     }
 }
 

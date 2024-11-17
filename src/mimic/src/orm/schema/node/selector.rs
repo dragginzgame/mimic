@@ -1,34 +1,33 @@
 use crate::{
     orm::{
-        schema::node::{Def, MacroNode, ValidateNode, VisitableNode, Visitor},
+        schema::node::{Arg, Def, MacroNode, ValidateNode, VisitableNode, Visitor},
         types::ErrorVec,
     },
     utils::case::{Case, Casing},
 };
 use serde::{Deserialize, Serialize};
-use std::ops::Not;
 
 ///
-/// EnumValue
+/// Selector
 ///
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct EnumValue {
+pub struct Selector {
     pub def: Def,
 
     #[serde(default)]
-    pub variants: Vec<EnumValueVariant>,
+    pub variants: Vec<SelectorVariant>,
 }
 
-impl MacroNode for EnumValue {
+impl MacroNode for Selector {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }
 }
 
-impl ValidateNode for EnumValue {}
+impl ValidateNode for Selector {}
 
-impl VisitableNode for EnumValue {
+impl VisitableNode for Selector {
     fn route_key(&self) -> String {
         self.def.path()
     }
@@ -42,22 +41,16 @@ impl VisitableNode for EnumValue {
 }
 
 ///
-/// EnumValueVariant
+/// SelectorVariant
 ///
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct EnumValueVariant {
+pub struct SelectorVariant {
     pub name: String,
-    pub value: i32,
-
-    #[serde(default, skip_serializing_if = "Not::not")]
-    pub default: bool,
-
-    #[serde(default, skip_serializing_if = "Not::not")]
-    pub unspecified: bool,
+    pub value: Arg,
 }
 
-impl ValidateNode for EnumValueVariant {
+impl ValidateNode for SelectorVariant {
     fn validate(&self) -> Result<(), ErrorVec> {
         let mut errs = ErrorVec::new();
 
@@ -73,4 +66,4 @@ impl ValidateNode for EnumValueVariant {
     }
 }
 
-impl VisitableNode for EnumValueVariant {}
+impl VisitableNode for SelectorVariant {}

@@ -16,17 +16,19 @@ use visit::{perform_visit, perform_visit_mut, SanitizeVisitor, ValidateVisitor};
 
 ///
 /// PRELUDE
+/// using _ brings traits into scope and avoids name conflicts
 ///
 
 pub mod prelude {
     pub use crate::{
         ic::structures::storable::Bound,
         orm::{
+            base::types::{self, Ulid},
             helper::FixtureList,
             traits::{
-                EntityDyn, EntityFixture, EntityId, EnumValue, Filterable, Inner, Orderable, Path,
-                PrimaryKey, Sanitize, SanitizeManual, Storable, Validate, ValidateManual,
-                Visitable,
+                EntityDyn, EntityFixture, EntityId, Filterable, Inner as _, Orderable, Path,
+                PrimaryKey as _, Sanitize, SanitizeManual, Sanitizer, Storable, Validate,
+                ValidateManual, Validator, Visitable,
             },
             types::ErrorVec,
             Error,

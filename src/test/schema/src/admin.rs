@@ -36,7 +36,6 @@ use mimic::orm::{base::types, prelude::*};
         field(name = "record_a", value(item(is = "RecordA"))),
         field(name = "record_opt", value(opt, item(is = "RecordB"))),
         field(name = "record_many", value(many, item(is = "RecordB"))),
-        field(name = "enum_value", value(item(is = "EnumValue"))),
         field(name = "variant_complex", value(item(is = "EnumA"))),
         field(name = "variant_complex_opt", value(opt, item(is = "EnumA"))),
         field(name = "variant_complex_many", value(many, item(is = "EnumA"))),
@@ -174,18 +173,6 @@ pub struct EnumB {}
     variant(name = "I", value(item(is = "RecordB")))
 )]
 pub struct EnumC {}
-
-///
-/// EnumValue
-///
-
-#[enum_value(
-    variant(name = "A", value = 1, default),
-    variant(name = "B", value = 2),
-    variant(name = "C", value = 3),
-    traits(add(Default))
-)]
-pub struct EnumValue {}
 
 ///
 /// MapIntString

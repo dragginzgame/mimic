@@ -1,16 +1,6 @@
 use crate::orm::prelude::*;
 
 ///
-/// Error
-///
-
-#[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
-    #[snafu(display("invalid ISO 3166-1 alpha-2 country code"))]
-    InvalidIso6391Code,
-}
-
-///
 /// Iso6391
 ///
 /// country code
@@ -20,10 +10,12 @@ pub enum Error {
 #[validator]
 pub struct Iso6391 {}
 
-impl Iso6391 {
-    pub fn validate(code: &str) -> Result<(), Error> {
-        if code.len() != 2 || !code.chars().all(|c| c.is_ascii_lowercase()) {
-            Err(Error::InvalidIso6391Code)
+impl Validator for Iso6391 {
+    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+        let s = s.to_string();
+
+        if s.len() != 2 || !s.chars().all(|c| c.is_ascii_lowercase()) {
+            Err("invalid ISO 3166-1 alpha-2 country code".to_string())
         } else {
             Ok(())
         }

@@ -1,4 +1,4 @@
-use test_schema::validate::Validator;
+use test_schema::validate::ValidateTest;
 
 ///
 /// ValidateTester
@@ -19,14 +19,14 @@ impl ValidateTester {
     // test_record
     fn test_record() {
         // ok
-        let e = Validator {
+        let e = ValidateTest {
             multiple_ten: 30.into(),
         };
         let res = mimic::orm::validate(&e);
         assert!(res.is_ok(), "{res:?}");
 
         // fail
-        let e = Validator {
+        let e = ValidateTest {
             multiple_ten: 43.into(),
         };
         let res = mimic::orm::validate(&e);

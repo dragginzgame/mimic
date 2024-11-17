@@ -19,16 +19,16 @@ pub struct Validator {
 
 impl Node for Validator {
     fn expand(&self) -> TokenStream {
-        let Def {
-            ident, generics, ..
-        } = &self.def;
+        let Def { tokens, .. } = &self.def;
 
         // quote
         let schema = self.ctor_schema();
+        let derive = self.derive();
         let imp = self.imp();
         let q = quote! {
             #schema
-            pub struct #ident #generics {}
+            #derive
+            #tokens
             #imp
         };
 
@@ -62,7 +62,10 @@ impl Schemable for Validator {
 
 impl TraitNode for Validator {
     fn traits(&self) -> Vec<Trait> {
-        Traits::default().list()
+        let mut traits = Traits::default().list();
+        traits.push(Trait::Default);
+
+        traits
     }
 
     fn map_imp(&self, t: Trait) -> TokenStream {

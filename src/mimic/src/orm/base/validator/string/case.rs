@@ -1,37 +1,4 @@
 use crate::orm::prelude::*;
-use serde::{Deserialize, Serialize};
-use snafu::Snafu;
-
-///
-/// Error
-///
-
-#[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
-    #[snafu(display("'{s}' is not alphabetic with underscores"))]
-    NotAlphaUscore { s: String },
-
-    #[snafu(display("'{s}' is not alphanumeric with underscores"))]
-    NotAlphanumUscore { s: String },
-
-    #[snafu(display("'{s}' is not kebab-case"))]
-    NotKebab { s: String },
-
-    #[snafu(display("'{s}' is not lower case"))]
-    NotLower { s: String },
-
-    #[snafu(display("'{s}' is not lower case with underscores"))]
-    NotLowerUscore { s: String },
-
-    #[snafu(display("'{s}' is not snake_case"))]
-    NotSnake { s: String },
-
-    #[snafu(display("'{s}' is not Title Case"))]
-    NotTitle { s: String },
-
-    #[snafu(display("'{s}' is not upper case"))]
-    NotUpper { s: String },
-}
 
 ///
 /// AlphaUscore
@@ -42,14 +9,14 @@ pub enum Error {
 #[validator]
 pub struct AlphaUscore {}
 
-impl AlphaUscore {
-    pub fn validate<D: Display>(d: &D) -> Result<(), Error> {
-        let s = d.to_string();
+impl Validator for AlphaUscore {
+    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+        let s = s.to_string();
 
         if s.chars().all(|c| c.is_alphabetic() || c == '_') {
             Ok(())
         } else {
-            Err(Error::NotAlphaUscore { s })
+            Err(format!("'{s}' is not alphabetic with underscores"))
         }
     }
 }
@@ -61,14 +28,14 @@ impl AlphaUscore {
 #[validator]
 pub struct AlphanumUscore {}
 
-impl AlphanumUscore {
-    pub fn validate<D: Display>(d: &D) -> Result<(), Error> {
-        let s = d.to_string();
+impl Validator for AlphanumUscore {
+    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+        let s = s.to_string();
 
         if s.chars().all(|c| c.is_alphanumeric() || c == '_') {
             Ok(())
         } else {
-            Err(Error::NotAlphanumUscore { s })
+            Err(format!("'{s}' is not alphanumeric with underscores"))
         }
     }
 }
@@ -80,14 +47,14 @@ impl AlphanumUscore {
 #[validator]
 pub struct Kebab {}
 
-impl Kebab {
-    pub fn validate<D: Display>(d: &D) -> Result<(), Error> {
-        let s = d.to_string();
+impl Validator for Kebab {
+    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+        let s = s.to_string();
 
         if s.is_case(Case::Kebab) {
             Ok(())
         } else {
-            Err(Error::NotKebab { s })
+            Err(format!("'{s}' is not kebab-case"))
         }
     }
 }
@@ -99,14 +66,14 @@ impl Kebab {
 #[validator]
 pub struct Lower {}
 
-impl Lower {
-    pub fn validate<D: Display>(d: &D) -> Result<(), Error> {
-        let s = d.to_string();
+impl Validator for Lower {
+    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+        let s = s.to_string();
 
         if s.is_case(Case::Lower) {
             Ok(())
         } else {
-            Err(Error::NotLower { s })
+            Err(format!("'{s}' is not lower case"))
         }
     }
 }
@@ -118,14 +85,14 @@ impl Lower {
 #[validator]
 pub struct LowerUscore {}
 
-impl LowerUscore {
-    pub fn validate<D: Display>(d: &D) -> Result<(), Error> {
-        let s = d.to_string();
+impl Validator for LowerUscore {
+    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+        let s = s.to_string();
 
         if s.chars().all(|c| c.is_lowercase() || c == '_') {
             Ok(())
         } else {
-            Err(Error::NotLowerUscore { s })
+            Err(format!("'{s}' is not lower case with_underscores"))
         }
     }
 }
@@ -137,14 +104,14 @@ impl LowerUscore {
 #[validator]
 pub struct Snake {}
 
-impl Snake {
-    pub fn validate<D: Display>(d: &D) -> Result<(), Error> {
-        let s = d.to_string();
+impl Validator for Snake {
+    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+        let s = s.to_string();
 
         if s.is_case(Case::Snake) {
             Ok(())
         } else {
-            Err(Error::NotSnake { s })
+            Err(format!("'{s}' is not snake_case"))
         }
     }
 }
@@ -156,14 +123,14 @@ impl Snake {
 #[validator]
 pub struct Title {}
 
-impl Title {
-    pub fn validate<D: Display>(d: &D) -> Result<(), Error> {
-        let s = d.to_string();
+impl Validator for Title {
+    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+        let s = s.to_string();
 
         if s.is_case(Case::Title) {
             Ok(())
         } else {
-            Err(Error::NotTitle { s })
+            Err(format!("'{s}' Is Not Title Case"))
         }
     }
 }
@@ -175,14 +142,14 @@ impl Title {
 #[validator]
 pub struct Upper {}
 
-impl Upper {
-    pub fn validate<D: Display>(d: &D) -> Result<(), Error> {
-        let s = d.to_string();
+impl Validator for Upper {
+    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+        let s = s.to_string();
 
         if s.is_case(Case::Upper) {
             Ok(())
         } else {
-            Err(Error::NotUpper { s })
+            Err(format!("'{s}' is not UPPER CASE"))
         }
     }
 }

@@ -4,31 +4,18 @@ pub mod case;
 use crate::orm::prelude::*;
 
 ///
-/// Error
-///
-
-#[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
-    #[snafu(display("string contains non-ascii characters"))]
-    NonAscii,
-
-    #[snafu(display("{error}"))]
-    InvalidVersion { error: String },
-}
-
-///
 /// Ascii
 ///
 
 #[validator]
 pub struct Ascii {}
 
-impl Ascii {
-    pub fn validate<D: Display>(d: &D) -> Result<(), Error> {
-        if d.to_string().is_ascii() {
+impl Validator for Ascii {
+    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+        if s.to_string().is_ascii() {
             Ok(())
         } else {
-            Err(Error::NonAscii)
+            Err("string contains non-ascii characters".to_string())
         }
     }
 }
@@ -41,13 +28,11 @@ impl Ascii {
 #[validator]
 pub struct Version {}
 
-impl Version {
-    pub fn validate<D: Display>(d: &D) -> Result<(), Error> {
-        match semver::Version::parse(&d.to_string()) {
+impl Validator for Version {
+    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+        match semver::Version::parse(&s.to_string()) {
             Ok(_) => Ok(()),
-            Err(e) => Err(Error::InvalidVersion {
-                error: e.to_string(),
-            }),
+            Err(e) => Err(format!("invalid version {e}")),
         }
     }
 }
