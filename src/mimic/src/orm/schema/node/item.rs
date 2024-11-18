@@ -1,7 +1,10 @@
 use crate::orm::{
     schema::{
         build::schema_read,
-        node::{Entity, Enum, Map, Newtype, Primitive, Record, Tuple, ValidateNode, VisitableNode},
+        node::{
+            Entity, Enum, Map, Newtype, Primitive, Record, Selector, Tuple, ValidateNode,
+            VisitableNode,
+        },
     },
     types::ErrorVec,
 };
@@ -76,6 +79,13 @@ impl ValidateNode for Item {
                 }
             }
             errs.add_result(schema_read().check_node::<Entity>(path));
+        }
+
+        // selector
+        if let Some(selector) = &self.selector {
+            if schema_read().get_node::<Selector>(selector).is_none() {
+                errs.add("selector path not found");
+            }
         }
 
         errs.result()
