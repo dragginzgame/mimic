@@ -151,7 +151,7 @@ mod arg_tests {
     fn test_number_parsing() {
         let lit = parse_quote!(42);
         if let Ok(Arg::Number(num)) = Arg::from_value(&lit) {
-            assert_eq!(num, ArgNumber::Isize(42), "Parsed number does not match");
+            assert_eq!(num, ArgNumber::Integer(42), "Parsed number does not match");
         } else {
             panic!("Expected Number variant");
         }
@@ -193,10 +193,11 @@ mod arg_tests {
 ///
 
 #[derive(Clone, Debug)]
-#[remain::sorted]
 pub enum ArgNumber {
+    Float(f64), // unsuffixed
     F32(f32),
     F64(f64),
+    Integer(i128), // unsuffixed
     I8(i8),
     I16(i16),
     I32(i32),
@@ -246,47 +247,69 @@ impl ArgNumber {
         let s = s.replace('_', "");
 
         let suffixes = [
-            "i8", "i16", "i32", "i64", "i128", "u8", "u16", "u32", "u64", "u128", "usize", "isize",
+            "f32", "f64", "i8", "i16", "i32", "i64", "i128", "u8", "u16", "u32", "u64", "u128",
+            "usize", "isize",
         ];
 
         for &suffix in &suffixes {
             if s.ends_with(suffix) {
                 let num_part = s.trim_end_matches(suffix);
 
-                let result = match suffix {
-                    "i8" => num_part.parse::<i8>().map(ArgNumber::I8),
-                    "i16" => num_part.parse::<i16>().map(ArgNumber::I16),
-                    "i32" => num_part.parse::<i32>().map(ArgNumber::I32),
-                    "i64" => num_part.parse::<i64>().map(ArgNumber::I64),
-                    "i128" => num_part.parse::<i128>().map(ArgNumber::I128),
-                    "u8" => num_part.parse::<u8>().map(ArgNumber::U8),
-                    "u16" => num_part.parse::<u16>().map(ArgNumber::U16),
-                    "u32" => num_part.parse::<u32>().map(ArgNumber::U32),
-                    "u64" => num_part.parse::<u64>().map(ArgNumber::U64),
-                    "u128" => num_part.parse::<u128>().map(ArgNumber::U128),
-                    "usize" => num_part.parse::<usize>().map(ArgNumber::Usize),
-                    "isize" => num_part.parse::<isize>().map(ArgNumber::Isize),
-                    _ => unreachable!(),
-                };
+                let result = if num_part.contains(".") {
+                    match suffix {
+                        "f32" => num_part.parse::<f32>().map(ArgNumber::F32),
+                        "f64" => num_part.parse::<f64>().map(ArgNumber::F64),
+                        _ => unreachable!(),
+                    }
+                    .map_err(|_| {})
+                } else {
+                    match suffix {
+                        "i8" => num_part.parse::<i8>().map(ArgNumber::I8),
+                        "i16" => num_part.parse::<i16>().map(ArgNumber::I16),
+                        "i32" => num_part.parse::<i32>().map(ArgNumber::I32),
+                        "i64" => num_part.parse::<i64>().map(ArgNumber::I64),
+                        "i128" => num_part.parse::<i128>().map(ArgNumber::I128),
+                        "u8" => num_part.parse::<u8>().map(ArgNumber::U8),
+                        "u16" => num_part.parse::<u16>().map(ArgNumber::U16),
+                        "u32" => num_part.parse::<u32>().map(ArgNumber::U32),
+                        "u64" => num_part.parse::<u64>().map(ArgNumber::U64),
+                        "u128" => num_part.parse::<u128>().map(ArgNumber::U128),
+                        "usize" => num_part.parse::<usize>().map(ArgNumber::Usize),
+                        "isize" => num_part.parse::<isize>().map(ArgNumber::Isize),
+                        _ => unreachable!(),
+                    }
+                    .map_err(|_| {})
+                }
+                .map_err(|_| DarlingError::custom(format!("invalid numeric literal '{s}'")));
 
-                return result
-                    .map_err(|_| DarlingError::custom(format!("invalid numeric literal '{s}'")));
+                return result;
             }
         }
 
-        // default case if no suffix matches, try parsing as isize
-        let trimmed = s.trim_end_matches('_');
-        trimmed.parse::<isize>().map(ArgNumber::Isize).map_err(|_| {
-            DarlingError::custom(format!("invalid or unsupported numeric literal '{s}'"))
-        })
+        // Try parsing unsuffixed as Integer
+        if let Ok(integer) = s.parse::<i128>() {
+            return Ok(ArgNumber::Integer(integer));
+        }
+
+        // Try parsing unsuffixed as Float
+        if let Ok(float) = s.parse::<f64>() {
+            return Ok(ArgNumber::Float(float));
+        }
+
+        // Return error if no match found
+        Err(DarlingError::custom(format!(
+            "invalid or unsupported numeric literal '{s}'"
+        )))
     }
 }
 
 impl Display for ArgNumber {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::Float(v) => write!(f, "{v}"),
             Self::F32(v) => write!(f, "{v}"),
             Self::F64(v) => write!(f, "{v}"),
+            Self::Integer(v) => write!(f, "{v}"),
             Self::I8(v) => write!(f, "{v}"),
             Self::I16(v) => write!(f, "{v}"),
             Self::I32(v) => write!(f, "{v}"),
@@ -326,8 +349,10 @@ impl FromMeta for ArgNumber {
 impl PartialEq for ArgNumber {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
+            (Self::Float(a), Self::Float(b)) => a.to_bits() == b.to_bits(),
             (Self::F32(a), Self::F32(b)) => a.to_bits() == b.to_bits(),
             (Self::F64(a), Self::F64(b)) => a.to_bits() == b.to_bits(),
+            (Self::Integer(a), Self::Integer(b)) => a == b,
             (Self::I8(a), Self::I8(b)) => a == b,
             (Self::I16(a), Self::I16(b)) => a == b,
             (Self::I32(a), Self::I32(b)) => a == b,
@@ -348,8 +373,10 @@ impl PartialEq for ArgNumber {
 impl Schemable for ArgNumber {
     fn schema(&self) -> TokenStream {
         match self {
+            Self::Float(v) => quote!(::mimic::orm::schema::node::ArgNumber::Float(#v)),
             Self::F32(v) => quote!(::mimic::orm::schema::node::ArgNumber::F32(#v)),
             Self::F64(v) => quote!(::mimic::orm::schema::node::ArgNumber::F64(#v)),
+            Self::Integer(v) => quote!(::mimic::orm::schema::node::ArgNumber::Integer(#v)),
             Self::I8(v) => quote!(::mimic::orm::schema::node::ArgNumber::I8(#v)),
             Self::I16(v) => quote!(::mimic::orm::schema::node::ArgNumber::I16(#v)),
             Self::I32(v) => quote!(::mimic::orm::schema::node::ArgNumber::I32(#v)),
@@ -369,8 +396,16 @@ impl Schemable for ArgNumber {
 impl ToTokens for ArgNumber {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let q = match self {
+            Self::Float(v) => {
+                let value = format!("{}", v);
+                value.parse::<TokenStream>().unwrap()
+            }
             Self::F32(v) => quote!(#v),
             Self::F64(v) => quote!(#v),
+            Self::Integer(v) => {
+                let value = format!("{}", v);
+                value.parse::<TokenStream>().unwrap()
+            }
             Self::I8(v) => quote!(#v),
             Self::I16(v) => quote!(#v),
             Self::I32(v) => quote!(#v),
@@ -396,56 +431,47 @@ impl ToTokens for ArgNumber {
 #[cfg(test)]
 mod number_tests {
     use super::*;
-    use syn::{Lit, LitFloat, LitInt};
-
-    fn parse_lit_int(value: &str) -> Lit {
-        Lit::Int(LitInt::new(value, proc_macro2::Span::call_site()))
-    }
-
-    fn parse_lit_float(value: &str) -> Lit {
-        Lit::Float(LitFloat::new(value, proc_macro2::Span::call_site()))
-    }
-
-    fn parse_lit_str(value: &str) -> Lit {
-        Lit::Str(syn::LitStr::new(value, proc_macro2::Span::call_site()))
-    }
 
     #[test]
     fn test_integer_literals() {
         assert_eq!(
-            ArgNumber::from_value(&parse_lit_int("42i8")).unwrap(),
+            ArgNumber::parse_numeric_string("42i8").unwrap(),
             ArgNumber::I8(42)
         );
         assert_eq!(
-            ArgNumber::from_value(&parse_lit_int("-100")).unwrap(),
+            ArgNumber::parse_numeric_string("-100_isize").unwrap(),
             ArgNumber::Isize(-100)
         );
         assert_eq!(
-            ArgNumber::from_value(&parse_lit_int("1000i16")).unwrap(),
+            ArgNumber::parse_numeric_string("-100").unwrap(),
+            ArgNumber::Integer(-100)
+        );
+        assert_eq!(
+            ArgNumber::parse_numeric_string("1000i16").unwrap(),
             ArgNumber::I16(1000)
         );
         assert_eq!(
-            ArgNumber::from_value(&parse_lit_int("-30000i32")).unwrap(),
+            ArgNumber::parse_numeric_string("-30000i32").unwrap(),
             ArgNumber::I32(-30000)
         );
         assert_eq!(
-            ArgNumber::from_value(&parse_lit_int("500000i64")).unwrap(),
+            ArgNumber::parse_numeric_string("500000i64").unwrap(),
             ArgNumber::I64(500_000)
         );
         assert_eq!(
-            ArgNumber::from_value(&parse_lit_int("42u8")).unwrap(),
+            ArgNumber::parse_numeric_string("42u8").unwrap(),
             ArgNumber::U8(42)
         );
         assert_eq!(
-            ArgNumber::from_value(&parse_lit_int("65535u16")).unwrap(),
+            ArgNumber::parse_numeric_string("65535u16").unwrap(),
             ArgNumber::U16(65535)
         );
         assert_eq!(
-            ArgNumber::from_value(&parse_lit_int("4000000000u32")).unwrap(),
+            ArgNumber::parse_numeric_string("4000000000u32").unwrap(),
             ArgNumber::U32(4_000_000_000)
         );
         assert_eq!(
-            ArgNumber::from_value(&parse_lit_int("-10_i8")).unwrap(),
+            ArgNumber::parse_numeric_string("-10_i8").unwrap(),
             ArgNumber::I8(-10)
         );
     }
@@ -453,15 +479,15 @@ mod number_tests {
     #[test]
     fn test_integer_uscores() {
         assert_eq!(
-            ArgNumber::from_value(&parse_lit_int("10_000")).unwrap(),
-            ArgNumber::Isize(10_000)
+            ArgNumber::parse_numeric_string("10_000").unwrap(),
+            ArgNumber::Integer(10_000)
         );
         assert_eq!(
-            ArgNumber::from_value(&parse_lit_int("10_000_u64")).unwrap(),
+            ArgNumber::parse_numeric_string("10_000_u64").unwrap(),
             ArgNumber::U64(10_000)
         );
         assert_eq!(
-            ArgNumber::from_value(&parse_lit_int("10_000_i64")).unwrap(),
+            ArgNumber::parse_numeric_string("10_000_i64").unwrap(),
             ArgNumber::I64(10_000)
         );
     }
@@ -469,15 +495,45 @@ mod number_tests {
     #[test]
     fn test_float_literals() {
         assert_eq!(
-            ArgNumber::from_value(&parse_lit_float("3.12")).unwrap(),
-            ArgNumber::F64(3.12)
+            ArgNumber::parse_numeric_string("3.12_f32").unwrap(),
+            ArgNumber::F32(3.12)
+        );
+        assert_eq!(
+            ArgNumber::parse_numeric_string("3.13_f64").unwrap(),
+            ArgNumber::F64(3.13)
+        );
+        assert_eq!(
+            ArgNumber::parse_numeric_string("3.15").unwrap(),
+            ArgNumber::Float(3.15)
         );
     }
 
     #[test]
-    // can't test for invalid floats as it crashes syn
     fn test_invalid_literals() {
-        assert!(ArgNumber::from_value(&parse_lit_str("hello")).is_err());
-        assert!(ArgNumber::from_value(&parse_lit_int("42x")).is_err());
+        assert!(ArgNumber::parse_numeric_string("hello").is_err());
+        assert!(ArgNumber::parse_numeric_string("42x").is_err());
+        assert!(ArgNumber::parse_numeric_string("4.2.5_f32").is_err());
+    }
+
+    #[test]
+    fn test_to_tokens_integer() {
+        let num = ArgNumber::parse_numeric_string("10").unwrap();
+        let tokens = quote!(#num);
+        assert_eq!(tokens.to_string(), "10");
+
+        let num = ArgNumber::parse_numeric_string("10_isize").unwrap();
+        let tokens = quote!(#num);
+        assert_eq!(tokens.to_string(), "10isize");
+    }
+
+    #[test]
+    fn test_to_tokens_float() {
+        let num = ArgNumber::parse_numeric_string("3.14").unwrap();
+        let tokens = quote!(#num);
+        assert_eq!(tokens.to_string(), "3.14");
+
+        let num = ArgNumber::parse_numeric_string("3.14_f64").unwrap();
+        let tokens = quote!(#num);
+        assert_eq!(tokens.to_string(), "3.14f64");
     }
 }
