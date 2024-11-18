@@ -12,6 +12,10 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
         fn inner(&self) -> &#primitive {
             self.0.inner()
         }
+
+        fn into_inner(self) -> #primitive {
+            self.0.into_inner()
+        }
     };
 
     Implementor::new(node.def(), t)

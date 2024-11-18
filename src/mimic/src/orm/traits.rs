@@ -214,6 +214,7 @@ impl_primitive_filterable!(i8, i16, i32, i64, i128, u8, u16, u32, u64, u128, f32
 
 pub trait Inner<T> {
     fn inner(&self) -> &T;
+    fn into_inner(self) -> T;
 }
 
 // impl_primitive_inner
@@ -224,6 +225,9 @@ macro_rules! impl_primitive_inner {
             impl Inner<$type> for $type {
                 fn inner(&self) -> &$type {
                     &self
+                }
+                fn into_inner(self) -> $type {
+                    self
                 }
             }
         )*

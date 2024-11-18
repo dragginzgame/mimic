@@ -50,6 +50,10 @@ impl Inner<Self> for Blob {
     fn inner(&self) -> &Self {
         self
     }
+
+    fn into_inner(self) -> Self {
+        self
+    }
 }
 
 impl Orderable for Blob {}

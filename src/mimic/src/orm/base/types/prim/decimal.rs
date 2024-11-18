@@ -150,6 +150,10 @@ impl Inner<Self> for Decimal {
     fn inner(&self) -> &Self {
         self
     }
+
+    fn into_inner(self) -> Self {
+        self
+    }
 }
 
 impl Orderable for Decimal {

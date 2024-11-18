@@ -99,6 +99,10 @@ impl Inner<Self> for Principal {
     fn inner(&self) -> &Self {
         self
     }
+
+    fn into_inner(self) -> Self {
+        self
+    }
 }
 
 impl Orderable for Principal {
