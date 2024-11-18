@@ -22,6 +22,9 @@ pub struct Item {
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub relation: Option<String>,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub selector: Option<String>,
 }
 
 impl Item {

@@ -23,6 +23,9 @@ pub struct Item {
 
     #[darling(default, rename = "rel")]
     pub relation: Option<Path>,
+
+    #[darling(default)]
+    pub selector: Option<Path>,
 }
 
 impl Item {
@@ -37,12 +40,14 @@ impl Schemable for Item {
         let indirect = self.indirect;
         let is = quote_option(&self.is, to_path);
         let relation = quote_option(&self.relation, to_path);
+        let selector = quote_option(&self.selector, to_path);
 
         quote! {
             ::mimic::orm::schema::node::Item{
                 indirect: #indirect,
                 is: #is,
                 relation: #relation,
+                selector: #selector,
             }
         }
     }
