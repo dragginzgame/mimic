@@ -12,8 +12,8 @@ pub mod primary_key;
 pub mod record_filter;
 pub mod record_sort;
 pub mod sanitize_auto;
+pub mod selector;
 pub mod validate_auto;
-pub mod validator;
 pub mod visitable;
 
 use crate::node::{MacroNode, Trait};

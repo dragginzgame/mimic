@@ -48,7 +48,7 @@ macro_rules! impl_primitive {
 }
 
 ///
-/// NODE TRAITS
+/// ANY NODE TRAITS
 ///
 
 ///
@@ -587,3 +587,15 @@ impl_primary_key_for_uints!(
     u64, 20,
     u128, 40
 );
+
+///
+/// OTHER NODE TRAITS
+///
+
+///
+/// Selector
+///
+
+pub trait Selector {
+    fn value() -> i64;
+}
