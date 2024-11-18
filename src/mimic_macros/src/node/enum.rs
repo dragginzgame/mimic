@@ -29,8 +29,12 @@ pub struct Enum {
 }
 
 impl Enum {
+    pub fn has_default(&self) -> bool {
+        self.variants.iter().all(|v| v.default)
+    }
+
     pub fn is_unit_enum(&self) -> bool {
-        self.variants.iter().all(|variant| variant.value.is_none())
+        self.variants.iter().all(|v| v.value.is_none())
     }
 
     pub fn is_orderable(&self) -> bool {
@@ -86,6 +90,9 @@ impl TraitNode for Enum {
         }
         if self.is_orderable() {
             traits.extend(vec![Trait::Ord, Trait::PartialOrd]);
+        }
+        if self.has_default() {
+            traits.add(Trait::Default);
         }
 
         traits.list()
