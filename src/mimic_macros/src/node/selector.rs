@@ -74,7 +74,14 @@ impl Schemable for Selector {
 
 impl TraitNode for Selector {
     fn traits(&self) -> Vec<Trait> {
-        Traits::default().list()
+        let mut traits = Traits::default();
+
+        // add default if needed
+        if self.variants.iter().any(|v| v.default) {
+            traits.add(Trait::Default)
+        }
+
+        traits.list()
     }
 
     fn map_imp(&self, t: Trait) -> TokenStream {
