@@ -31,14 +31,16 @@ pub fn selector(node: &Selector, t: Trait) -> TokenStream {
         let value = &variant.value;
 
         inner.extend(quote! {
-            Self::#name => #target::from(#value),
+            Self::#name => <#target as ::std::convert::From<_>>::from(#value),
         });
     }
 
     // match cardinality
     let q = quote! {
         fn into(self) -> #target {
-            #inner
+            match self {
+                #inner
+            }
         }
     };
 
