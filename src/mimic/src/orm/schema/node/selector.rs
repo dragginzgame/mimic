@@ -6,6 +6,7 @@ use crate::{
     utils::case::{Case, Casing},
 };
 use serde::{Deserialize, Serialize};
+use std::ops::Not;
 
 ///
 /// Selector
@@ -48,6 +49,9 @@ impl VisitableNode for Selector {
 pub struct SelectorVariant {
     pub name: String,
     pub value: Arg,
+
+    #[serde(default, skip_serializing_if = "Not::not")]
+    pub default: bool,
 }
 
 impl ValidateNode for SelectorVariant {
