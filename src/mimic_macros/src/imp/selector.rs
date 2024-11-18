@@ -19,7 +19,7 @@ pub fn selector(node: &Selector, t: Trait) -> TokenStream {
 
     // quote
     let q = quote! {
-        fn value(&self) -> i32 {
+        fn value(&self) -> isize {
             match self {
                 #inner
             }

@@ -597,5 +597,6 @@ impl_primary_key_for_uints!(
 ///
 
 pub trait Selector {
-    fn value(&self) -> i32;
+    fn value(&self) -> isize;
+    //    fn value_as<T: NumCast>(&self) -> Option<T>;
 }
