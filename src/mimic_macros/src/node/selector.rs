@@ -20,9 +20,6 @@ pub struct Selector {
 
     #[darling(multiple, rename = "variant")]
     pub variants: Vec<SelectorVariant>,
-
-    #[darling(default)]
-    pub traits: Traits,
 }
 
 impl Node for Selector {
@@ -77,11 +74,7 @@ impl Schemable for Selector {
 
 impl TraitNode for Selector {
     fn traits(&self) -> Vec<Trait> {
-        let mut traits = self.traits.clone();
-        traits.add_type_traits();
-        traits.extend(vec![Trait::EnumDisplay, Trait::ValidateAuto]);
-
-        traits.list()
+        Traits::default().list()
     }
 
     fn map_imp(&self, t: Trait) -> TokenStream {
@@ -101,13 +94,23 @@ impl TraitNode for Selector {
 pub struct SelectorVariant {
     pub name: Ident,
     pub value: Arg,
+    pub default: bool,
 }
 
 impl Node for SelectorVariant {
     fn expand(&self) -> TokenStream {
         let name = &self.name;
+        let mut q = quote!();
 
-        quote! (#name)
+        // default
+        if self.default {
+            q.extend(quote!(#[default]));
+        }
+
+        // quote
+        q.extend(quote! (#name));
+
+        q
     }
 }
 
@@ -115,11 +118,13 @@ impl Schemable for SelectorVariant {
     fn schema(&self) -> TokenStream {
         let name = quote_one(&self.name, to_string);
         let value = self.value.schema();
+        let default = self.default;
 
         quote! {
             ::mimic::orm::schema::node::SelectorVariant {
                 name: #name,
                 value : #value,
+                default : #default,
             }
         }
     }
