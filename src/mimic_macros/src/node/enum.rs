@@ -30,7 +30,7 @@ pub struct Enum {
 
 impl Enum {
     pub fn has_default(&self) -> bool {
-        self.variants.iter().all(|v| v.default)
+        self.variants.iter().any(|v| v.default)
     }
 
     pub fn is_unit_enum(&self) -> bool {
