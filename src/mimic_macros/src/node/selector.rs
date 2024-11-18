@@ -94,6 +94,8 @@ impl TraitNode for Selector {
 pub struct SelectorVariant {
     pub name: Ident,
     pub value: Arg,
+
+    #[darling(default)]
     pub default: bool,
 }
 
