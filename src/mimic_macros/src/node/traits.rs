@@ -74,7 +74,6 @@ pub enum Trait {
     PrimaryKey,
     SanitizeManual,
     SanitizeAuto,
-    Selector,
     SortKey,
     Storable,
     Validator,

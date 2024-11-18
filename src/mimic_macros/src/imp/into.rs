@@ -24,14 +24,25 @@ pub fn selector(node: &Selector, t: Trait) -> TokenStream {
     let imp = Implementor::new(node.def(), t);
     let target = &node.target;
 
+    // iterate variants
+    let mut inner = quote!();
+    for variant in &node.variants {
+        let name = &variant.name;
+        let value = &variant.value;
+
+        inner.extend(quote! {
+            Self::#name => #target::from(#value),
+        });
+    }
+
     // match cardinality
     let q = quote! {
         fn into(self) -> #target {
-            #target(self.value())
+            #inner
         }
     };
 
     imp.set_tokens(q)
-        .add_trait_generic(quote!(mimic::orm::base::types::Ulid))
+        .add_trait_generic(quote!(#target))
         .to_token_stream()
 }
