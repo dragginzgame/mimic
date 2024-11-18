@@ -15,6 +15,7 @@ use std::ops::Not;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Selector {
     pub def: Def,
+    pub target: String,
 
     #[serde(default)]
     pub variants: Vec<SelectorVariant>,

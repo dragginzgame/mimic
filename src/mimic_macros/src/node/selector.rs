@@ -1,13 +1,13 @@
 use crate::imp;
 use crate::{
-    helper::{quote_one, quote_vec, to_string},
+    helper::{quote_one, quote_vec, to_path, to_string},
     node::{Arg, Def, MacroNode, Node, Trait, TraitNode, Traits},
     traits::Schemable,
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::Ident;
+use syn::{Ident, Path};
 
 ///
 /// Selector
@@ -17,6 +17,8 @@ use syn::Ident;
 pub struct Selector {
     #[darling(default, skip)]
     pub def: Def,
+
+    pub target: Path,
 
     #[darling(multiple, rename = "variant")]
     pub variants: Vec<SelectorVariant>,
@@ -59,12 +61,14 @@ impl MacroNode for Selector {
 impl Schemable for Selector {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
+        let target = quote_one(&self.target, to_path);
         let variants = quote_vec(&self.variants, SelectorVariant::schema);
 
         quote! {
             ::mimic::orm::schema::node::SchemaNode::Selector(
                 ::mimic::orm::schema::node::Selector{
                     def: #def,
+                    target: #target,
                     variants: #variants,
                 }
             )
@@ -75,7 +79,7 @@ impl Schemable for Selector {
 impl TraitNode for Selector {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = Traits::default();
-        traits.add(Trait::Selector);
+        traits.extend(vec![Trait::Selector, Trait::Into]);
 
         // add default if needed
         if self.variants.iter().any(|v| v.default) {
@@ -87,6 +91,7 @@ impl TraitNode for Selector {
 
     fn map_imp(&self, t: Trait) -> TokenStream {
         match t {
+            Trait::Into => imp::into::selector(self, t),
             Trait::Selector => imp::selector::selector(self, t),
 
             _ => imp::any(self, t),

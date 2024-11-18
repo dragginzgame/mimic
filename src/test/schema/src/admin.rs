@@ -146,8 +146,7 @@ pub struct RecordC {}
     variant(name = "A", default),
     variant(name = "B", value(item(is = "types::String"))),
     variant(name = "C", value(item(is = "RecordB"))),
-    variant(name = "D", value(item(is = "RecordC"))),
-    traits(add(Default))
+    variant(name = "D", value(item(is = "RecordC")))
 )]
 pub struct EnumA {}
 
@@ -155,11 +154,7 @@ pub struct EnumA {}
 /// EnumB
 ///
 
-#[enum_(
-    variant(name = "F", default),
-    variant(name = "G"),
-    traits(add(Default))
-)]
+#[enum_(variant(name = "F", default), variant(name = "G"))]
 pub struct EnumB {}
 
 ///
