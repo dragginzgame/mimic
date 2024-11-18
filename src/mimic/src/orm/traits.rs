@@ -597,5 +597,5 @@ impl_primary_key_for_uints!(
 ///
 
 pub trait Selector {
-    fn value() -> i64;
+    fn value(&self) -> i32;
 }
