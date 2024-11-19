@@ -4,7 +4,7 @@ use crate::orm::traits::{
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
-use num_traits::{FromPrimitive, ToPrimitive};
+use num_traits::{FromPrimitive, NumCast, ToPrimitive};
 use rust_decimal::Decimal as WrappedDecimal;
 use serde::{ser::Error, Deserialize, Serialize};
 use std::{cmp::Ordering, fmt};
@@ -153,6 +153,12 @@ impl Inner<Self> for Decimal {
 
     fn into_inner(self) -> Self {
         self
+    }
+}
+
+impl NumCast for Decimal {
+    fn from<T: ToPrimitive>(n: T) -> Option<Self> {
+        WrappedDecimal::from_f64(n.to_f64()?).map(Decimal)
     }
 }
 
