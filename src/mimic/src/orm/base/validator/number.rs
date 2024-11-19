@@ -277,7 +277,7 @@ impl Validator for MultipleOf {
         if let Some(n_cast) = <i32 as NumCast>::from(*n) {
             let zero = i32::zero();
 
-            if n_cast.checked_rem(n_cast) == Some(zero) {
+            if n_cast.checked_rem(self.target) == Some(zero) {
                 Ok(())
             } else {
                 Err(format!("{n_cast} is not a multiple of {}", self.target))
