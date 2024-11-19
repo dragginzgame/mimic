@@ -7,14 +7,14 @@ mod tests {
 
     #[test]
     fn test_default_validates() {
-        use test_schema::validate::{MultipleTenType, Validator};
+        use test_schema::validate::{MultipleTenType, ValidateTest};
 
-        let e = Validator {
+        let e = ValidateTest {
             multiple_ten: 5.into(),
         };
         println!("{e:?}");
 
-        let errs = orm::validate(&e);
+        let errs = mimic::orm::validate(&e);
         println!("{errs:?}");
 
         //
@@ -22,7 +22,7 @@ mod tests {
         let e = MultipleTenType::from(5);
         println!("{e:?}");
 
-        let errs = orm::validate(&e);
+        let errs = mimic::orm::validate(&e);
         println!("{errs:?}");
     }
 }

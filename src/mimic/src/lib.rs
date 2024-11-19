@@ -1,55 +1,25 @@
-pub mod macros;
-
 ///
 /// mimic
 /// [for external use only, keep out of reach of children]
 ///
-pub use api;
-pub use build;
-pub use db;
-pub use ic;
-pub use types;
-
-pub mod core {
-    pub use core_config as config;
-    pub use core_schema as schema;
-    pub use core_state as state;
-    pub use core_wasm as wasm;
-}
+pub mod api;
+pub mod build;
+pub mod core;
+pub mod db;
+pub mod ic;
+pub mod macros;
+pub mod orm;
+pub mod utils;
 
 pub mod export {
     pub use ctor;
+    pub use defer;
     pub use num_traits;
     pub use remain;
     pub use strum;
 }
 
-pub mod orm {
-    pub mod prelude {
-        pub use ::candid::{CandidType, Principal};
-        pub use ::ic::structures::storable::Bound;
-        pub use ::lib_case::{Case, Casing};
-        pub use ::num_traits::{NumCast, ToPrimitive};
-        pub use ::orm::{
-            collections::HashSet,
-            traits::{
-                EntityDynamic, EntityFixture, EnumHash, EnumValue, Filterable, Inner, Orderable,
-                Path, PrimaryKey, Sanitize, SanitizeManual, Storable, Validate, ValidateManual,
-                Visitable,
-            },
-            Error,
-        };
-        pub use ::orm_macros::*;
-        pub use ::serde::{Deserialize, Serialize};
-        pub use ::snafu::Snafu;
-        pub use ::std::{cmp::Ordering, fmt::Display};
-        pub use ::types::ErrorVec;
-    }
-
-    pub use orm::*;
-    pub use orm_macros as macros;
-    pub use orm_schema as schema;
-}
+extern crate self as mimic;
 
 ///
 /// MIMIC PRELUDE
@@ -61,21 +31,72 @@ pub mod orm {
 pub mod prelude {
     pub use crate::{
         api::{
-            auth::{guard, Guard},
+            auth::{allow_any, Auth},
+            guard::{guard_query, guard_update},
             subnet::request::{Request, RequestKind, Response},
             Error, StartupHooks,
         },
+        core::state::{
+            AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager,
+            SubnetIndex, SubnetIndexManager, User, UserIndex, UserIndexManager,
+        },
         db::Db,
-        mimic_end, mimic_start,
-        orm::traits::{EntityDynamic, EntityFixture, Path},
-        perf,
-        types::Ulid,
+        ic::{caller, format_cycles, id},
+        log, mimic_end, mimic_start,
+        orm::{
+            base::types::Ulid,
+            traits::{EntityDyn, EntityFixture, NumFromPrimitive, NumToPrimitive, Path, Validator},
+        },
+        perf, Log,
     };
     pub use ::candid::{CandidType, Principal};
-    pub use ::core_state::{
-        AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager, SubnetIndex,
-        SubnetIndexManager, User, UserIndex, UserIndexManager,
-    };
-    pub use ::ic::{caller, format_cycles, id, log, Log};
     pub use ::std::cell::RefCell;
+}
+
+// init
+// schema generation requires a function stub to work on OSX
+pub const fn init() {
+    crate::orm::base::init();
+}
+
+///
+/// Logging
+///
+
+pub enum Log {
+    Ok,
+    Perf,
+    Info,
+    Warn,
+    Error,
+}
+
+#[macro_export]
+macro_rules! log {
+    // Match when only the format string is provided (no additional args)
+    ($level:expr, $fmt:expr) => {{
+        // Pass an empty set of arguments to @inner
+        log!(@inner $level, $fmt,);
+    }};
+
+    // Match when additional arguments are provided
+    ($level:expr, $fmt:expr, $($arg:tt)*) => {{
+        log!(@inner $level, $fmt, $($arg)*);
+    }};
+
+    // Inner macro for actual logging logic to avoid code duplication
+    (@inner $level:expr, $fmt:expr, $($arg:tt)*) => {{
+        let level: Log = $level;
+        let formatted_message = format!($fmt, $($arg)*);  // Apply formatting with args
+
+        let msg = match level {
+            Log::Ok => format!("\x1b[32mOK\x1b[0m: {}", formatted_message),
+            Log::Perf => format!("\x1b[35mPERF\x1b[0m: {}", formatted_message),
+            Log::Info => format!("\x1b[34mINFO\x1b[0m: {}", formatted_message),
+            Log::Warn => format!("\x1b[33mWARN\x1b[0m: {}", formatted_message),
+            Log::Error => format!("\x1b[31mERROR\x1b[0m: {}", formatted_message),
+        };
+
+        $crate::ic::println!("{}", msg);
+    }};
 }

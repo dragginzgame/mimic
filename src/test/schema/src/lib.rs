@@ -1,11 +1,10 @@
 pub mod admin;
+pub mod constant;
 pub mod default;
 pub mod map;
 pub mod sanitize;
 pub mod store;
 pub mod validate;
-
-extern crate mimic_base as base;
 
 use mimic::orm::prelude::*;
 

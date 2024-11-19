@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.2.0]
+- all changes that make mimic compatible with the Dragginz repo v0.2
+- split EntityDynamic into EntityDyn and NodeDyn
+- mimic is now just two crates, as everything else has been incorporated into the main crate
+- guard_update and guard_query back
+- constants added to schema
+
 ## [0.1.9]
 - we need to store the Path of an entity inside the db, so we can tell what data it's
 supposed to be

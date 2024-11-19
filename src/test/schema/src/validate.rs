@@ -1,15 +1,17 @@
-use base::{types, validator};
-use mimic::orm::prelude::*;
+use mimic::orm::{
+    base::{types, validator},
+    prelude::*,
+};
 
 ///
-/// Validator
+/// ValidateTest
 ///
 
 #[entity(
     store = "crate::Store",
     fields(field(name = "multiple_ten", value(item(is = "MultipleTenType"))))
 )]
-pub struct Validator {}
+pub struct ValidateTest {}
 
 ///
 /// MultipleTenType

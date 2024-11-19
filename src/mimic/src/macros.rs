@@ -7,7 +7,6 @@
 #[macro_export]
 macro_rules! mimic_build {
     ($actor:expr) => {
-        use mimic_base::*;
         use std::{fs::File, io::Write, path::PathBuf};
 
         //
@@ -93,7 +92,7 @@ macro_rules! mimic_end {
 #[macro_export]
 macro_rules! perf {
     () => {
-        ::mimic::api::defer!(::mimic::ic::log!(
+        ::mimic::export::defer::defer!(::mimic::log!(
             Log::Perf,
             "api call used {} instructions ({})",
             ::mimic::ic::api::performance_counter(1),

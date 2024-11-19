@@ -1,5 +1,7 @@
-use base::{sanitizer, types};
-use mimic::orm::prelude::*;
+use mimic::orm::{
+    base::{sanitizer, types},
+    prelude::*,
+};
 
 ///
 /// ClampRecord
