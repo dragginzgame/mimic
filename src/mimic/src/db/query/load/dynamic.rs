@@ -3,7 +3,7 @@ use crate::db::{
         iter::RowIteratorDyn,
         load::{Error as LoadError, Loader},
         types::LoadMethod,
-        DebugContext, Resolver,
+        DebugContext, Error as QueryError, Resolver,
     },
     types::DataRow,
     Db,
@@ -141,7 +141,7 @@ impl<'a> LoadBuilderDynOptions<'a> {
     }
 
     // execute
-    pub fn execute(self) -> Result<RowIteratorDyn, LoadError> {
+    pub fn execute(self) -> Result<RowIteratorDyn, QueryError> {
         let executor = LoadBuilderDynExecutor::new(self);
         let iter = executor.execute()?;
 
@@ -177,7 +177,7 @@ impl<'a> LoadBuilderDynExecutor<'a> {
     }
 
     // execute
-    pub fn execute(self) -> Result<RowIteratorDyn, LoadError> {
+    pub fn execute(self) -> Result<RowIteratorDyn, QueryError> {
         // loader
         let loader = Loader::new(self.db, &self.resolver);
         let res = loader.load(&self.method)?;

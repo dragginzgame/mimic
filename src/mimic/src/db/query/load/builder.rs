@@ -2,7 +2,7 @@ use crate::{
     db::{
         query::{
             iter::RowIterator,
-            load::{Error as LoadError, Loader},
+            load::Loader,
             types::{EntityRow, Filter, LoadMethod, Order},
             DebugContext, Error as QueryError, Resolver,
         },
@@ -85,7 +85,7 @@ where
         self,
         start: &[T],
         end: &[T],
-    ) -> Result<LoadBuilderOptions<'a, E>, LoadError> {
+    ) -> Result<LoadBuilderOptions<'a, E>, QueryError> {
         let start = start.iter().map(ToString::to_string).collect();
         let end = end.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Range(start, end);
@@ -94,7 +94,10 @@ where
     }
 
     // prefix
-    pub fn prefix<T: ToString>(self, prefix: &[T]) -> Result<LoadBuilderOptions<'a, E>, LoadError> {
+    pub fn prefix<T: ToString>(
+        self,
+        prefix: &[T],
+    ) -> Result<LoadBuilderOptions<'a, E>, QueryError> {
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Prefix(prefix);
 
@@ -260,8 +263,7 @@ where
         let filtered = res
             .filter(|row| row.value.path == E::path())
             .map(TryFrom::try_from)
-            .collect::<Result<Vec<EntityRow<E>>, _>>()
-            .map_err(LoadError::from)?;
+            .collect::<Result<Vec<EntityRow<E>>, _>>()?;
 
         let boxed_iter = Box::new(filtered.into_iter()) as Box<dyn Iterator<Item = EntityRow<E>>>;
 
