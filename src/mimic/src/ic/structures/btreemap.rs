@@ -2,10 +2,10 @@ use crate::ic::structures::memory::VirtualMemory;
 use derive_more::{Deref, DerefMut};
 use ic_stable_structures::{btreemap::BTreeMap as WrappedBTreeMap, Storable};
 
-//
-// BTreeMap
-// a wrapper around BTreeMap that uses the default VirtualMemory
-//
+///
+/// BTreeMap
+/// a wrapper around BTreeMap that uses the default VirtualMemory
+///
 
 #[derive(Deref, DerefMut)]
 pub struct BTreeMap<K, V>

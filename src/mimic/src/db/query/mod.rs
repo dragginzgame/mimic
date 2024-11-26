@@ -6,8 +6,8 @@ pub mod save;
 pub mod types;
 
 pub use delete::DeleteBuilder;
-pub use iter::{RowIterator, RowIteratorDynamic};
-pub use load::{LoadBuilder, LoadBuilderOptions};
+pub use iter::{RowIterator, RowIteratorDyn};
+pub use load::{LoadBuilder, LoadBuilderDyn, LoadBuilderOptions};
 pub use resolver::Resolver;
 pub use save::{SaveBuilder, SaveMode};
 pub use types::*;
@@ -50,6 +50,12 @@ where
     E: Entity + 'static,
 {
     LoadBuilder::<E>::new(db)
+}
+
+// load_dyn
+#[must_use]
+pub fn load_dyn<'a>(db: &'a Db, path: &str) -> LoadBuilderDyn<'a> {
+    LoadBuilderDyn::new(db, path.to_string())
 }
 
 // delete

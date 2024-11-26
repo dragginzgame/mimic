@@ -5,6 +5,7 @@ use quote::quote;
 pub fn extend(builder: &mut ActorBuilder) {
     canister_endpoints(builder);
     cascade_endpoints(builder);
+    db_endpoints(builder);
     ic_endpoints(builder);
     state_endpoints(builder);
     store_endpoints(builder);
@@ -113,6 +114,22 @@ pub fn cascade_endpoints(builder: &mut ActorBuilder) {
 
             Ok(())
         }
+    };
+
+    builder.extend_actor(q);
+}
+
+// db_endpoints
+pub fn db_endpoints(builder: &mut ActorBuilder) {
+    let q = quote! {
+
+        #[::mimic::ic::query(guard = "guard_query")]
+        async fn db_load() -> Result<(), ::mimic::api::Error> {
+            allow_any(vec![Auth::Parent]).await.map_err(::mimic::api::Error::from)?;
+
+            Ok(())
+        }
+
     };
 
     builder.extend_actor(q);

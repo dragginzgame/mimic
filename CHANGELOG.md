@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.2.1]
+- split load and load_dyn on query in preparation for inter-canister queries
+
 ## [0.2.0]
 - all changes that make mimic compatible with the Dragginz repo v0.2
 - split EntityDynamic into EntityDyn and NodeDyn

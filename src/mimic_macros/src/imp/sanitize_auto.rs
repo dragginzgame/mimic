@@ -6,8 +6,8 @@ use quote::{quote, ToTokens};
 // newtype
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
     // Generate inner logic
-    let inner = if node.validators.is_empty() {
-        quote!()
+    let inner = if node.sanitizers.is_empty() {
+        quote!(Ok(()))
     } else {
         // sanitize function name
         let sanitize_fn = match node.primitive {
@@ -25,22 +25,30 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
             let path = &san.path;
             let args = &san.args;
 
-            let constructor = match args.len() {
-                0 => quote! { #path::default() },
-                _ => quote! { #path::new(#(#args),*) },
+            let constructor = if args.len() == 0 {
+                quote! { #path::default() }
+            } else {
+                quote! { #path::new(#(#args),*) }
             };
 
             quote! {
-                self.0 = #constructor.#sanitize_fn(&self.0).into();
+                match #constructor.#sanitize_fn(&self.0) {
+                    Ok(v) => self.0 = v.into(),
+                    Err(e) => errs.add(e),
+                }
             }
         });
 
-        quote! { #(#rules)* }
+        quote! {
+            let mut errs = ::mimic::orm::types::ErrorVec::new();
+            #( #rules )*
+            errs.result()
+        }
     };
 
     // quote
     let q = quote! {
-        fn sanitize_auto(&mut self) {
+        fn sanitize_auto(&mut self) -> ::std::result::Result<(), ::mimic::orm::types::ErrorVec> {
             #inner
         }
     };

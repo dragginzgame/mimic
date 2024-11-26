@@ -255,7 +255,7 @@ impl ArgNumber {
             if s.ends_with(suffix) {
                 let num_part = s.trim_end_matches(suffix);
 
-                let result = if num_part.contains(".") {
+                let result = if num_part.contains('.') {
                     match suffix {
                         "f32" => num_part.parse::<f32>().map(ArgNumber::F32),
                         "f64" => num_part.parse::<f64>().map(ArgNumber::F64),
@@ -280,7 +280,7 @@ impl ArgNumber {
                     }
                     .map_err(|_| {})
                 }
-                .map_err(|_| DarlingError::custom(format!("invalid numeric literal '{s}'")));
+                .map_err(|()| DarlingError::custom(format!("invalid numeric literal '{s}'")));
 
                 return result;
             }
@@ -288,12 +288,12 @@ impl ArgNumber {
 
         // Try parsing unsuffixed as Integer
         if let Ok(integer) = s.parse::<i128>() {
-            return Ok(ArgNumber::Integer(integer));
+            return Ok(Self::Integer(integer));
         }
 
         // Try parsing unsuffixed as Float
         if let Ok(float) = s.parse::<f64>() {
-            return Ok(ArgNumber::Float(float));
+            return Ok(Self::Float(float));
         }
 
         // Return error if no match found
@@ -306,15 +306,13 @@ impl ArgNumber {
 impl Display for ArgNumber {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Float(v) => write!(f, "{v}"),
+            Self::Float(v) | Self::F64(v) => write!(f, "{v}"),
+            Self::Integer(v) | Self::I128(v) => write!(f, "{v}"),
             Self::F32(v) => write!(f, "{v}"),
-            Self::F64(v) => write!(f, "{v}"),
-            Self::Integer(v) => write!(f, "{v}"),
             Self::I8(v) => write!(f, "{v}"),
             Self::I16(v) => write!(f, "{v}"),
             Self::I32(v) => write!(f, "{v}"),
             Self::I64(v) => write!(f, "{v}"),
-            Self::I128(v) => write!(f, "{v}"),
             Self::Isize(v) => write!(f, "{v}"),
             Self::U8(v) => write!(f, "{v}"),
             Self::U16(v) => write!(f, "{v}"),
@@ -397,13 +395,13 @@ impl ToTokens for ArgNumber {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let q = match self {
             Self::Float(v) => {
-                let value = format!("{}", v);
+                let value = format!("{v}");
                 value.parse::<TokenStream>().unwrap()
             }
             Self::F32(v) => quote!(#v),
             Self::F64(v) => quote!(#v),
             Self::Integer(v) => {
-                let value = format!("{}", v);
+                let value = format!("{v}");
                 value.parse::<TokenStream>().unwrap()
             }
             Self::I8(v) => quote!(#v),

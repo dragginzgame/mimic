@@ -59,9 +59,9 @@ impl<'a> DbTester<'a> {
             .unwrap();
 
         // load all keys
-        let entities = query::load::<HasMap>(self.db)
+        let entities = query::load_dyn(self.db, HasMap::PATH)
             .only()
-            .execute_dyn()
+            .execute()
             .unwrap()
             .keys();
 
@@ -121,9 +121,9 @@ impl<'a> DbTester<'a> {
         });
 
         // Retrieve the count of keys (or entities) from the store
-        let count = query::load::<CreateBasic>(self.db)
+        let count = query::load_dyn(self.db, CreateBasic::PATH)
             .all()
-            .execute_dyn()
+            .execute()
             .unwrap()
             .count();
 
@@ -145,9 +145,9 @@ impl<'a> DbTester<'a> {
 
         // count keys
         assert_eq!(
-            query::load::<CreateBasic>(self.db)
+            query::load_dyn(self.db, CreateBasic::PATH)
                 .all()
-                .execute_dyn()
+                .execute()
                 .unwrap()
                 .keys()
                 .count(),
@@ -160,9 +160,9 @@ impl<'a> DbTester<'a> {
 
         // count keys
         assert_eq!(
-            query::load::<CreateBasic>(self.db)
+            query::load_dyn(self.db, CreateBasic::PATH)
                 .all()
-                .execute_dyn()
+                .execute()
                 .unwrap()
                 .keys()
                 .count(),
@@ -188,9 +188,9 @@ impl<'a> DbTester<'a> {
         }
 
         // Retrieve the count from the store
-        let count = query::load::<CreateBasic>(self.db)
+        let count = query::load_dyn(self.db, CreateBasic::PATH)
             .all()
-            .execute_dyn()
+            .execute()
             .unwrap()
             .count();
 
@@ -285,11 +285,11 @@ impl<'a> DbTester<'a> {
         // Test various limits and offsets
         for limit in [10, 20, 50] {
             for offset in [0, 5, 10] {
-                let results = query::load::<Limit>(self.db)
+                let results = query::load_dyn(self.db, Limit::PATH)
                     .all()
                     .offset(offset)
                     .limit(limit)
-                    .execute_dyn()
+                    .execute()
                     .unwrap()
                     .keys();
 

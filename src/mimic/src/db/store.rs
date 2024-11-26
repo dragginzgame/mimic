@@ -1,5 +1,5 @@
 use super::types::{DataKey, DataValue};
-use crate::ic::structures::{memory::VirtualMemory, BTreeMap};
+use crate::ic::structures::{btreemap::BTreeMap, memory::VirtualMemory};
 use derive_more::{Deref, DerefMut};
 
 ///

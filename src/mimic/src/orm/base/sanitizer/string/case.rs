@@ -8,9 +8,8 @@ use crate::orm::prelude::*;
 pub struct Camel {}
 
 impl Sanitizer for Camel {
-    #[must_use]
-    fn sanitize_string<S: ToString>(&self, s: &S) -> String {
-        s.to_string().to_case(Case::Camel)
+    fn sanitize_string<S: ToString>(&self, s: &S) -> Result<String, String> {
+        Ok(s.to_string().to_case(Case::Camel))
     }
 }
 
@@ -22,8 +21,8 @@ impl Sanitizer for Camel {
 pub struct Kebab {}
 
 impl Sanitizer for Kebab {
-    fn sanitize_string<S: ToString>(&self, s: &S) -> String {
-        s.to_string().to_case(Case::Kebab)
+    fn sanitize_string<S: ToString>(&self, s: &S) -> Result<String, String> {
+        Ok(s.to_string().to_case(Case::Kebab))
     }
 }
 
@@ -35,8 +34,8 @@ impl Sanitizer for Kebab {
 pub struct Lower {}
 
 impl Sanitizer for Lower {
-    fn sanitize_string<S: ToString>(&self, s: &S) -> String {
-        s.to_string().to_case(Case::Lower)
+    fn sanitize_string<S: ToString>(&self, s: &S) -> Result<String, String> {
+        Ok(s.to_string().to_case(Case::Lower))
     }
 }
 
@@ -48,8 +47,8 @@ impl Sanitizer for Lower {
 pub struct Snake {}
 
 impl Sanitizer for Snake {
-    fn sanitize_string<S: ToString>(&self, s: &S) -> String {
-        s.to_string().to_case(Case::Snake)
+    fn sanitize_string<S: ToString>(&self, s: &S) -> Result<String, String> {
+        Ok(s.to_string().to_case(Case::Snake))
     }
 }
 
@@ -61,8 +60,8 @@ impl Sanitizer for Snake {
 pub struct Title {}
 
 impl Sanitizer for Title {
-    fn sanitize_string<S: ToString>(&self, s: &S) -> String {
-        s.to_string().to_case(Case::Title)
+    fn sanitize_string<S: ToString>(&self, s: &S) -> Result<String, String> {
+        Ok(s.to_string().to_case(Case::Title))
     }
 }
 
@@ -74,8 +73,8 @@ impl Sanitizer for Title {
 pub struct Upper {}
 
 impl Sanitizer for Upper {
-    fn sanitize_string<S: ToString>(&self, s: &S) -> String {
-        s.to_string().to_case(Case::Upper)
+    fn sanitize_string<S: ToString>(&self, s: &S) -> Result<String, String> {
+        Ok(s.to_string().to_case(Case::Upper))
     }
 }
 
@@ -87,8 +86,8 @@ impl Sanitizer for Upper {
 pub struct UpperCamel {}
 
 impl Sanitizer for UpperCamel {
-    fn sanitize_string<S: ToString>(&self, s: &S) -> String {
-        s.to_string().to_case(Case::UpperCamel)
+    fn sanitize_string<S: ToString>(&self, s: &S) -> Result<String, String> {
+        Ok(s.to_string().to_case(Case::UpperCamel))
     }
 }
 
@@ -100,8 +99,8 @@ impl Sanitizer for UpperCamel {
 pub struct UpperSnake {}
 
 impl Sanitizer for UpperSnake {
-    fn sanitize_string<S: ToString>(&self, s: &S) -> String {
-        s.to_string().to_case(Case::UpperSnake)
+    fn sanitize_string<S: ToString>(&self, s: &S) -> Result<String, String> {
+        Ok(s.to_string().to_case(Case::UpperSnake))
     }
 }
 
@@ -113,7 +112,7 @@ impl Sanitizer for UpperSnake {
 pub struct UpperKebab {}
 
 impl Sanitizer for UpperKebab {
-    fn sanitize_string<S: ToString>(&self, s: &S) -> String {
-        s.to_string().to_case(Case::UpperKebab)
+    fn sanitize_string<S: ToString>(&self, s: &S) -> Result<String, String> {
+        Ok(s.to_string().to_case(Case::UpperKebab))
     }
 }

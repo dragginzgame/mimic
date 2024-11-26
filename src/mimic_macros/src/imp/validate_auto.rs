@@ -64,9 +64,10 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
             let path = &val.path;
             let args = &val.args;
 
-            let constructor = match args.len() {
-                0 => quote! { #path::default() },
-                _ => quote! { #path::new(#(#args),*) },
+            let constructor = if args.len() == 0 {
+                quote! { #path::default() }
+            } else {
+                quote! { #path::new(#(#args),*) }
             };
 
             quote! {

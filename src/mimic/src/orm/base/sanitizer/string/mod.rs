@@ -10,11 +10,14 @@ use crate::orm::prelude::*;
 pub struct CollapseWhitespace {}
 
 impl Sanitizer for CollapseWhitespace {
-    fn sanitize_string<S: ToString>(&self, s: &S) -> String {
-        s.to_string()
+    fn sanitize_string<S: ToString>(&self, s: &S) -> Result<String, String> {
+        let s = s
+            .to_string()
             .split_whitespace()
             .collect::<Vec<&str>>()
-            .join(" ")
+            .join(" ");
+
+        Ok(s)
     }
 }
 
@@ -27,7 +30,7 @@ impl Sanitizer for CollapseWhitespace {
 pub struct Paragraph {}
 
 impl Sanitizer for Paragraph {
-    fn sanitize_string<S: ToString>(&self, s: &S) -> String {
+    fn sanitize_string<S: ToString>(&self, s: &S) -> Result<String, String> {
         CollapseWhitespace::default().sanitize_string(s)
     }
 }
@@ -61,7 +64,11 @@ mod tests {
         for (input, expected) in &test_cases {
             let cw = CollapseWhitespace::default();
 
-            assert_eq!(cw.sanitize_string(input), *expected, "testing: {input}");
+            assert_eq!(
+                cw.sanitize_string(input).unwrap(),
+                *expected,
+                "testing: {input}"
+            );
         }
     }
 }

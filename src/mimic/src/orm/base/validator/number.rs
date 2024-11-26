@@ -7,7 +7,7 @@ use num_traits::{NumCast, Zero};
 
 #[validator]
 pub struct Lt {
-    pub target: i32,
+    pub target: Decimal,
 }
 
 impl Lt {
@@ -23,14 +23,14 @@ impl Validator for Lt {
     where
         N: Copy + Display + NumCast,
     {
-        if let Some(n_cast) = <i32 as NumCast>::from(*n) {
+        if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
             if n_cast < self.target {
                 Ok(())
             } else {
                 Err(format!("{n_cast} must be less than {}", self.target))
             }
         } else {
-            Err(format!("failed to convert {n} to i32"))
+            Err(format!("failed to cast {n} to decimal"))
         }
     }
 }
@@ -41,7 +41,7 @@ impl Validator for Lt {
 
 #[validator]
 pub struct Gt {
-    pub target: i32,
+    pub target: Decimal,
 }
 
 impl Gt {
@@ -57,14 +57,14 @@ impl Validator for Gt {
     where
         N: Copy + Display + NumCast,
     {
-        if let Some(n_cast) = <i32 as NumCast>::from(*n) {
+        if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
             if n_cast > self.target {
                 Ok(())
             } else {
                 Err(format!("{n_cast} must be greater than {}", self.target))
             }
         } else {
-            Err(format!("failed to convert {n} to i32"))
+            Err(format!("failed to cast {n} to decimal"))
         }
     }
 }
@@ -75,7 +75,7 @@ impl Validator for Gt {
 
 #[validator]
 pub struct Ltoe {
-    pub target: i32,
+    pub target: Decimal,
 }
 
 impl Ltoe {
@@ -91,7 +91,7 @@ impl Validator for Ltoe {
     where
         N: Copy + Display + NumCast,
     {
-        if let Some(n_cast) = <i32 as NumCast>::from(*n) {
+        if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
             if n_cast <= self.target {
                 Ok(())
             } else {
@@ -101,7 +101,7 @@ impl Validator for Ltoe {
                 ))
             }
         } else {
-            Err(format!("failed to convert {n} to i32"))
+            Err(format!("failed to cast {n} to decimal"))
         }
     }
 }
@@ -112,7 +112,7 @@ impl Validator for Ltoe {
 
 #[validator]
 pub struct Gtoe {
-    pub target: i32,
+    pub target: Decimal,
 }
 
 impl Gtoe {
@@ -128,7 +128,7 @@ impl Validator for Gtoe {
     where
         N: Copy + Display + NumCast,
     {
-        if let Some(n_cast) = <i32 as NumCast>::from(*n) {
+        if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
             if n_cast >= self.target {
                 Ok(())
             } else {
@@ -138,7 +138,7 @@ impl Validator for Gtoe {
                 ))
             }
         } else {
-            Err(format!("failed to convert {n} to i32"))
+            Err(format!("failed to cast {n} to decimal"))
         }
     }
 }
@@ -149,7 +149,7 @@ impl Validator for Gtoe {
 
 #[validator]
 pub struct Equal {
-    pub target: i32,
+    pub target: Decimal,
 }
 
 impl Equal {
@@ -165,14 +165,14 @@ impl Validator for Equal {
     where
         N: Copy + Display + NumCast,
     {
-        if let Some(n_cast) = <i32 as NumCast>::from(*n) {
+        if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
             if n_cast == self.target {
                 Ok(())
             } else {
                 Err(format!("{n_cast} must be equal to {}", self.target))
             }
         } else {
-            Err(format!("failed to convert {n} to i32"))
+            Err(format!("failed to cast {n} to decimal"))
         }
     }
 }
@@ -183,7 +183,7 @@ impl Validator for Equal {
 
 #[validator]
 pub struct NotEqual {
-    pub target: i32,
+    pub target: Decimal,
 }
 
 impl NotEqual {
@@ -198,14 +198,14 @@ impl Validator for NotEqual {
     where
         N: Copy + Display + NumCast,
     {
-        if let Some(n_cast) = <i32 as NumCast>::from(*n) {
+        if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
             if n_cast == self.target {
                 Ok(())
             } else {
                 Err(format!("{n_cast} must not be equal to {}", self.target))
             }
         } else {
-            Err(format!("failed to convert {n} to i32"))
+            Err(format!("failed to cast {n} to decimal"))
         }
     }
 }
@@ -216,8 +216,8 @@ impl Validator for NotEqual {
 
 #[validator]
 pub struct Range {
-    pub min: i32,
-    pub max: i32,
+    pub min: Decimal,
+    pub max: Decimal,
 }
 
 impl Range {
@@ -237,7 +237,7 @@ impl Validator for Range {
     where
         N: Copy + Display + NumCast,
     {
-        if let Some(n_cast) = <i32 as NumCast>::from(*n) {
+        if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
             if n_cast >= self.min && n_cast <= self.max {
                 Ok(())
             } else {
@@ -247,7 +247,7 @@ impl Validator for Range {
                 ))
             }
         } else {
-            Err(format!("failed to convert {n} to i32"))
+            Err(format!("failed to cast {n} to decimal"))
         }
     }
 }
@@ -283,7 +283,7 @@ impl Validator for MultipleOf {
                 Err(format!("{n_cast} is not a multiple of {}", self.target))
             }
         } else {
-            Err(format!("failed to convert {n} to i32"))
+            Err(format!("failed to cast {n} to decimal"))
         }
     }
 }
@@ -336,6 +336,9 @@ mod tests {
     #[test]
     fn test_lt_validator_success() {
         let result = Lt::new(10).validate_number(&5);
+        assert!(result.is_ok());
+
+        let result = Lt::new(5.1).validate_number(&5);
         assert!(result.is_ok());
     }
 

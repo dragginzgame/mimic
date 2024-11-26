@@ -8,8 +8,8 @@ use crate::orm::prelude::*;
 pub struct RgbHex {}
 
 impl Sanitizer for RgbHex {
-    fn sanitize_string<S: ToString>(&self, s: &S) -> String {
-        s.to_string().to_uppercase()
+    fn sanitize_string<S: ToString>(&self, s: &S) -> Result<String, String> {
+        Ok(s.to_string().to_uppercase())
     }
 }
 
@@ -21,9 +21,13 @@ impl Sanitizer for RgbHex {
 pub struct RgbaHex {}
 
 impl Sanitizer for RgbaHex {
-    fn sanitize_string<S: ToString>(&self, s: &S) -> String {
-        let s = s.to_string();
+    fn sanitize_string<S: ToString>(&self, s: &S) -> Result<String, String> {
+        let mut res = s.to_string();
 
-        if s.len() == 6 { format!("{s}FF") } else { s }.to_uppercase()
+        if res.len() == 6 {
+            res.push_str("FF");
+        }
+
+        Ok(res.to_uppercase())
     }
 }

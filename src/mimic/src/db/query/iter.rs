@@ -150,18 +150,18 @@ where
 }
 
 ///
-/// RowIteratorDynamic
+/// RowIteratorDyn
 ///
 /// complex logic is handled better with iter::from_fn and move_next()
 /// all iterator methods (for now) are consuming
 ///
 
-pub struct RowIteratorDynamic {
+pub struct RowIteratorDyn {
     iter: Box<dyn Iterator<Item = DataRow>>,
     manager: IterManager<DataRow>,
 }
 
-impl RowIteratorDynamic {
+impl RowIteratorDyn {
     #[must_use]
     pub fn new(iter: Box<dyn Iterator<Item = DataRow>>, limit: Option<u32>, offset: u32) -> Self {
         Self {
@@ -223,7 +223,7 @@ impl RowIteratorDynamic {
     }
 }
 
-impl Iterator for RowIteratorDynamic {
+impl Iterator for RowIteratorDyn {
     type Item = DataRow;
 
     fn next(&mut self) -> Option<Self::Item> {

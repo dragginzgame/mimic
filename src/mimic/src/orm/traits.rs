@@ -112,18 +112,30 @@ impl_primitive_list!(
 
 ///
 /// Sanitizer
-/// allows a node to act as a validator
+/// allows a node to sanitize primitives
 ///
 
 pub trait Sanitizer: Default {
-    fn sanitize_string<S: ToString>(&self, s: &S) -> String {
-        s.to_string()
+    /// Sanitize a number, returning the same type to allow seamless reuse.
+    fn sanitize_number<N>(&self, n: &N) -> Result<N, String>
+    where
+        N: Copy + Display + NumCast,
+    {
+        Ok(*n)
+    }
+
+    /// Sanitize a string, returning a `String` for reuse.
+    fn sanitize_string<S>(&self, s: &S) -> Result<String, String>
+    where
+        S: ToString,
+    {
+        Ok(s.to_string())
     }
 }
 
 ///
 /// Validator
-/// allows a type to act as a validator
+/// allows a node to validate primitives
 ///
 
 pub trait Validator: Default {
@@ -138,7 +150,10 @@ pub trait Validator: Default {
         Ok(())
     }
 
-    fn validate_string<S: ToString>(&self, _: &S) -> Result<(), String> {
+    fn validate_string<S>(&self, _: &S) -> Result<(), String>
+    where
+        S: ToString,
+    {
         Ok(())
     }
 }
@@ -290,9 +305,12 @@ impl<T: Orderable> Orderable for Option<T> {
 ///
 
 pub trait Sanitize: SanitizeManual + SanitizeAuto {
-    fn sanitize(&mut self) {
-        self.sanitize_manual();
-        self.sanitize_auto();
+    fn sanitize(&mut self) -> Result<(), ErrorVec> {
+        let mut errs = ErrorVec::new();
+        errs.merge(self.sanitize_manual());
+        errs.merge(self.sanitize_auto());
+
+        errs.result()
     }
 }
 
@@ -303,7 +321,9 @@ impl<T> Sanitize for T where T: SanitizeManual + SanitizeAuto {}
 ///
 
 pub trait SanitizeAuto {
-    fn sanitize_auto(&mut self) {}
+    fn sanitize_auto(&mut self) -> Result<(), ErrorVec> {
+        Ok(())
+    }
 }
 
 impl<T: SanitizeAuto> SanitizeAuto for Box<T> {}
@@ -314,7 +334,9 @@ impl_primitive!(SanitizeAuto);
 ///
 
 pub trait SanitizeManual {
-    fn sanitize_manual(&mut self) {}
+    fn sanitize_manual(&mut self) -> Result<(), ErrorVec> {
+        Ok(())
+    }
 }
 
 impl<T: SanitizeManual> SanitizeManual for Box<T> {}

@@ -83,7 +83,7 @@ impl TraitNode for Selector {
 
         // add default if needed
         if self.variants.iter().any(|v| v.default) {
-            traits.add(Trait::Default)
+            traits.add(Trait::Default);
         }
 
         traits.list()

@@ -204,6 +204,7 @@ pub enum LoadFormat {
 ///
 /// All    : no sort key prefix, only works with top-level Sort Keys,
 ///          will probably not work if used on nested entities
+/// Only   : for entities that have no keys
 /// One    : returns one row by composite key
 /// Many   : returns many rows (from many composite keys)
 /// Prefix : like all but we're asking for the composite key prefix
@@ -215,6 +216,7 @@ pub enum LoadFormat {
 pub enum LoadMethod {
     #[default]
     All,
+    Only,
     One(Vec<String>),
     Many(Vec<Vec<String>>),
     Prefix(Vec<String>),

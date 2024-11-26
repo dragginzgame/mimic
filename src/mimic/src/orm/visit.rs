@@ -52,12 +52,15 @@ pub fn perform_visit_mut(visitor: &mut dyn Visitor, node: &mut dyn Visitable, ke
 ///
 
 #[derive(Debug, Default)]
-pub struct SanitizeVisitor;
+pub struct SanitizeVisitor {
+    pub errors: ErrorTree,
+    pub path: Vec<String>,
+}
 
 impl SanitizeVisitor {
     #[must_use]
-    pub const fn new() -> Self {
-        Self
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 
@@ -68,9 +71,22 @@ impl Visitor for SanitizeVisitor {
 
     fn visit_mut(&mut self, item: &mut dyn Visitable, event: Event) {
         match event {
-            Event::Enter => {
-                item.sanitize();
-            }
+            Event::Enter => match item.sanitize() {
+                Ok(()) => {}
+                Err(errs) => {
+                    if !errs.is_empty() {
+                        let key = self
+                            .path
+                            .iter()
+                            .filter(|s| !s.is_empty())
+                            .cloned()
+                            .collect::<Vec<String>>()
+                            .join(".");
+
+                        self.errors.set_list(&key, &errs);
+                    }
+                }
+            },
             Event::Exit => {}
         }
     }
