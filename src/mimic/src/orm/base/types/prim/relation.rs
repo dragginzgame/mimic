@@ -58,33 +58,6 @@ impl From<Ulid> for Relation {
     }
 }
 
-impl FromStr for Relation {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let trimmed = s.trim();
-
-        // Ensure the string starts with '[' and ends with ']'
-        if !trimmed.starts_with('[') || !trimmed.ends_with(']') {
-            return Err("Relation string must start with '[' and end with ']'".to_string());
-        }
-
-        // Remove the enclosing brackets
-        let inner = &trimmed[1..trimmed.len() - 1];
-
-        // Split by commas and parse each part as a ULID
-        let ulids = inner
-            .split(',')
-            .map(|part| {
-                let part = part.trim(); // Trim whitespace around each ULID
-                Ulid::from_str(part).map_err(|e| format!("Invalid ULID: {}: {}", part, e))
-            })
-            .collect::<Result<Vec<Ulid>, String>>()?;
-
-        Ok(Relation(ulids))
-    }
-}
-
 impl Filterable for Relation {
     fn as_text(&self) -> Option<String> {
         Some(self.to_string())
@@ -104,16 +77,6 @@ impl Inner<Self> for Relation {
 impl Orderable for Relation {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
-    }
-}
-
-impl PrimaryKey for Relation {
-    fn on_create(&self) -> Self {
-        self.clone()
-    }
-
-    fn format(&self) -> String {
-        self.to_string()
     }
 }
 
