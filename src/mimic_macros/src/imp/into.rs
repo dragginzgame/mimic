@@ -3,8 +3,20 @@ use crate::node::{EntityId, MacroNode, Selector, Trait};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 
-// entity_id
+//
+// ENTITY_ID
+//
+
 pub fn entity_id(node: &EntityId, t: Trait) -> TokenStream {
+    let mut q = quote!();
+
+    q.extend(entity_id_single(node, t));
+    q.extend(entity_id_vec(node, t));
+
+    q
+}
+
+pub fn entity_id_single(node: &EntityId, t: Trait) -> TokenStream {
     let imp = Implementor::new(node.def(), t);
 
     // match cardinality
@@ -19,7 +31,25 @@ pub fn entity_id(node: &EntityId, t: Trait) -> TokenStream {
         .to_token_stream()
 }
 
-// selector
+pub fn entity_id_vec(node: &EntityId, t: Trait) -> TokenStream {
+    let imp = Implementor::new(node.def(), t);
+
+    // match cardinality
+    let q = quote! {
+        fn into(self) -> Vec<mimic::orm::base::types::Ulid> {
+            vec![self.ulid()]
+        }
+    };
+
+    imp.set_tokens(q)
+        .add_trait_generic(quote!(Vec<mimic::orm::base::types::Ulid>))
+        .to_token_stream()
+}
+
+//
+// SELECTOR
+//
+
 pub fn selector(node: &Selector, t: Trait) -> TokenStream {
     let imp = Implementor::new(node.def(), t);
     let target = &node.target;

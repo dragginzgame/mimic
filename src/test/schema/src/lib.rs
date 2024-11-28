@@ -30,3 +30,10 @@ pub struct Test {}
     crud(load = "allow", save = "allow", delete = "allow")
 )]
 pub struct Store {}
+
+///
+/// EntityIdTest
+///
+
+#[entity_id(key = "Test")]
+pub struct EntityIdTest {}
