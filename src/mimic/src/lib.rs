@@ -44,7 +44,7 @@ pub mod prelude {
         ic::{caller, format_cycles, id},
         log, mimic_end, mimic_start,
         orm::{
-            base::types::Ulid,
+            base::types::{Relation, Ulid},
             traits::{EntityDyn, EntityFixture, NumFromPrimitive, NumToPrimitive, Path, Validator},
         },
         perf, Log,
