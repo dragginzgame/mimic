@@ -29,14 +29,6 @@ pub struct Entity {
     pub fields: FieldList,
 }
 
-impl Entity {
-    // is_relatable
-    #[must_use]
-    pub fn is_relatable(&self) -> bool {
-        self.primary_keys.len() == 1
-    }
-}
-
 impl MacroNode for Entity {
     fn as_any(&self) -> &dyn std::any::Any {
         self

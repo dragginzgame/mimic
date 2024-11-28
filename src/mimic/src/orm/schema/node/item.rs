@@ -73,11 +73,6 @@ impl ValidateNode for Item {
                 errs.add("relations cannot be set to indirect");
             }
 
-            if let Some(entity) = schema_read().get_node::<Entity>(path) {
-                if !entity.is_relatable() {
-                    errs.add("entity does not meet the criteria to create a relation with");
-                }
-            }
             errs.add_result(schema_read().check_node::<Entity>(path));
         }
 
