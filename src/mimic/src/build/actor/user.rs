@@ -91,7 +91,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // guard_permission
         // endpoint only works on the User canister
         // has to return api::Error as it's called by the api crate
-        #[::mimic::ic::update(guard = "guard_query")]
+        #[::mimic::ic::query(guard = "guard_query")]
         pub async fn guard_permission(id: ::candid::Principal, permission: String) -> Result<(), ::mimic::api::Error> {
             let user = UserIndexManager::try_get_user(id)?;
 
