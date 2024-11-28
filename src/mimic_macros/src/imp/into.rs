@@ -10,13 +10,13 @@ use quote::{quote, ToTokens};
 pub fn entity_id(node: &EntityId, t: Trait) -> TokenStream {
     let mut q = quote!();
 
-    q.extend(entity_id_single(node, t));
-    q.extend(entity_id_vec(node, t));
+    q.extend(entity_id_ulid(node, t));
+    q.extend(entity_id_relation(node, t));
 
     q
 }
 
-pub fn entity_id_single(node: &EntityId, t: Trait) -> TokenStream {
+pub fn entity_id_ulid(node: &EntityId, t: Trait) -> TokenStream {
     let imp = Implementor::new(node.def(), t);
 
     // match cardinality
@@ -31,18 +31,18 @@ pub fn entity_id_single(node: &EntityId, t: Trait) -> TokenStream {
         .to_token_stream()
 }
 
-pub fn entity_id_vec(node: &EntityId, t: Trait) -> TokenStream {
+pub fn entity_id_relation(node: &EntityId, t: Trait) -> TokenStream {
     let imp = Implementor::new(node.def(), t);
 
     // match cardinality
     let q = quote! {
-        fn into(self) -> Vec<mimic::orm::base::types::Ulid> {
-            vec![self.ulid()]
+        fn into(self) -> mimic::orm::base::types::Relation {
+            vec![self.ulid()].into()
         }
     };
 
     imp.set_tokens(q)
-        .add_trait_generic(quote!(Vec<mimic::orm::base::types::Ulid>))
+        .add_trait_generic(quote!(mimic::orm::base::types::Relation))
         .to_token_stream()
 }
 
