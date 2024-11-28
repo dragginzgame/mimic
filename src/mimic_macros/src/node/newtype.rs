@@ -81,7 +81,7 @@ impl TraitNode for Newtype {
             Trait::From,
         ]);
 
-        // primitive
+        // primitive traits
         if let Some(primitive) = &self.primitive {
             // inner
             traits.add(Trait::Inner);
@@ -97,28 +97,30 @@ impl TraitNode for Newtype {
             }
         }
 
-        // primitive
-        match self.primitive.map(PrimitiveType::group) {
-            Some(PrimitiveGroup::Integer | PrimitiveGroup::Decimal) => {
-                traits.extend(vec![
-                    Trait::Add,
-                    Trait::AddAssign,
-                    Trait::Copy,
-                    Trait::Display,
-                    Trait::FromStr,
-                    Trait::Mul,
-                    Trait::MulAssign,
-                    Trait::NumCast,
-                    Trait::NumFromPrimitive,
-                    Trait::NumToPrimitive,
-                    Trait::Sub,
-                    Trait::SubAssign,
-                ]);
+        // group traits
+        if self.value.cardinality() == Cardinality::One {
+            match self.primitive.map(PrimitiveType::group) {
+                Some(PrimitiveGroup::Integer | PrimitiveGroup::Decimal) => {
+                    traits.extend(vec![
+                        Trait::Add,
+                        Trait::AddAssign,
+                        Trait::Copy,
+                        Trait::Display,
+                        Trait::FromStr,
+                        Trait::Mul,
+                        Trait::MulAssign,
+                        Trait::NumCast,
+                        Trait::NumFromPrimitive,
+                        Trait::NumToPrimitive,
+                        Trait::Sub,
+                        Trait::SubAssign,
+                    ]);
+                }
+                Some(PrimitiveGroup::String) => {
+                    traits.extend(vec![Trait::Display, Trait::FromStr]);
+                }
+                _ => {}
             }
-            Some(PrimitiveGroup::String) => {
-                traits.extend(vec![Trait::Display, Trait::FromStr]);
-            }
-            _ => {}
         }
 
         traits.list()

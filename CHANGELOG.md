@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.2.1]
 - split load and load_dyn on query in preparation for inter-canister queries
+- relations are now base::types::Relation and are a Vec<Ulid> to support more complex relations
 
 ## [0.2.0]
 - all changes that make mimic compatible with the Dragginz repo v0.2

@@ -347,15 +347,15 @@ impl FromMeta for ArgNumber {
 impl PartialEq for ArgNumber {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (Self::Float(a), Self::Float(b)) => a.to_bits() == b.to_bits(),
+            (Self::Float(a), Self::Float(b)) | (Self::F64(a), Self::F64(b)) => {
+                a.to_bits() == b.to_bits()
+            }
             (Self::F32(a), Self::F32(b)) => a.to_bits() == b.to_bits(),
-            (Self::F64(a), Self::F64(b)) => a.to_bits() == b.to_bits(),
-            (Self::Integer(a), Self::Integer(b)) => a == b,
+            (Self::Integer(a), Self::Integer(b)) | (Self::I128(a), Self::I128(b)) => a == b,
             (Self::I8(a), Self::I8(b)) => a == b,
             (Self::I16(a), Self::I16(b)) => a == b,
             (Self::I32(a), Self::I32(b)) => a == b,
             (Self::I64(a), Self::I64(b)) => a == b,
-            (Self::I128(a), Self::I128(b)) => a == b,
             (Self::Isize(a), Self::Isize(b)) => a == b,
             (Self::U8(a), Self::U8(b)) => a == b,
             (Self::U16(a), Self::U16(b)) => a == b,

@@ -11,7 +11,7 @@ use syn::{parse_str, Path};
 /// Item
 ///
 
-pub static PRIM_ULID: &str = "mimic::orm::base::types::Ulid";
+pub static TYPE_RELATION: &str = "mimic::orm::base::types::Relation";
 
 #[derive(Clone, Debug, FromMeta)]
 pub struct Item {
@@ -59,7 +59,7 @@ impl ToTokens for Item {
             (Some(is), None) if self.indirect => quote!(Box<#is>),
             (Some(is), None) => quote!(#is),
             (None, Some(_)) => {
-                let ty: Path = parse_str(PRIM_ULID).unwrap();
+                let ty: Path = parse_str(TYPE_RELATION).unwrap();
 
                 quote!(#ty)
             }

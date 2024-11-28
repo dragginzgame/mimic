@@ -72,6 +72,7 @@ pub enum PrimitiveType {
     I128,
     Isize,
     Principal,
+    Relation,
     String,
     U8,
     U16,

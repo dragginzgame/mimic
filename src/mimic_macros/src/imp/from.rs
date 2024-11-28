@@ -36,23 +36,26 @@ pub fn map(node: &Map, t: Trait) -> TokenStream {
 /// Newtype
 ///
 
+//
 // newtype
 //
 // possibility to optimise here as we do have fine-grained control over the
 // From implementation for each PrimitiveType
+//
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
     let mut q = quote!();
 
     match node.primitive.map(PrimitiveType::group) {
-        Some(PrimitiveGroup::Bool | PrimitiveGroup::Float) | None => {
-            q.extend(newtype_inner(node, t));
-        }
         Some(PrimitiveGroup::Blob | PrimitiveGroup::Integer | PrimitiveGroup::Decimal) => {
             q.extend(newtype_into_inner(node, t));
         }
         Some(PrimitiveGroup::String) => {
             q.extend(newtype_inner(node, t));
             q.extend(newtype_str(node, t));
+        }
+        // catch-all
+        Some(PrimitiveGroup::Bool | PrimitiveGroup::Float | PrimitiveGroup::Relation) | None => {
+            q.extend(newtype_inner(node, t));
         }
     }
 

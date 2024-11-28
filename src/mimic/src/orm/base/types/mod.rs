@@ -113,6 +113,18 @@ impl Path for Principal {
 }
 
 ///
+/// Relation
+///
+
+#[primitive(ty = "Relation", path = "types::prim::Relation")]
+pub struct Relation {}
+
+impl Path for Relation {
+    const IDENT: &'static str = "Relation";
+    const PATH: &'static str = "mimic::orm::base::types::Relation";
+}
+
+///
 /// String
 ///
 
