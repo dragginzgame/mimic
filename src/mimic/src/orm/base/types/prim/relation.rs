@@ -38,23 +38,23 @@ impl fmt::Display for Relation {
         let ulids = self
             .0
             .iter()
-            .map(|ulid| ulid.to_string())
+            .map(ToString::to_string)
             .collect::<Vec<_>>()
             .join(", ");
 
-        write!(f, "[{}]", ulids)
+        write!(f, "[{ulids}]")
     }
 }
 
 impl From<Vec<Ulid>> for Relation {
     fn from(vec: Vec<Ulid>) -> Self {
-        Relation(vec)
+        Self(vec)
     }
 }
 
 impl From<Ulid> for Relation {
     fn from(ulid: Ulid) -> Self {
-        Relation(vec![ulid])
+        Self(vec![ulid])
     }
 }
 

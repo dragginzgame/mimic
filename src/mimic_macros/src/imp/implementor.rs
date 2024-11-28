@@ -60,7 +60,7 @@ impl<'a> Implementor<'a> {
     }
 }
 
-impl<'a> ToTokens for Implementor<'a> {
+impl ToTokens for Implementor<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         // vars
         let ident = &self.def.ident;

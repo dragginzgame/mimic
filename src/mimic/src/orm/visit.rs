@@ -154,16 +154,16 @@ impl Visitor for ValidateVisitor {
 
 pub struct EntityAdapter<'a>(pub &'a dyn EntityDyn);
 
-impl<'a> Visitable for EntityAdapter<'a> {
+impl Visitable for EntityAdapter<'_> {
     fn drive(&self, visitor: &mut dyn Visitor) {
         self.0.drive(visitor);
     }
 }
 
-impl<'a> SanitizeManual for EntityAdapter<'a> {}
-impl<'a> SanitizeAuto for EntityAdapter<'a> {}
-impl<'a> ValidateManual for EntityAdapter<'a> {}
-impl<'a> ValidateAuto for EntityAdapter<'a> {}
+impl SanitizeManual for EntityAdapter<'_> {}
+impl SanitizeAuto for EntityAdapter<'_> {}
+impl ValidateManual for EntityAdapter<'_> {}
+impl ValidateAuto for EntityAdapter<'_> {}
 
 ///
 /// EntityAdapterMut
@@ -171,13 +171,13 @@ impl<'a> ValidateAuto for EntityAdapter<'a> {}
 
 pub struct EntityAdapterMut<'a>(pub &'a mut dyn EntityDyn);
 
-impl<'a> Visitable for EntityAdapterMut<'a> {
+impl Visitable for EntityAdapterMut<'_> {
     fn drive_mut(&mut self, visitor: &mut dyn Visitor) {
         self.0.drive_mut(visitor);
     }
 }
 
-impl<'a> SanitizeManual for EntityAdapterMut<'a> {}
-impl<'a> SanitizeAuto for EntityAdapterMut<'a> {}
-impl<'a> ValidateManual for EntityAdapterMut<'a> {}
-impl<'a> ValidateAuto for EntityAdapterMut<'a> {}
+impl SanitizeManual for EntityAdapterMut<'_> {}
+impl SanitizeAuto for EntityAdapterMut<'_> {}
+impl ValidateManual for EntityAdapterMut<'_> {}
+impl ValidateAuto for EntityAdapterMut<'_> {}

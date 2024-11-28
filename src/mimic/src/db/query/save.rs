@@ -33,7 +33,7 @@ pub enum Error {
     #[snafu(display("no results found"))]
     NoResultsFound,
 
-    #[snafu(display("validaton failed: {path} {source}"))]
+    #[snafu(display("validation failed: {path} {source}"))]
     Validation { path: String, source: OrmError },
 
     #[snafu(transparent)]

@@ -27,8 +27,7 @@ pub fn actor(canister_name: &str) -> Result<String, Error> {
 
 // schema
 pub fn schema() -> Result<String, Error> {
-    let schema = crate::orm::schema::build::schema()?;
-    let output = serde_json::to_string(&*schema).unwrap();
+    let output = serde_json::to_string(&*crate::orm::schema::build::schema()?).unwrap();
 
     Ok(output)
 }
