@@ -39,6 +39,15 @@ impl ValidateNode for Entity {
         // store
         errs.add_result(schema_read().check_node::<Store>(&self.store));
 
+        // sort_keys
+        if self.sort_keys.is_empty() {
+            errs.add("entity has no sort keys");
+        } else if let Some(last_key) = self.sort_keys.last() {
+            if last_key.entity != self.def.path() {
+                errs.add("the last sort key must point to this entity");
+            }
+        }
+
         errs.result()
     }
 }
