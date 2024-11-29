@@ -44,12 +44,21 @@ impl ValidateNode for Entity {
         // store
         errs.add_result(schema_read().check_node::<Store>(&self.store));
 
-        // sort_keys
+        // sort keys
         if self.sort_keys.is_empty() {
             errs.add("entity has no sort keys");
         } else if let Some(last_key) = self.sort_keys.last() {
+            // last sort key
             if last_key.entity != self.def.path() {
                 errs.add("the last sort key must point to this entity");
+            }
+        }
+
+        for sk in &self.sort_keys {
+            if let Some(field) = &sk.field {
+                if self.fields.get_field(field).is_none() {
+                    errs.add(format!("sort key field '{field}' does not exist",));
+                }
             }
         }
 

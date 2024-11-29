@@ -22,21 +22,7 @@ impl ValidateNode for SortKey {
         let mut errs = ErrorVec::new();
 
         // check entity
-        match schema_read().try_get_node::<Entity>(&self.entity) {
-            Ok(entity) => {
-                if let Some(field) = &self.field {
-                    if entity.fields.get_field(field).is_none() {
-                        errs.add(format!(
-                            "field '{field}' does not exist on entity '{}'",
-                            &self.entity
-                        ));
-                    }
-                }
-            }
-            Err(e) => errs.add(e),
-        }
-
-        // check field on entity
+        errs.add_result(schema_read().check_node::<Entity>(&self.entity));
 
         errs.result()
     }
