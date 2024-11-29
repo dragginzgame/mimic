@@ -57,7 +57,7 @@ impl ToTokens for Item {
             (Some(is), None) if self.indirect => quote!(Box<#is>),
             (Some(is), None) => quote!(#is),
             (None, Some(_)) => {
-                quote!(String)
+                quote!(::mimic::orm::types::Ulid)
             }
             _ => panic!("either is or relation should be set"),
         });
