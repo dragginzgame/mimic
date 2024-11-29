@@ -26,7 +26,10 @@ impl ValidateNode for SortKey {
             Ok(entity) => {
                 if let Some(field) = &self.field {
                     if entity.fields.get_field(field).is_none() {
-                        errs.add("field '{field}' does not exist on entity '{entity}'");
+                        errs.add(format!(
+                            "field '{field}' does not exist on entity '{}'",
+                            &self.entity
+                        ));
                     }
                 }
             }
