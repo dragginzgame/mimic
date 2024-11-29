@@ -421,7 +421,7 @@ impl_primitive!(Visitable);
 
 pub trait Entity: Type + EntityDyn + FieldSort + FieldFilter {
     // composite_key
-    // returns the record's composite key (parent keys + primary key) as a Vec<String>
+    // returns the record's sort keys as a Vec<String>
     fn composite_key(_keys: &[String]) -> Result<Vec<String>, Error>;
 }
 
@@ -554,20 +554,12 @@ pub trait SortKey: FromStr + ToString {
     }
 }
 
-impl SortKey for String {
-    //   fn on_create(&self) -> Self {
-    //       self.clone()
-    //   }
-}
+impl SortKey for String {}
 
 macro_rules! impl_sort_key_for_ints {
     ($($t:ty, $ut:ty, $len:expr),* $(,)?) => {
         $(
             impl SortKey for $t {
-         //       fn on_create(&self) -> Self {
-         //           *self
-         //       }
-
                 #[allow(clippy::cast_sign_loss)]
                 fn format(&self) -> String {
                     if *self < 0 {
@@ -586,10 +578,6 @@ macro_rules! impl_sort_key_for_uints {
     ($($t:ty, $len:expr),* $(,)?) => {
         $(
             impl SortKey for $t {
-           //     fn on_create(&self) -> Self {
-           //         *self
-           //     }
-
                 fn format(&self) -> String {
                     format!("{:0>width$}", self, width = $len)
                 }

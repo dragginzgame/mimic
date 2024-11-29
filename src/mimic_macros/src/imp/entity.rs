@@ -41,7 +41,7 @@ fn composite_key(node: &Entity) -> TokenStream {
     });
 
     // quote for generating the output vector using the ORM trait to
-    // format each field as a primary key
+    // format each field as a sort key
     let format_keys = fields.iter().map(|ident| {
         quote! {
             ::mimic::orm::traits::SortKey::format(&this.#ident)
@@ -79,7 +79,6 @@ fn composite_key(node: &Entity) -> TokenStream {
 pub fn entity_dyn(node: &Entity, t: Trait) -> TokenStream {
     let mut q = quote! {};
 
-    q.extend(on_create(node));
     q.extend(composite_key_dyn(node));
     q.extend(serialize_dyn(node));
 
@@ -98,17 +97,6 @@ fn composite_key_dyn(node: &Entity) -> TokenStream {
     quote! {
         fn composite_key_dyn(&self) -> Vec<::std::string::String> {
             vec![#(#parts),*]
-        }
-    }
-}
-
-// on_create
-fn on_create(node: &Entity) -> TokenStream {
-    //  let primary_key = &node.primary_key;
-
-    quote! {
-        fn on_create(&mut self) {
-    //        self.#primary_key = ::mimic::orm::traits::PrimaryKey::on_create(&self.#primary_key);
         }
     }
 }

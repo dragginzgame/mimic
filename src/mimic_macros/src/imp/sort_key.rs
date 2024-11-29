@@ -7,10 +7,6 @@ use quote::{quote, ToTokens};
 // simply delegates to the wrapped type
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
     let q = quote! {
-        fn on_create(&self) -> Self {
-            Self(self.0)
-        }
-
         fn format(&self) -> String {
             self.0.format()
         }
