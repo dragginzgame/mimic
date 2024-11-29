@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_one, quote_vec, split_idents, to_path, to_string},
+    helper::{quote_one, quote_option, to_path, to_string},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -15,19 +15,19 @@ use syn::{Ident, Path};
 pub struct SortKey {
     pub entity: Path,
 
-    #[darling(default, map = "split_idents")]
-    pub fields: Vec<Ident>,
+    #[darling(default)]
+    pub field: Option<Ident>,
 }
 
 impl Schemable for SortKey {
     fn schema(&self) -> TokenStream {
         let entity = quote_one(&self.entity, to_path);
-        let fields = quote_vec(&self.fields, to_string);
+        let field = quote_option(&self.field, to_string);
 
         quote! {
             ::mimic::orm::schema::node::SortKey {
                 entity: #entity,
-                fields: #fields,
+                field: #field,
             }
         }
     }

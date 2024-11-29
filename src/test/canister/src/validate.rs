@@ -21,6 +21,7 @@ impl ValidateTester {
         // ok
         let e = ValidateTest {
             multiple_ten: 30.into(),
+            ..Default::default()
         };
         let res = mimic::orm::validate(&e);
         assert!(res.is_ok(), "{res:?}");
@@ -28,6 +29,7 @@ impl ValidateTester {
         // fail
         let e = ValidateTest {
             multiple_ten: 43.into(),
+            ..Default::default()
         };
         let res = mimic::orm::validate(&e);
 

@@ -3,7 +3,7 @@ use crate::{
     orm::{
         prelude::*,
         traits::{
-            Filterable, Inner, Orderable, PrimaryKey, SanitizeAuto, SanitizeManual, Storable,
+            Filterable, Inner, Orderable, SanitizeAuto, SanitizeManual, SortKey, Storable,
             ValidateAuto, ValidateManual, Visitable,
         },
     },
@@ -111,19 +111,11 @@ impl Orderable for Principal {
     }
 }
 
-impl PrimaryKey for Principal {
-    fn on_create(&self) -> Self {
-        *self
-    }
-
-    fn format(&self) -> String {
-        self.0.to_string()
-    }
-}
-
 impl SanitizeManual for Principal {}
 
 impl SanitizeAuto for Principal {}
+
+impl SortKey for Principal {}
 
 impl Storable for Principal {
     fn to_bytes(&self) -> Cow<[u8]> {

@@ -14,6 +14,7 @@ mod tests {
 
         let e = ValidateTest {
             multiple_ten: 5.into(),
+            ..Default::default()
         };
         println!("{e:?}");
 

@@ -57,24 +57,23 @@ impl Storable for DataValue {
 ///
 
 #[derive(CandidType, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
-pub struct DataKey(Vec<(String, Vec<String>)>);
+pub struct DataKey(Vec<(String, Option<String>)>);
 
 impl DataKey {
     #[must_use]
-    pub const fn new(parts: Vec<(String, Vec<String>)>) -> Self {
+    pub const fn new(parts: Vec<(String, Option<String>)>) -> Self {
         Self(parts)
     }
 
-    // create_upper_bound
+    /// Creates an upper bound for the `DataKey` by appending `~` to the last part's key.
     #[must_use]
     pub fn create_upper_bound(&self) -> Self {
         let mut new_parts = self.0.clone();
-        if let Some((_, ref mut last_vec)) = new_parts.last_mut() {
-            if let Some(last_item) = last_vec.last_mut() {
-                *last_item = format!("{last_item}~");
-            } else {
-                // Append a default placeholder if the vector is empty
-                last_vec.push("~".to_string());
+
+        if let Some((_, ref mut last_key)) = new_parts.last_mut() {
+            match last_key {
+                Some(key) => key.push('~'), // Append `~` to the existing key
+                None => *last_key = Some("~".to_string()), // Create a new key with `~` if None
             }
         }
 
@@ -87,12 +86,9 @@ impl fmt::Display for DataKey {
         let formatted_parts: Vec<String> = self
             .0
             .iter()
-            .map(|(path, keys)| {
-                if keys.is_empty() {
-                    path.to_string()
-                } else {
-                    format!("{} ({})", path, keys.join(", "))
-                }
+            .map(|(path, key)| match key {
+                Some(k) => format!("{path} ({k})"),
+                None => format!("{path} (None)"),
             })
             .collect();
 
@@ -132,11 +128,8 @@ mod tests {
     #[test]
     fn test_data_key_order() {
         let parts = vec![
-            (
-                "part1".to_string(),
-                vec!["alpha".to_string(), "beta".to_string()],
-            ),
-            ("part2".to_string(), vec!["gamma".to_string()]),
+            ("part1".to_string(), Some("alpha".to_string())),
+            ("part2".to_string(), Some("gamma".to_string())),
         ];
         let data_key = DataKey::new(parts);
         let upper_bound_key = data_key.create_upper_bound();
@@ -148,58 +141,55 @@ mod tests {
     }
 
     #[test]
-    fn test_empty_last_vector() {
+    fn test_empty_last_key() {
         let parts = vec![
-            (
-                "part1".to_string(),
-                vec!["alpha".to_string(), "beta".to_string()],
-            ),
-            ("part2".to_string(), vec![]), // Initially empty vector
+            ("part1".to_string(), Some("alpha".to_string())),
+            ("part2".to_string(), None), // Initially empty key
         ];
         let data_key = DataKey::new(parts);
         let upper_bound_key = data_key.create_upper_bound();
 
         assert!(
-            !upper_bound_key.0.last().unwrap().1.is_empty(),
-            "The last vector should not be empty after creating an upper bound."
+            upper_bound_key.0.last().unwrap().1.is_some(),
+            "The last key should not be None after creating an upper bound."
         );
         assert_eq!(
-            upper_bound_key.0.last().unwrap().1[0],
-            "~",
-            "The last item in the empty vector should be '~'."
+            upper_bound_key.0.last().unwrap().1.as_deref(),
+            Some("~"),
+            "The last item in the empty key should be '~'."
         );
     }
 
     #[test]
-    fn test_non_empty_last_vector() {
+    fn test_non_empty_last_key() {
         let parts = vec![
-            ("part1".to_string(), vec!["alpha".to_string()]),
-            ("part2".to_string(), vec!["gamma".to_string()]),
+            ("part1".to_string(), Some("alpha".to_string())),
+            ("part2".to_string(), Some("gamma".to_string())),
         ];
         let data_key = DataKey::new(parts);
         let upper_bound_key = data_key.create_upper_bound();
 
         assert_eq!(
-            upper_bound_key.0.last().unwrap().1[0],
-            "gamma~",
+            upper_bound_key.0.last().unwrap().1.as_deref(),
+            Some("gamma~"),
             "The last item should be 'gamma~'."
         );
     }
 
     #[test]
     fn test_rarity_ordering() {
-        let rarity_empty = DataKey::new(vec![("Rarity".to_string(), vec![])]);
+        let rarity_empty = DataKey::new(vec![("Rarity".to_string(), None)]);
         let rarity_with_key =
-            DataKey::new(vec![("Rarity".to_string(), vec!["123123".to_string()])]);
-        let rarity_upper_bound = DataKey::new(vec![("Rarity".to_string(), vec!["~".to_string()])]);
+            DataKey::new(vec![("Rarity".to_string(), Some("123123".to_string()))]);
+        let rarity_upper_bound = DataKey::new(vec![("Rarity".to_string(), Some("~".to_string()))]);
 
         assert!(
             rarity_empty < rarity_with_key,
-            "Rarity() should be less than Rarity('123123')"
+            "Rarity(None) should be less than Rarity(Some('123123'))."
         );
         assert!(
             rarity_with_key < rarity_upper_bound,
-            "Rarity('123123') should be less than Rarity('~')"
+            "Rarity(Some('123123')) should be less than Rarity(Some('~'))."
         );
     }
 }

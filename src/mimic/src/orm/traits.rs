@@ -533,38 +533,40 @@ pub trait FieldSort {
 }
 
 ///
-/// PrimaryKey
+/// @todo - on_create shouldn't be in SortKey
 ///
 
-pub trait PrimaryKey: FromStr {
-    // on_create
-    // this is the value that the primary key would be set to
-    // on a store CREATE call
-    #[must_use]
-    fn on_create(&self) -> Self;
+// on_create
+// this is the value that the key would be set to on a store CREATE call
+//    #[must_use]
+//    fn on_create(&self) -> Self;
 
-    // format_key
-    // how is this type formatted within a sort key string
-    fn format(&self) -> String;
-}
+///
+/// SortKey
+///
 
-impl PrimaryKey for String {
-    fn on_create(&self) -> Self {
-        self.clone()
-    }
-
+pub trait SortKey: FromStr + ToString {
+    // format
+    // how is this type formatted within a sort key string, we may want
+    // to overwrite for fixed-width values
     fn format(&self) -> String {
-        self.clone()
+        self.to_string()
     }
 }
 
-macro_rules! impl_primary_key_for_ints {
+impl SortKey for String {
+    //   fn on_create(&self) -> Self {
+    //       self.clone()
+    //   }
+}
+
+macro_rules! impl_sort_key_for_ints {
     ($($t:ty, $ut:ty, $len:expr),* $(,)?) => {
         $(
-            impl PrimaryKey for $t {
-                fn on_create(&self) -> Self {
-                    *self
-                }
+            impl SortKey for $t {
+         //       fn on_create(&self) -> Self {
+         //           *self
+         //       }
 
                 #[allow(clippy::cast_sign_loss)]
                 fn format(&self) -> String {
@@ -580,13 +582,13 @@ macro_rules! impl_primary_key_for_ints {
     };
 }
 
-macro_rules! impl_primary_key_for_uints {
+macro_rules! impl_sort_key_for_uints {
     ($($t:ty, $len:expr),* $(,)?) => {
         $(
-            impl PrimaryKey for $t {
-                fn on_create(&self) -> Self {
-                    *self
-                }
+            impl SortKey for $t {
+           //     fn on_create(&self) -> Self {
+           //         *self
+           //     }
 
                 fn format(&self) -> String {
                     format!("{:0>width$}", self, width = $len)
@@ -597,7 +599,7 @@ macro_rules! impl_primary_key_for_uints {
 }
 
 #[rustfmt::skip]
-impl_primary_key_for_ints!(
+impl_sort_key_for_ints!(
     i8, u8, 4,
     i16, u16, 6,
     i32, u32, 11,
@@ -606,7 +608,7 @@ impl_primary_key_for_ints!(
 );
 
 #[rustfmt::skip]
-impl_primary_key_for_uints!(
+impl_sort_key_for_uints!(
     u8, 3,
     u16, 5,
     u32, 10,

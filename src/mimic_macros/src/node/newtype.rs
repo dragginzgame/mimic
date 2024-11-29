@@ -145,7 +145,7 @@ impl TraitNode for Newtype {
             Trait::NumToPrimitive => imp::num::to_primitive::newtype(self, t),
             Trait::NumFromPrimitive => imp::num::from_primitive::newtype(self, t),
             Trait::Orderable => imp::orderable::newtype(self, t),
-            Trait::PrimaryKey => imp::primary_key::newtype(self, t),
+            Trait::SortKey => imp::sort_key::newtype(self, t),
             Trait::SanitizeAuto => imp::sanitize_auto::newtype(self, t),
             Trait::ValidateAuto => imp::validate_auto::newtype(self, t),
             Trait::Visitable => imp::visitable::newtype(self, t),

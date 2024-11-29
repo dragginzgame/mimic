@@ -6,7 +6,7 @@ use mimic::orm::{base::types, prelude::*};
 
 #[entity(
     store = "crate::Store",
-    pks = "id",
+    sk(entity = "ComplexEntity", field = "id"),
     fields(
         field(name = "id", value(item(is = "types::Ulid"))),
         field(name = "string_test", value(item(is = "types::String"))),
@@ -65,7 +65,7 @@ pub struct ComplexEntity {}
 
 #[entity(
     store = "crate::Store",
-    pks = "id",
+    sk(entity = "AdminEntity", field = "id"),
     fields(
         field(name = "id", value(item(is = "types::Ulid"))),
         field(name = "simple_text", value(item(is = "types::String"))),
@@ -99,7 +99,7 @@ pub struct AdminEntity {}
 
 #[entity(
     store = "crate::Store",
-    pks = "id",
+    sk(entity = "SimpleEntity", field = "id"),
     fields(
         field(name = "id", value(item(is = "types::Ulid"))),
         field(name = "name", value(item(is = "types::String"))),

@@ -71,7 +71,6 @@ pub enum Trait {
     NumFromPrimitive,
     NumToPrimitive,
     Path,
-    PrimaryKey,
     SanitizeManual,
     SanitizeAuto,
     SortKey,

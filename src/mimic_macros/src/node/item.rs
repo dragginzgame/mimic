@@ -5,13 +5,11 @@ use crate::{
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-use syn::{parse_str, Path};
+use syn::Path;
 
 ///
 /// Item
 ///
-
-pub static TYPE_RELATION: &str = "mimic::orm::base::types::Relation";
 
 #[derive(Clone, Debug, FromMeta)]
 pub struct Item {
@@ -59,9 +57,7 @@ impl ToTokens for Item {
             (Some(is), None) if self.indirect => quote!(Box<#is>),
             (Some(is), None) => quote!(#is),
             (None, Some(_)) => {
-                let ty: Path = parse_str(TYPE_RELATION).unwrap();
-
-                quote!(#ty)
+                quote!(String)
             }
             _ => panic!("either is or relation should be set"),
         });

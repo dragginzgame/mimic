@@ -6,7 +6,11 @@ use mimic::orm::{base::types, prelude::*};
 
 #[entity(
     store = "crate::Store",
-    fields(field(name = "map_int_string", value(item(is = "MapIntString"))))
+    sk(entity = "HasMap", field = "id"),
+    fields(
+        field(name = "id", value(item(is = "types::Ulid"))),
+        field(name = "map_int_string", value(item(is = "MapIntString")))
+    )
 )]
 pub struct HasMap {}
 

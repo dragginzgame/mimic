@@ -23,12 +23,12 @@ pub mod prelude {
     pub use crate::{
         ic::structures::storable::Bound,
         orm::{
-            base::types::{self, Decimal, Relation, Ulid},
+            base::types::{self, Decimal, Ulid},
             helper::FixtureList,
             traits::{
                 EntityDyn, EntityFixture, EntityId as _, Filterable, Inner as _, NumCast,
-                Orderable, Path, PrimaryKey as _, Sanitize as _, SanitizeManual, Sanitizer,
-                Selector as _, Storable, Validate as _, ValidateManual, Validator, Visitable,
+                Orderable, Path, Sanitize as _, SanitizeManual, Sanitizer, Selector as _,
+                SortKey as _, Storable, Validate as _, ValidateManual, Validator, Visitable,
             },
             types::ErrorVec,
             Error,

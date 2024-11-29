@@ -169,16 +169,7 @@ impl Schema {
 
     // check_node
     pub fn check_node<T: 'static>(&self, path: &str) -> Result<(), Error> {
-        self.nodes
-            .get(path)
-            .ok_or_else(|| Error::path_not_found(path))
-            .and_then(|node| {
-                if node.as_any().type_id() == TypeId::of::<T>() {
-                    Ok(())
-                } else {
-                    Err(Error::incorrect_node_type(path))
-                }
-            })
+        self.try_get_node::<T>(path).map(|_| ())
     }
 
     // check_node_types

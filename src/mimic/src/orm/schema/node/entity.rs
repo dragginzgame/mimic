@@ -7,7 +7,6 @@ use crate::orm::{
     types::ErrorVec,
 };
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
 
 ///
 /// Entity
@@ -20,8 +19,6 @@ pub struct Entity {
 
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub sort_keys: Vec<SortKey>,
-
-    pub primary_keys: Vec<String>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub crud: Option<Crud>,
@@ -41,22 +38,6 @@ impl ValidateNode for Entity {
 
         // store
         errs.add_result(schema_read().check_node::<Store>(&self.store));
-
-        // sort keys
-        for sk in &self.sort_keys {
-            errs.add_result(schema_read().check_node::<Self>(&sk.entity));
-        }
-
-        // primary key check
-        let mut seen = HashSet::<String>::default();
-        for pk in &self.primary_keys {
-            if self.fields.get_field(pk).is_none() {
-                errs.add(format!("primary key field '{pk}' not found"));
-            }
-            if !seen.insert(pk.clone()) {
-                errs.push(format!("duplicate value for primary key field '{pk}'"));
-            }
-        }
 
         errs.result()
     }

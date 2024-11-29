@@ -14,15 +14,26 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SortKey {
     pub entity: String,
-    pub fields: Vec<String>,
+    pub field: Option<String>,
 }
 
 impl ValidateNode for SortKey {
     fn validate(&self) -> Result<(), ErrorVec> {
         let mut errs = ErrorVec::new();
 
-        // check path
-        errs.add_result(schema_read().check_node::<Entity>(&self.entity));
+        // check entity
+        match schema_read().try_get_node::<Entity>(&self.entity) {
+            Ok(entity) => {
+                if let Some(field) = &self.field {
+                    if entity.fields.get_field(field).is_none() {
+                        errs.add("field '{field}' does not exist on entity '{entity}'");
+                    }
+                }
+            }
+            Err(e) => errs.add(e),
+        }
+
+        // check field on entity
 
         errs.result()
     }

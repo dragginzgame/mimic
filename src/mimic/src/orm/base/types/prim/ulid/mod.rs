@@ -5,7 +5,7 @@ use crate::{
     ic::structures::serialize::{from_binary, to_binary},
     orm::{
         prelude::*,
-        traits::{Filterable, Orderable, PrimaryKey, SanitizeAuto, ValidateAuto},
+        traits::{Filterable, Orderable, SanitizeAuto, SortKey, ValidateAuto},
     },
 };
 use derive_more::{Deref, DerefMut, FromStr};
@@ -117,16 +117,6 @@ impl Orderable for Ulid {
     }
 }
 
-impl PrimaryKey for Ulid {
-    fn on_create(&self) -> Self {
-        Self::generate()
-    }
-
-    fn format(&self) -> String {
-        self.0.to_string()
-    }
-}
-
 // Serialize and Deserialize from the ulid crate just don't compile
 impl Serialize for Ulid {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -154,6 +144,8 @@ impl<'de> Deserialize<'de> for Ulid {
 impl SanitizeManual for Ulid {}
 
 impl SanitizeAuto for Ulid {}
+
+impl SortKey for Ulid {}
 
 impl Storable for Ulid {
     fn to_bytes(&self) -> Cow<[u8]> {

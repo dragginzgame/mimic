@@ -8,10 +8,10 @@ pub mod inner;
 pub mod into;
 pub mod num;
 pub mod orderable;
-pub mod primary_key;
 pub mod record_filter;
 pub mod record_sort;
 pub mod sanitize_auto;
+pub mod sort_key;
 pub mod validate_auto;
 pub mod visitable;
 

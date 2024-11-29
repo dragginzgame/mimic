@@ -429,7 +429,6 @@ pub enum PrimitiveType {
     I128,
     Isize,
     Principal,
-    Relation,
     String,
     U8,
     U16,
@@ -464,7 +463,6 @@ impl PrimitiveType {
             | Self::U64
             | Self::U128
             | Self::Usize => PrimitiveGroup::Integer,
-            Self::Relation => PrimitiveGroup::Relation,
             Self::String | Self::Ulid | Self::Principal => PrimitiveGroup::String,
             Self::Decimal => PrimitiveGroup::Decimal,
         }
@@ -522,7 +520,6 @@ impl ToTokens for PrimitiveType {
             Self::I128 => quote!(i128),
             Self::Isize => quote!(isize),
             Self::Principal => quote!(::mimic::orm::base::types::Principal),
-            Self::Relation => quote!(::mimic::orm::base::types::Relation),
             Self::String => quote!(String),
             Self::U8 => quote!(u8),
             Self::U16 => quote!(u16),
@@ -550,7 +547,6 @@ pub enum PrimitiveGroup {
     Decimal,
     Float,
     Integer,
-    Relation,
     String,
 }
 

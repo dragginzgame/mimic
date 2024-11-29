@@ -6,7 +6,7 @@ use mimic::orm::{base::types, prelude::*};
 
 #[entity(
     store = "crate::Store",
-    pks = "id",
+    sk(entity = "CreateBasic", field = "id"),
     fields(field(name = "id", value(item(is = "types::Ulid"))))
 )]
 pub struct CreateBasic {}
@@ -17,7 +17,7 @@ pub struct CreateBasic {}
 
 #[entity(
     store = "crate::Store",
-    pks = "id",
+    sk(entity = "Filterable", field = "id"),
     fields(
         field(name = "id", value(item(is = "types::Ulid"))),
         field(name = "name", value(item(is = "types::String"))),
@@ -32,7 +32,7 @@ pub struct Filterable {}
 
 #[entity(
     store = "crate::Store",
-    pks = "value",
+    sk(entity = "Limit"),
     fields(field(name = "value", value(item(is = "types::U32"))))
 )]
 pub struct Limit {}
@@ -43,7 +43,7 @@ pub struct Limit {}
 
 #[entity(
     store = "crate::Store",
-    pks = "id",
+    sk(entity = "SortKeyOrder", field = "id"),
     fields(field(name = "id", value(item(is = "types::Ulid"))))
 )]
 pub struct SortKeyOrder {}
@@ -54,7 +54,7 @@ pub struct SortKeyOrder {}
 
 #[entity(
     store = "crate::Store",
-    pks = "a_id",
+    sk(entity = "SortKeyA", field = "a_id"),
     fields(field(name = "a_id", value(item(is = "types::Ulid"))))
 )]
 pub struct SortKeyA {}
@@ -65,12 +65,11 @@ pub struct SortKeyA {}
 
 #[entity(
     store = "crate::Store",
-    sk(entity = "SortKeyA", fields = "a_id"),
-    pks = "b_id, c_id",
+    sk(entity = "SortKeyA", field = "a_id"),
+    sk(entity = "SortKeyB", field = "b_id"),
     fields(
         field(name = "a_id", value(item(is = "types::Ulid"))),
         field(name = "b_id", value(item(is = "types::Ulid"))),
-        field(name = "c_id", value(item(is = "types::Ulid"))),
     )
 )]
 pub struct SortKeyB {}
@@ -81,16 +80,13 @@ pub struct SortKeyB {}
 
 #[entity(
     store = "crate::Store",
-    sk(entity = "SortKeyA", fields = "a_id"),
-    sk(entity = "SortKeyB", fields = "b_id, c_id"),
-    pks = "d_id, e_id, f_id",
+    sk(entity = "SortKeyA", field = "a_id"),
+    sk(entity = "SortKeyB", field = "b_id"),
+    sk(entity = "SortKeyC", field = "c_id"),
     fields(
         field(name = "a_id", value(item(is = "types::Ulid"))),
         field(name = "b_id", value(item(is = "types::Ulid"))),
         field(name = "c_id", value(item(is = "types::Ulid"))),
-        field(name = "d_id", value(item(is = "types::Ulid"))),
-        field(name = "e_id", value(item(is = "types::Ulid"))),
-        field(name = "f_id", value(item(is = "types::Ulid"))),
     )
 )]
 pub struct SortKeyC {}

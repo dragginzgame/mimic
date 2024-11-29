@@ -9,7 +9,11 @@ use mimic::orm::{
 
 #[entity(
     store = "crate::Store",
-    fields(field(name = "multiple_ten", value(item(is = "MultipleTenType"))))
+    sk(entity = "ValidateTest", field = "id"),
+    fields(
+        field(name = "id", value(item(is = "types::Ulid"))),
+        field(name = "multiple_ten", value(item(is = "MultipleTenType")))
+    )
 )]
 pub struct ValidateTest {}
 

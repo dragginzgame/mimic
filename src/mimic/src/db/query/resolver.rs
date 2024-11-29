@@ -56,27 +56,12 @@ impl Resolver {
     pub fn data_key(&self, ck: &[String]) -> Result<DataKey, Error> {
         let chain_format = self.chain_format()?;
 
-        // Initialize an empty vector to store parts that have keys
-        let mut data_key_parts: Vec<(String, Vec<String>)> = Vec::new();
-        let mut index = 0;
+        // Initialize an empty vector to store key parts
+        let mut data_key_parts: Vec<(String, Option<String>)> = Vec::new();
 
-        for (i, (part, count)) in chain_format.iter().enumerate() {
-            let available_count = if index < ck.len() {
-                usize::min(*count, ck.len() - index)
-            } else {
-                0
-            };
-
-            // Add the new part if it's the root part of the chain, or if
-            // it isn't and we have keys
-            if i == 0 || available_count > 0 {
-                let part_keys = ck[index..index + available_count].to_vec();
-
-                data_key_parts.push((part.clone(), part_keys));
-            };
-
-            // Stop processing after consuming all keys
-            index += available_count;
+        for (i, part) in chain_format.iter().enumerate() {
+            let key = ck.get(i).cloned();
+            data_key_parts.push((part.clone(), key));
         }
 
         Ok(DataKey::new(data_key_parts))
@@ -84,12 +69,10 @@ impl Resolver {
 
     // chain_format
     // returns the data used to format the sort key
-    fn chain_format(&self) -> Result<Vec<(String, usize)>, Error> {
+    fn chain_format(&self) -> Result<Vec<String>, Error> {
         let schema = get_schema().map_err(Error::from)?;
 
-        //
-        // Create the chain from the Schema
-        //
+        // create the chain from the Schema
         let entity = schema
             .get_node::<Entity>(&self.entity)
             .ok_or_else(|| Error::entity_not_found(&self.entity))?;
@@ -111,14 +94,13 @@ impl Resolver {
 
         let mut format = Vec::new();
         for (i, entity) in chain.into_iter().enumerate() {
-            let num_keys = entity.primary_keys.len();
             let part = if i == 0 {
                 entity.def.path()
             } else {
                 entity.def.ident.to_string()
             };
 
-            format.push((part, num_keys));
+            format.push(part);
         }
 
         Ok(format)

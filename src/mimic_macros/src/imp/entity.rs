@@ -2,10 +2,18 @@ use super::Implementor;
 use crate::node::{Entity, Trait};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
+use syn::Ident;
 
 ///
 /// ENTITY
 ///
+
+fn entity_get_fields(node: &Entity) -> Vec<Ident> {
+    node.sort_keys
+        .iter()
+        .filter_map(|sk| sk.field.clone())
+        .collect::<Vec<_>>()
+}
 
 // entity
 pub fn entity(node: &Entity, t: Trait) -> TokenStream {
@@ -20,12 +28,7 @@ pub fn entity(node: &Entity, t: Trait) -> TokenStream {
 
 // composite_key
 fn composite_key(node: &Entity) -> TokenStream {
-    let fields = node
-        .sort_keys
-        .iter()
-        .flat_map(|sk| sk.fields.iter())
-        .chain(&node.primary_keys)
-        .collect::<Vec<_>>();
+    let fields = entity_get_fields(node);
 
     // Prepare the quote for setting struct fields based on the provided values slice
     let set_fields = fields.iter().enumerate().map(|(i, ident)| {
@@ -41,7 +44,7 @@ fn composite_key(node: &Entity) -> TokenStream {
     // format each field as a primary key
     let format_keys = fields.iter().map(|ident| {
         quote! {
-            ::mimic::orm::traits::PrimaryKey::format(&this.#ident)
+            ::mimic::orm::traits::SortKey::format(&this.#ident)
         }
     });
 
@@ -67,6 +70,7 @@ fn composite_key(node: &Entity) -> TokenStream {
         }
     }
 }
+
 ///
 /// EntityDyn
 ///
@@ -86,12 +90,9 @@ pub fn entity_dyn(node: &Entity, t: Trait) -> TokenStream {
 
 // composite_key_dyn
 fn composite_key_dyn(node: &Entity) -> TokenStream {
-    let parts = node
-        .sort_keys
-        .iter()
-        .flat_map(|sk| sk.fields.iter())
-        .chain(&node.primary_keys)
-        .map(|field| quote!(::mimic::orm::traits::PrimaryKey::format(&self.#field)));
+    let parts = entity_get_fields(node)
+        .into_iter()
+        .map(|field| quote!(::mimic::orm::traits::SortKey::format(&self.#field)));
 
     // quote
     quote! {
@@ -103,16 +104,11 @@ fn composite_key_dyn(node: &Entity) -> TokenStream {
 
 // on_create
 fn on_create(node: &Entity) -> TokenStream {
-    let mut inner = quote!();
-    for pk in &node.primary_keys {
-        inner.extend(quote! {
-            self.#pk = ::mimic::orm::traits::PrimaryKey::on_create(&self.#pk);
-        });
-    }
+    //  let primary_key = &node.primary_key;
 
     quote! {
         fn on_create(&mut self) {
-            #inner
+    //        self.#primary_key = ::mimic::orm::traits::PrimaryKey::on_create(&self.#primary_key);
         }
     }
 }
