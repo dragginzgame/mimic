@@ -53,11 +53,19 @@ impl ValidateNode for Entity {
                 errs.add("the last sort key must point to this entity");
             }
         }
-
         for sk in &self.sort_keys {
             if let Some(field) = &sk.field {
                 if self.fields.get_field(field).is_none() {
-                    errs.add(format!("sort key field '{field}' does not exist",));
+                    errs.add(format!("sort key field '{field}' does not exist"));
+                }
+            }
+        }
+
+        // indexes
+        for index in &self.indexes {
+            for field in &index.fields {
+                if self.fields.get_field(field).is_none() {
+                    errs.add(format!("index field '{field}' does not exist"));
                 }
             }
         }

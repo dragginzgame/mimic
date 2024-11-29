@@ -8,8 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 
 ## [0.2.2]
-- relations are now base::types::Relation and are a Vec<Ulid> to support more complex relations, big
-breaking change for everything
+- primary keys are no more, sort keys now include the key of the local entity
 
 ## [0.2.1]
 - split load and load_dyn on query in preparation for inter-canister queries
