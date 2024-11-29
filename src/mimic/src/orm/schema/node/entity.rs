@@ -1,7 +1,9 @@
 use crate::orm::{
     schema::{
         build::schema_read,
-        node::{Crud, Def, FieldList, MacroNode, SortKey, Store, ValidateNode, VisitableNode},
+        node::{
+            Crud, Def, FieldList, Index, MacroNode, SortKey, Store, ValidateNode, VisitableNode,
+        },
         visit::Visitor,
     },
     types::ErrorVec,
@@ -19,6 +21,9 @@ pub struct Entity {
 
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub sort_keys: Vec<SortKey>,
+
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub indexes: Vec<Index>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub crud: Option<Crud>,
@@ -60,6 +65,9 @@ impl VisitableNode for Entity {
     fn drive<V: Visitor>(&self, v: &mut V) {
         self.def.accept(v);
         for node in &self.sort_keys {
+            node.accept(v);
+        }
+        for node in &self.indexes {
             node.accept(v);
         }
         if let Some(node) = &self.crud {

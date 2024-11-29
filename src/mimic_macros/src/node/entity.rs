@@ -1,7 +1,7 @@
 use crate::imp;
 use crate::{
     helper::{quote_one, quote_option, quote_vec, to_path},
-    node::{Crud, Def, FieldList, MacroNode, Node, SortKey, Trait, TraitNode, Traits},
+    node::{Crud, Def, FieldList, Index, MacroNode, Node, SortKey, Trait, TraitNode, Traits},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -22,6 +22,9 @@ pub struct Entity {
 
     #[darling(multiple, rename = "sk")]
     pub sort_keys: Vec<SortKey>,
+
+    #[darling(multiple, default, rename = "index")]
+    pub indexes: Vec<Index>,
 
     #[darling(default)]
     pub fields: FieldList,
@@ -110,6 +113,7 @@ impl Schemable for Entity {
         let def = &self.def.schema();
         let store = quote_one(&self.store, to_path);
         let sort_keys = quote_vec(&self.sort_keys, SortKey::schema);
+        let indexes = quote_vec(&self.indexes, Index::schema);
         let fields = &self.fields.schema();
         let crud = quote_option(&self.crud, Crud::schema);
 
@@ -118,6 +122,7 @@ impl Schemable for Entity {
                 def: #def,
                 store: #store,
                 sort_keys: #sort_keys,
+                indexes: #indexes,
                 fields: #fields,
                 crud: #crud,
             })

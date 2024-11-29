@@ -1,5 +1,6 @@
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::{format_ident, quote, ToTokens};
+use syn::Ident;
 
 ///
 /// QUOTING
@@ -70,4 +71,19 @@ pub fn to_path<T: ToTokens>(t: &T) -> TokenStream {
     quote! {
         <#t as ::mimic::orm::traits::Path>::path().to_string()
     }
+}
+
+///
+/// DARLING HELPERS
+///
+
+// split_idents
+#[allow(clippy::needless_pass_by_value)]
+#[must_use]
+pub fn split_idents(s: String) -> Vec<Ident> {
+    s.split(',')
+        .map(str::trim)
+        .filter(|item| !item.is_empty())
+        .map(|item| format_ident!("{item}"))
+        .collect()
 }
