@@ -80,8 +80,11 @@ pub struct SortKeyA {}
     sk(entity = "SortKeyA", field = "a_id"),
     sk(entity = "SortKeyB", field = "b_id"),
     fields(
-        field(name = "a_id", value(item(is = "types::Ulid"))),
-        field(name = "b_id", value(item(is = "types::Ulid"))),
+        field(name = "a_id", value(item(rel = "SortKeyA"))),
+        field(
+            name = "b_id",
+            value(item(is = "types::Ulid"), default = "types::Ulid::generate")
+        ),
     )
 )]
 pub struct SortKeyB {}
@@ -96,8 +99,8 @@ pub struct SortKeyB {}
     sk(entity = "SortKeyB", field = "b_id"),
     sk(entity = "SortKeyC", field = "c_id"),
     fields(
-        field(name = "a_id", value(item(is = "types::Ulid"))),
-        field(name = "b_id", value(item(is = "types::Ulid"))),
+        field(name = "a_id", value(item(rel = "SortKeyA"))),
+        field(name = "b_id", value(item(rel = "SortKeyB"))),
         field(
             name = "c_id",
             value(item(is = "types::Ulid"), default = "types::Ulid::generate")

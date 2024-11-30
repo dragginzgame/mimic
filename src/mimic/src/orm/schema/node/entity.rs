@@ -44,19 +44,35 @@ impl ValidateNode for Entity {
         // store
         errs.add_result(schema_read().check_node::<Store>(&self.store));
 
-        // sort keys
+        // ensure there are sort keys
         if self.sort_keys.is_empty() {
             errs.add("entity has no sort keys");
-        } else if let Some(last_key) = self.sort_keys.last() {
-            // last sort key
-            if last_key.entity != self.def.path() {
-                errs.add("the last sort key must point to this entity");
-            }
         }
-        for sk in &self.sort_keys {
+
+        // check sort keys
+        for (i, sk) in self.sort_keys.iter().enumerate() {
             if let Some(field) = &sk.field {
-                if self.fields.get_field(field).is_none() {
-                    errs.add(format!("sort key field '{field}' does not exist"));
+                // Check if the field exists
+                match self.fields.get_field(field) {
+                    None => errs.add(format!("sort key field '{field}' does not exist")),
+                    Some(field_info) => {
+                        if i == self.sort_keys.len() - 1 {
+                            // Last sort key: must point to this entity and have a default value
+                            if sk.entity != self.def.path() {
+                                errs.add("the last sort key must point to this entity");
+                            }
+                            if field_info.value.default.is_none() {
+                                errs.add(format!(
+                                    "last sort key field '{field}' must have a default value"
+                                ));
+                            }
+                        } else if !field_info.value.item.is_relation() {
+                            // Non-last sort keys: must be of type relation
+                            errs.add(format!(
+                                "non-last sort key field '{field}' must be of type relation"
+                            ));
+                        }
+                    }
                 }
             }
         }

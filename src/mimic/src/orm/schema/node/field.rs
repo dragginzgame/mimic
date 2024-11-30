@@ -113,11 +113,6 @@ impl ValidateNode for Field {
             }
         }
 
-        // id
-        if self.name == "id" && self.value.default.is_none() {
-            errs.add("a field named id requires a default value");
-        }
-
         errs.result()
     }
 }
