@@ -95,6 +95,7 @@ pub enum PrimitiveGroup {
     Float,
     Integer,
     String,
+    Ulid,
 }
 
 ///

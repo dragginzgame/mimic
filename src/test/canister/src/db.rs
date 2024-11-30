@@ -4,7 +4,10 @@ use mimic::{
         types::DataKey,
         Db,
     },
-    orm::{base::types::Ulid, traits::Path},
+    orm::{
+        base::types::Ulid,
+        traits::{FromStr, Path},
+    },
 };
 
 ///
@@ -228,7 +231,7 @@ impl<'a> DbTester<'a> {
         // so that the IDs are left unchanged
         for (id, name, description) in test_entities {
             let e = Filterable {
-                id: Ulid::from_string(id).unwrap(),
+                id: Ulid::from_str(id).unwrap(),
                 name: name.into(),
                 description: description.into(),
             };

@@ -452,6 +452,7 @@ impl PrimitiveType {
         match self {
             Self::Blob => PrimitiveGroup::Blob,
             Self::Bool => PrimitiveGroup::Bool,
+            Self::Decimal => PrimitiveGroup::Decimal,
             Self::F32 | Self::F64 => PrimitiveGroup::Float,
             Self::I8
             | Self::I16
@@ -465,8 +466,8 @@ impl PrimitiveType {
             | Self::U64
             | Self::U128
             | Self::Usize => PrimitiveGroup::Integer,
-            Self::String | Self::Ulid | Self::Principal => PrimitiveGroup::String,
-            Self::Decimal => PrimitiveGroup::Decimal,
+            Self::String | Self::Principal => PrimitiveGroup::String,
+            Self::Ulid => PrimitiveGroup::Ulid,
         }
     }
 
@@ -550,6 +551,7 @@ pub enum PrimitiveGroup {
     Float,
     Integer,
     String,
+    Ulid,
 }
 
 impl FromMeta for PrimitiveGroup {

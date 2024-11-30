@@ -8,7 +8,10 @@ use mimic::orm::{base::types, prelude::*};
     store = "crate::Store",
     sk(entity = "HasMap", field = "id"),
     fields(
-        field(name = "id", value(item(is = "types::Ulid"))),
+        field(
+            name = "id",
+            value(item(is = "types::Ulid"), default = "types::Ulid::generate")
+        ),
         field(name = "map_int_string", value(item(is = "MapIntString")))
     )
 )]

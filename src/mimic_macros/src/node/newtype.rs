@@ -116,7 +116,7 @@ impl TraitNode for Newtype {
                         Trait::SubAssign,
                     ]);
                 }
-                Some(PrimitiveGroup::String) => {
+                Some(PrimitiveGroup::String | PrimitiveGroup::Ulid) => {
                     traits.extend(vec![Trait::Display, Trait::FromStr]);
                 }
                 _ => {}

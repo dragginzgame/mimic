@@ -7,12 +7,11 @@ rustup update
 # cargo
 cargo install \
     cargo-audit cargo-expand cargo-machete cargo-llvm-lines \
-    cargo-outdated cargo-sort cargo-udeps cargo-tarpaulin \
+    cargo-sort cargo-udeps cargo-tarpaulin \
     candid-extractor ic-wasm
 
 # cleanup
 cargo audit
-cargo outdated
 cargo sort -w 1>/dev/null
 
 # update last

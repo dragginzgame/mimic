@@ -1,5 +1,4 @@
-use crate::orm::{prelude::*, traits::NumCast};
-use types::Decimal;
+use crate::orm::{base::types::Decimal, prelude::*, traits::NumCast};
 
 ///
 /// Clamp

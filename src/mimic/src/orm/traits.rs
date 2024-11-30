@@ -431,10 +431,6 @@ pub trait Entity: Type + EntityDyn + FieldSort + FieldFilter {
 ///
 
 pub trait EntityDyn: TypeDyn + Visitable {
-    // on_create
-    // modifies the entity's record in-place before saving it to the database
-    fn on_create(&mut self) {}
-
     // composite_key_dyn
     fn composite_key_dyn(&self) -> Vec<String>;
 
@@ -531,15 +527,6 @@ pub trait FieldSort {
 
     fn generate_sorter(order: &[(String, SortDirection)]) -> Box<FieldSortFn<Self>>;
 }
-
-///
-/// @todo - on_create shouldn't be in SortKey
-///
-
-// on_create
-// this is the value that the key would be set to on a store CREATE call
-//    #[must_use]
-//    fn on_create(&self) -> Self;
 
 ///
 /// SortKey

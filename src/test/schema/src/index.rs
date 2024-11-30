@@ -9,7 +9,10 @@ use mimic::orm::{base::types, prelude::*};
     sk(entity = "Index", field = "id"),
     index(fields = "x"),
     fields(
-        field(name = "id", value(item(is = "types::Ulid"))),
+        field(
+            name = "id",
+            value(item(is = "types::Ulid"), default = "types::Ulid::generate")
+        ),
         field(name = "x", value(item(is = "types::U32")))
     )
 )]

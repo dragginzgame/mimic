@@ -1,4 +1,4 @@
-use crate::orm::prelude::*;
+use crate::orm::{base::types::Decimal, prelude::*};
 use num_traits::{NumCast, Zero};
 
 ///

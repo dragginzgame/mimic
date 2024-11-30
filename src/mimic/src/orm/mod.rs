@@ -23,7 +23,6 @@ pub mod prelude {
     pub use crate::{
         ic::structures::storable::Bound,
         orm::{
-            base::types::{self, Decimal, Ulid},
             helper::FixtureList,
             traits::{
                 EntityDyn, EntityFixture, EntityId as _, Filterable, Inner as _, NumCast,
@@ -35,7 +34,7 @@ pub mod prelude {
         },
         utils::case::{Case, Casing},
     };
-    pub use ::candid::{CandidType, Principal};
+    pub use ::candid::CandidType;
     pub use ::mimic_macros::*;
     pub use ::serde::{Deserialize, Serialize};
     pub use ::snafu::Snafu;

@@ -227,9 +227,6 @@ impl<'a> SaveBuilderExecutor<'a> {
         // and relevant data is sanitized
         //
 
-        if matches!(mode, SaveMode::Create) {
-            entity.on_create();
-        }
         if self.config.options.sanitize {
             let mut adapter = crate::orm::visit::EntityAdapterMut(entity);
             crate::orm::sanitize(&mut adapter);

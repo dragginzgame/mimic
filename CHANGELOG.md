@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.2.2]
 - primary keys are no more, sort keys now include the key of the local entity
+- we didn't need the OnCreate hook, so removed that complex code
 
 ## [0.2.1]
 - split load and load_dyn on query in preparation for inter-canister queries

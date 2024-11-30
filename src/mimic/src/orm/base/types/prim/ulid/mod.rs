@@ -5,7 +5,7 @@ use crate::{
     ic::structures::serialize::{from_binary, to_binary},
     orm::{
         prelude::*,
-        traits::{Filterable, Orderable, SanitizeAuto, SortKey, ValidateAuto},
+        traits::{Filterable, Inner, Orderable, SanitizeAuto, SortKey, ValidateAuto},
     },
 };
 use derive_more::{Deref, DerefMut, FromStr};
@@ -43,7 +43,7 @@ impl From<ulid::DecodeError> for Error {
 /// Ulid
 ///
 
-#[derive(Clone, Copy, Debug, Deref, DerefMut, Eq, FromStr, PartialEq, Hash, Ord, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deref, DerefMut, Eq, PartialEq, FromStr, Hash, Ord, PartialOrd)]
 pub struct Ulid(WrappedUlid);
 
 impl Ulid {
@@ -57,13 +57,6 @@ impl Ulid {
     #[must_use]
     pub const fn from_parts(timestamp_ms: u64, random: u128) -> Self {
         Self(WrappedUlid::from_parts(timestamp_ms, random))
-    }
-
-    /// from_string
-    pub fn from_string(encoded: &str) -> Result<Self, Error> {
-        let ulid = WrappedUlid::from_string(encoded)?;
-
-        Ok(Self(ulid))
     }
 
     /// generate
@@ -108,6 +101,16 @@ impl Filterable for Ulid {
 impl<T: Into<WrappedUlid>> From<T> for Ulid {
     fn from(t: T) -> Self {
         Self(t.into())
+    }
+}
+
+impl Inner<Self> for Ulid {
+    fn inner(&self) -> &Self {
+        self
+    }
+
+    fn into_inner(self) -> Self {
+        self
     }
 }
 
