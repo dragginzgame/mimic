@@ -51,29 +51,29 @@ impl ValidateNode for Entity {
 
         // check sort keys
         for (i, sk) in self.sort_keys.iter().enumerate() {
-            if let Some(field) = &sk.field {
+            if let Some(field_name) = &sk.field {
                 // Check if the field exists
-                match self.fields.get_field(field) {
-                    None => errs.add(format!("sort key field '{field}' does not exist")),
-                    Some(field_info) => {
+                match self.fields.get_field(field_name) {
+                    None => errs.add(format!("sort key field '{field_name}' does not exist")),
+                    Some(field) => {
                         if i == self.sort_keys.len() - 1 {
                             // Last sort key: must point to this entity and have a default value
                             if sk.entity != self.def.path() {
                                 errs.add("the last sort key must point to this entity");
                             }
-                            if field_info.value.default.is_none() {
+                            if field.name == "id" && field.value.default.is_none() {
                                 errs.add(format!(
-                                    "last sort key field '{field}' must have a default value"
+                                    "last sort key field '{field_name}' must have a default value"
                                 ));
                             }
-                        } else if let Some(relation) = &field_info.value.item.relation {
+                        } else if let Some(relation) = &field.value.item.relation {
                             if *relation != sk.entity {
                                 errs.add("related entity does not match sort key");
                             }
                         } else {
                             // Non-last sort keys: must be of type relation
                             errs.add(format!(
-                                "non-last sort key field '{field}' must be of type relation"
+                                "non-last sort key field '{field_name}' must be of type relation"
                             ));
                         }
                     }
