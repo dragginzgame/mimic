@@ -22,9 +22,6 @@ use std::{
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
-    #[snafu(display("serde json error: {msg}"))]
-    SerdeJson { msg: String },
-
     #[snafu(display("validation failed: {errors}"))]
     Validation { errors: ErrorTree },
 }
@@ -98,16 +95,6 @@ pub fn schema() -> Result<RwLockReadGuard<'static, Schema>, Error> {
     }
 
     Ok(schema)
-}
-
-// schema_json
-// to get the built schema via an executable
-pub fn schema_json() -> Result<String, Error> {
-    let schema = schema()?;
-    let json =
-        serde_json::to_string(&*schema).map_err(|e| Error::SerdeJson { msg: e.to_string() })?;
-
-    Ok(json)
 }
 
 // validate

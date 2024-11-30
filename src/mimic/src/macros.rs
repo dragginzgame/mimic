@@ -31,7 +31,13 @@ macro_rules! mimic_build {
         //
         // actor
         //
-        let output = ::mimic::build::actor($actor).unwrap();
+        let output = match ::mimic::build::actor::generate($actor) {
+            Ok(res) => res,
+            Err(err) => {
+                eprintln!("Error building actor: {err}");
+                std::process::exit(1);
+            }
+        };
 
         // write the file
         let actor_file = PathBuf::from(out_dir.clone()).join("actor.rs");
@@ -41,7 +47,7 @@ macro_rules! mimic_build {
         //
         // schema
         //
-        let output = ::mimic::build::schema().unwrap();
+        let output = ::mimic::build::schema::schema().unwrap();
 
         // write the file
         let schema_file = PathBuf::from(out_dir).join("schema.rs");

@@ -66,7 +66,11 @@ impl ValidateNode for Entity {
                                     "last sort key field '{field}' must have a default value"
                                 ));
                             }
-                        } else if !field_info.value.item.is_relation() {
+                        } else if let Some(relation) = &field_info.value.item.relation {
+                            if *relation != sk.entity {
+                                errs.add("related entity does not match sort key");
+                            }
+                        } else {
                             // Non-last sort keys: must be of type relation
                             errs.add(format!(
                                 "non-last sort key field '{field}' must be of type relation"

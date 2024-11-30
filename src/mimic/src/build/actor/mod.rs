@@ -16,7 +16,6 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
-use std::process;
 
 ///
 /// Error
@@ -24,19 +23,24 @@ use std::process;
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
+    #[snafu(display("canister '{canister}' not found in schema"))]
+    CanisterNotFound { canister: String },
+
     #[snafu(transparent)]
-    Schema { source: crate::orm::schema::Error },
+    Schema {
+        source: crate::orm::schema::build::Error,
+    },
 }
 
 // generate
 pub fn generate(canister_name: &str) -> Result<String, Error> {
     // load schema and get the specified canister
-    let schema = schema().unwrap();
+    let schema = schema()?;
     let mut canisters = schema.filter_nodes::<Canister, _>(|node| node.name() == canister_name);
     let Some((_, canister)) = canisters.next() else {
-        eprintln!("Canister '{canister_name}' not found in the schema",);
-
-        process::exit(1);
+        return Err(Error::CanisterNotFound {
+            canister: canister_name.to_string(),
+        });
     };
 
     // create the ActorBuilder and generate the code
