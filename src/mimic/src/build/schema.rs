@@ -15,7 +15,7 @@ pub enum Error {
 
 // schema
 pub fn schema() -> Result<String, Error> {
-    let output = serde_json::to_string(&*crate::orm::schema::build::schema()?).unwrap();
+    let output = serde_json::to_string(&*crate::orm::schema::build::get_schema()?).unwrap();
 
     Ok(output)
 }

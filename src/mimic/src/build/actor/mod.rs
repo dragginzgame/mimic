@@ -9,7 +9,7 @@ pub mod timers;
 pub mod user;
 
 use crate::orm::schema::{
-    build::schema,
+    build::get_schema,
     node::{Canister, CanisterBuild, Entity, Store},
 };
 use proc_macro2::TokenStream;
@@ -35,7 +35,7 @@ pub enum Error {
 // generate
 pub fn generate(canister_name: &str) -> Result<String, Error> {
     // load schema and get the specified canister
-    let schema = schema()?;
+    let schema = get_schema()?;
     let mut canisters = schema.filter_nodes::<Canister, _>(|node| node.name() == canister_name);
     let Some((_, canister)) = canisters.next() else {
         return Err(Error::CanisterNotFound {
@@ -140,7 +140,7 @@ impl ActorBuilder {
         let canister_path = self.canister.def.path();
         let mut stores = Vec::new();
 
-        for (store_path, store) in schema()
+        for (store_path, store) in get_schema()
             .unwrap()
             .filter_nodes::<Store, _>(|node| node.canister == canister_path)
         {
@@ -154,7 +154,7 @@ impl ActorBuilder {
     // helper function to get all the entities for the current canister
     #[must_use]
     pub fn get_entities(&self) -> Vec<(String, Entity)> {
-        let schema = schema().unwrap();
+        let schema = get_schema().unwrap();
         let canister_path = self.canister.def.path();
         let mut entities = Vec::new();
 

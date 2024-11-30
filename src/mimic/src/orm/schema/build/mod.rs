@@ -86,8 +86,8 @@ pub(crate) fn schema_read() -> RwLockReadGuard<'static, Schema> {
     SCHEMA.read().unwrap()
 }
 
-/// schema
-pub fn schema() -> Result<RwLockReadGuard<'static, Schema>, Error> {
+/// get_schema
+pub fn get_schema() -> Result<RwLockReadGuard<'static, Schema>, Error> {
     let schema = schema_read();
 
     // Check if validation has already been done
@@ -100,10 +100,10 @@ pub fn schema() -> Result<RwLockReadGuard<'static, Schema>, Error> {
     Ok(schema)
 }
 
-// schema_json
+// get_schema_json
 // to get the built schema via an executable
-pub fn schema_json() -> Result<String, Error> {
-    let schema = schema()?;
+pub fn get_schema_json() -> Result<String, Error> {
+    let schema = get_schema()?;
     let json =
         serde_json::to_string(&*schema).map_err(|e| Error::SerdeJson { msg: e.to_string() })?;
 
