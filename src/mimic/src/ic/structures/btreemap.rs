@@ -30,12 +30,12 @@ where
 
     /// keys
     pub fn keys(&self) -> impl Iterator<Item = K> + '_ {
-        self.data.iter().map(|(k, _)| k)
+        self.data.keys()
     }
 
     /// values
     pub fn values(&self) -> impl Iterator<Item = V> + '_ {
-        self.data.iter().map(|(_, v)| v)
+        self.data.values()
     }
 
     /// clear
