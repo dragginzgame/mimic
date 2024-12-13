@@ -28,16 +28,6 @@ where
         }
     }
 
-    /// keys
-    pub fn keys(&self) -> impl Iterator<Item = K> + '_ {
-        self.data.iter().map(|(k, _)| k)
-    }
-
-    /// values
-    pub fn values(&self) -> impl Iterator<Item = V> + '_ {
-        self.data.iter().map(|(_, v)| v)
-    }
-
     /// clear
     /// the original clear() method in the ic-stable-structures library
     /// couldn't be wrapped as it took ownership, so they made a new one
