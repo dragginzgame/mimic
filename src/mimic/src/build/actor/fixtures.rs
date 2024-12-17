@@ -48,7 +48,7 @@ pub fn fixture_module(builder: &mut ActorBuilder) {
         ) -> Result<(), ::mimic::api::Error> {
             DB.with(|db| {
                 ::mimic::db::query::replace(db)
-                    .debug()
+          //          .debug()
                     .from_entities_dynamic(fixtures)?;
 
                 Ok(())

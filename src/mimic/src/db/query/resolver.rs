@@ -86,7 +86,6 @@ impl Resolver {
 
             chain.push(sk_entity);
         }
-        chain.push(entity);
 
         //
         // format the chain
