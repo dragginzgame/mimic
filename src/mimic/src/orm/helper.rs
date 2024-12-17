@@ -1,10 +1,11 @@
 use super::traits::EntityDyn;
+use derive_more::{Deref, DerefMut};
 
 ///
 /// FixtureList
 ///
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Deref, DerefMut)]
 pub struct FixtureList(Vec<Box<dyn EntityDyn + 'static>>);
 
 impl FixtureList {
