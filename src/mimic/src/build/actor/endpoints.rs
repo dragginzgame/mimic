@@ -239,7 +239,9 @@ pub fn store_endpoints(builder: &mut ActorBuilder) {
             // clear canister
             DB.with(|db| {
                 db.with_store_mut(&store_path, |store| {
-                    Ok(store.clear())
+                    store.clear();
+
+                    Ok(())
                 })
             })
             .map_err(::mimic::db::Error::from)?;
