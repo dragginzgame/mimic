@@ -18,9 +18,9 @@ impl AuthService {
     // Checks if a given role has the specified permission
     #[must_use]
     pub fn role_has_permission(role: &str, permission: &str) -> bool {
-        ROLE_PERMISSION_MAP.get(role).map_or(false, |permissions| {
-            permissions.contains(&String::from(permission))
-        })
+        ROLE_PERMISSION_MAP
+            .get(role)
+            .is_some_and(|permissions| permissions.contains(&String::from(permission)))
     }
 }
 

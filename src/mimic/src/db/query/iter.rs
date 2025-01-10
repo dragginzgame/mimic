@@ -270,7 +270,7 @@ impl<T> IterManager<T> {
         }
 
         // Apply limit: only process up to the limit of items after the offset
-        if self.limit.map_or(false, |lim| self.rows_processed >= lim) {
+        if self.limit.is_some_and(|lim| self.rows_processed >= lim) {
             return false;
         }
 

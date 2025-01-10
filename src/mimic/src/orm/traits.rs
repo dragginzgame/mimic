@@ -199,7 +199,7 @@ pub trait Filterable {
     // contains_text
     fn contains_text(&self, text: &str) -> bool {
         self.as_text()
-            .map_or(false, |s| s.to_lowercase().contains(&text.to_lowercase()))
+            .is_some_and(|s| s.to_lowercase().contains(&text.to_lowercase()))
     }
 }
 

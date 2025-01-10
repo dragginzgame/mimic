@@ -13,7 +13,7 @@ pub fn to_constant_case(s: &str) -> String {
     if constant_case
         .chars()
         .next()
-        .map_or(false, |c| c.is_ascii_digit())
+        .is_some_and(|c| c.is_ascii_digit())
     {
         constant_case.insert(0, '_');
     }
