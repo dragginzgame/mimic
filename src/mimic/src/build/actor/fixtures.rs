@@ -17,7 +17,6 @@ pub fn fixture_actor(builder: &mut ActorBuilder) {
 
         // fixtures_replace_all
         #[::mimic::ic::update]
-        #[allow(clippy::missing_const_for_fn)]
         async fn fixtures_replace_all() -> Result<(), ::mimic::api::Error> {
             allow_any(vec![Auth::Controller]).await?;
 
@@ -91,6 +90,7 @@ pub fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
 
     quote! {
         #[allow(clippy::too_many_lines)]
+        #[allow(clippy::missing_const_for_fn)]
         pub fn fixtures_replace_all() -> Result<(), ::mimic::api::Error> {
             #inner
         }
