@@ -103,10 +103,9 @@ pub fn user_index(builder: &mut ActorBuilder) {
             {
                 Ok(())
             } else {
-                Err(::mimic::api::auth::Error::NotPermitted {
-                    id,
-                    permission,
-                }).map_err(::mimic::api::Error::from)
+                Err(::mimic::api::Error::from(
+                    ::mimic::api::auth::Error::NotPermitted { id , permission , }
+                ))
             }
         }
     };
