@@ -1,6 +1,20 @@
 pub use crate::orm::{base::types, prelude::*};
 
 ///
+/// Seconds
+///
+
+#[newtype(primitive = "U64", value(item(is = "types::U64")))]
+pub struct Seconds {}
+
+///
+/// Milliseconds
+///
+
+#[newtype(primitive = "U64", value(item(is = "types::U64")))]
+pub struct Milliseconds {}
+
+///
 /// Timestamp
 ///
 
