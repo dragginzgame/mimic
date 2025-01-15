@@ -1,31 +1,6 @@
 pub use crate::orm::{base::types, prelude::*};
 
 ///
-/// Duration
-///
-/// Duration in seconds
-///
-
-#[newtype(primitive = "U64", value(item(is = "types::U64")))]
-pub struct Duration {}
-
-///
-/// DurationMs
-///
-/// Duration in milliseconds
-///
-
-#[newtype(primitive = "U64", value(item(is = "types::U64")))]
-pub struct DurationMs {}
-
-impl DurationMs {
-    #[must_use]
-    pub const fn hour(n: usize) -> Self {
-        Self((n * 3_600_000) as u64)
-    }
-}
-
-///
 /// Timestamp
 ///
 

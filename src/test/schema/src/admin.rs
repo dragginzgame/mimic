@@ -20,7 +20,6 @@ use mimic::orm::{base::types, prelude::*};
         field(name = "u_32", value(item(is = "types::U32"))),
         field(name = "u_64", value(item(is = "types::U64"))),
         field(name = "u_128", value(item(is = "types::U128"))),
-        field(name = "duration_test", value(item(is = "types::time::Duration"))),
         field(name = "i_8", value(item(is = "types::I8"))),
         field(name = "i_16", value(item(is = "types::I16"))),
         field(name = "i_32", value(item(is = "types::I32"))),
