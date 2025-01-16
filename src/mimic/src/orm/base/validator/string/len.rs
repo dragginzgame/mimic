@@ -38,7 +38,7 @@ impl Validator for Equal {
 
         if len != self.target {
             Err(format!(
-                r#"length of '{}' ({}) is not equal to {}"#,
+                "length of '{}' ({}) is not equal to {}",
                 truncate_string(&string),
                 len,
                 self.target
@@ -73,7 +73,7 @@ impl Validator for Min {
 
         if len < self.target {
             Err(format!(
-                r#"length of '{}' ({}) is lower than minimum of {}"#,
+                "length of '{}' ({}) is lower than minimum of {}",
                 truncate_string(&string),
                 len,
                 self.target
@@ -108,7 +108,7 @@ impl Validator for Max {
 
         if len > self.target {
             Err(format!(
-                r#"length of '{}' ({}) is greater than maximum of {}"#,
+                "length of '{}' ({}) is greater than maximum of {}",
                 truncate_string(&string),
                 len,
                 self.target

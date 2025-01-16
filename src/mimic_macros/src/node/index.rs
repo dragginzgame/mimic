@@ -15,15 +15,20 @@ use syn::Ident;
 pub struct Index {
     #[darling(default, map = "split_idents")]
     pub fields: Vec<Ident>,
+
+    #[darling(default)]
+    pub unique: bool,
 }
 
 impl Schemable for Index {
     fn schema(&self) -> TokenStream {
         let fields = quote_vec(&self.fields, to_string);
+        let unique = &self.unique;
 
         quote! {
             ::mimic::orm::schema::node::Index {
                 fields: #fields,
+                unique: #unique,
             }
         }
     }
