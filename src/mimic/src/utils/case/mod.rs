@@ -18,6 +18,7 @@ pub enum Case {
     Constant, // adheres to rust constant rules, more strict than UPPER_SNAKE
     Kebab,
     Lower,
+    Sentence,
     Snake,
     Title,
     Upper,
@@ -30,12 +31,12 @@ pub enum Case {
 // Casing
 //
 
-pub trait Casing<T: AsRef<str>> {
+pub trait Casing<T: std::fmt::Display> {
     fn to_case(&self, case: Case) -> String;
     fn is_case(&self, case: Case) -> bool;
 }
 
-impl<T: AsRef<str>> Casing<T> for T
+impl<T: std::fmt::Display> Casing<T> for T
 where
     String: PartialEq<T>,
 {
@@ -44,23 +45,25 @@ where
     // unexpected behaviour
     fn to_case(&self, case: Case) -> String {
         use convert_case as cc;
+        let s = &self.to_string();
 
         match case {
             // rust
-            Case::Lower => self.as_ref().to_lowercase(),
-            Case::Upper => self.as_ref().to_uppercase(),
+            Case::Lower => s.to_lowercase(),
+            Case::Upper => s.to_uppercase(),
 
             // custom
-            Case::Title => title::to_title_case(self.as_ref()),
-            Case::Snake => snake::to_snake_case(self.as_ref()),
-            Case::UpperSnake => snake::to_snake_case(self.as_ref()).to_uppercase(),
-            Case::Constant => constant::to_constant_case(self.as_ref()).to_uppercase(),
+            Case::Title => title::to_title_case(s),
+            Case::Snake => snake::to_snake_case(s),
+            Case::UpperSnake => snake::to_snake_case(s).to_uppercase(),
+            Case::Constant => constant::to_constant_case(s).to_uppercase(),
 
             // convert_case
-            Case::Camel => cc::Casing::to_case(self, cc::Case::Camel),
-            Case::Kebab => cc::Casing::to_case(self, cc::Case::Kebab),
-            Case::UpperCamel => cc::Casing::to_case(self, cc::Case::UpperCamel),
-            Case::UpperKebab => cc::Casing::to_case(self, cc::Case::Kebab).to_uppercase(),
+            Case::Camel => cc::Casing::to_case(s, cc::Case::Camel),
+            Case::Kebab => cc::Casing::to_case(s, cc::Case::Kebab),
+            Case::Sentence => cc::Casing::to_case(s, cc::Case::Sentence),
+            Case::UpperCamel => cc::Casing::to_case(s, cc::Case::UpperCamel),
+            Case::UpperKebab => cc::Casing::to_case(s, cc::Case::Kebab).to_uppercase(),
         }
     }
 

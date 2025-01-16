@@ -29,7 +29,7 @@ test_canister = { path = "src/test/canister" }
 test_schema = { path = "src/test/schema" }
 
 # ic cdk
-candid = "0.10.11"
+candid = "0.10.12"
 ic-cdk = "0.17.0"
 ic-cdk-timers = "0.11.0"
 ic-stable-structures = "0.6.7"
@@ -44,7 +44,7 @@ quote = "1.0"
 bencher = "0.1"
 ciborium = "0.2"
 ctor = "0.2"
-convert_case = "0.6"
+convert_case = "0.7"
 defer = "0.2"
 derive_more = { version = "1.0", default-features = false, features = [
     "add",

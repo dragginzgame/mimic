@@ -21,7 +21,7 @@ impl<const LEN: usize> ValidateManual for Text<LEN> {
     fn validate_manual(&self) -> Result<(), ErrorVec> {
         let mut errs = ErrorVec::default();
 
-        errs.add_result(validator::len::Max::new(LEN).validate_string(&self.0));
+        errs.add_result(validator::string::len::Max::new(LEN).validate_string(&self.0));
 
         errs.result()
     }
@@ -36,7 +36,7 @@ impl<const LEN: usize> ValidateManual for Text<LEN> {
 #[newtype(
     primitive = "String",
     value(item(is = "types::String")),
-    validator(path = "validator::len::Range", args(3, 30)),
+    validator(path = "validator::string::len::Range", args(3, 30)),
     validator(path = "validator::string::case::Snake"),
     traits(add(Hash))
 )]

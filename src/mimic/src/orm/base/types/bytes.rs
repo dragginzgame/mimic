@@ -20,7 +20,7 @@ impl<const LEN: usize> ValidateManual for Bytes<LEN> {
         let mut errs = ErrorVec::default();
 
         // len
-        errs.add_result(validator::len::Max::new(LEN).validate_blob(&self.0));
+        errs.add_result(validator::string::len::Max::new(LEN).validate_blob(&self.0));
 
         errs.result()
     }
@@ -46,7 +46,7 @@ impl<const LEN: usize> ValidateManual for Utf8<LEN> {
         errs.add_result(validator::bytes::Utf8::default().validate_blob(&self.0));
 
         // len
-        errs.add_result(validator::len::Max::new(LEN).validate_blob(&self.0));
+        errs.add_result(validator::string::len::Max::new(LEN).validate_blob(&self.0));
 
         errs.result()
     }

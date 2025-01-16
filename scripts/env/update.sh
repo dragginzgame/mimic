@@ -7,7 +7,7 @@ rustup update
 # cargo
 cargo install \
     cargo-audit cargo-expand cargo-machete cargo-llvm-lines \
-    cargo-sort cargo-udeps cargo-tarpaulin \
+    cargo-sort cargo-tarpaulin \
     candid-extractor ic-wasm
 
 # cleanup

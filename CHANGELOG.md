@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - we didn't need the OnCreate hook, so removed that complex code
 - sort key now has more strict validation, demanding relations are used for keys
 - cleaned up the mimic build code so that errors are properly displayed in text and not debug
+- integrated new version of convert_case, added Sentence case
+- fixed a bug and vastly improved the error messages in validator::string::len
 
 ## [0.2.1]
 - split load and load_dyn on query in preparation for inter-canister queries

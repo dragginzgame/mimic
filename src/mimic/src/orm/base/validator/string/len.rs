@@ -1,6 +1,19 @@
 use crate::orm::prelude::*;
 use num_traits::NumCast;
 
+const MAX_DISPLAY_CHARS: usize = 20;
+
+// truncate_string
+fn truncate_string<S: ToString>(s: &S) -> String {
+    let string = s.to_string();
+
+    if string.len() > MAX_DISPLAY_CHARS {
+        format!("{}...", &string[..MAX_DISPLAY_CHARS])
+    } else {
+        string.clone()
+    }
+}
+
 ///
 /// Equal
 ///
@@ -20,12 +33,18 @@ impl Equal {
 
 impl Validator for Equal {
     fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
-        let len = s.to_string().len();
+        let string = s.to_string();
+        let len = string.len();
 
-        if len == self.target {
-            Ok(())
+        if len != self.target {
+            Err(format!(
+                "length of \"{}\" ({}) is not equal to {}",
+                truncate_string(&string),
+                len,
+                self.target
+            ))
         } else {
-            Err(format!("length of {len} is not equal to {}", self.target))
+            Ok(())
         }
     }
 }
@@ -49,11 +68,14 @@ impl Min {
 
 impl Validator for Min {
     fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
-        let len = s.to_string().len();
+        let string = s.to_string();
+        let len = string.len();
 
         if len < self.target {
             Err(format!(
-                "length of {len} is lower than minimum of {}",
+                "length of \"{}\" ({}) is lower than minimum of {}",
+                truncate_string(&string),
+                len,
                 self.target
             ))
         } else {
@@ -81,11 +103,14 @@ impl Max {
 
 impl Validator for Max {
     fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
-        let len = s.to_string().len();
+        let string = s.to_string();
+        let len = string.len();
 
         if len > self.target {
             Err(format!(
-                "length of {len} is lower than minimum of {}",
+                "length of \"{}\" ({}) is greater than maximum of {}",
+                truncate_string(&string),
+                len,
                 self.target
             ))
         } else {
@@ -115,20 +140,12 @@ impl Range {
 
 impl Validator for Range {
     fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
-        let len = s.to_string().len();
+        let min = Min::new(self.min);
+        min.validate_string(s)?;
 
-        if len < self.min {
-            Err(format!(
-                "length of {len} is lower than the minimum of {}",
-                self.min
-            ))
-        } else if len > self.max {
-            Err(format!(
-                "length of {len} exceeds the maximum of {}",
-                self.max
-            ))
-        } else {
-            Ok(())
-        }
+        let max = Max::new(self.max);
+        max.validate_string(s)?;
+
+        Ok(())
     }
 }

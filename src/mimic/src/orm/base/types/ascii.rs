@@ -26,7 +26,7 @@ impl<const LEN: usize> ValidateManual for Text<LEN> {
         }
 
         // length check
-        errs.add_result(validator::len::Max::new(LEN).validate_string(&self.0));
+        errs.add_result(validator::string::len::Max::new(LEN).validate_string(&self.0));
 
         errs.result()
     }

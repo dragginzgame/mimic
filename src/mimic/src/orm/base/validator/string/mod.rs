@@ -1,5 +1,5 @@
-#![allow(clippy::cast_possible_wrap)]
 pub mod case;
+pub mod len;
 
 use crate::orm::prelude::*;
 
