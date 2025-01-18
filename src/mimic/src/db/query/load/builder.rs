@@ -16,24 +16,23 @@ use std::marker::PhantomData;
 /// LoadBuilder
 ///
 
-pub struct LoadBuilder<'a, E>
+#[derive(Default)]
+pub struct LoadBuilder<E>
 where
-    E: Entity + 'static,
+    E: Entity,
 {
-    db: &'a Db,
     debug: DebugContext,
     phantom: PhantomData<E>,
 }
 
-impl<'a, E> LoadBuilder<'a, E>
+impl<E> LoadBuilder<E>
 where
     E: Entity,
 {
     // new
     #[must_use]
-    pub fn new(db: &'a Db) -> Self {
+    pub fn new() -> Self {
         Self {
-            db,
             debug: DebugContext::default(),
             phantom: PhantomData,
         }
@@ -48,73 +47,66 @@ where
 
     // method
     #[must_use]
-    pub const fn method(self, method: LoadMethod) -> LoadBuilderOptions<'a, E> {
-        LoadBuilderOptions::new(self, method)
+    pub const fn method(self, method: LoadMethod) -> LoadQuery<E> {
+        LoadQuery::new(self, method)
     }
 
     // all
     #[must_use]
-    pub const fn all(self) -> LoadBuilderOptions<'a, E> {
-        LoadBuilderOptions::new(self, LoadMethod::All)
+    pub const fn all(self) -> LoadQuery<E> {
+        LoadQuery::new(self, LoadMethod::All)
     }
 
     // only
     #[must_use]
-    pub const fn only(self) -> LoadBuilderOptions<'a, E> {
-        LoadBuilderOptions::new(self, LoadMethod::Only)
+    pub const fn only(self) -> LoadQuery<E> {
+        LoadQuery::new(self, LoadMethod::Only)
     }
 
     // one
-    pub fn one<T: ToString>(self, ck: &[T]) -> LoadBuilderOptions<'a, E> {
+    pub fn one<T: ToString>(self, ck: &[T]) -> LoadQuery<E> {
         let ck_str: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let method = LoadMethod::One(ck_str);
 
-        LoadBuilderOptions::new(self, method)
+        LoadQuery::new(self, method)
     }
 
     // many
     #[must_use]
-    pub fn many(self, cks: &[Vec<String>]) -> LoadBuilderOptions<'a, E> {
+    pub fn many(self, cks: &[Vec<String>]) -> LoadQuery<E> {
         let method = LoadMethod::Many(cks.to_vec());
 
-        LoadBuilderOptions::new(self, method)
+        LoadQuery::new(self, method)
     }
 
     // range
-    pub fn range<T: ToString>(
-        self,
-        start: &[T],
-        end: &[T],
-    ) -> Result<LoadBuilderOptions<'a, E>, QueryError> {
+    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> Result<LoadQuery<E>, QueryError> {
         let start = start.iter().map(ToString::to_string).collect();
         let end = end.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Range(start, end);
 
-        Ok(LoadBuilderOptions::new(self, method))
+        Ok(LoadQuery::new(self, method))
     }
 
     // prefix
-    pub fn prefix<T: ToString>(
-        self,
-        prefix: &[T],
-    ) -> Result<LoadBuilderOptions<'a, E>, QueryError> {
+    pub fn prefix<T: ToString>(self, prefix: &[T]) -> Result<LoadQuery<E>, QueryError> {
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Prefix(prefix);
 
-        Ok(LoadBuilderOptions::new(self, method))
+        Ok(LoadQuery::new(self, method))
     }
 }
 
 ///
-/// LoadBuilderOptions
+/// LoadQuery
 ///
 
-pub struct LoadBuilderOptions<'a, E>
+#[expect(dead_code)]
+pub struct LoadQuery<E>
 where
-    E: Entity,
+    E: Entity + 'static,
 {
-    db: &'a Db,
-    //    debug: DebugContext,
+    debug: DebugContext,
     method: LoadMethod,
     offset: u32,
     limit: Option<u32>,
@@ -123,15 +115,14 @@ where
     phantom: PhantomData<E>,
 }
 
-impl<'a, E> LoadBuilderOptions<'a, E>
+impl<E> LoadQuery<E>
 where
     E: Entity + 'static,
 {
     #[must_use]
-    pub const fn new(prev: LoadBuilder<'a, E>, method: LoadMethod) -> Self {
+    pub const fn new(builder: LoadBuilder<E>, method: LoadMethod) -> Self {
         Self {
-            db: prev.db,
-            //     debug: prev.debug,
+            debug: builder.debug,
             method,
             offset: 0,
             limit: None,
@@ -205,60 +196,45 @@ where
     }
 
     // execute
-    pub fn execute(self) -> Result<RowIterator<E>, QueryError> {
-        let executor = LoadBuilderExecutor::new(self);
-        let iter = executor.execute()?;
+    pub fn execute(self, db: &Db) -> Result<RowIterator<E>, QueryError> {
+        let executor = LoadExecutor::new(self);
 
-        Ok(iter)
+        executor.execute(db)
     }
 }
 
 ///
-/// LoadBuilderExecutor
+/// LoadExecutor
 ///
 
-pub struct LoadBuilderExecutor<'a, E>
+pub struct LoadExecutor<E>
 where
-    E: Entity,
+    E: Entity + 'static,
 {
-    db: &'a Db,
-    //   debug: DebugContext,
-    method: LoadMethod,
-    limit: Option<u32>,
-    offset: u32,
-    filter: Option<Filter>,
-    order: Option<Order>,
+    query: LoadQuery<E>,
     resolver: Resolver,
-    phantom: PhantomData<E>,
 }
 
-impl<'a, E> LoadBuilderExecutor<'a, E>
+impl<E> LoadExecutor<E>
 where
     E: Entity + 'static,
 {
     // new
     #[must_use]
-    pub fn new(prev: LoadBuilderOptions<'a, E>) -> Self {
+    pub fn new(query: LoadQuery<E>) -> Self {
         Self {
-            db: prev.db,
-            //       debug: prev.debug,
-            method: prev.method,
-            limit: prev.limit,
-            offset: prev.offset,
-            filter: prev.filter,
-            order: prev.order,
+            query,
             resolver: Resolver::new(&E::path()),
-            phantom: PhantomData,
         }
     }
 
     // execute
     // convert into EntityRows and return a RowIterator
     // also make sure we're deserializing the correct entity path
-    pub fn execute(self) -> Result<RowIterator<E>, QueryError> {
+    pub fn execute(self, db: &Db) -> Result<RowIterator<E>, QueryError> {
         // loader
-        let loader = Loader::new(self.db, &self.resolver);
-        let res = loader.load(&self.method)?;
+        let loader = Loader::new(db, &self.resolver);
+        let res = loader.load(&self.query.method)?;
 
         let filtered = res
             .filter(|row| row.value.path == E::path())
@@ -269,10 +245,10 @@ where
 
         Ok(RowIterator::new(
             boxed_iter,
-            self.limit,
-            self.offset,
-            self.filter,
-            self.order,
+            self.query.limit,
+            self.query.offset,
+            self.query.filter,
+            self.query.order,
         ))
     }
 }

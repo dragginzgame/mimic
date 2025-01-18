@@ -1,8 +1,8 @@
 pub mod builder;
 pub mod dynamic;
 
-pub use builder::{LoadBuilder, LoadBuilderOptions};
-pub use dynamic::{LoadBuilderDyn, LoadBuilderDynOptions};
+pub use builder::{LoadBuilder, LoadQuery};
+pub use dynamic::{LoadBuilderDyn, LoadQueryDyn};
 
 use crate::db::{
     query::{resolver::Resolver, types::LoadMethod},

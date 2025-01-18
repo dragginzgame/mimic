@@ -5,7 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [0.2.3]
+
+- breaking change to database API.  Queries are now constructed separately, the fluid method
+does not start with DB
 
 ## [0.2.2]
 - primary keys are no more, sort keys now include the key of the local entity
@@ -14,6 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - cleaned up the mimic build code so that errors are properly displayed in text and not debug
 - integrated new version of convert_case, added Sentence case
 - fixed a bug and vastly improved the error messages in validator::string::len
+- indexes can now be unique
 
 ## [0.2.1]
 - split load and load_dyn on query in preparation for inter-canister queries

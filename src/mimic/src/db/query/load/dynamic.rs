@@ -13,19 +13,16 @@ use crate::db::{
 /// LoadBuilderDyn
 ///
 
-pub struct LoadBuilderDyn<'a> {
-    db: &'a Db,
-    path: String,
+#[derive(Default)]
+pub struct LoadBuilderDyn {
     debug: DebugContext,
 }
 
-impl<'a> LoadBuilderDyn<'a> {
+impl LoadBuilderDyn {
     // new
     #[must_use]
-    pub fn new(db: &'a Db, path: String) -> Self {
+    pub fn new() -> Self {
         Self {
-            db,
-            path,
             debug: DebugContext::default(),
         }
     }
@@ -39,80 +36,73 @@ impl<'a> LoadBuilderDyn<'a> {
 
     // method
     #[must_use]
-    pub fn method(self, method: LoadMethod) -> LoadBuilderDynOptions<'a> {
-        LoadBuilderDynOptions::new(self, method)
+    pub fn method(self, method: LoadMethod) -> LoadQueryDyn {
+        LoadQueryDyn::new(self, method)
     }
 
     // all
     #[must_use]
-    pub fn all(self) -> LoadBuilderDynOptions<'a> {
-        LoadBuilderDynOptions::new(self, LoadMethod::All)
+    pub fn all(self) -> LoadQueryDyn {
+        LoadQueryDyn::new(self, LoadMethod::All)
     }
 
     // only
     #[must_use]
-    pub fn only(self) -> LoadBuilderDynOptions<'a> {
-        LoadBuilderDynOptions::new(self, LoadMethod::Only)
+    pub fn only(self) -> LoadQueryDyn {
+        LoadQueryDyn::new(self, LoadMethod::Only)
     }
 
     // one
-    pub fn one<T: ToString>(self, ck: &[T]) -> LoadBuilderDynOptions<'a> {
+    pub fn one<T: ToString>(self, ck: &[T]) -> LoadQueryDyn {
         let ck_str: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let method = LoadMethod::One(ck_str);
 
-        LoadBuilderDynOptions::new(self, method)
+        LoadQueryDyn::new(self, method)
     }
 
     // many
     #[must_use]
-    pub fn many(self, cks: &[Vec<String>]) -> LoadBuilderDynOptions<'a> {
+    pub fn many(self, cks: &[Vec<String>]) -> LoadQueryDyn {
         let method = LoadMethod::Many(cks.to_vec());
 
-        LoadBuilderDynOptions::new(self, method)
+        LoadQueryDyn::new(self, method)
     }
 
     // range
-    pub fn range<T: ToString>(
-        self,
-        start: &[T],
-        end: &[T],
-    ) -> Result<LoadBuilderDynOptions<'a>, LoadError> {
+    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> Result<LoadQueryDyn, LoadError> {
         let start = start.iter().map(ToString::to_string).collect();
         let end = end.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Range(start, end);
 
-        Ok(LoadBuilderDynOptions::new(self, method))
+        Ok(LoadQueryDyn::new(self, method))
     }
 
     // prefix
-    pub fn prefix<T: ToString>(self, prefix: &[T]) -> Result<LoadBuilderDynOptions<'a>, LoadError> {
+    pub fn prefix<T: ToString>(self, prefix: &[T]) -> Result<LoadQueryDyn, LoadError> {
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Prefix(prefix);
 
-        Ok(LoadBuilderDynOptions::new(self, method))
+        Ok(LoadQueryDyn::new(self, method))
     }
 }
 
 ///
-/// LoadBuilderDynOptions
+/// LoadQueryDyn
 ///
 
-pub struct LoadBuilderDynOptions<'a> {
-    db: &'a Db,
-    path: String,
-    //   debug: DebugContext,
+#[expect(dead_code)]
+pub struct LoadQueryDyn {
+    debug: DebugContext,
     method: LoadMethod,
     offset: u32,
     limit: Option<u32>,
 }
 
-impl<'a> LoadBuilderDynOptions<'a> {
+impl LoadQueryDyn {
     #[must_use]
-    pub fn new(prev: LoadBuilderDyn<'a>, method: LoadMethod) -> Self {
+    pub fn new(builder: LoadBuilderDyn, method: LoadMethod) -> Self {
         Self {
-            db: prev.db,
-            path: prev.path,
-            //          debug: prev.debug,
+            debug: builder.debug,
             method,
             offset: 0,
             limit: None,
@@ -141,49 +131,44 @@ impl<'a> LoadBuilderDynOptions<'a> {
     }
 
     // execute
-    pub fn execute(self) -> Result<RowIteratorDyn, QueryError> {
-        let executor = LoadBuilderDynExecutor::new(self);
-        let iter = executor.execute()?;
+    pub fn execute(self, db: &Db, path: &str) -> Result<RowIteratorDyn, QueryError> {
+        let executor = LoadExecutorDyn::new(self, path);
 
-        Ok(iter)
+        executor.execute(db)
     }
 }
 
 ///
-/// LoadBuilderDynExecutor
+/// LoadExecutorDyn
 ///
 
-pub struct LoadBuilderDynExecutor<'a> {
-    db: &'a Db,
-    //  debug: DebugContext,
-    method: LoadMethod,
-    limit: Option<u32>,
-    offset: u32,
+pub struct LoadExecutorDyn {
+    query: LoadQueryDyn,
     resolver: Resolver,
 }
 
-impl<'a> LoadBuilderDynExecutor<'a> {
+impl LoadExecutorDyn {
     // new
     #[must_use]
-    pub fn new(prev: LoadBuilderDynOptions<'a>) -> Self {
+    pub fn new(query: LoadQueryDyn, path: &str) -> Self {
         Self {
-            db: prev.db,
-            //        debug: prev.debug,
-            method: prev.method,
-            limit: prev.limit,
-            offset: prev.offset,
-            resolver: Resolver::new(&prev.path),
+            query,
+            resolver: Resolver::new(path),
         }
     }
 
     // execute
-    pub fn execute(self) -> Result<RowIteratorDyn, QueryError> {
+    pub fn execute(self, db: &Db) -> Result<RowIteratorDyn, QueryError> {
         // loader
-        let loader = Loader::new(self.db, &self.resolver);
-        let res = loader.load(&self.method)?;
+        let loader = Loader::new(db, &self.resolver);
+        let res = loader.load(&self.query.method)?;
 
         let boxed_iter = Box::new(res.into_iter()) as Box<dyn Iterator<Item = DataRow>>;
 
-        Ok(RowIteratorDyn::new(boxed_iter, self.limit, self.offset))
+        Ok(RowIteratorDyn::new(
+            boxed_iter,
+            self.query.limit,
+            self.query.offset,
+        ))
     }
 }

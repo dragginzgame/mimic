@@ -61,13 +61,13 @@ pub fn load<E>(db: &Db, request: LoadRequest) -> Result<LoadResponse, Error>
 where
     E: Entity + 'static,
 {
-    let iter = crate::db::query::load::<E>(db)
+    let iter = crate::db::query::load::<E>()
         .method(request.method)
         .order_option(request.order)
         .filter_option(request.filter)
         .limit_option(request.limit)
         .offset(request.offset)
-        .execute()?;
+        .execute(db)?;
 
     let res = match request.format {
         LoadFormat::Rows => {
@@ -91,8 +91,9 @@ pub fn delete<E>(db: &Db, request: &DeleteRequest) -> Result<DeleteResponse, Err
 where
     E: Entity,
 {
-    let keys = crate::db::query::delete::<E>(db)
+    let keys = crate::db::query::delete::<E>()
         .one(&request.key)?
+        .execute(db)?
         .keys()?;
 
     Ok(DeleteResponse { keys })
@@ -109,16 +110,18 @@ where
 
     match request.action {
         SaveRequestAction::Create => {
-            let row = crate::db::query::create(db)
-                .from_entity_dynamic(boxed_entity)?
+            let row = crate::db::query::create()
+                .from_entity_dynamic(boxed_entity)
+                .execute(db)?
                 .query_row()?;
 
             Ok(SaveResponse::Create(CreateResponse { row }))
         }
 
         SaveRequestAction::Update => {
-            let row = crate::db::query::update(db)
-                .from_entity_dynamic(boxed_entity)?
+            let row = crate::db::query::update()
+                .from_entity_dynamic(boxed_entity)
+                .execute(db)?
                 .query_row()?;
 
             Ok(SaveResponse::Update(UpdateResponse { row }))

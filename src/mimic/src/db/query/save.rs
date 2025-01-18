@@ -93,17 +93,15 @@ pub struct SaveBuilderConfig {
 /// SaveBuilder
 ///
 
-pub struct SaveBuilder<'a> {
-    db: &'a Db,
+pub struct SaveBuilder {
     config: SaveBuilderConfig,
 }
 
-impl<'a> SaveBuilder<'a> {
+impl SaveBuilder {
     // new
     #[must_use]
-    pub fn new(db: &'a Db, mode: SaveMode) -> Self {
+    pub fn new(mode: SaveMode) -> Self {
         Self {
-            db,
             config: SaveBuilderConfig {
                 mode,
                 debug: DebugContext::default(),
@@ -120,106 +118,76 @@ impl<'a> SaveBuilder<'a> {
     }
 
     // from_data
-    pub fn from_data<E: Entity + 'static>(
-        self,
-        data: &[u8],
-    ) -> Result<SaveBuilderResult, QueryError> {
+    pub fn from_data<E: Entity + 'static>(self, data: &[u8]) -> Result<SaveQuery, QueryError> {
         let entity: E = crate::orm::deserialize(data)?;
 
-        self.execute(vec![Box::new(entity)])
+        Ok(SaveQuery::new(self, vec![Box::new(entity)]))
     }
 
     // from_entity
-    pub fn from_entity<E: EntityDyn + 'static>(
-        self,
-        entity: E,
-    ) -> Result<SaveBuilderResult, QueryError> {
-        let res = self.execute(vec![Box::new(entity)])?;
-
-        Ok(res)
+    pub fn from_entity<E: EntityDyn + 'static>(self, entity: E) -> SaveQuery {
+        SaveQuery::new(self, vec![Box::new(entity)])
     }
 
     // from_entities
-    pub fn from_entities<E: EntityDyn + 'static>(
-        self,
-        entities: Vec<E>,
-    ) -> Result<SaveBuilderResult, QueryError> {
+    #[must_use]
+    pub fn from_entities<E: EntityDyn + 'static>(self, entities: Vec<E>) -> SaveQuery {
         let boxed_entities = entities
             .into_iter()
             .map(|entity| Box::new(entity) as Box<dyn EntityDyn>)
             .collect();
 
-        let res = self.execute(boxed_entities)?;
-
-        Ok(res)
+        SaveQuery::new(self, boxed_entities)
     }
 
     // from_entity_dynamic
-    pub fn from_entity_dynamic(
-        self,
-        entity: Box<dyn EntityDyn>,
-    ) -> Result<SaveBuilderResult, QueryError> {
-        let res = self.execute(vec![entity])?;
-
-        Ok(res)
+    #[must_use]
+    pub fn from_entity_dynamic(self, entity: Box<dyn EntityDyn>) -> SaveQuery {
+        SaveQuery::new(self, vec![entity])
     }
 
     // from_entities_dynamic
-    pub fn from_entities_dynamic(
-        self,
-        entities: Vec<Box<dyn EntityDyn>>,
-    ) -> Result<SaveBuilderResult, QueryError> {
-        let res = self.execute(entities)?;
-
-        Ok(res)
-    }
-
-    // execute
-    fn execute(self, entities: Vec<Box<dyn EntityDyn>>) -> Result<SaveBuilderResult, QueryError> {
-        let mut executor = SaveBuilderExecutor::new(self, entities);
-        let results = executor.execute()?;
-
-        Ok(SaveBuilderResult::new(results))
+    #[must_use]
+    pub fn from_entities_dynamic(self, entities: Vec<Box<dyn EntityDyn>>) -> SaveQuery {
+        SaveQuery::new(self, entities)
     }
 }
 
 ///
-/// SaveBuilderExecutor
+/// SaveQuery
 ///
 
-pub struct SaveBuilderExecutor<'a> {
-    db: &'a Db,
+pub struct SaveQuery {
     config: SaveBuilderConfig,
     entities: Vec<Box<dyn EntityDyn>>,
 }
 
-impl<'a> SaveBuilderExecutor<'a> {
+impl SaveQuery {
     #[must_use]
-    pub fn new(prev: SaveBuilder<'a>, entities: Vec<Box<dyn EntityDyn>>) -> Self {
+    pub fn new(prev: SaveBuilder, entities: Vec<Box<dyn EntityDyn>>) -> Self {
         Self {
-            db: prev.db,
             config: prev.config,
             entities,
         }
     }
 
     // execute
-    pub fn execute(&mut self) -> Result<Vec<DataRow>, QueryError> {
+    pub fn execute(&mut self, db: &Db) -> Result<SaveResult, QueryError> {
         // Temporarily take the entities out of self to avoid multiple mutable borrows
         let mut entities = mem::take(&mut self.entities);
 
         // get results
         let mut results = Vec::new();
         for entity in &mut entities {
-            let data_row = self.execute_one(&mut **entity)?;
+            let data_row = self.execute_one(db, &mut **entity)?;
             results.push(data_row);
         }
 
-        Ok(results)
+        Ok(SaveResult::new(results))
     }
 
     // execute_one
-    fn execute_one(&self, entity: &mut dyn EntityDyn) -> Result<DataRow, Error> {
+    fn execute_one(&self, db: &Db, entity: &mut dyn EntityDyn) -> Result<DataRow, Error> {
         let mode = &self.config.mode;
 
         //
@@ -266,9 +234,7 @@ impl<'a> SaveBuilderExecutor<'a> {
 
         let now = crate::utils::time::now_secs();
         let store_path = resolver.store()?;
-        let result = self
-            .db
-            .with_store(&store_path, |store| Ok(store.get(&key)))?;
+        let result = db.with_store(&store_path, |store| Ok(store.get(&key)))?;
 
         let (created, modified) = match mode {
             SaveMode::Create => {
@@ -312,7 +278,7 @@ impl<'a> SaveBuilderExecutor<'a> {
             path: entity.path_dyn(),
             metadata: Metadata { created, modified },
         };
-        self.db.with_store_mut(&store_path, |store| {
+        db.with_store_mut(&store_path, |store| {
             store.data.insert(key.clone(), value.clone());
 
             Ok(())
@@ -326,14 +292,14 @@ impl<'a> SaveBuilderExecutor<'a> {
 }
 
 ///
-/// SaveBuilderResult
+/// SaveResult
 ///
 
-pub struct SaveBuilderResult {
+pub struct SaveResult {
     pub results: Vec<DataRow>,
 }
 
-impl SaveBuilderResult {
+impl SaveResult {
     #[must_use]
     pub const fn new(results: Vec<DataRow>) -> Self {
         Self { results }

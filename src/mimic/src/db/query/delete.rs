@@ -14,9 +14,6 @@ use std::{fmt::Display, marker::PhantomData};
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
-    #[snafu(display("filtering not allowed on dynamic loads"))]
-    FilterNotAllowed,
-
     #[snafu(transparent)]
     Db { source: crate::db::db::Error },
 
@@ -28,24 +25,22 @@ pub enum Error {
 /// DeleteBuilder
 ///
 
-pub struct DeleteBuilder<'a, E>
+pub struct DeleteBuilder<E>
 where
     E: Entity,
 {
-    db: &'a Db,
     debug: DebugContext,
     phantom: PhantomData<E>,
 }
 
-impl<'a, E> DeleteBuilder<'a, E>
+impl<E> DeleteBuilder<E>
 where
     E: Entity,
 {
     // new
     #[must_use]
-    pub(crate) fn new(db: &'a Db) -> Self {
+    pub(crate) fn new() -> Self {
         Self {
-            db,
             debug: DebugContext::default(),
             phantom: PhantomData,
         }
@@ -59,89 +54,124 @@ where
     }
 
     // one
-    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteBuilderResult, QueryError> {
+    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQuery<E>, QueryError> {
         let key: Vec<String> = ck.iter().map(ToString::to_string).collect();
-        let executor = DeleteBuilderExecutor::new(self, vec![key]);
+        let executor = DeleteQuery::new(self, vec![key]);
 
-        let res = executor.execute()?;
-
-        Ok(res)
+        Ok(executor)
     }
 }
 
 ///
-/// DeleteBuilderExecutor
-/// (final stage)
+/// DeleteQuery
 ///
 /// results : all the keys that have successfully been deleted
 ///
 
-pub struct DeleteBuilderExecutor<'a, E>
+pub struct DeleteQuery<E>
 where
     E: Entity,
 {
-    db: &'a Db,
     debug: DebugContext,
-    resolver: Resolver,
     keys: Vec<Vec<String>>,
     phantom: PhantomData<E>,
 }
 
-impl<'a, E> DeleteBuilderExecutor<'a, E>
+impl<E> DeleteQuery<E>
 where
     E: Entity,
 {
     // new
     #[must_use]
-    fn new(prev: DeleteBuilder<'a, E>, keys: Vec<Vec<String>>) -> Self {
+    fn new(prev: DeleteBuilder<E>, keys: Vec<Vec<String>>) -> Self {
         Self {
-            db: prev.db,
             debug: prev.debug,
-            resolver: Resolver::new(&E::path()),
             keys,
             phantom: PhantomData,
         }
     }
 
     // execute
-    fn execute(&self) -> Result<DeleteBuilderResult, Error> {
-        let mut results = Vec::new();
-        crate::ic::println!("delete: keys {:?}", &self.keys);
+    pub fn execute(self, db: &Db) -> Result<DeleteResult, QueryError> {
+        let executor = DeleteExecutor::new(self);
 
-        for key in &self.keys {
-            // Attempt to remove the item from the store
-            let data_key = self.resolver.data_key(key)?;
-            let store_path = self.resolver.store()?;
-
-            self.db.with_store_mut(&store_path, |store| {
-                if store.remove(&data_key).is_none() {
-                    crate::ic::println!("key {data_key:?} not found");
-                }
-
-                Ok(())
-            })?;
-
-            // If successful, push the key to results
-            results.push(data_key.clone());
-        }
-
-        self.debug.println(&format!("deleted keys {results:?}"));
-
-        Ok(DeleteBuilderResult::new(results))
+        executor.execute(db)
     }
 }
 
 ///
-/// DeleteBuilderResult
+/// DeleteExecutor
+///
+
+pub struct DeleteExecutor<E>
+where
+    E: Entity,
+{
+    query: DeleteQuery<E>,
+    resolver: Resolver,
+}
+
+impl<E> DeleteExecutor<E>
+where
+    E: Entity,
+{
+    // new
+    #[must_use]
+    pub fn new(query: DeleteQuery<E>) -> Self {
+        Self {
+            query,
+            resolver: Resolver::new(&E::path()),
+        }
+    }
+
+    // execute
+    fn execute(&self, db: &Db) -> Result<DeleteResult, QueryError> {
+        let mut results = Vec::new();
+        crate::ic::println!("delete: keys {:?}", &self.query.keys);
+
+        for key in &self.query.keys {
+            // If successful, push the key to results
+            let res = self.execute_one(db, key)?;
+
+            results.push(res);
+        }
+
+        self.query
+            .debug
+            .println(&format!("deleted keys {results:?}"));
+
+        Ok(DeleteResult::new(results))
+    }
+
+    fn execute_one(&self, db: &Db, key: &[String]) -> Result<DataKey, Error> {
+        // Attempt to remove the item from the store
+        let data_key = self.resolver.data_key(key)?;
+        let store_path = self.resolver.store()?;
+
+        db.with_store_mut(&store_path, |store| {
+            if store.remove(&data_key).is_none() {
+                crate::ic::println!("key {data_key:?} not found");
+            }
+
+            Ok(())
+        })?;
+
+        Ok(data_key)
+    }
+}
+
+///
+/// DeleteResult
 ///
 /// results : all the keys that have successfully been deleted
 ///
 
-pub struct DeleteBuilderResult {
+pub struct DeleteResult {
     results: Vec<DataKey>,
 }
 
-impl DeleteBuilderResult {
+impl DeleteResult {
+    // new
     const fn new(results: Vec<DataKey>) -> Self {
         Self { results }
     }

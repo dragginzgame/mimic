@@ -7,12 +7,11 @@ pub mod types;
 
 pub use delete::DeleteBuilder;
 pub use iter::{RowIterator, RowIteratorDyn};
-pub use load::{LoadBuilder, LoadBuilderDyn, LoadBuilderOptions};
+pub use load::{LoadBuilder, LoadBuilderDyn};
 pub use resolver::Resolver;
 pub use save::{SaveBuilder, SaveMode};
 pub use types::*;
 
-use super::Db;
 use crate::orm::traits::Entity;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -45,44 +44,44 @@ pub enum Error {
 
 // load
 #[must_use]
-pub fn load<E>(db: &Db) -> LoadBuilder<E>
+pub fn load<E>() -> LoadBuilder<E>
 where
     E: Entity + 'static,
 {
-    LoadBuilder::<E>::new(db)
+    LoadBuilder::<E>::new()
 }
 
 // load_dyn
 #[must_use]
-pub fn load_dyn<'a>(db: &'a Db, path: &str) -> LoadBuilderDyn<'a> {
-    LoadBuilderDyn::new(db, path.to_string())
+pub fn load_dyn() -> LoadBuilderDyn {
+    LoadBuilderDyn::new()
 }
 
 // delete
 #[must_use]
-pub fn delete<E>(db: &Db) -> DeleteBuilder<E>
+pub fn delete<E>() -> DeleteBuilder<E>
 where
     E: Entity,
 {
-    DeleteBuilder::<E>::new(db)
+    DeleteBuilder::<E>::new()
 }
 
 // create
 #[must_use]
-pub fn create(db: &Db) -> SaveBuilder {
-    SaveBuilder::new(db, SaveMode::Create)
+pub fn create() -> SaveBuilder {
+    SaveBuilder::new(SaveMode::Create)
 }
 
 // replace
 #[must_use]
-pub fn replace(db: &Db) -> SaveBuilder {
-    SaveBuilder::new(db, SaveMode::Replace)
+pub fn replace() -> SaveBuilder {
+    SaveBuilder::new(SaveMode::Replace)
 }
 
 // update
 #[must_use]
-pub fn update(db: &Db) -> SaveBuilder {
-    SaveBuilder::new(db, SaveMode::Update)
+pub fn update() -> SaveBuilder {
+    SaveBuilder::new(SaveMode::Update)
 }
 
 ///

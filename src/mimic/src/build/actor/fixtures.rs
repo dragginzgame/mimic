@@ -46,9 +46,10 @@ pub fn fixture_module(builder: &mut ActorBuilder) {
             fixtures: Vec<Box<dyn ::mimic::orm::traits::EntityDyn>>,
         ) -> Result<(), ::mimic::api::Error> {
             DB.with(|db| {
-                ::mimic::db::query::replace(db)
+                ::mimic::db::query::replace()
           //          .debug()
-                    .from_entities_dynamic(fixtures)?;
+                    .from_entities_dynamic(fixtures)
+                    .execute(db)?;
 
                 Ok(())
             })

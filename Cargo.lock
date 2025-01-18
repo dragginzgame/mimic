@@ -34,7 +34,7 @@ checksum = "7dfdb4953a096c551ce9ace855a604d702e6e62d77fac690575ae347571717f5"
 
 [[package]]
 name = "benches"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "bencher",
 ]
@@ -120,9 +120,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.9"
+version = "1.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c8293772165d9345bdaaa39b45b2109591e63fe5e6fbc23c6ff930a048aa310b"
+checksum = "13208fcbb66eaeffe09b99fffbe1af420f00a7b35aa99ad683dfc1aa76145229"
 dependencies = [
  "shlex",
 ]
@@ -574,7 +574,7 @@ checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 
 [[package]]
 name = "mimic"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "candid",
  "ciborium",
@@ -607,7 +607,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_macros"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "darling",
  "derive_more",
@@ -935,7 +935,7 @@ dependencies = [
 
 [[package]]
 name = "test_canister"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -945,7 +945,7 @@ dependencies = [
 
 [[package]]
 name = "test_schema"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "candid",
  "derive_more",
@@ -958,7 +958,7 @@ dependencies = [
 
 [[package]]
 name = "tests"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "mimic",
  "quote",
