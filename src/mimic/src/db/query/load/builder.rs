@@ -80,20 +80,20 @@ where
     }
 
     // range
-    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> Result<LoadQuery<E>, QueryError> {
+    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> LoadQuery<E> {
         let start = start.iter().map(ToString::to_string).collect();
         let end = end.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Range(start, end);
 
-        Ok(LoadQuery::new(self, method))
+        LoadQuery::new(self, method)
     }
 
     // prefix
-    pub fn prefix<T: ToString>(self, prefix: &[T]) -> Result<LoadQuery<E>, QueryError> {
+    pub fn prefix<T: ToString>(self, prefix: &[T]) -> LoadQuery<E> {
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Prefix(prefix);
 
-        Ok(LoadQuery::new(self, method))
+        LoadQuery::new(self, method)
     }
 }
 
