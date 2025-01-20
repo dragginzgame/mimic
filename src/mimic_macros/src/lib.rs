@@ -69,6 +69,7 @@ macro_node!(constant, node::Constant);
 macro_node!(entity, node::Entity);
 macro_node!(entity_id, node::EntityId);
 macro_node!(enum_, node::Enum);
+macro_node!(enum_value, node::EnumValue);
 macro_node!(map, node::Map);
 macro_node!(newtype, node::Newtype);
 macro_node!(permission, node::Permission);
