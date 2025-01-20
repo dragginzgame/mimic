@@ -2,8 +2,8 @@ use crate::orm::{
     schema::{
         build::schema_read,
         node::{
-            Entity, Enum, Map, Newtype, Primitive, Record, Selector, Tuple, ValidateNode,
-            VisitableNode,
+            Entity, Enum, EnumValue, Map, Newtype, Primitive, Record, Selector, Tuple,
+            ValidateNode, VisitableNode,
         },
     },
     types::ErrorVec,
@@ -44,6 +44,7 @@ static ACCEPTABLE_TYPES: LazyLock<HashSet<TypeId>> = LazyLock::new(|| {
     acceptable_types.extend(vec![
         TypeId::of::<Entity>(),
         TypeId::of::<Enum>(),
+        TypeId::of::<EnumValue>(),
         TypeId::of::<Map>(),
         TypeId::of::<Newtype>(),
         TypeId::of::<Primitive>(),
