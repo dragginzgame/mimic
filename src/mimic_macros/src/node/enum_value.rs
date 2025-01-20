@@ -25,6 +25,12 @@ pub struct EnumValue {
     pub traits: Traits,
 }
 
+impl EnumValue {
+    pub fn has_default(&self) -> bool {
+        self.variants.iter().any(|v| v.default)
+    }
+}
+
 impl Node for EnumValue {
     fn expand(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
@@ -85,6 +91,12 @@ impl TraitNode for EnumValue {
             Trait::EnumValue,
             Trait::Hash,
         ]);
+
+        // extra traits
+        // unit enum needs both Hash and Display for hash keys
+        if self.has_default() {
+            traits.add(Trait::Default);
+        }
 
         traits.list()
     }
