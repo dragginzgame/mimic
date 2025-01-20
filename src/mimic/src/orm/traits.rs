@@ -596,6 +596,14 @@ impl_sort_key_for_uints!(
 ///
 
 ///
+/// EnumValue
+///
+
+pub trait EnumValue {
+    fn value(&self) -> i32;
+}
+
+///
 /// Selector
 ///
 

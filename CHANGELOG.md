@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - breaking change to database API.  Queries are now constructed separately, the fluid method
 does not start with DB
+- enum_value has returned, we do have a use for it in Dragginz
 
 ## [0.2.2]
 - primary keys are no more, sort keys now include the key of the local entity
