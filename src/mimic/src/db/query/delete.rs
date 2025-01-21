@@ -83,7 +83,7 @@ where
 {
     // new
     #[must_use]
-    fn new(prev: DeleteBuilder<E>, keys: Vec<Vec<String>>) -> Self {
+    const fn new(prev: DeleteBuilder<E>, keys: Vec<Vec<String>>) -> Self {
         Self {
             debug: prev.debug,
             keys,

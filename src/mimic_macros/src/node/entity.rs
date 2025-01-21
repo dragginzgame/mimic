@@ -25,7 +25,7 @@ pub struct Entity {
     #[darling(multiple, rename = "sk")]
     pub sort_keys: Vec<SortKey>,
 
-    #[darling(multiple, default, rename = "index")]
+    #[darling(multiple, rename = "index")]
     pub indexes: Vec<Index>,
 
     #[darling(default)]
@@ -117,7 +117,7 @@ impl Schemable for Entity {
         let sort_keys = quote_vec(&self.sort_keys, SortKey::schema);
         let indexes = quote_vec(&self.indexes, Index::schema);
         let fields = &self.fields.schema();
-        let acl = quote_option(&self.acl, EntityAcl::schema);
+        let acl = quote_option(self.acl.as_ref(), EntityAcl::schema);
 
         quote! {
             ::mimic::orm::schema::node::SchemaNode::Entity(::mimic::orm::schema::node::Entity {

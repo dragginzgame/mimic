@@ -26,7 +26,8 @@ pub const RESERVED_MEMORY_RANGE: Range<u8> = 0..19;
 /// A stable IC BTreeMap that stores Entity data
 /// the name should be snake_case to keep the API consistent
 ///
-/// crud : the default crud for the entire store, can be overwritten by Entity
+/// entity_acl : the default entity ACL permissions for the entire store,
+///              can be overwritten at the Entity level
 ///
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

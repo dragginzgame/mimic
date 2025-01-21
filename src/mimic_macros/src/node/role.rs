@@ -57,7 +57,7 @@ impl MacroNode for Role {
 impl Schemable for Role {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
-        let parent = quote_option(&self.parent, to_path);
+        let parent = quote_option(self.parent.as_ref(), to_path);
         let permissions = quote_vec(&self.permissions, to_path);
 
         quote! {

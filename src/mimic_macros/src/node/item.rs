@@ -36,9 +36,9 @@ impl Item {
 impl Schemable for Item {
     fn schema(&self) -> TokenStream {
         let indirect = self.indirect;
-        let is = quote_option(&self.is, to_path);
-        let relation = quote_option(&self.relation, to_path);
-        let selector = quote_option(&self.selector, to_path);
+        let is = quote_option(self.is.as_ref(), to_path);
+        let relation = quote_option(self.relation.as_ref(), to_path);
+        let selector = quote_option(self.selector.as_ref(), to_path);
 
         quote! {
             ::mimic::orm::schema::node::Item{

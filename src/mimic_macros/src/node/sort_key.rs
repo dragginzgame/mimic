@@ -22,7 +22,7 @@ pub struct SortKey {
 impl Schemable for SortKey {
     fn schema(&self) -> TokenStream {
         let entity = quote_one(&self.entity, to_path);
-        let field = quote_option(&self.field, to_string);
+        let field = quote_option(self.field.as_ref(), to_string);
 
         quote! {
             ::mimic::orm::schema::node::SortKey {

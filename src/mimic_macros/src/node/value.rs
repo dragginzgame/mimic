@@ -41,7 +41,7 @@ impl Schemable for Value {
     fn schema(&self) -> TokenStream {
         let cardinality = &self.cardinality().schema();
         let item = &self.item.schema();
-        let default = quote_option(&self.default, Arg::schema);
+        let default = quote_option(self.default.as_ref(), Arg::schema);
 
         quote!(
             ::mimic::orm::schema::node::Value {

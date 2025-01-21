@@ -159,7 +159,7 @@ impl Schemable for Newtype {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let value = self.value.schema();
-        let primitive = quote_option(&self.primitive, PrimitiveType::schema);
+        let primitive = quote_option(self.primitive.as_ref(), PrimitiveType::schema);
         let sanitizers = quote_vec(&self.sanitizers, TypeSanitizer::schema);
         let validators = quote_vec(&self.validators, TypeValidator::schema);
 

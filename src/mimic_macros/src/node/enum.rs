@@ -185,7 +185,7 @@ impl Schemable for EnumVariant {
 
         // quote
         let name = quote_one(&self.name, to_string);
-        let value = quote_option(&self.value, Value::schema);
+        let value = quote_option(self.value.as_ref(), Value::schema);
 
         quote! {
             ::mimic::orm::schema::node::EnumVariant {

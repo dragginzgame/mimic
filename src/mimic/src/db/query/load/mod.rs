@@ -114,13 +114,17 @@ impl<'a> Loader<'a> {
     }
 
     // query_range
+    // this has to be done this way to eliminate the store from the iterator
+    #[allow(clippy::needless_collect)]
     fn query_range(
         &self,
         start: DataKey,
         end: DataKey,
     ) -> Result<Box<dyn Iterator<Item = DataRow>>, Error> {
+        let store_path = self.resolver.store()?;
+
         self.db
-            .with_store(&self.resolver.store()?, |store| {
+            .with_store(&store_path, |store| {
                 // Collect data into a Vec to own it
                 let rows = store
                     .data
