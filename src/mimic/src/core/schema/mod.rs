@@ -1,5 +1,4 @@
 pub mod auth;
-pub mod entity_crud;
 
 pub use crate::orm::schema::node::Schema;
 pub use auth::AuthService;

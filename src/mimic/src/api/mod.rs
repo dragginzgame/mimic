@@ -1,6 +1,5 @@
 pub mod auth;
 pub mod core;
-pub mod crud;
 pub mod guard;
 pub mod ic;
 pub mod subnet;
@@ -59,7 +58,6 @@ pub const ERROR_INIT: u8 = 10;
 
 // api
 pub const ERROR_API_AUTH: u8 = 101;
-pub const ERROR_API_CRUD: u8 = 102;
 pub const ERROR_API_CORE_SCHEMA: u8 = 110;
 pub const ERROR_API_IC_CALL: u8 = 120;
 pub const ERROR_API_IC_CANISTER: u8 = 121;
@@ -110,12 +108,6 @@ impl Display for Error {
 impl From<auth::Error> for Error {
     fn from(error: auth::Error) -> Self {
         Self(ERROR_API_AUTH, error.to_string())
-    }
-}
-
-impl From<crud::Error> for Error {
-    fn from(error: crud::Error) -> Self {
-        Self(ERROR_API_CRUD, error.to_string())
     }
 }
 

@@ -175,24 +175,3 @@ impl ValidateNode for AccessPolicy {
 }
 
 impl VisitableNode for AccessPolicy {}
-
-///
-/// Crud
-///
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Crud {
-    pub load: AccessPolicy,
-    pub save: AccessPolicy,
-    pub delete: AccessPolicy,
-}
-
-impl ValidateNode for Crud {}
-
-impl VisitableNode for Crud {
-    fn drive<V: Visitor>(&self, v: &mut V) {
-        self.load.accept(v);
-        self.save.accept(v);
-        self.delete.accept(v);
-    }
-}

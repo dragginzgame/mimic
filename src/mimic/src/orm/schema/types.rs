@@ -36,17 +36,6 @@ pub enum ConstantType {
 }
 
 ///
-/// CrudAction
-///
-
-#[derive(CandidType, Clone, Copy, Debug, Serialize, Deserialize)]
-pub enum CrudAction {
-    Load,
-    Save,
-    Delete,
-}
-
-///
 /// Cycles
 ///
 

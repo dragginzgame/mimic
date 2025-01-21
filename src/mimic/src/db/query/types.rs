@@ -40,9 +40,6 @@ pub enum LoadFormat {
 ///
 /// LoadMethod
 ///
-/// Some of these variants, ie. All will return too much data
-/// for the CRUD interface, but are handy regardless
-///
 /// All    : no sort key prefix, only works with top-level Sort Keys,
 ///          will probably not work if used on nested entities
 /// Only   : for entities that have no keys

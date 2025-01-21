@@ -2,7 +2,7 @@ use crate::{
     orm::{
         schema::{
             build::schema_read,
-            node::{Canister, Crud, Def, MacroNode, ValidateNode, VisitableNode},
+            node::{Canister, Def, EntityAcl, MacroNode, ValidateNode, VisitableNode},
             visit::Visitor,
         },
         types::ErrorVec,
@@ -34,7 +34,7 @@ pub struct Store {
     pub def: Def,
     pub canister: String,
     pub memory_id: u8,
-    pub crud: Crud,
+    pub entity_acl: EntityAcl,
 }
 
 impl Store {
@@ -81,6 +81,6 @@ impl VisitableNode for Store {
 
     fn drive<V: Visitor>(&self, v: &mut V) {
         self.def.accept(v);
-        self.crud.accept(v);
+        self.entity_acl.accept(v);
     }
 }

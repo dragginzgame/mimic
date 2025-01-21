@@ -1,4 +1,3 @@
-pub mod crud;
 pub mod endpoints;
 pub mod fixtures;
 pub mod init;
@@ -96,7 +95,6 @@ impl ActorBuilder {
         shared::extend(&mut self);
 
         endpoints::extend(&mut self);
-        crud::extend(&mut self);
         fixtures::extend(&mut self);
         stores::extend(&mut self);
         query::extend(&mut self);

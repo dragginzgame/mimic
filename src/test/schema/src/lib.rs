@@ -28,7 +28,7 @@ pub struct Test {}
 #[store(
     canister = "Test",
     memory_id = 20,
-    crud(load = "allow", save = "allow", delete = "allow")
+    entity_acl(load = "allow", save = "allow", delete = "allow")
 )]
 pub struct Store {}
 

@@ -1,7 +1,9 @@
 use crate::imp;
 use crate::{
     helper::{quote_one, quote_option, quote_vec, to_path},
-    node::{Crud, Def, FieldList, Index, MacroNode, Node, SortKey, Trait, TraitNode, Traits},
+    node::{
+        AccessPolicy, Def, FieldList, Index, MacroNode, Node, SortKey, Trait, TraitNode, Traits,
+    },
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -30,7 +32,7 @@ pub struct Entity {
     pub fields: FieldList,
 
     #[darling(default)]
-    pub crud: Option<Crud>,
+    pub acl: Option<EntityAcl>,
 
     #[darling(default)]
     pub traits: Traits,
@@ -115,7 +117,7 @@ impl Schemable for Entity {
         let sort_keys = quote_vec(&self.sort_keys, SortKey::schema);
         let indexes = quote_vec(&self.indexes, Index::schema);
         let fields = &self.fields.schema();
-        let crud = quote_option(&self.crud, Crud::schema);
+        let acl = quote_option(&self.acl, EntityAcl::schema);
 
         quote! {
             ::mimic::orm::schema::node::SchemaNode::Entity(::mimic::orm::schema::node::Entity {
@@ -124,8 +126,40 @@ impl Schemable for Entity {
                 sort_keys: #sort_keys,
                 indexes: #indexes,
                 fields: #fields,
-                crud: #crud,
+                acl: #acl,
             })
+        }
+    }
+}
+
+///
+/// EntityAcl
+///
+
+#[derive(Debug, Default, FromMeta)]
+pub struct EntityAcl {
+    #[darling(default)]
+    pub load: AccessPolicy,
+
+    #[darling(default)]
+    pub save: AccessPolicy,
+
+    #[darling(default)]
+    pub delete: AccessPolicy,
+}
+
+impl Schemable for EntityAcl {
+    fn schema(&self) -> TokenStream {
+        let load = &self.load.schema();
+        let save = &self.save.schema();
+        let delete = &self.delete.schema();
+
+        quote! {
+            ::mimic::orm::schema::node::EntityAcl {
+                load: #load,
+                save: #save,
+                delete: #delete,
+            }
         }
     }
 }

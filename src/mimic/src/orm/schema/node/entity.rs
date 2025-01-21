@@ -2,7 +2,8 @@ use crate::orm::{
     schema::{
         build::schema_read,
         node::{
-            Crud, Def, FieldList, Index, MacroNode, SortKey, Store, ValidateNode, VisitableNode,
+            AccessPolicy, Def, FieldList, Index, MacroNode, SortKey, Store, ValidateNode,
+            VisitableNode,
         },
         visit::Visitor,
     },
@@ -26,7 +27,7 @@ pub struct Entity {
     pub indexes: Vec<Index>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub crud: Option<Crud>,
+    pub acl: Option<EntityAcl>,
 
     pub fields: FieldList,
 }
@@ -107,9 +108,30 @@ impl VisitableNode for Entity {
         for node in &self.indexes {
             node.accept(v);
         }
-        if let Some(node) = &self.crud {
+        if let Some(node) = &self.acl {
             node.accept(v);
         }
         self.fields.accept(v);
+    }
+}
+
+///
+/// EntityAcl
+///
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct EntityAcl {
+    pub load: AccessPolicy,
+    pub save: AccessPolicy,
+    pub delete: AccessPolicy,
+}
+
+impl ValidateNode for EntityAcl {}
+
+impl VisitableNode for EntityAcl {
+    fn drive<V: Visitor>(&self, v: &mut V) {
+        self.load.accept(v);
+        self.save.accept(v);
+        self.delete.accept(v);
     }
 }

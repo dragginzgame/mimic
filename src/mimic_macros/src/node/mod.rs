@@ -281,61 +281,6 @@ impl ToTokens for ConstantType {
 }
 
 ///
-/// Crud
-///
-
-#[derive(Debug, Default, FromMeta)]
-pub struct Crud {
-    #[darling(default)]
-    pub load: AccessPolicy,
-
-    #[darling(default)]
-    pub save: AccessPolicy,
-
-    #[darling(default)]
-    pub delete: AccessPolicy,
-}
-
-impl Schemable for Crud {
-    fn schema(&self) -> TokenStream {
-        let load = &self.load.schema();
-        let save = &self.save.schema();
-        let delete = &self.delete.schema();
-
-        quote! {
-            ::mimic::orm::schema::node::Crud {
-                load: #load,
-                save: #save,
-                delete: #delete,
-            }
-        }
-    }
-}
-
-///
-/// CrudAction
-///
-
-#[derive(
-    Clone, Copy, Debug, Deserialize, Display, EnumString, Eq, FromMeta, PartialEq, Serialize,
-)]
-pub enum CrudAction {
-    Load,
-    Save,
-    Delete,
-}
-
-impl Schemable for CrudAction {
-    fn schema(&self) -> TokenStream {
-        match &self {
-            Self::Load => quote!(::mimic::orm::schema::types::CrudAction::Load),
-            Self::Save => quote!(::mimic::orm::schema::types::CrudAction::Save),
-            Self::Delete => quote!(::mimic::orm::schema::types::CrudAction::Delete),
-        }
-    }
-}
-
-///
 /// Cycles
 ///
 

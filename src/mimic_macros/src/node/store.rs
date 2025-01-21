@@ -1,7 +1,7 @@
 use crate::imp;
 use crate::{
     helper::{quote_one, to_path},
-    node::{Crud, Def, MacroNode, Node, Trait, TraitNode, Traits},
+    node::{Def, EntityAcl, MacroNode, Node, Trait, TraitNode, Traits},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -22,7 +22,7 @@ pub struct Store {
     pub memory_id: u8,
 
     #[darling(default)]
-    pub crud: Crud,
+    pub entity_acl: EntityAcl,
 }
 
 impl Node for Store {
@@ -59,14 +59,14 @@ impl Schemable for Store {
         let def = &self.def.schema();
         let canister = quote_one(&self.canister, to_path);
         let memory_id = &self.memory_id;
-        let crud = self.crud.schema();
+        let entity_acl = self.entity_acl.schema();
 
         quote! {
             ::mimic::orm::schema::node::SchemaNode::Store(::mimic::orm::schema::node::Store{
                 def: #def,
                 canister: #canister,
                 memory_id: #memory_id,
-                crud: #crud,
+                entity_acl: #entity_acl,
             })
         }
     }
