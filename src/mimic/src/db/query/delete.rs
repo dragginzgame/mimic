@@ -3,10 +3,10 @@ use crate::db::{
     types::DataKey,
     Db,
 };
-use crate::orm::traits::Entity;
+use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
-use std::{fmt::Display, marker::PhantomData};
+use std::fmt::Display;
 
 ///
 /// Error
@@ -25,24 +25,18 @@ pub enum Error {
 /// DeleteBuilder
 ///
 
-pub struct DeleteBuilder<E>
-where
-    E: Entity,
-{
+pub struct DeleteBuilder {
+    path: String,
     debug: DebugContext,
-    phantom: PhantomData<E>,
 }
 
-impl<E> DeleteBuilder<E>
-where
-    E: Entity,
-{
+impl DeleteBuilder {
     // new
     #[must_use]
-    pub(crate) fn new() -> Self {
+    pub(crate) fn new(path: &str) -> Self {
         Self {
+            path: path.to_string(),
             debug: DebugContext::default(),
-            phantom: PhantomData,
         }
     }
 
@@ -54,7 +48,7 @@ where
     }
 
     // one
-    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQuery<E>, QueryError> {
+    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQuery, QueryError> {
         let key: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let executor = DeleteQuery::new(self, vec![key]);
 
@@ -68,31 +62,26 @@ where
 /// results : all the keys that have successfully been deleted
 ///
 
-pub struct DeleteQuery<E>
-where
-    E: Entity,
-{
+#[derive(CandidType, Debug, Serialize, Deserialize)]
+pub struct DeleteQuery {
+    path: String,
     debug: DebugContext,
     keys: Vec<Vec<String>>,
-    phantom: PhantomData<E>,
 }
 
-impl<E> DeleteQuery<E>
-where
-    E: Entity,
-{
+impl DeleteQuery {
     // new
     #[must_use]
-    const fn new(prev: DeleteBuilder<E>, keys: Vec<Vec<String>>) -> Self {
+    fn new(builder: DeleteBuilder, keys: Vec<Vec<String>>) -> Self {
         Self {
-            debug: prev.debug,
+            path: builder.path,
+            debug: builder.debug,
             keys,
-            phantom: PhantomData,
         }
     }
 
     // execute
-    pub fn execute(self, db: &Db) -> Result<DeleteResult, QueryError> {
+    pub fn execute(self, db: &Db) -> Result<DeleteResponse, QueryError> {
         let executor = DeleteExecutor::new(self);
 
         executor.execute(db)
@@ -103,29 +92,22 @@ where
 /// DeleteExecutor
 ///
 
-pub struct DeleteExecutor<E>
-where
-    E: Entity,
-{
-    query: DeleteQuery<E>,
+pub struct DeleteExecutor {
+    query: DeleteQuery,
     resolver: Resolver,
 }
 
-impl<E> DeleteExecutor<E>
-where
-    E: Entity,
-{
+impl DeleteExecutor {
     // new
     #[must_use]
-    pub fn new(query: DeleteQuery<E>) -> Self {
-        Self {
-            query,
-            resolver: Resolver::new(&E::path()),
-        }
+    pub fn new(query: DeleteQuery) -> Self {
+        let resolver = Resolver::new(&query.path);
+
+        Self { query, resolver }
     }
 
     // execute
-    fn execute(&self, db: &Db) -> Result<DeleteResult, QueryError> {
+    pub fn execute(&self, db: &Db) -> Result<DeleteResponse, QueryError> {
         let mut results = Vec::new();
         crate::ic::println!("delete: keys {:?}", &self.query.keys);
 
@@ -140,7 +122,7 @@ where
             .debug
             .println(&format!("deleted keys {results:?}"));
 
-        Ok(DeleteResult::new(results))
+        Ok(DeleteResponse::new(results))
     }
 
     fn execute_one(&self, db: &Db, key: &[String]) -> Result<DataKey, Error> {
@@ -161,23 +143,24 @@ where
 }
 
 ///
-/// DeleteResult
+/// DeleteResponse
 ///
-/// results : all the keys that have successfully been deleted
+/// keys : all the keys that have successfully been deleted
 ///
 
-pub struct DeleteResult {
-    results: Vec<DataKey>,
+#[derive(CandidType, Debug, Serialize, Deserialize)]
+pub struct DeleteResponse {
+    keys: Vec<DataKey>,
 }
 
-impl DeleteResult {
+impl DeleteResponse {
     // new
-    const fn new(results: Vec<DataKey>) -> Self {
-        Self { results }
+    const fn new(keys: Vec<DataKey>) -> Self {
+        Self { keys }
     }
 
     // keys
     pub fn keys(self) -> Result<Vec<DataKey>, QueryError> {
-        Ok(self.results)
+        Ok(self.keys)
     }
 }

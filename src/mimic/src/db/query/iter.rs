@@ -27,10 +27,10 @@ pub enum Error {
 type IterFilter<T> = Box<dyn Fn(&T) -> bool>;
 
 ///
-/// RowIterator
+/// ERowIterator
 ///
 
-pub struct RowIterator<E>
+pub struct ERowIterator<E>
 where
     E: Entity,
 {
@@ -38,7 +38,7 @@ where
     manager: IterManager<EntityRow<E>>,
 }
 
-impl<E> RowIterator<E>
+impl<E> ERowIterator<E>
 where
     E: Entity + 'static,
 {
@@ -138,7 +138,7 @@ where
     }
 }
 
-impl<E> Iterator for RowIterator<E>
+impl<E> Iterator for ERowIterator<E>
 where
     E: Entity + 'static,
 {
@@ -150,18 +150,18 @@ where
 }
 
 ///
-/// RowIteratorDyn
+/// RowIterator
 ///
 /// complex logic is handled better with iter::from_fn and move_next()
 /// all iterator methods (for now) are consuming
 ///
 
-pub struct RowIteratorDyn {
+pub struct RowIterator {
     iter: Box<dyn Iterator<Item = DataRow>>,
     manager: IterManager<DataRow>,
 }
 
-impl RowIteratorDyn {
+impl RowIterator {
     #[must_use]
     pub fn new(iter: Box<dyn Iterator<Item = DataRow>>, limit: Option<u32>, offset: u32) -> Self {
         Self {
@@ -223,7 +223,7 @@ impl RowIteratorDyn {
     }
 }
 
-impl Iterator for RowIteratorDyn {
+impl Iterator for RowIterator {
     type Item = DataRow;
 
     fn next(&mut self) -> Option<Self::Item> {

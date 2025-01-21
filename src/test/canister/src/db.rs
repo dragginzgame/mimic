@@ -63,7 +63,7 @@ impl<'a> DbTester<'a> {
             .unwrap();
 
         // load all keys
-        let entities = query::load_dyn(HasMap::PATH)
+        let entities = query::load(HasMap::PATH)
             .only()
             .execute(self.db)
             .unwrap()
@@ -91,7 +91,7 @@ impl<'a> DbTester<'a> {
         }
 
         // Retrieve rows in B-Tree order
-        let rows: Vec<DataKey> = query::load::<SortKeyOrder>()
+        let rows: Vec<DataKey> = query::load_entity::<SortKeyOrder>()
             .all()
             .order(Order::from(vec!["id"]))
             .execute(self.db)
@@ -125,7 +125,7 @@ impl<'a> DbTester<'a> {
         });
 
         // Retrieve the count of keys (or entities) from the store
-        let count = query::load_dyn(CreateBasic::PATH)
+        let count = query::load(CreateBasic::PATH)
             .all()
             .execute(self.db)
             .unwrap()
@@ -149,7 +149,7 @@ impl<'a> DbTester<'a> {
 
         // count keys
         assert_eq!(
-            query::load_dyn(CreateBasic::PATH)
+            query::load(CreateBasic::PATH)
                 .all()
                 .execute(self.db)
                 .unwrap()
@@ -164,7 +164,7 @@ impl<'a> DbTester<'a> {
 
         // count keys
         assert_eq!(
-            query::load_dyn(CreateBasic::PATH)
+            query::load(CreateBasic::PATH)
                 .all()
                 .execute(self.db)
                 .unwrap()
@@ -192,7 +192,7 @@ impl<'a> DbTester<'a> {
         }
 
         // Retrieve the count from the store
-        let count = query::load_dyn(CreateBasic::PATH)
+        let count = query::load(CreateBasic::PATH)
             .all()
             .execute(self.db)
             .unwrap()
@@ -254,7 +254,7 @@ impl<'a> DbTester<'a> {
         ];
 
         for (search, expected_count) in tests {
-            let count = query::load::<Filterable>()
+            let count = query::load_entity::<Filterable>()
                 .all()
                 .filter_all(search)
                 .execute(self.db)
@@ -289,7 +289,7 @@ impl<'a> DbTester<'a> {
         // Test various limits and offsets
         for limit in [10, 20, 50] {
             for offset in [0, 5, 10] {
-                let results = query::load_dyn(Limit::PATH)
+                let results = query::load(Limit::PATH)
                     .all()
                     .offset(offset)
                     .limit(limit)

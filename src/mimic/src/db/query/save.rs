@@ -169,7 +169,7 @@ impl SaveQuery {
     }
 
     // execute
-    pub fn execute(&mut self, db: &Db) -> Result<SaveResult, QueryError> {
+    pub fn execute(&mut self, db: &Db) -> Result<SaveResponse, QueryError> {
         // Temporarily take the entities out of self to avoid multiple mutable borrows
         let mut entities = mem::take(&mut self.entities);
 
@@ -180,7 +180,7 @@ impl SaveQuery {
             results.push(data_row);
         }
 
-        Ok(SaveResult::new(results))
+        Ok(SaveResponse::new(results))
     }
 
     // execute_one
@@ -289,17 +289,17 @@ impl SaveQuery {
 }
 
 ///
-/// SaveResult
+/// SaveResponse
 ///
 
-pub struct SaveResult {
-    pub results: Vec<DataRow>,
+pub struct SaveResponse {
+    pub rows: Vec<DataRow>,
 }
 
-impl SaveResult {
+impl SaveResponse {
     #[must_use]
-    pub const fn new(results: Vec<DataRow>) -> Self {
-        Self { results }
+    pub const fn new(rows: Vec<DataRow>) -> Self {
+        Self { rows }
     }
 
     // ok
@@ -310,7 +310,7 @@ impl SaveResult {
     // query_row
     pub fn query_row(&self) -> Result<DataRow, QueryError> {
         let res = self
-            .results
+            .rows
             .first()
             .cloned()
             .map(Into::into)
@@ -321,12 +321,12 @@ impl SaveResult {
 
     // query_rows
     pub fn query_rows(self) -> impl Iterator<Item = DataRow> {
-        self.results.into_iter().map(Into::into)
+        self.rows.into_iter().map(Into::into)
     }
 
     // entity_row
     pub fn entity_row<E: Entity>(self) -> Result<EntityRow<E>, QueryError> {
-        let row = self.results.first().ok_or(Error::NoResultsFound)?.clone();
+        let row = self.rows.first().ok_or(Error::NoResultsFound)?.clone();
 
         let entity_row: EntityRow<E> = row.try_into()?;
 
@@ -335,15 +335,14 @@ impl SaveResult {
 
     // entity_rows
     pub fn entity_rows<E: Entity>(self) -> impl Iterator<Item = Result<EntityRow<E>, QueryError>> {
-        self.results
+        self.rows
             .into_iter()
             .map(|row| row.try_into().map_err(QueryError::from))
     }
 
     // entity
     pub fn entity<E: Entity>(self) -> Result<E, QueryError> {
-        let row_ref = self.results.first().ok_or(Error::NoResultsFound)?;
-
+        let row_ref = self.rows.first().ok_or(Error::NoResultsFound)?;
         let entity_row: EntityRow<E> = row_ref.clone().try_into()?;
 
         Ok(entity_row.value.entity)
@@ -351,7 +350,7 @@ impl SaveResult {
 
     // entities
     pub fn entities<E: Entity>(self) -> impl Iterator<Item = Result<E, QueryError>> {
-        self.results.into_iter().map(|row| {
+        self.rows.into_iter().map(|row| {
             row.try_into()
                 .map(|row: EntityRow<E>| row.value.entity)
                 .map_err(QueryError::from)

@@ -1,7 +1,7 @@
 use crate::{
     db::{
         query::{
-            iter::RowIterator,
+            iter::ERowIterator,
             load::Loader,
             types::{Filter, LoadMethod, Order},
             DebugContext, Error as QueryError, Resolver,
@@ -14,11 +14,11 @@ use crate::{
 use std::marker::PhantomData;
 
 ///
-/// LoadBuilder
+/// ELoadBuilder
 ///
 
 #[derive(Default)]
-pub struct LoadBuilder<E>
+pub struct ELoadBuilder<E>
 where
     E: Entity,
 {
@@ -26,7 +26,7 @@ where
     phantom: PhantomData<E>,
 }
 
-impl<E> LoadBuilder<E>
+impl<E> ELoadBuilder<E>
 where
     E: Entity,
 {
@@ -48,62 +48,62 @@ where
 
     // method
     #[must_use]
-    pub const fn method(self, method: LoadMethod) -> LoadQuery<E> {
-        LoadQuery::new(self, method)
+    pub const fn method(self, method: LoadMethod) -> ELoadQuery<E> {
+        ELoadQuery::new(self, method)
     }
 
     // all
     #[must_use]
-    pub const fn all(self) -> LoadQuery<E> {
-        LoadQuery::new(self, LoadMethod::All)
+    pub const fn all(self) -> ELoadQuery<E> {
+        ELoadQuery::new(self, LoadMethod::All)
     }
 
     // only
     #[must_use]
-    pub const fn only(self) -> LoadQuery<E> {
-        LoadQuery::new(self, LoadMethod::Only)
+    pub const fn only(self) -> ELoadQuery<E> {
+        ELoadQuery::new(self, LoadMethod::Only)
     }
 
     // one
-    pub fn one<T: ToString>(self, ck: &[T]) -> LoadQuery<E> {
+    pub fn one<T: ToString>(self, ck: &[T]) -> ELoadQuery<E> {
         let ck_str: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let method = LoadMethod::One(ck_str);
 
-        LoadQuery::new(self, method)
+        ELoadQuery::new(self, method)
     }
 
     // many
     #[must_use]
-    pub fn many(self, cks: &[Vec<String>]) -> LoadQuery<E> {
+    pub fn many(self, cks: &[Vec<String>]) -> ELoadQuery<E> {
         let method = LoadMethod::Many(cks.to_vec());
 
-        LoadQuery::new(self, method)
+        ELoadQuery::new(self, method)
     }
 
     // range
-    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> LoadQuery<E> {
+    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> ELoadQuery<E> {
         let start = start.iter().map(ToString::to_string).collect();
         let end = end.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Range(start, end);
 
-        LoadQuery::new(self, method)
+        ELoadQuery::new(self, method)
     }
 
     // prefix
-    pub fn prefix<T: ToString>(self, prefix: &[T]) -> LoadQuery<E> {
+    pub fn prefix<T: ToString>(self, prefix: &[T]) -> ELoadQuery<E> {
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Prefix(prefix);
 
-        LoadQuery::new(self, method)
+        ELoadQuery::new(self, method)
     }
 }
 
 ///
-/// LoadQuery
+/// ELoadQuery
 ///
 
 #[expect(dead_code)]
-pub struct LoadQuery<E>
+pub struct ELoadQuery<E>
 where
     E: Entity + 'static,
 {
@@ -116,12 +116,12 @@ where
     phantom: PhantomData<E>,
 }
 
-impl<E> LoadQuery<E>
+impl<E> ELoadQuery<E>
 where
     E: Entity + 'static,
 {
     #[must_use]
-    pub const fn new(builder: LoadBuilder<E>, method: LoadMethod) -> Self {
+    pub const fn new(builder: ELoadBuilder<E>, method: LoadMethod) -> Self {
         Self {
             debug: builder.debug,
             method,
@@ -197,32 +197,32 @@ where
     }
 
     // execute
-    pub fn execute(self, db: &Db) -> Result<RowIterator<E>, QueryError> {
-        let executor = LoadExecutor::new(self);
+    pub fn execute(self, db: &Db) -> Result<ERowIterator<E>, QueryError> {
+        let executor = ELoadExecutor::new(self);
 
         executor.execute(db)
     }
 }
 
 ///
-/// LoadExecutor
+/// ELoadExecutor
 ///
 
-pub struct LoadExecutor<E>
+pub struct ELoadExecutor<E>
 where
     E: Entity + 'static,
 {
-    query: LoadQuery<E>,
+    query: ELoadQuery<E>,
     resolver: Resolver,
 }
 
-impl<E> LoadExecutor<E>
+impl<E> ELoadExecutor<E>
 where
     E: Entity + 'static,
 {
     // new
     #[must_use]
-    pub fn new(query: LoadQuery<E>) -> Self {
+    pub fn new(query: ELoadQuery<E>) -> Self {
         Self {
             query,
             resolver: Resolver::new(&E::path()),
@@ -232,7 +232,7 @@ where
     // execute
     // convert into EntityRows and return a RowIterator
     // also make sure we're deserializing the correct entity path
-    pub fn execute(self, db: &Db) -> Result<RowIterator<E>, QueryError> {
+    pub fn execute(self, db: &Db) -> Result<ERowIterator<E>, QueryError> {
         // loader
         let loader = Loader::new(db, &self.resolver);
         let res = loader.load(&self.query.method)?;
@@ -244,7 +244,7 @@ where
 
         let boxed_iter = Box::new(filtered.into_iter()) as Box<dyn Iterator<Item = EntityRow<E>>>;
 
-        Ok(RowIterator::new(
+        Ok(ERowIterator::new(
             boxed_iter,
             self.query.limit,
             self.query.offset,

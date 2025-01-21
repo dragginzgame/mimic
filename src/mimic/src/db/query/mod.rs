@@ -5,13 +5,11 @@ pub mod resolver;
 pub mod save;
 pub mod types;
 
-pub use delete::DeleteBuilder;
-pub use iter::{RowIterator, RowIteratorDyn};
-pub use load::{
-    LoadBuilder, LoadBuilderDyn, LoadExecutor, LoadExecutorDyn, LoadQuery, LoadQueryDyn,
-};
+pub use delete::{DeleteBuilder, DeleteExecutor, DeleteQuery, DeleteResponse};
+pub use iter::{ERowIterator, RowIterator};
+pub use load::{ELoadBuilder, ELoadExecutor, ELoadQuery, LoadBuilder, LoadExecutor, LoadQuery};
 pub use resolver::Resolver;
-pub use save::{SaveBuilder, SaveMode, SaveResult};
+pub use save::{SaveBuilder, SaveMode, SaveResponse};
 pub use types::*;
 
 use crate::orm::traits::Entity;
@@ -45,28 +43,25 @@ pub enum Error {
 /// Query Builders
 ///
 
-// load
+// load_entity
 #[must_use]
-pub fn load<E>() -> LoadBuilder<E>
+pub fn load_entity<E>() -> ELoadBuilder<E>
 where
     E: Entity + 'static,
 {
-    LoadBuilder::<E>::new()
+    ELoadBuilder::<E>::new()
 }
 
-// load_dyn
+// load
 #[must_use]
-pub fn load_dyn(path: &str) -> LoadBuilderDyn {
-    LoadBuilderDyn::new(path)
+pub fn load(path: &str) -> LoadBuilder {
+    LoadBuilder::new(path)
 }
 
 // delete
 #[must_use]
-pub fn delete<E>() -> DeleteBuilder<E>
-where
-    E: Entity,
-{
-    DeleteBuilder::<E>::new()
+pub fn delete(path: &str) -> DeleteBuilder {
+    DeleteBuilder::new(path)
 }
 
 // create
