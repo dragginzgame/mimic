@@ -10,7 +10,7 @@ pub fn extend(builder: &mut ActorBuilder) {
 // query_load
 fn query_load(builder: &mut ActorBuilder) {
     let q = quote! {
-        pub async fn query_canister(
+        pub async fn query_load(
             canister_path: &str,
             query: ::mimic::db::query::LoadQueryDyn,
         ) -> Result<Vec<::mimic::db::types::DataRow>, ::mimic::api::Error> {
@@ -35,7 +35,8 @@ fn query_load(builder: &mut ActorBuilder) {
 // query_load_response
 fn query_load_response(builder: &mut ActorBuilder) {
     let q = quote! {
-        pub fn query_load(
+        #[::mimic::ic::query]
+        pub fn query_load_response(
             query: ::mimic::db::query::LoadQueryDyn,
         ) -> Result<Vec<::mimic::db::types::DataRow>, ::mimic::api::Error> {
             let executor = ::mimic::db::query::LoadExecutorDyn::new(query);
