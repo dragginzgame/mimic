@@ -1,6 +1,6 @@
 use crate::{
     orm::{
-        schema::node::{Def, MacroNode, ValidateNode, VisitableNode, Visitor},
+        schema::node::{ArgNumber, Def, MacroNode, ValidateNode, VisitableNode, Visitor},
         types::ErrorVec,
     },
     utils::case::{Case, Casing},
@@ -48,7 +48,7 @@ impl VisitableNode for EnumValue {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EnumValueVariant {
     pub name: String,
-    pub value: i32,
+    pub value: ArgNumber,
 
     #[serde(default, skip_serializing_if = "Not::not")]
     pub default: bool,
