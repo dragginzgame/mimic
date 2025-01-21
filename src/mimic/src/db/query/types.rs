@@ -1,169 +1,10 @@
 use crate::{
-    db::{
-        query::Error as QueryError,
-        types::{DataKey, DataRow, DataValue, Metadata},
-    },
+    db::types::{DataKey, DataRow},
     orm::schema::types::SortDirection,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
-
-///
-/// QueryRow
-/// a version of DataRow that can be passed back to the frontend
-///
-
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub struct QueryRow {
-    pub key: DataKey,
-    pub value: QueryValue,
-}
-
-impl From<DataRow> for QueryRow {
-    fn from(row: DataRow) -> Self {
-        Self {
-            key: row.key,
-            value: row.value.into(),
-        }
-    }
-}
-
-impl<E> TryFrom<EntityRow<E>> for QueryRow
-where
-    E: Serialize + DeserializeOwned,
-{
-    type Error = QueryError;
-
-    fn try_from(row: EntityRow<E>) -> Result<Self, Self::Error> {
-        Ok(Self {
-            key: row.key,
-            value: row.value.try_into()?,
-        })
-    }
-}
-
-///
-/// QueryValue
-///
-
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub struct QueryValue {
-    pub data: Vec<u8>,
-    pub metadata: Metadata,
-}
-
-impl From<DataValue> for QueryValue {
-    fn from(value: DataValue) -> Self {
-        Self {
-            data: value.data,
-            metadata: value.metadata,
-        }
-    }
-}
-
-impl<E> TryFrom<EntityValue<E>> for QueryValue
-where
-    E: Serialize + DeserializeOwned,
-{
-    type Error = QueryError;
-
-    fn try_from(value: EntityValue<E>) -> Result<Self, Self::Error> {
-        let data = crate::orm::serialize::<E>(&value.entity)?;
-
-        Ok(Self {
-            data,
-            metadata: value.metadata,
-        })
-    }
-}
-
-///
-/// EntityRow
-/// same as QueryRow but with a concrete Entity
-///
-
-#[derive(CandidType, Clone, Debug, Serialize)]
-pub struct EntityRow<E>
-where
-    E: DeserializeOwned,
-{
-    pub key: DataKey,
-    pub value: EntityValue<E>,
-}
-
-impl<E> TryFrom<DataRow> for EntityRow<E>
-where
-    E: DeserializeOwned,
-{
-    type Error = crate::orm::Error;
-
-    fn try_from(row: DataRow) -> Result<Self, Self::Error> {
-        Ok(Self {
-            key: row.key,
-            value: row.value.try_into()?,
-        })
-    }
-}
-
-impl<E> TryFrom<QueryRow> for EntityRow<E>
-where
-    E: DeserializeOwned,
-{
-    type Error = crate::orm::Error;
-
-    fn try_from(row: QueryRow) -> Result<Self, Self::Error> {
-        Ok(Self {
-            key: row.key,
-            value: row.value.try_into()?,
-        })
-    }
-}
-
-///
-/// EntityValue
-///
-
-#[derive(CandidType, Clone, Debug, Serialize)]
-pub struct EntityValue<E>
-where
-    E: DeserializeOwned,
-{
-    pub entity: E,
-    pub metadata: Metadata,
-}
-
-impl<E> TryFrom<DataValue> for EntityValue<E>
-where
-    E: DeserializeOwned,
-{
-    type Error = crate::orm::Error;
-
-    fn try_from(value: DataValue) -> Result<Self, Self::Error> {
-        let entity = crate::orm::deserialize::<E>(&value.data)?;
-
-        Ok(Self {
-            entity,
-            metadata: value.metadata,
-        })
-    }
-}
-
-impl<E> TryFrom<QueryValue> for EntityValue<E>
-where
-    E: DeserializeOwned,
-{
-    type Error = crate::orm::Error;
-
-    fn try_from(value: QueryValue) -> Result<Self, Self::Error> {
-        let entity = crate::orm::deserialize::<E>(&value.data)?;
-
-        Ok(Self {
-            entity,
-            metadata: value.metadata,
-        })
-    }
-}
+use serde::{Deserialize, Serialize};
 
 ///
 /// LoadRequest
@@ -231,7 +72,7 @@ pub enum LoadMethod {
 
 #[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
 pub enum LoadResponse {
-    Rows(Vec<QueryRow>),
+    Rows(Vec<DataRow>),
     Count(u32),
 }
 
@@ -272,7 +113,7 @@ pub enum SaveResponse {
 
 #[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
 pub struct CreateResponse {
-    pub row: QueryRow,
+    pub row: DataRow,
 }
 
 ///
@@ -281,7 +122,7 @@ pub struct CreateResponse {
 
 #[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
 pub struct UpdateResponse {
-    pub row: QueryRow,
+    pub row: DataRow,
 }
 
 ///

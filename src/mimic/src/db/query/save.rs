@@ -1,10 +1,7 @@
 use crate::{
     db::{
-        query::{
-            types::{EntityRow, QueryRow},
-            DebugContext, Error as QueryError, Resolver,
-        },
-        types::{DataKey, DataRow, DataValue, Metadata},
+        query::{DebugContext, Error as QueryError, Resolver},
+        types::{DataKey, DataRow, DataValue, EntityRow, Metadata},
         Db,
     },
     orm::{
@@ -311,7 +308,7 @@ impl SaveResult {
     }
 
     // query_row
-    pub fn query_row(&self) -> Result<QueryRow, QueryError> {
+    pub fn query_row(&self) -> Result<DataRow, QueryError> {
         let res = self
             .results
             .first()
@@ -323,7 +320,7 @@ impl SaveResult {
     }
 
     // query_rows
-    pub fn query_rows(self) -> impl Iterator<Item = QueryRow> {
+    pub fn query_rows(self) -> impl Iterator<Item = DataRow> {
         self.results.into_iter().map(Into::into)
     }
 

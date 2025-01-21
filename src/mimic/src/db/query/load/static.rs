@@ -3,9 +3,10 @@ use crate::{
         query::{
             iter::RowIterator,
             load::Loader,
-            types::{EntityRow, Filter, LoadMethod, Order},
+            types::{Filter, LoadMethod, Order},
             DebugContext, Error as QueryError, Resolver,
         },
+        types::EntityRow,
         Db,
     },
     orm::traits::Entity,

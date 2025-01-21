@@ -1,10 +1,14 @@
-use crate::ic::structures::{
-    serialize::{from_binary, to_binary},
-    storable::Bound,
-    Storable,
+use crate::{
+    db::Error,
+    ic::structures::{
+        serialize::{from_binary, to_binary},
+        storable::Bound,
+        Storable,
+    },
+    orm::traits::Path,
 };
 use candid::CandidType;
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::{borrow::Cow, fmt};
 
 ///
@@ -26,6 +30,20 @@ impl DataRow {
     #[must_use]
     pub const fn new(key: DataKey, value: DataValue) -> Self {
         Self { key, value }
+    }
+}
+
+impl<E> TryFrom<EntityRow<E>> for DataRow
+where
+    E: Path + Serialize + DeserializeOwned,
+{
+    type Error = Error;
+
+    fn try_from(row: EntityRow<E>) -> Result<Self, Self::Error> {
+        Ok(Self {
+            key: row.key,
+            value: row.value.try_into()?,
+        })
     }
 }
 
@@ -109,6 +127,80 @@ impl Storable for DataValue {
     }
 
     const BOUND: Bound = Bound::Unbounded;
+}
+
+impl<E> TryFrom<EntityValue<E>> for DataValue
+where
+    E: Path + Serialize + DeserializeOwned,
+{
+    type Error = Error;
+
+    fn try_from(value: EntityValue<E>) -> Result<Self, Self::Error> {
+        let data = crate::orm::serialize::<E>(&value.entity)?;
+
+        Ok(Self {
+            data,
+            path: E::path(),
+            metadata: value.metadata,
+        })
+    }
+}
+
+///
+/// EntityRow
+/// same as DataRow but with a concrete Entity
+///
+
+#[derive(CandidType, Clone, Debug, Serialize)]
+pub struct EntityRow<E>
+where
+    E: DeserializeOwned,
+{
+    pub key: DataKey,
+    pub value: EntityValue<E>,
+}
+
+impl<E> TryFrom<DataRow> for EntityRow<E>
+where
+    E: DeserializeOwned,
+{
+    type Error = crate::orm::Error;
+
+    fn try_from(row: DataRow) -> Result<Self, Self::Error> {
+        Ok(Self {
+            key: row.key,
+            value: row.value.try_into()?,
+        })
+    }
+}
+
+///
+/// EntityValue
+///
+
+#[derive(CandidType, Clone, Debug, Serialize)]
+pub struct EntityValue<E>
+where
+    E: DeserializeOwned,
+{
+    pub entity: E,
+    pub metadata: Metadata,
+}
+
+impl<E> TryFrom<DataValue> for EntityValue<E>
+where
+    E: DeserializeOwned,
+{
+    type Error = crate::orm::Error;
+
+    fn try_from(value: DataValue) -> Result<Self, Self::Error> {
+        let entity = crate::orm::deserialize::<E>(&value.data)?;
+
+        Ok(Self {
+            entity,
+            metadata: value.metadata,
+        })
+    }
 }
 
 ///

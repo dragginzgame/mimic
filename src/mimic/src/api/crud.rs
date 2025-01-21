@@ -3,8 +3,9 @@ use crate::{
     db::{
         query::types::{
             CreateResponse, DeleteRequest, DeleteResponse, LoadFormat, LoadRequest, LoadResponse,
-            QueryRow, SaveRequest, SaveRequestAction, SaveResponse, UpdateResponse,
+            SaveRequest, SaveRequestAction, SaveResponse, UpdateResponse,
         },
+        types::DataRow,
         Db,
     },
     orm::{
@@ -23,6 +24,9 @@ use snafu::prelude::*;
 pub enum Error {
     #[snafu(display("entity '{path}' not found"))]
     EntityNotFound { path: String },
+
+    #[snafu(transparent)]
+    Db { source: crate::db::Error },
 
     #[snafu(transparent)]
     Query { source: crate::db::query::Error },
@@ -74,7 +78,7 @@ where
             // convert to query rows
             let rows = iter
                 .into_iter()
-                .map(QueryRow::try_from)
+                .map(DataRow::try_from)
                 .collect::<Result<Vec<_>, _>>()
                 .map_err(Error::from)?;
 

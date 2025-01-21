@@ -5,8 +5,11 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.2.3]
+## [0.2.4]
+- inter canister DB query calls working
+- removed QueryRow because it's effectively the same thing as DataRow
 
+## [0.2.3]
 - breaking change to database API.  Queries are now constructed separately, the fluid method
 does not start with DB
 - enum_value has returned, we do have a use for it in Dragginz

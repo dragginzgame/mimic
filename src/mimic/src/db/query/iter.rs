@@ -1,9 +1,9 @@
 use crate::db::{
     query::{
-        types::{EntityRow, Filter, Order, QueryRow},
+        types::{Filter, Order},
         Error as QueryError,
     },
-    types::{DataKey, DataRow},
+    types::{DataKey, DataRow, EntityRow},
 };
 use crate::orm::traits::Entity;
 use serde::{Deserialize, Serialize};
@@ -203,18 +203,6 @@ impl RowIteratorDyn {
 
     // data_rows
     pub fn data_rows(mut self) -> impl Iterator<Item = DataRow> {
-        iter::from_fn(move || self.move_next().map(Into::into))
-    }
-
-    // query_row
-    pub fn query_row(mut self) -> Result<QueryRow, QueryError> {
-        let row = self.move_next().ok_or(Error::NoResultsFound)?;
-
-        Ok(row.into())
-    }
-
-    // query_rows
-    pub fn query_rows(mut self) -> impl Iterator<Item = QueryRow> {
         iter::from_fn(move || self.move_next().map(Into::into))
     }
 
