@@ -7,9 +7,11 @@ pub mod types;
 
 pub use delete::DeleteBuilder;
 pub use iter::{RowIterator, RowIteratorDyn};
-pub use load::{LoadBuilder, LoadBuilderDyn};
+pub use load::{
+    LoadBuilder, LoadBuilderDyn, LoadExecutor, LoadExecutorDyn, LoadQuery, LoadQueryDyn,
+};
 pub use resolver::Resolver;
-pub use save::{SaveBuilder, SaveMode};
+pub use save::{SaveBuilder, SaveMode, SaveResult};
 pub use types::*;
 
 use crate::orm::traits::Entity;

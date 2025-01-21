@@ -1,8 +1,8 @@
-pub mod builder;
 pub mod dynamic;
+pub mod r#static;
 
-pub use builder::{LoadBuilder, LoadQuery};
-pub use dynamic::{LoadBuilderDyn, LoadQueryDyn};
+pub use dynamic::{LoadBuilderDyn, LoadExecutorDyn, LoadQueryDyn};
+pub use r#static::{LoadBuilder, LoadExecutor, LoadQuery};
 
 use crate::db::{
     query::{resolver::Resolver, types::LoadMethod},
