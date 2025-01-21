@@ -16,7 +16,7 @@ use std::{borrow::Cow, fmt};
 /// the data B-tree key and value pair
 ///
 
-#[derive(Clone, Debug)]
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
 pub struct DataRow {
     pub key: DataKey,
     pub value: DataValue,
@@ -27,29 +27,6 @@ impl DataRow {
     pub const fn new(key: DataKey, value: DataValue) -> Self {
         Self { key, value }
     }
-}
-
-///
-/// DataValue
-///
-
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub struct DataValue {
-    pub data: Vec<u8>,
-    pub path: String,
-    pub metadata: Metadata,
-}
-
-impl Storable for DataValue {
-    fn to_bytes(&self) -> Cow<[u8]> {
-        Cow::Owned(to_binary(self).unwrap())
-    }
-
-    fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        from_binary(&bytes).unwrap()
-    }
-
-    const BOUND: Bound = Bound::Unbounded;
 }
 
 ///
@@ -109,6 +86,29 @@ impl Storable for DataKey {
         max_size: 255,
         is_fixed_size: false,
     };
+}
+
+///
+/// DataValue
+///
+
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+pub struct DataValue {
+    pub data: Vec<u8>,
+    pub path: String,
+    pub metadata: Metadata,
+}
+
+impl Storable for DataValue {
+    fn to_bytes(&self) -> Cow<[u8]> {
+        Cow::Owned(to_binary(self).unwrap())
+    }
+
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        from_binary(&bytes).unwrap()
+    }
+
+    const BOUND: Bound = Bound::Unbounded;
 }
 
 ///

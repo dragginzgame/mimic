@@ -194,6 +194,18 @@ impl RowIteratorDyn {
         iter::from_fn(move || self.move_next().map(|row| row.key.to_string()))
     }
 
+    // data_row
+    pub fn data_row(mut self) -> Result<DataRow, QueryError> {
+        let row = self.move_next().ok_or(Error::NoResultsFound)?;
+
+        Ok(row)
+    }
+
+    // data_rows
+    pub fn data_rows(mut self) -> impl Iterator<Item = DataRow> {
+        iter::from_fn(move || self.move_next().map(Into::into))
+    }
+
     // query_row
     pub fn query_row(mut self) -> Result<QueryRow, QueryError> {
         let row = self.move_next().ok_or(Error::NoResultsFound)?;

@@ -15,6 +15,7 @@ pub use save::{SaveBuilder, SaveMode, SaveResult};
 pub use types::*;
 
 use crate::orm::traits::Entity;
+use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
@@ -55,8 +56,8 @@ where
 
 // load_dyn
 #[must_use]
-pub fn load_dyn() -> LoadBuilderDyn {
-    LoadBuilderDyn::new()
+pub fn load_dyn(path: &str) -> LoadBuilderDyn {
+    LoadBuilderDyn::new(path)
 }
 
 // delete
@@ -90,7 +91,7 @@ pub fn update() -> SaveBuilder {
 /// DebugContext
 ///
 
-#[derive(Default)]
+#[derive(CandidType, Debug, Default, Serialize, Deserialize)]
 pub struct DebugContext {
     enabled: bool,
 }

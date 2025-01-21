@@ -8,6 +8,8 @@ use crate::db::{
     types::DataRow,
     Db,
 };
+use candid::CandidType;
+use serde::{Deserialize, Serialize};
 
 ///
 /// LoadBuilderDyn
@@ -15,14 +17,16 @@ use crate::db::{
 
 #[derive(Default)]
 pub struct LoadBuilderDyn {
+    path: String,
     debug: DebugContext,
 }
 
 impl LoadBuilderDyn {
     // new
     #[must_use]
-    pub fn new() -> Self {
+    pub fn new(path: &str) -> Self {
         Self {
+            path: path.to_string(),
             debug: DebugContext::default(),
         }
     }
@@ -90,8 +94,9 @@ impl LoadBuilderDyn {
 /// LoadQueryDyn
 ///
 
-#[expect(dead_code)]
+#[derive(CandidType, Debug, Serialize, Deserialize)]
 pub struct LoadQueryDyn {
+    path: String,
     debug: DebugContext,
     method: LoadMethod,
     offset: u32,
@@ -102,6 +107,7 @@ impl LoadQueryDyn {
     #[must_use]
     pub fn new(builder: LoadBuilderDyn, method: LoadMethod) -> Self {
         Self {
+            path: builder.path,
             debug: builder.debug,
             method,
             offset: 0,
@@ -131,8 +137,8 @@ impl LoadQueryDyn {
     }
 
     // execute
-    pub fn execute(self, db: &Db, path: &str) -> Result<RowIteratorDyn, QueryError> {
-        let executor = LoadExecutorDyn::new(self, path);
+    pub fn execute(self, db: &Db) -> Result<RowIteratorDyn, QueryError> {
+        let executor = LoadExecutorDyn::new(self);
 
         executor.execute(db)
     }
@@ -150,11 +156,10 @@ pub struct LoadExecutorDyn {
 impl LoadExecutorDyn {
     // new
     #[must_use]
-    pub fn new(query: LoadQueryDyn, path: &str) -> Self {
-        Self {
-            query,
-            resolver: Resolver::new(path),
-        }
+    pub fn new(query: LoadQueryDyn) -> Self {
+        let resolver = Resolver::new(&query.path);
+
+        Self { query, resolver }
     }
 
     // execute
