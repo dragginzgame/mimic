@@ -167,7 +167,7 @@ impl Schemable for EnumValueVariant {
 
         // quote
         let name = quote_one(&self.name, to_string);
-        let value = &self.value;
+        let value = self.value.schema();
 
         quote! {
             ::mimic::orm::schema::node::EnumValueVariant {
