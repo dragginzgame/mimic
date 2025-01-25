@@ -169,9 +169,32 @@ impl SaveQuery {
     }
 
     // execute
+    pub fn execute(self, db: &Db) -> Result<SaveResponse, QueryError> {
+        let mut executor = SaveExecutor::new(self);
+
+        executor.execute(db)
+    }
+}
+
+///
+/// SaveExecutor
+///
+
+pub struct SaveExecutor {
+    query: SaveQuery,
+}
+
+impl SaveExecutor {
+    // new
+    #[must_use]
+    pub fn new(query: SaveQuery) -> Self {
+        Self { query }
+    }
+
+    // execute
     pub fn execute(&mut self, db: &Db) -> Result<SaveResponse, QueryError> {
         // Temporarily take the entities out of self to avoid multiple mutable borrows
-        let mut entities = mem::take(&mut self.entities);
+        let mut entities = mem::take(&mut self.query.entities);
 
         // get results
         let mut results = Vec::new();
@@ -185,14 +208,14 @@ impl SaveQuery {
 
     // execute_one
     fn execute_one(&self, db: &Db, entity: &mut dyn EntityDyn) -> Result<DataRow, Error> {
-        let mode = &self.config.mode;
+        let mode = &self.query.config.mode;
 
         //
         // firstly mutate the entity so the ids are generated
         // and relevant data is sanitized
         //
 
-        if self.config.options.sanitize {
+        if self.query.config.options.sanitize {
             let mut adapter = crate::orm::visit::EntityAdapterMut(entity);
             crate::orm::sanitize(&mut adapter);
         }
@@ -206,14 +229,14 @@ impl SaveQuery {
         let key = resolver.data_key(&ck).map(DataKey::from)?;
 
         // debug
-        self.config.debug.println(&format!(
+        self.query.config.debug.println(&format!(
             "store.{}: {}",
             mode.to_string().to_lowercase(),
             key
         ));
 
         // validate
-        if self.config.options.validate {
+        if self.query.config.options.validate {
             let adapter = crate::orm::visit::EntityAdapter(entity);
             crate::orm::validate(&adapter).map_err(|e| Error::Validation {
                 path: entity.path_dyn(),
