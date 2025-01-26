@@ -1,40 +1,30 @@
 use crate::{
-    db::{
-        query::{
-            delete::{DeleteError, DeleteResponse},
-            DebugContext, Resolver,
-        },
-        types::DataKey,
-        Db,
+    db::{types::DataKey, Db},
+    query::{
+        delete::{DeleteError, DeleteResponse},
+        DebugContext, Resolver,
     },
-    orm::traits::Entity,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
-use std::{fmt::Display, marker::PhantomData};
+use std::fmt::Display;
 
 ///
-/// EDeleteBuilder
+/// DeleteBuilder
 ///
 
-pub struct EDeleteBuilder<E>
-where
-    E: Entity,
-{
+pub struct DeleteBuilder {
+    path: String,
     debug: DebugContext,
-    _phantom: PhantomData<E>,
 }
 
-impl<E> EDeleteBuilder<E>
-where
-    E: Entity,
-{
+impl DeleteBuilder {
     // new
     #[must_use]
-    pub(crate) fn new() -> Self {
+    pub(crate) fn new(path: &str) -> Self {
         Self {
+            path: path.to_string(),
             debug: DebugContext::default(),
-            _phantom: PhantomData,
         }
     }
 
@@ -46,47 +36,41 @@ where
     }
 
     // one
-    pub fn one<T: Display>(self, ck: &[T]) -> Result<EDeleteQuery<E>, DeleteError> {
+    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQuery, DeleteError> {
         let key: Vec<String> = ck.iter().map(ToString::to_string).collect();
-        let executor = EDeleteQuery::new(self, vec![key]);
+        let executor = DeleteQuery::new(self, vec![key]);
 
         Ok(executor)
     }
 }
 
 ///
-/// EDeleteQuery
+/// DeleteQuery
 ///
 /// results : all the keys that have successfully been deleted
 ///
 
 #[derive(CandidType, Debug, Serialize, Deserialize)]
-pub struct EDeleteQuery<E>
-where
-    E: Entity,
-{
+pub struct DeleteQuery {
+    path: String,
     debug: DebugContext,
     keys: Vec<Vec<String>>,
-    _phantom: PhantomData<E>,
 }
 
-impl<E> EDeleteQuery<E>
-where
-    E: Entity,
-{
+impl DeleteQuery {
     // new
     #[must_use]
-    fn new(builder: EDeleteBuilder<E>, keys: Vec<Vec<String>>) -> Self {
+    fn new(builder: DeleteBuilder, keys: Vec<Vec<String>>) -> Self {
         Self {
+            path: builder.path,
             debug: builder.debug,
             keys,
-            _phantom: PhantomData,
         }
     }
 
     // execute
     pub fn execute(self, db: &Db) -> Result<DeleteResponse, DeleteError> {
-        let executor = EDeleteExecutor::new(self);
+        let executor = DeleteExecutor::new(self);
 
         executor.execute(db)
     }
@@ -96,22 +80,16 @@ where
 /// DeleteExecutor
 ///
 
-pub struct EDeleteExecutor<E>
-where
-    E: Entity,
-{
-    query: EDeleteQuery<E>,
+pub struct DeleteExecutor {
+    query: DeleteQuery,
     resolver: Resolver,
 }
 
-impl<E> EDeleteExecutor<E>
-where
-    E: Entity,
-{
+impl DeleteExecutor {
     // new
     #[must_use]
-    pub fn new(query: EDeleteQuery<E>) -> Self {
-        let resolver = Resolver::new(E::PATH);
+    pub fn new(query: DeleteQuery) -> Self {
+        let resolver = Resolver::new(&query.path);
 
         Self { query, resolver }
     }
@@ -135,7 +113,6 @@ where
         Ok(DeleteResponse::new(results))
     }
 
-    // execute_one
     fn execute_one(&self, db: &Db, key: &[String]) -> Result<DataKey, DeleteError> {
         // Attempt to remove the item from the store
         let data_key = self.resolver.data_key(key)?;
@@ -147,8 +124,7 @@ where
             }
 
             Ok(())
-        })
-        .map_err(DeleteError::from)?;
+        })?;
 
         Ok(data_key)
     }

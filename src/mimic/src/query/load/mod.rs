@@ -6,13 +6,16 @@ pub use dynamic::{LoadBuilder, LoadExecutor, LoadQuery};
 pub use r#static::{ELoadBuilder, ELoadExecutor, ELoadQuery};
 pub use result::{ELoadResult, LoadResult};
 
-use crate::db::{
+use crate::{
+    db::{
+        types::{DataKey, DataRow},
+        Db, DbError,
+    },
+    orm::OrmError,
     query::{
         resolver::{Resolver, ResolverError},
         types::LoadMethod,
     },
-    types::{DataKey, DataRow},
-    Db,
 };
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -33,13 +36,13 @@ pub enum LoadError {
     RangeNotAllowed,
 
     #[snafu(transparent)]
-    Db { source: crate::db::db::DbError },
+    DbError { source: DbError },
 
     #[snafu(transparent)]
-    Orm { source: crate::orm::OrmError },
+    OrmError { source: OrmError },
 
     #[snafu(transparent)]
-    Resolver { source: ResolverError },
+    ResolverError { source: ResolverError },
 }
 
 ///

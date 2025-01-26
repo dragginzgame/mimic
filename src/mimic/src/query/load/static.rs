@@ -1,14 +1,11 @@
 use crate::{
-    db::{
-        query::{
-            load::{ELoadResult, LoadError, Loader},
-            types::{Filter, LoadMethod, Order},
-            DebugContext, Resolver,
-        },
-        types::EntityRow,
-        Db,
-    },
+    db::{types::EntityRow, Db},
     orm::traits::Entity,
+    query::{
+        load::{ELoadResult, LoadError, Loader},
+        types::{Filter, LoadMethod, Order},
+        DebugContext, Resolver,
+    },
 };
 use std::marker::PhantomData;
 

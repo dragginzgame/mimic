@@ -12,6 +12,7 @@ and makes the code really complex, plus adds a lot of compile time and cycles
 - Save, Load and Delete now come in dynamic and static/generic forms
 - fixtures don't need to be a Vec<Box<dyn>> any more
 - RowIterator renamed to LoadResult and cleaned up
+- moved query out of the db/ directory
 
 ## [0.2.4]
 - inter canister DB query calls working

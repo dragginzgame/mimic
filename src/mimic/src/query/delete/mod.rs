@@ -4,7 +4,10 @@ pub mod r#static;
 pub use dynamic::{DeleteBuilder, DeleteExecutor, DeleteQuery};
 pub use r#static::{EDeleteBuilder, EDeleteExecutor, EDeleteQuery};
 
-use crate::db::{db::DbError, query::resolver::ResolverError, types::DataKey};
+use crate::{
+    db::{types::DataKey, DbError},
+    query::resolver::ResolverError,
+};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -16,10 +19,10 @@ use snafu::Snafu;
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum DeleteError {
     #[snafu(transparent)]
-    Db { source: DbError },
+    DbError { source: DbError },
 
     #[snafu(transparent)]
-    Resolver { source: ResolverError },
+    ResolverError { source: ResolverError },
 }
 
 ///

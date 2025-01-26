@@ -28,13 +28,13 @@ use snafu::Snafu;
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum QueryError {
     #[snafu(transparent)]
-    Delete { source: delete::DeleteError },
+    DeleteError { source: delete::DeleteError },
 
     #[snafu(transparent)]
-    Load { source: load::LoadError },
+    LoadError { source: load::LoadError },
 
     #[snafu(transparent)]
-    Save { source: save::SaveError },
+    SaveError { source: save::SaveError },
 }
 
 ///

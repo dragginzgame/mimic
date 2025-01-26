@@ -9,6 +9,7 @@ pub mod db;
 pub mod ic;
 pub mod macros;
 pub mod orm;
+pub mod query;
 pub mod utils;
 
 pub mod export {

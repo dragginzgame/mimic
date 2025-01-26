@@ -46,7 +46,7 @@ pub fn fixture_module(builder: &mut ActorBuilder) {
             fixtures: Vec<E>,
         ) -> Result<(), ::mimic::api::Error> {
             DB.with(|db| {
-                ::mimic::db::query::replace_entity::<E>()
+                ::mimic::query::replace_entity::<E>()
           //          .debug()
                     .from_entities(fixtures)
                     .execute(db)?;

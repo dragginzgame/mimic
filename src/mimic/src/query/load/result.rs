@@ -1,11 +1,11 @@
-use crate::db::{
+use crate::{
+    db::types::{DataKey, DataRow, EntityRow},
+    orm::traits::Entity,
     query::{
         load::LoadError,
         types::{Filter, Order},
     },
-    types::{DataKey, DataRow, EntityRow},
 };
-use crate::orm::traits::Entity;
 use std::iter;
 
 ///

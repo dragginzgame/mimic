@@ -222,11 +222,10 @@ impl From<crate::orm::OrmError> for Error {
 
 //
 // db
-// (fluent methods make it hard to return a compatible error)
 //
 
-impl From<crate::db::Error> for Error {
-    fn from(error: crate::db::Error) -> Self {
+impl From<crate::db::DbError> for Error {
+    fn from(error: crate::db::DbError) -> Self {
         Self(ERROR_DB, error.to_string())
     }
 }
@@ -235,26 +234,26 @@ impl From<crate::db::Error> for Error {
 // query
 //
 
-impl From<crate::db::query::QueryError> for Error {
-    fn from(error: crate::db::query::QueryError) -> Self {
+impl From<crate::query::QueryError> for Error {
+    fn from(error: crate::query::QueryError) -> Self {
         Self(ERROR_DB_QUERY, error.to_string())
     }
 }
 
-impl From<crate::db::query::LoadError> for Error {
-    fn from(error: crate::db::query::LoadError) -> Self {
+impl From<crate::query::LoadError> for Error {
+    fn from(error: crate::query::LoadError) -> Self {
         Self(ERROR_DB_QUERY_LOAD, error.to_string())
     }
 }
 
-impl From<crate::db::query::SaveError> for Error {
-    fn from(error: crate::db::query::SaveError) -> Self {
+impl From<crate::query::SaveError> for Error {
+    fn from(error: crate::query::SaveError) -> Self {
         Self(ERROR_DB_QUERY_SAVE, error.to_string())
     }
 }
 
-impl From<crate::db::query::DeleteError> for Error {
-    fn from(error: crate::db::query::DeleteError) -> Self {
+impl From<crate::query::DeleteError> for Error {
+    fn from(error: crate::query::DeleteError) -> Self {
         Self(ERROR_DB_QUERY_DELETE, error.to_string())
     }
 }

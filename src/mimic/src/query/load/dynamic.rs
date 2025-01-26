@@ -1,11 +1,10 @@
-use crate::db::{
+use crate::{
+    db::{types::DataRow, Db},
     query::{
         load::{LoadError, LoadResult, Loader},
         types::LoadMethod,
         DebugContext, Resolver,
     },
-    types::DataRow,
-    Db,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};

@@ -1,13 +1,10 @@
 use mimic::{
-    db::{
-        query::{self, types::Order},
-        types::DataKey,
-        Db,
-    },
+    db::{types::DataKey, Db},
     orm::{
         base::types::Ulid,
         traits::{FromStr, Path},
     },
+    query::{self, types::Order},
 };
 
 ///

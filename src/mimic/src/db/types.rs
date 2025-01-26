@@ -1,11 +1,10 @@
 use crate::{
-    db::Error,
     ic::structures::{
         serialize::{from_binary, to_binary},
         storable::Bound,
         Storable,
     },
-    orm::traits::Path,
+    orm::{traits::Path, OrmError},
 };
 use candid::CandidType;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
@@ -37,7 +36,7 @@ impl<E> TryFrom<EntityRow<E>> for DataRow
 where
     E: Path + Serialize + DeserializeOwned,
 {
-    type Error = Error;
+    type Error = OrmError;
 
     fn try_from(row: EntityRow<E>) -> Result<Self, Self::Error> {
         Ok(Self {
@@ -133,7 +132,7 @@ impl<E> TryFrom<EntityValue<E>> for DataValue
 where
     E: Path + Serialize + DeserializeOwned,
 {
-    type Error = Error;
+    type Error = OrmError;
 
     fn try_from(value: EntityValue<E>) -> Result<Self, Self::Error> {
         let data = crate::orm::serialize::<E>(&value.entity)?;

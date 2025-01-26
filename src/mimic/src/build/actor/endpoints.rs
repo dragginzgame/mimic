@@ -225,7 +225,7 @@ pub fn store_endpoints(builder: &mut ActorBuilder) {
                     Ok(store.data.keys().map(|k| k.to_string()).collect())
                 })
             })
-            .map_err(::mimic::db::Error::from)?;
+            .map_err(::mimic::db::DbError::from)?;
 
             Ok(keys)
         }
@@ -244,7 +244,7 @@ pub fn store_endpoints(builder: &mut ActorBuilder) {
                     Ok(())
                 })
             })
-            .map_err(::mimic::db::Error::from)?;
+            .map_err(::mimic::db::DbError::from)?;
 
             Ok(())
         }

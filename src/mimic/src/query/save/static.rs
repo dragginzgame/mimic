@@ -1,12 +1,10 @@
 use crate::{
-    db::{
-        query::{
-            save::{save, SaveError, SaveMode},
-            DebugContext,
-        },
-        Db,
-    },
+    db::Db,
     orm::traits::Entity,
+    query::{
+        save::{save, SaveError, SaveMode},
+        DebugContext,
+    },
 };
 use std::marker::PhantomData;
 

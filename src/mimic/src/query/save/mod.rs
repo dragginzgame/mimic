@@ -6,14 +6,14 @@ pub use r#static::{ESaveBuilder, ESaveExecutor, ESaveQuery};
 
 use crate::{
     db::{
-        db::Db,
-        query::{
-            resolver::{Resolver, ResolverError},
-            DebugContext,
-        },
         types::{DataKey, DataValue, Metadata},
+        Db, DbError,
     },
     orm::{traits::EntityDyn, OrmError},
+    query::{
+        resolver::{Resolver, ResolverError},
+        DebugContext,
+    },
 };
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -39,13 +39,13 @@ pub enum SaveError {
     Validation { path: String, source: OrmError },
 
     #[snafu(transparent)]
-    Db { source: crate::db::db::DbError },
+    DbError { source: DbError },
 
     #[snafu(transparent)]
-    Orm { source: OrmError },
+    OrmError { source: OrmError },
 
     #[snafu(transparent)]
-    Resolver { source: ResolverError },
+    ResolverError { source: ResolverError },
 }
 
 ///

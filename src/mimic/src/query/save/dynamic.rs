@@ -1,12 +1,10 @@
 use crate::{
-    db::{
-        query::{
-            save::{save, SaveError, SaveMode},
-            DebugContext,
-        },
-        Db,
-    },
+    db::Db,
     orm::traits::{Entity, EntityDyn},
+    query::{
+        save::{save, SaveError, SaveMode},
+        DebugContext,
+    },
 };
 use std::mem;
 

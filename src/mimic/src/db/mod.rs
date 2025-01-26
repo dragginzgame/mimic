@@ -1,39 +1,78 @@
 pub mod cache;
-pub mod db;
-pub mod query;
 pub mod store;
 pub mod types;
 
-pub use db::Db;
 pub use store::Store;
 
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
+use std::{cell::RefCell, collections::HashMap, thread::LocalKey};
 
 ///
-/// Error
-/// top level error struct for this crate
+/// DbError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
-    #[snafu(transparent)]
-    Db { source: db::DbError },
+pub enum DbError {
+    #[snafu(display("store not found: {path}"))]
+    StoreNotFound { path: String },
+}
 
-    #[snafu(transparent)]
-    Orm { source: crate::orm::OrmError },
+impl DbError {
+    #[must_use]
+    pub fn store_not_found(path: &str) -> Self {
+        Self::StoreNotFound {
+            path: path.to_string(),
+        }
+    }
+}
 
-    #[snafu(transparent)]
-    Delete { source: query::delete::DeleteError },
+///
+/// Db
+///
 
-    #[snafu(transparent)]
-    Load { source: query::load::LoadError },
+#[derive(Default)]
+pub struct Db {
+    stores: HashMap<&'static str, &'static LocalKey<RefCell<Store>>>,
+}
 
-    #[snafu(transparent)]
-    Save { source: query::save::SaveError },
+impl Db {
+    // new
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
 
-    #[snafu(transparent)]
-    Resolver {
-        source: query::resolver::ResolverError,
-    },
+    // insert
+    pub fn insert(&mut self, name: &'static str, accessor: &'static LocalKey<RefCell<Store>>) {
+        self.stores.insert(name, accessor);
+    }
+
+    // with_store
+    pub fn with_store<F, R>(&self, path: &str, f: F) -> Result<R, DbError>
+    where
+        F: FnOnce(&Store) -> Result<R, DbError>,
+    {
+        let res = self
+            .stores
+            .get(path)
+            .ok_or_else(|| DbError::store_not_found(path))
+            .and_then(|local_key| local_key.with(|store| f(&store.borrow())))?;
+
+        Ok(res)
+    }
+
+    // with_store_mut
+    pub fn with_store_mut<F, R>(&self, path: &str, f: F) -> Result<R, DbError>
+    where
+        F: FnOnce(&mut Store) -> Result<R, DbError>,
+    {
+        let res = self
+            .stores
+            .get(path)
+            .ok_or_else(|| DbError::store_not_found(path))
+            .and_then(|local_key| local_key.with(|store| f(&mut store.borrow_mut())))?;
+
+        Ok(res)
+    }
 }
