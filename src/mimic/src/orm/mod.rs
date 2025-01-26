@@ -1,5 +1,4 @@
 pub mod base;
-pub mod helper;
 pub mod schema;
 pub mod traits;
 pub mod types;
@@ -23,7 +22,6 @@ pub mod prelude {
     pub use crate::{
         ic::structures::storable::Bound,
         orm::{
-            helper::FixtureList,
             traits::{
                 EntityDyn, EntityFixture, EntityId as _, Filterable, Inner as _, NumCast,
                 Orderable, Path, Selector as _, SortKey as _, Storable, Validate as _,
