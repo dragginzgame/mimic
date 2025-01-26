@@ -9,11 +9,11 @@ use std::fmt::Debug;
 ///
 
 ///
-/// Error
+/// SerializeError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum SerializeError {
     #[snafu(display("serialize error: {msg}"))]
     Serialize { msg: String },
 
@@ -22,28 +22,28 @@ pub enum Error {
 }
 
 // to_binary
-pub fn to_binary<T>(ty: &T) -> Result<Vec<u8>, Error>
+pub fn to_binary<T>(ty: &T) -> Result<Vec<u8>, SerializeError>
 where
     T: Serialize,
 {
     let mut writer = Vec::<u8>::new();
-    into_writer(ty, &mut writer).map_err(|e| Error::Serialize { msg: e.to_string() })?;
+    into_writer(ty, &mut writer).map_err(|e| SerializeError::Serialize { msg: e.to_string() })?;
 
     Ok(writer)
 }
 
 // from_binary
-pub fn from_binary<T>(bytes: &[u8]) -> Result<T, Error>
+pub fn from_binary<T>(bytes: &[u8]) -> Result<T, SerializeError>
 where
     T: DeserializeOwned,
 {
     from_reader(bytes).map_err(|e| {
         // attempt to deserialize into a more generic Value for debugging
         match from_reader::<Value, _>(bytes) {
-            Ok(value) => Error::Deserialize {
+            Ok(value) => SerializeError::Deserialize {
                 msg: format!("failed to deserialize: {e} ({value:?})"),
             },
-            Err(debug_error) => Error::Deserialize {
+            Err(debug_error) => SerializeError::Deserialize {
                 msg: format!("failed to deserialize: {e}. DEBUG FAILED {debug_error}"),
             },
         }

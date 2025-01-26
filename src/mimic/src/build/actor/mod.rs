@@ -9,7 +9,7 @@ pub mod timers;
 pub mod user;
 
 use crate::orm::schema::{
-    build::get_schema,
+    build::{get_schema, BuildError},
     node::{Canister, CanisterBuild, Entity, Store},
 };
 use proc_macro2::TokenStream;
@@ -18,27 +18,25 @@ use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// Error
+/// ActorError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum ActorError {
     #[snafu(display("canister '{canister}' not found in schema"))]
     CanisterNotFound { canister: String },
 
     #[snafu(transparent)]
-    Schema {
-        source: crate::orm::schema::build::Error,
-    },
+    BuildError { source: BuildError },
 }
 
 // generate
-pub fn generate(canister_name: &str) -> Result<String, Error> {
+pub fn generate(canister_name: &str) -> Result<String, ActorError> {
     // load schema and get the specified canister
     let schema = get_schema()?;
     let mut canisters = schema.filter_nodes::<Canister, _>(|node| node.name() == canister_name);
     let Some((_, canister)) = canisters.next() else {
-        return Err(Error::CanisterNotFound {
+        return Err(ActorError::CanisterNotFound {
             canister: canister_name.to_string(),
         });
     };

@@ -65,13 +65,13 @@ pub enum AuthError {
     CallError { source: CallError },
 
     #[snafu(transparent)]
-    Canister { source: CanisterError },
+    CanisterError { source: CanisterError },
 
     #[snafu(transparent)]
-    Create { source: CreateError },
+    CreateError { source: CreateError },
 
     #[snafu(transparent)]
-    Subnet { source: SubnetError },
+    SubnetError { source: SubnetError },
 }
 
 ///

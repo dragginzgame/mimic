@@ -5,7 +5,7 @@ pub mod types;
 pub mod visit;
 
 use crate::{
-    ic::structures::serialize::{from_binary, to_binary},
+    ic::structures::serialize::{from_binary, to_binary, SerializeError},
     orm::types::ErrorTree,
 };
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
@@ -52,9 +52,7 @@ pub enum OrmError {
     Validation { errors: ErrorTree },
 
     #[snafu(transparent)]
-    Serialize {
-        source: crate::ic::structures::serialize::Error,
-    },
+    SerializeError { source: SerializeError },
 }
 
 impl OrmError {

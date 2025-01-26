@@ -34,7 +34,7 @@ pub enum RequestError {
     ApiError { source: ApiError },
 
     #[snafu(transparent)]
-    Call { source: CallError },
+    CallError { source: CallError },
 
     #[snafu(transparent)]
     Canister { source: CanisterError },

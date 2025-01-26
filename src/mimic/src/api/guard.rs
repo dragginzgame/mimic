@@ -6,14 +6,14 @@ use serde::{Deserialize, Serialize};
 use snafu::prelude::*;
 
 ///
-/// Error
+/// GuardError
 ///
 /// The guard functions just use String, but that's fine they can be set
 /// up as Snafu errors
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum GuardError {
     #[snafu(display("app is disabled"))]
     AppDisabled,
 
@@ -29,7 +29,7 @@ pub fn guard_query() -> Result<(), String> {
 
     match AppStateManager::get_mode() {
         AppMode::Enabled | AppMode::Readonly => Ok(()),
-        AppMode::Disabled => Err(Error::AppDisabled.to_string()),
+        AppMode::Disabled => Err(GuardError::AppDisabled.to_string()),
     }
 }
 
@@ -41,7 +41,7 @@ pub fn guard_update() -> Result<(), String> {
 
     match AppStateManager::get_mode() {
         AppMode::Enabled => Ok(()),
-        AppMode::Readonly => Err(Error::AppReadonly.to_string()),
-        AppMode::Disabled => Err(Error::AppDisabled.to_string()),
+        AppMode::Readonly => Err(GuardError::AppReadonly.to_string()),
+        AppMode::Disabled => Err(GuardError::AppDisabled.to_string()),
     }
 }

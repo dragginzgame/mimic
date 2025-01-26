@@ -19,7 +19,7 @@ use ulid::Ulid as WrappedUlid;
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum UlidError {
     #[snafu(display("ulid is nil"))]
     Nil,
 
@@ -30,7 +30,7 @@ pub enum Error {
     InvalidLength,
 }
 
-impl From<ulid::DecodeError> for Error {
+impl From<ulid::DecodeError> for UlidError {
     fn from(error: ulid::DecodeError) -> Self {
         match error {
             ulid::DecodeError::InvalidChar => Self::InvalidChar,
@@ -161,7 +161,7 @@ impl Storable for Ulid {
 impl ValidateManual for Ulid {
     fn validate_manual(&self) -> Result<(), ErrorVec> {
         if self.is_nil() {
-            Err(Error::Nil.into())
+            Err(UlidError::Nil.into())
         } else {
             Ok(())
         }
