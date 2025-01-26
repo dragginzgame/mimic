@@ -18,6 +18,24 @@ pub use types::*;
 use crate::orm::traits::Entity;
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
+use snafu::Snafu;
+
+///
+/// QueryError
+/// intermediate error for general queries
+///
+
+#[derive(Debug, Serialize, Deserialize, Snafu)]
+pub enum QueryError {
+    #[snafu(transparent)]
+    Delete { source: delete::DeleteError },
+
+    #[snafu(transparent)]
+    Load { source: load::LoadError },
+
+    #[snafu(transparent)]
+    Save { source: save::SaveError },
+}
 
 ///
 /// Query Builders

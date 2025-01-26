@@ -80,9 +80,10 @@ pub const ERROR_ORM: u8 = 150;
 pub const ERROR_DB: u8 = 160;
 
 // query
-pub const ERROR_DB_QUERY_LOAD: u8 = 170;
-pub const ERROR_DB_QUERY_SAVE: u8 = 171;
-pub const ERROR_DB_QUERY_DELETE: u8 = 172;
+pub const ERROR_DB_QUERY: u8 = 170;
+pub const ERROR_DB_QUERY_LOAD: u8 = 171;
+pub const ERROR_DB_QUERY_SAVE: u8 = 172;
+pub const ERROR_DB_QUERY_DELETE: u8 = 173;
 
 #[derive(CandidType, Debug, Serialize, Deserialize)]
 pub struct Error(u8, String);
@@ -233,6 +234,12 @@ impl From<crate::db::Error> for Error {
 //
 // query
 //
+
+impl From<crate::db::query::QueryError> for Error {
+    fn from(error: crate::db::query::QueryError) -> Self {
+        Self(ERROR_DB_QUERY, error.to_string())
+    }
+}
 
 impl From<crate::db::query::LoadError> for Error {
     fn from(error: crate::db::query::LoadError) -> Self {
