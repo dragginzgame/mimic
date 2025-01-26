@@ -163,7 +163,7 @@ impl<E> EntityRow<E>
 where
     E: DeserializeOwned,
 {
-    pub fn new(key: DataKey, value: EntityValue<E>) -> Self {
+    pub const fn new(key: DataKey, value: EntityValue<E>) -> Self {
         Self { key, value }
     }
 }

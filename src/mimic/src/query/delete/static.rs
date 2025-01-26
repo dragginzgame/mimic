@@ -73,7 +73,7 @@ where
 {
     // new
     #[must_use]
-    fn new(builder: EDeleteBuilder<E>, keys: Vec<Vec<String>>) -> Self {
+    const fn new(builder: EDeleteBuilder<E>, keys: Vec<Vec<String>>) -> Self {
         Self {
             debug: builder.debug,
             keys,

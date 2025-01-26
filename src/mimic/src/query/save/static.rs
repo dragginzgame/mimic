@@ -56,7 +56,7 @@ where
 
     // from_entities
     #[must_use]
-    pub fn from_entities(self, entities: Vec<E>) -> ESaveQuery<E> {
+    pub const fn from_entities(self, entities: Vec<E>) -> ESaveQuery<E> {
         ESaveQuery::new(self, entities)
     }
 }
@@ -79,7 +79,7 @@ where
     E: Entity,
 {
     #[must_use]
-    fn new(builder: ESaveBuilder<E>, entities: Vec<E>) -> Self {
+    const fn new(builder: ESaveBuilder<E>, entities: Vec<E>) -> Self {
         Self {
             mode: builder.mode,
             debug: builder.debug,
@@ -112,7 +112,7 @@ where
 {
     // new
     #[must_use]
-    pub fn new(query: ESaveQuery<E>) -> Self {
+    pub const fn new(query: ESaveQuery<E>) -> Self {
         Self { query }
     }
 
@@ -131,7 +131,7 @@ where
         let debug = self.query.debug;
         let entities = self.query.entities;
 
-        for entity in entities.into_iter() {
+        for entity in entities {
             save(db, &mode, &debug, Box::new(entity))?;
         }
 

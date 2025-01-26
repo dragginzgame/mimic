@@ -109,7 +109,7 @@ pub struct SaveExecutor {
 impl SaveExecutor {
     // new
     #[must_use]
-    pub fn new(query: SaveQuery) -> Self {
+    pub const fn new(query: SaveQuery) -> Self {
         Self { query }
     }
 

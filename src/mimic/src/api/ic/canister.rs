@@ -1,5 +1,5 @@
 use crate::{
-    api::core::schema::SchemaError as CoreSchemaError,
+    api::core::schema::SchemaError,
     core::state::{CanisterStateError, CanisterStateManager},
     orm::schema::node::Canister,
 };
@@ -14,7 +14,7 @@ use snafu::Snafu;
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum CanisterError {
     #[snafu(transparent)]
-    CoreSchemaError { source: CoreSchemaError },
+    SchemaError { source: SchemaError },
 
     #[snafu(transparent)]
     CanisterStateError { source: CanisterStateError },

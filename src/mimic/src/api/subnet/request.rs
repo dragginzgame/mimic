@@ -37,16 +37,16 @@ pub enum RequestError {
     CallError { source: CallError },
 
     #[snafu(transparent)]
-    Canister { source: CanisterError },
+    CanisterError { source: CanisterError },
 
     #[snafu(transparent)]
     CreateError { source: CreateError },
 
     #[snafu(transparent)]
-    UpgradeError { source: UpgradeError },
+    MgmtError { source: MgmtError },
 
     #[snafu(transparent)]
-    MgmtError { source: MgmtError },
+    UpgradeError { source: UpgradeError },
 
     #[snafu(transparent)]
     WasmError { source: WasmError },
