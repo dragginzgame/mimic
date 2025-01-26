@@ -64,11 +64,11 @@ pub enum SaveMode {
 }
 
 // save
-fn save(
+fn save<'a>(
     db: &Db,
     mode: &SaveMode,
     debug: &DebugContext,
-    entity: Box<dyn EntityDyn>,
+    entity: Box<dyn EntityDyn + 'a>,
 ) -> Result<(), SaveError> {
     //
     // build key / value

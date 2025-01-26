@@ -24,9 +24,6 @@ pub enum Error {
     Orm { source: crate::orm::OrmError },
 
     #[snafu(transparent)]
-    Query { source: query::QueryError },
-
-    #[snafu(transparent)]
     Delete { source: query::delete::DeleteError },
 
     #[snafu(transparent)]

@@ -69,7 +69,7 @@ where
 
 pub struct ESaveQuery<E>
 where
-    E: Entity + 'static,
+    E: Entity,
 {
     mode: SaveMode,
     debug: DebugContext,
@@ -78,7 +78,7 @@ where
 
 impl<E> ESaveQuery<E>
 where
-    E: Entity + 'static,
+    E: Entity,
 {
     #[must_use]
     fn new(builder: ESaveBuilder<E>, entities: Vec<E>) -> Self {
@@ -103,14 +103,14 @@ where
 
 pub struct ESaveExecutor<E>
 where
-    E: Entity + 'static,
+    E: Entity,
 {
     query: ESaveQuery<E>,
 }
 
 impl<E> ESaveExecutor<E>
 where
-    E: Entity + 'static,
+    E: Entity,
 {
     // new
     #[must_use]
