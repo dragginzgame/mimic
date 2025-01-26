@@ -18,23 +18,25 @@ use snafu::Snafu;
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
-    Db { source: db::Error },
+    Db { source: db::DbError },
 
     #[snafu(transparent)]
-    Orm { source: crate::orm::Error },
+    Orm { source: crate::orm::OrmError },
 
     #[snafu(transparent)]
-    Query { source: query::Error },
+    Query { source: query::QueryError },
 
     #[snafu(transparent)]
-    Delete { source: query::delete::Error },
+    Delete { source: query::delete::DeleteError },
 
     #[snafu(transparent)]
-    Load { source: query::load::Error },
+    Load { source: query::load::LoadError },
 
     #[snafu(transparent)]
-    Save { source: query::save::Error },
+    Save { source: query::save::SaveError },
 
     #[snafu(transparent)]
-    Resolver { source: query::resolver::Error },
+    Resolver {
+        source: query::resolver::ResolverError,
+    },
 }

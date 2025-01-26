@@ -5,7 +5,7 @@ use crate::{
     ic::structures::serialize::{from_binary, to_binary},
     orm::{
         prelude::*,
-        traits::{Filterable, Inner, Orderable, SanitizeAuto, SortKey, ValidateAuto},
+        traits::{Filterable, Inner, Orderable, SortKey, ValidateAuto},
     },
 };
 use derive_more::{Deref, DerefMut, FromStr};
@@ -143,10 +143,6 @@ impl<'de> Deserialize<'de> for Ulid {
         Ok(Self(ulid))
     }
 }
-
-impl SanitizeManual for Ulid {}
-
-impl SanitizeAuto for Ulid {}
 
 impl SortKey for Ulid {}
 

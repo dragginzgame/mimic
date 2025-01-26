@@ -1,25 +1,14 @@
 use crate::db::{
-    query::{DebugContext, Error as QueryError, Resolver},
+    query::{
+        delete::{DeleteError, DeleteResponse},
+        DebugContext, Resolver,
+    },
     types::DataKey,
     Db,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
-use snafu::Snafu;
 use std::fmt::Display;
-
-///
-/// Error
-///
-
-#[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
-    #[snafu(transparent)]
-    Db { source: crate::db::db::Error },
-
-    #[snafu(transparent)]
-    Resolver { source: super::resolver::Error },
-}
 
 ///
 /// DeleteBuilder
@@ -48,7 +37,7 @@ impl DeleteBuilder {
     }
 
     // one
-    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQuery, QueryError> {
+    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQuery, DeleteError> {
         let key: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let executor = DeleteQuery::new(self, vec![key]);
 
@@ -81,7 +70,7 @@ impl DeleteQuery {
     }
 
     // execute
-    pub fn execute(self, db: &Db) -> Result<DeleteResponse, QueryError> {
+    pub fn execute(self, db: &Db) -> Result<DeleteResponse, DeleteError> {
         let executor = DeleteExecutor::new(self);
 
         executor.execute(db)
@@ -107,7 +96,7 @@ impl DeleteExecutor {
     }
 
     // execute
-    pub fn execute(&self, db: &Db) -> Result<DeleteResponse, QueryError> {
+    pub fn execute(&self, db: &Db) -> Result<DeleteResponse, DeleteError> {
         let mut results = Vec::new();
         crate::ic::println!("delete: keys {:?}", &self.query.keys);
 
@@ -125,7 +114,7 @@ impl DeleteExecutor {
         Ok(DeleteResponse::new(results))
     }
 
-    fn execute_one(&self, db: &Db, key: &[String]) -> Result<DataKey, Error> {
+    fn execute_one(&self, db: &Db, key: &[String]) -> Result<DataKey, DeleteError> {
         // Attempt to remove the item from the store
         let data_key = self.resolver.data_key(key)?;
         let store_path = self.resolver.store()?;
@@ -139,28 +128,5 @@ impl DeleteExecutor {
         })?;
 
         Ok(data_key)
-    }
-}
-
-///
-/// DeleteResponse
-///
-/// keys : all the keys that have successfully been deleted
-///
-
-#[derive(CandidType, Debug, Serialize, Deserialize)]
-pub struct DeleteResponse {
-    keys: Vec<DataKey>,
-}
-
-impl DeleteResponse {
-    // new
-    const fn new(keys: Vec<DataKey>) -> Self {
-        Self { keys }
-    }
-
-    // keys
-    pub fn keys(self) -> Result<Vec<DataKey>, QueryError> {
-        Ok(self.keys)
     }
 }

@@ -1,24 +1,12 @@
 use crate::db::{
     query::{
+        load::LoadError,
         types::{Filter, Order},
-        Error as QueryError,
     },
     types::{DataKey, DataRow, EntityRow},
 };
 use crate::orm::traits::Entity;
-use serde::{Deserialize, Serialize};
-use snafu::Snafu;
 use std::iter;
-
-///
-/// Error
-///
-
-#[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
-    #[snafu(display("no results found"))]
-    NoResultsFound,
-}
 
 ///
 /// IterFilter
@@ -27,10 +15,10 @@ pub enum Error {
 type IterFilter<T> = Box<dyn Fn(&T) -> bool>;
 
 ///
-/// ERowIterator
+/// ELoadResult
 ///
 
-pub struct ERowIterator<E>
+pub struct ELoadResult<E>
 where
     E: Entity,
 {
@@ -38,7 +26,7 @@ where
     manager: IterManager<EntityRow<E>>,
 }
 
-impl<E> ERowIterator<E>
+impl<E> ELoadResult<E>
 where
     E: Entity + 'static,
 {
@@ -90,8 +78,8 @@ where
     }
 
     // key
-    pub fn key(mut self) -> Result<DataKey, QueryError> {
-        let row = self.move_next().ok_or(Error::NoResultsFound)?;
+    pub fn key(mut self) -> Result<DataKey, LoadError> {
+        let row = self.move_next().ok_or(LoadError::NoResultsFound)?;
 
         Ok(row.key)
     }
@@ -102,13 +90,12 @@ where
     }
 
     // entity
-    pub fn entity(mut self) -> Result<E, QueryError> {
+    pub fn entity(mut self) -> Result<E, LoadError> {
         let res = self
             .move_next()
             .as_ref()
             .map(|row| row.value.entity.clone())
-            .ok_or(Error::NoResultsFound)
-            .map_err(Error::from)?;
+            .ok_or(LoadError::NoResultsFound)?;
 
         Ok(res)
     }
@@ -123,11 +110,11 @@ where
     }
 
     // entity_row
-    pub fn entity_row(mut self) -> Result<EntityRow<E>, QueryError> {
+    pub fn entity_row(mut self) -> Result<EntityRow<E>, LoadError> {
         let res = self
             .move_next()
-            .ok_or(Error::NoResultsFound)
-            .map_err(Error::from)?;
+            .ok_or(LoadError::NoResultsFound)
+            .map_err(LoadError::from)?;
 
         Ok(res)
     }
@@ -138,7 +125,7 @@ where
     }
 }
 
-impl<E> Iterator for ERowIterator<E>
+impl<E> Iterator for ELoadResult<E>
 where
     E: Entity + 'static,
 {
@@ -150,18 +137,18 @@ where
 }
 
 ///
-/// RowIterator
+/// LoadResult
 ///
 /// complex logic is handled better with iter::from_fn and move_next()
 /// all iterator methods (for now) are consuming
 ///
 
-pub struct RowIterator {
+pub struct LoadResult {
     iter: Box<dyn Iterator<Item = DataRow>>,
     manager: IterManager<DataRow>,
 }
 
-impl RowIterator {
+impl LoadResult {
     #[must_use]
     pub fn new(iter: Box<dyn Iterator<Item = DataRow>>, limit: Option<u32>, offset: u32) -> Self {
         Self {
@@ -183,8 +170,8 @@ impl RowIterator {
     }
 
     // key
-    pub fn key(mut self) -> Result<String, QueryError> {
-        let row = self.move_next().ok_or(Error::NoResultsFound)?;
+    pub fn key(mut self) -> Result<String, LoadError> {
+        let row = self.move_next().ok_or(LoadError::NoResultsFound)?;
 
         Ok(row.key.to_string())
     }
@@ -195,8 +182,8 @@ impl RowIterator {
     }
 
     // data_row
-    pub fn data_row(mut self) -> Result<DataRow, QueryError> {
-        let row = self.move_next().ok_or(Error::NoResultsFound)?;
+    pub fn data_row(mut self) -> Result<DataRow, LoadError> {
+        let row = self.move_next().ok_or(LoadError::NoResultsFound)?;
 
         Ok(row)
     }
@@ -207,12 +194,12 @@ impl RowIterator {
     }
 
     // blob
-    pub fn blob(mut self) -> Result<Vec<u8>, QueryError> {
+    pub fn blob(mut self) -> Result<Vec<u8>, LoadError> {
         let blob = self
             .iter
             .next()
             .map(|row| row.value.data)
-            .ok_or(Error::NoResultsFound)?;
+            .ok_or(LoadError::NoResultsFound)?;
 
         Ok(blob)
     }
@@ -223,7 +210,7 @@ impl RowIterator {
     }
 }
 
-impl Iterator for RowIterator {
+impl Iterator for LoadResult {
     type Item = DataRow;
 
     fn next(&mut self) -> Option<Self::Item> {

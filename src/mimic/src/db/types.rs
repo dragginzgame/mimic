@@ -160,11 +160,20 @@ where
     pub value: EntityValue<E>,
 }
 
+impl<E> EntityRow<E>
+where
+    E: DeserializeOwned,
+{
+    pub fn new(key: DataKey, value: EntityValue<E>) -> Self {
+        Self { key, value }
+    }
+}
+
 impl<E> TryFrom<DataRow> for EntityRow<E>
 where
     E: DeserializeOwned,
 {
-    type Error = crate::orm::Error;
+    type Error = crate::orm::OrmError;
 
     fn try_from(row: DataRow) -> Result<Self, Self::Error> {
         Ok(Self {
@@ -191,7 +200,7 @@ impl<E> TryFrom<DataValue> for EntityValue<E>
 where
     E: DeserializeOwned,
 {
-    type Error = crate::orm::Error;
+    type Error = crate::orm::OrmError;
 
     fn try_from(value: DataValue) -> Result<Self, Self::Error> {
         let entity = crate::orm::deserialize::<E>(&value.data)?;

@@ -9,11 +9,11 @@ use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// Error
+/// AuthError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum AuthError {
     #[snafu(display("api error: {error}"))]
     Api { error: crate::api::Error },
 
@@ -70,7 +70,7 @@ pub enum Error {
     Subnet { source: crate::api::subnet::Error },
 }
 
-impl From<crate::api::Error> for Error {
+impl From<crate::api::Error> for AuthError {
     fn from(error: crate::api::Error) -> Self {
         Self::Api { error }
     }
@@ -94,7 +94,7 @@ pub enum Auth {
 }
 
 impl Auth {
-    pub async fn result(self, id: Principal) -> Result<(), Error> {
+    pub async fn result(self, id: Principal) -> Result<(), AuthError> {
         match self {
             Self::CanisterType(path) => rule_canister_type(id, &path),
             Self::Child => rule_child(id),
@@ -110,13 +110,13 @@ impl Auth {
 }
 
 // allow_any
-pub async fn allow_any(rules: Vec<Auth>) -> Result<(), Error> {
+pub async fn allow_any(rules: Vec<Auth>) -> Result<(), AuthError> {
     // only works for caller now
     let caller = caller();
 
     // in case rules are accidentally blank / commented out
     if rules.is_empty() {
-        Err(Error::NoRulesDefined)?;
+        Err(AuthError::NoRulesDefined)?;
     }
 
     // check rules
@@ -137,54 +137,56 @@ pub async fn allow_any(rules: Vec<Auth>) -> Result<(), Error> {
 
 // rule_canister_type
 // check caller against the id of a specific canister path
-fn rule_canister_type(id: Principal, canister_path: &str) -> Result<(), Error> {
-    SubnetIndexManager::try_get_canister(canister_path).map_err(|_| Error::NotCanisterPath {
-        id,
-        path: canister_path.to_string(),
+fn rule_canister_type(id: Principal, canister_path: &str) -> Result<(), AuthError> {
+    SubnetIndexManager::try_get_canister(canister_path).map_err(|_| {
+        AuthError::NotCanisterPath {
+            id,
+            path: canister_path.to_string(),
+        }
     })?;
 
     Ok(())
 }
 
 // rule_child
-fn rule_child(id: Principal) -> Result<(), Error> {
+fn rule_child(id: Principal) -> Result<(), AuthError> {
     match ChildIndexManager::try_get_canister(id) {
         Ok(_) => Ok(()),
-        Err(_) => Err(Error::NotChild { id })?,
+        Err(_) => Err(AuthError::NotChild { id })?,
     }
 }
 
 // rule_controller
-fn rule_controller(id: Principal) -> Result<(), Error> {
+fn rule_controller(id: Principal) -> Result<(), AuthError> {
     if is_controller(&id) {
         Ok(())
     } else {
-        Err(Error::NotController { id })?
+        Err(AuthError::NotController { id })?
     }
 }
 
 // rule_root
-fn rule_root(id: Principal) -> Result<(), Error> {
+fn rule_root(id: Principal) -> Result<(), AuthError> {
     let root_id = crate::api::ic::canister::root_id()?;
 
     if id == root_id {
         Ok(())
     } else {
-        Err(Error::NotRoot { id })?
+        Err(AuthError::NotRoot { id })?
     }
 }
 
 // rule_parent
-fn rule_parent(id: Principal) -> Result<(), Error> {
+fn rule_parent(id: Principal) -> Result<(), AuthError> {
     match crate::api::ic::canister::parent_id() {
         Some(parent_id) if parent_id == id => Ok(()),
-        _ => Err(Error::NotParent { id })?,
+        _ => Err(AuthError::NotParent { id })?,
     }
 }
 
 // rule_permission
 // will find the user canister from the schema
-pub async fn rule_permission(id: Principal, permission: &str) -> Result<(), Error> {
+pub async fn rule_permission(id: Principal, permission: &str) -> Result<(), AuthError> {
     let user_canister_id = crate::api::subnet::user_canister_id()?;
 
     call::<_, (Result<(), crate::api::Error>,)>(
@@ -194,7 +196,7 @@ pub async fn rule_permission(id: Principal, permission: &str) -> Result<(), Erro
     )
     .await?
     .0
-    .map_err(|_| Error::NotPermitted {
+    .map_err(|_| AuthError::NotPermitted {
         id,
         permission: permission.to_string(),
     })?;
@@ -204,27 +206,27 @@ pub async fn rule_permission(id: Principal, permission: &str) -> Result<(), Erro
 
 // rule_policy
 // only from non-PlayerHub canisters
-async fn rule_policy(id: Principal, policy: &AccessPolicy) -> Result<(), Error> {
+async fn rule_policy(id: Principal, policy: &AccessPolicy) -> Result<(), AuthError> {
     match policy {
         AccessPolicy::Allow => Ok(()),
-        AccessPolicy::Deny => Err(Error::NotAllowed)?,
+        AccessPolicy::Deny => Err(AuthError::NotAllowed)?,
         AccessPolicy::Permission(permission) => rule_permission(id, permission).await,
     }
 }
 
 // rule_same_subnet
 #[expect(clippy::unused_async)]
-pub async fn rule_same_subnet(_id: Principal) -> Result<(), Error> {
+pub async fn rule_same_subnet(_id: Principal) -> Result<(), AuthError> {
     // @todo - we need gabriel code here
 
     Ok(())
 }
 
 // rule_same_canister
-fn rule_same_canister(id: Principal) -> Result<(), Error> {
+fn rule_same_canister(id: Principal) -> Result<(), AuthError> {
     if id == crate::ic::api::id() {
         Ok(())
     } else {
-        Err(Error::NotThis { id })?
+        Err(AuthError::NotThis { id })?
     }
 }

@@ -55,12 +55,7 @@ impl<'a> DbTester<'a> {
         let mut e = HasMap::default();
         e.map_int_string.push((3, "value".to_string()));
         e.map_int_string.push((4, "value".to_string()));
-        query::create()
-            .from_entity(e)
-            .execute(self.db)
-            .unwrap()
-            .entity::<HasMap>()
-            .unwrap();
+        query::create().from_entity(e).execute(self.db).unwrap();
 
         // load all keys
         let entities = query::load(HasMap::PATH)

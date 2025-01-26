@@ -1,11 +1,16 @@
-pub mod entity;
-pub mod load;
+pub mod dynamic;
+pub mod result;
+pub mod r#static;
 
-pub use entity::{ELoadBuilder, ELoadExecutor, ELoadQuery};
-pub use load::{LoadBuilder, LoadExecutor, LoadQuery};
+pub use dynamic::{LoadBuilder, LoadExecutor, LoadQuery};
+pub use r#static::{ELoadBuilder, ELoadExecutor, ELoadQuery};
+pub use result::{ELoadResult, LoadResult};
 
 use crate::db::{
-    query::{resolver::Resolver, types::LoadMethod},
+    query::{
+        resolver::{Resolver, ResolverError},
+        types::LoadMethod,
+    },
     types::{DataKey, DataRow},
     Db,
 };
@@ -13,11 +18,11 @@ use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// Error
+/// LoadError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum LoadError {
     #[snafu(display("key not found: {key}"))]
     KeyNotFound { key: DataKey },
 
@@ -28,15 +33,13 @@ pub enum Error {
     RangeNotAllowed,
 
     #[snafu(transparent)]
-    Db { source: crate::db::db::Error },
+    Db { source: crate::db::db::DbError },
 
     #[snafu(transparent)]
-    Orm { source: crate::orm::Error },
+    Orm { source: crate::orm::OrmError },
 
     #[snafu(transparent)]
-    Resolver {
-        source: crate::db::query::resolver::Error,
-    },
+    Resolver { source: ResolverError },
 }
 
 ///
@@ -56,7 +59,10 @@ impl<'a> Loader<'a> {
     }
 
     // load
-    pub fn load(&self, method: &LoadMethod) -> Result<Box<dyn Iterator<Item = DataRow>>, Error> {
+    pub fn load(
+        &self,
+        method: &LoadMethod,
+    ) -> Result<Box<dyn Iterator<Item = DataRow>>, LoadError> {
         match method {
             LoadMethod::All | LoadMethod::Only => {
                 let start = self.resolver.data_key(&[])?;
@@ -103,12 +109,12 @@ impl<'a> Loader<'a> {
     }
 
     // query_data_key
-    fn query_data_key(&self, key: DataKey) -> Result<DataRow, Error> {
+    fn query_data_key(&self, key: DataKey) -> Result<DataRow, LoadError> {
         let store_path = &self.resolver.store()?;
         let value = self
             .db
             .with_store(store_path, |store| Ok(store.data.get(&key)))?
-            .ok_or_else(|| Error::KeyNotFound { key: key.clone() })?;
+            .ok_or_else(|| LoadError::KeyNotFound { key: key.clone() })?;
 
         Ok(DataRow { key, value })
     }
@@ -120,7 +126,7 @@ impl<'a> Loader<'a> {
         &self,
         start: DataKey,
         end: DataKey,
-    ) -> Result<Box<dyn Iterator<Item = DataRow>>, Error> {
+    ) -> Result<Box<dyn Iterator<Item = DataRow>>, LoadError> {
         let store_path = self.resolver.store()?;
 
         self.db
@@ -135,6 +141,6 @@ impl<'a> Loader<'a> {
                 // Return the iterator over the Vec
                 Ok(Box::new(rows.into_iter()) as Box<dyn Iterator<Item = DataRow>>)
             })
-            .map_err(Error::from)
+            .map_err(LoadError::from)
     }
 }

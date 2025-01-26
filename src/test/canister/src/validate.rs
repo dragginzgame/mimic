@@ -36,7 +36,7 @@ impl ValidateTester {
         // check result is what we expected
         match res {
             Ok(()) => panic!("result is not an error"),
-            Err(mimic::orm::Error::Validation { errors }) => {
+            Err(mimic::orm::OrmError::Validation { errors }) => {
                 assert_eq!(errors.len(), 1, "one error expected");
             }
             Err(e) => panic!("unexpected error: {e}"),

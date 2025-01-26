@@ -1,5 +1,5 @@
 use crate::orm::{
-    base::{sanitizer, types, validator},
+    base::{types, validator},
     prelude::*,
 };
 
@@ -47,7 +47,6 @@ impl Rgba {
 #[newtype(
     primitive = "String",
     value(item(is = "types::text::Text<6>"), default = "FFFFFF"),
-    sanitizer(path = "sanitizer::color::RgbHex"),
     validator(path = "validator::color::RgbHex")
 )]
 pub struct RgbHex {}
@@ -59,7 +58,6 @@ pub struct RgbHex {}
 #[newtype(
     primitive = "String",
     value(item(is = "types::text::Text<8>"), default = "FFFFFFFF"),
-    sanitizer(path = "sanitizer::color::RgbaHex"),
     validator(path = "validator::color::RgbaHex")
 )]
 pub struct RgbaHex {}

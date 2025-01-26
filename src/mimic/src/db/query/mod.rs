@@ -1,15 +1,16 @@
 pub mod delete;
-pub mod iter;
 pub mod load;
 pub mod resolver;
 pub mod save;
 pub mod types;
 
-pub use delete::{DeleteBuilder, DeleteExecutor, DeleteQuery, DeleteResponse};
-pub use iter::{ERowIterator, RowIterator};
-pub use load::{ELoadBuilder, ELoadExecutor, ELoadQuery, LoadBuilder, LoadExecutor, LoadQuery};
+pub use delete::{DeleteBuilder, DeleteExecutor, DeleteQuery, DeleteResponse, EDeleteBuilder};
+pub use load::{
+    ELoadBuilder, ELoadExecutor, ELoadQuery, ELoadResult, LoadBuilder, LoadExecutor, LoadQuery,
+    LoadResult,
+};
 pub use resolver::Resolver;
-pub use save::{SaveBuilder, SaveMode, SaveResponse};
+pub use save::{ESaveBuilder, SaveBuilder, SaveMode};
 pub use types::*;
 
 use crate::orm::traits::Entity;
@@ -18,25 +19,22 @@ use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// Error
+/// QueryError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum QueryError {
     #[snafu(transparent)]
-    Delete { source: delete::Error },
+    Delete { source: delete::DeleteError },
 
     #[snafu(transparent)]
-    Load { source: load::Error },
+    Load { source: load::LoadError },
 
     #[snafu(transparent)]
-    Save { source: save::Error },
+    Save { source: save::SaveError },
 
     #[snafu(transparent)]
-    Iter { source: iter::Error },
-
-    #[snafu(transparent)]
-    Orm { source: crate::orm::Error },
+    Orm { source: crate::orm::OrmError },
 }
 
 ///
@@ -64,10 +62,28 @@ pub fn delete(path: &str) -> DeleteBuilder {
     DeleteBuilder::new(path)
 }
 
+// delete_entity
+#[must_use]
+pub fn delete_entity<E>() -> EDeleteBuilder<E>
+where
+    E: Entity + 'static,
+{
+    EDeleteBuilder::<E>::new()
+}
+
 // create
 #[must_use]
 pub fn create() -> SaveBuilder {
     SaveBuilder::new(SaveMode::Create)
+}
+
+// create_entity
+#[must_use]
+pub fn create_entity<E>() -> ESaveBuilder<E>
+where
+    E: Entity + 'static,
+{
+    ESaveBuilder::<E>::new(SaveMode::Create)
 }
 
 // replace
@@ -76,10 +92,28 @@ pub fn replace() -> SaveBuilder {
     SaveBuilder::new(SaveMode::Replace)
 }
 
+// replace_entity
+#[must_use]
+pub fn replace_entity<E>() -> ESaveBuilder<E>
+where
+    E: Entity + 'static,
+{
+    ESaveBuilder::<E>::new(SaveMode::Replace)
+}
+
 // update
 #[must_use]
 pub fn update() -> SaveBuilder {
     SaveBuilder::new(SaveMode::Update)
+}
+
+// update_entity
+#[must_use]
+pub fn update_entity<E>() -> ESaveBuilder<E>
+where
+    E: Entity + 'static,
+{
+    ESaveBuilder::<E>::new(SaveMode::Update)
 }
 
 ///

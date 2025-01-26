@@ -3,7 +3,7 @@ use crate::{
     imp,
     node::{
         Cardinality, Def, MacroNode, Node, PrimitiveGroup, PrimitiveType, Trait, TraitNode, Traits,
-        TypeSanitizer, TypeValidator, Value,
+        TypeValidator, Value,
     },
     traits::Schemable,
 };
@@ -24,9 +24,6 @@ pub struct Newtype {
 
     #[darling(default)]
     pub primitive: Option<PrimitiveType>,
-
-    #[darling(multiple, rename = "sanitizer")]
-    pub sanitizers: Vec<TypeSanitizer>,
 
     #[darling(multiple, rename = "validator")]
     pub validators: Vec<TypeValidator>,
@@ -146,7 +143,6 @@ impl TraitNode for Newtype {
             Trait::NumFromPrimitive => imp::num::from_primitive::newtype(self, t),
             Trait::Orderable => imp::orderable::newtype(self, t),
             Trait::SortKey => imp::sort_key::newtype(self, t),
-            Trait::SanitizeAuto => imp::sanitize_auto::newtype(self, t),
             Trait::ValidateAuto => imp::validate_auto::newtype(self, t),
             Trait::Visitable => imp::visitable::newtype(self, t),
 
@@ -160,7 +156,6 @@ impl Schemable for Newtype {
         let def = self.def.schema();
         let value = self.value.schema();
         let primitive = quote_option(self.primitive.as_ref(), PrimitiveType::schema);
-        let sanitizers = quote_vec(&self.sanitizers, TypeSanitizer::schema);
         let validators = quote_vec(&self.validators, TypeValidator::schema);
 
         quote! {
@@ -168,7 +163,6 @@ impl Schemable for Newtype {
                 def: #def,
                 value: #value,
                 primitive: #primitive,
-                sanitizers: #sanitizers,
                 validators: #validators,
             })
         }

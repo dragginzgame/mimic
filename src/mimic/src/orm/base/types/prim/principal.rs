@@ -3,8 +3,8 @@ use crate::{
     orm::{
         prelude::*,
         traits::{
-            Filterable, Inner, Orderable, SanitizeAuto, SanitizeManual, SortKey, Storable,
-            ValidateAuto, ValidateManual, Visitable,
+            Filterable, Inner, Orderable, SortKey, Storable, ValidateAuto, ValidateManual,
+            Visitable,
         },
     },
 };
@@ -110,10 +110,6 @@ impl Orderable for Principal {
         Ord::cmp(self, other)
     }
 }
-
-impl SanitizeManual for Principal {}
-
-impl SanitizeAuto for Principal {}
 
 impl SortKey for Principal {}
 

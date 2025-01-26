@@ -76,7 +76,6 @@ macro_node!(permission, node::Permission);
 macro_node!(primitive, node::Primitive);
 macro_node!(record, node::Record);
 macro_node!(role, node::Role);
-macro_node!(sanitizer, node::Sanitizer);
 macro_node!(selector, node::Selector);
 macro_node!(store, node::Store);
 macro_node!(tuple, node::Tuple);

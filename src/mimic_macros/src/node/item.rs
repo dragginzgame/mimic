@@ -26,13 +26,6 @@ pub struct Item {
     pub selector: Option<Path>,
 }
 
-impl Item {
-    // is_relation
-    pub const fn is_relation(&self) -> bool {
-        self.relation.is_some()
-    }
-}
-
 impl Schemable for Item {
     fn schema(&self) -> TokenStream {
         let indirect = self.indirect;

@@ -11,7 +11,6 @@ pub mod num;
 pub mod orderable;
 pub mod record_filter;
 pub mod record_sort;
-pub mod sanitize_auto;
 pub mod sort_key;
 pub mod validate_auto;
 pub mod visitable;
@@ -74,8 +73,6 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> TokenStream {
         | Trait::EntityId
         | Trait::Filterable
         | Trait::Orderable
-        | Trait::SanitizeManual
-        | Trait::SanitizeAuto
         | Trait::ValidateManual
         | Trait::ValidateAuto
         | Trait::Visitable => Implementor::new(def, t).to_token_stream(),

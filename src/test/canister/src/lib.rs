@@ -1,6 +1,5 @@
 mod db;
 mod default;
-mod sanitize;
 mod validate;
 
 use mimic::{api::Error, ic::update, log, prelude::*, Log};
@@ -16,9 +15,6 @@ impl StartupHooks for StartupManager {}
 pub fn test() {
     // default
     default::DefaultTester::test();
-
-    // sanitize
-    sanitize::SanitizeTester::test();
 
     // validate
     validate::ValidateTester::test();

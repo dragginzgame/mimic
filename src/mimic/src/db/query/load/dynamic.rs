@@ -1,9 +1,8 @@
 use crate::db::{
     query::{
-        iter::RowIterator,
-        load::{Error as LoadError, Loader},
+        load::{LoadError, LoadResult, Loader},
         types::LoadMethod,
-        DebugContext, Error as QueryError, Resolver,
+        DebugContext, QueryError, Resolver,
     },
     types::DataRow,
     Db,
@@ -137,7 +136,7 @@ impl LoadQuery {
     }
 
     // execute
-    pub fn execute(self, db: &Db) -> Result<RowIterator, QueryError> {
+    pub fn execute(self, db: &Db) -> Result<LoadResult, QueryError> {
         let executor = LoadExecutor::new(self);
 
         executor.execute(db)
@@ -163,13 +162,13 @@ impl LoadExecutor {
     }
 
     // execute
-    pub fn execute(self, db: &Db) -> Result<RowIterator, QueryError> {
+    pub fn execute(self, db: &Db) -> Result<LoadResult, QueryError> {
         // loader
         let loader = Loader::new(db, &self.resolver);
         let res = loader.load(&self.query.method)?;
         let boxed_iter = Box::new(res.into_iter()) as Box<dyn Iterator<Item = DataRow>>;
 
-        Ok(RowIterator::new(
+        Ok(LoadResult::new(
             boxed_iter,
             self.query.limit,
             self.query.offset,

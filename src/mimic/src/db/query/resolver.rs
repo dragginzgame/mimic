@@ -3,11 +3,11 @@ use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// Error
+/// ResolverError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum ResolverError {
     #[snafu(display("entity not found: {path}"))]
     EntityNotFound { path: String },
 
@@ -15,7 +15,7 @@ pub enum Error {
     Schema { source: crate::core::schema::Error },
 }
 
-impl Error {
+impl ResolverError {
     #[must_use]
     pub fn entity_not_found(path: &str) -> Self {
         Self::EntityNotFound {
@@ -43,17 +43,17 @@ impl Resolver {
     }
 
     // store
-    pub fn store(&self) -> Result<String, Error> {
-        let schema = get_schema().map_err(Error::from)?;
+    pub fn store(&self) -> Result<String, ResolverError> {
+        let schema = get_schema()?;
         let entity = schema
             .get_node::<Entity>(&self.entity)
-            .ok_or_else(|| Error::entity_not_found(&self.entity))?;
+            .ok_or_else(|| ResolverError::entity_not_found(&self.entity))?;
 
         Ok(entity.store.clone())
     }
 
     // data_key
-    pub fn data_key(&self, ck: &[String]) -> Result<DataKey, Error> {
+    pub fn data_key(&self, ck: &[String]) -> Result<DataKey, ResolverError> {
         let chain_format = self.chain_format()?;
 
         // Initialize an empty vector to store key parts
@@ -69,20 +69,20 @@ impl Resolver {
 
     // chain_format
     // returns the data used to format the sort key
-    fn chain_format(&self) -> Result<Vec<String>, Error> {
-        let schema = get_schema().map_err(Error::from)?;
+    fn chain_format(&self) -> Result<Vec<String>, ResolverError> {
+        let schema = get_schema()?;
 
         // create the chain from the Schema
         let entity = schema
             .get_node::<Entity>(&self.entity)
-            .ok_or_else(|| Error::entity_not_found(&self.entity))?;
+            .ok_or_else(|| ResolverError::entity_not_found(&self.entity))?;
 
         // create an ordered vec from the parents
         let mut chain = Vec::new();
         for sk in &entity.sort_keys {
             let sk_entity = schema
                 .get_node::<Entity>(&sk.entity)
-                .ok_or_else(|| Error::entity_not_found(&sk.entity))?;
+                .ok_or_else(|| ResolverError::entity_not_found(&sk.entity))?;
 
             chain.push(sk_entity);
         }

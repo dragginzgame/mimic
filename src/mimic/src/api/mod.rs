@@ -105,8 +105,8 @@ impl Display for Error {
 // api
 //
 
-impl From<auth::Error> for Error {
-    fn from(error: auth::Error) -> Self {
+impl From<auth::AuthError> for Error {
+    fn from(error: auth::AuthError) -> Self {
         Self(ERROR_API_AUTH, error.to_string())
     }
 }
@@ -209,8 +209,8 @@ impl From<crate::core::wasm::Error> for Error {
 // orm
 //
 
-impl From<crate::orm::Error> for Error {
-    fn from(error: crate::orm::Error) -> Self {
+impl From<crate::orm::OrmError> for Error {
+    fn from(error: crate::orm::OrmError) -> Self {
         Self(ERROR_ORM, error.to_string())
     }
 }
@@ -226,8 +226,8 @@ impl From<crate::db::Error> for Error {
     }
 }
 
-impl From<crate::db::query::Error> for Error {
-    fn from(error: crate::db::query::Error) -> Self {
+impl From<crate::db::query::QueryError> for Error {
+    fn from(error: crate::db::query::QueryError) -> Self {
         Self(ERROR_DB_QUERY, error.to_string())
     }
 }

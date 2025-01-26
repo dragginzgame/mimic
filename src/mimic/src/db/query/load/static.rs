@@ -1,10 +1,9 @@
 use crate::{
     db::{
         query::{
-            iter::ERowIterator,
-            load::Loader,
+            load::{ELoadResult, Loader},
             types::{Filter, LoadMethod, Order},
-            DebugContext, Error as QueryError, Resolver,
+            DebugContext, QueryError, Resolver,
         },
         types::EntityRow,
         Db,
@@ -197,7 +196,7 @@ where
     }
 
     // execute
-    pub fn execute(self, db: &Db) -> Result<ERowIterator<E>, QueryError> {
+    pub fn execute(self, db: &Db) -> Result<ELoadResult<E>, QueryError> {
         let executor = ELoadExecutor::new(self);
 
         executor.execute(db)
@@ -232,7 +231,7 @@ where
     // execute
     // convert into EntityRows and return a RowIterator
     // also make sure we're deserializing the correct entity path
-    pub fn execute(self, db: &Db) -> Result<ERowIterator<E>, QueryError> {
+    pub fn execute(self, db: &Db) -> Result<ELoadResult<E>, QueryError> {
         // loader
         let loader = Loader::new(db, &self.resolver);
         let res = loader.load(&self.query.method)?;
@@ -244,7 +243,7 @@ where
 
         let boxed_iter = Box::new(filtered.into_iter()) as Box<dyn Iterator<Item = EntityRow<E>>>;
 
-        Ok(ERowIterator::new(
+        Ok(ELoadResult::new(
             boxed_iter,
             self.query.limit,
             self.query.offset,

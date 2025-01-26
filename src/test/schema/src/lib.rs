@@ -3,7 +3,6 @@ pub mod constant;
 pub mod default;
 pub mod index;
 pub mod map;
-pub mod sanitize;
 pub mod store;
 pub mod validate;
 
