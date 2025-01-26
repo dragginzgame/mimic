@@ -1,23 +1,23 @@
-use crate::{core::state::CanisterStateManager, orm::schema::node::Canister};
+use crate::{
+    api::core::schema::SchemaError as CoreSchemaError,
+    core::state::{CanisterStateError, CanisterStateManager},
+    orm::schema::node::Canister,
+};
 use candid::Principal;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// Error
+/// CanisterError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum CanisterError {
     #[snafu(transparent)]
-    Schema {
-        source: crate::api::core::schema::Error,
-    },
+    CoreSchemaError { source: CoreSchemaError },
 
     #[snafu(transparent)]
-    CanisterState {
-        source: crate::core::state::canister_state::Error,
-    },
+    CanisterStateError { source: CanisterStateError },
 }
 
 // balance
@@ -39,7 +39,7 @@ pub fn id() -> Principal {
 }
 
 // schema
-pub fn schema() -> Result<Canister, Error> {
+pub fn schema() -> Result<Canister, CanisterError> {
     let path = path()?;
     let cs = crate::api::core::schema::canister(&path)?;
 
@@ -63,15 +63,15 @@ pub fn version() -> u64 {
 ///
 
 // path
-pub fn path() -> Result<String, Error> {
-    let path = CanisterStateManager::get_path().map_err(Error::from)?;
+pub fn path() -> Result<String, CanisterError> {
+    let path = CanisterStateManager::get_path()?;
 
     Ok(path)
 }
 
 // root_id
-pub fn root_id() -> Result<Principal, Error> {
-    let root_id = CanisterStateManager::get_root_id().map_err(Error::from)?;
+pub fn root_id() -> Result<Principal, CanisterError> {
+    let root_id = CanisterStateManager::get_root_id()?;
 
     Ok(root_id)
 }

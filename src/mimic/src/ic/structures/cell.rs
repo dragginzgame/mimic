@@ -5,11 +5,11 @@ use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// Error
+/// CellError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum CellError {
     #[snafu(display("init error: {error}"))]
     Init { error: String },
 
@@ -17,7 +17,7 @@ pub enum Error {
     ValueTooLarge { size: u64 },
 }
 
-impl From<InitError> for Error {
+impl From<InitError> for CellError {
     fn from(error: InitError) -> Self {
         Self::Init {
             error: error.to_string(),
@@ -25,7 +25,7 @@ impl From<InitError> for Error {
     }
 }
 
-impl From<ValueError> for Error {
+impl From<ValueError> for CellError {
     fn from(error: ValueError) -> Self {
         match error {
             ValueError::ValueTooLarge { value_size } => Self::ValueTooLarge { size: value_size },
@@ -51,15 +51,15 @@ where
     T: Clone + Storable,
 {
     // new
-    pub fn new(memory: VirtualMemory, value: T) -> Result<Self, Error> {
-        let data = WrappedCell::new(memory, value).map_err(Error::from)?;
+    pub fn new(memory: VirtualMemory, value: T) -> Result<Self, CellError> {
+        let data = WrappedCell::new(memory, value)?;
 
         Ok(Self { data })
     }
 
     // init
-    pub fn init(memory: VirtualMemory, default_value: T) -> Result<Self, Error> {
-        let data = WrappedCell::init(memory, default_value).map_err(Error::from)?;
+    pub fn init(memory: VirtualMemory, default_value: T) -> Result<Self, CellError> {
+        let data = WrappedCell::init(memory, default_value)?;
 
         Ok(Self { data })
     }
@@ -71,8 +71,8 @@ where
     }
 
     // set
-    pub fn set(&mut self, value: T) -> Result<T, Error> {
-        let res = self.data.set(value).map_err(Error::from)?;
+    pub fn set(&mut self, value: T) -> Result<T, CellError> {
+        let res = self.data.set(value)?;
 
         Ok(res)
     }

@@ -36,5 +36,5 @@ pub fn format_cycles(cycles: u128) -> String {
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum Error {
     #[snafu(transparent)]
-    Cell { source: structures::cell::Error },
+    CellError { source: structures::CellError },
 }

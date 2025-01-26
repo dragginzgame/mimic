@@ -3,7 +3,7 @@ use crate::ic::structures::{
     memory::VirtualMemory,
     serialize::{from_binary, to_binary},
     storable::Bound,
-    Cell, Storable,
+    Cell, CellError, Storable,
 };
 use candid::{CandidType, Principal};
 use derive_more::{Deref, DerefMut};
@@ -12,11 +12,11 @@ use snafu::Snafu;
 use std::borrow::Cow;
 
 ///
-/// Error
+/// CanisterStateError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum CanisterStateError {
     #[snafu(display("path has not been set"))]
     PathNotSet,
 
@@ -24,9 +24,7 @@ pub enum Error {
     RootIdNotSet,
 
     #[snafu(transparent)]
-    Cell {
-        source: crate::ic::structures::cell::Error,
-    },
+    CellError { source: CellError },
 }
 
 ///
@@ -43,23 +41,21 @@ impl CanisterStateManager {
     }
 
     // set
-    pub fn set(new_state: CanisterState) -> Result<(), Error> {
-        CANISTER_STATE
-            .with_borrow_mut(|state| state.set(new_state))
-            .map_err(Error::from)?;
+    pub fn set(new_state: CanisterState) -> Result<(), CanisterStateError> {
+        CANISTER_STATE.with_borrow_mut(|state| state.set(new_state))?;
 
         Ok(())
     }
 
     // get_path
-    pub fn get_path() -> Result<String, Error> {
-        let path = Self::get().path.ok_or(Error::PathNotSet)?;
+    pub fn get_path() -> Result<String, CanisterStateError> {
+        let path = Self::get().path.ok_or(CanisterStateError::PathNotSet)?;
 
         Ok(path)
     }
 
     // set_path
-    pub fn set_path(canister_type: String) -> Result<(), Error> {
+    pub fn set_path(canister_type: String) -> Result<(), CanisterStateError> {
         let mut state = Self::get();
         state.path = Some(canister_type);
 
@@ -67,14 +63,16 @@ impl CanisterStateManager {
     }
 
     // get_root_id
-    pub fn get_root_id() -> Result<Principal, Error> {
-        let root_id = Self::get().root_id.ok_or(Error::RootIdNotSet)?;
+    pub fn get_root_id() -> Result<Principal, CanisterStateError> {
+        let root_id = Self::get()
+            .root_id
+            .ok_or(CanisterStateError::RootIdNotSet)?;
 
         Ok(root_id)
     }
 
     // set_root_id
-    pub fn set_root_id(id: Principal) -> Result<(), Error> {
+    pub fn set_root_id(id: Principal) -> Result<(), CanisterStateError> {
         let mut state = Self::get();
         state.root_id = Some(id);
 
@@ -88,7 +86,7 @@ impl CanisterStateManager {
     }
 
     // set_parent_id
-    pub fn set_parent_id(id: Principal) -> Result<(), Error> {
+    pub fn set_parent_id(id: Principal) -> Result<(), CanisterStateError> {
         let mut state = Self::get();
         state.parent_id = Some(id);
 

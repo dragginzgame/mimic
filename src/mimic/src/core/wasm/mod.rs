@@ -1,5 +1,5 @@
 use crate::{
-    core::schema::{get_schema, Error as CoreSchemaError},
+    core::schema::{get_schema, SchemaError},
     log,
     orm::schema::node::Canister,
     Log,
@@ -20,14 +20,11 @@ pub static WASM_FILES: LazyLock<Mutex<HashMap<&'static str, &'static [u8]>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 
 ///
-/// Error
+/// WasmError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
-    #[snafu(transparent)]
-    Schema { source: CoreSchemaError },
-
+pub enum WasmError {
     #[snafu(display("mutex lock failed"))]
     LockFailed,
 
@@ -36,6 +33,9 @@ pub enum Error {
 
     #[snafu(display("wasm not found for path {path}"))]
     WasmNotFound { path: String },
+
+    #[snafu(transparent)]
+    SchemaError { source: SchemaError },
 }
 
 ///
@@ -46,13 +46,13 @@ pub struct WasmManager {}
 
 impl WasmManager {
     // get_wasm
-    pub fn get_wasm(path: &str) -> Result<&'static [u8], Error> {
+    pub fn get_wasm(path: &str) -> Result<&'static [u8], WasmError> {
         let file = WASM_FILES
             .lock()
-            .map_err(|_| Error::LockFailed)?
+            .map_err(|_| WasmError::LockFailed)?
             .get(path)
             .copied()
-            .ok_or_else(|| Error::WasmNotFound {
+            .ok_or_else(|| WasmError::WasmNotFound {
                 path: path.to_string(),
             })?;
 
@@ -61,11 +61,11 @@ impl WasmManager {
 
     // add_wasm
     #[allow(clippy::cast_precision_loss)]
-    pub fn add_wasm(path: &'static str, wasm: &'static [u8]) -> Result<(), Error> {
+    pub fn add_wasm(path: &'static str, wasm: &'static [u8]) -> Result<(), WasmError> {
         // check if in schema
         let schema = get_schema()?;
         if schema.get_node::<Canister>(path).is_none() {
-            return Err(Error::PathNotFound {
+            return Err(WasmError::PathNotFound {
                 path: path.to_string(),
             });
         }
@@ -73,7 +73,7 @@ impl WasmManager {
         // add wasm
         WASM_FILES
             .lock()
-            .map_err(|_| Error::LockFailed)?
+            .map_err(|_| WasmError::LockFailed)?
             .insert(path, wasm);
 
         log!(
@@ -87,10 +87,10 @@ impl WasmManager {
     }
 
     // info
-    pub fn info() -> Result<Vec<(String, usize)>, Error> {
+    pub fn info() -> Result<Vec<(String, usize)>, WasmError> {
         let info: Vec<(String, usize)> = WASM_FILES
             .lock()
-            .map_err(|_| Error::LockFailed)?
+            .map_err(|_| WasmError::LockFailed)?
             .iter()
             .map(|(k, v)| ((*k).to_string(), v.len()))
             .collect();

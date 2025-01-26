@@ -11,23 +11,23 @@ use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// Error
+/// MgmtError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum MgmtError {
     #[snafu(display("call rejected: {error}"))]
     CallRejected { error: String },
 }
 
-impl From<(RejectionCode, String)> for Error {
+impl From<(RejectionCode, String)> for MgmtError {
     fn from(error: (RejectionCode, String)) -> Self {
         Self::CallRejected { error: error.1 }
     }
 }
 
 // module_hash
-pub async fn module_hash(canister_id: Principal) -> Result<Option<Vec<u8>>, Error> {
+pub async fn module_hash(canister_id: Principal) -> Result<Option<Vec<u8>>, MgmtError> {
     let response = canister_status(canister_id).await?;
 
     Ok(response.module_hash)
@@ -39,7 +39,7 @@ pub async fn module_hash(canister_id: Principal) -> Result<Option<Vec<u8>>, Erro
 ///
 
 // canister_status
-pub async fn canister_status(canister_id: Principal) -> Result<CanisterStatusResponse, Error> {
+pub async fn canister_status(canister_id: Principal) -> Result<CanisterStatusResponse, MgmtError> {
     let res = ic_canister_status(CanisterIdRecord { canister_id })
         .await?
         .0;
@@ -52,21 +52,21 @@ pub async fn canister_status(canister_id: Principal) -> Result<CanisterStatusRes
 pub async fn create_canister(
     arg: CreateCanisterArgument,
     cycles: u128,
-) -> Result<Principal, Error> {
+) -> Result<Principal, MgmtError> {
     let res = ic_create_canister(arg, cycles).await?.0;
 
     Ok(res.canister_id)
 }
 
 // deposit_cycles
-pub async fn deposit_cycles(canister_id: Principal, cycles: u128) -> Result<(), Error> {
+pub async fn deposit_cycles(canister_id: Principal, cycles: u128) -> Result<(), MgmtError> {
     ic_deposit_cycles(CanisterIdRecord { canister_id }, cycles).await?;
 
     Ok(())
 }
 
 // install_code
-pub async fn install_code(arg: InstallCodeArgument) -> Result<(), Error> {
+pub async fn install_code(arg: InstallCodeArgument) -> Result<(), MgmtError> {
     ic_install_code(arg).await?;
 
     Ok(())

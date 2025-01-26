@@ -6,11 +6,11 @@ use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// Error
+/// SubnetIndexError
 ///
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum SubnetIndexError {
     #[snafu(display("canister type not found: {path}"))]
     CanisterTypeNotFound { path: String },
 }
@@ -45,10 +45,11 @@ impl SubnetIndexManager {
     }
 
     // try_get_canister
-    pub fn try_get_canister(path: &str) -> Result<Principal, Error> {
-        let canister = Self::get_canister(path).ok_or_else(|| Error::CanisterTypeNotFound {
-            path: path.to_string(),
-        })?;
+    pub fn try_get_canister(path: &str) -> Result<Principal, SubnetIndexError> {
+        let canister =
+            Self::get_canister(path).ok_or_else(|| SubnetIndexError::CanisterTypeNotFound {
+                path: path.to_string(),
+            })?;
 
         Ok(canister)
     }

@@ -1,6 +1,18 @@
 use crate::{
-    api::ic::call::call,
-    core::{state::ChildIndexManager, wasm::WasmManager},
+    api::{
+        ic::{
+            call::{call, CallError},
+            canister::CanisterError,
+            create::CreateError,
+            mgmt::MgmtError,
+            upgrade::UpgradeError,
+        },
+        ApiError,
+    },
+    core::{
+        state::ChildIndexManager,
+        wasm::{WasmError, WasmManager},
+    },
     ic::{caller, format_cycles, println},
     log, Log,
 };
@@ -10,46 +22,34 @@ use snafu::Snafu;
 use strum::Display;
 
 ///
-/// Error
+/// RequestError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
-    #[snafu(display("api error: {error}"))]
-    Api { error: crate::api::Error },
-
-    #[snafu(transparent)]
-    Call { source: crate::api::ic::call::Error },
-
+pub enum RequestError {
     #[snafu(display("invalid response: {response}"))]
     InvalidResponse { response: Response },
 
     #[snafu(transparent)]
-    Canister {
-        source: crate::api::ic::canister::Error,
-    },
+    ApiError { source: ApiError },
 
     #[snafu(transparent)]
-    CreateCanister {
-        source: crate::api::ic::create::Error,
-    },
+    Call { source: CallError },
 
     #[snafu(transparent)]
-    UpgradeCanister {
-        source: crate::api::ic::upgrade::Error,
-    },
+    Canister { source: CanisterError },
 
     #[snafu(transparent)]
-    Mgmt { source: crate::api::ic::mgmt::Error },
+    CreateError { source: CreateError },
 
     #[snafu(transparent)]
-    CoreWasm { source: crate::core::wasm::Error },
-}
+    UpgradeError { source: UpgradeError },
 
-impl From<crate::api::Error> for Error {
-    fn from(error: crate::api::Error) -> Self {
-        Self::Api { error }
-    }
+    #[snafu(transparent)]
+    MgmtError { source: MgmtError },
+
+    #[snafu(transparent)]
+    WasmError { source: WasmError },
 }
 
 ///
@@ -139,7 +139,7 @@ pub enum Response {
 ///
 
 // response
-pub async fn response(req: Request) -> Result<Response, Error> {
+pub async fn response(req: Request) -> Result<Response, RequestError> {
     // ::ic::println!("root response : {req:?}");
 
     match req.kind {
@@ -152,23 +152,29 @@ pub async fn response(req: Request) -> Result<Response, Error> {
 }
 
 // response_create_canister
-async fn response_create_canister(path: &str) -> Result<Response, Error> {
-    let bytes = WasmManager::get_wasm(path).map_err(Error::from)?;
+async fn response_create_canister(path: &str) -> Result<Response, RequestError> {
+    let bytes = WasmManager::get_wasm(path)?;
     let new_canister_id = crate::api::ic::create::create_canister(path, bytes, caller()).await?;
 
     Ok(Response::CanisterCreate(new_canister_id))
 }
 
 // response_upgrade_canister
-async fn response_upgrade_canister(canister_id: Principal, path: &str) -> Result<Response, Error> {
-    let bytes = WasmManager::get_wasm(path).map_err(Error::from)?;
+async fn response_upgrade_canister(
+    canister_id: Principal,
+    path: &str,
+) -> Result<Response, RequestError> {
+    let bytes = WasmManager::get_wasm(path)?;
     crate::api::ic::upgrade::upgrade_canister(canister_id, bytes).await?;
 
     Ok(Response::CanisterUpgrade)
 }
 
 // response_send_cycles
-async fn response_send_cycles(canister_id: Principal, cycles: u128) -> Result<Response, Error> {
+async fn response_send_cycles(
+    canister_id: Principal,
+    cycles: u128,
+) -> Result<Response, RequestError> {
     // actually send cycles
     crate::api::ic::mgmt::deposit_cycles(canister_id, cycles).await?;
 
@@ -191,21 +197,24 @@ async fn response_send_cycles(canister_id: Principal, cycles: u128) -> Result<Re
 ///
 
 // request
-pub async fn request(request: Request) -> Result<Response, Error> {
+pub async fn request(request: Request) -> Result<Response, RequestError> {
     println!("request: {request:?}");
 
     let root_canister_id = crate::api::ic::canister::root_id()?;
-    let res =
-        call::<_, (Result<Response, crate::api::Error>,)>(root_canister_id, "response", (request,))
-            .await?
-            .0?;
+    let res = call::<_, (Result<Response, ::mimic::api::ApiError>,)>(
+        root_canister_id,
+        "response",
+        (request,),
+    )
+    .await?
+    .0?;
 
     Ok(res)
 }
 
 // request_canister_create
 // create a Request and pass it to the request shared endpoint
-pub async fn request_canister_create(canister_path: &str) -> Result<Principal, Error> {
+pub async fn request_canister_create(canister_path: &str) -> Result<Principal, RequestError> {
     let req = Request::new_canister_create(canister_path.to_string());
 
     match request(req).await {
@@ -216,7 +225,7 @@ pub async fn request_canister_create(canister_path: &str) -> Result<Principal, E
 
                 Ok(new_canister_id)
             }
-            _ => Err(Error::InvalidResponse { response })?,
+            _ => Err(RequestError::InvalidResponse { response })?,
         },
         Err(e) => Err(e),
     }
@@ -226,7 +235,7 @@ pub async fn request_canister_create(canister_path: &str) -> Result<Principal, E
 pub async fn request_canister_upgrade(
     canister_id: Principal,
     canister_path: String,
-) -> Result<(), Error> {
+) -> Result<(), RequestError> {
     let req = Request::new_canister_upgrade(canister_id, canister_path);
     let _res = request(req).await?;
 
@@ -234,7 +243,7 @@ pub async fn request_canister_upgrade(
 }
 
 // request_cycles
-pub async fn request_cycles() -> Result<(), Error> {
+pub async fn request_cycles() -> Result<(), RequestError> {
     // Get the schema and balance, handling potential errors early
     let canister_schema = crate::api::ic::canister::schema()?;
     let balance = crate::api::ic::canister::balance();
@@ -271,7 +280,7 @@ pub async fn request_cycles() -> Result<(), Error> {
 
                 Ok(())
             }
-            _ => Err(Error::InvalidResponse { response })?,
+            _ => Err(RequestError::InvalidResponse { response })?,
         }
     } else {
         Ok(())

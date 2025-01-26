@@ -6,11 +6,11 @@ use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// Error
+/// ChildIndexError
 ///
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum ChildIndexError {
     #[snafu(display("canister not found: {id}"))]
     CanisterNotFound { id: Principal },
 }
@@ -42,8 +42,8 @@ impl ChildIndexManager {
     }
 
     // try_get_canister
-    pub fn try_get_canister(id: Principal) -> Result<String, Error> {
-        let canister = Self::get_canister(id).ok_or(Error::CanisterNotFound { id })?;
+    pub fn try_get_canister(id: Principal) -> Result<String, ChildIndexError> {
+        let canister = Self::get_canister(id).ok_or(ChildIndexError::CanisterNotFound { id })?;
 
         Ok(canister)
     }

@@ -2,7 +2,7 @@ mod db;
 mod default;
 mod validate;
 
-use mimic::{api::Error, ic::update, log, prelude::*, Log};
+use mimic::{ic::update, log, prelude::*, Log};
 
 // blank file so we get the default
 mimic_start!("../mimic.toml");

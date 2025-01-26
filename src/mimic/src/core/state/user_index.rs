@@ -1,6 +1,6 @@
 use super::USER_INDEX;
 use crate::{
-    core::schema::get_schema,
+    core::schema::{get_schema, SchemaError},
     ic::structures::{
         memory::VirtualMemory,
         serialize::{from_binary, to_binary},
@@ -16,11 +16,11 @@ use snafu::Snafu;
 use std::{borrow::Cow, collections::HashSet};
 
 ///
-/// Error
+/// UserIndexError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum UserIndexError {
     #[snafu(display("role '{role}' not found"))]
     RoleNotFound { role: String },
 
@@ -37,7 +37,7 @@ pub enum Error {
     UserDoesNotHaveRole { role: String },
 
     #[snafu(transparent)]
-    Schema { source: crate::core::schema::Error },
+    SchemaError { source: SchemaError },
 }
 
 ///
@@ -60,18 +60,18 @@ impl UserIndexManager {
     }
 
     // try_get_user
-    pub fn try_get_user(id: Principal) -> Result<User, Error> {
-        let user =
-            USER_INDEX.with_borrow(|index| index.get(&id).ok_or(Error::UserNotFound { id }))?;
+    pub fn try_get_user(id: Principal) -> Result<User, UserIndexError> {
+        let user = USER_INDEX
+            .with_borrow(|index| index.get(&id).ok_or(UserIndexError::UserNotFound { id }))?;
 
         Ok(user)
     }
 
     // register_user
-    pub fn register_user(id: Principal, user: User) -> Result<(), Error> {
+    pub fn register_user(id: Principal, user: User) -> Result<(), UserIndexError> {
         USER_INDEX.with_borrow_mut(|index| {
             if index.contains_key(&id) {
-                Err(Error::UserExists { id })?;
+                Err(UserIndexError::UserExists { id })?;
             }
             index.insert(id, user);
 
@@ -80,18 +80,18 @@ impl UserIndexManager {
     }
 
     // add_role
-    pub fn add_role(id: Principal, role: String) -> Result<(), Error> {
-        let schema = get_schema().map_err(Error::from)?;
+    pub fn add_role(id: Principal, role: String) -> Result<(), UserIndexError> {
+        let schema = get_schema()?;
 
         // check its a valid role
         if schema.get_node::<Role>(&role).is_none() {
-            Err(Error::RoleNotFound { role: role.clone() })?;
+            Err(UserIndexError::RoleNotFound { role: role.clone() })?;
         }
 
         // get user
         let mut user = Self::try_get_user(id)?;
         if !user.roles.insert(role.clone()) {
-            Err(Error::UserHasRole { role })?;
+            Err(UserIndexError::UserHasRole { role })?;
         }
 
         // insert new roles
@@ -101,18 +101,18 @@ impl UserIndexManager {
     }
 
     // remove_role
-    pub fn remove_role(id: Principal, role: String) -> Result<(), Error> {
-        let schema = get_schema().map_err(Error::from)?;
+    pub fn remove_role(id: Principal, role: String) -> Result<(), UserIndexError> {
+        let schema = get_schema()?;
 
         // check its a valid role
         if schema.get_node::<Role>(&role).is_none() {
-            Err(Error::RoleNotFound { role: role.clone() })?;
+            Err(UserIndexError::RoleNotFound { role: role.clone() })?;
         }
 
         // get user
         let mut user = Self::try_get_user(id)?;
         if !user.roles.remove(&role) {
-            Err(Error::UserDoesNotHaveRole { role })?;
+            Err(UserIndexError::UserDoesNotHaveRole { role })?;
         }
 
         // insert new roles

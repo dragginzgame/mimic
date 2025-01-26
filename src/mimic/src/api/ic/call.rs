@@ -12,11 +12,11 @@ use snafu::Snafu;
 use std::future::Future;
 
 ///
-/// Error
+/// CallError
 ///
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum CallError {
     #[snafu(display("candid error: {error}"))]
     Candid { error: String },
 
@@ -24,7 +24,7 @@ pub enum Error {
     CallRejected { error: String },
 }
 
-impl From<(RejectionCode, String)> for Error {
+impl From<(RejectionCode, String)> for CallError {
     fn from(error: (RejectionCode, String)) -> Self {
         Self::CallRejected { error: error.1 }
     }
@@ -39,16 +39,16 @@ pub fn call<T: ArgumentEncoder, R: for<'a> ArgumentDecoder<'a>>(
     id: Principal,
     method: &str,
     args: T,
-) -> impl Future<Output = Result<R, Error>> + Send + Sync {
+) -> impl Future<Output = Result<R, CallError>> + Send + Sync {
     log!(Log::Info, "call: {method}@{id}");
 
     let args_raw = encode_args(args).expect("Failed to encode arguments.");
     let fut = call_raw(id, method, args_raw, 0);
 
     async {
-        let bytes: Vec<u8> = fut.await.map_err(Error::from)?;
+        let bytes: Vec<u8> = fut.await.map_err(CallError::from)?;
 
-        let res = decode_args(&bytes).map_err(|e| Error::Candid {
+        let res = decode_args(&bytes).map_err(|e| CallError::Candid {
             error: e.to_string(),
         })?;
 

@@ -1,11 +1,12 @@
 use crate::orm::{
     schema::{
         node::{
-            Canister, Constant, Def, Entity, Enum, EnumValue, Error, MacroNode, Map, Newtype,
-            Permission, Primitive, Record, Role, Selector, Store, Tuple, ValidateNode, Validator,
+            Canister, Constant, Def, Entity, Enum, EnumValue, MacroNode, Map, Newtype, Permission,
+            Primitive, Record, Role, Selector, Store, Tuple, ValidateNode, Validator,
             VisitableNode,
         },
         visit::Visitor,
+        SchemaError,
     },
     types::ErrorVec,
 };
@@ -168,7 +169,7 @@ impl Schema {
     }
 
     // check_node
-    pub fn check_node<T: 'static>(&self, path: &str) -> Result<(), Error> {
+    pub fn check_node<T: 'static>(&self, path: &str) -> Result<(), SchemaError> {
         self.try_get_node::<T>(path).map(|_| ())
     }
 
@@ -178,14 +179,14 @@ impl Schema {
         &self,
         path: &str,
         acceptable_types: &HashSet<TypeId>,
-    ) -> Result<(), Error> {
+    ) -> Result<(), SchemaError> {
         self.nodes.get(path).map_or_else(
-            || Err(Error::path_not_found(path)),
+            || Err(SchemaError::path_not_found(path)),
             |node| {
                 if acceptable_types.contains(&node.as_any().type_id()) {
                     Ok(())
                 } else {
-                    Err(Error::incorrect_node_type(path))
+                    Err(SchemaError::incorrect_node_type(path))
                 }
             },
         )
@@ -201,15 +202,15 @@ impl Schema {
 
     // try_get_node
     // function to retrieve a node of type T, if exists and matches the type
-    pub fn try_get_node<'a, T: 'static>(&'a self, path: &str) -> Result<&'a T, Error> {
+    pub fn try_get_node<'a, T: 'static>(&'a self, path: &str) -> Result<&'a T, SchemaError> {
         self.nodes.get(path).map_or_else(
-            || Err(Error::path_not_found(path)),
+            || Err(SchemaError::path_not_found(path)),
             |node| {
                 node.as_any().downcast_ref::<T>().ok_or_else(|| {
                     if node.as_any().type_id() == TypeId::of::<T>() {
-                        Error::downcast_fail(path)
+                        SchemaError::downcast_fail(path)
                     } else {
-                        Error::incorrect_node_type(path)
+                        SchemaError::incorrect_node_type(path)
                     }
                 })
             },

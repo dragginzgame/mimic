@@ -1,5 +1,13 @@
 use crate::{
-    api::ic::call::call,
+    api::{
+        core::schema::SchemaError,
+        ic::{
+            call::{call, CallError},
+            mgmt::MgmtError,
+        },
+        ApiError,
+    },
+    core::config::ConfigError,
     ic::{
         api::management_canister::{
             main::{CanisterInstallMode, CreateCanisterArgument, InstallCodeArgument, WasmModule},
@@ -14,33 +22,25 @@ use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
 ///
-/// Error
+/// CreateError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
-    #[snafu(display("api error: {error}"))]
-    Api { error: crate::api::Error },
+pub enum CreateError {
+    #[snafu(transparent)]
+    ApiError { source: ApiError },
 
     #[snafu(transparent)]
-    Config { source: crate::core::config::Error },
+    CallError { source: CallError },
 
     #[snafu(transparent)]
-    Call { source: crate::api::ic::call::Error },
+    ConfigError { source: ConfigError },
 
     #[snafu(transparent)]
-    Mgmt { source: crate::api::ic::mgmt::Error },
+    MgmtError { source: MgmtError },
 
     #[snafu(transparent)]
-    Schema {
-        source: crate::api::core::schema::Error,
-    },
-}
-
-impl From<crate::api::Error> for Error {
-    fn from(error: crate::api::Error) -> Self {
-        Self::Api { error }
-    }
+    SchemaError { source: SchemaError },
 }
 
 ///
@@ -51,7 +51,7 @@ pub async fn create_canister(
     canister_path: &str,
     bytes: &[u8],
     parent_id: Principal,
-) -> Result<Principal, Error> {
+) -> Result<Principal, CreateError> {
     let config = crate::core::config::get_config()?;
 
     //
@@ -92,7 +92,7 @@ pub async fn create_canister(
     // call init_async
     //
 
-    call::<_, (Result<(), crate::api::Error>,)>(canister_id, "init_async", ((),))
+    call::<_, (Result<(), ApiError>,)>(canister_id, "init_async", ((),))
         .await?
         .0?;
 

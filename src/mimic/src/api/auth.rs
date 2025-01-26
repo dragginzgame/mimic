@@ -1,5 +1,13 @@
 use crate::{
-    api::ic::call::call,
+    api::{
+        ic::{
+            call::{call, CallError},
+            canister::CanisterError,
+            create::CreateError,
+        },
+        subnet::SubnetError,
+        ApiError,
+    },
     core::state::{ChildIndexManager, SubnetIndexManager},
     ic::{api::is_controller, caller},
     orm::schema::node::AccessPolicy,
@@ -14,9 +22,6 @@ use snafu::Snafu;
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum AuthError {
-    #[snafu(display("api error: {error}"))]
-    Api { error: crate::api::Error },
-
     #[snafu(display("one or more rules must be defined"))]
     NoRulesDefined,
 
@@ -54,26 +59,19 @@ pub enum AuthError {
     RoleNotFound { role: String },
 
     #[snafu(transparent)]
-    Call { source: crate::api::ic::call::Error },
+    ApiError { source: ApiError },
 
     #[snafu(transparent)]
-    Canister {
-        source: crate::api::ic::canister::Error,
-    },
+    CallError { source: CallError },
 
     #[snafu(transparent)]
-    Create {
-        source: crate::api::ic::create::Error,
-    },
+    Canister { source: CanisterError },
 
     #[snafu(transparent)]
-    Subnet { source: crate::api::subnet::Error },
-}
+    Create { source: CreateError },
 
-impl From<crate::api::Error> for AuthError {
-    fn from(error: crate::api::Error) -> Self {
-        Self::Api { error }
-    }
+    #[snafu(transparent)]
+    Subnet { source: SubnetError },
 }
 
 ///
@@ -189,17 +187,13 @@ fn rule_parent(id: Principal) -> Result<(), AuthError> {
 pub async fn rule_permission(id: Principal, permission: &str) -> Result<(), AuthError> {
     let user_canister_id = crate::api::subnet::user_canister_id()?;
 
-    call::<_, (Result<(), crate::api::Error>,)>(
-        user_canister_id,
-        "guard_permission",
-        (id, permission),
-    )
-    .await?
-    .0
-    .map_err(|_| AuthError::NotPermitted {
-        id,
-        permission: permission.to_string(),
-    })?;
+    call::<_, (Result<(), ApiError>,)>(user_canister_id, "guard_permission", (id, permission))
+        .await?
+        .0
+        .map_err(|_| AuthError::NotPermitted {
+            id,
+            permission: permission.to_string(),
+        })?;
 
     Ok(())
 }

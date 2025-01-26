@@ -1,4 +1,8 @@
-use crate::{core::schema::get_schema, db::types::DataKey, orm::schema::node::Entity};
+use crate::{
+    core::schema::{get_schema, SchemaError},
+    db::types::DataKey,
+    orm::schema::node::Entity,
+};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
@@ -12,7 +16,7 @@ pub enum ResolverError {
     EntityNotFound { path: String },
 
     #[snafu(transparent)]
-    Schema { source: crate::core::schema::Error },
+    SchemaError { source: SchemaError },
 }
 
 impl ResolverError {

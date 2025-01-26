@@ -5,11 +5,11 @@ pub mod subnet_index;
 pub mod user_index;
 
 pub use {
-    app_state::{AppCommand, AppMode, AppState, AppStateManager},
-    canister_state::{CanisterState, CanisterStateManager},
-    child_index::{ChildIndex, ChildIndexManager},
-    subnet_index::{SubnetIndex, SubnetIndexManager},
-    user_index::{User, UserIndex, UserIndexManager},
+    app_state::{AppCommand, AppMode, AppState, AppStateError, AppStateManager},
+    canister_state::{CanisterState, CanisterStateError, CanisterStateManager},
+    child_index::{ChildIndex, ChildIndexError, ChildIndexManager},
+    subnet_index::{SubnetIndex, SubnetIndexError, SubnetIndexManager},
+    user_index::{User, UserIndex, UserIndexError, UserIndexManager},
 };
 
 use crate::ic::structures::{

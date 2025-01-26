@@ -35,7 +35,7 @@ pub mod prelude {
             auth::{allow_any, Auth},
             guard::{guard_query, guard_update},
             subnet::request::{Request, RequestKind, Response},
-            Error, StartupHooks,
+            ApiError, StartupHooks,
         },
         core::state::{
             AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager,

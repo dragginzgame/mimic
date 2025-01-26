@@ -4,7 +4,7 @@ use crate::{
         memory::VirtualMemory,
         serialize::{from_binary, to_binary},
         storable::Bound,
-        Cell, Storable,
+        Cell, CellError, Storable,
     },
     log, Log,
 };
@@ -16,18 +16,16 @@ use std::borrow::Cow;
 use strum::Display;
 
 ///
-/// Error
+/// AppStateError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum AppStateError {
     #[snafu(display("app is already in {mode} mode"))]
     AlreadyInMode { mode: AppMode },
 
     #[snafu(transparent)]
-    Cell {
-        source: crate::ic::structures::cell::Error,
-    },
+    CellError { source: CellError },
 }
 
 ///
@@ -44,10 +42,8 @@ impl AppStateManager {
     }
 
     // set
-    pub fn set(new_state: AppState) -> Result<(), Error> {
-        APP_STATE
-            .with_borrow_mut(|state| state.set(new_state))
-            .map_err(Error::from)?;
+    pub fn set(new_state: AppState) -> Result<(), AppStateError> {
+        APP_STATE.with_borrow_mut(|state| state.set(new_state))?;
 
         Ok(())
     }
@@ -59,21 +55,19 @@ impl AppStateManager {
     }
 
     // set_mode
-    pub fn set_mode(mode: AppMode) -> Result<(), Error> {
-        APP_STATE
-            .with_borrow_mut(|state| {
-                let mut cur_state = state.get();
+    pub fn set_mode(mode: AppMode) -> Result<(), AppStateError> {
+        APP_STATE.with_borrow_mut(|state| {
+            let mut cur_state = state.get();
 
-                cur_state.mode = mode;
-                state.set(cur_state)
-            })
-            .map_err(Error::from)?;
+            cur_state.mode = mode;
+            state.set(cur_state)
+        })?;
 
         Ok(())
     }
 
     // command
-    pub fn command(cmd: AppCommand) -> Result<(), Error> {
+    pub fn command(cmd: AppCommand) -> Result<(), AppStateError> {
         let old_mode = Self::get_mode();
         let new_mode = match cmd {
             AppCommand::Start => AppMode::Enabled,
@@ -83,7 +77,7 @@ impl AppStateManager {
 
         // update mode
         if old_mode == new_mode {
-            Err(Error::AlreadyInMode { mode: old_mode })?;
+            Err(AppStateError::AlreadyInMode { mode: old_mode })?;
         }
         Self::set_mode(new_mode)?;
 
