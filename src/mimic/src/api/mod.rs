@@ -25,6 +25,8 @@ use crate::{
         },
         wasm::WasmError as CoreWasmError,
     },
+    db::DbError,
+    orm::OrmError,
     query::{
         DeleteError as QueryDeleteError, LoadError as QueryLoadError, QueryError,
         SaveError as QuerySaveError,
@@ -253,8 +255,8 @@ impl From<CoreWasmError> for ApiError {
 // orm
 //
 
-impl From<crate::orm::OrmError> for ApiError {
-    fn from(error: crate::orm::OrmError) -> Self {
+impl From<OrmError> for ApiError {
+    fn from(error: OrmError) -> Self {
         Self(ERROR_ORM, error.to_string())
     }
 }
@@ -263,8 +265,8 @@ impl From<crate::orm::OrmError> for ApiError {
 // db
 //
 
-impl From<crate::db::DbError> for ApiError {
-    fn from(error: crate::db::DbError) -> Self {
+impl From<DbError> for ApiError {
+    fn from(error: DbError) -> Self {
         Self(ERROR_DB, error.to_string())
     }
 }
