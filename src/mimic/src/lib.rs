@@ -306,7 +306,7 @@ pub mod prelude {
             base::types::Ulid,
             traits::{EntityDyn, EntityFixture, NumFromPrimitive, NumToPrimitive, Path, Validator},
         },
-        perf, Error, Log,
+        perf, Error as MimicError, Log,
     };
     pub use ::candid::{CandidType, Principal};
     pub use ::std::cell::RefCell;
