@@ -105,14 +105,7 @@ pub const ERROR_DB_QUERY_DELETE: u8 = 173;
 ///
 
 #[derive(CandidType, Debug, Serialize, Deserialize)]
-pub struct Error(u8, String);
-
-impl Error {
-    #[must_use]
-    pub const fn new(code: u8, text: String) -> Self {
-        Self(code, text)
-    }
-}
+pub struct Error(pub u8, pub String);
 
 impl Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
