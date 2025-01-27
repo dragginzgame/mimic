@@ -41,6 +41,7 @@ syn = "2.0"
 quote = "1.0"
 
 # third party
+anyhow = "1.0"
 bencher = "0.1"
 ciborium = "0.2"
 ctor = "0.2"

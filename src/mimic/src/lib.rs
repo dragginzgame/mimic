@@ -56,6 +56,7 @@ use serde::{Deserialize, Serialize};
 use std::{
     error::Error as StdError,
     fmt::{self, Display},
+    future::Future,
 };
 
 ///
@@ -64,7 +65,7 @@ use std::{
 ///
 
 // misc
-pub const ERROR_INIT: u8 = 10;
+pub const ERROR_DYN: u8 = 1;
 
 // api
 pub const ERROR_API_AUTH: u8 = 101;
@@ -108,11 +109,6 @@ pub struct Error(u8, String);
 
 impl Error {
     #[must_use]
-    pub const fn init(text: String) -> Self {
-        Self(ERROR_INIT, text)
-    }
-
-    #[must_use]
     pub const fn new(code: u8, text: String) -> Self {
         Self(code, text)
     }
@@ -125,6 +121,16 @@ impl Display for Error {
 }
 
 impl StdError for Error {}
+
+//
+// dynamic errors
+//
+
+impl From<DynError> for Error {
+    fn from(error: DynError) -> Self {
+        Self(ERROR_API_AUTH, error.to_string())
+    }
+}
 
 //
 // api
@@ -281,6 +287,12 @@ impl From<QueryDeleteError> for Error {
 }
 
 ///
+/// DynError
+///
+
+pub type DynError = Box<dyn StdError + Send + Sync>;
+
+///
 /// MIMIC PRELUDE
 ///
 /// NOTE: Do not put the candid macros (query, update etc.) directly within this prelude as the endpoints
@@ -293,7 +305,6 @@ pub mod prelude {
             auth::{allow_any, Auth},
             guard::{guard_query, guard_update},
             subnet::request::{Request, RequestKind, Response},
-            StartupHooks,
         },
         core::state::{
             AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager,
@@ -306,7 +317,7 @@ pub mod prelude {
             base::types::Ulid,
             traits::{EntityDyn, EntityFixture, NumFromPrimitive, NumToPrimitive, Path, Validator},
         },
-        perf, Error as MimicError, Log,
+        perf, Log, StartupHooks,
     };
     pub use ::candid::{CandidType, Principal};
     pub use ::std::cell::RefCell;
@@ -358,4 +369,41 @@ macro_rules! log {
 
         $crate::ic::println!("{}", msg);
     }};
+}
+
+///
+/// StartupHooks
+///
+
+pub trait StartupHooks {
+    // startup
+    // on every startup regardless of installation mode
+    fn startup() -> Result<(), DynError> {
+        Ok(())
+    }
+
+    // init
+    // custom code called after mimic init()
+    fn init() -> Result<(), DynError> {
+        Ok(())
+    }
+
+    // init_async
+    // custom code called after mimic init_async()
+    #[must_use]
+    fn init_async() -> impl Future<Output = Result<(), DynError>> + Send {
+        async { Ok(()) }
+    }
+
+    // pre_upgrade
+    // called after pre_upgrade
+    fn pre_upgrade() -> Result<(), DynError> {
+        Ok(())
+    }
+
+    // post_upgrade
+    // called after post_upgrade
+    fn post_upgrade() -> Result<(), DynError> {
+        Ok(())
+    }
 }

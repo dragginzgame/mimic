@@ -68,15 +68,13 @@ macro_rules! mimic_start {
         fn startup() -> Result<(), ::mimic::Error> {
             // schema
             let schema_json = include_str!(concat!(env!("OUT_DIR"), "/schema.rs"));
-            ::mimic::core::schema::init_schema_json(schema_json)
-                .map_err(|e| ::mimic::Error::new(0, e.to_string()))?;
+            ::mimic::core::schema::init_schema_json(schema_json)?;
 
             // config
             let toml = include_str!($config);
-            ::mimic::core::config::init_config_toml(toml)
-                .map_err(|e| ::mimic::Error::new(0, e.to_string()))?;
+            ::mimic::core::config::init_config_toml(toml)?;
 
-            StartupManager::startup().map_err(::mimic::Error::from)?;
+            StartupManager::startup()?;
 
             Ok(())
         }

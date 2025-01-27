@@ -41,7 +41,7 @@ fn init_root(builder: &ActorBuilder) -> TokenStream {
             // root has to automatically create canisters
             actorgen::root_auto_create_canisters().await?;
 
-            StartupManager::init_async().await
+            StartupManager::init_async().await.map_err(::mimic::Error::from)
         }
     }
 }
@@ -69,7 +69,7 @@ fn init_default(builder: &ActorBuilder) -> TokenStream {
         // init_async
         #[::mimic::ic::update]
         async fn init_async() -> Result<(), ::mimic::Error> {
-            StartupManager::init_async().await
+            StartupManager::init_async().await.map_err(::mimic::Error::from)
         }
     }
 }
@@ -94,7 +94,7 @@ fn init_test(builder: &ActorBuilder) -> TokenStream {
         // init_async
         #[::mimic::ic::update]
         async fn init_async() -> Result<(), ::mimic::Error> {
-            StartupManager::init_async().await
+            StartupManager::init_async().await.map_err(::mimic::Error::from)
         }
     }
 }
