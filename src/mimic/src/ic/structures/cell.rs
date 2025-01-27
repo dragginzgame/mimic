@@ -1,4 +1,5 @@
 use crate::ic::structures::{memory::VirtualMemory, Storable};
+use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use ic_stable_structures::cell::{Cell as WrappedCell, InitError, ValueError};
 use serde::{Deserialize, Serialize};
@@ -8,7 +9,7 @@ use snafu::Snafu;
 /// CellError
 ///
 
-#[derive(Debug, Serialize, Deserialize, Snafu)]
+#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum CellError {
     #[snafu(display("init error: {error}"))]
     Init { error: String },

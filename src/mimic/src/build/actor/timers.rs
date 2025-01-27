@@ -4,7 +4,7 @@ use quote::quote;
 // extend
 pub fn extend(builder: &mut ActorBuilder) {
     let q = quote! {
-        pub const fn init_timers() -> Result<(), ::mimic::api::ApiError> {
+        pub const fn init_timers() -> Result<(), ::mimic::Error> {
 
             //
             // check_cycles

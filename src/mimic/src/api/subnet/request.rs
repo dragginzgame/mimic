@@ -1,20 +1,17 @@
 use crate::{
-    api::{
-        ic::{
-            call::{call, CallError},
-            canister::CanisterError,
-            create::CreateError,
-            mgmt::MgmtError,
-            upgrade::UpgradeError,
-        },
-        ApiError,
+    api::ic::{
+        call::{call, CallError},
+        canister::CanisterError,
+        create::CreateError,
+        mgmt::MgmtError,
+        upgrade::UpgradeError,
     },
     core::{
         state::ChildIndexManager,
         wasm::{WasmError, WasmManager},
     },
     ic::{caller, format_cycles, println},
-    log, Log,
+    log, Error, Log,
 };
 use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};
@@ -31,7 +28,7 @@ pub enum RequestError {
     InvalidResponse { response: Response },
 
     #[snafu(transparent)]
-    ApiError { source: ApiError },
+    Error { source: Error },
 
     #[snafu(transparent)]
     CallError { source: CallError },
@@ -201,13 +198,9 @@ pub async fn request(request: Request) -> Result<Response, RequestError> {
     println!("request: {request:?}");
 
     let root_canister_id = crate::api::ic::canister::root_id()?;
-    let res = call::<_, (Result<Response, ::mimic::api::ApiError>,)>(
-        root_canister_id,
-        "response",
-        (request,),
-    )
-    .await?
-    .0?;
+    let res = call::<_, (Result<Response, Error>,)>(root_canister_id, "response", (request,))
+        .await?
+        .0?;
 
     Ok(res)
 }

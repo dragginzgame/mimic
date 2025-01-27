@@ -1,10 +1,7 @@
 use crate::{
-    api::{
-        ic::call::{call, CallError},
-        ApiError,
-    },
+    api::ic::call::{call, CallError},
     core::state::{AppStateManager, ChildIndexManager, SubnetIndexManager},
-    log, Log,
+    log, Error, Log,
 };
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -16,7 +13,7 @@ use snafu::Snafu;
 #[derive(Debug, Serialize, Deserialize, Snafu)]
 pub enum CascadeError {
     #[snafu(transparent)]
-    ApiError { source: ApiError },
+    Error { source: Error },
 
     #[snafu(transparent)]
     CallError { source: CallError },
@@ -31,7 +28,7 @@ pub async fn app_state_cascade() -> Result<(), CascadeError> {
     for (id, path) in child_index {
         log!(Log::Info, "app_state_cascade: -> {id} ({path})");
 
-        call::<_, (Result<(), ApiError>,)>(id, "app_state_cascade", (app_state,))
+        call::<_, (Result<(), Error>,)>(id, "app_state_cascade", (app_state,))
             .await?
             .0?;
     }
@@ -48,7 +45,7 @@ pub async fn subnet_index_cascade() -> Result<(), CascadeError> {
     for (id, path) in child_index {
         log!(Log::Info, "subnet_index_cascade: -> {id} ({path})",);
 
-        call::<_, (Result<(), ApiError>,)>(id, "subnet_index_cascade", (subnet_index.clone(),))
+        call::<_, (Result<(), Error>,)>(id, "subnet_index_cascade", (subnet_index.clone(),))
             .await?
             .0?;
     }

@@ -14,7 +14,7 @@ pub fn root_actor(builder: &mut ActorBuilder) {
         // modify app-level state
         // @todo eventually this will cascade down from an orchestrator canister
         #[::mimic::ic::update]
-        async fn app(cmd: AppCommand) -> Result<(), ::mimic::api::ApiError> {
+        async fn app(cmd: AppCommand) -> Result<(), ::mimic::Error> {
             AppStateManager::command(cmd)?;
 
             ::mimic::api::subnet::cascade::app_state_cascade().await?;
@@ -24,7 +24,7 @@ pub fn root_actor(builder: &mut ActorBuilder) {
 
         // response
         #[::mimic::ic::update]
-        async fn response(req: Request) -> Result<Response, ::mimic::api::ApiError> {
+        async fn response(req: Request) -> Result<Response, ::mimic::Error> {
             let res = ::mimic::api::subnet::request::response(req).await?;
 
             Ok(res)
@@ -38,7 +38,7 @@ pub fn root_actor(builder: &mut ActorBuilder) {
 pub fn root_module(builder: &mut ActorBuilder) {
     let q = quote! {
         // root_auto_create_canisters
-        pub async fn root_auto_create_canisters() -> Result<(), ::mimic::api::ApiError> {
+        pub async fn root_auto_create_canisters() -> Result<(), ::mimic::Error> {
             use ::mimic::orm::schema::node::Canister;
 
             allow_any(vec![Auth::Controller]).await?;

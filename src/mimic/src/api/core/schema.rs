@@ -2,6 +2,7 @@ use crate::{
     core::schema::{get_schema, SchemaError as CoreSchemaError},
     orm::schema::node::{Canister, CanisterBuild},
 };
+use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
@@ -9,7 +10,7 @@ use snafu::Snafu;
 /// SchemaError
 ///
 
-#[derive(Debug, Serialize, Deserialize, Snafu)]
+#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum SchemaError {
     #[snafu(display("canister not found in schema: {path}"))]
     CanisterNotFound { path: String },

@@ -15,7 +15,7 @@ use std::borrow::Cow;
 /// CanisterStateError
 ///
 
-#[derive(Debug, Serialize, Deserialize, Snafu)]
+#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum CanisterStateError {
     #[snafu(display("path has not been set"))]
     PathNotSet,

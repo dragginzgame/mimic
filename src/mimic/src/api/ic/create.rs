@@ -5,7 +5,6 @@ use crate::{
             call::{call, CallError},
             mgmt::MgmtError,
         },
-        ApiError,
     },
     core::config::ConfigError,
     ic::{
@@ -15,9 +14,9 @@ use crate::{
         },
         format_cycles, id,
     },
-    log, Log,
+    log, Error, Log,
 };
-use candid::Principal;
+use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
@@ -25,10 +24,10 @@ use snafu::Snafu;
 /// CreateError
 ///
 
-#[derive(Debug, Serialize, Deserialize, Snafu)]
+#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum CreateError {
     #[snafu(transparent)]
-    ApiError { source: ApiError },
+    Error { source: Error },
 
     #[snafu(transparent)]
     CallError { source: CallError },
@@ -92,7 +91,7 @@ pub async fn create_canister(
     // call init_async
     //
 
-    call::<_, (Result<(), ApiError>,)>(canister_id, "init_async", ((),))
+    call::<_, (Result<(), ::mimic::Error>,)>(canister_id, "init_async", ((),))
         .await?
         .0?;
 

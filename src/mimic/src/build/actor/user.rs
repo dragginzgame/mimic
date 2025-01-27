@@ -12,7 +12,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
 
         // user_index
         #[::mimic::ic::query(guard = "guard_query")]
-        async fn user_index() -> Result<UserIndex, ::mimic::api::ApiError> {
+        async fn user_index() -> Result<UserIndex, ::mimic::Error> {
             allow_any(vec![Auth::Controller]).await?;
 
             Ok(UserIndexManager::get())
@@ -21,7 +21,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // get_caller
         // no auth needed as it's just looking up the current caller
         #[::mimic::ic::query(guard = "guard_query")]
-        fn get_caller() -> Result<User, ::mimic::api::ApiError> {
+        fn get_caller() -> Result<User, ::mimic::Error> {
             let user = UserIndexManager::try_get_user(caller())?;
 
             Ok(user)
@@ -30,7 +30,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // get_user
         // look up any user by principal, requires an auth check
         #[::mimic::ic::query(guard = "guard_query")]
-        async fn get_user(id: Principal) -> Result<User, ::mimic::api::ApiError> {
+        async fn get_user(id: Principal) -> Result<User, ::mimic::Error> {
             if id != caller() {
                 allow_any(vec![Auth::Controller]).await?;
             }
@@ -42,7 +42,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
 
         // register_caller
         #[::mimic::ic::update(guard = "guard_update")]
-        async fn register_caller() -> Result<User, ::mimic::api::ApiError> {
+        async fn register_caller() -> Result<User, ::mimic::Error> {
             let user = register(caller()).await?;
 
             Ok(user)
@@ -51,7 +51,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // register_principal
         // register ANY principal, requires controller or parent
         #[::mimic::ic::update(guard = "guard_update")]
-        async fn register_principal(id: Principal) -> Result<User, ::mimic::api::ApiError> {
+        async fn register_principal(id: Principal) -> Result<User, ::mimic::Error> {
             allow_any(vec![
                 Auth::Controller,
                 Auth::SameCanister,
@@ -64,7 +64,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
 
         // add_role
         #[::mimic::ic::update(guard = "guard_update")]
-        async fn add_role(id: Principal, role: String) -> Result<(), ::mimic::api::ApiError> {
+        async fn add_role(id: Principal, role: String) -> Result<(), ::mimic::Error> {
             allow_any(vec![
                 Auth::Parent,
                 Auth::Controller,
@@ -77,7 +77,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
 
         // remove_role
         #[::mimic::ic::update(guard = "guard_update")]
-        async fn remove_role(id: Principal, role: String) -> Result<(), ::mimic::api::ApiError> {
+        async fn remove_role(id: Principal, role: String) -> Result<(), ::mimic::Error> {
             allow_any(vec![
                 Auth::Parent,
                 Auth::Controller,
@@ -91,7 +91,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
         // guard_permission
         // endpoint only works on the User canister
         #[::mimic::ic::query(guard = "guard_query")]
-        pub async fn guard_permission(id: ::candid::Principal, permission: String) -> Result<(), ::mimic::api::ApiError> {
+        pub async fn guard_permission(id: ::candid::Principal, permission: String) -> Result<(), ::mimic::Error> {
             let user = UserIndexManager::try_get_user(id)?;
 
             // return Ok if any role has the permission, otherwise return an error
@@ -102,7 +102,7 @@ pub fn user_index(builder: &mut ActorBuilder) {
             {
                 Ok(())
             } else {
-                Err(::mimic::api::ApiError::from(
+                Err(::mimic::Error::from(
                     ::mimic::api::auth::Error::NotPermitted { id , permission }
                 ))
             }

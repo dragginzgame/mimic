@@ -3,7 +3,7 @@ use crate::{
     core::state::{CanisterStateError, CanisterStateManager},
     orm::schema::node::Canister,
 };
-use candid::Principal;
+use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
@@ -11,7 +11,7 @@ use snafu::Snafu;
 /// CanisterError
 ///
 
-#[derive(Debug, Serialize, Deserialize, Snafu)]
+#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum CanisterError {
     #[snafu(transparent)]
     SchemaError { source: SchemaError },

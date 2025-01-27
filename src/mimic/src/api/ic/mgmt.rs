@@ -6,7 +6,7 @@ use crate::ic::api::{
         CanisterStatusResponse, CreateCanisterArgument, InstallCodeArgument,
     },
 };
-use candid::Principal;
+use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 
@@ -14,7 +14,7 @@ use snafu::Snafu;
 /// MgmtError
 ///
 
-#[derive(Debug, Serialize, Deserialize, Snafu)]
+#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum MgmtError {
     #[snafu(display("call rejected: {error}"))]
     CallRejected { error: String },

@@ -4,6 +4,7 @@ pub use crate::orm::schema::node::Schema;
 pub use auth::AuthService;
 
 use crate::{log, Log};
+use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::sync::Mutex;
@@ -12,7 +13,7 @@ use std::sync::Mutex;
 /// SchemaError
 ///
 
-#[derive(Debug, Serialize, Deserialize, Snafu)]
+#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum SchemaError {
     #[snafu(display("schema has already been initialized"))]
     AlreadyInitialized,

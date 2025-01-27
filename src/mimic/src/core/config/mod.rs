@@ -2,6 +2,7 @@ pub mod types;
 
 pub use types::Config;
 
+use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::sync::Mutex;
@@ -10,7 +11,7 @@ use std::sync::Mutex;
 /// ConfigError
 ///
 
-#[derive(Debug, Serialize, Deserialize, Snafu)]
+#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
 pub enum ConfigError {
     #[snafu(display("config has already been initialized"))]
     AlreadyInitialized,

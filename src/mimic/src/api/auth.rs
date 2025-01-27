@@ -6,11 +6,11 @@ use crate::{
             create::CreateError,
         },
         subnet::SubnetError,
-        ApiError,
     },
     core::state::{ChildIndexManager, SubnetIndexManager},
     ic::{api::is_controller, caller},
     orm::schema::node::AccessPolicy,
+    Error,
 };
 use candid::Principal;
 use serde::{Deserialize, Serialize};
@@ -59,7 +59,7 @@ pub enum AuthError {
     RoleNotFound { role: String },
 
     #[snafu(transparent)]
-    ApiError { source: ApiError },
+    Error { source: Error },
 
     #[snafu(transparent)]
     CallError { source: CallError },
@@ -187,13 +187,17 @@ fn rule_parent(id: Principal) -> Result<(), AuthError> {
 pub async fn rule_permission(id: Principal, permission: &str) -> Result<(), AuthError> {
     let user_canister_id = crate::api::subnet::user_canister_id()?;
 
-    call::<_, (Result<(), ApiError>,)>(user_canister_id, "guard_permission", (id, permission))
-        .await?
-        .0
-        .map_err(|_| AuthError::NotPermitted {
-            id,
-            permission: permission.to_string(),
-        })?;
+    call::<_, (Result<(), ::mimic::Error>,)>(
+        user_canister_id,
+        "guard_permission",
+        (id, permission),
+    )
+    .await?
+    .0
+    .map_err(|_| AuthError::NotPermitted {
+        id,
+        permission: permission.to_string(),
+    })?;
 
     Ok(())
 }
