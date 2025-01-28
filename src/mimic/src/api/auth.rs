@@ -10,7 +10,7 @@ use crate::{
     core::state::{ChildIndexManager, SubnetIndexManager},
     ic::{api::is_controller, caller},
     orm::schema::node::AccessPolicy,
-    DynError, Error,
+    Error,
 };
 use candid::Principal;
 use serde::{Deserialize, Serialize};
@@ -92,7 +92,7 @@ pub enum Auth {
 }
 
 impl Auth {
-    pub async fn result(self, id: Principal) -> Result<(), DynError> {
+    pub async fn result(self, id: Principal) -> Result<(), AuthError> {
         match self {
             Self::CanisterType(path) => rule_canister_type(id, &path),
             Self::Child => rule_child(id),
@@ -108,7 +108,7 @@ impl Auth {
 }
 
 // allow_any
-pub async fn allow_any(rules: Vec<Auth>) -> Result<(), DynError> {
+pub async fn allow_any(rules: Vec<Auth>) -> Result<(), AuthError> {
     // only works for caller now
     let caller = caller();
 
@@ -135,7 +135,7 @@ pub async fn allow_any(rules: Vec<Auth>) -> Result<(), DynError> {
 
 // rule_canister_type
 // check caller against the id of a specific canister path
-fn rule_canister_type(id: Principal, canister_path: &str) -> Result<(), DynError> {
+fn rule_canister_type(id: Principal, canister_path: &str) -> Result<(), AuthError> {
     SubnetIndexManager::try_get_canister(canister_path).map_err(|_| {
         AuthError::NotCanisterPath {
             id,
@@ -147,7 +147,7 @@ fn rule_canister_type(id: Principal, canister_path: &str) -> Result<(), DynError
 }
 
 // rule_child
-fn rule_child(id: Principal) -> Result<(), DynError> {
+fn rule_child(id: Principal) -> Result<(), AuthError> {
     match ChildIndexManager::try_get_canister(id) {
         Ok(_) => Ok(()),
         Err(_) => Err(AuthError::NotChild { id })?,
@@ -155,7 +155,7 @@ fn rule_child(id: Principal) -> Result<(), DynError> {
 }
 
 // rule_controller
-fn rule_controller(id: Principal) -> Result<(), DynError> {
+fn rule_controller(id: Principal) -> Result<(), AuthError> {
     if is_controller(&id) {
         Ok(())
     } else {
@@ -164,7 +164,7 @@ fn rule_controller(id: Principal) -> Result<(), DynError> {
 }
 
 // rule_root
-fn rule_root(id: Principal) -> Result<(), DynError> {
+fn rule_root(id: Principal) -> Result<(), AuthError> {
     let root_id = crate::api::ic::canister::root_id()?;
 
     if id == root_id {
@@ -175,7 +175,7 @@ fn rule_root(id: Principal) -> Result<(), DynError> {
 }
 
 // rule_parent
-fn rule_parent(id: Principal) -> Result<(), DynError> {
+fn rule_parent(id: Principal) -> Result<(), AuthError> {
     match crate::api::ic::canister::parent_id() {
         Some(parent_id) if parent_id == id => Ok(()),
         _ => Err(AuthError::NotParent { id })?,
@@ -184,7 +184,7 @@ fn rule_parent(id: Principal) -> Result<(), DynError> {
 
 // rule_permission
 // will find the user canister from the schema
-pub async fn rule_permission(id: Principal, permission: &str) -> Result<(), DynError> {
+pub async fn rule_permission(id: Principal, permission: &str) -> Result<(), AuthError> {
     let user_canister_id = crate::api::subnet::user_canister_id()?;
 
     call::<_, (Result<(), ::mimic::Error>,)>(
@@ -204,7 +204,7 @@ pub async fn rule_permission(id: Principal, permission: &str) -> Result<(), DynE
 
 // rule_policy
 // only from non-PlayerHub canisters
-async fn rule_policy(id: Principal, policy: &AccessPolicy) -> Result<(), DynError> {
+async fn rule_policy(id: Principal, policy: &AccessPolicy) -> Result<(), AuthError> {
     match policy {
         AccessPolicy::Allow => Ok(()),
         AccessPolicy::Deny => Err(AuthError::NotAllowed)?,
@@ -214,14 +214,14 @@ async fn rule_policy(id: Principal, policy: &AccessPolicy) -> Result<(), DynErro
 
 // rule_same_subnet
 #[expect(clippy::unused_async)]
-pub async fn rule_same_subnet(_id: Principal) -> Result<(), DynError> {
+pub async fn rule_same_subnet(_id: Principal) -> Result<(), AuthError> {
     // @todo - we need gabriel code here
 
     Ok(())
 }
 
 // rule_same_canister
-fn rule_same_canister(id: Principal) -> Result<(), DynError> {
+fn rule_same_canister(id: Principal) -> Result<(), AuthError> {
     if id == crate::ic::api::id() {
         Ok(())
     } else {

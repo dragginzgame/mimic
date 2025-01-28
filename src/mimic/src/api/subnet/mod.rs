@@ -31,7 +31,6 @@ pub fn user_canister_id() -> Result<Principal, SubnetError> {
         crate::orm::schema::node::CanisterBuild::User,
     )?;
     let user_canister = user_canisters.first().ok_or(SubnetError::NoUserCanister)?;
-
     let user_canister_id = SubnetIndexManager::try_get_canister(&user_canister.def.path())?;
 
     Ok(user_canister_id)
