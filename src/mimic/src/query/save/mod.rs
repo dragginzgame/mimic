@@ -24,7 +24,6 @@ use strum::Display;
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-#[snafu(visibility(pub(crate)))]
 pub enum SaveError {
     #[snafu(display("key exists: {key}"))]
     KeyExists { key: DataKey },
