@@ -11,7 +11,7 @@ use crate::{
         wasm::{WasmError, WasmManager},
     },
     ic::{caller, format_cycles, println},
-    log, Error, Log,
+    log, DynError, Error, Log,
 };
 use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};
@@ -194,7 +194,7 @@ async fn response_send_cycles(
 ///
 
 // request
-pub async fn request(request: Request) -> Result<Response, RequestError> {
+pub async fn request(request: Request) -> Result<Response, DynError> {
     println!("request: {request:?}");
 
     let root_canister_id = crate::api::ic::canister::root_id()?;
@@ -207,7 +207,7 @@ pub async fn request(request: Request) -> Result<Response, RequestError> {
 
 // request_canister_create
 // create a Request and pass it to the request shared endpoint
-pub async fn request_canister_create(canister_path: &str) -> Result<Principal, RequestError> {
+pub async fn request_canister_create(canister_path: &str) -> Result<Principal, DynError> {
     let req = Request::new_canister_create(canister_path.to_string());
 
     match request(req).await {
@@ -228,7 +228,7 @@ pub async fn request_canister_create(canister_path: &str) -> Result<Principal, R
 pub async fn request_canister_upgrade(
     canister_id: Principal,
     canister_path: String,
-) -> Result<(), RequestError> {
+) -> Result<(), DynError> {
     let req = Request::new_canister_upgrade(canister_id, canister_path);
     let _res = request(req).await?;
 
@@ -236,7 +236,7 @@ pub async fn request_canister_upgrade(
 }
 
 // request_cycles
-pub async fn request_cycles() -> Result<(), RequestError> {
+pub async fn request_cycles() -> Result<(), DynError> {
     // Get the schema and balance, handling potential errors early
     let canister_schema = crate::api::ic::canister::schema()?;
     let balance = crate::api::ic::canister::balance();

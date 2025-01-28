@@ -2,6 +2,7 @@ use crate::{
     api::core::schema::SchemaError,
     core::state::{CanisterStateError, CanisterStateManager},
     orm::schema::node::Canister,
+    DynError,
 };
 use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};
@@ -39,7 +40,7 @@ pub fn id() -> Principal {
 }
 
 // schema
-pub fn schema() -> Result<Canister, CanisterError> {
+pub fn schema() -> Result<Canister, DynError> {
     let path = path()?;
     let cs = crate::api::core::schema::canister(&path)?;
 
@@ -63,14 +64,14 @@ pub fn version() -> u64 {
 ///
 
 // path
-pub fn path() -> Result<String, CanisterError> {
+pub fn path() -> Result<String, DynError> {
     let path = CanisterStateManager::get_path()?;
 
     Ok(path)
 }
 
 // root_id
-pub fn root_id() -> Result<Principal, CanisterError> {
+pub fn root_id() -> Result<Principal, DynError> {
     let root_id = CanisterStateManager::get_root_id()?;
 
     Ok(root_id)
