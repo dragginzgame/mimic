@@ -1,5 +1,5 @@
 use crate::{
-    db::Db,
+    db::store::StoreLocal,
     orm::traits::{Entity, EntityDyn},
     query::{
         save::{save, SaveError, SaveMode},
@@ -91,10 +91,10 @@ impl SaveQuery {
     }
 
     // execute
-    pub fn execute(self, db: &Db) -> Result<(), SaveError> {
+    pub fn execute(self, store: StoreLocal) -> Result<(), SaveError> {
         let executor = SaveExecutor::new(self);
 
-        executor.execute(db)
+        executor.execute(store)
     }
 }
 
@@ -114,7 +114,7 @@ impl SaveExecutor {
     }
 
     // execute
-    pub fn execute(mut self, db: &Db) -> Result<(), SaveError> {
+    pub fn execute(mut self, store: StoreLocal) -> Result<(), SaveError> {
         // Validate all entities first
         for entity in &self.query.entities {
             let adapter = crate::orm::visit::EntityAdapter(&**entity);
@@ -129,8 +129,9 @@ impl SaveExecutor {
         let debug = self.query.debug;
         let entities = mem::take(&mut self.query.entities);
 
+        // save entities
         for entity in entities {
-            save(db, &mode, &debug, entity)?;
+            save(store, &mode, &debug, entity)?;
         }
 
         Ok(())

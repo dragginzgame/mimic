@@ -8,8 +8,8 @@ pub use result::{ELoadResult, LoadResult};
 
 use crate::{
     db::{
+        store::StoreLocal,
         types::{DataKey, DataRow},
-        Db, DbError,
     },
     orm::OrmError,
     query::{
@@ -36,9 +36,6 @@ pub enum LoadError {
     RangeNotAllowed,
 
     #[snafu(transparent)]
-    DbError { source: DbError },
-
-    #[snafu(transparent)]
     OrmError { source: OrmError },
 
     #[snafu(transparent)]
@@ -50,33 +47,27 @@ pub enum LoadError {
 /// took logic from both Load types and stuck it here
 ///
 
-pub struct Loader<'a> {
-    db: &'a Db,
-    resolver: &'a Resolver,
-}
+pub struct Loader {}
 
-impl<'a> Loader<'a> {
-    #[must_use]
-    pub const fn new(db: &'a Db, resolver: &'a Resolver) -> Self {
-        Loader { db, resolver }
-    }
-
+impl Loader {
     // load
     pub fn load(
-        &self,
+        store: StoreLocal,
+        resolver: &Resolver,
         method: &LoadMethod,
     ) -> Result<Box<dyn Iterator<Item = DataRow>>, LoadError> {
         match method {
             LoadMethod::All | LoadMethod::Only => {
-                let start = self.resolver.data_key(&[])?;
+                let start = resolver.data_key(&[])?;
                 let end = start.create_upper_bound();
+                let rows = Loader::query_range(store, start, end)?;
 
-                self.query_range(start, end)
+                Ok(Box::new(rows.into_iter()))
             }
 
             LoadMethod::One(ck) => {
-                let key = self.resolver.data_key(ck)?;
-                let res = self.query_data_key(key)?;
+                let key = resolver.data_key(ck)?;
+                let res = Self::query_data_key(store, key)?;
 
                 Ok(Box::new(std::iter::once(res)))
             }
@@ -84,66 +75,66 @@ impl<'a> Loader<'a> {
             LoadMethod::Many(cks) => {
                 let keys = cks
                     .iter()
-                    .map(|ck| self.resolver.data_key(ck))
+                    .map(|ck| resolver.data_key(ck))
                     .collect::<Result<Vec<_>, _>>()?;
 
                 let rows = keys
                     .into_iter()
-                    .map(|key| self.query_data_key(key))
+                    .map(|key| Self::query_data_key(store, key))
                     .collect::<Result<Vec<_>, _>>()?;
 
                 Ok(Box::new(rows.into_iter()))
             }
 
             LoadMethod::Prefix(prefix) => {
-                let start = self.resolver.data_key(prefix)?;
+                let start = resolver.data_key(prefix)?;
                 let end = start.create_upper_bound();
+                let rows = Self::query_range(store, start, end)?;
 
-                self.query_range(start, end)
+                Ok(Box::new(rows.into_iter()))
             }
 
             LoadMethod::Range(start_ck, end_ck) => {
-                let start = self.resolver.data_key(start_ck)?;
-                let end = self.resolver.data_key(end_ck)?;
+                let start = resolver.data_key(start_ck)?;
+                let end = resolver.data_key(end_ck)?;
+                let rows = Self::query_range(store, start, end)?;
 
-                self.query_range(start, end)
+                Ok(Box::new(rows.into_iter()))
             }
         }
     }
 
     // query_data_key
-    fn query_data_key(&self, key: DataKey) -> Result<DataRow, LoadError> {
-        let store_path = &self.resolver.store()?;
-        let value = self
-            .db
-            .with_store(store_path, |store| Ok(store.data.get(&key)))?
-            .ok_or_else(|| LoadError::KeyNotFound { key: key.clone() })?;
-
-        Ok(DataRow { key, value })
+    fn query_data_key(store: StoreLocal, key: DataKey) -> Result<DataRow, LoadError> {
+        store.with_borrow(|store| {
+            store
+                .data
+                .get(&key)
+                .map(|value| DataRow {
+                    key: key.clone(),
+                    value: value.clone(),
+                })
+                .ok_or(LoadError::KeyNotFound { key })
+        })
     }
 
     // query_range
-    // this has to be done this way to eliminate the store from the iterator
-    #[allow(clippy::needless_collect)]
     fn query_range(
-        &self,
+        store: StoreLocal,
         start: DataKey,
         end: DataKey,
-    ) -> Result<Box<dyn Iterator<Item = DataRow>>, LoadError> {
-        let store_path = self.resolver.store()?;
+    ) -> Result<Vec<DataRow>, LoadError> {
+        let rows: Vec<DataRow> = store.with_borrow(|store| {
+            store
+                .data
+                .range(start..=end)
+                .map(|(key, value)| DataRow {
+                    key: key.clone(),
+                    value: value.clone(),
+                })
+                .collect()
+        });
 
-        self.db
-            .with_store(&store_path, |store| {
-                // Collect data into a Vec to own it
-                let rows = store
-                    .data
-                    .range(start..=end)
-                    .map(|(key, value)| DataRow { key, value })
-                    .collect::<Vec<_>>();
-
-                // Return the iterator over the Vec
-                Ok(Box::new(rows.into_iter()) as Box<dyn Iterator<Item = DataRow>>)
-            })
-            .map_err(LoadError::from)
+        Ok(rows)
     }
 }

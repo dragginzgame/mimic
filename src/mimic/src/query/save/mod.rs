@@ -6,8 +6,8 @@ pub use r#static::{ESaveBuilder, ESaveExecutor, ESaveQuery};
 
 use crate::{
     db::{
+        store::StoreLocal,
         types::{DataKey, DataValue, Metadata},
-        Db, DbError,
     },
     orm::{traits::EntityDyn, OrmError},
     query::{
@@ -38,9 +38,6 @@ pub enum SaveError {
     Validation { path: String, source: OrmError },
 
     #[snafu(transparent)]
-    DbError { source: DbError },
-
-    #[snafu(transparent)]
     OrmError { source: OrmError },
 
     #[snafu(transparent)]
@@ -64,7 +61,7 @@ pub enum SaveMode {
 
 // save
 fn save<'a>(
-    db: &Db,
+    store: StoreLocal,
     mode: &SaveMode,
     debug: &DebugContext,
     entity: Box<dyn EntityDyn + 'a>,
@@ -93,8 +90,7 @@ fn save<'a>(
     //
 
     let now = crate::utils::time::now_secs();
-    let store_path = resolver.store()?;
-    let result = db.with_store(&store_path, |store| Ok(store.get(&key)))?;
+    let result = store.with_borrow(|store| store.get(&key));
 
     let (created, modified) = match mode {
         SaveMode::Create => {
@@ -138,11 +134,9 @@ fn save<'a>(
         path: entity.path_dyn(),
         metadata: Metadata { created, modified },
     };
-    db.with_store_mut(&store_path, |store| {
+    store.with_borrow_mut(|store| {
         store.data.insert(key.clone(), value.clone());
-
-        Ok(())
-    })?;
+    });
 
     Ok(())
 }

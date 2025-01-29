@@ -1,14 +1,10 @@
-use crate::orm::{
-    schema::{
-        node::{
-            Canister, Constant, Def, Entity, Enum, EnumValue, MacroNode, Map, Newtype, Permission,
-            Primitive, Record, Role, Selector, Store, Tuple, ValidateNode, Validator,
-            VisitableNode,
-        },
-        visit::Visitor,
-        SchemaError,
+use crate::orm::schema::{
+    node::{
+        Constant, Def, Entity, Enum, EnumValue, MacroNode, Map, Newtype, Primitive, Record,
+        Selector, Tuple, ValidateNode, Validator, VisitableNode,
     },
-    types::ErrorVec,
+    visit::Visitor,
+    SchemaError,
 };
 use serde::{
     ser::{SerializeStruct, Serializer},
@@ -27,19 +23,15 @@ use std::{
 #[remain::sorted]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum SchemaNode {
-    Canister(Canister),
     Constant(Constant),
     Entity(Entity),
     Enum(Enum),
     EnumValue(EnumValue),
     Map(Map),
     Newtype(Newtype),
-    Permission(Permission),
     Primitive(Primitive),
     Record(Record),
-    Role(Role),
     Selector(Selector),
-    Store(Store),
     Tuple(Tuple),
     Validator(Validator),
 }
@@ -47,19 +39,15 @@ pub enum SchemaNode {
 impl SchemaNode {
     const fn def(&self) -> &Def {
         match self {
-            Self::Canister(n) => &n.def,
             Self::Constant(n) => &n.def,
             Self::Entity(n) => &n.def,
             Self::Enum(n) => &n.def,
             Self::EnumValue(n) => &n.def,
             Self::Map(n) => &n.def,
             Self::Newtype(n) => &n.def,
-            Self::Permission(n) => &n.def,
             Self::Primitive(n) => &n.def,
             Self::Record(n) => &n.def,
-            Self::Role(n) => &n.def,
             Self::Selector(n) => &n.def,
-            Self::Store(n) => &n.def,
             Self::Tuple(n) => &n.def,
             Self::Validator(n) => &n.def,
         }
@@ -69,19 +57,15 @@ impl SchemaNode {
 impl MacroNode for SchemaNode {
     fn as_any(&self) -> &dyn Any {
         match self {
-            Self::Canister(n) => n.as_any(),
             Self::Constant(n) => n.as_any(),
             Self::Entity(n) => n.as_any(),
             Self::Enum(n) => n.as_any(),
             Self::EnumValue(n) => n.as_any(),
             Self::Map(n) => n.as_any(),
             Self::Newtype(n) => n.as_any(),
-            Self::Permission(n) => n.as_any(),
             Self::Primitive(n) => n.as_any(),
             Self::Record(n) => n.as_any(),
-            Self::Role(n) => n.as_any(),
             Self::Selector(n) => n.as_any(),
-            Self::Store(n) => n.as_any(),
             Self::Tuple(n) => n.as_any(),
             Self::Validator(n) => n.as_any(),
         }
@@ -93,19 +77,15 @@ impl ValidateNode for SchemaNode {}
 impl VisitableNode for SchemaNode {
     fn drive<V: Visitor>(&self, v: &mut V) {
         match self {
-            Self::Canister(n) => n.accept(v),
             Self::Constant(n) => n.accept(v),
             Self::Entity(n) => n.accept(v),
             Self::Enum(n) => n.accept(v),
             Self::EnumValue(n) => n.accept(v),
             Self::Map(n) => n.accept(v),
             Self::Newtype(n) => n.accept(v),
-            Self::Permission(n) => n.accept(v),
             Self::Primitive(n) => n.accept(v),
             Self::Record(n) => n.accept(v),
-            Self::Role(n) => n.accept(v),
             Self::Selector(n) => n.accept(v),
-            Self::Store(n) => n.accept(v),
             Self::Tuple(n) => n.accept(v),
             Self::Validator(n) => n.accept(v),
         }
@@ -264,36 +244,7 @@ impl Default for Schema {
     }
 }
 
-impl ValidateNode for Schema {
-    fn validate(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
-
-        // no two stores can use the same memory_id
-        for store in self.get_node_values::<Store>() {
-            let mut memory_values = HashSet::new();
-            if !memory_values.insert(store.memory_id) {
-                errs.add(format!(
-                    "duplicate store memory_id value: {}",
-                    store.memory_id
-                ));
-            }
-        }
-
-        // canister dir
-        let mut dirs_seen = HashSet::new();
-        for canister in self.get_node_values::<Canister>() {
-            // Check for duplicate names
-            if !dirs_seen.insert(canister.name().clone()) {
-                errs.push(format!(
-                    "duplicate canister name found: {}",
-                    canister.name()
-                ));
-            }
-        }
-
-        errs.result()
-    }
-}
+impl ValidateNode for Schema {}
 
 impl VisitableNode for Schema {
     fn drive<V: Visitor>(&self, v: &mut V) {

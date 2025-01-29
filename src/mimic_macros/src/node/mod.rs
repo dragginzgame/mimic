@@ -1,5 +1,4 @@
 mod arg;
-mod canister;
 mod constant;
 mod def;
 mod entity;
@@ -11,13 +10,10 @@ mod index;
 mod item;
 mod map;
 mod newtype;
-mod permission;
 mod primitive;
 mod record;
-mod role;
 mod selector;
 mod sort_key;
-mod store;
 mod traits;
 mod tuple;
 mod r#type;
@@ -26,7 +22,6 @@ mod value;
 
 // mostly just one or two types in each file so wildcard should be ok
 pub use self::arg::*;
-pub use self::canister::*;
 pub use self::constant::*;
 pub use self::def::*;
 pub use self::entity::*;
@@ -37,31 +32,25 @@ pub use self::index::*;
 pub use self::item::*;
 pub use self::map::*;
 pub use self::newtype::*;
-pub use self::permission::*;
 pub use self::primitive::*;
 pub use self::r#enum::*;
 pub use self::r#type::*;
 pub use self::record::*;
-pub use self::role::*;
 pub use self::selector::*;
 pub use self::sort_key::*;
-pub use self::store::*;
 pub use self::traits::*;
 pub use self::tuple::*;
 pub use self::validator::*;
 pub use self::value::*;
 
-use crate::{
-    helper::{quote_one, to_path},
-    traits::Schemable,
-};
+use crate::traits::Schemable;
 use darling::FromMeta;
 use derive_more::{Add, Deref, DerefMut, Sub};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumString};
-use syn::{Lit, Path};
+use syn::Lit;
 
 ///
 /// NODE TRAITS
@@ -156,32 +145,6 @@ pub trait TraitNode: MacroNode {
 ///
 /// NODES
 ///
-
-///
-/// AccessPolicy
-///
-
-#[derive(Clone, Debug, Default, FromMeta)]
-pub enum AccessPolicy {
-    #[default]
-    Deny,
-
-    Allow,
-    Permission(Path),
-}
-
-impl Schemable for AccessPolicy {
-    fn schema(&self) -> TokenStream {
-        match &self {
-            Self::Allow => quote!(::mimic::orm::schema::node::AccessPolicy::Allow),
-            Self::Deny => quote!(::mimic::orm::schema::node::AccessPolicy::Deny),
-            Self::Permission(path) => {
-                let path = quote_one(path, to_path);
-                quote!(::mimic::orm::schema::node::AccessPolicy::Permission(#path))
-            }
-        }
-    }
-}
 
 ///
 /// Cardinality

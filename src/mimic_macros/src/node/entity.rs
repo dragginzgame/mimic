@@ -1,15 +1,12 @@
 use crate::imp;
 use crate::{
-    helper::{quote_one, quote_option, quote_vec, to_path},
-    node::{
-        AccessPolicy, Def, FieldList, Index, MacroNode, Node, SortKey, Trait, TraitNode, Traits,
-    },
+    helper::quote_vec,
+    node::{Def, FieldList, Index, MacroNode, Node, SortKey, Trait, TraitNode, Traits},
     traits::Schemable,
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::Path;
 
 ///
 /// Entity
@@ -20,8 +17,6 @@ pub struct Entity {
     #[darling(default, skip)]
     pub def: Def,
 
-    pub store: Path,
-
     #[darling(multiple, rename = "sk")]
     pub sort_keys: Vec<SortKey>,
 
@@ -30,9 +25,6 @@ pub struct Entity {
 
     #[darling(default)]
     pub fields: FieldList,
-
-    #[darling(default)]
-    pub acl: Option<EntityAcl>,
 
     #[darling(default)]
     pub traits: Traits,
@@ -113,53 +105,17 @@ impl TraitNode for Entity {
 impl Schemable for Entity {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
-        let store = quote_one(&self.store, to_path);
         let sort_keys = quote_vec(&self.sort_keys, SortKey::schema);
         let indexes = quote_vec(&self.indexes, Index::schema);
         let fields = &self.fields.schema();
-        let acl = quote_option(self.acl.as_ref(), EntityAcl::schema);
 
         quote! {
             ::mimic::orm::schema::node::SchemaNode::Entity(::mimic::orm::schema::node::Entity {
                 def: #def,
-                store: #store,
                 sort_keys: #sort_keys,
                 indexes: #indexes,
                 fields: #fields,
-                acl: #acl,
             })
-        }
-    }
-}
-
-///
-/// EntityAcl
-///
-
-#[derive(Debug, Default, FromMeta)]
-pub struct EntityAcl {
-    #[darling(default)]
-    pub load: AccessPolicy,
-
-    #[darling(default)]
-    pub save: AccessPolicy,
-
-    #[darling(default)]
-    pub delete: AccessPolicy,
-}
-
-impl Schemable for EntityAcl {
-    fn schema(&self) -> TokenStream {
-        let load = &self.load.schema();
-        let save = &self.save.schema();
-        let delete = &self.delete.schema();
-
-        quote! {
-            ::mimic::orm::schema::node::EntityAcl {
-                load: #load,
-                save: #save,
-                delete: #delete,
-            }
         }
     }
 }

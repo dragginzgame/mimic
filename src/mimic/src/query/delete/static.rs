@@ -1,5 +1,5 @@
 use crate::{
-    db::{types::DataKey, Db},
+    db::{store::StoreLocal, types::DataKey},
     orm::traits::Entity,
     query::{
         delete::{DeleteError, DeleteResponse},
@@ -82,15 +82,15 @@ where
     }
 
     // execute
-    pub fn execute(self, db: &Db) -> Result<DeleteResponse, DeleteError> {
+    pub fn execute(self, store: StoreLocal) -> Result<DeleteResponse, DeleteError> {
         let executor = EDeleteExecutor::new(self);
 
-        executor.execute(db)
+        executor.execute(store)
     }
 }
 
 ///
-/// DeleteExecutor
+/// EDeleteExecutor
 ///
 
 pub struct EDeleteExecutor<E>
@@ -114,13 +114,13 @@ where
     }
 
     // execute
-    pub fn execute(&self, db: &Db) -> Result<DeleteResponse, DeleteError> {
+    pub fn execute(&self, store: StoreLocal) -> Result<DeleteResponse, DeleteError> {
         let mut results = Vec::new();
         crate::ic::println!("delete: keys {:?}", &self.query.keys);
 
         for key in &self.query.keys {
             // If successful, push the key to results
-            let res = self.execute_one(db, key)?;
+            let res = self.execute_one(store, key)?;
 
             results.push(res);
         }
@@ -133,20 +133,16 @@ where
     }
 
     // execute_one
-    fn execute_one(&self, db: &Db, key: &[String]) -> Result<DataKey, DeleteError> {
+    fn execute_one(&self, store: StoreLocal, ck: &[String]) -> Result<DataKey, DeleteError> {
         // Attempt to remove the item from the store
-        let data_key = self.resolver.data_key(key)?;
-        let store_path = self.resolver.store()?;
+        let key = self.resolver.data_key(ck)?;
 
-        db.with_store_mut(&store_path, |store| {
-            if store.remove(&data_key).is_none() {
-                crate::ic::println!("key {data_key:?} not found");
-            }
+        store.with_borrow_mut(|store| {
+            store
+                .remove(&key)
+                .ok_or_else(|| DeleteError::KeyNotFound { key: key.clone() })
+        })?;
 
-            Ok(())
-        })
-        .map_err(DeleteError::from)?;
-
-        Ok(data_key)
+        Ok(key)
     }
 }

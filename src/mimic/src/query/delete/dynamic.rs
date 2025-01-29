@@ -1,5 +1,5 @@
 use crate::{
-    db::{types::DataKey, Db},
+    db::{store::StoreLocal, types::DataKey},
     query::{
         delete::{DeleteError, DeleteResponse},
         DebugContext, Resolver,
@@ -69,10 +69,10 @@ impl DeleteQuery {
     }
 
     // execute
-    pub fn execute(self, db: &Db) -> Result<DeleteResponse, DeleteError> {
+    pub fn execute(self, store: StoreLocal) -> Result<DeleteResponse, DeleteError> {
         let executor = DeleteExecutor::new(self);
 
-        executor.execute(db)
+        executor.execute(store)
     }
 }
 
@@ -95,13 +95,13 @@ impl DeleteExecutor {
     }
 
     // execute
-    pub fn execute(&self, db: &Db) -> Result<DeleteResponse, DeleteError> {
+    pub fn execute(&self, store: StoreLocal) -> Result<DeleteResponse, DeleteError> {
         let mut results = Vec::new();
         crate::ic::println!("delete: keys {:?}", &self.query.keys);
 
         for key in &self.query.keys {
             // If successful, push the key to results
-            let res = self.execute_one(db, key)?;
+            let res = self.execute_one(store, key)?;
 
             results.push(res);
         }
@@ -113,18 +113,16 @@ impl DeleteExecutor {
         Ok(DeleteResponse::new(results))
     }
 
-    fn execute_one(&self, db: &Db, key: &[String]) -> Result<DataKey, DeleteError> {
+    fn execute_one(&self, store: StoreLocal, key: &[String]) -> Result<DataKey, DeleteError> {
         // Attempt to remove the item from the store
         let data_key = self.resolver.data_key(key)?;
-        let store_path = self.resolver.store()?;
+        //   let store_path = self.resolver.store()?;
 
-        db.with_store_mut(&store_path, |store| {
+        store.with_borrow_mut(|store| {
             if store.remove(&data_key).is_none() {
                 crate::ic::println!("key {data_key:?} not found");
             }
-
-            Ok(())
-        })?;
+        });
 
         Ok(data_key)
     }

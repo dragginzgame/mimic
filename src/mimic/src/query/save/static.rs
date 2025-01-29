@@ -1,5 +1,5 @@
 use crate::{
-    db::Db,
+    db::store::StoreLocal,
     orm::traits::Entity,
     query::{
         save::{save, SaveError, SaveMode},
@@ -88,10 +88,10 @@ where
     }
 
     // execute
-    pub fn execute(self, db: &Db) -> Result<(), SaveError> {
+    pub fn execute(self, store: StoreLocal) -> Result<(), SaveError> {
         let executor = ESaveExecutor::new(self);
 
-        executor.execute(db)
+        executor.execute(store)
     }
 }
 
@@ -117,7 +117,7 @@ where
     }
 
     // execute
-    pub fn execute(self, db: &Db) -> Result<(), SaveError> {
+    pub fn execute(self, store: StoreLocal) -> Result<(), SaveError> {
         // Validate all entities first
         for entity in &self.query.entities {
             crate::orm::validate(entity).map_err(|e| SaveError::Validation {
@@ -132,7 +132,7 @@ where
         let entities = self.query.entities;
 
         for entity in entities {
-            save(db, &mode, &debug, Box::new(entity))?;
+            save(store, &mode, &debug, Box::new(entity))?;
         }
 
         Ok(())

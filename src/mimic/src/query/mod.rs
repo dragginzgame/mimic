@@ -22,7 +22,7 @@ use snafu::Snafu;
 
 ///
 /// QueryError
-/// intermediate error for general queries
+/// not a wrapper, just handles any errors that
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]

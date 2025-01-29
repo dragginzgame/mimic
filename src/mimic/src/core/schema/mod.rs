@@ -1,7 +1,4 @@
-pub mod auth;
-
 pub use crate::orm::schema::node::Schema;
-pub use auth::AuthService;
 
 use crate::{log, Log};
 use candid::CandidType;

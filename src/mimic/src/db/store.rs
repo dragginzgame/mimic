@@ -1,11 +1,10 @@
 use super::types::{DataKey, DataValue};
 use crate::ic::structures::{btreemap::BTreeMap, memory::VirtualMemory};
 use derive_more::{Deref, DerefMut};
+use std::{cell::RefCell, thread::LocalKey};
 
 ///
 /// Store
-/// a wrapper around the stable BTreeMap with a reference to Schema
-/// used to generate QueryBuilders to keep the code modular
 ///
 
 #[derive(Deref, DerefMut)]
@@ -22,3 +21,5 @@ impl Store {
         }
     }
 }
+
+pub type StoreLocal = &'static LocalKey<RefCell<Store>>;

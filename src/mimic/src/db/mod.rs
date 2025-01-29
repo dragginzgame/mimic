@@ -1,12 +1,10 @@
-pub mod cache;
 pub mod store;
 pub mod types;
-
-pub use store::Store;
 
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::{cell::RefCell, collections::HashMap, thread::LocalKey};
+use store::{Store, StoreLocal};
 
 ///
 /// DbError
@@ -28,12 +26,19 @@ impl DbError {
 }
 
 ///
+/// DbLocal
+///
+
+pub type DbLocal = &'static LocalKey<RefCell<Db>>;
+
+///
 /// Db
+/// a HashMap of Stores and accessor functions to mutate them
 ///
 
 #[derive(Default)]
 pub struct Db {
-    stores: HashMap<&'static str, &'static LocalKey<RefCell<Store>>>,
+    stores: HashMap<&'static str, StoreLocal>,
 }
 
 impl Db {
@@ -44,7 +49,7 @@ impl Db {
     }
 
     // insert
-    pub fn insert(&mut self, name: &'static str, accessor: &'static LocalKey<RefCell<Store>>) {
+    pub fn insert(&mut self, name: &'static str, accessor: StoreLocal) {
         self.stores.insert(name, accessor);
     }
 

@@ -1,5 +1,5 @@
 use crate::{
-    db::{types::EntityRow, Db},
+    db::{store::StoreLocal, types::EntityRow},
     orm::traits::Entity,
     query::{
         load::{ELoadResult, LoadError, Loader},
@@ -193,10 +193,10 @@ where
     }
 
     // execute
-    pub fn execute(self, db: &Db) -> Result<ELoadResult<E>, LoadError> {
+    pub fn execute(self, store: StoreLocal) -> Result<ELoadResult<E>, LoadError> {
         let executor = ELoadExecutor::new(self);
 
-        executor.execute(db)
+        executor.execute(store)
     }
 }
 
@@ -228,10 +228,9 @@ where
     // execute
     // convert into EntityRows and return a RowIterator
     // also make sure we're deserializing the correct entity path
-    pub fn execute(self, db: &Db) -> Result<ELoadResult<E>, LoadError> {
+    pub fn execute(self, store: StoreLocal) -> Result<ELoadResult<E>, LoadError> {
         // loader
-        let loader = Loader::new(db, &self.resolver);
-        let res = loader.load(&self.query.method)?;
+        let res = Loader::load(store, &self.resolver, &self.query.method)?;
 
         let filtered = res
             .filter(|row| row.value.path == E::path())

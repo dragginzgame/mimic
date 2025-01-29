@@ -46,16 +46,6 @@ impl Resolver {
         }
     }
 
-    // store
-    pub fn store(&self) -> Result<String, ResolverError> {
-        let schema = get_schema()?;
-        let entity = schema
-            .get_node::<Entity>(&self.entity)
-            .ok_or_else(|| ResolverError::entity_not_found(&self.entity))?;
-
-        Ok(entity.store.clone())
-    }
-
     // data_key
     pub fn data_key(&self, ck: &[String]) -> Result<DataKey, ResolverError> {
         let chain_format = self.chain_format()?;

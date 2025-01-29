@@ -8,7 +8,6 @@ use mimic::orm::{
 ///
 
 #[entity(
-    store = "crate::Store",
     sk(entity = "ValidateTest", field = "id"),
     fields(
         field(

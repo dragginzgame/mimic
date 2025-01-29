@@ -5,7 +5,6 @@ use mimic::orm::{base::types, prelude::*};
 ///
 
 #[entity(
-    store = "crate::Store",
     sk(entity = "CreateBasic", field = "id"),
     fields(field(
         name = "id",
@@ -19,7 +18,6 @@ pub struct CreateBasic {}
 ///
 
 #[entity(
-    store = "crate::Store",
     sk(entity = "Filterable", field = "id"),
     fields(
         field(
@@ -37,7 +35,6 @@ pub struct Filterable {}
 ///
 
 #[entity(
-    store = "crate::Store",
     sk(entity = "Limit"),
     fields(field(name = "value", value(item(is = "types::U32"))))
 )]
@@ -48,7 +45,6 @@ pub struct Limit {}
 ///
 
 #[entity(
-    store = "crate::Store",
     sk(entity = "SortKeyOrder", field = "id"),
     fields(field(
         name = "id",
@@ -62,7 +58,6 @@ pub struct SortKeyOrder {}
 ///
 
 #[entity(
-    store = "crate::Store",
     sk(entity = "SortKeyA", field = "a_id"),
     fields(field(
         name = "a_id",
@@ -76,7 +71,6 @@ pub struct SortKeyA {}
 ///
 
 #[entity(
-    store = "crate::Store",
     sk(entity = "SortKeyA", field = "a_id"),
     sk(entity = "SortKeyB", field = "b_id"),
     fields(
@@ -94,7 +88,6 @@ pub struct SortKeyB {}
 ///
 
 #[entity(
-    store = "crate::Store",
     sk(entity = "SortKeyA", field = "a_id"),
     sk(entity = "SortKeyB", field = "b_id"),
     sk(entity = "SortKeyC", field = "c_id"),

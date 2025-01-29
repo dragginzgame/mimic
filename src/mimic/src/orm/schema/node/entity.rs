@@ -1,10 +1,6 @@
 use crate::orm::{
     schema::{
-        build::schema_read,
-        node::{
-            AccessPolicy, Def, FieldList, Index, MacroNode, SortKey, Store, ValidateNode,
-            VisitableNode,
-        },
+        node::{Def, FieldList, Index, MacroNode, SortKey, ValidateNode, VisitableNode},
         visit::Visitor,
     },
     types::ErrorVec,
@@ -18,16 +14,12 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Entity {
     pub def: Def,
-    pub store: String,
 
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub sort_keys: Vec<SortKey>,
 
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub indexes: Vec<Index>,
-
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub acl: Option<EntityAcl>,
 
     pub fields: FieldList,
 }
@@ -41,9 +33,6 @@ impl MacroNode for Entity {
 impl ValidateNode for Entity {
     fn validate(&self) -> Result<(), ErrorVec> {
         let mut errs = ErrorVec::new();
-
-        // store
-        errs.add_result(schema_read().check_node::<Store>(&self.store));
 
         // ensure there are sort keys
         if self.sort_keys.is_empty() {
@@ -108,30 +97,6 @@ impl VisitableNode for Entity {
         for node in &self.indexes {
             node.accept(v);
         }
-        if let Some(node) = &self.acl {
-            node.accept(v);
-        }
         self.fields.accept(v);
-    }
-}
-
-///
-/// EntityAcl
-///
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct EntityAcl {
-    pub load: AccessPolicy,
-    pub save: AccessPolicy,
-    pub delete: AccessPolicy,
-}
-
-impl ValidateNode for EntityAcl {}
-
-impl VisitableNode for EntityAcl {
-    fn drive<V: Visitor>(&self, v: &mut V) {
-        self.load.accept(v);
-        self.save.accept(v);
-        self.delete.accept(v);
     }
 }
