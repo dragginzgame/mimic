@@ -64,7 +64,6 @@ macro_rules! macro_node {
 }
 
 // macro macros
-macro_node!(canister, node::Canister);
 macro_node!(constant, node::Constant);
 macro_node!(entity, node::Entity);
 macro_node!(entity_id, node::EntityId);
@@ -72,13 +71,9 @@ macro_node!(enum_, node::Enum);
 macro_node!(enum_value, node::EnumValue);
 macro_node!(map, node::Map);
 macro_node!(newtype, node::Newtype);
-macro_node!(permission, node::Permission);
 macro_node!(primitive, node::Primitive);
 macro_node!(record, node::Record);
-macro_node!(role, node::Role);
-macro_node!(sanitizer, node::Sanitizer);
 macro_node!(selector, node::Selector);
-macro_node!(store, node::Store);
 macro_node!(tuple, node::Tuple);
 macro_node!(validator, node::Validator);
 

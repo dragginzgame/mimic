@@ -28,28 +28,10 @@ macro_rules! mimic_build {
         // Get the output directory set by Cargo
         let out_dir = ::std::env::var("OUT_DIR").expect("OUT_DIR not set");
 
-        //
-        // actor
-        //
-        let output = match ::mimic::build::actor::generate($actor) {
-            Ok(res) => res,
-            Err(err) => {
-                eprintln!("Error building actor: {err}");
-                std::process::exit(1);
-            }
-        };
-
-        // write the file
-        let actor_file = PathBuf::from(out_dir.clone()).join("actor.rs");
-        let mut file = File::create(actor_file)?;
-        file.write_all(output.as_bytes())?;
-
-        //
-        // schema
-        //
+        // build schema
         let output = ::mimic::build::schema::schema().unwrap();
 
-        // write the file
+        // write schema
         let schema_file = PathBuf::from(out_dir).join("schema.rs");
         let mut file = File::create(schema_file)?;
         file.write_all(output.as_bytes())?;
@@ -61,24 +43,52 @@ macro_rules! mimic_build {
 #[macro_export]
 macro_rules! mimic_start {
     ($config:expr) => {
-        include!(concat!(env!("OUT_DIR"), "/actor.rs"));
+        #[::mimic::ic::init]
+        fn init() {
+            _init()
+        }
 
-        // startup
+        // _init
         // code called on all canister startups (install, upgrade)
-        fn startup() -> Result<(), Error> {
+        fn _init() {
             // schema
             let schema_json = include_str!(concat!(env!("OUT_DIR"), "/schema.rs"));
-            ::mimic::core::schema::init_schema_json(schema_json)
-                .map_err(|e| Error::init(e.to_string()))?;
+            ::mimic::core::schema::init_schema_json(schema_json).unwrap();
 
             // config
             let toml = include_str!($config);
-            ::mimic::core::config::init_config_toml(toml)
-                .map_err(|e| Error::init(e.to_string()))?;
+            ::mimic::core::config::init_config_toml(toml).unwrap();
+        }
+    };
+}
 
-            StartupManager::startup()?;
+// mimic_stores
+// define the stores
+// mimic_stores!(DATA1, 1, DATA2, 2)
+#[macro_export]
+macro_rules! mimic_stores {
+    ($($store_name:ident, $memory_id:expr),*) => {
+        thread_local! {
+            // Define MEMORY_MANAGER thread-locally for the entire scope
+            pub static MEMORY_MANAGER: ::std::cell::RefCell<
+                ::mimic::ic::structures::memory_manager::MemoryManager<
+                    ::mimic::ic::structures::DefaultMemoryImpl
+                >
+            > = ::std::cell::RefCell::new(
+                ::mimic::ic::structures::memory_manager::MemoryManager::init(
+                    ::mimic::ic::structures::DefaultMemoryImpl::default()
+                )
+            );
 
-            Ok(())
+            // Create and define each store statically, initializing with the provided memory ID
+            $(
+                pub static $store_name: ::std::cell::RefCell<::mimic::store::Store> =
+                    ::std::cell::RefCell::new(::mimic::store::Store::init(
+                        MEMORY_MANAGER.with(|mm| mm.borrow().get(
+                            ::mimic::ic::structures::memory_manager::MemoryId::new($memory_id)
+                        ))
+                    ));
+            )*
         }
     };
 }

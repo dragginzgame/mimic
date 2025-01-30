@@ -5,7 +5,6 @@ use mimic::orm::{base::types, prelude::*};
 ///
 
 #[entity(
-    store = "crate::Store",
     sk(entity = "HasMap", field = "id"),
     fields(
         field(

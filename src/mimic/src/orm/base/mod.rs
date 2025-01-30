@@ -3,7 +3,6 @@
 // remove this from time to time to see the actual unused imports
 #![allow(unused_imports)]
 
-pub mod sanitizer;
 pub mod types;
 pub mod validator;
 

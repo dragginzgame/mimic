@@ -8,9 +8,6 @@ pub use ic_cdk_timers as timers;
 pub mod helper;
 pub mod structures;
 
-use serde::{Deserialize, Serialize};
-use snafu::Snafu;
-
 ///
 /// CYCLES
 ///
@@ -27,14 +24,4 @@ pub const QC: u128 = 1_000_000_000_000_000;
 #[allow(clippy::cast_precision_loss)]
 pub fn format_cycles(cycles: u128) -> String {
     format!("{:.6} TC", cycles as f64 / TC as f64)
-}
-
-///
-/// Error
-///
-
-#[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
-    #[snafu(transparent)]
-    Cell { source: structures::cell::Error },
 }

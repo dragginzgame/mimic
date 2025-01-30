@@ -1,4 +1,4 @@
-use crate::ic::structures::memory::VirtualMemory;
+use crate::ic::structures::DefaultMemory;
 use derive_more::{Deref, DerefMut};
 use ic_stable_structures::{btreemap::BTreeMap as WrappedBTreeMap, Storable};
 
@@ -13,7 +13,7 @@ where
     K: Storable + Ord + Clone,
     V: Storable,
 {
-    data: WrappedBTreeMap<K, V, VirtualMemory>,
+    data: WrappedBTreeMap<K, V, DefaultMemory>,
 }
 
 impl<K, V> BTreeMap<K, V>
@@ -22,7 +22,7 @@ where
     V: Storable,
 {
     #[must_use]
-    pub fn init(memory: VirtualMemory) -> Self {
+    pub fn init(memory: DefaultMemory) -> Self {
         Self {
             data: WrappedBTreeMap::init(memory),
         }

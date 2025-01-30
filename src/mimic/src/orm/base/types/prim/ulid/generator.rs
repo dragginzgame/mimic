@@ -5,11 +5,11 @@ use snafu::Snafu;
 use std::sync::{LazyLock, Mutex};
 
 ///
-/// Error
+/// GeneratorError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum GeneratorError {
     #[snafu(display("monotonic error - overflow"))]
     Overflow,
 }
@@ -21,7 +21,7 @@ pub enum Error {
 
 static GENERATOR: LazyLock<Mutex<Generator>> = LazyLock::new(|| Mutex::new(Generator::new()));
 
-pub fn generate() -> Result<Ulid, Error> {
+pub fn generate() -> Result<Ulid, GeneratorError> {
     let mut generator = GENERATOR.lock().unwrap();
     generator.generate()
 }
@@ -46,7 +46,7 @@ impl Generator {
     }
 
     // generate
-    pub fn generate(&mut self) -> Result<Ulid, Error> {
+    pub fn generate(&mut self) -> Result<Ulid, GeneratorError> {
         let last_ts = self.previous.timestamp_ms();
         let ts = now_millis();
 
@@ -60,7 +60,7 @@ impl Generator {
                 return Ok(self.previous);
             }
 
-            return Err(Error::Overflow);
+            return Err(GeneratorError::Overflow);
         }
 
         // generate

@@ -5,7 +5,7 @@ use crate::{
     ic::structures::serialize::{from_binary, to_binary},
     orm::{
         prelude::*,
-        traits::{Filterable, Inner, Orderable, SanitizeAuto, SortKey, ValidateAuto},
+        traits::{Filterable, Inner, Orderable, SortKey, ValidateAuto},
     },
 };
 use derive_more::{Deref, DerefMut, FromStr};
@@ -19,7 +19,7 @@ use ulid::Ulid as WrappedUlid;
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum UlidError {
     #[snafu(display("ulid is nil"))]
     Nil,
 
@@ -30,7 +30,7 @@ pub enum Error {
     InvalidLength,
 }
 
-impl From<ulid::DecodeError> for Error {
+impl From<ulid::DecodeError> for UlidError {
     fn from(error: ulid::DecodeError) -> Self {
         match error {
             ulid::DecodeError::InvalidChar => Self::InvalidChar,
@@ -64,6 +64,14 @@ impl Ulid {
     #[must_use]
     pub fn generate() -> Self {
         generator::generate().unwrap()
+    }
+
+    /// from_str
+    #[allow(clippy::should_implement_trait)]
+    pub fn from_str(encoded: &str) -> Result<Self, UlidError> {
+        let this = WrappedUlid::from_str(encoded)?;
+
+        Ok(Self(this))
     }
 }
 
@@ -144,10 +152,6 @@ impl<'de> Deserialize<'de> for Ulid {
     }
 }
 
-impl SanitizeManual for Ulid {}
-
-impl SanitizeAuto for Ulid {}
-
 impl SortKey for Ulid {}
 
 impl Storable for Ulid {
@@ -165,7 +169,7 @@ impl Storable for Ulid {
 impl ValidateManual for Ulid {
     fn validate_manual(&self) -> Result<(), ErrorVec> {
         if self.is_nil() {
-            Err(Error::Nil.into())
+            Err(UlidError::Nil.into())
         } else {
             Ok(())
         }

@@ -17,7 +17,7 @@ pub use std::{
 };
 
 use crate::orm::{
-    base::types::Ulid, schema::types::SortDirection, types::ErrorVec, visit::Visitor, Error,
+    base::types::Ulid, schema::types::SortDirection, types::ErrorVec, visit::Visitor, OrmError,
 };
 
 ///
@@ -109,29 +109,6 @@ impl_primitive_list!(
     u8 => "U8", u16 => "U16", u32 => "U32", u64 => "U64", u128 => "U128", usize => "USize",
     f32 => "F32", f64 => "F64", bool => "Bool", String => "String"
 );
-
-///
-/// Sanitizer
-/// allows a node to sanitize primitives
-///
-
-pub trait Sanitizer: Default {
-    /// Sanitize a number, returning the same type to allow seamless reuse.
-    fn sanitize_number<N>(&self, n: &N) -> Result<N, String>
-    where
-        N: Copy + Display + NumCast,
-    {
-        Ok(*n)
-    }
-
-    /// Sanitize a string, returning a `String` for reuse.
-    fn sanitize_string<S>(&self, s: &S) -> Result<String, String>
-    where
-        S: ToString,
-    {
-        Ok(s.to_string())
-    }
-}
 
 ///
 /// Validator
@@ -301,48 +278,6 @@ impl<T: Orderable> Orderable for Option<T> {
 }
 
 ///
-/// Sanitize
-///
-
-pub trait Sanitize: SanitizeManual + SanitizeAuto {
-    fn sanitize(&mut self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
-        errs.merge(self.sanitize_manual());
-        errs.merge(self.sanitize_auto());
-
-        errs.result()
-    }
-}
-
-impl<T> Sanitize for T where T: SanitizeManual + SanitizeAuto {}
-
-///
-/// SanitizeAuto
-///
-
-pub trait SanitizeAuto {
-    fn sanitize_auto(&mut self) -> Result<(), ErrorVec> {
-        Ok(())
-    }
-}
-
-impl<T: SanitizeAuto> SanitizeAuto for Box<T> {}
-impl_primitive!(SanitizeAuto);
-
-///
-/// SanitizeManual
-///
-
-pub trait SanitizeManual {
-    fn sanitize_manual(&mut self) -> Result<(), ErrorVec> {
-        Ok(())
-    }
-}
-
-impl<T: SanitizeManual> SanitizeManual for Box<T> {}
-impl_primitive!(SanitizeManual);
-
-///
 /// Validate
 ///
 
@@ -394,7 +329,7 @@ impl_primitive!(ValidateManual);
 /// Visitable
 ///
 
-pub trait Visitable: Validate + Sanitize {
+pub trait Visitable: Validate {
     fn drive(&self, _: &mut dyn Visitor) {}
     fn drive_mut(&mut self, _: &mut dyn Visitor) {}
 }
@@ -422,7 +357,7 @@ impl_primitive!(Visitable);
 pub trait Entity: Type + EntityDyn + FieldSort + FieldFilter {
     // composite_key
     // returns the record's sort keys as a Vec<String>
-    fn composite_key(_keys: &[String]) -> Result<Vec<String>, Error>;
+    fn composite_key(_keys: &[String]) -> Result<Vec<String>, OrmError>;
 }
 
 ///
@@ -436,7 +371,7 @@ pub trait EntityDyn: TypeDyn + Visitable {
 
     // serialize_dyn
     // entities need dynamic serialization when saving different types
-    fn serialize_dyn(&self) -> Result<Vec<u8>, Error>;
+    fn serialize_dyn(&self) -> Result<Vec<u8>, OrmError>;
 }
 
 ///
@@ -444,11 +379,11 @@ pub trait EntityDyn: TypeDyn + Visitable {
 /// an enum that can generate fixture data for an Entity
 ///
 
-pub trait EntityFixture: Entity {
+pub trait EntityFixture: Sized {
     // fixtures
-    // returns the list of all the Entities as a boxed dynamic trait
+    // returns a vec of entities that are inserted on canister init
     #[must_use]
-    fn fixtures() -> Vec<Box<dyn EntityDyn>> {
+    fn fixtures() -> Vec<Self> {
         Vec::new()
     }
 }

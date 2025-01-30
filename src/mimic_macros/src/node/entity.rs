@@ -1,13 +1,12 @@
 use crate::imp;
 use crate::{
-    helper::{quote_one, quote_option, quote_vec, to_path},
-    node::{Crud, Def, FieldList, Index, MacroNode, Node, SortKey, Trait, TraitNode, Traits},
+    helper::quote_vec,
+    node::{Def, FieldList, Index, MacroNode, Node, SortKey, Trait, TraitNode, Traits},
     traits::Schemable,
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::Path;
 
 ///
 /// Entity
@@ -18,19 +17,14 @@ pub struct Entity {
     #[darling(default, skip)]
     pub def: Def,
 
-    pub store: Path,
-
     #[darling(multiple, rename = "sk")]
     pub sort_keys: Vec<SortKey>,
 
-    #[darling(multiple, default, rename = "index")]
+    #[darling(multiple, rename = "index")]
     pub indexes: Vec<Index>,
 
     #[darling(default)]
     pub fields: FieldList,
-
-    #[darling(default)]
-    pub crud: Option<Crud>,
 
     #[darling(default)]
     pub traits: Traits,
@@ -111,20 +105,16 @@ impl TraitNode for Entity {
 impl Schemable for Entity {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
-        let store = quote_one(&self.store, to_path);
         let sort_keys = quote_vec(&self.sort_keys, SortKey::schema);
         let indexes = quote_vec(&self.indexes, Index::schema);
         let fields = &self.fields.schema();
-        let crud = quote_option(&self.crud, Crud::schema);
 
         quote! {
             ::mimic::orm::schema::node::SchemaNode::Entity(::mimic::orm::schema::node::Entity {
                 def: #def,
-                store: #store,
                 sort_keys: #sort_keys,
                 indexes: #indexes,
                 fields: #fields,
-                crud: #crud,
             })
         }
     }

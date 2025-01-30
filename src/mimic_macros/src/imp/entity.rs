@@ -35,7 +35,7 @@ fn composite_key(node: &Entity) -> TokenStream {
         let ident_str = ident.to_string();
         quote! {
             if let Some(value) = values.get(#i) {
-                this.#ident = value.parse().map_err(|_| ::mimic::orm::Error::parse_field(#ident_str))?;
+                this.#ident = value.parse().map_err(|_| ::mimic::orm::OrmError::parse_field(#ident_str))?;
             }
         }
     });
@@ -65,7 +65,7 @@ fn composite_key(node: &Entity) -> TokenStream {
     };
 
     quote! {
-        fn composite_key(values: &[String]) -> Result<Vec<::std::string::String>, ::mimic::orm::Error> {
+        fn composite_key(values: &[String]) -> Result<Vec<::std::string::String>, ::mimic::orm::OrmError> {
             #inner
         }
     }
@@ -104,7 +104,7 @@ fn composite_key_dyn(node: &Entity) -> TokenStream {
 // serialize_dyn
 fn serialize_dyn(_: &Entity) -> TokenStream {
     quote! {
-        fn serialize_dyn(&self) -> Result<Vec<u8>, ::mimic::orm::Error> {
+        fn serialize_dyn(&self) -> Result<Vec<u8>, ::mimic::orm::OrmError> {
             ::mimic::orm::serialize(&self)
         }
     }

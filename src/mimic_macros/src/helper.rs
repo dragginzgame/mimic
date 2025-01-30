@@ -16,7 +16,7 @@ where
 }
 
 // quote_option
-pub fn quote_option<T, F>(opt: &Option<T>, transform: F) -> TokenStream
+pub fn quote_option<T, F>(opt: Option<&T>, transform: F) -> TokenStream
 where
     F: FnOnce(&T) -> TokenStream,
 {

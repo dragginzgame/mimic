@@ -3,12 +3,12 @@ use crate::{
     orm::{
         prelude::*,
         traits::{
-            Filterable, Inner, Orderable, SanitizeAuto, SanitizeManual, SortKey, Storable,
-            ValidateAuto, ValidateManual, Visitable,
+            Filterable, Inner, Orderable, SortKey, Storable, ValidateAuto, ValidateManual,
+            Visitable,
         },
     },
 };
-use candid::{types::principal::PrincipalError, Principal as WrappedPrincipal};
+use candid::{types::principal::PrincipalError as WrappedError, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
@@ -24,9 +24,12 @@ use std::{
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum PrincipalError {
     #[snafu(display("principal is empty"))]
     EmptyPrincipal,
+
+    #[snafu(transparent)]
+    WrappedError { source: WrappedError },
 }
 
 ///
@@ -91,7 +94,9 @@ impl FromStr for Principal {
     type Err = PrincipalError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        WrappedPrincipal::from_str(s).map(Self)
+        let this = WrappedPrincipal::from_str(s).map(Self)?;
+
+        Ok(this)
     }
 }
 
@@ -110,10 +115,6 @@ impl Orderable for Principal {
         Ord::cmp(self, other)
     }
 }
-
-impl SanitizeManual for Principal {}
-
-impl SanitizeAuto for Principal {}
 
 impl SortKey for Principal {}
 
@@ -135,7 +136,7 @@ impl Storable for Principal {
 impl ValidateManual for Principal {
     fn validate_manual(&self) -> Result<(), ErrorVec> {
         if self.0.as_slice().is_empty() {
-            Err(Error::EmptyPrincipal.into())
+            Err(PrincipalError::EmptyPrincipal.into())
         } else {
             Ok(())
         }

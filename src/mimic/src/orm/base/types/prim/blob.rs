@@ -1,6 +1,6 @@
 use crate::orm::{
     prelude::*,
-    traits::{Inner, SanitizeAuto, ValidateAuto},
+    traits::{Inner, ValidateAuto},
 };
 use derive_more::{Deref, DerefMut};
 use serde_bytes::ByteBuf;
@@ -57,10 +57,6 @@ impl Inner<Self> for Blob {
 }
 
 impl Orderable for Blob {}
-
-impl SanitizeManual for Blob {}
-
-impl SanitizeAuto for Blob {}
 
 impl ValidateManual for Blob {}
 

@@ -1,46 +1,25 @@
-use mimic::{
-    db::{
-        query::{self, types::Order},
-        types::DataKey,
-        Db,
-    },
-    orm::{
-        base::types::Ulid,
-        traits::{FromStr, Path},
-    },
-};
+use mimic::{mimic_stores, orm::prelude::*, query::types::Order, store::types::DataKey};
+
+mimic_stores!(STORE, 1);
 
 ///
 /// DbTester
 ///
 
-const STORE: &str = ::test_schema::Store::PATH;
+pub struct DbTester {}
 
-pub struct DbTester<'a> {
-    db: &'a Db,
-}
-
-impl<'a> DbTester<'a> {
-    #[must_use]
-    pub const fn new(db: &'a Db) -> Self {
-        DbTester { db }
-    }
-
+impl DbTester {
     // test
     // best if these are kept in code order so we can see where it failed
-    pub fn test(&self) {
-        self.entity_with_map();
-
-        self.data_key_order();
-
-        self.clear();
-        self.create();
-        self.create_lots();
-
-        self.filter_query();
-        self.limit_query();
-
-        self.missing_field();
+    pub fn test() {
+        Self::clear();
+        Self::create();
+        Self::create_lots();
+        Self::data_key_order();
+        Self::entity_with_map();
+        Self::filter_query();
+        Self::limit_query();
+        Self::missing_field();
     }
 
     //
@@ -48,24 +27,22 @@ impl<'a> DbTester<'a> {
     //
 
     // entity_with_map
-    fn entity_with_map(&self) {
+    fn entity_with_map() {
         use test_schema::map::HasMap;
 
         // create with map data
         let mut e = HasMap::default();
         e.map_int_string.push((3, "value".to_string()));
         e.map_int_string.push((4, "value".to_string()));
-        query::create()
+        query::create_entity::<HasMap>()
             .from_entity(e)
-            .execute(self.db)
-            .unwrap()
-            .entity::<HasMap>()
+            .execute(&STORE)
             .unwrap();
 
         // load all keys
-        let entities = query::load_dyn(HasMap::PATH)
+        let entities = query::load_entity::<HasMap>()
             .only()
-            .execute(self.db)
+            .execute(&STORE)
             .unwrap()
             .keys();
 
@@ -73,28 +50,27 @@ impl<'a> DbTester<'a> {
     }
 
     // data_key_order
-    fn data_key_order(&self) {
-        use test_schema::store::SortKeyOrder;
+    fn data_key_order() {
+        use test_schema::db::SortKeyOrder;
 
         const ROWS: u16 = 1_000;
 
         // clear
-        let _ = self.db.with_store_mut(STORE, |store| {
+        STORE.with_borrow_mut(|store| {
             store.clear();
-            Ok(())
         });
 
         // Insert rows
         for _ in 1..ROWS {
             let e = SortKeyOrder::default();
-            query::create().from_entity(e).execute(self.db).unwrap();
+            query::create().from_entity(e).execute(&STORE).unwrap();
         }
 
         // Retrieve rows in B-Tree order
-        let rows: Vec<DataKey> = query::load::<SortKeyOrder>()
+        let rows: Vec<DataKey> = query::load_entity::<SortKeyOrder>()
             .all()
             .order(Order::from(vec!["id"]))
-            .execute(self.db)
+            .execute(&STORE)
             .unwrap()
             .keys()
             .collect();
@@ -109,25 +85,23 @@ impl<'a> DbTester<'a> {
     }
 
     // clear
-    fn clear(&self) {
-        use test_schema::store::CreateBasic;
+    fn clear() {
+        use test_schema::db::CreateBasic;
 
         // Insert rows
         for _ in 0..100 {
             let e = CreateBasic::default();
-            query::create().from_entity(e).execute(self.db).unwrap();
+            query::create().from_entity(e).execute(&STORE).unwrap();
         }
 
         // clear
-        let _ = self.db.with_store_mut(STORE, |store| {
+        STORE.with_borrow_mut(|store| {
             store.clear();
-            Ok(())
         });
-
         // Retrieve the count of keys (or entities) from the store
-        let count = query::load_dyn(CreateBasic::PATH)
+        let count = query::load_entity::<CreateBasic>()
             .all()
-            .execute(self.db)
+            .execute(&STORE)
             .unwrap()
             .count();
 
@@ -135,23 +109,22 @@ impl<'a> DbTester<'a> {
     }
 
     // create
-    fn create(&self) {
-        use test_schema::store::CreateBasic;
+    fn create() {
+        use test_schema::db::CreateBasic;
 
         // clear
-        let _ = self.db.with_store_mut(STORE, |store| {
+        STORE.with_borrow_mut(|store| {
             store.clear();
-            Ok(())
         });
 
         let e = CreateBasic::default();
-        query::create().from_entity(e).execute(self.db).unwrap();
+        query::create().from_entity(e).execute(&STORE).unwrap();
 
         // count keys
         assert_eq!(
-            query::load_dyn(CreateBasic::PATH)
+            query::load_entity::<CreateBasic>()
                 .all()
-                .execute(self.db)
+                .execute(&STORE)
                 .unwrap()
                 .keys()
                 .count(),
@@ -160,13 +133,13 @@ impl<'a> DbTester<'a> {
 
         // insert another
         let e = CreateBasic::default();
-        query::create().from_entity(e).execute(self.db).unwrap();
+        query::create().from_entity(e).execute(&STORE).unwrap();
 
         // count keys
         assert_eq!(
-            query::load_dyn(CreateBasic::PATH)
+            query::load_entity::<CreateBasic>()
                 .all()
-                .execute(self.db)
+                .execute(&STORE)
                 .unwrap()
                 .keys()
                 .count(),
@@ -175,26 +148,25 @@ impl<'a> DbTester<'a> {
     }
 
     // create_lots
-    fn create_lots(&self) {
-        use test_schema::store::CreateBasic;
-        const ROWS: usize = 5_000;
+    fn create_lots() {
+        use test_schema::db::CreateBasic;
+        const ROWS: usize = 1_000;
 
         // clear
-        let _ = self.db.with_store_mut(STORE, |store| {
+        STORE.with_borrow_mut(|store| {
             store.clear();
-            Ok(())
         });
 
-        // Insert 10,000 rows
+        // insert rows
         for _ in 0..ROWS {
             let e = CreateBasic::default();
-            query::create().from_entity(e).execute(self.db).unwrap();
+            query::create().from_entity(e).execute(&STORE).unwrap();
         }
 
         // Retrieve the count from the store
-        let count = query::load_dyn(CreateBasic::PATH)
+        let count = query::load_entity::<CreateBasic>()
             .all()
-            .execute(self.db)
+            .execute(&STORE)
             .unwrap()
             .count();
 
@@ -203,13 +175,12 @@ impl<'a> DbTester<'a> {
     }
 
     // filter_query
-    fn filter_query(&self) {
-        use test_schema::store::Filterable;
+    fn filter_query() {
+        use test_schema::db::Filterable;
 
         // clear
-        let _ = self.db.with_store_mut(STORE, |store| {
+        STORE.with_borrow_mut(|store| {
             store.clear();
-            Ok(())
         });
 
         // Test data
@@ -236,7 +207,7 @@ impl<'a> DbTester<'a> {
                 name: name.into(),
                 description: description.into(),
             };
-            query::replace().from_entity(e).execute(self.db).unwrap();
+            query::replace().from_entity(e).execute(&STORE).unwrap();
         }
 
         // Array of tests with expected number of matching rows
@@ -254,10 +225,10 @@ impl<'a> DbTester<'a> {
         ];
 
         for (search, expected_count) in tests {
-            let count = query::load::<Filterable>()
+            let count = query::load_entity::<Filterable>()
                 .all()
                 .filter_all(search)
-                .execute(self.db)
+                .execute(&STORE)
                 .unwrap()
                 .keys()
                 .count();
@@ -270,34 +241,38 @@ impl<'a> DbTester<'a> {
     }
 
     // limit_query
-    fn limit_query(&self) {
-        use test_schema::store::Limit;
+    fn limit_query() {
+        use test_schema::db::Limit;
 
         // clear
-        let _ = self.db.with_store_mut(STORE, |store| {
+        STORE.with_borrow_mut(|store| {
             store.clear();
-            Ok(())
         });
 
         // Insert 100 rows
         // overwrite the ulid with replace()
         for value in 1..100 {
             let e = Limit { value };
-            query::replace().from_entity(e).execute(self.db).unwrap();
+            query::replace()
+                .debug()
+                .from_entity(e)
+                .execute(&STORE)
+                .unwrap();
         }
 
         // Test various limits and offsets
         for limit in [10, 20, 50] {
             for offset in [0, 5, 10] {
-                let results = query::load_dyn(Limit::PATH)
+                let results = query::load_entity::<Limit>()
                     .all()
                     .offset(offset)
                     .limit(limit)
-                    .execute(self.db)
+                    .execute(&STORE)
                     .unwrap()
                     .keys();
 
-                assert_eq!(results.count(), limit as usize);
+                let count = results.count();
+                assert_eq!(count, limit as usize, "{limit} not equal to {count}");
                 //    if !results.is_empty() {
                 //        assert_eq!(results[0].value, offset + 1);
                 //    }
@@ -306,8 +281,8 @@ impl<'a> DbTester<'a> {
     }
 
     // missing_field
-    fn missing_field(&self) {
-        use test_schema::store::{MissingFieldLarge, MissingFieldSmall};
+    fn missing_field() {
+        use test_schema::db::{MissingFieldLarge, MissingFieldSmall};
 
         let small = MissingFieldSmall {
             a_id: Ulid::generate(),

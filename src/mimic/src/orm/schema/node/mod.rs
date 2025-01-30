@@ -1,5 +1,4 @@
 mod arg;
-mod canister;
 mod constant;
 mod def;
 mod entity;
@@ -10,22 +9,17 @@ mod index;
 mod item;
 mod map;
 mod newtype;
-mod permission;
 mod primitive;
 mod record;
-mod role;
-mod sanitizer;
 mod schema;
 mod selector;
 mod sort_key;
-mod store;
 mod tuple;
 mod r#type;
 mod validator;
 mod value;
 
 pub use self::arg::*;
-pub use self::canister::*;
 pub use self::constant::*;
 pub use self::def::*;
 pub use self::entity::*;
@@ -35,67 +29,22 @@ pub use self::index::*;
 pub use self::item::*;
 pub use self::map::*;
 pub use self::newtype::*;
-pub use self::permission::*;
 pub use self::primitive::*;
 pub use self::r#enum::*;
 pub use self::r#type::*;
 pub use self::record::*;
-pub use self::role::*;
-pub use self::sanitizer::*;
 pub use self::schema::*;
 pub use self::selector::*;
 pub use self::sort_key::*;
-pub use self::store::*;
 pub use self::tuple::*;
 pub use self::validator::*;
 pub use self::value::*;
 
 use crate::orm::{
-    schema::{
-        build::schema_read,
-        visit::{Event, Visitor},
-    },
+    schema::visit::{Event, Visitor},
     types::ErrorVec,
 };
-use serde::{Deserialize, Serialize};
-use snafu::Snafu;
 use std::any::Any;
-
-///
-/// Error
-///
-
-#[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
-    #[snafu(display("error downcasting schema node: {path}"))]
-    DowncastFail { path: String },
-
-    #[snafu(display("{path} is an incorrect node type"))]
-    IncorrectNodeType { path: String },
-
-    #[snafu(display("path not found: {path}"))]
-    PathNotFound { path: String },
-}
-
-impl Error {
-    fn downcast_fail(path: &str) -> Self {
-        Self::DowncastFail {
-            path: path.to_string(),
-        }
-    }
-
-    fn incorrect_node_type(path: &str) -> Self {
-        Self::IncorrectNodeType {
-            path: path.to_string(),
-        }
-    }
-
-    fn path_not_found(path: &str) -> Self {
-        Self::PathNotFound {
-            path: path.to_string(),
-        }
-    }
-}
 
 ///
 /// NODE TRAITS
@@ -142,57 +91,4 @@ pub trait VisitableNode: ValidateNode {
 
     // drive
     fn drive<V: Visitor>(&self, _: &mut V) {}
-}
-
-///
-/// NODES
-///
-
-///
-/// AccessPolicy
-///
-
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-pub enum AccessPolicy {
-    Allow,
-    Deny,
-    Permission(String),
-}
-
-impl ValidateNode for AccessPolicy {
-    fn validate(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
-
-        match self {
-            Self::Permission(permission) => {
-                errs.add_result(schema_read().check_node::<Permission>(permission));
-            }
-            Self::Allow | Self::Deny => {}
-        }
-
-        errs.result()
-    }
-}
-
-impl VisitableNode for AccessPolicy {}
-
-///
-/// Crud
-///
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Crud {
-    pub load: AccessPolicy,
-    pub save: AccessPolicy,
-    pub delete: AccessPolicy,
-}
-
-impl ValidateNode for Crud {}
-
-impl VisitableNode for Crud {
-    fn drive<V: Visitor>(&self, v: &mut V) {
-        self.load.accept(v);
-        self.save.accept(v);
-        self.delete.accept(v);
-    }
 }

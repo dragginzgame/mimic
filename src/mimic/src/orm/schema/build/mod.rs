@@ -17,11 +17,11 @@ use std::{
 };
 
 ///
-/// Error
+/// BuildError
 ///
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum BuildError {
     #[snafu(display("serde json error: {msg}"))]
     SerdeJson { msg: String },
 
@@ -87,7 +87,7 @@ pub(crate) fn schema_read() -> RwLockReadGuard<'static, Schema> {
 }
 
 /// get_schema
-pub fn get_schema() -> Result<RwLockReadGuard<'static, Schema>, Error> {
+pub fn get_schema() -> Result<RwLockReadGuard<'static, Schema>, BuildError> {
     let schema = schema_read();
 
     // Check if validation has already been done
@@ -102,16 +102,16 @@ pub fn get_schema() -> Result<RwLockReadGuard<'static, Schema>, Error> {
 
 // get_schema_json
 // to get the built schema via an executable
-pub fn get_schema_json() -> Result<String, Error> {
+pub fn get_schema_json() -> Result<String, BuildError> {
     let schema = get_schema()?;
-    let json =
-        serde_json::to_string(&*schema).map_err(|e| Error::SerdeJson { msg: e.to_string() })?;
+    let json = serde_json::to_string(&*schema)
+        .map_err(|e| BuildError::SerdeJson { msg: e.to_string() })?;
 
     Ok(json)
 }
 
 // validate
-fn validate(schema: &Schema) -> Result<(), Error> {
+fn validate(schema: &Schema) -> Result<(), BuildError> {
     let mut visitor = Validator::new();
     schema.accept(&mut visitor);
 
@@ -119,7 +119,7 @@ fn validate(schema: &Schema) -> Result<(), Error> {
     visitor
         .errors()
         .result()
-        .map_err(|errors| Error::Validation { errors })?;
+        .map_err(|errors| BuildError::Validation { errors })?;
 
     Ok(())
 }

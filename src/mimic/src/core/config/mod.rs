@@ -2,16 +2,17 @@ pub mod types;
 
 pub use types::Config;
 
+use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
 use std::sync::Mutex;
 
 ///
-/// Error
+/// ConfigError
 ///
 
-#[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+pub enum ConfigError {
     #[snafu(display("config has already been initialized"))]
     AlreadyInitialized,
 
@@ -33,24 +34,25 @@ pub enum Error {
 static CONFIG: Mutex<Option<Config>> = Mutex::new(None);
 
 // get_config
-pub fn get_config() -> Result<Config, Error> {
+pub fn get_config() -> Result<Config, ConfigError> {
     let guard = CONFIG
         .lock()
-        .map_err(|e| Error::Mutex { msg: e.to_string() })?;
+        .map_err(|e| ConfigError::Mutex { msg: e.to_string() })?;
 
-    guard
-        .as_ref()
-        .map_or(Err(Error::NotInitialized), |config| Ok(config.clone()))
+    guard.as_ref().map_or(
+        Err(ConfigError::NotInitialized),
+        |config| Ok(config.clone()),
+    )
 }
 
 // init_config
-fn init_config(config: Config) -> Result<(), Error> {
+fn init_config(config: Config) -> Result<(), ConfigError> {
     let mut guard = CONFIG
         .lock()
-        .map_err(|e| Error::Mutex { msg: e.to_string() })?;
+        .map_err(|e| ConfigError::Mutex { msg: e.to_string() })?;
 
     if guard.is_some() {
-        Err(Error::AlreadyInitialized)
+        Err(ConfigError::AlreadyInitialized)
     } else {
         *guard = Some(config);
 
@@ -59,9 +61,9 @@ fn init_config(config: Config) -> Result<(), Error> {
 }
 
 // init_config_toml
-pub fn init_config_toml(config_str: &str) -> Result<(), Error> {
-    let config =
-        toml::from_str(config_str).map_err(|e| Error::CannotParseToml { msg: e.to_string() })?;
+pub fn init_config_toml(config_str: &str) -> Result<(), ConfigError> {
+    let config = toml::from_str(config_str)
+        .map_err(|e| ConfigError::CannotParseToml { msg: e.to_string() })?;
 
     init_config(config)
 }

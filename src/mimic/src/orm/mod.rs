@@ -1,18 +1,17 @@
 pub mod base;
-pub mod helper;
 pub mod schema;
 pub mod traits;
 pub mod types;
 pub mod visit;
 
 use crate::{
-    ic::structures::serialize::{from_binary, to_binary},
+    ic::structures::serialize::{from_binary, to_binary, SerializeError},
     orm::types::ErrorTree,
 };
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use snafu::Snafu;
 use traits::Visitable;
-use visit::{perform_visit, perform_visit_mut, SanitizeVisitor, ValidateVisitor};
+use visit::{perform_visit, ValidateVisitor};
 
 ///
 /// PRELUDE
@@ -23,15 +22,16 @@ pub mod prelude {
     pub use crate::{
         ic::structures::storable::Bound,
         orm::{
-            helper::FixtureList,
+            base::types::Ulid,
             traits::{
                 EntityDyn, EntityFixture, EntityId as _, Filterable, Inner as _, NumCast,
-                Orderable, Path, Sanitize as _, SanitizeManual, Sanitizer, Selector as _,
-                SortKey as _, Storable, Validate as _, ValidateManual, Validator, Visitable,
+                Orderable, Path, Selector as _, SortKey as _, Storable, Validate as _,
+                ValidateManual, Validator, Visitable,
             },
             types::ErrorVec,
-            Error,
+            OrmError,
         },
+        query,
         utils::case::{Case, Casing},
     };
     pub use ::candid::CandidType;
@@ -42,11 +42,11 @@ pub mod prelude {
 }
 
 ///
-/// Error
+/// OrmError
 ///
 
 #[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum Error {
+pub enum OrmError {
     #[snafu(display("cannot parse field '{field}'"))]
     ParseField { field: String },
 
@@ -54,12 +54,10 @@ pub enum Error {
     Validation { errors: ErrorTree },
 
     #[snafu(transparent)]
-    Serialize {
-        source: crate::ic::structures::serialize::Error,
-    },
+    SerializeError { source: SerializeError },
 }
 
-impl Error {
+impl OrmError {
     #[must_use]
     pub fn parse_field(field: &str) -> Self {
         Self::ParseField {
@@ -74,35 +72,28 @@ impl Error {
 ///
 
 // serialize
-pub fn serialize<T>(ty: &T) -> Result<Vec<u8>, Error>
+pub fn serialize<T>(ty: &T) -> Result<Vec<u8>, OrmError>
 where
     T: Serialize,
 {
-    to_binary::<T>(ty).map_err(Error::from)
+    to_binary::<T>(ty).map_err(OrmError::from)
 }
 
 // deserialize
-pub fn deserialize<T>(bytes: &[u8]) -> Result<T, Error>
+pub fn deserialize<T>(bytes: &[u8]) -> Result<T, OrmError>
 where
     T: DeserializeOwned,
 {
-    from_binary::<T>(bytes).map_err(Error::from)
-}
-
-// sanitize
-pub fn sanitize(node: &mut dyn Visitable) {
-    let mut visitor = SanitizeVisitor::new();
-
-    perform_visit_mut(&mut visitor, node, "");
+    from_binary::<T>(bytes).map_err(OrmError::from)
 }
 
 // validate
-pub fn validate(node: &dyn Visitable) -> Result<(), Error> {
+pub fn validate(node: &dyn Visitable) -> Result<(), OrmError> {
     let mut visitor = ValidateVisitor::new();
     perform_visit(&mut visitor, node, "");
 
     visitor
         .errors
         .result()
-        .map_err(|errors| Error::Validation { errors })
+        .map_err(|errors| OrmError::Validation { errors })
 }

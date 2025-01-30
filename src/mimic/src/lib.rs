@@ -2,13 +2,13 @@
 /// mimic
 /// [for external use only, keep out of reach of children]
 ///
-pub mod api;
 pub mod build;
 pub mod core;
-pub mod db;
 pub mod ic;
 pub mod macros;
 pub mod orm;
+pub mod query;
+pub mod store;
 pub mod utils;
 
 pub mod export {
@@ -30,24 +30,15 @@ extern crate self as mimic;
 
 pub mod prelude {
     pub use crate::{
-        api::{
-            auth::{allow_any, Auth},
-            guard::{guard_query, guard_update},
-            subnet::request::{Request, RequestKind, Response},
-            Error, StartupHooks,
-        },
-        core::state::{
-            AppCommand, AppState, AppStateManager, CanisterState, CanisterStateManager,
-            SubnetIndex, SubnetIndexManager, User, UserIndex, UserIndexManager,
-        },
-        db::Db,
         ic::{caller, format_cycles, id},
-        log, mimic_end, mimic_start,
+        log, mimic_end, mimic_start, mimic_stores,
         orm::{
             base::types::Ulid,
             traits::{EntityDyn, EntityFixture, NumFromPrimitive, NumToPrimitive, Path, Validator},
         },
-        perf, Log,
+        perf,
+        store::Store,
+        Log,
     };
     pub use ::candid::{CandidType, Principal};
     pub use ::std::cell::RefCell;

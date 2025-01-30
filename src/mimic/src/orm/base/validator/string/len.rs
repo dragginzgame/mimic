@@ -10,7 +10,7 @@ fn truncate_string<S: ToString>(s: &S) -> String {
     if string.len() > MAX_DISPLAY_CHARS {
         format!("{}...", &string[..MAX_DISPLAY_CHARS])
     } else {
-        string.clone()
+        string
     }
 }
 
@@ -36,15 +36,15 @@ impl Validator for Equal {
         let string = s.to_string();
         let len = string.len();
 
-        if len != self.target {
+        if len == self.target {
+            Ok(())
+        } else {
             Err(format!(
                 "length of '{}' ({}) is not equal to {}",
                 truncate_string(&string),
                 len,
                 self.target
             ))
-        } else {
-            Ok(())
         }
     }
 }
