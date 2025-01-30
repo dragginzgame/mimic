@@ -64,6 +64,37 @@ macro_rules! mimic_start {
     };
 }
 
+// mimic_db
+// define the stores
+// mimic_db!(DATA1, 1, DATA2, 2)
+#[macro_export]
+macro_rules! mimic_db {
+    ($($store_name:ident, $memory_id:expr),*) => {
+        thread_local! {
+            // Define MEMORY_MANAGER thread-locally
+            pub static MEMORY_MANAGER: RefCell<MemoryManager<DefaultMemoryImpl>> =
+                RefCell::new(MemoryManager::init(DefaultMemoryImpl::default()));
+
+            // Create and define each store statically and insert into DB
+            $(
+                pub static $store_name: RefCell<Store> = RefCell::new($memory_id);
+            )*
+
+            // Create DB with inserts for all provided stores
+            pub static DB: RefCell<Db> = RefCell::new({
+                let mut db = Db::new();
+
+                // Insert each store into DB
+                $(
+                    db.insert(stringify!($store_name), &$store_name);
+                )*
+
+                db
+            });
+        }
+    };
+}
+
 // mimic_end
 // macro that needs to be included as the last item in the actor lib.rs file
 #[macro_export]
