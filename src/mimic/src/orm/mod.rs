@@ -22,6 +22,7 @@ pub mod prelude {
     pub use crate::{
         ic::structures::storable::Bound,
         orm::{
+            base::types::Ulid,
             traits::{
                 EntityDyn, EntityFixture, EntityId as _, Filterable, Inner as _, NumCast,
                 Orderable, Path, Selector as _, SortKey as _, Storable, Validate as _,
@@ -30,6 +31,7 @@ pub mod prelude {
             types::ErrorVec,
             OrmError,
         },
+        query,
         utils::case::{Case, Casing},
     };
     pub use ::candid::CandidType;

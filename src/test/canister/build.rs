@@ -3,5 +3,7 @@ fn main() -> std::io::Result<()> {
     mimic::init();
     test_schema::init();
 
+    mimic::mimic_build!("test");
+
     Ok(())
 }

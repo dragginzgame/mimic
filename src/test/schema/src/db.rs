@@ -35,7 +35,7 @@ pub struct Filterable {}
 ///
 
 #[entity(
-    sk(entity = "Limit"),
+    sk(entity = "Limit", field = "value"),
     fields(field(name = "value", value(item(is = "types::U32"))))
 )]
 pub struct Limit {}

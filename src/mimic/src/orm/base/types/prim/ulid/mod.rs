@@ -65,6 +65,14 @@ impl Ulid {
     pub fn generate() -> Self {
         generator::generate().unwrap()
     }
+
+    /// from_str
+    #[allow(clippy::should_implement_trait)]
+    pub fn from_str(encoded: &str) -> Result<Self, UlidError> {
+        let this = WrappedUlid::from_str(encoded)?;
+
+        Ok(Self(this))
+    }
 }
 
 impl CandidType for Ulid {

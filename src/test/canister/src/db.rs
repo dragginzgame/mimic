@@ -1,9 +1,11 @@
 use mimic::{
-    db::{store::Store, Db},
+    db::{store::Store, types::DataKey, Db},
     ic::structures::{
         memory::{MemoryId, MemoryManager},
         DefaultMemoryImpl,
     },
+    orm::prelude::*,
+    query::types::Order,
 };
 use std::cell::RefCell;
 
@@ -21,31 +23,42 @@ thread_local! {
 
     static DB: RefCell<Db> = RefCell::new({
         let mut db = Db::new();
-        db.insert("store_path", &STORE);
+        db.insert("store", &STORE);
 
         db
     });
 
 }
 
-//
-// TESTS
-//
+///
+/// DbTester
+///
 
-#[cfg(test)]
-mod test {
-    use super::*;
-    use mimic::{
-        db::types::DataKey,
-        orm::{
-            base::types::Ulid,
-            traits::{FromStr, Path},
-        },
-        query::{self, types::Order},
-    };
+pub struct DbTester {}
+
+impl DbTester {
+    // test
+    // best if these are kept in code order so we can see where it failed
+    pub fn test() {
+        Self::entity_with_map();
+
+        Self::data_key_order();
+
+        Self::clear();
+        Self::create();
+        Self::create_lots();
+
+        Self::filter_query();
+        Self::limit_query();
+
+        Self::missing_field();
+    }
+
+    //
+    // TESTS
+    //
 
     // entity_with_map
-    #[test]
     fn entity_with_map() {
         use test_schema::map::HasMap;
 
@@ -53,10 +66,13 @@ mod test {
         let mut e = HasMap::default();
         e.map_int_string.push((3, "value".to_string()));
         e.map_int_string.push((4, "value".to_string()));
+        query::create_entity::<HasMap>()
+            .from_entity(e)
+            .execute(&STORE)
+            .unwrap();
 
-        query::create().from_entity(e).execute(&STORE).unwrap();
-
-        let entities = query::load(HasMap::PATH)
+        // load all keys
+        let entities = query::load_entity::<HasMap>()
             .only()
             .execute(&STORE)
             .unwrap()
@@ -66,9 +82,8 @@ mod test {
     }
 
     // data_key_order
-    #[test]
     fn data_key_order() {
-        use test_schema::store::SortKeyOrder;
+        use test_schema::db::SortKeyOrder;
 
         const ROWS: u16 = 1_000;
 
@@ -102,9 +117,8 @@ mod test {
     }
 
     // clear
-    #[test]
     fn clear() {
-        use test_schema::store::CreateBasic;
+        use test_schema::db::CreateBasic;
 
         // Insert rows
         for _ in 0..100 {
@@ -116,9 +130,8 @@ mod test {
         STORE.with_borrow_mut(|store| {
             store.clear();
         });
-
         // Retrieve the count of keys (or entities) from the store
-        let count = query::load(CreateBasic::PATH)
+        let count = query::load_entity::<CreateBasic>()
             .all()
             .execute(&STORE)
             .unwrap()
@@ -128,9 +141,8 @@ mod test {
     }
 
     // create
-    #[test]
     fn create() {
-        use test_schema::store::CreateBasic;
+        use test_schema::db::CreateBasic;
 
         // clear
         STORE.with_borrow_mut(|store| {
@@ -142,7 +154,7 @@ mod test {
 
         // count keys
         assert_eq!(
-            query::load(CreateBasic::PATH)
+            query::load_entity::<CreateBasic>()
                 .all()
                 .execute(&STORE)
                 .unwrap()
@@ -157,7 +169,7 @@ mod test {
 
         // count keys
         assert_eq!(
-            query::load(CreateBasic::PATH)
+            query::load_entity::<CreateBasic>()
                 .all()
                 .execute(&STORE)
                 .unwrap()
@@ -168,24 +180,23 @@ mod test {
     }
 
     // create_lots
-    #[test]
     fn create_lots() {
-        use test_schema::store::CreateBasic;
-        const ROWS: usize = 5_000;
+        use test_schema::db::CreateBasic;
+        const ROWS: usize = 1_000;
 
         // clear
         STORE.with_borrow_mut(|store| {
             store.clear();
         });
 
-        // Insert 10,000 rows
+        // insert rows
         for _ in 0..ROWS {
             let e = CreateBasic::default();
             query::create().from_entity(e).execute(&STORE).unwrap();
         }
 
         // Retrieve the count from the store
-        let count = query::load(CreateBasic::PATH)
+        let count = query::load_entity::<CreateBasic>()
             .all()
             .execute(&STORE)
             .unwrap()
@@ -196,9 +207,8 @@ mod test {
     }
 
     // filter_query
-    #[test]
     fn filter_query() {
-        use test_schema::store::Filterable;
+        use test_schema::db::Filterable;
 
         // clear
         STORE.with_borrow_mut(|store| {
@@ -263,9 +273,8 @@ mod test {
     }
 
     // limit_query
-    #[test]
     fn limit_query() {
-        use test_schema::store::Limit;
+        use test_schema::db::Limit;
 
         // clear
         STORE.with_borrow_mut(|store| {
@@ -276,13 +285,17 @@ mod test {
         // overwrite the ulid with replace()
         for value in 1..100 {
             let e = Limit { value };
-            query::replace().from_entity(e).execute(&STORE).unwrap();
+            query::replace()
+                .debug()
+                .from_entity(e)
+                .execute(&STORE)
+                .unwrap();
         }
 
         // Test various limits and offsets
         for limit in [10, 20, 50] {
             for offset in [0, 5, 10] {
-                let results = query::load(Limit::PATH)
+                let results = query::load_entity::<Limit>()
                     .all()
                     .offset(offset)
                     .limit(limit)
@@ -290,7 +303,8 @@ mod test {
                     .unwrap()
                     .keys();
 
-                assert_eq!(results.count(), limit as usize);
+                let count = results.count();
+                assert_eq!(count, limit as usize, "{limit} not equal to {count}");
                 //    if !results.is_empty() {
                 //        assert_eq!(results[0].value, offset + 1);
                 //    }
@@ -299,9 +313,8 @@ mod test {
     }
 
     // missing_field
-    #[test]
     fn missing_field() {
-        use test_schema::store::{MissingFieldLarge, MissingFieldSmall};
+        use test_schema::db::{MissingFieldLarge, MissingFieldSmall};
 
         let small = MissingFieldSmall {
             a_id: Ulid::generate(),

@@ -1,9 +1,9 @@
 pub mod admin;
 pub mod constant;
+pub mod db;
 pub mod default;
 pub mod index;
 pub mod map;
-pub mod store;
 pub mod validate;
 
 use mimic::orm::prelude::*;

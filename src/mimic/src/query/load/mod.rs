@@ -60,7 +60,7 @@ impl Loader {
             LoadMethod::All | LoadMethod::Only => {
                 let start = resolver.data_key(&[])?;
                 let end = start.create_upper_bound();
-                let rows = Loader::query_range(store, start, end)?;
+                let rows = Self::query_range(store, start, end);
 
                 Ok(Box::new(rows.into_iter()))
             }
@@ -89,7 +89,7 @@ impl Loader {
             LoadMethod::Prefix(prefix) => {
                 let start = resolver.data_key(prefix)?;
                 let end = start.create_upper_bound();
-                let rows = Self::query_range(store, start, end)?;
+                let rows = Self::query_range(store, start, end);
 
                 Ok(Box::new(rows.into_iter()))
             }
@@ -97,7 +97,7 @@ impl Loader {
             LoadMethod::Range(start_ck, end_ck) => {
                 let start = resolver.data_key(start_ck)?;
                 let end = resolver.data_key(end_ck)?;
-                let rows = Self::query_range(store, start, end)?;
+                let rows = Self::query_range(store, start, end);
 
                 Ok(Box::new(rows.into_iter()))
             }
@@ -112,29 +112,20 @@ impl Loader {
                 .get(&key)
                 .map(|value| DataRow {
                     key: key.clone(),
-                    value: value.clone(),
+                    value,
                 })
                 .ok_or(LoadError::KeyNotFound { key })
         })
     }
 
     // query_range
-    fn query_range(
-        store: StoreLocal,
-        start: DataKey,
-        end: DataKey,
-    ) -> Result<Vec<DataRow>, LoadError> {
-        let rows: Vec<DataRow> = store.with_borrow(|store| {
+    fn query_range(store: StoreLocal, start: DataKey, end: DataKey) -> Vec<DataRow> {
+        store.with_borrow(|store| {
             store
                 .data
                 .range(start..=end)
-                .map(|(key, value)| DataRow {
-                    key: key.clone(),
-                    value: value.clone(),
-                })
+                .map(|(key, value)| DataRow { key, value })
                 .collect()
-        });
-
-        Ok(rows)
+        })
     }
 }
