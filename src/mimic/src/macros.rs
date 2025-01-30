@@ -64,11 +64,11 @@ macro_rules! mimic_start {
     };
 }
 
-// mimic_db
+// mimic_stores
 // define the stores
-// mimic_db!(DATA1, 1, DATA2, 2)
+// mimic_stores!(DATA1, 1, DATA2, 2)
 #[macro_export]
-macro_rules! mimic_db {
+macro_rules! mimic_stores {
     ($($store_name:ident, $memory_id:expr),*) => {
         thread_local! {
             // Define MEMORY_MANAGER thread-locally for the entire scope
