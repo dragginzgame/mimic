@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.3.0]
+- removing automated IC actor scripts [HUGE CHANGE]
 - sanitise removed completely from the framework as it's bloated
 and makes the code really complex, plus adds a lot of compile time and cycles
 - redoing errors so they have specific names, ie. AuthError not auth::Error, and using context to bubble errors up
