@@ -1,4 +1,4 @@
-use crate::ic::structures::{memory::VirtualMemory, Storable};
+use crate::ic::structures::{DefaultMemory, Storable};
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use ic_stable_structures::cell::{Cell as WrappedCell, InitError, ValueError};
@@ -36,7 +36,7 @@ impl From<ValueError> for CellError {
 
 ///
 /// Cell
-/// a wrapper around Cell that uses the default VirtualMemory
+/// a wrapper around Cell that uses the default DefaultMemory
 ///
 
 #[derive(Deref, DerefMut)]
@@ -44,7 +44,7 @@ pub struct Cell<T>
 where
     T: Clone + Storable,
 {
-    data: WrappedCell<T, VirtualMemory>,
+    data: WrappedCell<T, DefaultMemory>,
 }
 
 impl<T> Cell<T>
@@ -52,14 +52,14 @@ where
     T: Clone + Storable,
 {
     // new
-    pub fn new(memory: VirtualMemory, value: T) -> Result<Self, CellError> {
+    pub fn new(memory: DefaultMemory, value: T) -> Result<Self, CellError> {
         let data = WrappedCell::new(memory, value)?;
 
         Ok(Self { data })
     }
 
     // init
-    pub fn init(memory: VirtualMemory, default_value: T) -> Result<Self, CellError> {
+    pub fn init(memory: DefaultMemory, default_value: T) -> Result<Self, CellError> {
         let data = WrappedCell::init(memory, default_value)?;
 
         Ok(Self { data })

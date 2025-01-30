@@ -1,7 +1,7 @@
 use mimic::{
     db::{store::Store, types::DataKey, Db},
     ic::structures::{
-        memory::{MemoryId, MemoryManager},
+        memory_manager::{MemoryId, MemoryManager},
         DefaultMemoryImpl,
     },
     orm::prelude::*,
@@ -27,7 +27,6 @@ thread_local! {
 
         db
     });
-
 }
 
 ///
