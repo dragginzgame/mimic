@@ -1,10 +1,10 @@
 use crate::{
-    db::{store::StoreLocal, types::DataKey},
     orm::traits::Entity,
     query::{
         delete::{DeleteError, DeleteResponse},
         DebugContext, Resolver,
     },
+    store::{types::DataKey, StoreLocal},
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};

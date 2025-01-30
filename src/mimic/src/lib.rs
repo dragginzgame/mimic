@@ -4,11 +4,11 @@
 ///
 pub mod build;
 pub mod core;
-pub mod db;
 pub mod ic;
 pub mod macros;
 pub mod orm;
 pub mod query;
+pub mod store;
 pub mod utils;
 
 pub mod export {
@@ -38,14 +38,15 @@ pub type DynError = Box<dyn StdError + Send + Sync>;
 
 pub mod prelude {
     pub use crate::{
-        db::store::Store,
         ic::{caller, format_cycles, id},
         log,
         orm::{
             base::types::Ulid,
             traits::{EntityDyn, EntityFixture, NumFromPrimitive, NumToPrimitive, Path, Validator},
         },
-        perf, Log,
+        perf,
+        store::Store,
+        Log,
     };
     pub use ::candid::{CandidType, Principal};
     pub use ::std::cell::RefCell;

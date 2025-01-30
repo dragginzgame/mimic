@@ -1,10 +1,10 @@
 use crate::{
-    db::store::StoreLocal,
     orm::traits::Entity,
     query::{
         save::{save, SaveError, SaveMode},
         DebugContext,
     },
+    store::StoreLocal,
 };
 use std::marker::PhantomData;
 

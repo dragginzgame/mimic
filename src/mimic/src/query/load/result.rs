@@ -1,10 +1,10 @@
 use crate::{
-    db::types::{DataKey, DataRow, EntityRow},
     orm::traits::Entity,
     query::{
         load::LoadError,
         types::{Filter, Order},
     },
+    store::types::{DataKey, DataRow, EntityRow},
 };
 use std::iter;
 

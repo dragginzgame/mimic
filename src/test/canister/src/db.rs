@@ -1,33 +1,6 @@
-use mimic::{
-    db::{store::Store, types::DataKey, Db},
-    ic::structures::{
-        memory_manager::{MemoryId, MemoryManager},
-        DefaultMemoryImpl,
-    },
-    orm::prelude::*,
-    query::types::Order,
-};
-use std::cell::RefCell;
+use mimic::{mimic_db, orm::prelude::*, query::types::Order, store::types::DataKey};
 
-thread_local! {
-    pub static MEMORY_MANAGER: RefCell<MemoryManager<DefaultMemoryImpl>> =
-        RefCell::new(MemoryManager::init(DefaultMemoryImpl::default()));
-
-    static STORE: RefCell<Store> = RefCell::new(
-        Store::init(
-            MEMORY_MANAGER.with(|mm| mm.borrow().get(
-                MemoryId::new(1)
-            ))
-        )
-    );
-
-    static DB: RefCell<Db> = RefCell::new({
-        let mut db = Db::new();
-        db.insert("store", &STORE);
-
-        db
-    });
-}
+mimic_db!(STORE, 1);
 
 ///
 /// DbTester

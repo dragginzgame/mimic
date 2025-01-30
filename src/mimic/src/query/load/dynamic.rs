@@ -1,10 +1,10 @@
 use crate::{
-    db::{store::StoreLocal, types::DataRow},
     query::{
         load::{LoadError, LoadResult, Loader},
         types::LoadMethod,
         DebugContext, Resolver,
     },
+    store::{types::DataRow, StoreLocal},
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};

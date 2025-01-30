@@ -5,14 +5,14 @@ pub use dynamic::{SaveBuilder, SaveExecutor, SaveQuery};
 pub use r#static::{ESaveBuilder, ESaveExecutor, ESaveQuery};
 
 use crate::{
-    db::{
-        store::StoreLocal,
-        types::{DataKey, DataValue, Metadata},
-    },
     orm::{traits::EntityDyn, OrmError},
     query::{
         resolver::{Resolver, ResolverError},
         DebugContext,
+    },
+    store::{
+        types::{DataKey, DataValue, Metadata},
+        StoreLocal,
     },
 };
 use serde::{Deserialize, Serialize};

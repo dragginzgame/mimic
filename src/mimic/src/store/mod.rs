@@ -1,7 +1,9 @@
-use super::types::{DataKey, DataValue};
+pub mod types;
+
 use crate::ic::structures::{btreemap::BTreeMap, DefaultMemory};
 use derive_more::{Deref, DerefMut};
 use std::{cell::RefCell, thread::LocalKey};
+use types::{DataKey, DataValue};
 
 ///
 /// Store

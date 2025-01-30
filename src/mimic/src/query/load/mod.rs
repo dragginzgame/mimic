@@ -7,14 +7,14 @@ pub use r#static::{ELoadBuilder, ELoadExecutor, ELoadQuery};
 pub use result::{ELoadResult, LoadResult};
 
 use crate::{
-    db::{
-        store::StoreLocal,
-        types::{DataKey, DataRow},
-    },
     orm::OrmError,
     query::{
         resolver::{Resolver, ResolverError},
         types::LoadMethod,
+    },
+    store::{
+        types::{DataKey, DataRow},
+        StoreLocal,
     },
 };
 use serde::{Deserialize, Serialize};

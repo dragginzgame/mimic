@@ -71,26 +71,26 @@ macro_rules! mimic_start {
 macro_rules! mimic_db {
     ($($store_name:ident, $memory_id:expr),*) => {
         thread_local! {
-            // Define MEMORY_MANAGER thread-locally
-            pub static MEMORY_MANAGER: RefCell<MemoryManager<DefaultMemoryImpl>> =
-                RefCell::new(MemoryManager::init(DefaultMemoryImpl::default()));
+            // Define MEMORY_MANAGER thread-locally for the entire scope
+            pub static MEMORY_MANAGER: ::std::cell::RefCell<
+                ::mimic::ic::structures::memory_manager::MemoryManager<
+                    ::mimic::ic::structures::DefaultMemoryImpl
+                >
+            > = ::std::cell::RefCell::new(
+                ::mimic::ic::structures::memory_manager::MemoryManager::init(
+                    ::mimic::ic::structures::DefaultMemoryImpl::default()
+                )
+            );
 
-            // Create and define each store statically and insert into DB
+            // Create and define each store statically, initializing with the provided memory ID
             $(
-                pub static $store_name: RefCell<Store> = RefCell::new($memory_id);
+                pub static $store_name: ::std::cell::RefCell<::mimic::store::Store> =
+                    ::std::cell::RefCell::new(::mimic::store::Store::init(
+                        MEMORY_MANAGER.with(|mm| mm.borrow().get(
+                            ::mimic::ic::structures::memory_manager::MemoryId::new($memory_id)
+                        ))
+                    ));
             )*
-
-            // Create DB with inserts for all provided stores
-            pub static DB: RefCell<Db> = RefCell::new({
-                let mut db = Db::new();
-
-                // Insert each store into DB
-                $(
-                    db.insert(stringify!($store_name), &$store_name);
-                )*
-
-                db
-            });
         }
     };
 }

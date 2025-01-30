@@ -1,7 +1,7 @@
 use crate::{
     core::schema::{get_schema, SchemaError},
-    db::types::DataKey,
     orm::schema::node::Entity,
+    store::types::DataKey,
 };
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;

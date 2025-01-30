@@ -4,7 +4,7 @@ pub mod r#static;
 pub use dynamic::{DeleteBuilder, DeleteExecutor, DeleteQuery};
 pub use r#static::{EDeleteBuilder, EDeleteExecutor, EDeleteQuery};
 
-use crate::{db::types::DataKey, query::resolver::ResolverError};
+use crate::{query::resolver::ResolverError, store::types::DataKey};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use snafu::Snafu;
