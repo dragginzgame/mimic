@@ -21,14 +21,6 @@ pub mod export {
 
 extern crate self as mimic;
 
-use std::error::Error as StdError;
-
-///
-/// DynError
-///
-
-pub type DynError = Box<dyn StdError + Send + Sync>;
-
 ///
 /// MIMIC PRELUDE
 ///
@@ -39,7 +31,7 @@ pub type DynError = Box<dyn StdError + Send + Sync>;
 pub mod prelude {
     pub use crate::{
         ic::{caller, format_cycles, id},
-        log,
+        log, mimic_end, mimic_start, mimic_stores,
         orm::{
             base::types::Ulid,
             traits::{EntityDyn, EntityFixture, NumFromPrimitive, NumToPrimitive, Path, Validator},

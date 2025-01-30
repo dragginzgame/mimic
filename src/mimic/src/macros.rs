@@ -45,21 +45,19 @@ macro_rules! mimic_start {
     ($config:expr) => {
         #[::mimic::ic::init]
         fn init() {
-            _init().unwrap();
+            _init()
         }
 
         // _init
         // code called on all canister startups (install, upgrade)
-        fn _init() -> Result<(), ::mimic::DynError> {
+        fn _init() {
             // schema
             let schema_json = include_str!(concat!(env!("OUT_DIR"), "/schema.rs"));
-            ::mimic::core::schema::init_schema_json(schema_json)?;
+            ::mimic::core::schema::init_schema_json(schema_json).unwrap();
 
             // config
             let toml = include_str!($config);
-            ::mimic::core::config::init_config_toml(toml)?;
-
-            Ok(())
+            ::mimic::core::config::init_config_toml(toml).unwrap();
         }
     };
 }

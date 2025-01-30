@@ -12,17 +12,13 @@ impl DbTester {
     // test
     // best if these are kept in code order so we can see where it failed
     pub fn test() {
-        Self::entity_with_map();
-
-        Self::data_key_order();
-
         Self::clear();
         Self::create();
         Self::create_lots();
-
+        Self::data_key_order();
+        Self::entity_with_map();
         Self::filter_query();
         Self::limit_query();
-
         Self::missing_field();
     }
 
