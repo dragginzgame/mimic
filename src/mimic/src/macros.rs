@@ -49,7 +49,7 @@ macro_rules! mimic_start {
             let schema_json = include_str!(concat!(env!("OUT_DIR"), "/schema.rs"));
             ::mimic::core::schema::init_schema_json(schema_json).unwrap();
 
-            // toml
+            // config
             let toml = include_str!($config);
             ::mimic::core::config::init_config_toml(toml).unwrap();
         }
@@ -59,22 +59,40 @@ macro_rules! mimic_start {
 // mimic_config
 // macro to be included at the start of each canister lib.rs file
 #[macro_export]
-macro_rules! mimic_config {
-    ($config:expr) => {};
+macro_rules! mimic_memory_manager {
+    () => {
+        thread_local! {
+
+        ///
+        /// Define MEMORY_MANAGER thread-locally for the entire scope
+        ///
+        pub static MEMORY_MANAGER: ::std::cell::RefCell<
+            ::mimic::ic::structures::memory::MemoryManager<
+                ::mimic::ic::structures::DefaultMemoryImpl,
+            >,
+        > = ::std::cell::RefCell::new(::mimic::ic::structures::memory::MemoryManager::init(
+            ::mimic::ic::structures::DefaultMemoryImpl::default(),
+        ));
+
+                }
+    };
 }
+
+//
 
 // mimic_stores
 // define the stores
-// mimic_stores!(DATA1, 1, DATA2, 2)
+// mimic_stores!(MEMORY_MANAGER, DATA1, 1, DATA2, 2)
 #[macro_export]
 macro_rules! mimic_stores {
-    ($($store_name:ident, $memory_id:expr),*) => {
+    // This pattern matches when a memory manager, store names, and memory IDs are provided
+    ($memory_manager:expr, $($store_name:ident, $memory_id:expr),*) => {
         thread_local! {
             // Create and define each store statically, initializing with the provided memory ID
             $(
                 pub static $store_name: ::std::cell::RefCell<::mimic::store::Store> =
                     ::std::cell::RefCell::new(::mimic::store::Store::init(
-                        MEMORY_MANAGER.with(|mm| mm.borrow().get(
+                        $memory_manager.with(|mm| mm.borrow().get(
                             ::mimic::ic::structures::memory_manager::MemoryId::new($memory_id)
                         ))
                     ));

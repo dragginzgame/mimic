@@ -4,11 +4,12 @@ mod validate;
 
 use mimic::{
     ic::{init, update},
-    log, mimic_end, mimic_start, mimic_stores, Log,
+    log, mimic_end, mimic_memory_manager, mimic_start, mimic_stores, Log,
 };
 
+mimic_memory_manager!();
 mimic_start!("../mimic.toml");
-mimic_stores!(STORE, 1);
+mimic_stores!(MEMORY_MANAGER, STORE, 1);
 
 #[init]
 pub fn init() {
