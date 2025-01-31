@@ -42,7 +42,7 @@ macro_rules! mimic_build {
 // macro to be included at the start of each canister lib.rs file
 #[macro_export]
 macro_rules! mimic_start {
-    () => {
+    ($config:expr) => {
         thread_local! {
             // Define MEMORY_MANAGER thread-locally for the entire scope
             pub static MEMORY_MANAGER: ::std::cell::RefCell<
@@ -56,18 +56,24 @@ macro_rules! mimic_start {
             );
         }
 
-        // mimic_init_schema
-        fn mimic_init_schema() {
+        // mimic_init
+        fn mimic_init() {
+            // schema
             let schema_json = include_str!(concat!(env!("OUT_DIR"), "/schema.rs"));
             ::mimic::core::schema::init_schema_json(schema_json).unwrap();
-        }
 
-        // mimic_init_config
-        fn mimic_init_config() {
-            let toml = include_str!("../mimic.toml");
+            // toml
+            let toml = include_str($config);
             ::mimic::core::config::init_config_toml(toml).unwrap();
         }
     };
+}
+
+// mimic_config
+// macro to be included at the start of each canister lib.rs file
+#[macro_export]
+macro_rules! mimic_config {
+    ($config:expr) => {};
 }
 
 // mimic_stores
