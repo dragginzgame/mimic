@@ -63,18 +63,18 @@ macro_rules! mimic_memory_manager {
     ($ident:ident) => {
         thread_local! {
 
-        ///
-        /// Define MEMORY_MANAGER thread-locally for the entire scope
-        ///
-        pub static $ident: ::std::cell::RefCell<
-            ::mimic::ic::structures::memory::MemoryManager<
-                ::mimic::ic::structures::DefaultMemoryImpl,
-            >,
-        > = ::std::cell::RefCell::new(::mimic::ic::structures::memory::MemoryManager::init(
-            ::mimic::ic::structures::DefaultMemoryImpl::default(),
-        ));
+            ///
+            /// Define MEMORY_MANAGER thread-locally for the entire scope
+            ///
+            pub static $ident: ::std::cell::RefCell<
+                ::mimic::ic::structures::memory::MemoryManager<
+                    ::mimic::ic::structures::DefaultMemoryImpl,
+                >,
+            > = ::std::cell::RefCell::new(::mimic::ic::structures::memory::MemoryManager::init(
+                ::mimic::ic::structures::DefaultMemoryImpl::default(),
+            ));
 
-                }
+        }
     };
 }
 

@@ -24,13 +24,10 @@ extern crate self as mimic;
 ///
 /// MIMIC PRELUDE
 ///
-/// NOTE: Do not put the candid macros (query, update etc.) directly within this prelude as the endpoints
-/// will fail to be registered with the export_candid! macro
-///
 
 pub mod prelude {
     pub use crate::{
-        ic::{caller, format_cycles, id},
+        ic::{caller, format_cycles, id, init, query, update},
         log, mimic_end, mimic_start, mimic_stores,
         orm::{
             base::types::Ulid,
