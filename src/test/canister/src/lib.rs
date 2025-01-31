@@ -7,13 +7,12 @@ use mimic::{
     log, mimic_end, mimic_start, mimic_stores, Log,
 };
 
-mimic_start!();
+mimic_start!("../mimic.toml");
 mimic_stores!(STORE, 1);
 
 #[init]
 pub fn init() {
-    mimic_init_schema();
-    mimic_init_config();
+    mimic_init();
 }
 
 // test

@@ -63,7 +63,7 @@ macro_rules! mimic_start {
             ::mimic::core::schema::init_schema_json(schema_json).unwrap();
 
             // toml
-            let toml = include_str($config);
+            let toml = include_str!($config);
             ::mimic::core::config::init_config_toml(toml).unwrap();
         }
     };
