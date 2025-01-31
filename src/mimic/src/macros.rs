@@ -43,19 +43,6 @@ macro_rules! mimic_build {
 #[macro_export]
 macro_rules! mimic_start {
     ($config:expr) => {
-        thread_local! {
-            // Define MEMORY_MANAGER thread-locally for the entire scope
-            pub static MEMORY_MANAGER: ::std::cell::RefCell<
-                ::mimic::ic::structures::memory_manager::MemoryManager<
-                    ::mimic::ic::structures::DefaultMemoryImpl,
-                >,
-            > = ::std::cell::RefCell::new(
-                ::mimic::ic::structures::memory_manager::MemoryManager::init(
-                    ::mimic::ic::structures::DefaultMemoryImpl::default(),
-                ),
-            );
-        }
-
         // mimic_init
         fn mimic_init() {
             // schema
