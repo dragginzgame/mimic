@@ -1,6 +1,5 @@
-use mimic::{mimic_stores, orm::prelude::*, query::types::Order, store::types::DataKey};
-
-mimic_stores!(STORE, 1);
+use super::STORE;
+use mimic::{orm::prelude::*, query::types::Order, store::types::DataKey};
 
 ///
 /// DbTester

@@ -42,7 +42,7 @@ macro_rules! mimic_build {
 // macro to be included at the start of each canister lib.rs file
 #[macro_export]
 macro_rules! mimic_start {
-    ($config:expr) => {
+    () => {
         thread_local! {
             // Define MEMORY_MANAGER thread-locally for the entire scope
             pub static MEMORY_MANAGER: ::std::cell::RefCell<
@@ -56,20 +56,15 @@ macro_rules! mimic_start {
             );
         }
 
-        #[::mimic::ic::init]
-        fn init() {
-            _init()
-        }
-
-        // _init
-        // code called on all canister startups (install, upgrade)
-        fn _init() {
-            // schema
+        // mimic_init_schema
+        fn mimic_init_schema() {
             let schema_json = include_str!(concat!(env!("OUT_DIR"), "/schema.rs"));
             ::mimic::core::schema::init_schema_json(schema_json).unwrap();
+        }
 
-            // config
-            let toml = include_str!($config);
+        // mimic_init_config
+        fn mimic_init_config() {
+            let toml = include_str!("../mimic.toml");
             ::mimic::core::config::init_config_toml(toml).unwrap();
         }
     };
@@ -86,7 +81,7 @@ macro_rules! mimic_stores {
             $(
                 pub static $store_name: ::std::cell::RefCell<::mimic::store::Store> =
                     ::std::cell::RefCell::new(::mimic::store::Store::init(
-                        super::MEMORY_MANAGER.with(|mm| mm.borrow().get(
+                        MEMORY_MANAGER.with(|mm| mm.borrow().get(
                             ::mimic::ic::structures::memory_manager::MemoryId::new($memory_id)
                         ))
                     ));
