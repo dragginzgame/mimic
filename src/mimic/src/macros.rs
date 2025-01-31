@@ -60,13 +60,13 @@ macro_rules! mimic_start {
 // macro to be included at the start of each canister lib.rs file
 #[macro_export]
 macro_rules! mimic_memory_manager {
-    () => {
+    ($ident:ident) => {
         thread_local! {
 
         ///
         /// Define MEMORY_MANAGER thread-locally for the entire scope
         ///
-        pub static MEMORY_MANAGER: ::std::cell::RefCell<
+        pub static $ident: ::std::cell::RefCell<
             ::mimic::ic::structures::memory::MemoryManager<
                 ::mimic::ic::structures::DefaultMemoryImpl,
             >,
