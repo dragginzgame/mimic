@@ -1,6 +1,8 @@
 use crate::{
     orm::{
-        schema::node::{ArgNumber, Def, MacroNode, ValidateNode, VisitableNode, Visitor},
+        schema::node::{
+            ArgNumber, Def, MacroNode, Type, TypeNode, ValidateNode, VisitableNode, Visitor,
+        },
         types::ErrorVec,
     },
     utils::case::{Case, Casing},
@@ -18,11 +20,19 @@ pub struct EnumValue {
 
     #[serde(default)]
     pub variants: Vec<EnumValueVariant>,
+
+    pub ty: Type,
 }
 
 impl MacroNode for EnumValue {
     fn as_any(&self) -> &dyn std::any::Any {
         self
+    }
+}
+
+impl TypeNode for EnumValue {
+    fn ty(&self) -> &Type {
+        &self.ty
     }
 }
 
@@ -38,6 +48,7 @@ impl VisitableNode for EnumValue {
         for node in &self.variants {
             node.accept(v);
         }
+        self.ty.accept(v);
     }
 }
 

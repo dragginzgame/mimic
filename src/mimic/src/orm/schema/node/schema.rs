@@ -42,6 +42,7 @@ impl SchemaNode {
         match self {
             SchemaNode::Entity(ref n) => Some(Box::new(n.clone())),
             SchemaNode::Enum(ref n) => Some(Box::new(n.clone())),
+            SchemaNode::EnumValue(ref n) => Some(Box::new(n.clone())),
             SchemaNode::Map(ref n) => Some(Box::new(n.clone())),
             SchemaNode::Newtype(ref n) => Some(Box::new(n.clone())),
             SchemaNode::Primitive(ref n) => Some(Box::new(n.clone())),
