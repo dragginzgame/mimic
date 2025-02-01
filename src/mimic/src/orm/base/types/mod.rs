@@ -10,6 +10,18 @@ pub mod time;
 use crate::orm::{base::types, prelude::*};
 
 ///
+/// Todo
+///
+
+#[primitive(variant = "Todo", path = "types::prim::Todo")]
+pub struct Todo {}
+
+impl Path for Todo {
+    const IDENT: &'static str = "Todo";
+    const PATH: &'static str = "mimic::orm::base::types::Todo";
+}
+
+///
 /// Bool
 ///
 

@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_option, to_path},
+    helper::{quote_one, quote_option, to_path},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -29,9 +29,25 @@ pub struct Item {
     pub todo: bool,
 }
 
+impl Item {
+    pub fn quoted_path(&self) -> TokenStream {
+        if self.todo {
+            quote!(::mimic::orm::base::types::Todo)
+        } else {
+            match (&self.is, &self.relation) {
+                (Some(is), None) => quote!(#is),
+                (None, Some(_)) => {
+                    quote!(::mimic::orm::base::types::Ulid)
+                }
+                _ => panic!("either is or relation should be set"),
+            }
+        }
+    }
+}
+
 impl Schemable for Item {
     fn schema(&self) -> TokenStream {
-        let is = quote_option(self.is.as_ref(), to_path);
+        let path = quote_one(&self.quoted_path(), to_path);
         let relation = quote_option(self.relation.as_ref(), to_path);
         let selector = quote_option(self.selector.as_ref(), to_path);
         let indirect = self.indirect;
@@ -39,7 +55,7 @@ impl Schemable for Item {
 
         quote! {
             ::mimic::orm::schema::node::Item{
-                is: #is,
+                path: #path,
                 relation: #relation,
                 selector: #selector,
                 indirect: #indirect,
@@ -51,20 +67,11 @@ impl Schemable for Item {
 
 impl ToTokens for Item {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let q = if self.todo {
-            // todo we turn to i32
-            quote!(::mimic::orm::base::types::I32)
+        let path = self.quoted_path();
+        let q = if self.indirect {
+            quote!(Box<#path>)
         } else {
-            match (&self.is, &self.relation) {
-                (Some(is), None) if self.indirect => quote!(Box<#is>),
-                (Some(is), None) => quote!(#is),
-
-                // relation
-                (None, Some(_)) => {
-                    quote!(::mimic::orm::base::types::Ulid)
-                }
-                _ => panic!("either is or relation should be set"),
-            }
+            quote!(#path)
         };
 
         tokens.extend(q)

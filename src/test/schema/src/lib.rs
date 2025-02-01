@@ -24,8 +24,15 @@ pub struct EntityIdTest {}
 /// TodoTest
 ///
 
-#[newtype(value(item(todo, is = "Todo")))]
+#[newtype(value(item(todo)))]
 pub struct TodoTest {}
+
+///
+/// TodoTestTarget
+///
+
+#[newtype(value(item(todo, is = "Todo")))]
+pub struct TodoTestTarget {}
 
 ///
 /// Todo

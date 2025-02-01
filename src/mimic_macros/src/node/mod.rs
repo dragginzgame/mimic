@@ -340,6 +340,7 @@ pub enum PrimitiveType {
     Isize,
     Principal,
     String,
+    Todo,
     U8,
     U16,
     U32,
@@ -359,7 +360,7 @@ impl PrimitiveType {
     pub const fn group(self) -> PrimitiveGroup {
         match self {
             Self::Blob => PrimitiveGroup::Blob,
-            Self::Bool => PrimitiveGroup::Bool,
+            Self::Bool | Self::Todo => PrimitiveGroup::Bool,
             Self::Decimal => PrimitiveGroup::Decimal,
             Self::F32 | Self::F64 => PrimitiveGroup::Float,
             Self::I8
@@ -432,6 +433,7 @@ impl ToTokens for PrimitiveType {
             Self::Isize => quote!(isize),
             Self::Principal => quote!(::mimic::orm::base::types::Principal),
             Self::String => quote!(String),
+            Self::Todo => quote!(::mimic::orm::base::types::Todo),
             Self::U8 => quote!(u8),
             Self::U16 => quote!(u16),
             Self::U32 => quote!(u32),

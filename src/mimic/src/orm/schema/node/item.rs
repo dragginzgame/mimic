@@ -14,8 +14,8 @@ use std::ops::Not;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Item {
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub is: Option<String>,
+    #[serde(default)]
+    pub path: String,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub relation: Option<String>,
@@ -31,19 +31,9 @@ pub struct Item {
 }
 
 impl Item {
-    // is_relation
     #[must_use]
-    pub const fn is_relation(&self) -> bool {
+    pub fn is_relation(&self) -> bool {
         self.relation.is_some()
-    }
-
-    // get_path
-    fn get_path(&self) -> String {
-        match (&self.is, &self.relation) {
-            (Some(is), None) => is.to_string(),
-            (None, Some(relation)) => relation.to_string(),
-            _ => panic!("error should have been caught in macros"),
-        }
     }
 }
 
@@ -52,33 +42,28 @@ impl ValidateNode for Item {
         let mut errs = ErrorVec::new();
         let schema = schema_read();
 
-        // Validate 'is' field
-        if let Some(path) = &self.is {
-            if let Err(e) = schema.try_get_node(path) {
-                errs.add(e);
-            }
+        // Validate path
+        if let Err(e) = schema.try_get_node(&self.path) {
+            errs.add(e);
         }
 
         // relation
-        if let Some(path) = &self.relation {
+        if let Some(relation) = &self.relation {
             if self.indirect {
                 errs.add("relations cannot be set to indirect");
             }
-            errs.add_result(schema.check_node_as::<Entity>(path));
+            errs.add_result(schema.check_node_as::<Entity>(relation));
         }
 
         // type node (both is and relation)
-        if let Some(node) = schema.get_node(&self.get_path()) {
+        if let Some(node) = schema.get_node(&self.path) {
             match node.get_type() {
                 Some(tnode) => {
-                    let other_todo = tnode.ty().todo;
-                    if self.todo != other_todo {
-                        let message = if self.todo {
-                            "this item's target is not flagged todo"
-                        } else {
-                            "you must specify todo if targeting a todo flagged item"
-                        };
-                        errs.add(message);
+                    if !self.todo && tnode.ty().todo {
+                        errs.add(format!(
+                            "you must specify todo if {} targeting a todo flagged item",
+                            &self.path
+                        ));
                     }
                 }
                 None => errs.add("node is not a valid type"),
