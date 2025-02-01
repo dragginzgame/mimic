@@ -56,8 +56,7 @@ macro_rules! mimic_start {
     };
 }
 
-// mimic_config
-// macro to be included at the start of each canister lib.rs file
+// mimic_memory_manager
 #[macro_export]
 macro_rules! mimic_memory_manager {
     ($ident:ident) => {
@@ -79,10 +78,10 @@ macro_rules! mimic_memory_manager {
 }
 
 //
-
 // mimic_stores
 // define the stores
 // mimic_stores!(MEMORY_MANAGER, DATA1, 1, DATA2, 2)
+//
 #[macro_export]
 macro_rules! mimic_stores {
     // This pattern matches when a memory manager, store names, and memory IDs are provided

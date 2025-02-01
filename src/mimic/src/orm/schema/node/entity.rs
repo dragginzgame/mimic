@@ -1,6 +1,8 @@
 use crate::orm::{
     schema::{
-        node::{Def, FieldList, Index, MacroNode, SortKey, ValidateNode, VisitableNode},
+        node::{
+            Def, FieldList, Index, MacroNode, SortKey, Type, TypeNode, ValidateNode, VisitableNode,
+        },
         visit::Visitor,
     },
     types::ErrorVec,
@@ -22,11 +24,18 @@ pub struct Entity {
     pub indexes: Vec<Index>,
 
     pub fields: FieldList,
+    pub ty: Type,
 }
 
 impl MacroNode for Entity {
     fn as_any(&self) -> &dyn std::any::Any {
         self
+    }
+}
+
+impl TypeNode for Entity {
+    fn ty(&self) -> &Type {
+        &self.ty
     }
 }
 

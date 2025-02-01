@@ -14,9 +14,6 @@ use syn::Path;
 #[derive(Clone, Debug, FromMeta)]
 pub struct Item {
     #[darling(default)]
-    pub indirect: bool,
-
-    #[darling(default)]
     pub is: Option<Path>,
 
     #[darling(default, rename = "rel")]
@@ -24,21 +21,24 @@ pub struct Item {
 
     #[darling(default)]
     pub selector: Option<Path>,
+
+    #[darling(default)]
+    pub indirect: bool,
 }
 
 impl Schemable for Item {
     fn schema(&self) -> TokenStream {
-        let indirect = self.indirect;
         let is = quote_option(self.is.as_ref(), to_path);
         let relation = quote_option(self.relation.as_ref(), to_path);
         let selector = quote_option(self.selector.as_ref(), to_path);
+        let indirect = self.indirect;
 
         quote! {
             ::mimic::orm::schema::node::Item{
-                indirect: #indirect,
                 is: #is,
                 relation: #relation,
                 selector: #selector,
+                indirect: #indirect,
             }
         }
     }

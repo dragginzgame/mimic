@@ -61,6 +61,15 @@ pub trait MacroNode: Any {
 }
 
 ///
+/// TypeNode
+/// shared traits for every type node
+///
+
+pub trait TypeNode: MacroNode {
+    fn ty(&self) -> &Type;
+}
+
+///
 /// ValidateNode
 ///
 

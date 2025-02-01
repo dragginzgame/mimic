@@ -1,7 +1,6 @@
 use crate::imp;
 use crate::{
-    helper::quote_vec,
-    node::{Def, Item, MacroNode, Node, Trait, TraitNode, Traits, TypeValidator, Value},
+    node::{Def, Item, MacroNode, Node, Trait, TraitNode, Traits, Type, Value},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -20,8 +19,8 @@ pub struct Map {
     pub key: Item,
     pub value: Value,
 
-    #[darling(multiple, rename = "validator")]
-    pub validators: Vec<TypeValidator>,
+    #[darling(default)]
+    pub ty: Type,
 
     #[darling(default)]
     pub traits: Traits,
@@ -87,14 +86,14 @@ impl Schemable for Map {
         let def = self.def.schema();
         let key = self.key.schema();
         let value = self.value.schema();
-        let validators = quote_vec(&self.validators, TypeValidator::schema);
+        let ty = self.ty.schema();
 
         quote! {
                 ::mimic::orm::schema::node::SchemaNode::Map(::mimic::orm::schema::node::Map {
                     def: #def,
                     key: #key,
                     value: #value,
-                    validators: #validators,
+                    ty: #ty,
                 })
         }
     }

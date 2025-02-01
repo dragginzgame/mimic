@@ -68,14 +68,14 @@ impl Resolver {
 
         // create the chain from the Schema
         let entity = schema
-            .get_node::<Entity>(&self.entity)
+            .get_node_as::<Entity>(&self.entity)
             .ok_or_else(|| ResolverError::entity_not_found(&self.entity))?;
 
         // create an ordered vec from the parents
         let mut chain = Vec::new();
         for sk in &entity.sort_keys {
             let sk_entity = schema
-                .get_node::<Entity>(&sk.entity)
+                .get_node_as::<Entity>(&sk.entity)
                 .ok_or_else(|| ResolverError::entity_not_found(&sk.entity))?;
 
             chain.push(sk_entity);

@@ -1,7 +1,7 @@
 use crate::imp;
 use crate::{
     helper::quote_vec,
-    node::{Def, MacroNode, Node, Trait, TraitNode, Traits, Value},
+    node::{Def, MacroNode, Node, Trait, TraitNode, Traits, Type, Value},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -19,6 +19,9 @@ pub struct Tuple {
 
     #[darling(multiple, rename = "value")]
     pub values: Vec<Value>,
+
+    #[darling(default)]
+    pub ty: Type,
 
     #[darling(default)]
     pub traits: Traits,
@@ -58,6 +61,22 @@ impl MacroNode for Tuple {
     }
 }
 
+impl Schemable for Tuple {
+    fn schema(&self) -> TokenStream {
+        let def = self.def.schema();
+        let values = quote_vec(&self.values, Value::schema);
+        let ty = &self.ty.schema();
+
+        quote! {
+            ::mimic::orm::schema::node::SchemaNode::Tuple(::mimic::orm::schema::node::Tuple {
+                def: #def,
+                values: #values,
+                ty: #ty,
+            })
+        }
+    }
+}
+
 impl TraitNode for Tuple {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
@@ -73,20 +92,6 @@ impl TraitNode for Tuple {
             Trait::Visitable => imp::visitable::tuple(self, t),
 
             _ => imp::any(self, t),
-        }
-    }
-}
-
-impl Schemable for Tuple {
-    fn schema(&self) -> TokenStream {
-        let def = self.def.schema();
-        let values = quote_vec(&self.values, Value::schema);
-
-        quote! {
-            ::mimic::orm::schema::node::SchemaNode::Tuple(::mimic::orm::schema::node::Tuple {
-                def: #def,
-                values: #values,
-            })
         }
     }
 }

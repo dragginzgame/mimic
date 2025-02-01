@@ -44,7 +44,7 @@ pub fn enum_(node: &Enum, t: Trait) -> TokenStream {
 // newtype
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
     // Generate inner logic
-    let inner = if node.validators.is_empty() {
+    let inner = if node.ty.validators.is_empty() {
         quote!(Ok(()))
     } else {
         // validate function name
@@ -60,7 +60,7 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
         };
 
         // Generate rules
-        let rules = node.validators.iter().map(|val| {
+        let rules = node.ty.validators.iter().map(|val| {
             let path = &val.path;
             let args = &val.args;
 

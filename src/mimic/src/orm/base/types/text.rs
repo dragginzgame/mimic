@@ -36,8 +36,10 @@ impl<const LEN: usize> ValidateManual for Text<LEN> {
 #[newtype(
     primitive = "String",
     value(item(is = "types::String")),
-    validator(path = "validator::string::len::Range", args(3, 30)),
-    validator(path = "validator::string::case::Snake"),
+    ty(
+        validator(path = "validator::string::len::Range", args(3, 30)),
+        validator(path = "validator::string::case::Snake"),
+    ),
     traits(add(Hash))
 )]
 pub struct Function {}

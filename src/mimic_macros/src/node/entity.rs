@@ -1,7 +1,7 @@
 use crate::imp;
 use crate::{
     helper::quote_vec,
-    node::{Def, FieldList, Index, MacroNode, Node, SortKey, Trait, TraitNode, Traits},
+    node::{Def, FieldList, Index, MacroNode, Node, SortKey, Trait, TraitNode, Traits, Type},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -25,6 +25,9 @@ pub struct Entity {
 
     #[darling(default)]
     pub fields: FieldList,
+
+    #[darling(default)]
+    pub ty: Type,
 
     #[darling(default)]
     pub traits: Traits,
@@ -108,6 +111,7 @@ impl Schemable for Entity {
         let sort_keys = quote_vec(&self.sort_keys, SortKey::schema);
         let indexes = quote_vec(&self.indexes, Index::schema);
         let fields = &self.fields.schema();
+        let ty = &self.ty.schema();
 
         quote! {
             ::mimic::orm::schema::node::SchemaNode::Entity(::mimic::orm::schema::node::Entity {
@@ -115,6 +119,7 @@ impl Schemable for Entity {
                 sort_keys: #sort_keys,
                 indexes: #indexes,
                 fields: #fields,
+                ty: #ty,
             })
         }
     }

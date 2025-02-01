@@ -1,5 +1,5 @@
 use crate::orm::schema::{
-    node::{Def, MacroNode, TypeValidator, ValidateNode, Value, VisitableNode},
+    node::{Def, MacroNode, Type, TypeNode, ValidateNode, Value, VisitableNode},
     types::PrimitiveType,
     visit::Visitor,
 };
@@ -17,13 +17,18 @@ pub struct Newtype {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub primitive: Option<PrimitiveType>,
 
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub validators: Vec<TypeValidator>,
+    pub ty: Type,
 }
 
 impl MacroNode for Newtype {
     fn as_any(&self) -> &dyn std::any::Any {
         self
+    }
+}
+
+impl TypeNode for Newtype {
+    fn ty(&self) -> &Type {
+        &self.ty
     }
 }
 
@@ -37,8 +42,6 @@ impl VisitableNode for Newtype {
     fn drive<V: Visitor>(&self, v: &mut V) {
         self.def.accept(v);
         self.value.accept(v);
-        for node in &self.validators {
-            node.accept(v);
-        }
+        self.ty.accept(v);
     }
 }

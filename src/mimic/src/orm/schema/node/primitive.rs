@@ -1,5 +1,5 @@
 use crate::orm::schema::{
-    node::{Def, MacroNode, ValidateNode, VisitableNode},
+    node::{Def, MacroNode, Type, TypeNode, ValidateNode, VisitableNode},
     types::PrimitiveType,
     visit::Visitor,
 };
@@ -12,12 +12,19 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Primitive {
     pub def: Def,
-    pub ty: PrimitiveType,
+    pub variant: PrimitiveType,
+    pub ty: Type,
 }
 
 impl MacroNode for Primitive {
     fn as_any(&self) -> &dyn std::any::Any {
         self
+    }
+}
+
+impl TypeNode for Primitive {
+    fn ty(&self) -> &Type {
+        &self.ty
     }
 }
 
@@ -30,5 +37,6 @@ impl VisitableNode for Primitive {
 
     fn drive<V: Visitor>(&self, v: &mut V) {
         self.def.accept(v);
+        self.ty.accept(v);
     }
 }

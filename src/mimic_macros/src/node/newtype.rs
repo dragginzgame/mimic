@@ -1,9 +1,9 @@
 use crate::{
-    helper::{quote_option, quote_vec},
+    helper::quote_option,
     imp,
     node::{
         Cardinality, Def, MacroNode, Node, PrimitiveGroup, PrimitiveType, Trait, TraitNode, Traits,
-        TypeValidator, Value,
+        Type, Value,
     },
     traits::Schemable,
 };
@@ -25,8 +25,8 @@ pub struct Newtype {
     #[darling(default)]
     pub primitive: Option<PrimitiveType>,
 
-    #[darling(multiple, rename = "validator")]
-    pub validators: Vec<TypeValidator>,
+    #[darling(default)]
+    pub ty: Type,
 
     #[darling(default)]
     pub traits: Traits,
@@ -156,14 +156,14 @@ impl Schemable for Newtype {
         let def = self.def.schema();
         let value = self.value.schema();
         let primitive = quote_option(self.primitive.as_ref(), PrimitiveType::schema);
-        let validators = quote_vec(&self.validators, TypeValidator::schema);
+        let ty = self.ty.schema();
 
         quote! {
             ::mimic::orm::schema::node::SchemaNode::Newtype(::mimic::orm::schema::node::Newtype {
                 def: #def,
                 value: #value,
                 primitive: #primitive,
-                validators: #validators,
+                ty: #ty,
             })
         }
     }

@@ -1,7 +1,7 @@
 use crate::{
     orm::{
         schema::{
-            build::validate::{is_reserved, validate_ident},
+            build::validate::validate_ident,
             node::{ValidateNode, Value, VisitableNode},
             types::{Cardinality, SortDirection},
             visit::Visitor,
@@ -11,6 +11,7 @@ use crate::{
     utils::case::{Case, Casing},
 };
 use serde::{Deserialize, Serialize};
+use std::ops::Not;
 
 ///
 /// FieldList
@@ -66,6 +67,9 @@ impl VisitableNode for FieldList {
 pub struct Field {
     pub name: String,
     pub value: Value,
+
+    #[serde(default, skip_serializing_if = "Not::not")]
+    pub todo: bool,
 }
 
 impl ValidateNode for Field {
@@ -77,21 +81,7 @@ impl ValidateNode for Field {
         errs.add_result(validate_ident(&self.name));
 
         // snake case
-        let name_to_check = if self.name.starts_with('_') {
-            &self.name[1..]
-        } else if self.name.ends_with('_') {
-            // reverse the check
-            // as only a reserved word can end with a _
-            let new_name = &self.name[0..&self.name.len() - 1];
-            if is_reserved(new_name).is_ok() {
-                errs.add("only reserved words can end with _");
-            }
-
-            new_name
-        } else {
-            &self.name
-        };
-        if !name_to_check.is_case(Case::Snake) {
+        if !self.name.is_case(Case::Snake) {
             errs.add(format!("field name '{}' must be in snake_case", self.name));
         }
 

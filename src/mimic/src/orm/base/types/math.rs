@@ -48,7 +48,7 @@ impl<const I: usize, const F: usize> ValidateManual for DecimalFormat<I, F> {
 #[newtype(
     primitive = "U16",
     value(item(is = "types::U16")),
-    validator(path = "validator::number::Range", args(0, 360))
+    ty(validator(path = "validator::number::Range", args(0, 360)))
 )]
 pub struct Degrees {}
 
@@ -61,7 +61,7 @@ pub struct Degrees {}
 #[newtype(
     primitive = "U8",
     value(item(is = "types::U8")),
-    validator(path = "validator::number::Range", args(0, 100))
+    ty(validator(path = "validator::number::Range", args(0, 100)))
 )]
 pub struct Percent {}
 
@@ -72,6 +72,6 @@ pub struct Percent {}
 #[newtype(
     primitive = "U16",
     value(item(is = "types::U16")),
-    validator(path = "validator::number::Range", args(0, 10_000))
+    ty(validator(path = "validator::number::Range", args(0, 10_000)))
 )]
 pub struct PercentModifier {}

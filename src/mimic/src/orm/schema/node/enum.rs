@@ -1,7 +1,7 @@
 use crate::{
     orm::{
         schema::{
-            node::{Def, MacroNode, ValidateNode, Value, VisitableNode},
+            node::{Def, MacroNode, Type, TypeNode, ValidateNode, Value, VisitableNode},
             visit::Visitor,
         },
         types::ErrorVec,
@@ -19,11 +19,18 @@ use std::ops::Not;
 pub struct Enum {
     pub def: Def,
     pub variants: Vec<EnumVariant>,
+    pub ty: Type,
 }
 
 impl MacroNode for Enum {
     fn as_any(&self) -> &dyn std::any::Any {
         self
+    }
+}
+
+impl TypeNode for Enum {
+    fn ty(&self) -> &Type {
+        &self.ty
     }
 }
 

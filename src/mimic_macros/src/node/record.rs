@@ -1,6 +1,6 @@
 use crate::{
     imp,
-    node::{Def, FieldList, MacroNode, Node, Trait, TraitNode, Traits},
+    node::{Def, FieldList, MacroNode, Node, Trait, TraitNode, Traits, Type},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -21,6 +21,9 @@ pub struct Record {
 
     #[darling(default)]
     pub traits: Traits,
+
+    #[darling(default)]
+    pub ty: Type,
 }
 
 impl Node for Record {
@@ -61,11 +64,13 @@ impl Schemable for Record {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let fields = self.fields.schema();
+        let ty = self.ty.schema();
 
         quote! {
             ::mimic::orm::schema::node::SchemaNode::Record(::mimic::orm::schema::node::Record {
                 def: #def,
                 fields: #fields,
+                ty: #ty,
             })
         }
     }

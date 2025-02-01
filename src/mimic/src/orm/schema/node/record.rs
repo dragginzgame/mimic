@@ -1,5 +1,5 @@
 use crate::orm::schema::{
-    node::{Def, FieldList, MacroNode, ValidateNode, VisitableNode},
+    node::{Def, FieldList, MacroNode, Type, TypeNode, ValidateNode, VisitableNode},
     visit::Visitor,
 };
 use serde::{Deserialize, Serialize};
@@ -12,11 +12,18 @@ use serde::{Deserialize, Serialize};
 pub struct Record {
     pub def: Def,
     pub fields: FieldList,
+    pub ty: Type,
 }
 
 impl MacroNode for Record {
     fn as_any(&self) -> &dyn std::any::Any {
         self
+    }
+}
+
+impl TypeNode for Record {
+    fn ty(&self) -> &Type {
+        &self.ty
     }
 }
 
@@ -30,5 +37,6 @@ impl VisitableNode for Record {
     fn drive<V: Visitor>(&self, v: &mut V) {
         self.def.accept(v);
         self.fields.accept(v);
+        self.ty.accept(v);
     }
 }

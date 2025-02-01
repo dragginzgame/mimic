@@ -26,6 +26,6 @@ pub struct ValidateTest {}
 #[newtype(
     primitive = "I32",
     value(item(is = "types::I32")),
-    validator(path = "validator::number::MultipleOf", args(10))
+    ty(validator(path = "validator::number::MultipleOf", args(10)))
 )]
 pub struct MultipleTenType {}

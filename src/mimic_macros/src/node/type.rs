@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_one, to_path},
+    helper::{quote_one, quote_vec, to_path},
     node::Args,
     traits::Schemable,
 };
@@ -7,6 +7,35 @@ use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::Path;
+
+///
+/// Type
+///
+
+#[derive(Clone, Debug, Default, FromMeta)]
+pub struct Type {
+    #[darling(default)]
+    pub todo: bool,
+
+    #[darling(multiple, rename = "validator")]
+    pub validators: Vec<TypeValidator>,
+}
+
+impl Schemable for Type {
+    fn schema(&self) -> TokenStream {
+        let validators = quote_vec(&self.validators, TypeValidator::schema);
+        let todo = self.todo;
+
+        let q = quote! {
+            ::mimic::orm::schema::node::Type {
+                validators: #validators,
+                todo: #todo,
+            }
+        };
+
+        q
+    }
+}
 
 ///
 /// TypeValidator
@@ -31,8 +60,6 @@ impl Schemable for TypeValidator {
                 args: #args,
             }
         };
-
-        //  panic!("{q}");
 
         q
     }

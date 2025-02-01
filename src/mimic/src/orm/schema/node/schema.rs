@@ -1,7 +1,7 @@
 use crate::orm::schema::{
     node::{
         Constant, Def, Entity, Enum, EnumValue, MacroNode, Map, Newtype, Primitive, Record,
-        Selector, Tuple, ValidateNode, Validator, VisitableNode,
+        Selector, Tuple, TypeNode, ValidateNode, Validator, VisitableNode,
     },
     visit::Visitor,
     SchemaError,
@@ -13,7 +13,7 @@ use serde::{
 use sha2::{Digest, Sha256};
 use std::{
     any::{Any, TypeId},
-    collections::{BTreeMap, HashSet},
+    collections::BTreeMap,
 };
 
 ///
@@ -34,6 +34,22 @@ pub enum SchemaNode {
     Selector(Selector),
     Tuple(Tuple),
     Validator(Validator),
+}
+
+impl SchemaNode {
+    #[must_use]
+    pub fn get_type(&self) -> Option<Box<dyn TypeNode>> {
+        match self {
+            SchemaNode::Entity(ref n) => Some(Box::new(n.clone())),
+            SchemaNode::Enum(ref n) => Some(Box::new(n.clone())),
+            SchemaNode::Map(ref n) => Some(Box::new(n.clone())),
+            SchemaNode::Newtype(ref n) => Some(Box::new(n.clone())),
+            SchemaNode::Primitive(ref n) => Some(Box::new(n.clone())),
+            SchemaNode::Record(ref n) => Some(Box::new(n.clone())),
+            SchemaNode::Tuple(ref n) => Some(Box::new(n.clone())),
+            _ => None,
+        }
+    }
 }
 
 impl SchemaNode {
@@ -108,29 +124,22 @@ impl Serialize for Schema {
     where
         S: Serializer,
     {
-        // Serialize just the data parts to JSON first (exclude the hash)
-        let json = serde_json::to_string(&SchemaNodes { nodes: &self.nodes })
-            .map_err(serde::ser::Error::custom)?;
+        // Serialize just the nodes part to JSON
+        let nodes_json = serde_json::to_string(&self.nodes).map_err(serde::ser::Error::custom)?;
 
-        // Compute the hash of the JSON string
+        // Compute the hash of the nodes JSON string
         let mut hasher = Sha256::new();
-        hasher.update(json.as_bytes());
+        hasher.update(nodes_json.as_bytes());
         let hash_result = hasher.finalize();
         let hash_hex = hex::encode(hash_result);
 
-        // Serialize all including the hash
+        // Serialize the Schema struct, including the hash
         let mut state = serializer.serialize_struct("Schema", 3)?;
         state.serialize_field("nodes", &self.nodes)?;
         state.serialize_field("timestamp", &self.timestamp)?;
         state.serialize_field("hash", &hash_hex)?;
         state.end()
     }
-}
-
-// SchemaNodes is a serialization helper
-#[derive(Serialize)]
-struct SchemaNodes<'a> {
-    nodes: &'a BTreeMap<String, SchemaNode>,
 }
 
 impl Schema {
@@ -143,58 +152,54 @@ impl Schema {
         }
     }
 
-    // add_node
-    pub fn add_node(&mut self, node: SchemaNode) {
+    // insert_node
+    pub fn insert_node(&mut self, node: SchemaNode) {
         self.nodes.insert(node.def().path(), node);
-    }
-
-    // check_node
-    pub fn check_node<T: 'static>(&self, path: &str) -> Result<(), SchemaError> {
-        self.try_get_node::<T>(path).map(|_| ())
-    }
-
-    // check_node_types
-    // allows you to check to see if the type is within a set
-    pub fn check_node_types(
-        &self,
-        path: &str,
-        acceptable_types: &HashSet<TypeId>,
-    ) -> Result<(), SchemaError> {
-        self.nodes.get(path).map_or_else(
-            || Err(SchemaError::path_not_found(path)),
-            |node| {
-                if acceptable_types.contains(&node.as_any().type_id()) {
-                    Ok(())
-                } else {
-                    Err(SchemaError::incorrect_node_type(path))
-                }
-            },
-        )
     }
 
     // get_node
     #[must_use]
-    pub fn get_node<'a, T: 'static>(&'a self, path: &str) -> Option<&'a T> {
-        self.nodes
-            .get(path) // This returns Option<&SchemaNode>
-            .and_then(|node| node.as_any().downcast_ref::<T>())
+    pub fn get_node<'a>(&'a self, path: &str) -> Option<&'a SchemaNode> {
+        self.nodes.get(path)
     }
 
     // try_get_node
-    // function to retrieve a node of type T, if exists and matches the type
-    pub fn try_get_node<'a, T: 'static>(&'a self, path: &str) -> Result<&'a T, SchemaError> {
-        self.nodes.get(path).map_or_else(
-            || Err(SchemaError::path_not_found(path)),
-            |node| {
-                node.as_any().downcast_ref::<T>().ok_or_else(|| {
+    pub fn try_get_node<'a>(&'a self, path: &str) -> Result<&'a SchemaNode, SchemaError> {
+        self.nodes
+            .get(path)
+            .ok_or_else(|| SchemaError::path_not_found(path))
+    }
+
+    // get_node_as
+    #[must_use]
+    pub fn get_node_as<'a, T: 'static>(&'a self, path: &str) -> Option<&'a T> {
+        self.nodes
+            .get(path)
+            .and_then(|node| node.as_any().downcast_ref::<T>())
+    }
+
+    // check_node_as
+    pub fn check_node_as<T: 'static>(&self, path: &str) -> Result<(), SchemaError> {
+        self.try_cast_node::<T>(path).map(|_| ())
+    }
+
+    // try_cast_node
+    // attempts to downcast the node to the specified type `T` and returns Result
+    pub fn try_cast_node<'a, T: 'static>(&'a self, path: &str) -> Result<&'a T, SchemaError> {
+        self.nodes
+            .get(path)
+            .and_then(|node| node.as_any().downcast_ref::<T>())
+            .ok_or_else(|| {
+                if let Some(node) = self.nodes.get(path) {
                     if node.as_any().type_id() == TypeId::of::<T>() {
                         SchemaError::downcast_fail(path)
                     } else {
                         SchemaError::incorrect_node_type(path)
                     }
-                })
-            },
-        )
+                } else {
+                    SchemaError::path_not_found(path)
+                }
+            })
     }
 
     // get_nodes

@@ -22,7 +22,7 @@ impl ValidateNode for SortKey {
         let mut errs = ErrorVec::new();
 
         // check entity
-        errs.add_result(schema_read().check_node::<Entity>(&self.entity));
+        errs.add_result(schema_read().check_node_as::<Entity>(&self.entity));
 
         errs.result()
     }

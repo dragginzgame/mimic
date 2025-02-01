@@ -1,5 +1,5 @@
 use crate::orm::schema::{
-    node::{Def, Item, MacroNode, TypeValidator, ValidateNode, Value, VisitableNode},
+    node::{Def, Item, MacroNode, Type, TypeNode, ValidateNode, Value, VisitableNode},
     visit::Visitor,
 };
 use serde::{Deserialize, Serialize};
@@ -13,14 +13,18 @@ pub struct Map {
     pub def: Def,
     pub key: Item,
     pub value: Value,
-
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub validators: Vec<TypeValidator>,
+    pub ty: Type,
 }
 
 impl MacroNode for Map {
     fn as_any(&self) -> &dyn std::any::Any {
         self
+    }
+}
+
+impl TypeNode for Map {
+    fn ty(&self) -> &Type {
+        &self.ty
     }
 }
 
@@ -35,8 +39,6 @@ impl VisitableNode for Map {
         self.def.accept(v);
         self.key.accept(v);
         self.value.accept(v);
-        for node in &self.validators {
-            node.accept(v);
-        }
+        self.ty.accept(v);
     }
 }

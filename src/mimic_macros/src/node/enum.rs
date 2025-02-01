@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_option, quote_vec, to_string},
     imp,
-    node::{Def, MacroNode, Node, Sorted, Trait, TraitNode, Traits, Value},
+    node::{Def, MacroNode, Node, Sorted, Trait, TraitNode, Traits, Type, Value},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -23,6 +23,9 @@ pub struct Enum {
 
     #[darling(multiple, rename = "variant")]
     pub variants: Vec<EnumVariant>,
+
+    #[darling(default)]
+    pub ty: Type,
 
     #[darling(default)]
     pub traits: Traits,
@@ -113,11 +116,13 @@ impl Schemable for Enum {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let variants = quote_vec(&self.variants, EnumVariant::schema);
+        let ty = &self.ty.schema();
 
         quote! {
             ::mimic::orm::schema::node::SchemaNode::Enum(::mimic::orm::schema::node::Enum {
                 def: #def,
                 variants: #variants,
+                ty: #ty,
             })
         }
     }

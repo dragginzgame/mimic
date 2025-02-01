@@ -1,15 +1,12 @@
 use crate::orm::{
     schema::{
         build::schema_read,
-        node::{
-            Entity, Enum, EnumValue, Map, Newtype, Primitive, Record, Selector, Tuple,
-            ValidateNode, VisitableNode,
-        },
+        node::{Entity, Selector, ValidateNode, VisitableNode},
     },
     types::ErrorVec,
 };
 use serde::{Deserialize, Serialize};
-use std::{any::TypeId, collections::HashSet, ops::Not, sync::LazyLock};
+use std::ops::Not;
 
 ///
 /// Item
@@ -38,25 +35,10 @@ impl Item {
     }
 }
 
-// define acceptable types for an 'is' Item
-static ACCEPTABLE_TYPES: LazyLock<HashSet<TypeId>> = LazyLock::new(|| {
-    let mut acceptable_types = HashSet::new();
-    acceptable_types.extend(vec![
-        TypeId::of::<Entity>(),
-        TypeId::of::<Enum>(),
-        TypeId::of::<EnumValue>(),
-        TypeId::of::<Map>(),
-        TypeId::of::<Newtype>(),
-        TypeId::of::<Primitive>(),
-        TypeId::of::<Record>(),
-        TypeId::of::<Tuple>(),
-    ]);
-    acceptable_types
-});
-
 impl ValidateNode for Item {
     fn validate(&self) -> Result<(), ErrorVec> {
         let mut errs = ErrorVec::new();
+        let schema = schema_read();
 
         // both
         if self.is.is_some() == self.relation.is_some() {
@@ -65,7 +47,13 @@ impl ValidateNode for Item {
 
         // is
         if let Some(path) = &self.is {
-            errs.add_result(schema_read().check_node_types(path, &ACCEPTABLE_TYPES));
+            match schema.try_get_node(path) {
+                Ok(node) => match node.get_type() {
+                    Some(_) => {}
+                    None => errs.add("node is not a valid type"),
+                },
+                Err(e) => errs.add(e),
+            }
         }
 
         // relation
@@ -74,12 +62,12 @@ impl ValidateNode for Item {
                 errs.add("relations cannot be set to indirect");
             }
 
-            errs.add_result(schema_read().check_node::<Entity>(path));
+            errs.add_result(schema.check_node_as::<Entity>(path));
         }
 
         // selector
         if let Some(selector) = &self.selector {
-            if schema_read().get_node::<Selector>(selector).is_none() {
+            if schema.get_node_as::<Selector>(selector).is_none() {
                 errs.add(format!("selector path '{selector}' not found"));
             }
         }

@@ -1,6 +1,6 @@
 use crate::{
     helper::quote_one,
-    node::{Def, MacroNode, Node, PrimitiveType},
+    node::{Def, MacroNode, Node, PrimitiveType, Type},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -17,8 +17,11 @@ pub struct Primitive {
     #[darling(default, skip)]
     pub def: Def,
 
-    pub ty: PrimitiveType,
+    pub variant: PrimitiveType,
     pub path: Path,
+
+    #[darling(default)]
+    pub ty: Type,
 }
 
 impl Node for Primitive {
@@ -52,11 +55,13 @@ impl MacroNode for Primitive {
 impl Schemable for Primitive {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
-        let ty = quote_one(&self.ty, PrimitiveType::schema);
+        let variant = quote_one(&self.variant, PrimitiveType::schema);
+        let ty = self.ty.schema();
 
         quote! {
             ::mimic::orm::schema::node::SchemaNode::Primitive(::mimic::orm::schema::node::Primitive {
                 def: #def,
+                variant: #variant,
                 ty: #ty,
             })
         }
