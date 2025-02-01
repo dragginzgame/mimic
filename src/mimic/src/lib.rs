@@ -30,7 +30,7 @@ pub mod prelude {
         ic::{caller, format_cycles, id, init, query, update},
         log, mimic_end, mimic_start, mimic_stores,
         orm::{
-            base::types::Ulid,
+            base::{self, types::Ulid},
             traits::{EntityDyn, EntityFixture, NumFromPrimitive, NumToPrimitive, Path, Validator},
         },
         perf,

@@ -6,7 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.3.1]
-- added the 'todo' option for fields and types, and added schema validation
+- added the 'todo' option for fields and types, and improved schema validation
+- rust 1.84.1
 
 ## [0.3.0]
 - removing automated IC actor scripts [HUGE CHANGE]

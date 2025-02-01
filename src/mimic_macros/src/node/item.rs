@@ -24,6 +24,9 @@ pub struct Item {
 
     #[darling(default)]
     pub indirect: bool,
+
+    #[darling(default)]
+    pub todo: bool,
 }
 
 impl Schemable for Item {
@@ -32,6 +35,7 @@ impl Schemable for Item {
         let relation = quote_option(self.relation.as_ref(), to_path);
         let selector = quote_option(self.selector.as_ref(), to_path);
         let indirect = self.indirect;
+        let todo = self.todo;
 
         quote! {
             ::mimic::orm::schema::node::Item{
@@ -39,6 +43,7 @@ impl Schemable for Item {
                 relation: #relation,
                 selector: #selector,
                 indirect: #indirect,
+                todo: #todo,
             }
         }
     }
@@ -46,13 +51,22 @@ impl Schemable for Item {
 
 impl ToTokens for Item {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(match (&self.is, &self.relation) {
-            (Some(is), None) if self.indirect => quote!(Box<#is>),
-            (Some(is), None) => quote!(#is),
-            (None, Some(_)) => {
-                quote!(::mimic::orm::base::types::Ulid)
+        let q = if self.todo {
+            // todo we turn to i32
+            quote!(::mimic::orm::base::types::I32)
+        } else {
+            match (&self.is, &self.relation) {
+                (Some(is), None) if self.indirect => quote!(Box<#is>),
+                (Some(is), None) => quote!(#is),
+
+                // relation
+                (None, Some(_)) => {
+                    quote!(::mimic::orm::base::types::Ulid)
+                }
+                _ => panic!("either is or relation should be set"),
             }
-            _ => panic!("either is or relation should be set"),
-        });
+        };
+
+        tokens.extend(q)
     }
 }

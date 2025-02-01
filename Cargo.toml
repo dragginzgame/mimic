@@ -11,9 +11,9 @@ members = [
 resolver = "2"
 
 [workspace.package]
-rust-version = "1.84.0"
+rust-version = "1.84.1"
 edition = "2021"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["borovan <84897664+borovan@users.noreply.github.com>"]
 description = "ORM/Database framework for the Internet Computer"
 license = "MIT"

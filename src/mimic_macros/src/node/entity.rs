@@ -67,6 +67,26 @@ impl MacroNode for Entity {
     }
 }
 
+impl Schemable for Entity {
+    fn schema(&self) -> TokenStream {
+        let def = &self.def.schema();
+        let sort_keys = quote_vec(&self.sort_keys, SortKey::schema);
+        let indexes = quote_vec(&self.indexes, Index::schema);
+        let fields = &self.fields.schema();
+        let ty = &self.ty.schema();
+
+        quote! {
+            ::mimic::orm::schema::node::SchemaNode::Entity(::mimic::orm::schema::node::Entity {
+                def: #def,
+                sort_keys: #sort_keys,
+                indexes: #indexes,
+                fields: #fields,
+                ty: #ty,
+            })
+        }
+    }
+}
+
 impl TraitNode for Entity {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
@@ -101,26 +121,6 @@ impl TraitNode for Entity {
             Trait::Visitable => imp::visitable::entity(self, t),
 
             _ => imp::any(self, t),
-        }
-    }
-}
-
-impl Schemable for Entity {
-    fn schema(&self) -> TokenStream {
-        let def = &self.def.schema();
-        let sort_keys = quote_vec(&self.sort_keys, SortKey::schema);
-        let indexes = quote_vec(&self.indexes, Index::schema);
-        let fields = &self.fields.schema();
-        let ty = &self.ty.schema();
-
-        quote! {
-            ::mimic::orm::schema::node::SchemaNode::Entity(::mimic::orm::schema::node::Entity {
-                def: #def,
-                sort_keys: #sort_keys,
-                indexes: #indexes,
-                fields: #fields,
-                ty: #ty,
-            })
         }
     }
 }

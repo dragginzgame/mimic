@@ -97,8 +97,9 @@ impl TraitNode for Tuple {
 }
 
 impl ToTokens for Tuple {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
         let values = &self.values;
+
         tokens.extend(quote! {
             ( #( #values ,)* )
         });

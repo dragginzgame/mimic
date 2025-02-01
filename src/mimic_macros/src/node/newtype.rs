@@ -9,7 +9,7 @@ use crate::{
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{quote, ToTokens};
 
 ///
 /// Newtype
@@ -34,11 +34,6 @@ pub struct Newtype {
 
 impl Node for Newtype {
     fn expand(&self) -> TokenStream {
-        let Self { value, .. } = self;
-        let Def {
-            ident, generics, ..
-        } = &self.def;
-
         // quote
         let schema = self.ctor_schema();
         let derive = self.derive();
@@ -46,7 +41,7 @@ impl Node for Newtype {
         let q = quote! {
             #schema
             #derive
-            pub struct #ident #generics(#value);
+            #self
             #imp
         };
 
@@ -166,5 +161,21 @@ impl Schemable for Newtype {
                 ty: #ty,
             })
         }
+    }
+}
+
+impl ToTokens for Newtype {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Def {
+            ident, generics, ..
+        } = &self.def;
+        let value = &self.value;
+
+        // cannot skip if hidden as the traits break
+        let q = quote! {
+            pub struct #ident #generics(#value);
+        };
+
+        tokens.extend(q)
     }
 }

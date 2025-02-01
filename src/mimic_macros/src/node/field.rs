@@ -61,22 +61,17 @@ impl ToTokens for FieldList {
 pub struct Field {
     pub name: Ident,
     pub value: Value,
-
-    #[darling(default)]
-    pub todo: bool,
 }
 
 impl Schemable for Field {
     fn schema(&self) -> TokenStream {
         let name = quote_one(&self.name, to_string);
         let value = self.value.schema();
-        let todo = self.todo;
 
         quote! {
             ::mimic::orm::schema::node::Field {
                 name: #name,
                 value: #value,
-                todo: #todo,
             }
         }
     }
@@ -84,15 +79,13 @@ impl Schemable for Field {
 
 impl ToTokens for Field {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        if !self.todo {
-            let name = &self.name;
-            let value = &self.value;
+        let name = &self.name;
+        let value = &self.value;
 
-            // bulld struct field
-            tokens.extend(quote! {
-                pub #name : #value,
-            });
-        }
+        // build struct field
+        tokens.extend(quote! {
+            pub #name : #value,
+        });
     }
 }
 

@@ -5,7 +5,7 @@ use crate::{
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{quote, ToTokens};
 use syn::Path;
 
 ///
@@ -26,14 +26,11 @@ pub struct Primitive {
 
 impl Node for Primitive {
     fn expand(&self) -> TokenStream {
-        let Self { path, .. } = self;
-        let Def { ident, .. } = &self.def;
-
         // quote
         let schema = self.ctor_schema();
         let q = quote! {
             #schema
-            pub type #ident = #path;
+            #self
         };
 
         // debug
@@ -65,5 +62,16 @@ impl Schemable for Primitive {
                 ty: #ty,
             })
         }
+    }
+}
+
+impl ToTokens for Primitive {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let ident = &self.def.ident;
+        let path = &self.path;
+
+        tokens.extend(quote! {
+            pub type #ident = #path;
+        })
     }
 }

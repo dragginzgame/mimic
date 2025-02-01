@@ -11,7 +11,6 @@ use crate::{
     utils::case::{Case, Casing},
 };
 use serde::{Deserialize, Serialize};
-use std::ops::Not;
 
 ///
 /// FieldList
@@ -67,9 +66,6 @@ impl VisitableNode for FieldList {
 pub struct Field {
     pub name: String,
     pub value: Value,
-
-    #[serde(default, skip_serializing_if = "Not::not")]
-    pub todo: bool,
 }
 
 impl ValidateNode for Field {
