@@ -76,6 +76,7 @@ impl VisitableNode for Enum {
         for node in &self.variants {
             node.accept(v);
         }
+        self.ty.accept(v);
     }
 }
 

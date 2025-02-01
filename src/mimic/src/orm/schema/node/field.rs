@@ -104,6 +104,10 @@ impl ValidateNode for Field {
 }
 
 impl VisitableNode for Field {
+    fn route_key(&self) -> String {
+        self.name.to_string()
+    }
+
     fn drive<V: Visitor>(&self, v: &mut V) {
         self.value.accept(v);
     }

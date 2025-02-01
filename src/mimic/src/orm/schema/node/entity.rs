@@ -107,5 +107,6 @@ impl VisitableNode for Entity {
             node.accept(v);
         }
         self.fields.accept(v);
+        self.ty.accept(v);
     }
 }
