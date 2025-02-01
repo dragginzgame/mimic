@@ -62,13 +62,13 @@ pub enum PrimitiveType {
     Isize,
     Principal,
     String,
-    Todo,
     U8,
     U16,
     U32,
     U64,
     U128,
     Ulid,
+    Unit,
     Usize,
 }
 

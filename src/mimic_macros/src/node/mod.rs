@@ -347,6 +347,7 @@ pub enum PrimitiveType {
     U64,
     U128,
     Ulid,
+    Unit,
     Usize,
 }
 
@@ -377,6 +378,7 @@ impl PrimitiveType {
             | Self::Usize => PrimitiveGroup::Integer,
             Self::String | Self::Principal => PrimitiveGroup::String,
             Self::Ulid => PrimitiveGroup::Ulid,
+            Self::Unit => PrimitiveGroup::Unit,
         }
     }
 
@@ -439,6 +441,7 @@ impl ToTokens for PrimitiveType {
             Self::U32 => quote!(u32),
             Self::U64 => quote!(u64),
             Self::U128 => quote!(u128),
+            Self::Unit => quote!(::mimic::orm::base::types::Unit),
             Self::Ulid => quote!(::mimic::orm::base::types::Ulid),
             Self::Usize => quote!(usize),
         };
@@ -462,6 +465,7 @@ pub enum PrimitiveGroup {
     Integer,
     String,
     Ulid,
+    Unit,
 }
 
 impl FromMeta for PrimitiveGroup {

@@ -31,16 +31,11 @@ pub struct Item {
 
 impl Item {
     pub fn quoted_path(&self) -> TokenStream {
-        if self.todo {
-            quote!(::mimic::orm::base::types::Todo)
-        } else {
-            match (&self.is, &self.relation) {
-                (Some(is), None) => quote!(#is),
-                (None, Some(_)) => {
-                    quote!(::mimic::orm::base::types::Ulid)
-                }
-                _ => panic!("either is or relation should be set"),
-            }
+        match (&self.is, &self.relation) {
+            (Some(is), None) => quote!(#is),
+            (None, Some(_)) => quote!(::mimic::orm::base::types::Ulid),
+            (None, None) => quote!(::mimic::orm::base::types::Unit),
+            _ => panic!("cannot set both is and relation"),
         }
     }
 }

@@ -57,6 +57,7 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
         Some(PrimitiveGroup::Bool | PrimitiveGroup::Float | PrimitiveGroup::Ulid) | None => {
             q.extend(newtype_inner(node, t));
         }
+        Some(PrimitiveGroup::Unit) => {}
     }
 
     q
