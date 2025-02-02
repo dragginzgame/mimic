@@ -4,7 +4,7 @@ pub mod generator;
 use crate::{
     orm::{
         prelude::*,
-        serialize::{from_binary, to_binary},
+        serialize::{deserialize, serialize},
         traits::{Filterable, Inner, Orderable, SortKey, ValidateAuto},
     },
     types::ErrorVec,
@@ -163,11 +163,11 @@ impl SortKey for Ulid {}
 
 impl Storable for Ulid {
     fn to_bytes(&self) -> Cow<[u8]> {
-        Cow::Owned(to_binary(self).unwrap())
+        Cow::Owned(serialize(self).unwrap())
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        from_binary(&bytes).unwrap()
+        deserialize(&bytes).unwrap()
     }
 
     const BOUND: Bound = Bound::Unbounded;

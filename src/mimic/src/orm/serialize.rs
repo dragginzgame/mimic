@@ -22,8 +22,8 @@ pub enum SerializeError {
     Deserialize(String),
 }
 
-// to_binary
-pub fn to_binary<T>(ty: &T) -> Result<Vec<u8>, SerializeError>
+// serialize
+pub fn serialize<T>(ty: &T) -> Result<Vec<u8>, SerializeError>
 where
     T: Serialize,
 {
@@ -33,8 +33,8 @@ where
     Ok(writer)
 }
 
-// from_binary
-pub fn from_binary<T>(bytes: &[u8]) -> Result<T, SerializeError>
+// deserialize
+pub fn deserialize<T>(bytes: &[u8]) -> Result<T, SerializeError>
 where
     T: DeserializeOwned,
 {

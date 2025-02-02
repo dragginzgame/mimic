@@ -1,5 +1,8 @@
 use crate::{
-    orm::traits::{Entity, EntityDyn},
+    orm::{
+        serialize::deserialize,
+        traits::{Entity, EntityDyn},
+    },
     query::{
         save::{save, SaveError, SaveMode},
         DebugContext, QueryError,
@@ -37,7 +40,7 @@ impl SaveBuilderDyn {
 
     // from_data
     pub fn from_data<E: Entity + 'static>(self, data: &[u8]) -> Result<SaveQueryDyn, Error> {
-        let entity: E = crate::orm::deserialize(data)
+        let entity: E = deserialize(data)
             .map_err(SaveError::SerializeError)
             .map_err(QueryError::SaveError)?;
 

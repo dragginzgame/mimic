@@ -30,13 +30,9 @@ pub mod prelude {
     pub use ::std::{cmp::Ordering, collections::HashSet, fmt::Display};
 }
 
-use crate::{
-    orm::serialize::{from_binary, to_binary, SerializeError},
-    types::ErrorTree,
-    Error, ThisError,
-};
+use crate::{orm::serialize::SerializeError, types::ErrorTree, Error, ThisError};
 use candid::CandidType;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use traits::Visitable;
 use visit::{perform_visit, ValidateVisitor};
 
@@ -61,31 +57,6 @@ impl OrmError {
     pub fn parse_field(field: &str) -> Self {
         Self::ParseField(field.to_string())
     }
-}
-
-///
-/// TYPE FUNCTIONS
-/// The primary functions to validate and manipulate types within the ORM
-///
-
-// serialize
-pub fn serialize<T>(ty: &T) -> Result<Vec<u8>, SerializeError>
-where
-    T: Serialize,
-{
-    let bytes = to_binary::<T>(ty)?;
-
-    Ok(bytes)
-}
-
-// deserialize
-pub fn deserialize<T>(bytes: &[u8]) -> Result<T, SerializeError>
-where
-    T: DeserializeOwned,
-{
-    let de = from_binary::<T>(bytes)?;
-
-    Ok(de)
 }
 
 // validate

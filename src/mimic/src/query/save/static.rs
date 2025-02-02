@@ -1,5 +1,5 @@
 use crate::{
-    orm::traits::Entity,
+    orm::{serialize::deserialize, traits::Entity},
     query::{
         save::{save, SaveError, SaveMode},
         DebugContext, QueryError,
@@ -47,7 +47,7 @@ where
 
     // from_data
     pub fn from_data(self, data: &[u8]) -> Result<SaveQuery<E>, Error> {
-        let entity: E = crate::orm::deserialize(data)
+        let entity: E = deserialize(data)
             .map_err(SaveError::SerializeError)
             .map_err(QueryError::SaveError)?;
 

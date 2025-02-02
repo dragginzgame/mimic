@@ -1,7 +1,7 @@
 use crate::{
     ic::structures::{storable::Bound, Storable},
     orm::{
-        serialize::{from_binary, to_binary, SerializeError},
+        serialize::{deserialize, serialize, SerializeError},
         traits::Path,
     },
 };
@@ -91,11 +91,11 @@ impl fmt::Display for DataKey {
 
 impl Storable for DataKey {
     fn to_bytes(&self) -> Cow<[u8]> {
-        Cow::Owned(to_binary(self).unwrap())
+        Cow::Owned(serialize(self).unwrap())
     }
 
     fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
-        from_binary(&bytes).unwrap()
+        deserialize(&bytes).unwrap()
     }
 
     const BOUND: Bound = Bound::Bounded {
@@ -117,11 +117,11 @@ pub struct DataValue {
 
 impl Storable for DataValue {
     fn to_bytes(&self) -> Cow<[u8]> {
-        Cow::Owned(to_binary(self).unwrap())
+        Cow::Owned(serialize(self).unwrap())
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        from_binary(&bytes).unwrap()
+        deserialize(&bytes).unwrap()
     }
 
     const BOUND: Bound = Bound::Unbounded;
@@ -134,7 +134,7 @@ where
     type Error = SerializeError;
 
     fn try_from(value: EntityValue<E>) -> Result<Self, Self::Error> {
-        let data = crate::orm::serialize::<E>(&value.entity)?;
+        let data = serialize::<E>(&value.entity)?;
 
         Ok(Self {
             data,
@@ -201,7 +201,7 @@ where
     type Error = SerializeError;
 
     fn try_from(value: DataValue) -> Result<Self, Self::Error> {
-        let entity = crate::orm::deserialize::<E>(&value.data)?;
+        let entity = deserialize::<E>(&value.data)?;
 
         Ok(Self {
             entity,
