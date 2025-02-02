@@ -1,37 +1,27 @@
-use crate::ic::structures::{DefaultMemory, Storable};
+use crate::{
+    ic::{
+        structures::{DefaultMemory, Storable},
+        IcError,
+    },
+    Error,
+};
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
-use ic_stable_structures::cell::{Cell as WrappedCell, InitError, ValueError};
+use ic_stable_structures::cell::Cell as WrappedCell;
 use serde::{Deserialize, Serialize};
-use snafu::Snafu;
+use thiserror::Error as ThisError;
 
 ///
 /// CellError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum CellError {
-    #[snafu(display("init error: {error}"))]
-    Init { error: String },
+    #[error("{0}")]
+    Init(String),
 
-    #[snafu(display("value too large: {size}"))]
-    ValueTooLarge { size: u64 },
-}
-
-impl From<InitError> for CellError {
-    fn from(error: InitError) -> Self {
-        Self::Init {
-            error: error.to_string(),
-        }
-    }
-}
-
-impl From<ValueError> for CellError {
-    fn from(error: ValueError) -> Self {
-        match error {
-            ValueError::ValueTooLarge { value_size } => Self::ValueTooLarge { size: value_size },
-        }
-    }
+    #[error("value too large")]
+    ValueTooLarge,
 }
 
 ///
@@ -52,15 +42,19 @@ where
     T: Clone + Storable,
 {
     // new
-    pub fn new(memory: DefaultMemory, value: T) -> Result<Self, CellError> {
-        let data = WrappedCell::new(memory, value)?;
+    pub fn new(memory: DefaultMemory, value: T) -> Result<Self, Error> {
+        let data = WrappedCell::new(memory, value)
+            .map_err(|_| CellError::ValueTooLarge)
+            .map_err(IcError::CellError)?;
 
         Ok(Self { data })
     }
 
     // init
-    pub fn init(memory: DefaultMemory, default_value: T) -> Result<Self, CellError> {
-        let data = WrappedCell::init(memory, default_value)?;
+    pub fn init(memory: DefaultMemory, default_value: T) -> Result<Self, Error> {
+        let data = WrappedCell::init(memory, default_value)
+            .map_err(|e| CellError::Init(e.to_string()))
+            .map_err(IcError::CellError)?;
 
         Ok(Self { data })
     }
@@ -72,8 +66,12 @@ where
     }
 
     // set
-    pub fn set(&mut self, value: T) -> Result<T, CellError> {
-        let res = self.data.set(value)?;
+    pub fn set(&mut self, value: T) -> Result<T, Error> {
+        let res = self
+            .data
+            .set(value)
+            .map_err(|_| CellError::ValueTooLarge)
+            .map_err(IcError::CellError)?;
 
         Ok(res)
     }

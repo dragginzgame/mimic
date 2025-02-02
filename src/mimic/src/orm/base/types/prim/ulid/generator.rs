@@ -1,18 +1,11 @@
-use super::Ulid;
-use crate::utils::time::now_millis;
+use crate::{
+    orm::base::types::prim::ulid::{Ulid, UlidError},
+    utils::time::now_millis,
+    Error, ThisError,
+};
+use candid::CandidType;
 use serde::{Deserialize, Serialize};
-use snafu::Snafu;
 use std::sync::{LazyLock, Mutex};
-
-///
-/// GeneratorError
-///
-
-#[derive(Debug, Serialize, Deserialize, Snafu)]
-pub enum GeneratorError {
-    #[snafu(display("monotonic error - overflow"))]
-    Overflow,
-}
 
 ///
 /// GENERATOR is lazily initiated with a Mutex
@@ -21,7 +14,7 @@ pub enum GeneratorError {
 
 static GENERATOR: LazyLock<Mutex<Generator>> = LazyLock::new(|| Mutex::new(Generator::new()));
 
-pub fn generate() -> Result<Ulid, GeneratorError> {
+pub fn generate() -> Result<Ulid, UlidError> {
     let mut generator = GENERATOR.lock().unwrap();
     generator.generate()
 }
@@ -46,7 +39,7 @@ impl Generator {
     }
 
     // generate
-    pub fn generate(&mut self) -> Result<Ulid, GeneratorError> {
+    pub fn generate(&mut self) -> Result<Ulid, UlidError> {
         let last_ts = self.previous.timestamp_ms();
         let ts = now_millis();
 
@@ -60,7 +53,7 @@ impl Generator {
                 return Ok(self.previous);
             }
 
-            return Err(GeneratorError::Overflow);
+            return Err(UlidError::GeneratorOverflow);
         }
 
         // generate

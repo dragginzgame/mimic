@@ -3,8 +3,10 @@ use crate::{
     query::{
         load::LoadError,
         types::{Filter, Order},
+        QueryError,
     },
     store::types::{DataKey, DataRow, EntityRow},
+    Error,
 };
 use std::iter;
 
@@ -78,8 +80,11 @@ where
     }
 
     // key
-    pub fn key(mut self) -> Result<DataKey, LoadError> {
-        let row = self.move_next().ok_or(LoadError::NoResultsFound)?;
+    pub fn key(mut self) -> Result<DataKey, Error> {
+        let row = self
+            .move_next()
+            .ok_or(LoadError::NoResultsFound)
+            .map_err(QueryError::LoadError)?;
 
         Ok(row.key)
     }
@@ -90,12 +95,13 @@ where
     }
 
     // entity
-    pub fn entity(mut self) -> Result<E, LoadError> {
+    pub fn entity(mut self) -> Result<E, Error> {
         let res = self
             .move_next()
             .as_ref()
             .map(|row| row.value.entity.clone())
-            .ok_or(LoadError::NoResultsFound)?;
+            .ok_or(LoadError::NoResultsFound)
+            .map_err(QueryError::LoadError)?;
 
         Ok(res)
     }
@@ -110,11 +116,12 @@ where
     }
 
     // entity_row
-    pub fn entity_row(mut self) -> Result<EntityRow<E>, LoadError> {
+    pub fn entity_row(mut self) -> Result<EntityRow<E>, Error> {
         let res = self
             .move_next()
             .ok_or(LoadError::NoResultsFound)
-            .map_err(LoadError::from)?;
+            .map_err(LoadError::from)
+            .map_err(QueryError::LoadError)?;
 
         Ok(res)
     }
@@ -170,8 +177,11 @@ impl LoadResultDyn {
     }
 
     // key
-    pub fn key(mut self) -> Result<String, LoadError> {
-        let row = self.move_next().ok_or(LoadError::NoResultsFound)?;
+    pub fn key(mut self) -> Result<String, Error> {
+        let row = self
+            .move_next()
+            .ok_or(LoadError::NoResultsFound)
+            .map_err(QueryError::LoadError)?;
 
         Ok(row.key.to_string())
     }
@@ -182,8 +192,11 @@ impl LoadResultDyn {
     }
 
     // data_row
-    pub fn data_row(mut self) -> Result<DataRow, LoadError> {
-        let row = self.move_next().ok_or(LoadError::NoResultsFound)?;
+    pub fn data_row(mut self) -> Result<DataRow, Error> {
+        let row = self
+            .move_next()
+            .ok_or(LoadError::NoResultsFound)
+            .map_err(QueryError::LoadError)?;
 
         Ok(row)
     }
@@ -194,12 +207,13 @@ impl LoadResultDyn {
     }
 
     // blob
-    pub fn blob(mut self) -> Result<Vec<u8>, LoadError> {
+    pub fn blob(mut self) -> Result<Vec<u8>, Error> {
         let blob = self
             .iter
             .next()
             .map(|row| row.value.data)
-            .ok_or(LoadError::NoResultsFound)?;
+            .ok_or(LoadError::NoResultsFound)
+            .map_err(QueryError::LoadError)?;
 
         Ok(blob)
     }

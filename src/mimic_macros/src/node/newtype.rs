@@ -154,7 +154,7 @@ impl Schemable for Newtype {
         let ty = self.ty.schema();
 
         quote! {
-            ::mimic::orm::schema::node::SchemaNode::Newtype(::mimic::orm::schema::node::Newtype {
+            ::mimic::schema::node::SchemaNode::Newtype(::mimic::schema::node::Newtype {
                 def: #def,
                 value: #value,
                 primitive: #primitive,

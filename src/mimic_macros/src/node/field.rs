@@ -35,7 +35,7 @@ impl Schemable for FieldList {
         let order = quote_vec(&self.order, FieldOrder::schema);
 
         quote! {
-            ::mimic::orm::schema::node::FieldList {
+            ::mimic::schema::node::FieldList {
                 fields: #fields,
                 order: #order,
             }
@@ -69,7 +69,7 @@ impl Schemable for Field {
         let value = self.value.schema();
 
         quote! {
-            ::mimic::orm::schema::node::Field {
+            ::mimic::schema::node::Field {
                 name: #name,
                 value: #value,
             }
@@ -107,7 +107,7 @@ impl Schemable for FieldOrder {
         let direction = self.direction.schema();
 
         quote! {
-            ::mimic::orm::schema::node::FieldOrder {
+            ::mimic::schema::node::FieldOrder {
                 field: #field,
                 direction: #direction,
             }

@@ -7,11 +7,11 @@ use crate::{
             Visitable,
         },
     },
+    Error, ThisError,
 };
-use candid::{types::principal::PrincipalError as WrappedError, Principal as WrappedPrincipal};
+use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
-use snafu::Snafu;
 use std::{
     borrow::Cow,
     cmp::Ordering,
@@ -20,16 +20,16 @@ use std::{
 };
 
 ///
-/// Error
+/// PrincipalError
 ///
 
-#[derive(Debug, Serialize, Deserialize, Snafu)]
+#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum PrincipalError {
-    #[snafu(display("principal is empty"))]
+    #[error("principal is empty")]
     EmptyPrincipal,
 
-    #[snafu(transparent)]
-    WrappedError { source: WrappedError },
+    #[error("{0}")]
+    Wrapped(String),
 }
 
 ///
@@ -94,7 +94,9 @@ impl FromStr for Principal {
     type Err = PrincipalError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let this = WrappedPrincipal::from_str(s).map(Self)?;
+        let this = WrappedPrincipal::from_str(s)
+            .map(Self)
+            .map_err(|e| PrincipalError::Wrapped(e.to_string()))?;
 
         Ok(this)
     }

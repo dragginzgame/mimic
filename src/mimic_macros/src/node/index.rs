@@ -26,7 +26,7 @@ impl Schemable for Index {
         let unique = &self.unique;
 
         quote! {
-            ::mimic::orm::schema::node::Index {
+            ::mimic::schema::node::Index {
                 fields: #fields,
                 unique: #unique,
             }

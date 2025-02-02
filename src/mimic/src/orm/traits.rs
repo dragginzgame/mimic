@@ -16,8 +16,9 @@ pub use std::{
     str::FromStr,
 };
 
-use crate::orm::{
-    base::types::Ulid, schema::types::SortDirection, types::ErrorVec, visit::Visitor, OrmError,
+use crate::{
+    orm::{base::types::Ulid, serialize::SerializeError, visit::Visitor},
+    types::{ErrorVec, SortDirection},
 };
 
 ///
@@ -145,9 +146,9 @@ pub trait Validator: Default {
 /// a Node that can act as a data type
 ///
 
-pub trait Type: Node + Clone + Serialize + DeserializeOwned {}
+pub trait Type: Node + CandidType + Clone + Serialize + DeserializeOwned {}
 
-impl<T> Type for T where T: Node + Clone + Serialize + DeserializeOwned {}
+impl<T> Type for T where T: Node + CandidType + Clone + Serialize + DeserializeOwned {}
 
 ///
 /// TypeDyn
@@ -357,7 +358,7 @@ impl_primitive!(Visitable);
 pub trait Entity: Type + EntityDyn + FieldSort + FieldFilter {
     // composite_key
     // returns the record's sort keys as a Vec<String>
-    fn composite_key(_keys: &[String]) -> Result<Vec<String>, OrmError>;
+    fn composite_key(_keys: &[String]) -> Vec<String>;
 }
 
 ///
@@ -371,7 +372,7 @@ pub trait EntityDyn: TypeDyn + Visitable {
 
     // serialize_dyn
     // entities need dynamic serialization when saving different types
-    fn serialize_dyn(&self) -> Result<Vec<u8>, OrmError>;
+    fn serialize_dyn(&self) -> Result<Vec<u8>, SerializeError>;
 }
 
 ///

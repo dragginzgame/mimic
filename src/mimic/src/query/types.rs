@@ -1,6 +1,6 @@
 use crate::{
-    orm::schema::types::SortDirection,
     store::types::{DataKey, DataRow},
+    types::SortDirection,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};

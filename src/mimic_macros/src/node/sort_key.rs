@@ -25,7 +25,7 @@ impl Schemable for SortKey {
         let field = quote_option(self.field.as_ref(), to_string);
 
         quote! {
-            ::mimic::orm::schema::node::SortKey {
+            ::mimic::schema::node::SortKey {
                 entity: #entity,
                 field: #field,
             }

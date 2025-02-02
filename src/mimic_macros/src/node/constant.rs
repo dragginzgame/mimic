@@ -55,7 +55,7 @@ impl Schemable for Constant {
         let value = &self.value.schema();
 
         quote! {
-            ::mimic::orm::schema::node::SchemaNode::Constant(::mimic::orm::schema::node::Constant {
+            ::mimic::schema::node::SchemaNode::Constant(::mimic::schema::node::Constant {
                 def: #def,
                 ty: #ty,
                 value: #value,

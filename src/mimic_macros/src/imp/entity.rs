@@ -32,10 +32,9 @@ fn composite_key(node: &Entity) -> TokenStream {
 
     // Prepare the quote for setting struct fields based on the provided values slice
     let set_fields = fields.iter().enumerate().map(|(i, ident)| {
-        let ident_str = ident.to_string();
         quote! {
             if let Some(value) = values.get(#i) {
-                this.#ident = value.parse().map_err(|_| ::mimic::orm::OrmError::parse_field(#ident_str))?;
+                this.#ident = value.parse();
             }
         }
     });
@@ -50,7 +49,7 @@ fn composite_key(node: &Entity) -> TokenStream {
 
     // create inner
     let inner = if fields.is_empty() {
-        quote!(Ok(Vec::new()))
+        quote!(Vec::new())
     } else {
         quote! {
             let mut this = Self::default();
@@ -60,12 +59,12 @@ fn composite_key(node: &Entity) -> TokenStream {
             let keys = vec![#(#format_keys),*];
             let limited_keys = keys.into_iter().take(values.len()).collect::<Vec<_>>();
 
-            Ok(limited_keys)
+            limited_keys
         }
     };
 
     quote! {
-        fn composite_key(values: &[String]) -> Result<Vec<::std::string::String>, ::mimic::orm::OrmError> {
+        fn composite_key(values: &[String]) -> Vec<::std::string::String> {
             #inner
         }
     }
@@ -104,7 +103,7 @@ fn composite_key_dyn(node: &Entity) -> TokenStream {
 // serialize_dyn
 fn serialize_dyn(_: &Entity) -> TokenStream {
     quote! {
-        fn serialize_dyn(&self) -> Result<Vec<u8>, ::mimic::orm::OrmError> {
+        fn serialize_dyn(&self) -> Result<Vec<u8>, ::mimic::orm::serialize::SerializeError> {
             ::mimic::orm::serialize(&self)
         }
     }

@@ -2,13 +2,14 @@
 /// mimic
 /// [for external use only, keep out of reach of children]
 ///
-pub mod build;
-pub mod core;
+pub mod config;
 pub mod ic;
 pub mod macros;
 pub mod orm;
 pub mod query;
+pub mod schema;
 pub mod store;
+pub mod types;
 pub mod utils;
 
 pub mod export {
@@ -18,6 +19,7 @@ pub mod export {
     pub use remain;
     pub use strum;
 }
+pub use thiserror::Error as ThisError;
 
 extern crate self as mimic;
 
@@ -41,10 +43,35 @@ pub mod prelude {
     pub use ::std::cell::RefCell;
 }
 
+use candid::CandidType;
+use serde::{Deserialize, Serialize};
+
 // init
 // schema generation requires a function stub to work on OSX
 pub const fn init() {
     crate::orm::base::init();
+}
+
+///
+/// Error
+///
+
+#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+pub enum Error {
+    #[error(transparent)]
+    ConfigError(#[from] config::ConfigError),
+
+    #[error(transparent)]
+    IcError(#[from] ic::IcError),
+
+    #[error(transparent)]
+    OrmError(#[from] orm::OrmError),
+
+    #[error(transparent)]
+    QueryError(#[from] query::QueryError),
+
+    #[error(transparent)]
+    SchemaError(#[from] schema::SchemaError),
 }
 
 ///

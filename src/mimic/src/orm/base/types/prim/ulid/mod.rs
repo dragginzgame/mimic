@@ -2,15 +2,16 @@ pub mod fixture;
 pub mod generator;
 
 use crate::{
-    ic::structures::serialize::{from_binary, to_binary},
     orm::{
         prelude::*,
+        serialize::{from_binary, to_binary},
         traits::{Filterable, Inner, Orderable, SortKey, ValidateAuto},
     },
+    types::ErrorVec,
+    Error, ThisError,
 };
 use derive_more::{Deref, DerefMut, FromStr};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use snafu::Snafu;
 use std::{borrow::Cow, cmp::Ordering, fmt};
 use ulid::Ulid as WrappedUlid;
 
@@ -18,16 +19,22 @@ use ulid::Ulid as WrappedUlid;
 /// Error
 ///
 
-#[derive(Debug, Serialize, Deserialize, Snafu)]
+#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum UlidError {
-    #[snafu(display("ulid is nil"))]
+    #[error("ulid is nil")]
     Nil,
 
-    #[snafu(display("invalid character found"))]
+    #[error("invalid character found")]
     InvalidChar,
 
-    #[snafu(display("ulid has an invalid length"))]
+    #[error("ulid has an invalid length")]
     InvalidLength,
+
+    #[error("invalid ulid string")]
+    InvalidString,
+
+    #[error("monotonic error - overflow")]
+    GeneratorOverflow,
 }
 
 impl From<ulid::DecodeError> for UlidError {
@@ -69,7 +76,7 @@ impl Ulid {
     /// from_str
     #[allow(clippy::should_implement_trait)]
     pub fn from_str(encoded: &str) -> Result<Self, UlidError> {
-        let this = WrappedUlid::from_str(encoded)?;
+        let this = WrappedUlid::from_str(encoded).map_err(|_| UlidError::InvalidString)?;
 
         Ok(Self(this))
     }

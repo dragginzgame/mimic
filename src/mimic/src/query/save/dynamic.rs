@@ -2,9 +2,10 @@ use crate::{
     orm::traits::{Entity, EntityDyn},
     query::{
         save::{save, SaveError, SaveMode},
-        DebugContext,
+        DebugContext, QueryError,
     },
     store::StoreLocal,
+    Error,
 };
 use std::mem;
 
@@ -35,8 +36,10 @@ impl SaveBuilderDyn {
     }
 
     // from_data
-    pub fn from_data<E: Entity + 'static>(self, data: &[u8]) -> Result<SaveQueryDyn, SaveError> {
-        let entity: E = crate::orm::deserialize(data)?;
+    pub fn from_data<E: Entity + 'static>(self, data: &[u8]) -> Result<SaveQueryDyn, Error> {
+        let entity: E = crate::orm::deserialize(data)
+            .map_err(SaveError::SerializeError)
+            .map_err(QueryError::SaveError)?;
 
         Ok(SaveQueryDyn::new(self, vec![Box::new(entity)]))
     }
@@ -74,6 +77,7 @@ impl SaveBuilderDyn {
 /// SaveQueryDyn
 ///
 
+#[derive(Debug)]
 pub struct SaveQueryDyn {
     mode: SaveMode,
     debug: DebugContext,
@@ -91,7 +95,7 @@ impl SaveQueryDyn {
     }
 
     // execute
-    pub fn execute(self, store: StoreLocal) -> Result<(), SaveError> {
+    pub fn execute(self, store: StoreLocal) -> Result<(), Error> {
         let executor = SaveExecutorDyn::new(self);
 
         executor.execute(store)
@@ -114,14 +118,11 @@ impl SaveExecutorDyn {
     }
 
     // execute
-    pub fn execute(mut self, store: StoreLocal) -> Result<(), SaveError> {
+    pub fn execute(mut self, store: StoreLocal) -> Result<(), Error> {
         // Validate all entities first
         for entity in &self.query.entities {
             let adapter = crate::orm::visit::EntityAdapter(&**entity);
-            crate::orm::validate(&adapter).map_err(|e| SaveError::Validation {
-                path: entity.path_dyn(),
-                source: e,
-            })?;
+            crate::orm::validate(&adapter)?;
         }
 
         // Temporarily take the entities out of self to avoid borrowing issues
@@ -131,7 +132,7 @@ impl SaveExecutorDyn {
 
         // save entities
         for entity in entities {
-            save(store, &mode, &debug, entity)?;
+            save(store, &mode, &debug, entity).map_err(QueryError::SaveError)?;
         }
 
         Ok(())

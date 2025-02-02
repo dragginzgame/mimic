@@ -68,7 +68,7 @@ impl Schemable for Tuple {
         let ty = &self.ty.schema();
 
         quote! {
-            ::mimic::orm::schema::node::SchemaNode::Tuple(::mimic::orm::schema::node::Tuple {
+            ::mimic::schema::node::SchemaNode::Tuple(::mimic::schema::node::Tuple {
                 def: #def,
                 values: #values,
                 ty: #ty,

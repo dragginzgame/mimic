@@ -44,7 +44,7 @@ impl Schemable for Value {
         let default = quote_option(self.default.as_ref(), Arg::schema);
 
         quote!(
-            ::mimic::orm::schema::node::Value {
+            ::mimic::schema::node::Value {
                 cardinality: #cardinality,
                 item: #item,
                 default: #default,

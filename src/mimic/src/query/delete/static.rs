@@ -2,12 +2,13 @@ use crate::{
     orm::traits::Entity,
     query::{
         delete::{DeleteError, DeleteResponse},
-        DebugContext, Resolver,
+        DebugContext, QueryError, Resolver,
     },
     store::{types::DataKey, StoreLocal},
+    Error,
 };
 use candid::CandidType;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::{fmt::Display, marker::PhantomData};
 
 ///
@@ -43,7 +44,7 @@ where
     }
 
     // one
-    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQuery<E>, DeleteError> {
+    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQuery<E>, Error> {
         let key: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let executor = DeleteQuery::new(self, vec![key]);
 
@@ -57,7 +58,7 @@ where
 /// results : all the keys that have successfully been deleted
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Debug, Serialize)]
 pub struct DeleteQuery<E>
 where
     E: Entity,
@@ -82,7 +83,7 @@ where
     }
 
     // execute
-    pub fn execute(self, store: StoreLocal) -> Result<DeleteResponse, DeleteError> {
+    pub fn execute(self, store: StoreLocal) -> Result<DeleteResponse, Error> {
         let executor = DeleteExecutor::new(self);
 
         executor.execute(store)
@@ -114,7 +115,7 @@ where
     }
 
     // execute
-    pub fn execute(&self, store: StoreLocal) -> Result<DeleteResponse, DeleteError> {
+    pub fn execute(&self, store: StoreLocal) -> Result<DeleteResponse, Error> {
         let mut results = Vec::new();
         crate::ic::println!("delete: keys {:?}", &self.query.keys);
 
@@ -133,14 +134,19 @@ where
     }
 
     // execute_one
-    fn execute_one(&self, store: StoreLocal, ck: &[String]) -> Result<DataKey, DeleteError> {
-        // Attempt to remove the item from the store
-        let key = self.resolver.data_key(ck)?;
+    fn execute_one(&self, store: StoreLocal, ck: &[String]) -> Result<DataKey, Error> {
+        let key = self
+            .resolver
+            .data_key(ck)
+            .map_err(DeleteError::ResolverError)
+            .map_err(QueryError::DeleteError)?;
 
+        // Attempt to remove the item from the store
         store.with_borrow_mut(|store| {
             store
                 .remove(&key)
-                .ok_or_else(|| DeleteError::KeyNotFound { key: key.clone() })
+                .ok_or_else(|| DeleteError::KeyNotFound(key.clone()))
+                .map_err(QueryError::DeleteError)
         })?;
 
         Ok(key)

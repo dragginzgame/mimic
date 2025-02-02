@@ -119,7 +119,7 @@ impl Schemable for Enum {
         let ty = &self.ty.schema();
 
         quote! {
-            ::mimic::orm::schema::node::SchemaNode::Enum(::mimic::orm::schema::node::Enum {
+            ::mimic::schema::node::SchemaNode::Enum(::mimic::schema::node::Enum {
                 def: #def,
                 variants: #variants,
                 ty: #ty,
@@ -193,7 +193,7 @@ impl Schemable for EnumVariant {
         let value = quote_option(self.value.as_ref(), Value::schema);
 
         quote! {
-            ::mimic::orm::schema::node::EnumVariant {
+            ::mimic::schema::node::EnumVariant {
                 name: #name,
                 value : #value,
                 default: #default,

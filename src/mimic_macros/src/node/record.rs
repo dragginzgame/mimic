@@ -67,7 +67,7 @@ impl Schemable for Record {
         let ty = self.ty.schema();
 
         quote! {
-            ::mimic::orm::schema::node::SchemaNode::Record(::mimic::orm::schema::node::Record {
+            ::mimic::schema::node::SchemaNode::Record(::mimic::schema::node::Record {
                 def: #def,
                 fields: #fields,
                 ty: #ty,

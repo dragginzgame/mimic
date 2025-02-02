@@ -76,7 +76,7 @@ impl Schemable for Entity {
         let ty = &self.ty.schema();
 
         quote! {
-            ::mimic::orm::schema::node::SchemaNode::Entity(::mimic::orm::schema::node::Entity {
+            ::mimic::schema::node::SchemaNode::Entity(::mimic::schema::node::Entity {
                 def: #def,
                 sort_keys: #sort_keys,
                 indexes: #indexes,

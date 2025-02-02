@@ -3,10 +3,13 @@ use crate::{
     query::{
         load::{LoadError, LoadResult, Loader},
         types::{Filter, LoadMethod, Order},
-        DebugContext, Resolver,
+        DebugContext, QueryError, Resolver,
     },
     store::{types::EntityRow, StoreLocal},
+    Error,
 };
+use candid::CandidType;
+use serde::Serialize;
 use std::marker::PhantomData;
 
 ///
@@ -98,7 +101,7 @@ where
 /// LoadQuery
 ///
 
-#[expect(dead_code)]
+#[derive(CandidType, Debug, Serialize)]
 pub struct LoadQuery<E>
 where
     E: Entity + 'static,
@@ -193,7 +196,7 @@ where
     }
 
     // execute
-    pub fn execute(self, store: StoreLocal) -> Result<LoadResult<E>, LoadError> {
+    pub fn execute(self, store: StoreLocal) -> Result<LoadResult<E>, Error> {
         let executor = LoadExecutor::new(self);
 
         executor.execute(store)
@@ -228,14 +231,17 @@ where
     // execute
     // convert into EntityRows and return a RowIterator
     // also make sure we're deserializing the correct entity path
-    pub fn execute(self, store: StoreLocal) -> Result<LoadResult<E>, LoadError> {
+    pub fn execute(self, store: StoreLocal) -> Result<LoadResult<E>, Error> {
         // loader
-        let res = Loader::load(store, &self.resolver, &self.query.method)?;
+        let loader = Loader::new(store, &self.resolver);
+        let res = loader.load(&self.query.method)?;
 
         let filtered = res
             .filter(|row| row.value.path == E::path())
             .map(TryFrom::try_from)
-            .collect::<Result<Vec<EntityRow<E>>, _>>()?;
+            .collect::<Result<Vec<EntityRow<E>>, _>>()
+            .map_err(LoadError::SerializeError)
+            .map_err(QueryError::LoadError)?;
 
         let boxed_iter = Box::new(filtered.into_iter()) as Box<dyn Iterator<Item = EntityRow<E>>>;
 

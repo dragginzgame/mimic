@@ -56,7 +56,7 @@ impl Schemable for Primitive {
         let ty = self.ty.schema();
 
         quote! {
-            ::mimic::orm::schema::node::SchemaNode::Primitive(::mimic::orm::schema::node::Primitive {
+            ::mimic::schema::node::SchemaNode::Primitive(::mimic::schema::node::Primitive {
                 def: #def,
                 variant: #variant,
                 ty: #ty,

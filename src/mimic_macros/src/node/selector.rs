@@ -65,8 +65,8 @@ impl Schemable for Selector {
         let variants = quote_vec(&self.variants, SelectorVariant::schema);
 
         quote! {
-            ::mimic::orm::schema::node::SchemaNode::Selector(
-                ::mimic::orm::schema::node::Selector{
+            ::mimic::schema::node::SchemaNode::Selector(
+                ::mimic::schema::node::Selector{
                     def: #def,
                     target: #target,
                     variants: #variants,
@@ -135,7 +135,7 @@ impl Schemable for SelectorVariant {
         let default = self.default;
 
         quote! {
-            ::mimic::orm::schema::node::SelectorVariant {
+            ::mimic::schema::node::SelectorVariant {
                 name: #name,
                 value : #value,
                 default : #default,

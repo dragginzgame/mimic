@@ -2,10 +2,13 @@ use crate::{
     orm::traits::Entity,
     query::{
         save::{save, SaveError, SaveMode},
-        DebugContext,
+        DebugContext, QueryError,
     },
     store::StoreLocal,
+    Error,
 };
+use candid::CandidType;
+use serde::Serialize;
 use std::marker::PhantomData;
 
 ///
@@ -43,8 +46,10 @@ where
     }
 
     // from_data
-    pub fn from_data(self, data: &[u8]) -> Result<SaveQuery<E>, SaveError> {
-        let entity: E = crate::orm::deserialize(data)?;
+    pub fn from_data(self, data: &[u8]) -> Result<SaveQuery<E>, Error> {
+        let entity: E = crate::orm::deserialize(data)
+            .map_err(SaveError::SerializeError)
+            .map_err(QueryError::SaveError)?;
 
         Ok(SaveQuery::new(self, vec![entity]))
     }
@@ -65,6 +70,7 @@ where
 /// SaveQuery
 ///
 
+#[derive(CandidType, Debug, Serialize)]
 pub struct SaveQuery<E>
 where
     E: Entity,
@@ -88,7 +94,7 @@ where
     }
 
     // execute
-    pub fn execute(self, store: StoreLocal) -> Result<(), SaveError> {
+    pub fn execute(self, store: StoreLocal) -> Result<(), Error> {
         let executor = SaveExecutor::new(self);
 
         executor.execute(store)
@@ -117,13 +123,10 @@ where
     }
 
     // execute
-    pub fn execute(self, store: StoreLocal) -> Result<(), SaveError> {
+    pub fn execute(self, store: StoreLocal) -> Result<(), Error> {
         // Validate all entities first
         for entity in &self.query.entities {
-            crate::orm::validate(entity).map_err(|e| SaveError::Validation {
-                path: E::path(),
-                source: e,
-            })?;
+            crate::orm::validate(entity)?;
         }
 
         // Extract the mode, debug, etc. from self.query if needed
@@ -132,7 +135,7 @@ where
         let entities = self.query.entities;
 
         for entity in entities {
-            save(store, &mode, &debug, Box::new(entity))?;
+            save(store, &mode, &debug, Box::new(entity)).map_err(QueryError::SaveError)?;
         }
 
         Ok(())

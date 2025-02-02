@@ -1,31 +1,25 @@
 use crate::{
-    core::schema::{get_schema, SchemaError},
-    orm::schema::node::Entity,
+    schema::{
+        build::{get_schema, BuildError as SchemaBuildError},
+        node::Entity,
+    },
     store::types::DataKey,
+    ThisError,
 };
+use candid::CandidType;
 use serde::{Deserialize, Serialize};
-use snafu::Snafu;
 
 ///
 /// ResolverError
 ///
 
-#[derive(Debug, Serialize, Deserialize, Snafu)]
+#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum ResolverError {
-    #[snafu(display("entity not found: {path}"))]
-    EntityNotFound { path: String },
+    #[error("entity not found: {0}")]
+    EntityNotFound(String),
 
-    #[snafu(transparent)]
-    SchemaError { source: SchemaError },
-}
-
-impl ResolverError {
-    #[must_use]
-    pub fn entity_not_found(path: &str) -> Self {
-        Self::EntityNotFound {
-            path: path.to_string(),
-        }
-    }
+    #[error(transparent)]
+    SchemaBuildError(#[from] SchemaBuildError),
 }
 
 ///
@@ -69,14 +63,14 @@ impl Resolver {
         // create the chain from the Schema
         let entity = schema
             .get_node_as::<Entity>(&self.entity)
-            .ok_or_else(|| ResolverError::entity_not_found(&self.entity))?;
+            .ok_or_else(|| ResolverError::EntityNotFound(self.entity.clone()))?;
 
         // create an ordered vec from the parents
         let mut chain = Vec::new();
         for sk in &entity.sort_keys {
             let sk_entity = schema
                 .get_node_as::<Entity>(&sk.entity)
-                .ok_or_else(|| ResolverError::entity_not_found(&sk.entity))?;
+                .ok_or_else(|| ResolverError::EntityNotFound(sk.entity.clone()))?;
 
             chain.push(sk_entity);
         }

@@ -53,7 +53,7 @@ impl Schemable for Validator {
         let def = self.def.schema();
 
         quote! {
-            ::mimic::orm::schema::node::SchemaNode::Validator(::mimic::orm::schema::node::Validator {
+            ::mimic::schema::node::SchemaNode::Validator(::mimic::schema::node::Validator {
                 def: #def,
             })
         }

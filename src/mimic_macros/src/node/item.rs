@@ -49,7 +49,7 @@ impl Schemable for Item {
         let todo = self.todo;
 
         quote! {
-            ::mimic::orm::schema::node::Item{
+            ::mimic::schema::node::Item{
                 path: #path,
                 relation: #relation,
                 selector: #selector,

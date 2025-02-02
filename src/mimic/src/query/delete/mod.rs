@@ -4,22 +4,21 @@ pub mod r#static;
 pub use dynamic::{DeleteBuilderDyn, DeleteExecutorDyn, DeleteQueryDyn};
 pub use r#static::{DeleteBuilder, DeleteExecutor, DeleteQuery};
 
-use crate::{query::resolver::ResolverError, store::types::DataKey};
+use crate::{query::resolver::ResolverError, store::types::DataKey, Error, ThisError};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
-use snafu::Snafu;
 
 ///
 /// DeleteError
 ///
 
-#[derive(Debug, Serialize, Deserialize, Snafu)]
+#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum DeleteError {
-    #[snafu(display("key not found: {key}"))]
-    KeyNotFound { key: DataKey },
+    #[error("key not found: {0}")]
+    KeyNotFound(DataKey),
 
-    #[snafu(transparent)]
-    ResolverError { source: ResolverError },
+    #[error(transparent)]
+    ResolverError(ResolverError),
 }
 
 ///
@@ -40,7 +39,7 @@ impl DeleteResponse {
     }
 
     // keys
-    pub fn keys(self) -> Result<Vec<DataKey>, DeleteError> {
+    pub fn keys(self) -> Result<Vec<DataKey>, Error> {
         Ok(self.keys)
     }
 }

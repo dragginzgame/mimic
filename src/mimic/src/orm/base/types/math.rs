@@ -1,6 +1,9 @@
-use crate::orm::{
-    base::{types, validator},
-    prelude::*,
+use crate::{
+    orm::{
+        base::{types, validator},
+        prelude::*,
+    },
+    Error, ThisError,
 };
 
 ///
@@ -14,13 +17,13 @@ use crate::orm::{
 )]
 pub struct DecimalFormat<const I: usize, const F: usize> {}
 
-#[derive(CandidType, Debug, Serialize, Deserialize, Snafu)]
+#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum DecimalFormatError {
-    #[snafu(display("integer length {ilen} exceeds maximum {max}"))]
-    IntegerLengthExceeded { ilen: usize, max: usize },
+    #[error("integer length {0} exceeds maximum {1}")]
+    IntegerLengthExceeded(usize, usize),
 
-    #[snafu(display("fractional length {flen} exceeds maximum {max}"))]
-    FractionalLengthExceeded { flen: usize, max: usize },
+    #[error("fractional length {0} exceeds maximum {1}")]
+    FractionalLengthExceeded(usize, usize),
 }
 
 impl<const I: usize, const F: usize> ValidateManual for DecimalFormat<I, F> {
@@ -29,12 +32,12 @@ impl<const I: usize, const F: usize> ValidateManual for DecimalFormat<I, F> {
 
         // integer part I
         if ilen > I {
-            return Err(DecimalFormatError::IntegerLengthExceeded { ilen, max: I }.into());
+            return Err(DecimalFormatError::IntegerLengthExceeded(ilen, I).into());
         }
 
         // fractional part F
         if flen > F {
-            return Err(DecimalFormatError::FractionalLengthExceeded { flen, max: F }.into());
+            return Err(DecimalFormatError::FractionalLengthExceeded(flen, F).into());
         }
 
         Ok(())

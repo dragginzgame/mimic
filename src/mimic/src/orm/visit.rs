@@ -1,5 +1,5 @@
-use crate::orm::{
-    traits::{EntityDyn, ValidateAuto, ValidateManual, Visitable},
+use crate::{
+    orm::traits::{EntityDyn, ValidateAuto, ValidateManual, Visitable},
     types::ErrorTree,
 };
 

@@ -11,30 +11,28 @@ pub use load::{
     LoadBuilder, LoadBuilderDyn, LoadError, LoadExecutor, LoadExecutorDyn, LoadQuery, LoadQueryDyn,
     LoadResult, LoadResultDyn,
 };
-pub use resolver::Resolver;
+pub use resolver::{Resolver, ResolverError};
 pub use save::{SaveBuilder, SaveBuilderDyn, SaveError, SaveMode};
 pub use types::*;
 
-use crate::orm::traits::Entity;
+use crate::{orm::traits::Entity, ThisError};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
-use snafu::Snafu;
 
 ///
 /// QueryError
-/// not a wrapper, just handles any errors that
 ///
 
-#[derive(Debug, Serialize, Deserialize, Snafu)]
+#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum QueryError {
-    #[snafu(transparent)]
-    DeleteError { source: delete::DeleteError },
+    #[error(transparent)]
+    DeleteError(#[from] DeleteError),
 
-    #[snafu(transparent)]
-    LoadError { source: load::LoadError },
+    #[error(transparent)]
+    LoadError(#[from] LoadError),
 
-    #[snafu(transparent)]
-    SaveError { source: save::SaveError },
+    #[error(transparent)]
+    SaveError(#[from] SaveError),
 }
 
 ///
@@ -52,8 +50,8 @@ where
 
 // load_dyn
 #[must_use]
-pub fn load_dyn(path: &str) -> LoadBuilderDyn {
-    LoadBuilderDyn::new(path)
+pub fn load_dyn() -> LoadBuilderDyn {
+    LoadBuilderDyn::new()
 }
 
 // delete
@@ -67,8 +65,8 @@ where
 
 // delete_dyn
 #[must_use]
-pub fn delete_dyn(path: &str) -> DeleteBuilderDyn {
-    DeleteBuilderDyn::new(path)
+pub fn delete_dyn() -> DeleteBuilderDyn {
+    DeleteBuilderDyn::new()
 }
 
 // create

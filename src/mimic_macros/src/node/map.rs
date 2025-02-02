@@ -89,7 +89,7 @@ impl Schemable for Map {
         let ty = self.ty.schema();
 
         quote! {
-                ::mimic::orm::schema::node::SchemaNode::Map(::mimic::orm::schema::node::Map {
+                ::mimic::schema::node::SchemaNode::Map(::mimic::schema::node::Map {
                     def: #def,
                     key: #key,
                     value: #value,

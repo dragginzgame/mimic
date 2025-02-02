@@ -1,6 +1,5 @@
 pub mod btreemap;
 pub mod cell;
-pub mod serialize;
 
 // helper
 pub type DefaultMemory =

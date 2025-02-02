@@ -27,7 +27,7 @@ impl Schemable for Type {
         let todo = self.todo;
 
         let q = quote! {
-            ::mimic::orm::schema::node::Type {
+            ::mimic::schema::node::Type {
                 validators: #validators,
                 todo: #todo,
             }
@@ -55,7 +55,7 @@ impl Schemable for TypeValidator {
         let args = &self.args.schema();
 
         let q = quote! {
-            ::mimic::orm::schema::node::TypeValidator {
+            ::mimic::schema::node::TypeValidator {
                 path: #path,
                 args: #args,
             }

@@ -60,17 +60,17 @@ impl FromMeta for Arg {
 impl Schemable for Arg {
     fn schema(&self) -> TokenStream {
         match self {
-            Self::Bool(v) => quote!(::mimic::orm::schema::node::Arg::Bool(#v)),
-            Self::Char(v) => quote!(::mimic::orm::schema::node::Arg::Char(#v)),
+            Self::Bool(v) => quote!(::mimic::schema::node::Arg::Bool(#v)),
+            Self::Char(v) => quote!(::mimic::schema::node::Arg::Char(#v)),
             Self::Number(v) => {
                 let num = quote_one(v, ArgNumber::schema);
-                quote!(::mimic::orm::schema::node::Arg::Number(#num))
+                quote!(::mimic::schema::node::Arg::Number(#num))
             }
             Self::Path(v) => {
                 let path = quote_one(v, to_string);
-                quote!(::mimic::orm::schema::node::Arg::Path(#path.to_string()))
+                quote!(::mimic::schema::node::Arg::Path(#path.to_string()))
             }
-            Self::String(v) => quote!(::mimic::orm::schema::node::Arg::String(#v.to_string())),
+            Self::String(v) => quote!(::mimic::schema::node::Arg::String(#v.to_string())),
         }
     }
 }
@@ -113,7 +113,7 @@ impl Schemable for Args {
         let args = quote_vec(&self.0, Arg::schema);
 
         quote! {
-            ::mimic::orm::schema::node::Args(#args)
+            ::mimic::schema::node::Args(#args)
         }
     }
 }
@@ -371,22 +371,22 @@ impl PartialEq for ArgNumber {
 impl Schemable for ArgNumber {
     fn schema(&self) -> TokenStream {
         match self {
-            Self::Float(v) => quote!(::mimic::orm::schema::node::ArgNumber::Float(#v)),
-            Self::F32(v) => quote!(::mimic::orm::schema::node::ArgNumber::F32(#v)),
-            Self::F64(v) => quote!(::mimic::orm::schema::node::ArgNumber::F64(#v)),
-            Self::Integer(v) => quote!(::mimic::orm::schema::node::ArgNumber::Integer(#v)),
-            Self::I8(v) => quote!(::mimic::orm::schema::node::ArgNumber::I8(#v)),
-            Self::I16(v) => quote!(::mimic::orm::schema::node::ArgNumber::I16(#v)),
-            Self::I32(v) => quote!(::mimic::orm::schema::node::ArgNumber::I32(#v)),
-            Self::I64(v) => quote!(::mimic::orm::schema::node::ArgNumber::I64(#v)),
-            Self::I128(v) => quote!(::mimic::orm::schema::node::ArgNumber::I128(#v)),
-            Self::Isize(v) => quote!(::mimic::orm::schema::node::ArgNumber::Isize(#v)),
-            Self::U8(v) => quote!(::mimic::orm::schema::node::ArgNumber::U8(#v)),
-            Self::U16(v) => quote!(::mimic::orm::schema::node::ArgNumber::U16(#v)),
-            Self::U32(v) => quote!(::mimic::orm::schema::node::ArgNumber::U32(#v)),
-            Self::U64(v) => quote!(::mimic::orm::schema::node::ArgNumber::U64(#v)),
-            Self::U128(v) => quote!(::mimic::orm::schema::node::ArgNumber::U128(#v)),
-            Self::Usize(v) => quote!(::mimic::orm::schema::node::ArgNumber::Usize(#v)),
+            Self::Float(v) => quote!(::mimic::schema::node::ArgNumber::Float(#v)),
+            Self::F32(v) => quote!(::mimic::schema::node::ArgNumber::F32(#v)),
+            Self::F64(v) => quote!(::mimic::schema::node::ArgNumber::F64(#v)),
+            Self::Integer(v) => quote!(::mimic::schema::node::ArgNumber::Integer(#v)),
+            Self::I8(v) => quote!(::mimic::schema::node::ArgNumber::I8(#v)),
+            Self::I16(v) => quote!(::mimic::schema::node::ArgNumber::I16(#v)),
+            Self::I32(v) => quote!(::mimic::schema::node::ArgNumber::I32(#v)),
+            Self::I64(v) => quote!(::mimic::schema::node::ArgNumber::I64(#v)),
+            Self::I128(v) => quote!(::mimic::schema::node::ArgNumber::I128(#v)),
+            Self::Isize(v) => quote!(::mimic::schema::node::ArgNumber::Isize(#v)),
+            Self::U8(v) => quote!(::mimic::schema::node::ArgNumber::U8(#v)),
+            Self::U16(v) => quote!(::mimic::schema::node::ArgNumber::U16(#v)),
+            Self::U32(v) => quote!(::mimic::schema::node::ArgNumber::U32(#v)),
+            Self::U64(v) => quote!(::mimic::schema::node::ArgNumber::U64(#v)),
+            Self::U128(v) => quote!(::mimic::schema::node::ArgNumber::U128(#v)),
+            Self::Usize(v) => quote!(::mimic::schema::node::ArgNumber::Usize(#v)),
         }
     }
 }

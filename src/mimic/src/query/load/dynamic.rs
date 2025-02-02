@@ -1,6 +1,6 @@
 use crate::{
     query::{
-        load::{LoadError, LoadResultDyn, Loader},
+        load::{Error, LoadResultDyn, Loader},
         types::LoadMethod,
         DebugContext, Resolver,
     },
@@ -15,16 +15,14 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Default)]
 pub struct LoadBuilderDyn {
-    path: String,
     debug: DebugContext,
 }
 
 impl LoadBuilderDyn {
     // new
     #[must_use]
-    pub fn new(path: &str) -> Self {
+    pub fn new() -> Self {
         Self {
-            path: path.to_string(),
             debug: DebugContext::default(),
         }
     }
@@ -71,7 +69,7 @@ impl LoadBuilderDyn {
     }
 
     // range
-    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> Result<LoadQueryDyn, LoadError> {
+    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> Result<LoadQueryDyn, Error> {
         let start = start.iter().map(ToString::to_string).collect();
         let end = end.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Range(start, end);
@@ -80,7 +78,7 @@ impl LoadBuilderDyn {
     }
 
     // prefix
-    pub fn prefix<T: ToString>(self, prefix: &[T]) -> Result<LoadQueryDyn, LoadError> {
+    pub fn prefix<T: ToString>(self, prefix: &[T]) -> Result<LoadQueryDyn, Error> {
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Prefix(prefix);
 
@@ -92,7 +90,7 @@ impl LoadBuilderDyn {
 /// LoadQueryDyn
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Debug, Default, Serialize, Deserialize)]
 pub struct LoadQueryDyn {
     path: String,
     debug: DebugContext,
@@ -105,11 +103,9 @@ impl LoadQueryDyn {
     #[must_use]
     pub fn new(builder: LoadBuilderDyn, method: LoadMethod) -> Self {
         Self {
-            path: builder.path,
             debug: builder.debug,
             method,
-            offset: 0,
-            limit: None,
+            ..Default::default()
         }
     }
 
@@ -135,7 +131,7 @@ impl LoadQueryDyn {
     }
 
     // execute
-    pub fn execute(self, store: StoreLocal) -> Result<LoadResultDyn, LoadError> {
+    pub fn execute(self, store: StoreLocal) -> Result<LoadResultDyn, Error> {
         let executor = LoadExecutorDyn::new(self);
 
         executor.execute(store)
@@ -161,9 +157,11 @@ impl LoadExecutorDyn {
     }
 
     // execute
-    pub fn execute(self, store: StoreLocal) -> Result<LoadResultDyn, LoadError> {
+    pub fn execute(self, store: StoreLocal) -> Result<LoadResultDyn, Error> {
         // loader
-        let res = Loader::load(store, &self.resolver, &self.query.method)?;
+        let loader = Loader::new(store, &self.resolver);
+        let res = loader.load(&self.query.method)?;
+
         let boxed_iter = Box::new(res.into_iter()) as Box<dyn Iterator<Item = DataRow>>;
 
         Ok(LoadResultDyn::new(

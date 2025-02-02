@@ -2,11 +2,24 @@
 /// IMPORT IC CRATES
 ///
 pub use ic_cdk::*;
-pub use ic_cdk_timers as timers;
 
 // re-exports
 pub mod helper;
 pub mod structures;
+
+use crate::ThisError;
+use candid::CandidType;
+use serde::{Deserialize, Serialize};
+
+///
+/// IcError
+///
+
+#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+pub enum IcError {
+    #[error(transparent)]
+    CellError(#[from] structures::cell::CellError),
+}
 
 ///
 /// CYCLES

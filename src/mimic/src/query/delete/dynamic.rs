@@ -1,9 +1,10 @@
 use crate::{
     query::{
         delete::{DeleteError, DeleteResponse},
-        DebugContext, Resolver,
+        DebugContext, QueryError, Resolver,
     },
     store::{types::DataKey, StoreLocal},
+    Error,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -14,16 +15,14 @@ use std::fmt::Display;
 ///
 
 pub struct DeleteBuilderDyn {
-    path: String,
     debug: DebugContext,
 }
 
 impl DeleteBuilderDyn {
     // new
     #[must_use]
-    pub(crate) fn new(path: &str) -> Self {
+    pub(crate) fn new() -> Self {
         Self {
-            path: path.to_string(),
             debug: DebugContext::default(),
         }
     }
@@ -36,7 +35,7 @@ impl DeleteBuilderDyn {
     }
 
     // one
-    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQueryDyn, DeleteError> {
+    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQueryDyn, Error> {
         let key: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let executor = DeleteQueryDyn::new(self, vec![key]);
 
@@ -50,7 +49,7 @@ impl DeleteBuilderDyn {
 /// results : all the keys that have successfully been deleted
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Debug, Default, Serialize, Deserialize)]
 pub struct DeleteQueryDyn {
     path: String,
     debug: DebugContext,
@@ -62,14 +61,21 @@ impl DeleteQueryDyn {
     #[must_use]
     fn new(builder: DeleteBuilderDyn, keys: Vec<Vec<String>>) -> Self {
         Self {
-            path: builder.path,
+            path: String::new(),
             debug: builder.debug,
             keys,
         }
     }
 
+    // path
+    #[must_use]
+    pub fn path(mut self, path: &str) -> Self {
+        self.path = path.to_string();
+        self
+    }
+
     // execute
-    pub fn execute(self, store: StoreLocal) -> Result<DeleteResponse, DeleteError> {
+    pub fn execute(self, store: StoreLocal) -> Result<DeleteResponse, Error> {
         let executor = DeleteExecutorDyn::new(self);
 
         executor.execute(store)
@@ -95,7 +101,7 @@ impl DeleteExecutorDyn {
     }
 
     // execute
-    pub fn execute(&self, store: StoreLocal) -> Result<DeleteResponse, DeleteError> {
+    pub fn execute(&self, store: StoreLocal) -> Result<DeleteResponse, Error> {
         let mut results = Vec::new();
         crate::ic::println!("delete: keys {:?}", &self.query.keys);
 
@@ -113,9 +119,13 @@ impl DeleteExecutorDyn {
         Ok(DeleteResponse::new(results))
     }
 
-    fn execute_one(&self, store: StoreLocal, key: &[String]) -> Result<DataKey, DeleteError> {
+    fn execute_one(&self, store: StoreLocal, key: &[String]) -> Result<DataKey, Error> {
         // Attempt to remove the item from the store
-        let data_key = self.resolver.data_key(key)?;
+        let data_key = self
+            .resolver
+            .data_key(key)
+            .map_err(DeleteError::ResolverError)
+            .map_err(QueryError::DeleteError)?;
         //   let store_path = self.resolver.store()?;
 
         store.with_borrow_mut(|store| {

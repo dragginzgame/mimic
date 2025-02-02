@@ -5,7 +5,7 @@ pub use dynamic::{SaveBuilderDyn, SaveExecutorDyn, SaveQueryDyn};
 pub use r#static::{SaveBuilder, SaveExecutor, SaveQuery};
 
 use crate::{
-    orm::{traits::EntityDyn, OrmError},
+    orm::{serialize::SerializeError, traits::EntityDyn},
     query::{
         resolver::{Resolver, ResolverError},
         DebugContext,
@@ -14,34 +14,32 @@ use crate::{
         types::{DataKey, DataValue, Metadata},
         StoreLocal,
     },
+    ThisError,
 };
+use candid::CandidType;
 use serde::{Deserialize, Serialize};
-use snafu::Snafu;
 use strum::Display;
 
 ///
 /// SaveError
 ///
 
-#[derive(Debug, Serialize, Deserialize, Snafu)]
+#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum SaveError {
-    #[snafu(display("key exists: {key}"))]
-    KeyExists { key: DataKey },
+    #[error("key exists: {0}")]
+    KeyExists(DataKey),
 
-    #[snafu(display("key not found: {key}"))]
-    KeyNotFound { key: DataKey },
+    #[error("key not found: {0}")]
+    KeyNotFound(DataKey),
 
-    #[snafu(display("no results found"))]
+    #[error("no results found")]
     NoResultsFound,
 
-    #[snafu(display("validation failed: {path} {source}"))]
-    Validation { path: String, source: OrmError },
+    #[error(transparent)]
+    SerializeError(#[from] SerializeError),
 
-    #[snafu(transparent)]
-    OrmError { source: OrmError },
-
-    #[snafu(transparent)]
-    ResolverError { source: ResolverError },
+    #[error(transparent)]
+    ResolverError(#[from] ResolverError),
 }
 
 ///
@@ -52,7 +50,7 @@ pub enum SaveError {
 /// Update  : will only change an existing row
 ///
 
-#[derive(Display)]
+#[derive(CandidType, Debug, Display, Serialize, Deserialize)]
 pub enum SaveMode {
     Create,
     Replace,
@@ -78,7 +76,7 @@ fn save<'a>(
     debug.println(&format!(
         "store.{}: {}",
         mode.to_string().to_lowercase(),
-        key
+        key.clone()
     ));
 
     // serialize
@@ -95,7 +93,7 @@ fn save<'a>(
     let (created, modified) = match mode {
         SaveMode::Create => {
             if result.is_some() {
-                Err(SaveError::KeyExists { key: key.clone() })?;
+                Err(SaveError::KeyExists(key.clone()))?;
             }
 
             (now, now)
@@ -111,7 +109,7 @@ fn save<'a>(
 
                 (old.metadata.created, modified)
             }
-            None => Err(SaveError::KeyNotFound { key: key.clone() })?,
+            None => Err(SaveError::KeyNotFound(key.clone()))?,
         },
 
         SaveMode::Replace => match result {
