@@ -21,18 +21,18 @@ pub const fn init() {}
 pub struct EntityIdTest {}
 
 ///
-/// TodoTest
+/// TodoUnit
 ///
 
 #[newtype(value(item(todo)))]
-pub struct TodoTest {}
+pub struct TodoUnit {}
 
 ///
-/// TodoTestTarget
+/// TodoTarget
 ///
 
 #[newtype(value(item(todo, is = "Todo")))]
-pub struct TodoTestTarget {}
+pub struct TodoTarget {}
 
 ///
 /// Todo

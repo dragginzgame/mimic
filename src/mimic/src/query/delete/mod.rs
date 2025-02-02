@@ -1,8 +1,8 @@
 pub mod dynamic;
 pub mod r#static;
 
-pub use dynamic::{DeleteBuilder, DeleteExecutor, DeleteQuery};
-pub use r#static::{EDeleteBuilder, EDeleteExecutor, EDeleteQuery};
+pub use dynamic::{DeleteBuilderDyn, DeleteExecutorDyn, DeleteQueryDyn};
+pub use r#static::{DeleteBuilder, DeleteExecutor, DeleteQuery};
 
 use crate::{query::resolver::ResolverError, store::types::DataKey};
 use candid::CandidType;

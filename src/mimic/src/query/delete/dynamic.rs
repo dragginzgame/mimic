@@ -10,15 +10,15 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
 ///
-/// DeleteBuilder
+/// DeleteBuilderDyn
 ///
 
-pub struct DeleteBuilder {
+pub struct DeleteBuilderDyn {
     path: String,
     debug: DebugContext,
 }
 
-impl DeleteBuilder {
+impl DeleteBuilderDyn {
     // new
     #[must_use]
     pub(crate) fn new(path: &str) -> Self {
@@ -36,31 +36,31 @@ impl DeleteBuilder {
     }
 
     // one
-    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQuery, DeleteError> {
+    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQueryDyn, DeleteError> {
         let key: Vec<String> = ck.iter().map(ToString::to_string).collect();
-        let executor = DeleteQuery::new(self, vec![key]);
+        let executor = DeleteQueryDyn::new(self, vec![key]);
 
         Ok(executor)
     }
 }
 
 ///
-/// DeleteQuery
+/// DeleteQueryDyn
 ///
 /// results : all the keys that have successfully been deleted
 ///
 
 #[derive(CandidType, Debug, Serialize, Deserialize)]
-pub struct DeleteQuery {
+pub struct DeleteQueryDyn {
     path: String,
     debug: DebugContext,
     keys: Vec<Vec<String>>,
 }
 
-impl DeleteQuery {
+impl DeleteQueryDyn {
     // new
     #[must_use]
-    fn new(builder: DeleteBuilder, keys: Vec<Vec<String>>) -> Self {
+    fn new(builder: DeleteBuilderDyn, keys: Vec<Vec<String>>) -> Self {
         Self {
             path: builder.path,
             debug: builder.debug,
@@ -70,25 +70,25 @@ impl DeleteQuery {
 
     // execute
     pub fn execute(self, store: StoreLocal) -> Result<DeleteResponse, DeleteError> {
-        let executor = DeleteExecutor::new(self);
+        let executor = DeleteExecutorDyn::new(self);
 
         executor.execute(store)
     }
 }
 
 ///
-/// DeleteExecutor
+/// DeleteExecutorDyn
 ///
 
-pub struct DeleteExecutor {
-    query: DeleteQuery,
+pub struct DeleteExecutorDyn {
+    query: DeleteQueryDyn,
     resolver: Resolver,
 }
 
-impl DeleteExecutor {
+impl DeleteExecutorDyn {
     // new
     #[must_use]
-    pub fn new(query: DeleteQuery) -> Self {
+    pub fn new(query: DeleteQueryDyn) -> Self {
         let resolver = Resolver::new(&query.path);
 
         Self { query, resolver }

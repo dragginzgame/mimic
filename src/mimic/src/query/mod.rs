@@ -5,14 +5,14 @@ pub mod save;
 pub mod types;
 
 pub use delete::{
-    DeleteBuilder, DeleteError, DeleteExecutor, DeleteQuery, DeleteResponse, EDeleteBuilder,
+    DeleteBuilder, DeleteBuilderDyn, DeleteError, DeleteExecutor, DeleteQuery, DeleteResponse,
 };
 pub use load::{
-    ELoadBuilder, ELoadExecutor, ELoadQuery, ELoadResult, LoadBuilder, LoadError, LoadExecutor,
-    LoadQuery, LoadResult,
+    LoadBuilder, LoadBuilderDyn, LoadError, LoadExecutor, LoadExecutorDyn, LoadQuery, LoadQueryDyn,
+    LoadResult, LoadResultDyn,
 };
 pub use resolver::Resolver;
-pub use save::{ESaveBuilder, SaveBuilder, SaveError, SaveMode};
+pub use save::{SaveBuilder, SaveBuilderDyn, SaveError, SaveMode};
 pub use types::*;
 
 use crate::orm::traits::Entity;
@@ -41,79 +41,79 @@ pub enum QueryError {
 /// Query Builders
 ///
 
-// load_entity
+// load
 #[must_use]
-pub fn load_entity<E>() -> ELoadBuilder<E>
+pub fn load<E>() -> LoadBuilder<E>
 where
     E: Entity,
 {
-    ELoadBuilder::<E>::new()
+    LoadBuilder::<E>::new()
 }
 
-// load
+// load_dyn
 #[must_use]
-pub fn load(path: &str) -> LoadBuilder {
-    LoadBuilder::new(path)
+pub fn load_dyn(path: &str) -> LoadBuilderDyn {
+    LoadBuilderDyn::new(path)
 }
 
 // delete
 #[must_use]
-pub fn delete(path: &str) -> DeleteBuilder {
-    DeleteBuilder::new(path)
-}
-
-// delete_entity
-#[must_use]
-pub fn delete_entity<E>() -> EDeleteBuilder<E>
+pub fn delete<E>() -> DeleteBuilder<E>
 where
     E: Entity,
 {
-    EDeleteBuilder::<E>::new()
+    DeleteBuilder::<E>::new()
+}
+
+// delete_dyn
+#[must_use]
+pub fn delete_dyn(path: &str) -> DeleteBuilderDyn {
+    DeleteBuilderDyn::new(path)
 }
 
 // create
 #[must_use]
-pub fn create() -> SaveBuilder {
-    SaveBuilder::new(SaveMode::Create)
-}
-
-// create_entity
-#[must_use]
-pub fn create_entity<E>() -> ESaveBuilder<E>
+pub fn create<E>() -> SaveBuilder<E>
 where
     E: Entity,
 {
-    ESaveBuilder::<E>::new(SaveMode::Create)
+    SaveBuilder::<E>::new(SaveMode::Create)
+}
+
+// create_dyn
+#[must_use]
+pub fn create_dyn() -> SaveBuilderDyn {
+    SaveBuilderDyn::new(SaveMode::Create)
 }
 
 // replace
 #[must_use]
-pub fn replace() -> SaveBuilder {
-    SaveBuilder::new(SaveMode::Replace)
-}
-
-// replace_entity
-#[must_use]
-pub fn replace_entity<E>() -> ESaveBuilder<E>
+pub fn replace<E>() -> SaveBuilder<E>
 where
     E: Entity,
 {
-    ESaveBuilder::<E>::new(SaveMode::Replace)
+    SaveBuilder::<E>::new(SaveMode::Replace)
+}
+
+// replace_dyn
+#[must_use]
+pub fn replace_dyn() -> SaveBuilderDyn {
+    SaveBuilderDyn::new(SaveMode::Replace)
 }
 
 // update
 #[must_use]
-pub fn update() -> SaveBuilder {
-    SaveBuilder::new(SaveMode::Update)
-}
-
-// update_entity
-#[must_use]
-pub fn update_entity<E>() -> ESaveBuilder<E>
+pub fn update<E>() -> SaveBuilder<E>
 where
     E: Entity,
 {
-    ESaveBuilder::<E>::new(SaveMode::Update)
+    SaveBuilder::<E>::new(SaveMode::Update)
+}
+
+// update_dyn
+#[must_use]
+pub fn update_dyn() -> SaveBuilderDyn {
+    SaveBuilderDyn::new(SaveMode::Update)
 }
 
 ///

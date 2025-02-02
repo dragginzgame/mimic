@@ -9,10 +9,10 @@ use crate::{
 use std::marker::PhantomData;
 
 ///
-/// ESaveBuilder
+/// SaveBuilder
 ///
 
-pub struct ESaveBuilder<E>
+pub struct SaveBuilder<E>
 where
     E: Entity,
 {
@@ -21,7 +21,7 @@ where
     _phantom: PhantomData<E>,
 }
 
-impl<E> ESaveBuilder<E>
+impl<E> SaveBuilder<E>
 where
     E: Entity,
 {
@@ -43,29 +43,29 @@ where
     }
 
     // from_data
-    pub fn from_data(self, data: &[u8]) -> Result<ESaveQuery<E>, SaveError> {
+    pub fn from_data(self, data: &[u8]) -> Result<SaveQuery<E>, SaveError> {
         let entity: E = crate::orm::deserialize(data)?;
 
-        Ok(ESaveQuery::new(self, vec![entity]))
+        Ok(SaveQuery::new(self, vec![entity]))
     }
 
     // from_entity
-    pub fn from_entity(self, entity: E) -> ESaveQuery<E> {
-        ESaveQuery::new(self, vec![entity])
+    pub fn from_entity(self, entity: E) -> SaveQuery<E> {
+        SaveQuery::new(self, vec![entity])
     }
 
     // from_entities
     #[must_use]
-    pub const fn from_entities(self, entities: Vec<E>) -> ESaveQuery<E> {
-        ESaveQuery::new(self, entities)
+    pub const fn from_entities(self, entities: Vec<E>) -> SaveQuery<E> {
+        SaveQuery::new(self, entities)
     }
 }
 
 ///
-/// ESaveQuery
+/// SaveQuery
 ///
 
-pub struct ESaveQuery<E>
+pub struct SaveQuery<E>
 where
     E: Entity,
 {
@@ -74,12 +74,12 @@ where
     entities: Vec<E>,
 }
 
-impl<E> ESaveQuery<E>
+impl<E> SaveQuery<E>
 where
     E: Entity,
 {
     #[must_use]
-    const fn new(builder: ESaveBuilder<E>, entities: Vec<E>) -> Self {
+    const fn new(builder: SaveBuilder<E>, entities: Vec<E>) -> Self {
         Self {
             mode: builder.mode,
             debug: builder.debug,
@@ -89,30 +89,30 @@ where
 
     // execute
     pub fn execute(self, store: StoreLocal) -> Result<(), SaveError> {
-        let executor = ESaveExecutor::new(self);
+        let executor = SaveExecutor::new(self);
 
         executor.execute(store)
     }
 }
 
 ///
-/// ESaveExecutor
+/// SaveExecutor
 ///
 
-pub struct ESaveExecutor<E>
+pub struct SaveExecutor<E>
 where
     E: Entity,
 {
-    query: ESaveQuery<E>,
+    query: SaveQuery<E>,
 }
 
-impl<E> ESaveExecutor<E>
+impl<E> SaveExecutor<E>
 where
     E: Entity,
 {
     // new
     #[must_use]
-    pub const fn new(query: ESaveQuery<E>) -> Self {
+    pub const fn new(query: SaveQuery<E>) -> Self {
         Self { query }
     }
 

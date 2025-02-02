@@ -2,9 +2,9 @@ pub mod dynamic;
 pub mod result;
 pub mod r#static;
 
-pub use dynamic::{LoadBuilder, LoadExecutor, LoadQuery};
-pub use r#static::{ELoadBuilder, ELoadExecutor, ELoadQuery};
-pub use result::{ELoadResult, LoadResult};
+pub use dynamic::{LoadBuilderDyn, LoadExecutorDyn, LoadQueryDyn};
+pub use r#static::{LoadBuilder, LoadExecutor, LoadQuery};
+pub use result::{LoadResult, LoadResultDyn};
 
 use crate::{
     orm::OrmError,

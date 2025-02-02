@@ -33,13 +33,13 @@ impl DbTester {
         let mut e = HasMap::default();
         e.map_int_string.push((3, "value".to_string()));
         e.map_int_string.push((4, "value".to_string()));
-        query::create_entity::<HasMap>()
+        query::create::<HasMap>()
             .from_entity(e)
             .execute(&STORE)
             .unwrap();
 
         // load all keys
-        let entities = query::load_entity::<HasMap>()
+        let entities = query::load::<HasMap>()
             .only()
             .execute(&STORE)
             .unwrap()
@@ -66,7 +66,7 @@ impl DbTester {
         }
 
         // Retrieve rows in B-Tree order
-        let rows: Vec<DataKey> = query::load_entity::<SortKeyOrder>()
+        let rows: Vec<DataKey> = query::load::<SortKeyOrder>()
             .all()
             .order(Order::from(vec!["id"]))
             .execute(&STORE)
@@ -98,7 +98,7 @@ impl DbTester {
             store.clear();
         });
         // Retrieve the count of keys (or entities) from the store
-        let count = query::load_entity::<CreateBasic>()
+        let count = query::load::<CreateBasic>()
             .all()
             .execute(&STORE)
             .unwrap()
@@ -121,7 +121,7 @@ impl DbTester {
 
         // count keys
         assert_eq!(
-            query::load_entity::<CreateBasic>()
+            query::load::<CreateBasic>()
                 .all()
                 .execute(&STORE)
                 .unwrap()
@@ -136,7 +136,7 @@ impl DbTester {
 
         // count keys
         assert_eq!(
-            query::load_entity::<CreateBasic>()
+            query::load::<CreateBasic>()
                 .all()
                 .execute(&STORE)
                 .unwrap()
@@ -163,7 +163,7 @@ impl DbTester {
         }
 
         // Retrieve the count from the store
-        let count = query::load_entity::<CreateBasic>()
+        let count = query::load::<CreateBasic>()
             .all()
             .execute(&STORE)
             .unwrap()
@@ -224,7 +224,7 @@ impl DbTester {
         ];
 
         for (search, expected_count) in tests {
-            let count = query::load_entity::<Filterable>()
+            let count = query::load::<Filterable>()
                 .all()
                 .filter_all(search)
                 .execute(&STORE)
@@ -262,7 +262,7 @@ impl DbTester {
         // Test various limits and offsets
         for limit in [10, 20, 50] {
             for offset in [0, 5, 10] {
-                let results = query::load_entity::<Limit>()
+                let results = query::load::<Limit>()
                     .all()
                     .offset(offset)
                     .limit(limit)

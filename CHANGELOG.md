@@ -6,8 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.3.1]
-- added the 'todo' option for fields and types, and improved schema validation
+- added the 'todo' option for fields and types under the subcategory ty(), also TypeNode
 - rust 1.84.1
+- unit type is now there if you don't specify is or rel
+- rewrote Item so it has a path and an optional entity
+- switched ELoadBuilder and LoadBuilder to LoadBuilder and LoadBuilderDyn, better fluent api
 
 ## [0.3.0]
 - removing automated IC actor scripts [HUGE CHANGE]

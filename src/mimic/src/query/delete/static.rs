@@ -11,10 +11,10 @@ use serde::{Deserialize, Serialize};
 use std::{fmt::Display, marker::PhantomData};
 
 ///
-/// EDeleteBuilder
+/// DeleteBuilder
 ///
 
-pub struct EDeleteBuilder<E>
+pub struct DeleteBuilder<E>
 where
     E: Entity,
 {
@@ -22,7 +22,7 @@ where
     _phantom: PhantomData<E>,
 }
 
-impl<E> EDeleteBuilder<E>
+impl<E> DeleteBuilder<E>
 where
     E: Entity,
 {
@@ -43,22 +43,22 @@ where
     }
 
     // one
-    pub fn one<T: Display>(self, ck: &[T]) -> Result<EDeleteQuery<E>, DeleteError> {
+    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQuery<E>, DeleteError> {
         let key: Vec<String> = ck.iter().map(ToString::to_string).collect();
-        let executor = EDeleteQuery::new(self, vec![key]);
+        let executor = DeleteQuery::new(self, vec![key]);
 
         Ok(executor)
     }
 }
 
 ///
-/// EDeleteQuery
+/// DeleteQuery
 ///
 /// results : all the keys that have successfully been deleted
 ///
 
 #[derive(CandidType, Debug, Serialize, Deserialize)]
-pub struct EDeleteQuery<E>
+pub struct DeleteQuery<E>
 where
     E: Entity,
 {
@@ -67,13 +67,13 @@ where
     _phantom: PhantomData<E>,
 }
 
-impl<E> EDeleteQuery<E>
+impl<E> DeleteQuery<E>
 where
     E: Entity,
 {
     // new
     #[must_use]
-    const fn new(builder: EDeleteBuilder<E>, keys: Vec<Vec<String>>) -> Self {
+    const fn new(builder: DeleteBuilder<E>, keys: Vec<Vec<String>>) -> Self {
         Self {
             debug: builder.debug,
             keys,
@@ -83,31 +83,31 @@ where
 
     // execute
     pub fn execute(self, store: StoreLocal) -> Result<DeleteResponse, DeleteError> {
-        let executor = EDeleteExecutor::new(self);
+        let executor = DeleteExecutor::new(self);
 
         executor.execute(store)
     }
 }
 
 ///
-/// EDeleteExecutor
+/// DeleteExecutor
 ///
 
-pub struct EDeleteExecutor<E>
+pub struct DeleteExecutor<E>
 where
     E: Entity,
 {
-    query: EDeleteQuery<E>,
+    query: DeleteQuery<E>,
     resolver: Resolver,
 }
 
-impl<E> EDeleteExecutor<E>
+impl<E> DeleteExecutor<E>
 where
     E: Entity,
 {
     // new
     #[must_use]
-    pub fn new(query: EDeleteQuery<E>) -> Self {
+    pub fn new(query: DeleteQuery<E>) -> Self {
         let resolver = Resolver::new(E::PATH);
 
         Self { query, resolver }

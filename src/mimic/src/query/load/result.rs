@@ -15,10 +15,10 @@ use std::iter;
 type IterFilter<T> = Box<dyn Fn(&T) -> bool>;
 
 ///
-/// ELoadResult
+/// LoadResult
 ///
 
-pub struct ELoadResult<E>
+pub struct LoadResult<E>
 where
     E: Entity,
 {
@@ -26,7 +26,7 @@ where
     manager: IterManager<EntityRow<E>>,
 }
 
-impl<E> ELoadResult<E>
+impl<E> LoadResult<E>
 where
     E: Entity + 'static,
 {
@@ -125,7 +125,7 @@ where
     }
 }
 
-impl<E> Iterator for ELoadResult<E>
+impl<E> Iterator for LoadResult<E>
 where
     E: Entity + 'static,
 {
@@ -137,18 +137,18 @@ where
 }
 
 ///
-/// LoadResult
+/// LoadResultDyn
 ///
 /// complex logic is handled better with iter::from_fn and move_next()
 /// all iterator methods (for now) are consuming
 ///
 
-pub struct LoadResult {
+pub struct LoadResultDyn {
     iter: Box<dyn Iterator<Item = DataRow>>,
     manager: IterManager<DataRow>,
 }
 
-impl LoadResult {
+impl LoadResultDyn {
     #[must_use]
     pub fn new(iter: Box<dyn Iterator<Item = DataRow>>, limit: Option<u32>, offset: u32) -> Self {
         Self {
@@ -210,7 +210,7 @@ impl LoadResult {
     }
 }
 
-impl Iterator for LoadResult {
+impl Iterator for LoadResultDyn {
     type Item = DataRow;
 
     fn next(&mut self) -> Option<Self::Item> {

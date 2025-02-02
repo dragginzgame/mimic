@@ -9,15 +9,15 @@ use crate::{
 use std::mem;
 
 ///
-/// SaveBuilder
+/// SaveBuilderDyn
 ///
 
-pub struct SaveBuilder {
+pub struct SaveBuilderDyn {
     mode: SaveMode,
     debug: DebugContext,
 }
 
-impl SaveBuilder {
+impl SaveBuilderDyn {
     // new
     #[must_use]
     pub fn new(mode: SaveMode) -> Self {
@@ -35,54 +35,54 @@ impl SaveBuilder {
     }
 
     // from_data
-    pub fn from_data<E: Entity + 'static>(self, data: &[u8]) -> Result<SaveQuery, SaveError> {
+    pub fn from_data<E: Entity + 'static>(self, data: &[u8]) -> Result<SaveQueryDyn, SaveError> {
         let entity: E = crate::orm::deserialize(data)?;
 
-        Ok(SaveQuery::new(self, vec![Box::new(entity)]))
+        Ok(SaveQueryDyn::new(self, vec![Box::new(entity)]))
     }
 
     // from_entity
-    pub fn from_entity<E: EntityDyn + 'static>(self, entity: E) -> SaveQuery {
-        SaveQuery::new(self, vec![Box::new(entity)])
+    pub fn from_entity<E: EntityDyn + 'static>(self, entity: E) -> SaveQueryDyn {
+        SaveQueryDyn::new(self, vec![Box::new(entity)])
     }
 
     // from_entities
     #[must_use]
-    pub fn from_entities<E: EntityDyn + 'static>(self, entities: Vec<E>) -> SaveQuery {
+    pub fn from_entities<E: EntityDyn + 'static>(self, entities: Vec<E>) -> SaveQueryDyn {
         let boxed_entities = entities
             .into_iter()
             .map(|entity| Box::new(entity) as Box<dyn EntityDyn>)
             .collect();
 
-        SaveQuery::new(self, boxed_entities)
+        SaveQueryDyn::new(self, boxed_entities)
     }
 
     // from_entity_dynamic
     #[must_use]
-    pub fn from_entity_dynamic(self, entity: Box<dyn EntityDyn>) -> SaveQuery {
-        SaveQuery::new(self, vec![entity])
+    pub fn from_entity_dynamic(self, entity: Box<dyn EntityDyn>) -> SaveQueryDyn {
+        SaveQueryDyn::new(self, vec![entity])
     }
 
     // from_entities_dynamic
     #[must_use]
-    pub fn from_entities_dynamic(self, entities: Vec<Box<dyn EntityDyn>>) -> SaveQuery {
-        SaveQuery::new(self, entities)
+    pub fn from_entities_dynamic(self, entities: Vec<Box<dyn EntityDyn>>) -> SaveQueryDyn {
+        SaveQueryDyn::new(self, entities)
     }
 }
 
 ///
-/// SaveQuery
+/// SaveQueryDyn
 ///
 
-pub struct SaveQuery {
+pub struct SaveQueryDyn {
     mode: SaveMode,
     debug: DebugContext,
     entities: Vec<Box<dyn EntityDyn>>,
 }
 
-impl SaveQuery {
+impl SaveQueryDyn {
     #[must_use]
-    pub fn new(builder: SaveBuilder, entities: Vec<Box<dyn EntityDyn>>) -> Self {
+    pub fn new(builder: SaveBuilderDyn, entities: Vec<Box<dyn EntityDyn>>) -> Self {
         Self {
             mode: builder.mode,
             debug: builder.debug,
@@ -92,24 +92,24 @@ impl SaveQuery {
 
     // execute
     pub fn execute(self, store: StoreLocal) -> Result<(), SaveError> {
-        let executor = SaveExecutor::new(self);
+        let executor = SaveExecutorDyn::new(self);
 
         executor.execute(store)
     }
 }
 
 ///
-/// SaveExecutor
+/// SaveExecutorDyn
 ///
 
-pub struct SaveExecutor {
-    query: SaveQuery,
+pub struct SaveExecutorDyn {
+    query: SaveQueryDyn,
 }
 
-impl SaveExecutor {
+impl SaveExecutorDyn {
     // new
     #[must_use]
-    pub const fn new(query: SaveQuery) -> Self {
+    pub const fn new(query: SaveQueryDyn) -> Self {
         Self { query }
     }
 
