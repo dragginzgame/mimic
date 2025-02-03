@@ -59,7 +59,7 @@ pub struct DeleteQueryDyn {
 impl DeleteQueryDyn {
     // new
     #[must_use]
-    fn new(builder: DeleteBuilderDyn, keys: Vec<Vec<String>>) -> Self {
+    const fn new(builder: DeleteBuilderDyn, keys: Vec<Vec<String>>) -> Self {
         Self {
             path: String::new(),
             debug: builder.debug,

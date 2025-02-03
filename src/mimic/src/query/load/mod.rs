@@ -57,7 +57,7 @@ pub struct Loader<'a> {
 impl<'a> Loader<'a> {
     // new
     #[must_use]
-    pub fn new(store: StoreLocal, resolver: &'a Resolver) -> Self {
+    pub const fn new(store: StoreLocal, resolver: &'a Resolver) -> Self {
         Self { store, resolver }
     }
 

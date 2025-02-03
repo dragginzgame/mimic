@@ -73,11 +73,7 @@ fn save<'a>(
     let key = resolver.data_key(&ck).map(DataKey::from)?;
 
     // debug
-    debug.println(&format!(
-        "store.{}: {}",
-        mode.to_string().to_lowercase(),
-        key.clone()
-    ));
+    debug.println(&format!("store.{mode}: {key}",));
 
     // serialize
     let data: Vec<u8> = entity.serialize_dyn()?;

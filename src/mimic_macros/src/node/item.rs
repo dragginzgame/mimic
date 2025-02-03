@@ -69,6 +69,6 @@ impl ToTokens for Item {
             quote!(#path)
         };
 
-        tokens.extend(q)
+        tokens.extend(q);
     }
 }

@@ -43,14 +43,14 @@ impl SchemaNode {
     #[must_use]
     pub fn get_type(&self) -> Option<Box<dyn TypeNode>> {
         match self {
-            SchemaNode::Entity(ref n) => Some(Box::new(n.clone())),
-            SchemaNode::Enum(ref n) => Some(Box::new(n.clone())),
-            SchemaNode::EnumValue(ref n) => Some(Box::new(n.clone())),
-            SchemaNode::Map(ref n) => Some(Box::new(n.clone())),
-            SchemaNode::Newtype(ref n) => Some(Box::new(n.clone())),
-            SchemaNode::Primitive(ref n) => Some(Box::new(n.clone())),
-            SchemaNode::Record(ref n) => Some(Box::new(n.clone())),
-            SchemaNode::Tuple(ref n) => Some(Box::new(n.clone())),
+            Self::Entity(ref n) => Some(Box::new(n.clone())),
+            Self::Enum(ref n) => Some(Box::new(n.clone())),
+            Self::EnumValue(ref n) => Some(Box::new(n.clone())),
+            Self::Map(ref n) => Some(Box::new(n.clone())),
+            Self::Newtype(ref n) => Some(Box::new(n.clone())),
+            Self::Primitive(ref n) => Some(Box::new(n.clone())),
+            Self::Record(ref n) => Some(Box::new(n.clone())),
+            Self::Tuple(ref n) => Some(Box::new(n.clone())),
             _ => None,
         }
     }

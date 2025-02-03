@@ -176,6 +176,6 @@ impl ToTokens for Newtype {
             pub struct #ident #generics(#value);
         };
 
-        tokens.extend(q)
+        tokens.extend(q);
     }
 }

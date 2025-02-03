@@ -77,7 +77,7 @@ pub fn get_schema() -> Result<Schema, Error> {
 
     let schema = guard
         .as_ref()
-        .map(|schema| schema.clone())
+        .cloned()
         .ok_or(StateError::NotInitialized)
         .map_err(SchemaError::StateError)?;
 

@@ -72,6 +72,6 @@ impl ToTokens for Primitive {
 
         tokens.extend(quote! {
             pub type #ident = #path;
-        })
+        });
     }
 }

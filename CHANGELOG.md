@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - unit type is now there if you don't specify is or rel
 - rewrote Item so it has a path and an optional entity
 - switched ELoadBuilder and LoadBuilder to LoadBuilder and LoadBuilderDyn, better fluent api
+- composite_key now uses unwrap_or_default()
+- snafu has been replaced with thiserror
 
 ## [0.3.0]
 - removing automated IC actor scripts [HUGE CHANGE]

@@ -32,7 +32,7 @@ pub struct Item {
 
 impl Item {
     #[must_use]
-    pub fn is_relation(&self) -> bool {
+    pub const fn is_relation(&self) -> bool {
         self.relation.is_some()
     }
 }
