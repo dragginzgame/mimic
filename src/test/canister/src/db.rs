@@ -1,5 +1,10 @@
 use super::STORE;
-use mimic::{orm::prelude::*, query::types::Order, store::types::DataKey};
+use mimic::{
+    orm::serialize::{deserialize, serialize},
+    prelude::*,
+    query::{self, types::Order},
+    store::types::DataKey,
+};
 
 ///
 /// DbTester
@@ -289,8 +294,8 @@ impl DbTester {
         };
 
         // move from small to large
-        let bytes = mimic::orm::serialize(&small).unwrap();
-        let large = mimic::orm::deserialize::<MissingFieldLarge>(&bytes).unwrap();
+        let bytes = serialize(&small).unwrap();
+        let large = deserialize::<MissingFieldLarge>(&bytes).unwrap();
 
         assert!(!large.a_id.is_nil());
         assert!(!large.b_id.is_nil());

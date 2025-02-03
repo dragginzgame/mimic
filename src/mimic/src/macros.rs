@@ -29,7 +29,7 @@ macro_rules! mimic_build {
         let out_dir = ::std::env::var("OUT_DIR").expect("OUT_DIR not set");
 
         // build schema
-        let output = ::mimic::build::schema::schema().unwrap();
+        let output = ::mimic::schema::build::get_schema_json().unwrap();
 
         // write schema
         let schema_file = PathBuf::from(out_dir).join("schema.rs");
@@ -47,11 +47,11 @@ macro_rules! mimic_start {
         fn mimic_init() {
             // schema
             let schema_json = include_str!(concat!(env!("OUT_DIR"), "/schema.rs"));
-            ::mimic::core::schema::init_schema_json(schema_json).unwrap();
+            ::mimic::schema::state::init_schema_json(schema_json).unwrap();
 
             // config
             let toml = include_str!($config);
-            ::mimic::core::config::init_config_toml(toml).unwrap();
+            ::mimic::config::init_config_toml(toml).unwrap();
         }
     };
 }

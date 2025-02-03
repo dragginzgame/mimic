@@ -87,7 +87,6 @@ pub struct SortKeyB {}
 /// SortKeyC
 ///
 
-£
 #[entity(
     sk(entity = "SortKeyA", field = "a_id"),
     sk(entity = "SortKeyB", field = "b_id"),

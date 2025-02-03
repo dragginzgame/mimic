@@ -34,7 +34,7 @@ fn composite_key(node: &Entity) -> TokenStream {
     let set_fields = fields.iter().enumerate().map(|(i, ident)| {
         quote! {
             if let Some(value) = values.get(#i) {
-                this.#ident = value.into();
+                this.#ident = value.parse().unwrap_or_default();
             }
         }
     });
@@ -53,13 +53,12 @@ fn composite_key(node: &Entity) -> TokenStream {
     } else {
         quote! {
             let mut this = Self::default();
+
             #(#set_fields)*
 
             // Collect formatted keys and then take only as many as there are input values
-            let keys = vec![#(#format_keys),*];
-            let limited_keys = keys.into_iter().take(values.len()).collect::<Vec<_>>();
-
-            limited_keys
+            let format_keys = vec![#(#format_keys),*];
+            format_keys.into_iter().take(values.len()).collect()
         }
     };
 
