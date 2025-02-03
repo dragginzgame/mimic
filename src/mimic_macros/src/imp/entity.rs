@@ -34,7 +34,7 @@ fn composite_key(node: &Entity) -> TokenStream {
     let set_fields = fields.iter().enumerate().map(|(i, ident)| {
         quote! {
             if let Some(value) = values.get(#i) {
-                this.#ident = value.parse();
+                this.#ident = value.into();
             }
         }
     });
