@@ -17,7 +17,7 @@ pub use std::{
 };
 
 use crate::{
-    orm::{base::types::Ulid, serialize::SerializeError, visit::Visitor},
+    orm::{base::types::Ulid, visit::Visitor, OrmError},
     types::{ErrorVec, SortDirection},
 };
 
@@ -372,7 +372,7 @@ pub trait EntityDyn: TypeDyn + Visitable {
 
     // serialize_dyn
     // entities need dynamic serialization when saving different types
-    fn serialize_dyn(&self) -> Result<Vec<u8>, SerializeError>;
+    fn serialize_dyn(&self) -> Result<Vec<u8>, OrmError>;
 }
 
 ///

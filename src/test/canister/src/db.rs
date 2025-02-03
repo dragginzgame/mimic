@@ -1,6 +1,6 @@
 use super::STORE;
 use mimic::{
-    orm::serialize::{deserialize, serialize},
+    orm::{deserialize, serialize},
     prelude::*,
     query::{self, types::Order},
     store::types::DataKey,

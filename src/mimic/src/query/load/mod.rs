@@ -7,7 +7,7 @@ pub use r#static::{LoadBuilder, LoadExecutor, LoadQuery};
 pub use result::{LoadResult, LoadResultDyn};
 
 use crate::{
-    orm::serialize::SerializeError,
+    ic::serialize::SerializeError,
     query::{
         resolver::{Resolver, ResolverError},
         types::LoadMethod,

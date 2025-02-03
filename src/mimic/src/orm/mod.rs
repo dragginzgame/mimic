@@ -1,5 +1,4 @@
 pub mod base;
-pub mod serialize;
 pub mod traits;
 pub mod visit;
 
@@ -30,9 +29,9 @@ pub mod prelude {
     pub use ::std::{cmp::Ordering, collections::HashSet, fmt::Display};
 }
 
-use crate::{orm::serialize::SerializeError, types::ErrorTree, Error, ThisError};
+use crate::{ic::serialize::SerializeError, types::ErrorTree, Error, ThisError};
 use candid::CandidType;
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use traits::Visitable;
 use visit::{perform_visit, ValidateVisitor};
 
@@ -49,7 +48,7 @@ pub enum OrmError {
     Validation(ErrorTree),
 
     #[error(transparent)]
-    SerializeError(SerializeError),
+    SerializeError(#[from] SerializeError),
 }
 
 impl OrmError {
@@ -67,4 +66,20 @@ pub fn validate(node: &dyn Visitable) -> Result<(), Error> {
     visitor.errors.result().map_err(OrmError::Validation)?;
 
     Ok(())
+}
+
+// serialize
+pub fn serialize<T>(ty: &T) -> Result<Vec<u8>, OrmError>
+where
+    T: Serialize,
+{
+    crate::ic::serialize::serialize(ty).map_err(OrmError::SerializeError)
+}
+
+// deserialize
+pub fn deserialize<T>(bytes: &[u8]) -> Result<T, OrmError>
+where
+    T: DeserializeOwned,
+{
+    crate::ic::serialize::deserialize(bytes).map_err(OrmError::SerializeError)
 }

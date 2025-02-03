@@ -1,9 +1,9 @@
 use crate::{
-    ic::structures::{storable::Bound, Storable},
-    orm::{
+    ic::{
         serialize::{deserialize, serialize, SerializeError},
-        traits::Path,
+        structures::{storable::Bound, Storable},
     },
+    orm::traits::Path,
 };
 use candid::CandidType;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};

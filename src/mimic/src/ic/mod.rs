@@ -5,7 +5,9 @@ pub use ic_cdk::*;
 
 // re-exports
 pub mod helper;
+pub mod serialize;
 pub mod structures;
+pub mod traits;
 
 use crate::ThisError;
 use candid::CandidType;

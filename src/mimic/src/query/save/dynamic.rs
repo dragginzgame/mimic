@@ -1,6 +1,6 @@
 use crate::{
     orm::{
-        serialize::deserialize,
+        deserialize,
         traits::{Entity, EntityDyn},
     },
     query::{
@@ -41,7 +41,7 @@ impl SaveBuilderDyn {
     // from_data
     pub fn from_data<E: Entity + 'static>(self, data: &[u8]) -> Result<SaveQueryDyn, Error> {
         let entity: E = deserialize(data)
-            .map_err(SaveError::SerializeError)
+            .map_err(SaveError::OrmError)
             .map_err(QueryError::SaveError)?;
 
         Ok(SaveQueryDyn::new(self, vec![Box::new(entity)]))

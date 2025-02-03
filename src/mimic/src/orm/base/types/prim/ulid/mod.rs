@@ -2,9 +2,9 @@ pub mod fixture;
 pub mod generator;
 
 use crate::{
+    ic::serialize::{deserialize, serialize},
     orm::{
         prelude::*,
-        serialize::{deserialize, serialize},
         traits::{Filterable, Inner, Orderable, SortKey, ValidateAuto},
     },
     types::ErrorVec,

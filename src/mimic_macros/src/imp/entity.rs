@@ -102,8 +102,8 @@ fn composite_key_dyn(node: &Entity) -> TokenStream {
 // serialize_dyn
 fn serialize_dyn(_: &Entity) -> TokenStream {
     quote! {
-        fn serialize_dyn(&self) -> Result<Vec<u8>, ::mimic::orm::serialize::SerializeError> {
-            ::mimic::orm::serialize::serialize(&self)
+        fn serialize_dyn(&self) -> Result<Vec<u8>, ::mimic::orm::OrmError> {
+            ::mimic::orm::serialize(&self)
         }
     }
 }

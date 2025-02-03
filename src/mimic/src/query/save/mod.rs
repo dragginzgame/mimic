@@ -5,7 +5,7 @@ pub use dynamic::{SaveBuilderDyn, SaveExecutorDyn, SaveQueryDyn};
 pub use r#static::{SaveBuilder, SaveExecutor, SaveQuery};
 
 use crate::{
-    orm::{serialize::SerializeError, traits::EntityDyn},
+    orm::{traits::EntityDyn, OrmError},
     query::{
         resolver::{Resolver, ResolverError},
         DebugContext,
@@ -36,7 +36,7 @@ pub enum SaveError {
     NoResultsFound,
 
     #[error(transparent)]
-    SerializeError(#[from] SerializeError),
+    OrmError(#[from] OrmError),
 
     #[error(transparent)]
     ResolverError(#[from] ResolverError),
