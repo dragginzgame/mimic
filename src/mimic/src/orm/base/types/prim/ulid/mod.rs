@@ -170,7 +170,10 @@ impl Storable for Ulid {
         deserialize(&bytes).unwrap()
     }
 
-    const BOUND: Bound = Bound::Unbounded;
+    const BOUND: Bound = Bound::Bounded {
+        max_size: 32,
+        is_fixed_size: true,
+    };
 }
 
 impl ValidateManual for Ulid {
