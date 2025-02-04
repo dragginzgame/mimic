@@ -1,7 +1,7 @@
 use crate::{
     schema::{
-        build::{get_schema, BuildError as SchemaBuildError},
         node::Entity,
+        state::{get_schema, StateError as SchemaStateError},
     },
     store::types::DataKey,
     ThisError,
@@ -19,7 +19,7 @@ pub enum ResolverError {
     EntityNotFound(String),
 
     #[error(transparent)]
-    SchemaBuildError(#[from] SchemaBuildError),
+    SchemaStateError(#[from] SchemaStateError),
 }
 
 ///
@@ -29,14 +29,14 @@ pub enum ResolverError {
 ///
 
 pub struct Resolver {
-    pub entity: String,
+    pub path: String,
 }
 
 impl Resolver {
     #[must_use]
-    pub fn new(entity: &str) -> Self {
+    pub fn new(path: &str) -> Self {
         Self {
-            entity: entity.to_string(),
+            path: path.to_string(),
         }
     }
 
@@ -58,12 +58,12 @@ impl Resolver {
     // chain_format
     // returns the data used to format the sort key
     fn chain_format(&self) -> Result<Vec<String>, ResolverError> {
-        let schema = get_schema()?;
+        let schema = get_schema().map_err(ResolverError::SchemaStateError)?;
 
         // create the chain from the Schema
         let entity = schema
-            .get_node_as::<Entity>(&self.entity)
-            .ok_or_else(|| ResolverError::EntityNotFound(self.entity.clone()))?;
+            .get_node_as::<Entity>(&self.path)
+            .ok_or_else(|| ResolverError::EntityNotFound(self.path.clone()))?;
 
         // create an ordered vec from the parents
         let mut chain = Vec::new();

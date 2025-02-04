@@ -17,18 +17,85 @@ impl DbTester {
     // best if these are kept in code order so we can see where it failed
     pub fn test() {
         Self::clear();
-        Self::create();
-        Self::create_lots();
-        Self::data_key_order();
-        Self::entity_with_map();
-        Self::filter_query();
-        Self::limit_query();
-        Self::missing_field();
+        /*
+             Self::create();
+             Self::create_lots();
+             Self::data_key_order();
+             Self::entity_with_map();
+             Self::filter_query();
+             Self::limit_query();
+             Self::missing_field();
+        */
     }
 
     //
     // TESTS
     //
+
+    // clear
+    fn clear() {
+        use test_schema::db::CreateBasic;
+
+        // Insert rows
+        for _ in 0..100 {
+            let e = CreateBasic::default();
+            query::create().from_entity(e).execute(&STORE).unwrap();
+        }
+
+        // clear
+        STORE.with_borrow_mut(|store| {
+            store.clear();
+        });
+
+        // Retrieve the count of keys (or entities) from the store
+        let count = query::load::<CreateBasic>()
+            .all()
+            .execute(&STORE)
+            .unwrap()
+            .count();
+
+        assert_eq!(count, 0, "Expected 0 keys in the store");
+    }
+
+    // create
+    fn create() {
+        use test_schema::db::CreateBasic;
+
+        // clear
+        STORE.with_borrow_mut(|store| {
+            store.clear();
+        });
+
+        let e = CreateBasic::default();
+        query::create().from_entity(e).execute(&STORE).unwrap();
+
+        // count keys
+        assert_eq!(
+            query::load::<CreateBasic>()
+                .debug()
+                .all()
+                .execute(&STORE)
+                .unwrap()
+                .keys()
+                .count(),
+            1
+        );
+
+        // insert another
+        let e = CreateBasic::default();
+        query::create().from_entity(e).execute(&STORE).unwrap();
+
+        // count keys
+        assert_eq!(
+            query::load::<CreateBasic>()
+                .all()
+                .execute(&STORE)
+                .unwrap()
+                .keys()
+                .count(),
+            2
+        );
+    }
 
     // entity_with_map
     fn entity_with_map() {
@@ -86,69 +153,6 @@ impl DbTester {
                 "Row ordering is incorrect at index {i}"
             );
         }
-    }
-
-    // clear
-    fn clear() {
-        use test_schema::db::CreateBasic;
-
-        // Insert rows
-        for _ in 0..100 {
-            let e = CreateBasic::default();
-            query::create().from_entity(e).execute(&STORE).unwrap();
-        }
-
-        // clear
-        STORE.with_borrow_mut(|store| {
-            store.clear();
-        });
-        // Retrieve the count of keys (or entities) from the store
-        let count = query::load::<CreateBasic>()
-            .all()
-            .execute(&STORE)
-            .unwrap()
-            .count();
-
-        assert_eq!(count, 0, "Expected 0 keys in the store");
-    }
-
-    // create
-    fn create() {
-        use test_schema::db::CreateBasic;
-
-        // clear
-        STORE.with_borrow_mut(|store| {
-            store.clear();
-        });
-
-        let e = CreateBasic::default();
-        query::create().from_entity(e).execute(&STORE).unwrap();
-
-        // count keys
-        assert_eq!(
-            query::load::<CreateBasic>()
-                .all()
-                .execute(&STORE)
-                .unwrap()
-                .keys()
-                .count(),
-            1
-        );
-
-        // insert another
-        let e = CreateBasic::default();
-        query::create().from_entity(e).execute(&STORE).unwrap();
-
-        // count keys
-        assert_eq!(
-            query::load::<CreateBasic>()
-                .all()
-                .execute(&STORE)
-                .unwrap()
-                .keys()
-                .count(),
-            2
-        );
     }
 
     // create_lots

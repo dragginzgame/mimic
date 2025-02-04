@@ -5,9 +5,10 @@ use crate::{
     schema::{
         node::{Schema, VisitableNode},
         visit::Validator,
+        SchemaError,
     },
     types::ErrorTree,
-    ThisError,
+    Error, ThisError,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -87,7 +88,7 @@ pub(crate) fn schema_read() -> RwLockReadGuard<'static, Schema> {
 }
 
 /// get_schema
-pub fn get_schema() -> Result<RwLockReadGuard<'static, Schema>, BuildError> {
+pub(crate) fn get_schema() -> Result<RwLockReadGuard<'static, Schema>, BuildError> {
     let schema = schema_read();
 
     // Check if validation has already been done
@@ -103,9 +104,11 @@ pub fn get_schema() -> Result<RwLockReadGuard<'static, Schema>, BuildError> {
 
 // get_schema_json
 // to get the built schema via an executable
-pub fn get_schema_json() -> Result<String, BuildError> {
-    let schema = get_schema()?;
-    let json = serde_json::to_string(&*schema).map_err(|e| BuildError::SerdeJson(e.to_string()))?;
+pub fn get_schema_json() -> Result<String, Error> {
+    let schema = get_schema().map_err(SchemaError::BuildError)?;
+    let json = serde_json::to_string(&*schema)
+        .map_err(|e| BuildError::SerdeJson(e.to_string()))
+        .map_err(SchemaError::BuildError)?;
 
     Ok(json)
 }

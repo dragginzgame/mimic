@@ -36,30 +36,24 @@ static SCHEMA: Mutex<Option<Schema>> = Mutex::new(None);
 /// INIT
 ///
 
-// init_schema
-fn init_schema(schema: Schema) -> Result<(), StateError> {
+// init_schema_json
+pub fn init_schema_json(json: &str) -> Result<(), Error> {
+    let schema = serde_json::from_str::<Schema>(json)
+        .map_err(|e| StateError::SerdeJson(e.to_string()))
+        .map_err(SchemaError::StateError)?;
+
     log!(Log::Info, "init_schema: hash {}", schema.hash);
 
     let mut guard = SCHEMA
         .lock()
-        .map_err(|e| StateError::Mutex(e.to_string()))?;
+        .map_err(|e| StateError::Mutex(e.to_string()))
+        .map_err(SchemaError::StateError)?;
 
     if guard.is_some() {
-        return Err(StateError::AlreadyInitialized);
+        Err(SchemaError::StateError(StateError::AlreadyInitialized))?;
     }
 
     *guard = Some(schema);
-
-    Ok(())
-}
-
-// init_schema_json
-pub fn init_schema_json(schema_json: &str) -> Result<(), Error> {
-    let schema = serde_json::from_str::<Schema>(schema_json)
-        .map_err(|e| StateError::SerdeJson(e.to_string()))
-        .map_err(SchemaError::StateError)?;
-
-    init_schema(schema).map_err(SchemaError::StateError)?;
 
     Ok(())
 }
@@ -69,17 +63,12 @@ pub fn init_schema_json(schema_json: &str) -> Result<(), Error> {
 ///
 
 // get_schema
-pub fn get_schema() -> Result<Schema, Error> {
+pub(crate) fn get_schema() -> Result<Schema, StateError> {
     let guard = SCHEMA
         .lock()
-        .map_err(|e| StateError::Mutex(e.to_string()))
-        .map_err(SchemaError::StateError)?;
+        .map_err(|e| StateError::Mutex(e.to_string()))?;
 
-    let schema = guard
-        .as_ref()
-        .cloned()
-        .ok_or(StateError::NotInitialized)
-        .map_err(SchemaError::StateError)?;
+    let schema = guard.as_ref().cloned().ok_or(StateError::NotInitialized)?;
 
     Ok(schema)
 }
