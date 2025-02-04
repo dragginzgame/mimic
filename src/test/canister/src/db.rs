@@ -17,15 +17,13 @@ impl DbTester {
     // best if these are kept in code order so we can see where it failed
     pub fn test() {
         Self::clear();
-        /*
-             Self::create();
-             Self::create_lots();
-             Self::data_key_order();
-             Self::entity_with_map();
-             Self::filter_query();
-             Self::limit_query();
-             Self::missing_field();
-        */
+        Self::create();
+        Self::create_lots();
+        Self::data_key_order();
+        Self::entity_with_map();
+        Self::filter_query();
+        Self::limit_query();
+        Self::missing_field();
     }
 
     //
@@ -97,27 +95,31 @@ impl DbTester {
         );
     }
 
-    // entity_with_map
-    fn entity_with_map() {
-        use test_schema::map::HasMap;
+    // create_lots
+    fn create_lots() {
+        use test_schema::db::CreateBasic;
+        const ROWS: usize = 1_000;
 
-        // create with map data
-        let mut e = HasMap::default();
-        e.map_int_string.push((3, "value".to_string()));
-        e.map_int_string.push((4, "value".to_string()));
-        query::create::<HasMap>()
-            .from_entity(e)
-            .execute(&STORE)
-            .unwrap();
+        // clear
+        STORE.with_borrow_mut(|store| {
+            store.clear();
+        });
 
-        // load all keys
-        let entities = query::load::<HasMap>()
-            .only()
+        // insert rows
+        for _ in 0..ROWS {
+            let e = CreateBasic::default();
+            query::create().from_entity(e).execute(&STORE).unwrap();
+        }
+
+        // Retrieve the count from the store
+        let count = query::load::<CreateBasic>()
+            .all()
             .execute(&STORE)
             .unwrap()
-            .keys();
+            .count();
 
-        assert!(entities.count() == 1);
+        // Assert that the count matches the expected number
+        assert_eq!(count, ROWS, "Expected {ROWS} keys in the store");
     }
 
     // data_key_order
@@ -155,31 +157,27 @@ impl DbTester {
         }
     }
 
-    // create_lots
-    fn create_lots() {
-        use test_schema::db::CreateBasic;
-        const ROWS: usize = 1_000;
+    // entity_with_map
+    fn entity_with_map() {
+        use test_schema::map::HasMap;
 
-        // clear
-        STORE.with_borrow_mut(|store| {
-            store.clear();
-        });
+        // create with map data
+        let mut e = HasMap::default();
+        e.map_int_string.push((3, "value".to_string()));
+        e.map_int_string.push((4, "value".to_string()));
+        query::create::<HasMap>()
+            .from_entity(e)
+            .execute(&STORE)
+            .unwrap();
 
-        // insert rows
-        for _ in 0..ROWS {
-            let e = CreateBasic::default();
-            query::create().from_entity(e).execute(&STORE).unwrap();
-        }
-
-        // Retrieve the count from the store
-        let count = query::load::<CreateBasic>()
-            .all()
+        // load all keys
+        let entities = query::load::<HasMap>()
+            .only()
             .execute(&STORE)
             .unwrap()
-            .count();
+            .keys();
 
-        // Assert that the count matches the expected number
-        assert_eq!(count, ROWS, "Expected {ROWS} keys in the store");
+        assert!(entities.count() == 1);
     }
 
     // filter_query

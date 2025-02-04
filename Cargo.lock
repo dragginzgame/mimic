@@ -484,8 +484,6 @@ dependencies = [
  "ic-stable-structures",
  "mimic_macros",
  "num-traits",
- "proc-macro2",
- "quote",
  "remain",
  "rust_decimal",
  "semver",
@@ -494,7 +492,6 @@ dependencies = [
  "serde_json",
  "sha2",
  "strum",
- "syn 2.0.98",
  "thiserror 2.0.11",
  "tinyrand",
  "toml",
@@ -807,7 +804,6 @@ name = "tests"
 version = "0.3.1"
 dependencies = [
  "mimic",
- "quote",
  "test_schema",
 ]
 

@@ -6,7 +6,6 @@ publish = false
 
 [dependencies]
 mimic = { workspace = true }
-quote = { workspace = true }
 test_schema = { workspace = true }
 
 [[test]]
