@@ -1,4 +1,4 @@
-use strum::Display;
+use derive_more::Display;
 
 mod constant;
 mod snake;

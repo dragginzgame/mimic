@@ -60,8 +60,8 @@ impl TraitNode for EntityId {
         let mut traits = Traits::default();
         traits.extend(vec![
             Trait::Copy,
+            Trait::Display,
             Trait::EntityId,
-            Trait::EnumDisplay,
             Trait::EnumStaticStr,
             Trait::Into,
         ]);

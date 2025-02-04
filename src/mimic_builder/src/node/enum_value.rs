@@ -92,7 +92,7 @@ impl TraitNode for EnumValue {
         traits.add_type_traits();
         traits.extend(vec![
             Trait::Copy,
-            Trait::EnumDisplay,
+            Trait::Display,
             Trait::EnumValue,
             Trait::Hash,
         ]);

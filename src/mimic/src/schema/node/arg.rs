@@ -2,9 +2,8 @@ use crate::schema::{
     node::{ValidateNode, VisitableNode},
     visit::Visitor,
 };
-use derive_more::Deref;
+use derive_more::{Deref, Display};
 use serde::{Deserialize, Serialize};
-use strum::Display;
 
 ///
 /// Arg

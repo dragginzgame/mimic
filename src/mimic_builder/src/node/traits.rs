@@ -1,10 +1,9 @@
 use darling::{ast::NestedMeta, Error as DarlingError, FromMeta};
-use derive_more::{Deref, DerefMut};
+use derive_more::{Deref, DerefMut, Display, FromStr};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, hash::Hash, str::FromStr, sync::LazyLock};
-use strum::{Display, EnumString};
 
 ///
 /// Trait
@@ -16,9 +15,9 @@ use strum::{Display, EnumString};
     Copy,
     Debug,
     Display,
-    EnumString,
     Eq,
     PartialEq,
+    FromStr,
     Hash,
     Ord,
     PartialOrd,
@@ -60,7 +59,6 @@ pub enum Trait {
     Entity,
     EntityDyn,
     EntityFixture,
-    EnumDisplay,
     EnumStaticStr,
     EnumValue,
     FieldFilter,
@@ -132,31 +130,30 @@ impl Trait {
     pub fn derive_path(self) -> Option<TokenStream> {
         #[remain::sorted]
         match self {
-            Self::Add => Some(quote!(::derive_more::Add)),
-            Self::AddAssign => Some(quote!(::derive_more::AddAssign)),
-            Self::AsRef => Some(quote!(::derive_more::AsRef)),
+            Self::Add => Some(quote!(::mimic::export::derive_more::Add)),
+            Self::AddAssign => Some(quote!(::mimic::export::derive_more::AddAssign)),
+            Self::AsRef => Some(quote!(::mimic::export::derive_more::AsRef)),
             Self::CandidType => Some(quote!(::candid::CandidType)),
             Self::Clone => Some(quote!(Clone)),
             Self::Copy => Some(quote!(Copy)),
             Self::Debug => Some(quote!(Debug)),
             Self::Default => Some(quote!(Default)),
-            Self::Deref => Some(quote!(::derive_more::Deref)),
-            Self::DerefMut => Some(quote!(::derive_more::DerefMut)),
+            Self::Deref => Some(quote!(::mimic::export::derive_more::Deref)),
+            Self::DerefMut => Some(quote!(::mimic::export::derive_more::DerefMut)),
             Self::Deserialize => Some(quote!(::serde::Deserialize)),
-            Self::EnumDisplay => Some(quote!(::mimic::export::strum::Display)),
-            Self::EnumStaticStr => Some(quote!(::mimic::export::strum::IntoStaticStr)),
+            Self::Display => Some(quote!(::mimic::export::derive_more::Display)),
             Self::Eq => Some(quote!(Eq)),
-            Self::FromStr => Some(quote!(::derive_more::FromStr)),
+            Self::FromStr => Some(quote!(::mimic::export::derive_more::FromStr)),
             Self::Hash => Some(quote!(Hash)),
-            Self::IntoIterator => Some(quote!(::derive_more::IntoIterator)),
-            Self::Mul => Some(quote!(::derive_more::Mul)),
-            Self::MulAssign => Some(quote!(::derive_more::MulAssign)),
+            Self::IntoIterator => Some(quote!(::mimic::export::derive_more::IntoIterator)),
+            Self::Mul => Some(quote!(::mimic::export::derive_more::Mul)),
+            Self::MulAssign => Some(quote!(::mimic::export::derive_more::MulAssign)),
             Self::Ord => Some(quote!(Ord)),
             Self::PartialEq => Some(quote!(PartialEq)),
             Self::PartialOrd => Some(quote!(PartialOrd)),
             Self::Serialize => Some(quote!(::serde::Serialize)),
-            Self::Sub => Some(quote!(::derive_more::Sub)),
-            Self::SubAssign => Some(quote!(::derive_more::SubAssign)),
+            Self::Sub => Some(quote!(::mimic::export::derive_more::Sub)),
+            Self::SubAssign => Some(quote!(::mimic::export::derive_more::SubAssign)),
 
             _ => None,
         }

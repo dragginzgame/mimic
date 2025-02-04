@@ -45,11 +45,10 @@ pub use self::value::*;
 
 use crate::traits::Schemable;
 use darling::FromMeta;
-use derive_more::{Add, Deref, DerefMut, Sub};
+use derive_more::{Add, Deref, DerefMut, Display, FromStr, Sub};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
 use serde::{Deserialize, Serialize};
-use strum::{Display, EnumString};
 use syn::Lit;
 
 ///
@@ -151,17 +150,7 @@ pub trait TraitNode: MacroNode {
 ///
 
 #[derive(
-    Clone,
-    Copy,
-    Default,
-    Debug,
-    Deserialize,
-    Display,
-    EnumString,
-    Eq,
-    FromMeta,
-    PartialEq,
-    Serialize,
+    Clone, Copy, Default, Debug, Deserialize, Display, Eq, FromMeta, FromStr, PartialEq, Serialize,
 )]
 pub enum Cardinality {
     #[default]
@@ -185,7 +174,7 @@ impl Schemable for Cardinality {
 ///
 
 #[derive(
-    Debug, Clone, Copy, Deserialize, Display, EnumString, Eq, Hash, PartialEq, PartialOrd, Serialize,
+    Debug, Clone, Copy, Deserialize, Display, Eq, FromStr, Hash, PartialEq, PartialOrd, Serialize,
 )]
 #[remain::sorted]
 pub enum ConstantType {
@@ -323,7 +312,7 @@ fn parse_cycles(value: &str) -> darling::Result<u128> {
 ///
 
 #[derive(
-    Debug, Clone, Copy, Deserialize, Display, EnumString, Eq, Hash, PartialEq, PartialOrd, Serialize,
+    Debug, Clone, Copy, Deserialize, Display, Eq, FromStr, Hash, PartialEq, PartialOrd, Serialize,
 )]
 #[remain::sorted]
 pub enum PrimitiveType {
@@ -454,7 +443,7 @@ impl ToTokens for PrimitiveType {
 ///
 
 #[derive(
-    Debug, Clone, Copy, Deserialize, Display, EnumString, Eq, Hash, PartialEq, PartialOrd, Serialize,
+    Debug, Clone, Copy, Deserialize, Display, Eq, FromStr, Hash, PartialEq, PartialOrd, Serialize,
 )]
 #[remain::sorted]
 pub enum PrimitiveGroup {
@@ -487,17 +476,7 @@ impl Schemable for PrimitiveGroup {
 ///
 
 #[derive(
-    Clone,
-    Copy,
-    Default,
-    Debug,
-    Deserialize,
-    Display,
-    EnumString,
-    Eq,
-    FromMeta,
-    PartialEq,
-    Serialize,
+    Clone, Copy, Default, Debug, Deserialize, Display, Eq, FromMeta, FromStr, PartialEq, Serialize,
 )]
 pub enum SortDirection {
     #[default]

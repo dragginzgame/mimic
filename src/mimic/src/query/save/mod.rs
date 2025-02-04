@@ -17,8 +17,8 @@ use crate::{
     ThisError,
 };
 use candid::CandidType;
+use derive_more::Display;
 use serde::{Deserialize, Serialize};
-use strum::Display;
 
 ///
 /// SaveError

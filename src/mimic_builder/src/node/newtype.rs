@@ -129,7 +129,6 @@ impl TraitNode for Newtype {
     fn map_imp(&self, t: Trait) -> TokenStream {
         match t {
             Trait::Default if self.value.default.is_some() => imp::default::newtype(self, t),
-            Trait::Display => imp::display::newtype(self, t),
             Trait::Filterable => imp::filterable::newtype(self, t),
             Trait::From => imp::from::newtype(self, t),
             Trait::Inner => imp::inner::newtype(self, t),
