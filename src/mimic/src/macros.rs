@@ -111,6 +111,24 @@ macro_rules! mimic_end {
     };
 }
 
+#[macro_export]
+macro_rules! impl_storable_unbounded {
+    ($ident:ident) => {
+        impl Storable for $ident {
+            fn to_bytes(&self) -> ::std::borrow::Cow<[u8]> {
+                ::std::borrow::Cow::Owned(::mimic::ic::serialize(self).unwrap())
+            }
+
+            fn from_bytes(bytes: ::std::borrow::Cow<[u8]>) -> Self {
+                ::mimic::ic::deserialize(&bytes).unwrap()
+            }
+
+            const BOUND: ::mimic::ic::structures::storable::Bound =
+                ::mimic::ic::structures::storable::Bound::Unbounded;
+        }
+    };
+}
+
 // perf
 #[macro_export]
 macro_rules! perf {

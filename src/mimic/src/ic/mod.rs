@@ -8,6 +8,8 @@ pub mod helper;
 pub mod serialize;
 pub mod structures;
 
+pub use serialize::{deserialize, serialize};
+
 use crate::ThisError;
 use candid::CandidType;
 use serde::{Deserialize, Serialize};

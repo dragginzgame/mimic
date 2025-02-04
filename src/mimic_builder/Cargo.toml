@@ -1,5 +1,5 @@
 [package]
-name = "mimic_macros"
+name = "mimic_builder"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }

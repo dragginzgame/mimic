@@ -3,7 +3,7 @@
 members = [
     "benches",
     "src/mimic",
-    "src/mimic_macros",
+    "src/mimic_builder",
     "src/test/canister",
     "src/test/schema",
     "tests",
@@ -22,7 +22,7 @@ license = "MIT"
 
 # mimic
 mimic = { path = "src/mimic" }
-mimic_macros = { path = "src/mimic_macros" }
+mimic_builder = { path = "src/mimic_builder" }
 
 # test
 test_canister = { path = "src/test/canister" }

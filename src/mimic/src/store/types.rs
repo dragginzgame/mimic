@@ -3,6 +3,7 @@ use crate::{
         serialize::{deserialize, serialize, SerializeError},
         structures::{storable::Bound, Storable},
     },
+    impl_storable_unbounded,
     orm::traits::Path,
 };
 use candid::CandidType;
@@ -115,17 +116,7 @@ pub struct DataValue {
     pub metadata: Metadata,
 }
 
-impl Storable for DataValue {
-    fn to_bytes(&self) -> Cow<[u8]> {
-        Cow::Owned(serialize(self).unwrap())
-    }
-
-    fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        deserialize(&bytes).unwrap()
-    }
-
-    const BOUND: Bound = Bound::Unbounded;
-}
+impl_storable_unbounded!(DataValue);
 
 impl<E> TryFrom<EntityValue<E>> for DataValue
 where

@@ -482,7 +482,7 @@ dependencies = [
  "hex",
  "ic-cdk",
  "ic-stable-structures",
- "mimic_macros",
+ "mimic_builder",
  "num-traits",
  "remain",
  "rust_decimal",
@@ -499,7 +499,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mimic_macros"
+name = "mimic_builder"
 version = "0.3.1"
 dependencies = [
  "darling",
