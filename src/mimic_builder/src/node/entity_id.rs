@@ -62,7 +62,6 @@ impl TraitNode for EntityId {
             Trait::Copy,
             Trait::Display,
             Trait::EntityId,
-            Trait::EnumStaticStr,
             Trait::Into,
         ]);
 

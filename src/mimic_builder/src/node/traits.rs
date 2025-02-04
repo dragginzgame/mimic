@@ -59,7 +59,6 @@ pub enum Trait {
     Entity,
     EntityDyn,
     EntityFixture,
-    EnumStaticStr,
     EnumValue,
     FieldFilter,
     FieldSort,
