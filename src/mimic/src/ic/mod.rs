@@ -1,14 +1,18 @@
 ///
 /// IMPORT IC CRATES
 ///
+pub mod api {
+    pub mod mgmt {
+        pub use ic_cdk::api::management_canister::*;
+    }
+    pub use ic_cdk::api::*;
+}
 pub use ic_cdk::*;
+pub use serialize::{deserialize, serialize};
 
-// re-exports
 pub mod helper;
 pub mod serialize;
 pub mod structures;
-
-pub use serialize::{deserialize, serialize};
 
 use crate::ThisError;
 use candid::CandidType;
