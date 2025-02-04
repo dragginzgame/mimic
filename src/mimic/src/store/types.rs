@@ -1,14 +1,11 @@
 use crate::{
-    ic::{
-        serialize::{deserialize, serialize, SerializeError},
-        structures::{storable::Bound, Storable},
-    },
-    impl_storable_unbounded,
+    ic::serialize::{deserialize, serialize, SerializeError},
+    impl_storable_bounded, impl_storable_unbounded,
     orm::traits::Path,
 };
 use candid::CandidType;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use std::{borrow::Cow, fmt};
+use std::fmt;
 
 ///
 /// STORAGE & API TYPES
@@ -90,20 +87,7 @@ impl fmt::Display for DataKey {
     }
 }
 
-impl Storable for DataKey {
-    fn to_bytes(&self) -> Cow<[u8]> {
-        Cow::Owned(serialize(self).unwrap())
-    }
-
-    fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
-        deserialize(&bytes).unwrap()
-    }
-
-    const BOUND: Bound = Bound::Bounded {
-        max_size: 255,
-        is_fixed_size: false,
-    };
-}
+impl_storable_bounded!(DataKey, 255, true);
 
 ///
 /// DataValue

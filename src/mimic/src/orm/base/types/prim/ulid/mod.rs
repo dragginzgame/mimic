@@ -3,6 +3,7 @@ pub mod generator;
 
 use crate::{
     ic::serialize::{deserialize, serialize},
+    impl_storable_bounded,
     orm::{
         prelude::*,
         traits::{Filterable, Inner, Orderable, SortKey, ValidateAuto},
@@ -161,20 +162,7 @@ impl<'de> Deserialize<'de> for Ulid {
 
 impl SortKey for Ulid {}
 
-impl Storable for Ulid {
-    fn to_bytes(&self) -> Cow<[u8]> {
-        Cow::Owned(serialize(self).unwrap())
-    }
-
-    fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        deserialize(&bytes).unwrap()
-    }
-
-    const BOUND: Bound = Bound::Bounded {
-        max_size: 32,
-        is_fixed_size: true,
-    };
-}
+impl_storable_bounded!(Ulid, 32, true);
 
 impl ValidateManual for Ulid {
     fn validate_manual(&self) -> Result<(), ErrorVec> {

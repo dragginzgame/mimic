@@ -1,5 +1,6 @@
 use crate::{
     ic::{api::caller, structures::storable::Bound},
+    impl_storable_bounded,
     orm::{
         prelude::*,
         traits::{
@@ -120,20 +121,7 @@ impl Orderable for Principal {
 
 impl SortKey for Principal {}
 
-impl Storable for Principal {
-    fn to_bytes(&self) -> Cow<[u8]> {
-        self.0.to_bytes()
-    }
-
-    fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        Self(WrappedPrincipal::from_bytes(bytes))
-    }
-
-    const BOUND: Bound = Bound::Bounded {
-        max_size: 32,
-        is_fixed_size: true,
-    };
-}
+impl_storable_bounded!(Principal, 32, true);
 
 impl ValidateManual for Principal {
     fn validate_manual(&self) -> Result<(), ErrorVec> {
