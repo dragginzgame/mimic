@@ -17,10 +17,10 @@ pub mod prelude {
                 Orderable, Path, Selector as _, SortKey as _, Storable, Validate as _,
                 ValidateManual, Validator, Visitable,
             },
-            OrmError,
+            FixtureList, OrmError,
         },
         query,
-        types::{ErrorVec, FixtureList},
+        types::ErrorVec,
         utils::case::{Case, Casing},
     };
     pub use ::candid::CandidType;
@@ -29,11 +29,21 @@ pub mod prelude {
     pub use ::std::{cmp::Ordering, collections::HashSet, fmt::Display};
 }
 
-use crate::{ic::serialize::SerializeError, types::ErrorTree, Error, ThisError};
+use crate::{
+    ic::serialize::SerializeError, orm::traits::EntityDyn, types::ErrorTree, Error, ThisError,
+};
 use candid::CandidType;
+use derive_more::{Deref, DerefMut};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use traits::Visitable;
 use visit::{perform_visit, ValidateVisitor};
+
+///
+/// FixtureList
+///
+
+#[derive(Debug, Default, Deref, DerefMut)]
+pub struct FixtureList(Vec<Box<dyn EntityDyn + 'static>>);
 
 ///
 /// OrmError
