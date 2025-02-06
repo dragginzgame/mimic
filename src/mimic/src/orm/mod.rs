@@ -17,10 +17,10 @@ pub mod prelude {
                 Orderable, Path, Selector as _, SortKey as _, Storable, Validate as _,
                 ValidateManual, Validator, Visitable,
             },
-            FixtureList, OrmError,
+            OrmError,
         },
         query,
-        types::ErrorVec,
+        types::{ErrorVec, FixtureList},
         utils::case::{Case, Casing},
     };
     pub use ::candid::CandidType;
@@ -29,39 +29,11 @@ pub mod prelude {
     pub use ::std::{cmp::Ordering, collections::HashSet, fmt::Display};
 }
 
-use crate::{
-    ic::serialize::SerializeError, orm::traits::EntityDyn, types::ErrorTree, Error, ThisError,
-};
+use crate::{ic::serialize::SerializeError, types::ErrorTree, Error, ThisError};
 use candid::CandidType;
-use derive_more::{Deref, DerefMut};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use traits::Visitable;
 use visit::{perform_visit, ValidateVisitor};
-
-///
-/// FixtureList
-///
-
-#[derive(Debug, Default, Deref, DerefMut)]
-pub struct FixtureList(Vec<Box<dyn EntityDyn + 'static>>);
-
-impl FixtureList {
-    #[must_use]
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn push(&mut self, entity: impl EntityDyn + 'static) {
-        self.0.push(Box::new(entity));
-    }
-}
-
-#[allow(clippy::from_over_into)]
-impl Into<Vec<Box<dyn EntityDyn>>> for FixtureList {
-    fn into(self) -> Vec<Box<dyn EntityDyn>> {
-        self.0
-    }
-}
 
 ///
 /// OrmError

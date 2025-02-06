@@ -2,7 +2,9 @@ mod error;
 
 pub use error::{tree::ErrorTree, vec::ErrorVec};
 
+use crate::orm::traits::EntityDyn;
 use candid::CandidType;
+use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
 
 ///
@@ -37,6 +39,31 @@ pub enum ConstantType {
     U64,
     U128,
     Usize,
+}
+
+///
+/// FixtureList
+///
+
+#[derive(Debug, Default, Deref, DerefMut)]
+pub struct FixtureList(Vec<Box<dyn EntityDyn + 'static>>);
+
+impl FixtureList {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn push(&mut self, entity: impl EntityDyn + 'static) {
+        self.0.push(Box::new(entity));
+    }
+}
+
+#[allow(clippy::from_over_into)]
+impl Into<Vec<Box<dyn EntityDyn>>> for FixtureList {
+    fn into(self) -> Vec<Box<dyn EntityDyn>> {
+        self.0
+    }
 }
 
 ///

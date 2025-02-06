@@ -18,7 +18,7 @@ pub use std::{
 
 use crate::{
     orm::{base::types::Ulid, visit::Visitor, OrmError},
-    types::{ErrorVec, SortDirection},
+    types::{ErrorVec, FixtureList, SortDirection},
 };
 
 ///
@@ -384,8 +384,8 @@ pub trait EntityFixture: Sized {
     // fixtures
     // returns a vec of entities that are inserted on canister init
     #[must_use]
-    fn fixtures() -> Vec<Box<dyn EntityDyn>> {
-        Vec::new()
+    fn fixtures() -> FixtureList {
+        FixtureList::new()
     }
 }
 
