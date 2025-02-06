@@ -45,6 +45,13 @@ use visit::{perform_visit, ValidateVisitor};
 #[derive(Debug, Default, Deref, DerefMut)]
 pub struct FixtureList(Vec<Box<dyn EntityDyn + 'static>>);
 
+impl FixtureList {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
 ///
 /// OrmError
 ///
