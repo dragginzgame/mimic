@@ -2,6 +2,7 @@ mod error;
 
 pub use error::{tree::ErrorTree, vec::ErrorVec};
 
+use crate::orm::traits::EntityDyn;
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
@@ -38,6 +39,12 @@ pub enum ConstantType {
     U128,
     Usize,
 }
+
+///
+/// FixtureList
+///
+
+pub type FixtureList = Vec<Box<dyn EntityDyn>>;
 
 ///
 /// PrimitiveType

@@ -384,7 +384,7 @@ pub trait EntityFixture: Sized {
     // fixtures
     // returns a vec of entities that are inserted on canister init
     #[must_use]
-    fn fixtures() -> Vec<Self> {
+    fn fixtures() -> Vec<Box<dyn EntityDyn>> {
         Vec::new()
     }
 }

@@ -20,7 +20,7 @@ pub mod prelude {
             OrmError,
         },
         query,
-        types::ErrorVec,
+        types::{ErrorVec, FixtureList},
         utils::case::{Case, Casing},
     };
     pub use ::candid::CandidType;
