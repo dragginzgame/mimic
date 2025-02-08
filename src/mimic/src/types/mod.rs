@@ -46,7 +46,7 @@ pub enum ConstantType {
 ///
 
 #[derive(Debug, Default, IntoIterator)]
-pub struct FixtureList(Vec<Box<dyn EntityDyn + 'static>>);
+pub struct FixtureList(pub Vec<Box<dyn EntityDyn + 'static>>);
 
 impl FixtureList {
     #[must_use]
@@ -54,8 +54,14 @@ impl FixtureList {
         Self::default()
     }
 
-    pub fn push(&mut self, entity: impl EntityDyn + 'static) {
+    pub fn push<T: EntityDyn + 'static>(&mut self, entity: T) {
         self.0.push(Box::new(entity));
+    }
+
+    pub fn extend(&mut self, list: Self) {
+        for entity in list {
+            self.0.push(entity);
+        }
     }
 }
 
