@@ -21,6 +21,13 @@ pub struct Type {
     pub todo: bool,
 }
 
+impl Type {
+    #[must_use]
+    pub fn skip_serializing(&self) -> bool {
+        self.validators.is_empty() && !self.todo
+    }
+}
+
 impl ValidateNode for Type {}
 
 impl VisitableNode for Type {

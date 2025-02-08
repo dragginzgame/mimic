@@ -4,7 +4,7 @@ pub use error::{tree::ErrorTree, vec::ErrorVec};
 
 use crate::orm::traits::EntityDyn;
 use candid::CandidType;
-use derive_more::{Deref, DerefMut, IntoIterator};
+use derive_more::IntoIterator;
 use serde::{Deserialize, Serialize};
 
 ///
@@ -45,7 +45,7 @@ pub enum ConstantType {
 /// FixtureList
 ///
 
-#[derive(Debug, Default, Deref, DerefMut, IntoIterator)]
+#[derive(Debug, Default, IntoIterator)]
 pub struct FixtureList(Vec<Box<dyn EntityDyn + 'static>>);
 
 impl FixtureList {
