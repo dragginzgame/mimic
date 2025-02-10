@@ -5,8 +5,8 @@ pub mod save;
 pub mod types;
 
 pub use delete::{
-    DeleteBuilder, DeleteBuilderPath, DeleteError, DeleteExecutor, DeleteQuery, DeleteQueryPath,
-    DeleteResponse,
+    DeleteBuilder, DeleteBuilderPath, DeleteError, DeleteExecutor, DeleteExecutorPath, DeleteQuery,
+    DeleteQueryPath, DeleteResponse,
 };
 pub use load::{
     LoadBuilder, LoadBuilderPath, LoadError, LoadExecutor, LoadExecutorPath, LoadQuery,
