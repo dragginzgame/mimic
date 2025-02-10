@@ -51,18 +51,18 @@ where
             .map_err(SaveError::OrmError)
             .map_err(QueryError::SaveError)?;
 
-        Ok(SaveQuery::new(self, vec![entity]))
+        Ok(SaveQuery::from_builder(self, vec![entity]))
     }
 
     // from_entity
     pub fn from_entity(self, entity: E) -> SaveQuery<E> {
-        SaveQuery::new(self, vec![entity])
+        SaveQuery::from_builder(self, vec![entity])
     }
 
     // from_entities
     #[must_use]
     pub const fn from_entities(self, entities: Vec<E>) -> SaveQuery<E> {
-        SaveQuery::new(self, entities)
+        SaveQuery::from_builder(self, entities)
     }
 }
 
@@ -85,7 +85,7 @@ where
     E: Entity,
 {
     #[must_use]
-    const fn new(builder: SaveBuilder<E>, entities: Vec<E>) -> Self {
+    const fn from_builder(builder: SaveBuilder<E>, entities: Vec<E>) -> Self {
         Self {
             mode: builder.mode,
             debug: builder.debug,

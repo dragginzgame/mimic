@@ -48,19 +48,19 @@ where
     // method
     #[must_use]
     pub const fn method(self, method: LoadMethod) -> LoadQuery<E> {
-        LoadQuery::new(self, method)
+        LoadQuery::from_builder(self, method)
     }
 
     // all
     #[must_use]
     pub const fn all(self) -> LoadQuery<E> {
-        LoadQuery::new(self, LoadMethod::All)
+        LoadQuery::from_builder(self, LoadMethod::All)
     }
 
     // only
     #[must_use]
     pub const fn only(self) -> LoadQuery<E> {
-        LoadQuery::new(self, LoadMethod::Only)
+        LoadQuery::from_builder(self, LoadMethod::Only)
     }
 
     // one
@@ -68,7 +68,7 @@ where
         let ck_str: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let method = LoadMethod::One(ck_str);
 
-        LoadQuery::new(self, method)
+        LoadQuery::from_builder(self, method)
     }
 
     // many
@@ -76,7 +76,7 @@ where
     pub fn many(self, cks: &[Vec<String>]) -> LoadQuery<E> {
         let method = LoadMethod::Many(cks.to_vec());
 
-        LoadQuery::new(self, method)
+        LoadQuery::from_builder(self, method)
     }
 
     // range
@@ -85,7 +85,7 @@ where
         let end = end.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Range(start, end);
 
-        LoadQuery::new(self, method)
+        LoadQuery::from_builder(self, method)
     }
 
     // prefix
@@ -93,7 +93,7 @@ where
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Prefix(prefix);
 
-        LoadQuery::new(self, method)
+        LoadQuery::from_builder(self, method)
     }
 }
 
@@ -101,7 +101,7 @@ where
 /// LoadQuery
 ///
 
-#[derive(CandidType, Debug, Serialize)]
+#[derive(CandidType, Debug, Default, Serialize)]
 pub struct LoadQuery<E>
 where
     E: Entity + 'static,
@@ -117,10 +117,18 @@ where
 
 impl<E> LoadQuery<E>
 where
-    E: Entity + 'static,
+    E: Entity + Default + 'static,
 {
     #[must_use]
-    pub const fn new(builder: LoadBuilder<E>, method: LoadMethod) -> Self {
+    pub fn new(method: LoadMethod) -> Self {
+        Self {
+            method,
+            ..Default::default()
+        }
+    }
+
+    #[must_use]
+    pub const fn from_builder(builder: LoadBuilder<E>, method: LoadMethod) -> Self {
         Self {
             debug: builder.debug,
             method,
@@ -197,7 +205,7 @@ where
 
     // execute
     pub fn execute(self, store: StoreLocal) -> Result<LoadResult<E>, Error> {
-        let executor = LoadExecutor::new(self);
+        let executor = LoadExecutor::from_builder(self);
 
         executor.execute(store)
     }
@@ -221,7 +229,7 @@ where
 {
     // new
     #[must_use]
-    pub fn new(query: LoadQuery<E>) -> Self {
+    pub fn from_builder(query: LoadQuery<E>) -> Self {
         Self {
             query,
             resolver: Resolver::new(&E::path()),

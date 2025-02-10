@@ -44,12 +44,12 @@ impl SaveBuilderDyn {
             .map_err(SaveError::OrmError)
             .map_err(QueryError::SaveError)?;
 
-        Ok(SaveQueryDyn::new(self, vec![Box::new(entity)]))
+        Ok(SaveQueryDyn::from_builder(self, vec![Box::new(entity)]))
     }
 
     // from_entity
     pub fn from_entity<E: EntityDyn + 'static>(self, entity: E) -> SaveQueryDyn {
-        SaveQueryDyn::new(self, vec![Box::new(entity)])
+        SaveQueryDyn::from_builder(self, vec![Box::new(entity)])
     }
 
     // from_entities
@@ -60,19 +60,19 @@ impl SaveBuilderDyn {
             .map(|entity| Box::new(entity) as Box<dyn EntityDyn>)
             .collect();
 
-        SaveQueryDyn::new(self, boxed_entities)
+        SaveQueryDyn::from_builder(self, boxed_entities)
     }
 
     // from_entity_dynamic
     #[must_use]
     pub fn from_entity_dynamic(self, entity: Box<dyn EntityDyn>) -> SaveQueryDyn {
-        SaveQueryDyn::new(self, vec![entity])
+        SaveQueryDyn::from_builder(self, vec![entity])
     }
 
     // from_entities_dynamic
     #[must_use]
     pub fn from_entities_dynamic(self, entities: Vec<Box<dyn EntityDyn>>) -> SaveQueryDyn {
-        SaveQueryDyn::new(self, entities)
+        SaveQueryDyn::from_builder(self, entities)
     }
 }
 
@@ -89,7 +89,7 @@ pub struct SaveQueryDyn {
 
 impl SaveQueryDyn {
     #[must_use]
-    pub fn new(builder: SaveBuilderDyn, entities: Vec<Box<dyn EntityDyn>>) -> Self {
+    pub fn from_builder(builder: SaveBuilderDyn, entities: Vec<Box<dyn EntityDyn>>) -> Self {
         Self {
             mode: builder.mode,
             debug: builder.debug,

@@ -10,15 +10,15 @@ use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
 ///
-/// LoadBuilderDyn
+/// LoadBuilderPath
 ///
 
 #[derive(Default)]
-pub struct LoadBuilderDyn {
+pub struct LoadBuilderPath {
     debug: DebugContext,
 }
 
-impl LoadBuilderDyn {
+impl LoadBuilderPath {
     // new
     #[must_use]
     pub fn new() -> Self {
@@ -36,62 +36,62 @@ impl LoadBuilderDyn {
 
     // method
     #[must_use]
-    pub fn method(self, method: LoadMethod) -> LoadQueryDyn {
-        LoadQueryDyn::new(self, method)
+    pub fn method(self, method: LoadMethod) -> LoadQueryPath {
+        LoadQueryPath::from_builder(self, method)
     }
 
     // all
     #[must_use]
-    pub fn all(self) -> LoadQueryDyn {
-        LoadQueryDyn::new(self, LoadMethod::All)
+    pub fn all(self) -> LoadQueryPath {
+        LoadQueryPath::from_builder(self, LoadMethod::All)
     }
 
     // only
     #[must_use]
-    pub fn only(self) -> LoadQueryDyn {
-        LoadQueryDyn::new(self, LoadMethod::Only)
+    pub fn only(self) -> LoadQueryPath {
+        LoadQueryPath::from_builder(self, LoadMethod::Only)
     }
 
     // one
-    pub fn one<T: ToString>(self, ck: &[T]) -> LoadQueryDyn {
+    pub fn one<T: ToString>(self, ck: &[T]) -> LoadQueryPath {
         let ck_str: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let method = LoadMethod::One(ck_str);
 
-        LoadQueryDyn::new(self, method)
+        LoadQueryPath::from_builder(self, method)
     }
 
     // many
     #[must_use]
-    pub fn many(self, cks: &[Vec<String>]) -> LoadQueryDyn {
+    pub fn many(self, cks: &[Vec<String>]) -> LoadQueryPath {
         let method = LoadMethod::Many(cks.to_vec());
 
-        LoadQueryDyn::new(self, method)
+        LoadQueryPath::from_builder(self, method)
     }
 
     // range
-    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> Result<LoadQueryDyn, Error> {
+    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> Result<LoadQueryPath, Error> {
         let start = start.iter().map(ToString::to_string).collect();
         let end = end.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Range(start, end);
 
-        Ok(LoadQueryDyn::new(self, method))
+        Ok(LoadQueryPath::from_builder(self, method))
     }
 
     // prefix
-    pub fn prefix<T: ToString>(self, prefix: &[T]) -> Result<LoadQueryDyn, Error> {
+    pub fn prefix<T: ToString>(self, prefix: &[T]) -> Result<LoadQueryPath, Error> {
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Prefix(prefix);
 
-        Ok(LoadQueryDyn::new(self, method))
+        Ok(LoadQueryPath::from_builder(self, method))
     }
 }
 
 ///
-/// LoadQueryDyn
+/// LoadQueryPath
 ///
 
 #[derive(CandidType, Debug, Default, Serialize, Deserialize)]
-pub struct LoadQueryDyn {
+pub struct LoadQueryPath {
     path: String,
     debug: DebugContext,
     method: LoadMethod,
@@ -99,14 +99,30 @@ pub struct LoadQueryDyn {
     limit: Option<u32>,
 }
 
-impl LoadQueryDyn {
+impl LoadQueryPath {
     #[must_use]
-    pub fn new(builder: LoadBuilderDyn, method: LoadMethod) -> Self {
+    pub fn new(path: &str, method: LoadMethod) -> Self {
+        Self {
+            path: path.to_string(),
+            method,
+            ..Default::default()
+        }
+    }
+
+    #[must_use]
+    pub fn from_builder(builder: LoadBuilderPath, method: LoadMethod) -> Self {
         Self {
             debug: builder.debug,
             method,
             ..Default::default()
         }
+    }
+
+    // path
+    #[must_use]
+    pub fn path(mut self, path: &str) -> Self {
+        self.path = path.to_string();
+        self
     }
 
     // offset
@@ -132,25 +148,25 @@ impl LoadQueryDyn {
 
     // execute
     pub fn execute(self, store: StoreLocal) -> Result<LoadResultDyn, Error> {
-        let executor = LoadExecutorDyn::new(self);
+        let executor = LoadExecutorPath::new(self);
 
         executor.execute(store)
     }
 }
 
 ///
-/// LoadExecutorDyn
+/// LoadExecutorPath
 ///
 
-pub struct LoadExecutorDyn {
-    query: LoadQueryDyn,
+pub struct LoadExecutorPath {
+    query: LoadQueryPath,
     resolver: Resolver,
 }
 
-impl LoadExecutorDyn {
+impl LoadExecutorPath {
     // new
     #[must_use]
-    pub fn new(query: LoadQueryDyn) -> Self {
+    pub fn new(query: LoadQueryPath) -> Self {
         let resolver = Resolver::new(&query.path);
 
         Self { query, resolver }

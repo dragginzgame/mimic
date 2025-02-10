@@ -1,8 +1,8 @@
 pub mod dynamic;
-pub mod r#static;
+pub mod generic;
 
 pub use dynamic::{SaveBuilderDyn, SaveExecutorDyn, SaveQueryDyn};
-pub use r#static::{SaveBuilder, SaveExecutor, SaveQuery};
+pub use generic::{SaveBuilder, SaveExecutor, SaveQuery};
 
 use crate::{
     orm::{traits::EntityDyn, OrmError},

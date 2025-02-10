@@ -146,9 +146,9 @@ pub trait Validator: Default {
 /// a Node that can act as a data type
 ///
 
-pub trait Type: Node + CandidType + Clone + Serialize + DeserializeOwned {}
+pub trait Type: Node + CandidType + Clone + Default + Serialize + DeserializeOwned {}
 
-impl<T> Type for T where T: Node + CandidType + Clone + Serialize + DeserializeOwned {}
+impl<T> Type for T where T: Node + CandidType + Clone + Default + Serialize + DeserializeOwned {}
 
 ///
 /// TypeDyn

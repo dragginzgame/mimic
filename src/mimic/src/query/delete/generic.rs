@@ -1,4 +1,5 @@
 use crate::{
+    orm::traits::Entity,
     query::{
         delete::{DeleteError, DeleteResponse},
         DebugContext, QueryError, Resolver,
@@ -7,23 +8,31 @@ use crate::{
     Error,
 };
 use candid::CandidType;
-use serde::{Deserialize, Serialize};
-use std::fmt::Display;
+use serde::Serialize;
+use std::{fmt::Display, marker::PhantomData};
 
 ///
-/// DeleteBuilderDyn
+/// DeleteBuilder
 ///
 
-pub struct DeleteBuilderDyn {
+pub struct DeleteBuilder<E>
+where
+    E: Entity,
+{
     debug: DebugContext,
+    _phantom: PhantomData<E>,
 }
 
-impl DeleteBuilderDyn {
+impl<E> DeleteBuilder<E>
+where
+    E: Entity,
+{
     // new
     #[must_use]
     pub(crate) fn new() -> Self {
         Self {
             debug: DebugContext::default(),
+            _phantom: PhantomData,
         }
     }
 
@@ -35,67 +44,72 @@ impl DeleteBuilderDyn {
     }
 
     // one
-    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQueryDyn, Error> {
+    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQuery<E>, Error> {
         let key: Vec<String> = ck.iter().map(ToString::to_string).collect();
-        let executor = DeleteQueryDyn::new(self, vec![key]);
+        let executor = DeleteQuery::from_builder(self, vec![key]);
 
         Ok(executor)
     }
 }
 
 ///
-/// DeleteQueryDyn
+/// DeleteQuery
 ///
 /// results : all the keys that have successfully been deleted
 ///
 
-#[derive(CandidType, Debug, Default, Serialize, Deserialize)]
-pub struct DeleteQueryDyn {
-    path: String,
+#[derive(CandidType, Debug, Serialize)]
+pub struct DeleteQuery<E>
+where
+    E: Entity,
+{
     debug: DebugContext,
     keys: Vec<Vec<String>>,
+    _phantom: PhantomData<E>,
 }
 
-impl DeleteQueryDyn {
+impl<E> DeleteQuery<E>
+where
+    E: Entity,
+{
     // new
     #[must_use]
-    const fn new(builder: DeleteBuilderDyn, keys: Vec<Vec<String>>) -> Self {
+    const fn from_builder(builder: DeleteBuilder<E>, keys: Vec<Vec<String>>) -> Self {
         Self {
-            path: String::new(),
             debug: builder.debug,
             keys,
+            _phantom: PhantomData,
         }
-    }
-
-    // path
-    #[must_use]
-    pub fn path(mut self, path: &str) -> Self {
-        self.path = path.to_string();
-        self
     }
 
     // execute
     pub fn execute(self, store: StoreLocal) -> Result<DeleteResponse, Error> {
-        let executor = DeleteExecutorDyn::new(self);
+        let executor = DeleteExecutor::new(self);
 
         executor.execute(store)
     }
 }
 
 ///
-/// DeleteExecutorDyn
+/// DeleteExecutor
 ///
 
-pub struct DeleteExecutorDyn {
-    query: DeleteQueryDyn,
+pub struct DeleteExecutor<E>
+where
+    E: Entity,
+{
+    query: DeleteQuery<E>,
     resolver: Resolver,
 }
 
-impl DeleteExecutorDyn {
+impl<E> DeleteExecutor<E>
+where
+    E: Entity,
+{
     // new
     #[must_use]
-    pub fn new(query: DeleteQueryDyn) -> Self {
-        let resolver = Resolver::new(&query.path);
+    pub fn new(query: DeleteQuery<E>) -> Self {
+        let resolver = Resolver::new(E::PATH);
 
         Self { query, resolver }
     }
@@ -119,21 +133,22 @@ impl DeleteExecutorDyn {
         Ok(DeleteResponse::new(results))
     }
 
-    fn execute_one(&self, store: StoreLocal, key: &[String]) -> Result<DataKey, Error> {
-        // Attempt to remove the item from the store
-        let data_key = self
+    // execute_one
+    fn execute_one(&self, store: StoreLocal, ck: &[String]) -> Result<DataKey, Error> {
+        let key = self
             .resolver
-            .data_key(key)
+            .data_key(ck)
             .map_err(DeleteError::ResolverError)
             .map_err(QueryError::DeleteError)?;
-        //   let store_path = self.resolver.store()?;
 
+        // Attempt to remove the item from the store
         store.with_borrow_mut(|store| {
-            if store.remove(&data_key).is_none() {
-                crate::ic::println!("key {data_key:?} not found");
-            }
-        });
+            store
+                .remove(&key)
+                .ok_or_else(|| DeleteError::KeyNotFound(key.clone()))
+                .map_err(QueryError::DeleteError)
+        })?;
 
-        Ok(data_key)
+        Ok(key)
     }
 }

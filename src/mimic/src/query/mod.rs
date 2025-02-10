@@ -5,14 +5,15 @@ pub mod save;
 pub mod types;
 
 pub use delete::{
-    DeleteBuilder, DeleteBuilderDyn, DeleteError, DeleteExecutor, DeleteQuery, DeleteResponse,
+    DeleteBuilder, DeleteBuilderPath, DeleteError, DeleteExecutor, DeleteQuery, DeleteQueryPath,
+    DeleteResponse,
 };
 pub use load::{
-    LoadBuilder, LoadBuilderDyn, LoadError, LoadExecutor, LoadExecutorDyn, LoadQuery, LoadQueryDyn,
-    LoadResult, LoadResultDyn,
+    LoadBuilder, LoadBuilderPath, LoadError, LoadExecutor, LoadExecutorPath, LoadQuery,
+    LoadQueryPath, LoadResult, LoadResultDyn,
 };
 pub use resolver::{Resolver, ResolverError};
-pub use save::{SaveBuilder, SaveBuilderDyn, SaveError, SaveMode};
+pub use save::{SaveBuilder, SaveBuilderDyn, SaveError, SaveMode, SaveQuery, SaveQueryDyn};
 pub use types::*;
 
 use crate::{orm::traits::Entity, ThisError};
@@ -48,10 +49,10 @@ where
     LoadBuilder::<E>::new()
 }
 
-// load_dyn
+// load_path
 #[must_use]
-pub fn load_dyn() -> LoadBuilderDyn {
-    LoadBuilderDyn::new()
+pub fn load_path() -> LoadBuilderPath {
+    LoadBuilderPath::new()
 }
 
 // delete
@@ -63,10 +64,10 @@ where
     DeleteBuilder::<E>::new()
 }
 
-// delete_dyn
+// delete_path
 #[must_use]
-pub fn delete_dyn() -> DeleteBuilderDyn {
-    DeleteBuilderDyn::new()
+pub fn delete_path() -> DeleteBuilderPath {
+    DeleteBuilderPath::new()
 }
 
 // create

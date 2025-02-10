@@ -1,5 +1,4 @@
 use crate::{
-    orm::traits::Entity,
     query::{
         delete::{DeleteError, DeleteResponse},
         DebugContext, QueryError, Resolver,
@@ -8,31 +7,23 @@ use crate::{
     Error,
 };
 use candid::CandidType;
-use serde::Serialize;
-use std::{fmt::Display, marker::PhantomData};
+use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 
 ///
-/// DeleteBuilder
+/// DeleteBuilderPath
 ///
 
-pub struct DeleteBuilder<E>
-where
-    E: Entity,
-{
+pub struct DeleteBuilderPath {
     debug: DebugContext,
-    _phantom: PhantomData<E>,
 }
 
-impl<E> DeleteBuilder<E>
-where
-    E: Entity,
-{
+impl DeleteBuilderPath {
     // new
     #[must_use]
     pub(crate) fn new() -> Self {
         Self {
             debug: DebugContext::default(),
-            _phantom: PhantomData,
         }
     }
 
@@ -44,72 +35,67 @@ where
     }
 
     // one
-    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQuery<E>, Error> {
+    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQueryPath, Error> {
         let key: Vec<String> = ck.iter().map(ToString::to_string).collect();
-        let executor = DeleteQuery::new(self, vec![key]);
+        let executor = DeleteQueryPath::from_builder(self, vec![key]);
 
         Ok(executor)
     }
 }
 
 ///
-/// DeleteQuery
+/// DeleteQueryPath
 ///
 /// results : all the keys that have successfully been deleted
 ///
 
-#[derive(CandidType, Debug, Serialize)]
-pub struct DeleteQuery<E>
-where
-    E: Entity,
-{
+#[derive(CandidType, Debug, Default, Serialize, Deserialize)]
+pub struct DeleteQueryPath {
+    path: String,
     debug: DebugContext,
     keys: Vec<Vec<String>>,
-    _phantom: PhantomData<E>,
 }
 
-impl<E> DeleteQuery<E>
-where
-    E: Entity,
-{
+impl DeleteQueryPath {
     // new
     #[must_use]
-    const fn new(builder: DeleteBuilder<E>, keys: Vec<Vec<String>>) -> Self {
+    const fn from_builder(builder: DeleteBuilderPath, keys: Vec<Vec<String>>) -> Self {
         Self {
+            path: String::new(),
             debug: builder.debug,
             keys,
-            _phantom: PhantomData,
         }
+    }
+
+    // path
+    #[must_use]
+    pub fn path(mut self, path: &str) -> Self {
+        self.path = path.to_string();
+        self
     }
 
     // execute
     pub fn execute(self, store: StoreLocal) -> Result<DeleteResponse, Error> {
-        let executor = DeleteExecutor::new(self);
+        let executor = DeleteExecutorPath::new(self);
 
         executor.execute(store)
     }
 }
 
 ///
-/// DeleteExecutor
+/// DeleteExecutorDyn
 ///
 
-pub struct DeleteExecutor<E>
-where
-    E: Entity,
-{
-    query: DeleteQuery<E>,
+pub struct DeleteExecutorPath {
+    query: DeleteQueryPath,
     resolver: Resolver,
 }
 
-impl<E> DeleteExecutor<E>
-where
-    E: Entity,
-{
+impl DeleteExecutorPath {
     // new
     #[must_use]
-    pub fn new(query: DeleteQuery<E>) -> Self {
-        let resolver = Resolver::new(E::PATH);
+    pub fn new(query: DeleteQueryPath) -> Self {
+        let resolver = Resolver::new(&query.path);
 
         Self { query, resolver }
     }
@@ -133,22 +119,21 @@ where
         Ok(DeleteResponse::new(results))
     }
 
-    // execute_one
-    fn execute_one(&self, store: StoreLocal, ck: &[String]) -> Result<DataKey, Error> {
-        let key = self
+    fn execute_one(&self, store: StoreLocal, key: &[String]) -> Result<DataKey, Error> {
+        // Attempt to remove the item from the store
+        let data_key = self
             .resolver
-            .data_key(ck)
+            .data_key(key)
             .map_err(DeleteError::ResolverError)
             .map_err(QueryError::DeleteError)?;
+        //   let store_path = self.resolver.store()?;
 
-        // Attempt to remove the item from the store
         store.with_borrow_mut(|store| {
-            store
-                .remove(&key)
-                .ok_or_else(|| DeleteError::KeyNotFound(key.clone()))
-                .map_err(QueryError::DeleteError)
-        })?;
+            if store.remove(&data_key).is_none() {
+                crate::ic::println!("key {data_key:?} not found");
+            }
+        });
 
-        Ok(key)
+        Ok(data_key)
     }
 }

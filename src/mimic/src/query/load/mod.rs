@@ -1,9 +1,9 @@
-pub mod dynamic;
+pub mod generic;
+pub mod path;
 pub mod result;
-pub mod r#static;
 
-pub use dynamic::{LoadBuilderDyn, LoadExecutorDyn, LoadQueryDyn};
-pub use r#static::{LoadBuilder, LoadExecutor, LoadQuery};
+pub use generic::{LoadBuilder, LoadExecutor, LoadQuery};
+pub use path::{LoadBuilderPath, LoadExecutorPath, LoadQueryPath};
 pub use result::{LoadResult, LoadResultDyn};
 
 use crate::{
