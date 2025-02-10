@@ -99,7 +99,7 @@ macro_rules! mimic_stores {
         }
 
         /// Returns a reference to the store based on a given string name
-        pub fn get_store_by_name(name: &str) -> Option<&'static ::std::thread::LocalKey<::std::cell::RefCell<::mimic::store::Store>>> {
+        pub fn mimic_get_store(name: &str) -> Option<&'static ::std::thread::LocalKey<::std::cell::RefCell<::mimic::store::Store>>> {
             match name {
                 $(
                     stringify!($store_name) => Some(&$store_name),
