@@ -63,7 +63,7 @@ pub enum LoadMethod {
 
 ///
 /// LoadResponse
-/// The variant that defines what format the results of a 564uest
+/// The variant that defines what format the results of a request
 /// will be returned in
 ///
 

@@ -2,7 +2,7 @@ use crate::{
     orm::traits::Entity,
     query::{
         load::LoadError,
-        types::{Filter, Order},
+        types::{Filter, LoadResponse, Order},
         QueryError,
     },
     store::types::{DataKey, DataRow, EntityRow},
@@ -221,6 +221,12 @@ impl LoadResultDyn {
     // blobs
     pub fn blobs(mut self) -> impl Iterator<Item = Vec<u8>> {
         iter::from_fn(move || self.move_next().map(|row| row.value.data))
+    }
+
+    // response
+    #[must_use]
+    pub fn response(self) -> LoadResponse {
+        LoadResponse::Rows(self.collect())
     }
 }
 
