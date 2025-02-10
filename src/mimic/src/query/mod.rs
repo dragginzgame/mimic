@@ -19,6 +19,7 @@ pub use types::*;
 use crate::{orm::traits::Entity, ThisError};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
+use std::marker::PhantomData;
 
 ///
 /// QueryError
@@ -37,31 +38,59 @@ pub enum QueryError {
 }
 
 ///
-/// Query Builders
+/// Query
+/// a builder that's generic over Entity
 ///
 
-// load
-#[must_use]
-pub fn load<E>() -> LoadBuilder<E>
+pub struct Query<E>
 where
     E: Entity,
 {
-    LoadBuilder::<E>::new()
+    phantom: PhantomData<E>,
 }
+
+impl<E> Query<E>
+where
+    E: Entity,
+{
+    #[must_use]
+    pub fn load() -> LoadBuilder<E> {
+        LoadBuilder::new()
+    }
+
+    // delete
+    #[must_use]
+    pub fn delete() -> DeleteBuilder<E> {
+        DeleteBuilder::new()
+    }
+
+    // create
+    #[must_use]
+    pub fn create() -> SaveBuilder<E> {
+        SaveBuilder::new(SaveMode::Create)
+    }
+
+    // replace
+    #[must_use]
+    pub fn replace() -> SaveBuilder<E> {
+        SaveBuilder::new(SaveMode::Replace)
+    }
+
+    // update
+    #[must_use]
+    pub fn update() -> SaveBuilder<E> {
+        SaveBuilder::new(SaveMode::Update)
+    }
+}
+
+///
+/// Other Query Builders
+///
 
 // load_path
 #[must_use]
 pub fn load_path() -> LoadBuilderPath {
     LoadBuilderPath::new()
-}
-
-// delete
-#[must_use]
-pub fn delete<E>() -> DeleteBuilder<E>
-where
-    E: Entity,
-{
-    DeleteBuilder::<E>::new()
 }
 
 // delete_path
@@ -70,43 +99,16 @@ pub fn delete_path() -> DeleteBuilderPath {
     DeleteBuilderPath::new()
 }
 
-// create
-#[must_use]
-pub fn create<E>() -> SaveBuilder<E>
-where
-    E: Entity,
-{
-    SaveBuilder::<E>::new(SaveMode::Create)
-}
-
 // create_dyn
 #[must_use]
 pub fn create_dyn() -> SaveBuilderDyn {
     SaveBuilderDyn::new(SaveMode::Create)
 }
 
-// replace
-#[must_use]
-pub fn replace<E>() -> SaveBuilder<E>
-where
-    E: Entity,
-{
-    SaveBuilder::<E>::new(SaveMode::Replace)
-}
-
 // replace_dyn
 #[must_use]
 pub fn replace_dyn() -> SaveBuilderDyn {
     SaveBuilderDyn::new(SaveMode::Replace)
-}
-
-// update
-#[must_use]
-pub fn update<E>() -> SaveBuilder<E>
-where
-    E: Entity,
-{
-    SaveBuilder::<E>::new(SaveMode::Update)
 }
 
 // update_dyn
