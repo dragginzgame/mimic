@@ -85,7 +85,7 @@ macro_rules! mimic_memory_manager {
 #[macro_export]
 macro_rules! mimic_stores {
     // This pattern matches when a memory manager, store names, and memory IDs are provided
-    ($memory_manager:expr, $($store_name:ident, $memory_id:expr),*) => {
+    ($memory_manager:expr, $($store_name:ident, $memory_id:expr,)*) => {
         thread_local! {
             /// Create and define each store statically, initializing with the provided memory ID
             $(
