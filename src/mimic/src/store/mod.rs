@@ -15,6 +15,9 @@ use types::{DataKey, DataValue};
 
 #[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum StoreError {
+    #[error("no stores defined")]
+    NoStoresDefined,
+
     #[error("store '{0}' not found")]
     StoreNotFound(String),
 }

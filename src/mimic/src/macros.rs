@@ -84,10 +84,10 @@ macro_rules! mimic_memory_manager {
 //
 #[macro_export]
 macro_rules! mimic_stores {
-    // This pattern matches when a memory manager, store names, and memory IDs are provided
-    ($memory_manager:expr, $($store_name:ident, $memory_id:expr),+ $(,)?) => {
+    // Case when stores are provided
+    ($memory_manager:expr, $($store_name:ident, $memory_id:expr)*) => {
         thread_local! {
-            /// Create and define each store statically, initializing with the provided memory ID
+            /// Define each store statically
             $(
                 pub static $store_name: ::std::cell::RefCell<::mimic::store::Store> =
                     ::std::cell::RefCell::new(::mimic::store::Store::init(
@@ -109,6 +109,17 @@ macro_rules! mimic_stores {
                 _ => Err(::mimic::store::StoreError::StoreNotFound(name.to_string()))
                         .map_err(::mimic::Error::StoreError),
             }
+        }
+    };
+
+    // Case when only MEMORY_MANAGER is provided (no stores)
+    ($memory_manager:expr) => {
+        /// Returns an error since no stores are available
+        pub fn mimic_get_store(_name: &str) -> Result<&'static ::std::thread::LocalKey<
+            ::std::cell::RefCell<::mimic::store::Store>>,
+            ::mimic::Error> {
+            Err(::mimic::store::StoreError::NoStoresDefined)
+                .map_err(::mimic::Error::StoreError)
         }
     };
 }
