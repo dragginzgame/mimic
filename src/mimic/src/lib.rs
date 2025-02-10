@@ -36,6 +36,7 @@ pub mod prelude {
             traits::{EntityDyn, EntityFixture, NumFromPrimitive, NumToPrimitive, Path, Validator},
         },
         perf,
+        query::Query,
         store::Store,
         Log,
     };
