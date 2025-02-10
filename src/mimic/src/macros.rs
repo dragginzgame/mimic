@@ -87,7 +87,7 @@ macro_rules! mimic_stores {
     // This pattern matches when a memory manager, store names, and memory IDs are provided
     ($memory_manager:expr, $($store_name:ident, $memory_id:expr),*) => {
         thread_local! {
-            // Create and define each store statically, initializing with the provided memory ID
+            /// Create and define each store statically, initializing with the provided memory ID
             $(
                 pub static $store_name: ::std::cell::RefCell<::mimic::store::Store> =
                     ::std::cell::RefCell::new(::mimic::store::Store::init(
@@ -96,6 +96,16 @@ macro_rules! mimic_stores {
                         ))
                     ));
             )*
+        }
+
+        /// Returns a reference to the store based on a given string name
+        pub fn get_store_by_name(name: &str) -> Option<&'static ::std::thread::LocalKey<::std::cell::RefCell<::mimic::store::Store>>> {
+            match name {
+                $(
+                    stringify!($store_name) => Some(&$store_name),
+                )*
+                _ => None,
+            }
         }
     };
 }
