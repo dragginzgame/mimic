@@ -99,12 +99,15 @@ macro_rules! mimic_stores {
         }
 
         /// Returns a reference to the store based on a given string name
-        pub fn mimic_get_store(name: &str) -> Option<&'static ::std::thread::LocalKey<::std::cell::RefCell<::mimic::store::Store>>> {
+        pub fn mimic_get_store(name: &str) -> Result<&'static ::std::thread::LocalKey<
+            ::std::cell::RefCell<::mimic::store::Store>>,
+            ::mimic::Error> {
             match name {
                 $(
-                    stringify!($store_name) => Some(&$store_name),
+                    stringify!($store_name) => Ok(&$store_name),
                 )*
-                _ => None,
+                _ => Err(::mimic::store::StoreError::StoreNotFound(name.to_string()))
+                        .map_err(::mimic::Error::StoreError),
             }
         }
     };

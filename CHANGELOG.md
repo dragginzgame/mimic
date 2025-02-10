@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - composite_key now uses unwrap_or_default()
 - snafu has been replaced with thiserror
 - removed strum as derive_more 2.0 does it all, also now properly exporting derive_more
+- added mimic_get_store and StoreError
 
 ## [0.3.0]
 - removing automated IC actor scripts [HUGE CHANGE]

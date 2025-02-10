@@ -72,6 +72,9 @@ pub enum Error {
 
     #[error(transparent)]
     SchemaError(#[from] schema::SchemaError),
+
+    #[error(transparent)]
+    StoreError(#[from] store::StoreError),
 }
 
 ///
