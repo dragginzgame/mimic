@@ -52,18 +52,28 @@ impl DeleteBuilderPath {
 #[derive(CandidType, Debug, Default, Serialize, Deserialize)]
 pub struct DeleteQueryPath {
     path: String,
-    debug: DebugContext,
     keys: Vec<Vec<String>>,
+    debug: DebugContext,
 }
 
 impl DeleteQueryPath {
     // new
     #[must_use]
+    pub fn new(path: &str, keys: &[Vec<String>]) -> Self {
+        Self {
+            path: path.to_string(),
+            keys: keys.to_vec(),
+            ..Default::default()
+        }
+    }
+
+    // from_builder
+    #[must_use]
     const fn from_builder(builder: DeleteBuilderPath, keys: Vec<Vec<String>>) -> Self {
         Self {
             path: String::new(),
-            debug: builder.debug,
             keys,
+            debug: builder.debug,
         }
     }
 

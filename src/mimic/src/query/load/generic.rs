@@ -106,12 +106,12 @@ pub struct LoadQuery<E>
 where
     E: Entity + 'static,
 {
-    debug: DebugContext,
     method: LoadMethod,
     offset: u32,
     limit: Option<u32>,
     filter: Option<Filter>,
     order: Option<Order>,
+    debug: DebugContext,
     phantom: PhantomData<E>,
 }
 
@@ -119,6 +119,7 @@ impl<E> LoadQuery<E>
 where
     E: Entity + Default + 'static,
 {
+    // new
     #[must_use]
     pub fn new(method: LoadMethod) -> Self {
         Self {
@@ -127,15 +128,16 @@ where
         }
     }
 
+    // from_builder
     #[must_use]
     pub const fn from_builder(builder: LoadBuilder<E>, method: LoadMethod) -> Self {
         Self {
-            debug: builder.debug,
             method,
             offset: 0,
             limit: None,
             filter: None,
             order: None,
+            debug: builder.debug,
             phantom: PhantomData,
         }
     }
@@ -205,7 +207,7 @@ where
 
     // execute
     pub fn execute(self, store: StoreLocal) -> Result<LoadResult<E>, Error> {
-        let executor = LoadExecutor::from_builder(self);
+        let executor = LoadExecutor::new(self);
 
         executor.execute(store)
     }
@@ -229,7 +231,7 @@ where
 {
     // new
     #[must_use]
-    pub fn from_builder(query: LoadQuery<E>) -> Self {
+    pub fn new(query: LoadQuery<E>) -> Self {
         Self {
             query,
             resolver: Resolver::new(&E::path()),

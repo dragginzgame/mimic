@@ -93,13 +93,14 @@ impl LoadBuilderPath {
 #[derive(CandidType, Debug, Default, Serialize, Deserialize)]
 pub struct LoadQueryPath {
     path: String,
-    debug: DebugContext,
     method: LoadMethod,
     offset: u32,
     limit: Option<u32>,
+    debug: DebugContext,
 }
 
 impl LoadQueryPath {
+    // new
     #[must_use]
     pub fn new(path: &str, method: LoadMethod) -> Self {
         Self {
@@ -109,11 +110,12 @@ impl LoadQueryPath {
         }
     }
 
+    // from_builder
     #[must_use]
     pub fn from_builder(builder: LoadBuilderPath, method: LoadMethod) -> Self {
         Self {
-            debug: builder.debug,
             method,
+            debug: builder.debug,
             ..Default::default()
         }
     }

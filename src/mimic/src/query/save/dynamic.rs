@@ -83,17 +83,28 @@ impl SaveBuilderDyn {
 #[derive(Debug)]
 pub struct SaveQueryDyn {
     mode: SaveMode,
-    debug: DebugContext,
     entities: Vec<Box<dyn EntityDyn>>,
+    debug: DebugContext,
 }
 
 impl SaveQueryDyn {
+    // new
+    #[must_use]
+    pub fn new(mode: SaveMode, entities: Vec<Box<dyn EntityDyn>>) -> Self {
+        Self {
+            mode,
+            entities,
+            debug: DebugContext::default(),
+        }
+    }
+
+    // from_builder
     #[must_use]
     pub fn from_builder(builder: SaveBuilderDyn, entities: Vec<Box<dyn EntityDyn>>) -> Self {
         Self {
             mode: builder.mode,
-            debug: builder.debug,
             entities,
+            debug: builder.debug,
         }
     }
 

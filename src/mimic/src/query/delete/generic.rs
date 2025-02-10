@@ -58,13 +58,13 @@ where
 /// results : all the keys that have successfully been deleted
 ///
 
-#[derive(CandidType, Debug, Serialize)]
+#[derive(CandidType, Debug, Default, Serialize)]
 pub struct DeleteQuery<E>
 where
     E: Entity,
 {
-    debug: DebugContext,
     keys: Vec<Vec<String>>,
+    debug: DebugContext,
     _phantom: PhantomData<E>,
 }
 
@@ -74,10 +74,19 @@ where
 {
     // new
     #[must_use]
+    pub fn new(keys: &[Vec<String>]) -> Self {
+        Self {
+            keys: keys.to_vec(),
+            ..Default::default()
+        }
+    }
+
+    // from_builder
+    #[must_use]
     const fn from_builder(builder: DeleteBuilder<E>, keys: Vec<Vec<String>>) -> Self {
         Self {
-            debug: builder.debug,
             keys,
+            debug: builder.debug,
             _phantom: PhantomData,
         }
     }

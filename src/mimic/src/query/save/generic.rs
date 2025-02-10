@@ -76,20 +76,31 @@ where
     E: Entity,
 {
     mode: SaveMode,
-    debug: DebugContext,
     entities: Vec<E>,
+    debug: DebugContext,
 }
 
 impl<E> SaveQuery<E>
 where
     E: Entity,
 {
+    // new
+    #[must_use]
+    pub fn new(mode: SaveMode, entities: &[E]) -> Self {
+        Self {
+            mode,
+            entities: entities.to_vec(),
+            debug: DebugContext::default(),
+        }
+    }
+
+    // from_builder
     #[must_use]
     const fn from_builder(builder: SaveBuilder<E>, entities: Vec<E>) -> Self {
         Self {
             mode: builder.mode,
-            debug: builder.debug,
             entities,
+            debug: builder.debug,
         }
     }
 
