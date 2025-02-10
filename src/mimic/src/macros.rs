@@ -84,18 +84,40 @@ macro_rules! mimic_memory_manager {
 //
 #[macro_export]
 macro_rules! mimic_stores {
-    // This pattern matches when a memory manager, store names, and memory IDs are provided
     ($memory_manager:expr, $($store_name:ident, $memory_id:expr),*) => {
+        use ::std::collections::HashMap;
+        use ::std::cell::RefCell;
+        use ::std::thread::LocalKey;
+        use ::mimic::store::Store;
+        use ::mimic::ic::structures::memory_manager::MemoryId;
+
         thread_local! {
-            // Create and define each store statically, initializing with the provided memory ID
+            // Define each store statically
             $(
-                pub static $store_name: ::std::cell::RefCell<::mimic::store::Store> =
-                    ::std::cell::RefCell::new(::mimic::store::Store::init(
-                        $memory_manager.with(|mm| mm.borrow().get(
-                            ::mimic::ic::structures::memory_manager::MemoryId::new($memory_id)
-                        ))
+                pub static $store_name: RefCell<Store> =
+                    RefCell::new(Store::init(
+                        $memory_manager.with(|mm| mm.borrow().get(MemoryId::new($memory_id)))
                     ));
             )*
+
+            /// A store registry that maps store names to their corresponding thread-local keys
+            pub static STORE_REGISTRY: RefCell<HashMap<&'static str, &'static LocalKey<RefCell<Store>>>> =
+                RefCell::new({
+                    let mut map = HashMap::new();
+                    $(
+                        map.insert(stringify!($store_name), &$store_name);
+                    )*
+                    map
+                });
+        }
+
+        /// Retrieves a reference to the store based on a given string name
+        pub fn mimic_get_store(name: &str) -> Result<&'static LocalKey<RefCell<Store>>, ::mimic::Error> {
+            STORE_REGISTRY.with(|registry| {
+                registry.borrow().get(name)
+                    .copied()
+                    .ok_or_else(|| ::mimic::Error::StoreError(::mimic::store::StoreError::StoreNotFound(name.to_string())))
+            })
         }
     };
 }
