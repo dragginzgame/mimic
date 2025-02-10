@@ -1,7 +1,6 @@
 use crate::{
     query::{
-        load::{Error, LoadResultDyn, Loader},
-        types::LoadMethod,
+        load::{Error, LoadMethod, LoadResultDyn, Loader},
         DebugContext, Resolver,
     },
     store::{types::DataRow, StoreLocal},

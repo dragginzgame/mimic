@@ -1,8 +1,8 @@
 use crate::{
     orm::traits::Entity,
     query::{
-        load::LoadError,
-        types::{Filter, LoadResponse, Order},
+        load::{LoadError, LoadResponse},
+        types::{Filter, Order},
         QueryError,
     },
     store::types::{DataKey, DataRow, EntityRow},

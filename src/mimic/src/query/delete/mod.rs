@@ -22,6 +22,16 @@ pub enum DeleteError {
 }
 
 ///
+/// DeleteRequest
+///
+
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+pub struct DeleteRequest {
+    pub entity: String,
+    pub key: Vec<String>,
+}
+
+///
 /// DeleteResponse
 ///
 /// keys : all the keys that have successfully been deleted

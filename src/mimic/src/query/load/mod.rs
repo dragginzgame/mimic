@@ -10,7 +10,7 @@ use crate::{
     ic::serialize::SerializeError,
     query::{
         resolver::{Resolver, ResolverError},
-        types::LoadMethod,
+        types::{Filter, Order},
         QueryError,
     },
     store::{
@@ -42,6 +42,73 @@ pub enum LoadError {
 
     #[error(transparent)]
     ResolverError(#[from] ResolverError),
+}
+
+///
+/// LoadRequest
+/// (from the front end, so no generics)
+///
+/// entity : Entity path
+/// format : the format you want the results in (Rows or Count)
+///
+
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+pub struct LoadRequest {
+    pub entity: String,
+    pub method: LoadMethod,
+    pub offset: u32,
+    pub limit: Option<u32>,
+    pub filter: Option<Filter>,
+    pub order: Option<Order>,
+    pub format: LoadFormat,
+}
+
+///
+/// LoadFormat
+///
+/// a variant that specifies the format the LoadResponse should be in
+///
+
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+pub enum LoadFormat {
+    Rows,
+    Count,
+}
+
+///
+/// LoadMethod
+///
+/// All    : no sort key prefix, only works with top-level Sort Keys,
+///          will probably not work if used on nested entities
+/// Only   : for entities that have no keys
+/// One    : returns one row by composite key
+/// Many   : returns many rows (from many composite keys)
+/// Prefix : like all but we're asking for the composite key prefix
+///          so Pet (Character=1) will return the Pets from Character 1
+/// Range  : user-defined range, ie. Item=1000 Item=1500
+///
+
+#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
+pub enum LoadMethod {
+    #[default]
+    All,
+    Only,
+    One(Vec<String>),
+    Many(Vec<Vec<String>>),
+    Prefix(Vec<String>),
+    Range(Vec<String>, Vec<String>),
+}
+
+///
+/// LoadResponse
+/// The variant that defines what format the results of a request
+/// will be returned in
+///
+
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+pub enum LoadResponse {
+    Rows(Vec<DataRow>),
+    Count(u32),
 }
 
 ///

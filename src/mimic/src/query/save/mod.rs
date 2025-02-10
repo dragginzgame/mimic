@@ -11,7 +11,7 @@ use crate::{
         DebugContext,
     },
     store::{
-        types::{DataKey, DataValue, Metadata},
+        types::{DataKey, DataRow, DataValue, Metadata},
         StoreLocal,
     },
     ThisError,
@@ -40,6 +40,55 @@ pub enum SaveError {
 
     #[error(transparent)]
     ResolverError(#[from] ResolverError),
+}
+
+///
+/// SaveRequest
+///
+
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+pub struct SaveRequest {
+    pub entity: String,
+    pub data: Vec<u8>,
+    pub action: SaveRequestAction,
+}
+
+///
+/// SaveRequestAction
+///
+
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+pub enum SaveRequestAction {
+    Create,
+    Update,
+}
+
+///
+/// SaveResponse
+///
+
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+pub enum SaveResponse {
+    Create(CreateResponse),
+    Update(UpdateResponse),
+}
+
+///
+/// CreateResponse
+///
+
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+pub struct CreateResponse {
+    pub row: DataRow,
+}
+
+///
+/// UpdateResponse
+///
+
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+pub struct UpdateResponse {
+    pub row: DataRow,
 }
 
 ///
