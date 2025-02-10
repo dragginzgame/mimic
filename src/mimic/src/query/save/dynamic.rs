@@ -63,15 +63,15 @@ impl SaveBuilderDyn {
         SaveQueryDyn::from_builder(self, boxed_entities)
     }
 
-    // from_entity_dynamic
+    // from_entity_dyn
     #[must_use]
-    pub fn from_entity_dynamic(self, entity: Box<dyn EntityDyn>) -> SaveQueryDyn {
+    pub fn from_entity_dyn(self, entity: Box<dyn EntityDyn>) -> SaveQueryDyn {
         SaveQueryDyn::from_builder(self, vec![entity])
     }
 
-    // from_entities_dynamic
+    // from_entities_dyn
     #[must_use]
-    pub fn from_entities_dynamic(self, entities: Vec<Box<dyn EntityDyn>>) -> SaveQueryDyn {
+    pub fn from_entities_dyn(self, entities: Vec<Box<dyn EntityDyn>>) -> SaveQueryDyn {
         SaveQueryDyn::from_builder(self, entities)
     }
 }

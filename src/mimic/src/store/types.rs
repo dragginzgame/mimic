@@ -87,7 +87,7 @@ impl fmt::Display for DataKey {
     }
 }
 
-impl_storable_bounded!(DataKey, 255, true);
+impl_storable_bounded!(DataKey, 255, false);
 
 ///
 /// DataValue

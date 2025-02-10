@@ -121,7 +121,7 @@ impl Orderable for Principal {
 
 impl SortKey for Principal {}
 
-impl_storable_bounded!(Principal, 32, true);
+impl_storable_bounded!(Principal, 32, false);
 
 impl ValidateManual for Principal {
     fn validate_manual(&self) -> Result<(), ErrorVec> {

@@ -162,7 +162,7 @@ impl<'de> Deserialize<'de> for Ulid {
 
 impl SortKey for Ulid {}
 
-impl_storable_bounded!(Ulid, 32, true);
+impl_storable_bounded!(Ulid, 32, false);
 
 impl ValidateManual for Ulid {
     fn validate_manual(&self) -> Result<(), ErrorVec> {
