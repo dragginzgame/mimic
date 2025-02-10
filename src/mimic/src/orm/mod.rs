@@ -19,7 +19,7 @@ pub mod prelude {
             },
             OrmError,
         },
-        query,
+        query::Query,
         types::{ErrorVec, FixtureList},
         utils::case::{Case, Casing},
     };
