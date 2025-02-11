@@ -5,6 +5,7 @@ use mimic::orm::{base::types, prelude::*};
 ///
 
 #[entity(
+    store = "crate::Store",
     sk(entity = "Index", field = "id"),
     index(fields = "x"),
     index(fields = "y", unique),

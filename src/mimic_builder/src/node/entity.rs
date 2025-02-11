@@ -1,12 +1,13 @@
 use crate::imp;
 use crate::{
-    helper::quote_vec,
+    helper::{quote_one, quote_vec, to_path},
     node::{Def, FieldList, Index, MacroNode, Node, SortKey, Trait, TraitNode, Traits, Type},
     traits::Schemable,
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::quote;
+use syn::Path;
 
 ///
 /// Entity
@@ -16,6 +17,8 @@ use quote::quote;
 pub struct Entity {
     #[darling(default, skip)]
     pub def: Def,
+
+    pub store: Path,
 
     #[darling(multiple, rename = "sk")]
     pub sort_keys: Vec<SortKey>,
@@ -70,6 +73,7 @@ impl MacroNode for Entity {
 impl Schemable for Entity {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
+        let store = quote_one(&self.store, to_path);
         let sort_keys = quote_vec(&self.sort_keys, SortKey::schema);
         let indexes = quote_vec(&self.indexes, Index::schema);
         let fields = &self.fields.schema();
@@ -78,6 +82,7 @@ impl Schemable for Entity {
         quote! {
             ::mimic::schema::node::SchemaNode::Entity(::mimic::schema::node::Entity {
                 def: #def,
+                store: #store,
                 sort_keys: #sort_keys,
                 indexes: #indexes,
                 fields: #fields,

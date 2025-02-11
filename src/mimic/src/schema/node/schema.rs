@@ -2,7 +2,7 @@ use crate::{
     schema::{
         node::{
             Constant, Def, Entity, Enum, EnumValue, MacroNode, Map, Newtype, Primitive, Record,
-            Selector, Tuple, TypeNode, ValidateNode, Validator, VisitableNode,
+            Selector, Store, Tuple, TypeNode, ValidateNode, Validator, VisitableNode,
         },
         visit::Visitor,
         SchemaError,
@@ -35,6 +35,7 @@ pub enum SchemaNode {
     Primitive(Primitive),
     Record(Record),
     Selector(Selector),
+    Store(Store),
     Tuple(Tuple),
     Validator(Validator),
 }
@@ -68,6 +69,7 @@ impl SchemaNode {
             Self::Primitive(n) => &n.def,
             Self::Record(n) => &n.def,
             Self::Selector(n) => &n.def,
+            Self::Store(n) => &n.def,
             Self::Tuple(n) => &n.def,
             Self::Validator(n) => &n.def,
         }
@@ -86,6 +88,7 @@ impl MacroNode for SchemaNode {
             Self::Primitive(n) => n.as_any(),
             Self::Record(n) => n.as_any(),
             Self::Selector(n) => n.as_any(),
+            Self::Store(n) => n.as_any(),
             Self::Tuple(n) => n.as_any(),
             Self::Validator(n) => n.as_any(),
         }
@@ -106,6 +109,7 @@ impl VisitableNode for SchemaNode {
             Self::Primitive(n) => n.accept(v),
             Self::Record(n) => n.accept(v),
             Self::Selector(n) => n.accept(v),
+            Self::Store(n) => n.accept(v),
             Self::Tuple(n) => n.accept(v),
             Self::Validator(n) => n.accept(v),
         }

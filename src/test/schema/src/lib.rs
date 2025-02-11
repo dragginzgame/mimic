@@ -14,6 +14,13 @@ use mimic::orm::{base::types, prelude::*};
 pub const fn init() {}
 
 ///
+/// Store
+///
+
+#[store(memory_id = 20)]
+pub struct Store {}
+
+///
 /// EntityIdTest
 ///
 
