@@ -1,14 +1,14 @@
-use candid::{CandidType, Principal};
+use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
 ///
 /// Config
+/// nothing here yet, but its coded so that's nice
 ///
 
 #[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Config {
-    pub ic: Ic,
     pub orm: Orm,
 }
 
@@ -18,13 +18,3 @@ pub struct Config {
 
 #[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Orm {}
-
-///
-/// Ic
-///
-
-#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
-pub struct Ic {
-    pub admins: Vec<Principal>,
-    pub controllers: Vec<Principal>,
-}

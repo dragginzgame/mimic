@@ -42,6 +42,7 @@ pub enum QueryError {
 /// a builder that's generic over Entity
 ///
 
+#[derive(Default)]
 pub struct Query<E>
 where
     E: Entity,
@@ -53,6 +54,13 @@ impl<E> Query<E>
 where
     E: Entity,
 {
+    #[must_use]
+    pub const fn new() -> Self {
+        Self {
+            phantom: PhantomData,
+        }
+    }
+
     #[must_use]
     pub fn load() -> LoadBuilder<E> {
         LoadBuilder::new()
