@@ -38,4 +38,8 @@ impl Store {
     }
 }
 
+///
+/// StoreLocal
+///
+
 pub type StoreLocal = &'static LocalKey<RefCell<Store>>;

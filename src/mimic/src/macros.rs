@@ -90,7 +90,7 @@ macro_rules! mimic_stores {
             $(
                 pub static $store_name: ::std::cell::RefCell<::mimic::store::Store> =
                     ::std::cell::RefCell::new(::mimic::store::Store::init(
-                        $memory_manager.with(|mm| mm.borrow().get(::mimic::ic::structures::memory::MemoryId::new($memory_id)))
+                        $memory_manager.with_borrow(|mm| mm.get(::mimic::ic::structures::memory::MemoryId::new($memory_id)))
                     ));
             )*
 
