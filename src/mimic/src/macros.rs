@@ -77,45 +77,6 @@ macro_rules! mimic_memory_manager {
     };
 }
 
-//
-// mimic_stores
-// define the stores
-// mimic_stores!(MEMORY_MANAGER, DATA1, 1, DATA2, 2)
-//
-#[macro_export]
-macro_rules! mimic_stores {
-    ($memory_manager:expr, $($store_name:ident, $memory_id:expr),*) => {
-        thread_local! {
-            // Define each store statically
-            $(
-                pub static $store_name: ::std::cell::RefCell<::mimic::store::Store> =
-                    ::std::cell::RefCell::new(::mimic::store::Store::init(
-                        $memory_manager.with_borrow(|mm| mm.get(::mimic::ic::structures::memory::MemoryId::new($memory_id)))
-                    ));
-            )*
-
-            /// A store registry that maps store names to their corresponding thread-local keys
-            pub static STORE_REGISTRY: ::std::cell::RefCell<::std::collections::HashMap<&'static str, &'static ::std::thread::LocalKey<::std::cell::RefCell<::mimic::store::Store>>>> =
-                ::std::cell::RefCell::new({
-                    let mut map = ::std::collections::HashMap::new();
-                    $(
-                        map.insert(stringify!($store_name), &$store_name);
-                    )*
-                    map
-                });
-        }
-
-        /// Retrieves a reference to the store based on a given string name
-        pub fn mimic_get_store(name: &str) -> Result<&'static ::std::thread::LocalKey<::std::cell::RefCell<::mimic::store::Store>>, ::mimic::Error> {
-            STORE_REGISTRY.with(|registry| {
-                registry.borrow().get(name)
-                    .copied()
-                    .ok_or_else(|| ::mimic::Error::StoreError(::mimic::store::StoreError::StoreNotFound(name.to_string())))
-            })
-        }
-    };
-}
-
 // mimic_end
 // macro that needs to be included as the last item in the actor lib.rs file
 #[macro_export]

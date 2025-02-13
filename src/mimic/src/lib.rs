@@ -30,7 +30,7 @@ extern crate self as mimic;
 pub mod prelude {
     pub use crate::{
         ic::{caller, format_cycles, id, init, query, update},
-        log, mimic_end, mimic_memory_manager, mimic_start, mimic_stores,
+        log, mimic_end, mimic_memory_manager, mimic_start,
         orm::{
             base::{self, types::Ulid},
             traits::{EntityDyn, EntityFixture, NumFromPrimitive, NumToPrimitive, Path, Validator},
