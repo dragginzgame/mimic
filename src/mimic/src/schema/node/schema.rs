@@ -1,8 +1,8 @@
 use crate::{
     schema::{
         node::{
-            Constant, Def, Entity, Enum, EnumValue, MacroNode, Map, Newtype, Primitive, Record,
-            Selector, Store, Tuple, TypeNode, ValidateNode, Validator, VisitableNode,
+            Canister, Constant, Def, Entity, Enum, EnumValue, MacroNode, Map, Newtype, Primitive,
+            Record, Selector, Store, Tuple, TypeNode, ValidateNode, Validator, VisitableNode,
         },
         visit::Visitor,
         SchemaError,
@@ -26,6 +26,7 @@ use std::{
 #[remain::sorted]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum SchemaNode {
+    Canister(Canister),
     Constant(Constant),
     Entity(Entity),
     Enum(Enum),
@@ -60,6 +61,7 @@ impl SchemaNode {
 impl SchemaNode {
     const fn def(&self) -> &Def {
         match self {
+            Self::Canister(n) => &n.def,
             Self::Constant(n) => &n.def,
             Self::Entity(n) => &n.def,
             Self::Enum(n) => &n.def,
@@ -79,6 +81,7 @@ impl SchemaNode {
 impl MacroNode for SchemaNode {
     fn as_any(&self) -> &dyn Any {
         match self {
+            Self::Canister(n) => n.as_any(),
             Self::Constant(n) => n.as_any(),
             Self::Entity(n) => n.as_any(),
             Self::Enum(n) => n.as_any(),
@@ -100,6 +103,7 @@ impl ValidateNode for SchemaNode {}
 impl VisitableNode for SchemaNode {
     fn drive<V: Visitor>(&self, v: &mut V) {
         match self {
+            Self::Canister(n) => n.accept(v),
             Self::Constant(n) => n.accept(v),
             Self::Entity(n) => n.accept(v),
             Self::Enum(n) => n.accept(v),

@@ -14,10 +14,17 @@ use mimic::orm::{base::types, prelude::*};
 pub const fn init() {}
 
 ///
+/// Canister
+///
+
+#[canister]
+pub struct Canister {}
+
+///
 /// Store
 ///
 
-#[store(memory_id = 20)]
+#[store(canister = "Canister", memory_id = 20)]
 pub struct Store {}
 
 ///

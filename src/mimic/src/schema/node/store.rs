@@ -26,6 +26,7 @@ pub const RESERVED_MEMORY_RANGE: Range<u8> = 0..19;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Store {
     pub def: Def,
+    pub canister: String,
     pub memory_id: u8,
 }
 

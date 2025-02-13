@@ -1,5 +1,4 @@
 use crate::{
-    helper::{quote_one, to_path},
     imp,
     node::{Def, MacroNode, Node, Trait, TraitNode, Traits},
     traits::Schemable,
@@ -7,29 +6,25 @@ use crate::{
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::Path;
 
 ///
-/// Store
+/// Canister
+/// regardless of the path, the name is used to uniquely identify each canister
 ///
 
 #[derive(Debug, FromMeta)]
-pub struct Store {
-    #[darling(default, skip)]
+pub struct Canister {
+    #[darling(skip, default)]
     pub def: Def,
-
-    pub canister: Path,
-
-    pub memory_id: u8,
 }
 
-impl Node for Store {
+impl Node for Canister {
     fn expand(&self) -> TokenStream {
-        let Def { ident, .. } = &self.def;
+        let Def { ident, .. } = &self.def();
 
         // quote
         let schema = self.ctor_schema();
-        let imp = self.imp();
+        let imp = &self.imp();
         let q = quote! {
             #schema
             pub struct #ident {}
@@ -46,29 +41,25 @@ impl Node for Store {
     }
 }
 
-impl MacroNode for Store {
+impl MacroNode for Canister {
     fn def(&self) -> &Def {
         &self.def
     }
 }
 
-impl Schemable for Store {
+impl Schemable for Canister {
     fn schema(&self) -> TokenStream {
-        let def = &self.def.schema();
-        let canister = quote_one(&self.canister, to_path);
-        let memory_id = &self.memory_id;
+        let def = self.def.schema();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Store(::mimic::schema::node::Store{
+            ::mimic::schema::node::SchemaNode::Canister(::mimic::schema::node::Canister{
                 def: #def,
-                canister: #canister,
-                memory_id: #memory_id,
             })
         }
     }
 }
 
-impl TraitNode for Store {
+impl TraitNode for Canister {
     fn traits(&self) -> Vec<Trait> {
         Traits::default().list()
     }
