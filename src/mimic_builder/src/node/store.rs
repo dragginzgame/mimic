@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_one, to_path},
+    helper::{quote_one, to_path, to_string},
     imp,
     node::{Def, MacroNode, Node, Trait, TraitNode, Traits},
     traits::Schemable,
@@ -7,7 +7,7 @@ use crate::{
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::Path;
+use syn::{Ident, Path};
 
 ///
 /// Store
@@ -18,8 +18,8 @@ pub struct Store {
     #[darling(default, skip)]
     pub def: Def,
 
+    pub ident: Ident,
     pub canister: Path,
-
     pub memory_id: u8,
 }
 
@@ -55,12 +55,14 @@ impl MacroNode for Store {
 impl Schemable for Store {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
+        let ident = quote_one(&self.ident, to_string);
         let canister = quote_one(&self.canister, to_path);
         let memory_id = &self.memory_id;
 
         quote! {
             ::mimic::schema::node::SchemaNode::Store(::mimic::schema::node::Store{
                 def: #def,
+                ident: #ident,
                 canister: #canister,
                 memory_id: #memory_id,
             })

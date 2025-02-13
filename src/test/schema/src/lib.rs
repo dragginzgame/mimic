@@ -17,14 +17,14 @@ pub const fn init() {}
 /// Canister
 ///
 
-#[canister]
+#[canister(name = "test")]
 pub struct Canister {}
 
 ///
 /// Store
 ///
 
-#[store(canister = "Canister", memory_id = 20)]
+#[store(ident = "STORE", canister = "Canister", memory_id = 20)]
 pub struct Store {}
 
 ///

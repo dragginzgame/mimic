@@ -4,6 +4,7 @@ use crate::{
         visit::Visitor,
     },
     types::ErrorVec,
+    utils::case::{Case, Casing},
 };
 use serde::{Deserialize, Serialize};
 use std::ops::Range;
@@ -26,6 +27,7 @@ pub const RESERVED_MEMORY_RANGE: Range<u8> = 0..19;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Store {
     pub def: Def,
+    pub ident: String,
     pub canister: String,
     pub memory_id: u8,
 }
@@ -39,6 +41,11 @@ impl MacroNode for Store {
 impl ValidateNode for Store {
     fn validate(&self) -> Result<(), ErrorVec> {
         let mut errs = ErrorVec::new();
+
+        // ident
+        if !self.ident.is_case(Case::UpperSnake) {
+            errs.add("store ident '{}' must be UPPER_SNAKE_CASE");
+        }
 
         // memory id
         if RESERVED_MEMORY_RANGE.contains(&self.memory_id) {
