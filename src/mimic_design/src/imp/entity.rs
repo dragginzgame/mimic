@@ -112,6 +112,7 @@ fn serialize_dyn(_: &Entity) -> TokenStream {
     }
 }
 
+// store_dyn
 fn store_dyn(node: &Entity) -> TokenStream {
     let store = quote_one(&node.store, to_path);
 
