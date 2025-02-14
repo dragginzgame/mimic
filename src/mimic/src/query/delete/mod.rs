@@ -4,7 +4,11 @@ pub mod path;
 pub use generic::{DeleteBuilder, DeleteExecutor, DeleteQuery};
 pub use path::{DeleteBuilderPath, DeleteExecutorPath, DeleteQueryPath};
 
-use crate::{query::resolver::ResolverError, store::types::DataKey, Error, ThisError};
+use crate::{
+    db::{types::DataKey, DbError},
+    query::resolver::ResolverError,
+    Error, ThisError,
+};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
@@ -18,7 +22,10 @@ pub enum DeleteError {
     KeyNotFound(DataKey),
 
     #[error(transparent)]
-    ResolverError(ResolverError),
+    DbError(#[from] DbError),
+
+    #[error(transparent)]
+    ResolverError(#[from] ResolverError),
 }
 
 ///

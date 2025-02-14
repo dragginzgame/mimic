@@ -1,9 +1,9 @@
 use crate::{
+    db::types::DataKey,
     schema::{
         node::Entity,
         state::{get_schema, StateError as SchemaStateError},
     },
-    store::types::DataKey,
     ThisError,
 };
 use candid::CandidType;
@@ -38,6 +38,16 @@ impl Resolver {
         Self {
             path: path.to_string(),
         }
+    }
+
+    // store
+    pub fn store(&self) -> Result<String, ResolverError> {
+        let schema = get_schema()?;
+        let entity = schema
+            .get_node_as::<Entity>(&self.path)
+            .ok_or_else(|| ResolverError::EntityNotFound(self.path.clone()))?;
+
+        Ok(entity.store.clone())
     }
 
     // data_key

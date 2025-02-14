@@ -1,10 +1,10 @@
 use crate::{
+    db::StoreLocal,
     orm::{deserialize, traits::Entity},
     query::{
         save::{save, SaveError, SaveMode},
         DebugContext, QueryError,
     },
-    store::StoreLocal,
     Error,
 };
 use candid::CandidType;

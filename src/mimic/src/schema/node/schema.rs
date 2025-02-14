@@ -1,8 +1,9 @@
 use crate::{
     schema::{
         node::{
-            Canister, Constant, Def, Entity, Enum, EnumValue, MacroNode, Map, Newtype, Primitive,
-            Record, Selector, Store, Tuple, TypeNode, ValidateNode, Validator, VisitableNode,
+            Canister, Constant, Def, Entity, Enum, EnumValue, MacroNode, Map, Newtype, NodeError,
+            Primitive, Record, Selector, Store, Tuple, TypeNode, ValidateNode, Validator,
+            VisitableNode,
         },
         visit::Visitor,
         SchemaError,
@@ -178,9 +179,9 @@ impl Schema {
     // try_get_node
     pub fn try_get_node<'a>(&'a self, path: &str) -> Result<&'a SchemaNode, Error> {
         let node = self
-            .nodes
-            .get(path)
-            .ok_or_else(|| SchemaError::PathNotFound(path.to_string()))?;
+            .get_node(path)
+            .ok_or_else(|| NodeError::PathNotFound(path.to_string()))
+            .map_err(SchemaError::NodeError)?;
 
         Ok(node)
     }
@@ -191,6 +192,16 @@ impl Schema {
         self.nodes
             .get(path)
             .and_then(|node| node.as_any().downcast_ref::<T>())
+    }
+
+    // try_get_node_as
+    pub fn try_get_node_as<'a, T: 'static>(&'a self, path: &str) -> Result<&'a T, Error> {
+        let node = self
+            .get_node_as(path)
+            .ok_or_else(|| NodeError::PathNotFound(path.to_string()))
+            .map_err(SchemaError::NodeError)?;
+
+        Ok(node)
     }
 
     // check_node_as
@@ -210,14 +221,15 @@ impl Schema {
 
                 if let Some(node) = self.nodes.get(&path) {
                     if node.as_any().type_id() == TypeId::of::<T>() {
-                        SchemaError::DowncastFail(path)
+                        NodeError::DowncastFail(path)
                     } else {
-                        SchemaError::IncorrectNodeType(path)
+                        NodeError::IncorrectNodeType(path)
                     }
                 } else {
-                    SchemaError::PathNotFound(path)
+                    NodeError::PathNotFound(path)
                 }
-            })?;
+            })
+            .map_err(SchemaError::NodeError)?;
 
         Ok(node)
     }

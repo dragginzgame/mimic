@@ -5,14 +5,14 @@ pub use dynamic::{SaveBuilderDyn, SaveExecutorDyn, SaveQueryDyn};
 pub use generic::{SaveBuilder, SaveExecutor, SaveQuery};
 
 use crate::{
+    db::{
+        types::{DataKey, DataRow, DataValue, Metadata},
+        DbError, StoreLocal,
+    },
     orm::{traits::EntityDyn, OrmError},
     query::{
         resolver::{Resolver, ResolverError},
         DebugContext,
-    },
-    store::{
-        types::{DataKey, DataRow, DataValue, Metadata},
-        StoreLocal,
     },
     ThisError,
 };
@@ -34,6 +34,9 @@ pub enum SaveError {
 
     #[error("no results found")]
     NoResultsFound,
+
+    #[error(transparent)]
+    DbError(#[from] DbError),
 
     #[error(transparent)]
     OrmError(#[from] OrmError),
@@ -172,9 +175,10 @@ fn save<'a>(
     };
 
     // insert data
+    let path = entity.path_dyn();
     let value = DataValue {
         data,
-        path: entity.path_dyn(),
+        path,
         metadata: Metadata { created, modified },
     };
     store.with_borrow_mut(|store| {

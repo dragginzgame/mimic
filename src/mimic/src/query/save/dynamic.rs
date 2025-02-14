@@ -1,4 +1,5 @@
 use crate::{
+    db::StoreLocal,
     orm::{
         deserialize,
         traits::{Entity, EntityDyn},
@@ -7,7 +8,6 @@ use crate::{
         save::{save, SaveError, SaveMode},
         DebugContext, QueryError,
     },
-    store::StoreLocal,
     Error,
 };
 use std::mem;

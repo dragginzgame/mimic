@@ -7,6 +7,7 @@ use crate::{
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::quote;
+use syn::Ident;
 
 ///
 /// Canister
@@ -18,7 +19,7 @@ pub struct Canister {
     #[darling(skip, default)]
     pub def: Def,
 
-    pub name: String,
+    pub name: Ident,
 }
 
 impl Node for Canister {

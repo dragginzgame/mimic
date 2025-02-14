@@ -3,12 +3,12 @@
 /// [for external use only, keep out of reach of children]
 ///
 pub mod config;
+pub mod db;
 pub mod ic;
 pub mod macros;
 pub mod orm;
 pub mod query;
 pub mod schema;
-pub mod store;
 pub mod types;
 pub mod utils;
 
@@ -19,7 +19,6 @@ pub mod export {
     pub use num_traits;
     pub use remain;
 }
-pub use thiserror::Error as ThisError;
 
 extern crate self as mimic;
 
@@ -29,6 +28,7 @@ extern crate self as mimic;
 
 pub mod prelude {
     pub use crate::{
+        db::Store,
         ic::{caller, format_cycles, id, init, query, update},
         log, mimic_end, mimic_memory_manager, mimic_start,
         orm::{
@@ -37,7 +37,6 @@ pub mod prelude {
         },
         perf,
         query::Query,
-        store::Store,
         Log,
     };
     pub use ::candid::{CandidType, Principal};
@@ -46,6 +45,7 @@ pub mod prelude {
 
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
+use thiserror::Error as ThisError;
 
 // init
 // schema generation requires a function stub to work on OSX
@@ -63,6 +63,9 @@ pub enum Error {
     ConfigError(#[from] config::ConfigError),
 
     #[error(transparent)]
+    DbError(#[from] db::DbError),
+
+    #[error(transparent)]
     IcError(#[from] ic::IcError),
 
     #[error(transparent)]
@@ -73,9 +76,6 @@ pub enum Error {
 
     #[error(transparent)]
     SchemaError(#[from] schema::SchemaError),
-
-    #[error(transparent)]
-    StoreError(#[from] store::StoreError),
 }
 
 ///

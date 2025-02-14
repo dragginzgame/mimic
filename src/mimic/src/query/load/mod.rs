@@ -7,15 +7,15 @@ pub use path::{LoadBuilderPath, LoadExecutorPath, LoadQueryPath};
 pub use result::{LoadResult, LoadResultDyn};
 
 use crate::{
+    db::{
+        types::{DataKey, DataRow},
+        DbError, StoreLocal,
+    },
     ic::serialize::SerializeError,
     query::{
         resolver::{Resolver, ResolverError},
         types::{Filter, Order},
         QueryError,
-    },
-    store::{
-        types::{DataKey, DataRow},
-        StoreLocal,
     },
     Error, ThisError,
 };
@@ -36,6 +36,9 @@ pub enum LoadError {
 
     #[error("range queries not allowed on composite keys")]
     RangeNotAllowed,
+
+    #[error(transparent)]
+    DbError(#[from] DbError),
 
     #[error(transparent)]
     SerializeError(#[from] SerializeError),
@@ -116,34 +119,41 @@ pub enum LoadResponse {
 /// took logic from both Load types and stuck it here
 ///
 
-pub struct Loader<'a> {
+pub struct Loader {
     store: StoreLocal,
-    resolver: &'a Resolver,
+    resolver: Resolver,
 }
 
-impl<'a> Loader<'a> {
+impl Loader {
     // new
     #[must_use]
-    pub const fn new(store: StoreLocal, resolver: &'a Resolver) -> Self {
+    pub const fn new(store: StoreLocal, resolver: Resolver) -> Self {
         Self { store, resolver }
     }
 
     // load
-    pub fn load(&self, method: &LoadMethod) -> Result<Box<dyn Iterator<Item = DataRow>>, Error> {
-        match method {
+    pub fn load(&self, method: &LoadMethod) -> Result<Vec<DataRow>, Error> {
+        self.load_unmapped(method)
+            .map_err(QueryError::LoadError)
+            .map_err(Error::QueryError)
+    }
+
+    // load_unmapped
+    // for easier error wrapping
+    fn load_unmapped(&self, method: &LoadMethod) -> Result<Vec<DataRow>, LoadError> {
+        let res = match method {
             LoadMethod::All | LoadMethod::Only => {
                 let start = self.data_key(&[])?;
                 let end = start.create_upper_bound();
-                let rows = self.query_range(start, end);
 
-                Ok(Box::new(rows.into_iter()))
+                self.query_range(start, end)
             }
 
             LoadMethod::One(ck) => {
                 let key = self.data_key(ck)?;
-                let res = self.query_data_key(key)?;
+                let row = self.query_data_key(key)?;
 
-                Ok(Box::new(std::iter::once(res)))
+                vec![row]
             }
 
             LoadMethod::Many(cks) => {
@@ -152,67 +162,54 @@ impl<'a> Loader<'a> {
                     .map(|ck| self.data_key(ck))
                     .collect::<Result<Vec<_>, _>>()?;
 
-                let rows = keys
-                    .into_iter()
+                keys.into_iter()
                     .map(|key| self.query_data_key(key))
-                    .collect::<Result<Vec<_>, _>>()?;
-
-                Ok(Box::new(rows.into_iter()))
+                    .filter_map(Result::ok)
+                    .collect::<Vec<_>>()
             }
 
             LoadMethod::Prefix(prefix) => {
                 let start = self.data_key(prefix)?;
                 let end = start.create_upper_bound();
-                let rows = self.query_range(start, end);
 
-                Ok(Box::new(rows.into_iter()))
+                self.query_range(start, end)
             }
 
             LoadMethod::Range(start_ck, end_ck) => {
                 let start = self.data_key(start_ck)?;
                 let end = self.data_key(end_ck)?;
-                let rows = self.query_range(start, end);
 
-                Ok(Box::new(rows.into_iter()))
+                self.query_range(start, end)
             }
-        }
+        };
+
+        Ok(res)
     }
 
     // data_key
     // for easy error converstion
-    fn data_key(&self, ck: &[String]) -> Result<DataKey, Error> {
-        let key = self
-            .resolver
-            .data_key(ck)
-            .map_err(LoadError::ResolverError)
-            .map_err(QueryError::LoadError)?;
+    fn data_key(&self, ck: &[String]) -> Result<DataKey, LoadError> {
+        let key = self.resolver.data_key(ck)?;
 
         Ok(key)
     }
 
     // query_data_key
-    fn query_data_key(&self, key: DataKey) -> Result<DataRow, Error> {
-        self.store.with_borrow(|store| {
-            let row = store
-                .data
-                .get(&key)
+    fn query_data_key(&self, key: DataKey) -> Result<DataRow, LoadError> {
+        self.store.with_borrow(|this| {
+            this.get(&key)
                 .map(|value| DataRow {
                     key: key.clone(),
                     value,
                 })
-                .ok_or(LoadError::KeyNotFound(key))
-                .map_err(QueryError::LoadError)?;
-
-            Ok(row)
+                .ok_or_else(|| LoadError::KeyNotFound(key.clone()))
         })
     }
 
     // query_range
     fn query_range(&self, start: DataKey, end: DataKey) -> Vec<DataRow> {
-        self.store.with_borrow(|store| {
-            store
-                .data
-                .range(start..=end)
+        self.store.with_borrow(|this| {
+            this.range(start..=end)
                 .map(|(key, value)| DataRow { key, value })
                 .collect()
         })

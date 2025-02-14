@@ -3,7 +3,6 @@ use mimic::{
     orm::{deserialize, serialize},
     prelude::*,
     query::{types::Order, Query},
-    store::types::DataKey,
 };
 
 ///
@@ -60,9 +59,7 @@ impl DbTester {
         use test_schema::db::CreateBasic;
 
         // clear
-        STORE.with_borrow_mut(|store| {
-            store.clear();
-        });
+        STORE.with_borrow_mut(|store| store.clear());
 
         let e = CreateBasic::default();
         Query::create().from_entity(e).execute(&STORE).unwrap();
@@ -74,7 +71,6 @@ impl DbTester {
                 .all()
                 .execute(&STORE)
                 .unwrap()
-                .keys()
                 .count(),
             1
         );
@@ -89,7 +85,6 @@ impl DbTester {
                 .all()
                 .execute(&STORE)
                 .unwrap()
-                .keys()
                 .count(),
             2
         );
@@ -101,9 +96,7 @@ impl DbTester {
         const ROWS: usize = 1_000;
 
         // clear
-        STORE.with_borrow_mut(|store| {
-            store.clear();
-        });
+        STORE.with_borrow_mut(|store| store.clear());
 
         // insert rows
         for _ in 0..ROWS {
@@ -129,9 +122,7 @@ impl DbTester {
         const ROWS: u16 = 1_000;
 
         // clear
-        STORE.with_borrow_mut(|store| {
-            store.clear();
-        });
+        STORE.with_borrow_mut(|store| store.clear());
 
         // Insert rows
         for _ in 1..ROWS {
@@ -140,19 +131,18 @@ impl DbTester {
         }
 
         // Retrieve rows in B-Tree order
-        let rows: Vec<DataKey> = Query::<SortKeyOrder>::load()
+        let keys = Query::<SortKeyOrder>::load()
             .all()
             .order(Order::from(vec!["id"]))
             .execute(&STORE)
             .unwrap()
-            .keys()
-            .collect();
+            .keys();
 
         // Verify the order
-        for i in 0..(rows.len() - 1) {
+        for i in 0..(keys.len() - 1) {
             assert!(
-                rows[i] < rows[i + 1],
-                "Row ordering is incorrect at index {i}"
+                keys[i] < keys[i + 1],
+                "key ordering is incorrect at index {i}"
             );
         }
     }
@@ -171,13 +161,9 @@ impl DbTester {
             .unwrap();
 
         // load all keys
-        let entities = Query::<HasMap>::load()
-            .only()
-            .execute(&STORE)
-            .unwrap()
-            .keys();
+        let res = Query::<HasMap>::load().only().execute(&STORE).unwrap();
 
-        assert!(entities.count() == 1);
+        assert!(res.count() == 1);
     }
 
     // filter_query
@@ -185,9 +171,7 @@ impl DbTester {
         use test_schema::db::Filterable;
 
         // clear
-        STORE.with_borrow_mut(|store| {
-            store.clear();
-        });
+        STORE.with_borrow_mut(|store| store.clear());
 
         // Test data
         let test_entities = vec![
@@ -237,7 +221,6 @@ impl DbTester {
                 .filter_all(search)
                 .execute(&STORE)
                 .unwrap()
-                .keys()
                 .count();
 
             assert_eq!(
@@ -252,9 +235,7 @@ impl DbTester {
         use test_schema::db::Limit;
 
         // clear
-        STORE.with_borrow_mut(|store| {
-            store.clear();
-        });
+        STORE.with_borrow_mut(|store| store.clear());
 
         // Insert 100 rows
         // overwrite the ulid with replace()
@@ -270,15 +251,14 @@ impl DbTester {
         // Test various limits and offsets
         for limit in [10, 20, 50] {
             for offset in [0, 5, 10] {
-                let results = Query::<Limit>::load()
+                let res = Query::<Limit>::load()
                     .all()
                     .offset(offset)
                     .limit(limit)
                     .execute(&STORE)
-                    .unwrap()
-                    .keys();
+                    .unwrap();
 
-                let count = results.count();
+                let count = res.count();
                 assert_eq!(count, limit as usize, "{limit} not equal to {count}");
                 //    if !results.is_empty() {
                 //        assert_eq!(results[0].value, offset + 1);

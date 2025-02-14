@@ -120,9 +120,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.13"
+version = "1.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7777341816418c02e033934a09f20dc0ccaf65a5201ef8a450ae0105a573fda"
+checksum = "0c3d1b2e905a3a7b00a6141adb0e4c0bb941d11caf55349d863942a1cc44e3c9"
 dependencies = [
  "shlex",
 ]
@@ -205,9 +205,9 @@ dependencies = [
 
 [[package]]
 name = "ctor"
-version = "0.3.1"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bba74424191d99c617a172ef126d429f62fe54aba1002c4d36e49403ce4b00a2"
+checksum = "952d7c24b2615675db90c2201742b49c314dea9fa56c6688cbf8c4dee2b2553f"
 
 [[package]]
 name = "darling"
@@ -474,7 +474,7 @@ dependencies = [
  "hex",
  "ic-cdk",
  "ic-stable-structures",
- "mimic_builder",
+ "mimic_design",
  "num-traits",
  "remain",
  "rust_decimal",
@@ -490,7 +490,24 @@ dependencies = [
 ]
 
 [[package]]
-name = "mimic_builder"
+name = "mimic_build"
+version = "0.3.2"
+dependencies = [
+ "darling",
+ "derive_more",
+ "mimic",
+ "proc-macro2",
+ "quote",
+ "remain",
+ "serde",
+ "serde_json",
+ "syn 2.0.98",
+ "thiserror 2.0.11",
+ "tinyrand",
+]
+
+[[package]]
+name = "mimic_design"
 version = "0.3.2"
 dependencies = [
  "darling",
@@ -567,9 +584,9 @@ dependencies = [
 
 [[package]]
 name = "psm"
-version = "0.1.24"
+version = "0.1.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "200b9ff220857e53e184257720a14553b2f4aa02577d2ed9842d45d4b9654810"
+checksum = "f58e5423e24c18cc840e1c98370b3993c6649cd1678b4d24318bcf0a083cbe88"
 dependencies = [
  "cc",
 ]
@@ -751,6 +768,7 @@ dependencies = [
  "ctor",
  "ic-cdk",
  "mimic",
+ "mimic_build",
  "test_schema",
 ]
 

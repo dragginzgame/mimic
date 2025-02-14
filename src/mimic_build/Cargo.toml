@@ -1,11 +1,8 @@
 [package]
-name = "mimic_builder"
+name = "mimic_build"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }
-
-[lib]
-proc-macro = true
 
 [lints]
 workspace = true
@@ -13,9 +10,12 @@ workspace = true
 [dependencies]
 darling = { workspace = true }
 derive_more = { workspace = true }
+mimic = { workspace = true }
 proc-macro2 = { workspace = true }
 quote = { workspace = true }
 remain = { workspace = true }
 serde = { workspace = true }
+serde_json = { workspace = true }
 syn = { workspace = true }
+thiserror = { workspace = true }
 tinyrand = { workspace = true }

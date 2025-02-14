@@ -19,4 +19,5 @@ test_schema = { workspace = true }
 
 [build-dependencies]
 mimic = { workspace = true }
+mimic_build = { workspace = true }
 test_schema = { workspace = true }

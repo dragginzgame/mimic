@@ -1,20 +1,14 @@
 use crate::{
+    db::types::{DataKey, DataRow, EntityRow},
     orm::traits::Entity,
     query::{
-        load::{LoadError, LoadResponse},
+        load::LoadError,
         types::{Filter, Order},
         QueryError,
     },
-    store::types::{DataKey, DataRow, EntityRow},
     Error,
 };
-use std::iter;
-
-///
-/// IterFilter
-///
-
-type IterFilter<T> = Box<dyn Fn(&T) -> bool>;
+use candid::CandidType;
 
 ///
 /// LoadResult
@@ -24,81 +18,85 @@ pub struct LoadResult<E>
 where
     E: Entity,
 {
-    iter: Box<dyn Iterator<Item = EntityRow<E>>>,
-    manager: IterManager<EntityRow<E>>,
+    rows: Vec<EntityRow<E>>,
 }
 
 impl<E> LoadResult<E>
 where
-    E: Entity + 'static,
+    E: Entity,
 {
     // new
     #[must_use]
     pub fn new(
-        iter: Box<dyn Iterator<Item = EntityRow<E>>>,
+        rows: Vec<EntityRow<E>>,
         limit: Option<u32>,
         offset: u32,
         filter: Option<Filter>,
         order: Option<Order>,
     ) -> Self {
-        // sorting?
-        // if we have a specific order we need to collect and rebuild the iter
-        let iter = if let Some(order) = order {
-            let mut rows: Vec<EntityRow<E>> = iter.collect();
+        // filter
+        let rows = rows
+            .into_iter()
+            .filter(|row| match &filter {
+                Some(Filter::All(text)) => row.value.entity.filter_all(text),
+                Some(Filter::Fields(fields)) => row.value.entity.filter_fields(fields.clone()),
+                None => true,
+            })
+            .collect::<Vec<_>>();
+
+        // sort
+        let mut rows = rows;
+        if let Some(order) = order {
             let sorter = E::sort(&order);
-
             rows.sort_by(|a, b| sorter(&a.value.entity, &b.value.entity));
+        }
 
-            Box::new(rows.into_iter()) as Box<dyn Iterator<Item = EntityRow<E>>>
-        } else {
-            iter
-        };
+        // offset and limit
+        let rows = apply_offset_limit(rows, offset, limit);
 
-        // Map the optional Filter struct to an optional closure
-        let filter_closure = filter.map(|filter| {
-            Box::new(move |row: &EntityRow<E>| {
-                // Apply the captured filter criteria to each EntityRow<E>
-                match &filter {
-                    Filter::All(text) => row.value.entity.filter_all(text),
-                    Filter::Fields(fields) => row.value.entity.filter_fields(fields.clone()),
-                }
-            }) as Box<dyn Fn(&EntityRow<E>) -> bool>
-        });
-
-        // Build IterManager
-        let manager = IterManager::new(limit, offset, filter_closure);
-
-        Self { iter, manager }
+        Self { rows }
     }
 
-    // move_next
-    // Move to the next row, applying the filter
-    fn move_next(&mut self) -> Option<EntityRow<E>> {
-        self.iter
-            .by_ref()
-            .find(|row| self.manager.should_return(row))
+    // count
+    #[must_use]
+    pub fn count(self) -> usize {
+        self.rows.len()
     }
 
     // key
-    pub fn key(mut self) -> Result<DataKey, Error> {
+    #[must_use]
+    pub fn key(self) -> Option<DataKey> {
+        self.rows.first().map(|row| row.key.clone())
+    }
+
+    // try_key
+    pub fn try_key(self) -> Result<DataKey, Error> {
         let row = self
-            .move_next()
+            .rows
+            .first()
             .ok_or(LoadError::NoResultsFound)
             .map_err(QueryError::LoadError)?;
 
-        Ok(row.key)
+        Ok(row.key.clone())
     }
 
     // keys
-    pub fn keys(mut self) -> impl Iterator<Item = DataKey> {
-        iter::from_fn(move || self.move_next().map(|row| row.key))
+    #[must_use]
+    pub fn keys(self) -> Vec<DataKey> {
+        self.rows.into_iter().map(|row| row.key).collect()
     }
 
     // entity
-    pub fn entity(mut self) -> Result<E, Error> {
+    #[must_use]
+    pub fn entity(self) -> Option<E> {
+        self.rows.first().map(|row| row.value.entity.clone())
+    }
+
+    // try_entity
+    pub fn try_entity(self) -> Result<E, Error> {
         let res = self
-            .move_next()
-            .as_ref()
+            .rows
+            .first()
             .map(|row| row.value.entity.clone())
             .ok_or(LoadError::NoResultsFound)
             .map_err(QueryError::LoadError)?;
@@ -107,183 +105,105 @@ where
     }
 
     // entities
-    pub fn entities(mut self) -> impl Iterator<Item = E> {
-        iter::from_fn(move || {
-            self.move_next()
-                .as_ref()
-                .map(|row| row.value.entity.clone())
-        })
+    #[must_use]
+    pub fn entities(self) -> Vec<E> {
+        self.rows.into_iter().map(|row| row.value.entity).collect()
     }
 
     // entity_row
-    pub fn entity_row(mut self) -> Result<EntityRow<E>, Error> {
+    #[must_use]
+    pub fn entity_row(self) -> Option<EntityRow<E>> {
+        self.rows.first().cloned()
+    }
+
+    // try_entity_row
+    pub fn try_entity_row(self) -> Result<EntityRow<E>, Error> {
         let res = self
-            .move_next()
+            .rows
+            .first()
             .ok_or(LoadError::NoResultsFound)
             .map_err(LoadError::from)
             .map_err(QueryError::LoadError)?;
 
-        Ok(res)
+        Ok(res.clone())
     }
 
     // entity_rows
-    pub fn entity_rows(mut self) -> impl Iterator<Item = EntityRow<E>> {
-        iter::from_fn(move || self.move_next())
-    }
-}
-
-impl<E> Iterator for LoadResult<E>
-where
-    E: Entity + 'static,
-{
-    type Item = EntityRow<E>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.move_next()
+    #[must_use]
+    pub fn entity_rows(self) -> Vec<EntityRow<E>> {
+        self.rows
     }
 }
 
 ///
 /// LoadResultDyn
 ///
-/// complex logic is handled better with iter::from_fn and move_next()
-/// all iterator methods (for now) are consuming
+/// Complex logic is handled better with iter::from_fn and move_next().
+/// All iterator methods (for now) are consuming.
 ///
 
+#[derive(CandidType, Debug)]
 pub struct LoadResultDyn {
-    iter: Box<dyn Iterator<Item = DataRow>>,
-    manager: IterManager<DataRow>,
+    rows: Vec<DataRow>,
 }
 
 impl LoadResultDyn {
     #[must_use]
-    pub fn new(iter: Box<dyn Iterator<Item = DataRow>>, limit: Option<u32>, offset: u32) -> Self {
-        Self {
-            iter,
-            manager: IterManager::new(limit, offset, None),
-        }
+    pub fn new(rows: Vec<DataRow>, limit: Option<u32>, offset: u32) -> Self {
+        let rows = apply_offset_limit(rows, offset, limit);
+
+        Self { rows }
     }
 
-    // move_next
-    fn move_next(&mut self) -> Option<DataRow> {
-        self.iter
-            .by_ref()
-            .find(|row| self.manager.should_return(row))
-    }
-
-    // results
-    pub fn results(mut self) -> impl Iterator<Item = DataRow> {
-        iter::from_fn(move || self.move_next())
+    // count
+    #[must_use]
+    pub fn count(self) -> usize {
+        self.rows.len()
     }
 
     // key
-    pub fn key(mut self) -> Result<String, Error> {
+    #[must_use]
+    pub fn key(self) -> Option<DataKey> {
+        self.rows.first().map(|row| row.key.clone())
+    }
+
+    // try_key
+    pub fn try_key(self) -> Result<DataKey, Error> {
         let row = self
-            .move_next()
+            .rows
+            .first()
             .ok_or(LoadError::NoResultsFound)
             .map_err(QueryError::LoadError)?;
 
-        Ok(row.key.to_string())
+        Ok(row.key.clone())
     }
 
     // keys
-    pub fn keys(mut self) -> impl Iterator<Item = String> {
-        iter::from_fn(move || self.move_next().map(|row| row.key.to_string()))
+    #[must_use]
+    pub fn keys(self) -> Vec<DataKey> {
+        self.rows.into_iter().map(|row| row.key).collect()
     }
 
-    // data_row
-    pub fn data_row(mut self) -> Result<DataRow, Error> {
-        let row = self
-            .move_next()
-            .ok_or(LoadError::NoResultsFound)
-            .map_err(QueryError::LoadError)?;
-
-        Ok(row)
-    }
-
-    // data_rows
-    pub fn data_rows(mut self) -> impl Iterator<Item = DataRow> {
-        iter::from_fn(move || self.move_next().map(Into::into))
-    }
-
-    // blob
-    pub fn blob(mut self) -> Result<Vec<u8>, Error> {
-        let blob = self
-            .iter
+    // try_blob
+    pub fn try_blob(self) -> Result<Vec<u8>, Error> {
+        self.rows
+            .into_iter()
             .next()
             .map(|row| row.value.data)
-            .ok_or(LoadError::NoResultsFound)
-            .map_err(QueryError::LoadError)?;
-
-        Ok(blob)
+            .ok_or_else(|| QueryError::LoadError(LoadError::NoResultsFound).into())
     }
 
     // blobs
-    pub fn blobs(mut self) -> impl Iterator<Item = Vec<u8>> {
-        iter::from_fn(move || self.move_next().map(|row| row.value.data))
-    }
-
-    // response
     #[must_use]
-    pub fn response(self) -> LoadResponse {
-        LoadResponse::Rows(self.collect())
+    pub fn blobs(self) -> Vec<Vec<u8>> {
+        self.rows.into_iter().map(|row| row.value.data).collect()
     }
 }
 
-impl Iterator for LoadResultDyn {
-    type Item = DataRow;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.move_next()
-    }
-}
-
-///
-/// IterManager
-///
-
-struct IterManager<T> {
-    limit: Option<u32>,
-    offset: u32,
-    filter: Option<IterFilter<T>>,
-    rows_offset: u32,
-    rows_processed: u32,
-}
-
-impl<T> IterManager<T> {
-    pub const fn new(limit: Option<u32>, offset: u32, filter: Option<IterFilter<T>>) -> Self {
-        Self {
-            limit,
-            offset,
-            filter,
-            rows_offset: 0,
-            rows_processed: 0,
-        }
-    }
-
-    pub fn should_return(&mut self, item: &T) -> bool {
-        // First, check if the item passes the filter (if any filter is set)
-        // Skip the item if it doesn't pass the filter
-        if let Some(ref filter) = self.filter {
-            if !filter(item) {
-                return false;
-            }
-        }
-
-        // Apply offset: skip processing for a number of rows equal to the offset
-        if self.rows_offset < self.offset {
-            self.rows_offset += 1;
-            return false;
-        }
-
-        // Apply limit: only process up to the limit of items after the offset
-        if self.limit.is_some_and(|lim| self.rows_processed >= lim) {
-            return false;
-        }
-
-        // If the item passes the filter and is within the offset and limit
-        self.rows_processed += 1;
-
-        true
-    }
+// apply_offset_limit
+fn apply_offset_limit<T>(rows: Vec<T>, offset: u32, limit: Option<u32>) -> Vec<T> {
+    rows.into_iter()
+        .skip(offset as usize)
+        .take(limit.unwrap_or(u32::MAX) as usize)
+        .collect()
 }

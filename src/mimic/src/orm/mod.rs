@@ -24,7 +24,7 @@ pub mod prelude {
         utils::case::{Case, Casing},
     };
     pub use ::candid::CandidType;
-    pub use ::mimic_builder::*;
+    pub use ::mimic_design::*;
     pub use ::serde::{Deserialize, Serialize};
     pub use ::std::{cmp::Ordering, collections::HashSet, fmt::Display};
 }

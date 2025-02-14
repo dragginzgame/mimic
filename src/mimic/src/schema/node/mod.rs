@@ -48,7 +48,26 @@ use crate::{
     schema::visit::{Event, Visitor},
     types::ErrorVec,
 };
+use candid::CandidType;
+use serde::{Deserialize, Serialize};
 use std::any::Any;
+use thiserror::Error as ThisError;
+
+///
+/// NodeError
+///
+
+#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+pub enum NodeError {
+    #[error("error downcasting schema node: {0}")]
+    DowncastFail(String),
+
+    #[error("{0} is an incorrect node type")]
+    IncorrectNodeType(String),
+
+    #[error("path not found: {0}")]
+    PathNotFound(String),
+}
 
 ///
 /// NODE TRAITS

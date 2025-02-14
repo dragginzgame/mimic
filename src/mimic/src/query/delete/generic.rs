@@ -1,10 +1,10 @@
 use crate::{
+    db::{types::DataKey, StoreLocal},
     orm::traits::Entity,
     query::{
         delete::{DeleteError, DeleteResponse},
         DebugContext, QueryError, Resolver,
     },
-    store::{types::DataKey, StoreLocal},
     Error,
 };
 use candid::CandidType;
@@ -130,7 +130,9 @@ where
 
         for key in &self.query.keys {
             // If successful, push the key to results
-            let res = self.execute_one(store, key)?;
+            let res = self
+                .execute_one(store, key)
+                .map_err(QueryError::DeleteError)?;
 
             results.push(res);
         }
@@ -143,19 +145,19 @@ where
     }
 
     // execute_one
-    fn execute_one(&self, store: StoreLocal, ck: &[String]) -> Result<DataKey, Error> {
+    fn execute_one(&self, store: StoreLocal, ck: &[String]) -> Result<DataKey, DeleteError> {
         let key = self
             .resolver
             .data_key(ck)
-            .map_err(DeleteError::ResolverError)
-            .map_err(QueryError::DeleteError)?;
+            .map_err(DeleteError::ResolverError)?;
 
         // Attempt to remove the item from the store
         store.with_borrow_mut(|store| {
             store
                 .remove(&key)
-                .ok_or_else(|| DeleteError::KeyNotFound(key.clone()))
-                .map_err(QueryError::DeleteError)
+                .ok_or_else(|| DeleteError::KeyNotFound(key.clone()))?;
+
+            Ok::<_, DeleteError>(())
         })?;
 
         Ok(key)

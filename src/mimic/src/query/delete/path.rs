@@ -1,9 +1,9 @@
 use crate::{
+    db::{types::DataKey, StoreLocal},
     query::{
         delete::{DeleteError, DeleteResponse},
         DebugContext, QueryError, Resolver,
     },
-    store::{types::DataKey, StoreLocal},
     Error,
 };
 use candid::CandidType;
@@ -129,6 +129,7 @@ impl DeleteExecutorPath {
         Ok(DeleteResponse::new(results))
     }
 
+    // execute_one
     fn execute_one(&self, store: StoreLocal, key: &[String]) -> Result<DataKey, Error> {
         // Attempt to remove the item from the store
         let data_key = self
@@ -142,7 +143,9 @@ impl DeleteExecutorPath {
             if store.remove(&data_key).is_none() {
                 crate::ic::println!("key {data_key:?} not found");
             }
-        });
+
+            Ok::<_, Error>(())
+        })?;
 
         Ok(data_key)
     }

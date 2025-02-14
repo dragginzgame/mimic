@@ -8,13 +8,13 @@ use crate::{
         SchemaError,
     },
     types::ErrorTree,
-    Error, ThisError,
+    Error as MimicError, ThisError,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashSet,
-    sync::{LazyLock, RwLock, RwLockReadGuard, RwLockWriteGuard},
+    sync::{LazyLock, OnceLock, RwLock, RwLockReadGuard, RwLockWriteGuard},
 };
 
 ///
@@ -23,9 +23,6 @@ use std::{
 
 #[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum BuildError {
-    #[error("serde json error: {0}")]
-    SerdeJson(String),
-
     #[error("validation failed: {0}")]
     Validation(ErrorTree),
 }
@@ -74,7 +71,7 @@ pub fn schema_builder() -> RwLockReadGuard<'static, Builder> {
 
 static SCHEMA: LazyLock<RwLock<Schema>> = LazyLock::new(|| RwLock::new(Schema::new()));
 
-static VALIDATION_DONE: LazyLock<RwLock<bool>> = LazyLock::new(|| RwLock::new(false));
+static SCHEMA_VALIDATED: OnceLock<bool> = OnceLock::new();
 
 // schema_write
 pub fn schema_write() -> RwLockWriteGuard<'static, Schema> {
@@ -87,39 +84,29 @@ pub(crate) fn schema_read() -> RwLockReadGuard<'static, Schema> {
     SCHEMA.read().unwrap()
 }
 
-/// get_schema
-pub(crate) fn get_schema() -> Result<RwLockReadGuard<'static, Schema>, BuildError> {
+// get_schema
+// validate will only be done once
+pub fn get_schema() -> Result<RwLockReadGuard<'static, Schema>, MimicError> {
     let schema = schema_read();
-
-    // Check if validation has already been done
-    let mut validation_done = VALIDATION_DONE.write().unwrap();
-    if !*validation_done {
-        validate(&schema).map_err(BuildError::Validation)?;
-
-        *validation_done = true;
-    }
+    validate(&schema)
+        .map_err(BuildError::Validation)
+        .map_err(SchemaError::BuildError)?;
 
     Ok(schema)
 }
 
-// get_schema_json
-// to get the built schema via an executable
-pub fn get_schema_json() -> Result<String, Error> {
-    let schema = get_schema().map_err(SchemaError::BuildError)?;
-    let json = serde_json::to_string(&*schema)
-        .map_err(|e| BuildError::SerdeJson(e.to_string()))
-        .map_err(SchemaError::BuildError)?;
-
-    Ok(json)
-}
-
 // validate
 fn validate(schema: &Schema) -> Result<(), ErrorTree> {
+    if *SCHEMA_VALIDATED.get_or_init(|| false) {
+        return Ok(());
+    }
+
+    // validate
     let mut visitor = Validator::new();
     schema.accept(&mut visitor);
-
-    // errors?
     visitor.errors().result()?;
+
+    SCHEMA_VALIDATED.set(true).ok();
 
     Ok(())
 }

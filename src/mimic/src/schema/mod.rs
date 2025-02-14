@@ -3,8 +3,10 @@ pub mod node;
 pub mod state;
 pub mod visit;
 
+pub use build::get_schema;
+
 use crate::{
-    schema::{build::BuildError, state::StateError},
+    schema::{build::BuildError, node::NodeError, state::StateError},
     ThisError,
 };
 use candid::CandidType;
@@ -16,17 +18,11 @@ use serde::{Deserialize, Serialize};
 
 #[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum SchemaError {
-    #[error("error downcasting schema node: {0}")]
-    DowncastFail(String),
-
-    #[error("{0} is an incorrect node type")]
-    IncorrectNodeType(String),
-
-    #[error("path not found: {0}")]
-    PathNotFound(String),
-
     #[error(transparent)]
     BuildError(#[from] BuildError),
+
+    #[error(transparent)]
+    NodeError(#[from] NodeError),
 
     #[error(transparent)]
     StateError(#[from] StateError),

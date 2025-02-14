@@ -1,11 +1,11 @@
 use crate::{
+    db::{store::StoreLocal, types::EntityRow},
     orm::traits::Entity,
     query::{
         load::{LoadError, LoadMethod, LoadResult, Loader},
         types::{Filter, Order},
         DebugContext, QueryError, Resolver,
     },
-    store::{types::EntityRow, StoreLocal},
     Error,
 };
 use candid::CandidType;
@@ -104,7 +104,7 @@ where
 #[derive(CandidType, Debug, Default, Serialize)]
 pub struct LoadQuery<E>
 where
-    E: Entity + 'static,
+    E: Entity,
 {
     method: LoadMethod,
     offset: u32,
@@ -117,7 +117,7 @@ where
 
 impl<E> LoadQuery<E>
 where
-    E: Entity + Default + 'static,
+    E: Entity,
 {
     // new
     #[must_use]
@@ -219,7 +219,7 @@ where
 
 pub struct LoadExecutor<E>
 where
-    E: Entity + 'static,
+    E: Entity,
 {
     query: LoadQuery<E>,
     resolver: Resolver,
@@ -227,7 +227,7 @@ where
 
 impl<E> LoadExecutor<E>
 where
-    E: Entity + 'static,
+    E: Entity,
 {
     // new
     #[must_use]
@@ -243,20 +243,19 @@ where
     // also make sure we're deserializing the correct entity path
     pub fn execute(self, store: StoreLocal) -> Result<LoadResult<E>, Error> {
         // loader
-        let loader = Loader::new(store, &self.resolver);
+        let loader = Loader::new(store, self.resolver);
         let res = loader.load(&self.query.method)?;
 
-        let filtered = res
+        let rows = res
+            .into_iter()
             .filter(|row| row.value.path == E::path())
             .map(TryFrom::try_from)
             .collect::<Result<Vec<EntityRow<E>>, _>>()
             .map_err(LoadError::SerializeError)
             .map_err(QueryError::LoadError)?;
 
-        let boxed_iter = Box::new(filtered.into_iter()) as Box<dyn Iterator<Item = EntityRow<E>>>;
-
         Ok(LoadResult::new(
-            boxed_iter,
+            rows,
             self.query.limit,
             self.query.offset,
             self.query.filter,

@@ -1,9 +1,9 @@
 use crate::{
+    db::StoreLocal,
     query::{
         load::{Error, LoadMethod, LoadResultDyn, Loader},
         DebugContext, Resolver,
     },
-    store::{types::DataRow, StoreLocal},
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -176,13 +176,11 @@ impl LoadExecutorPath {
     // execute
     pub fn execute(self, store: StoreLocal) -> Result<LoadResultDyn, Error> {
         // loader
-        let loader = Loader::new(store, &self.resolver);
-        let res = loader.load(&self.query.method)?;
-
-        let boxed_iter = Box::new(res.into_iter()) as Box<dyn Iterator<Item = DataRow>>;
+        let loader = Loader::new(store, self.resolver);
+        let rows = loader.load(&self.query.method)?;
 
         Ok(LoadResultDyn::new(
-            boxed_iter,
+            rows,
             self.query.limit,
             self.query.offset,
         ))

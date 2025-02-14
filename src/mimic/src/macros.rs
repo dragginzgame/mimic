@@ -2,47 +2,14 @@
 /// MACROS
 ///
 
-// mimic_build
-// for the various build.rs files
-#[macro_export]
-macro_rules! mimic_build {
-    ($actor:expr) => {
-        use std::{fs::File, io::Write, path::PathBuf};
-
-        //
-        // cargo directives
-        //
-
-        // Retrieve the target triple from the environment
-        let target = std::env::var("TARGET").unwrap();
-
-        // all
-        println!("cargo:rerun-if-changed=build.rs");
-
-        // macOS linker
-        if target.contains("apple") {
-            println!("cargo:rustc-link-arg=-Wl,-all_load");
-            println!("cargo:rustc-flags=-C opt-level=0");
-        }
-
-        // Get the output directory set by Cargo
-        let out_dir = ::std::env::var("OUT_DIR").expect("OUT_DIR not set");
-
-        // build schema
-        let output = ::mimic::schema::build::get_schema_json().unwrap();
-
-        // write schema
-        let schema_file = PathBuf::from(out_dir).join("schema.rs");
-        let mut file = File::create(schema_file)?;
-        file.write_all(output.as_bytes())?;
-    };
-}
-
 // mimic_start
 // macro to be included at the start of each canister lib.rs file
 #[macro_export]
 macro_rules! mimic_start {
     ($config:expr) => {
+        // actor.rs
+        include!(concat!(env!("OUT_DIR"), "/actor.rs"));
+
         // mimic_init
         fn mimic_init() {
             // schema
