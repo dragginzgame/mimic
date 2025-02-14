@@ -58,6 +58,20 @@ pub struct RgbHex {}
 #[newtype(
     primitive = "String",
     value(item(is = "types::text::Text<8>"), default = "FFFFFFFF"),
-    ty(validator(path = "validator::color::RgbaHex"))
+    ty(validator(path = "validator::color::RgbaHex")),
+    traits(remove(From))
 )]
 pub struct RgbaHex {}
+
+impl From<&str> for RgbaHex {
+    fn from(s: &str) -> Self {
+        // If the input is 6 characters, append "FF" for full alpha
+        let hex = if s.len() == 6 {
+            format!("{s}FF")
+        } else {
+            s.to_owned()
+        };
+
+        Self(hex.into())
+    }
+}
