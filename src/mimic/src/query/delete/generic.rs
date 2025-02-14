@@ -2,7 +2,7 @@ use crate::{
     db::{types::DataKey, StoreLocal},
     orm::traits::Entity,
     query::{
-        delete::{DeleteError, DeleteResponse},
+        delete::{DeleteError, DeleteResult},
         DebugContext, QueryError, Resolver,
     },
     Error,
@@ -92,7 +92,7 @@ where
     }
 
     // execute
-    pub fn execute(self, store: StoreLocal) -> Result<DeleteResponse, Error> {
+    pub fn execute(self, store: StoreLocal) -> Result<DeleteResult, Error> {
         let executor = DeleteExecutor::new(self);
 
         executor.execute(store)
@@ -124,7 +124,7 @@ where
     }
 
     // execute
-    pub fn execute(&self, store: StoreLocal) -> Result<DeleteResponse, Error> {
+    pub fn execute(&self, store: StoreLocal) -> Result<DeleteResult, Error> {
         let mut keys_deleted = Vec::new();
         crate::ic::println!("delete: keys {:?}", &self.query.keys);
 
@@ -141,7 +141,7 @@ where
             .debug
             .println(&format!("deleted keys {keys_deleted:?}"));
 
-        Ok(DeleteResponse::Keys(keys_deleted))
+        Ok(DeleteResult::new(keys_deleted))
     }
 
     // execute_one

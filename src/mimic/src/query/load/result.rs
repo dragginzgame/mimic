@@ -8,7 +8,6 @@ use crate::{
     },
     Error,
 };
-use candid::CandidType;
 
 ///
 /// LoadResult
@@ -142,7 +141,7 @@ where
 /// All iterator methods (for now) are consuming.
 ///
 
-#[derive(CandidType, Debug)]
+#[derive(Debug)]
 pub struct LoadResultDyn {
     rows: Vec<DataRow>,
 }

@@ -39,6 +39,26 @@ pub struct DeleteRequest {
 }
 
 ///
+/// DeleteResult
+///
+
+pub struct DeleteResult {
+    pub keys: Vec<DataKey>,
+}
+
+impl DeleteResult {
+    #[must_use]
+    pub const fn new(keys: Vec<DataKey>) -> Self {
+        Self { keys }
+    }
+
+    #[must_use]
+    pub fn response(self) -> DeleteResponse {
+        DeleteResponse::Keys(self.keys)
+    }
+}
+
+///
 /// DeleteResponse
 ///
 /// keys : all the keys that have successfully been deleted

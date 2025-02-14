@@ -1,7 +1,7 @@
 use crate::{
     db::{types::DataKey, StoreLocal},
     query::{
-        delete::{DeleteError, DeleteResponse},
+        delete::{DeleteError, DeleteResult},
         DebugContext, QueryError, Resolver,
     },
     Error,
@@ -85,7 +85,7 @@ impl DeleteQueryPath {
     }
 
     // execute
-    pub fn execute(self, store: StoreLocal) -> Result<DeleteResponse, Error> {
+    pub fn execute(self, store: StoreLocal) -> Result<DeleteResult, Error> {
         let executor = DeleteExecutorPath::new(self);
 
         executor.execute(store)
@@ -111,7 +111,7 @@ impl DeleteExecutorPath {
     }
 
     // execute
-    pub fn execute(&self, store: StoreLocal) -> Result<DeleteResponse, Error> {
+    pub fn execute(&self, store: StoreLocal) -> Result<DeleteResult, Error> {
         let mut keys_deleted = Vec::new();
         crate::ic::println!("delete: keys {:?}", &self.query.keys);
 
@@ -126,7 +126,9 @@ impl DeleteExecutorPath {
             .debug
             .println(&format!("deleted keys {keys_deleted:?}"));
 
-        Ok(DeleteResponse::Keys(keys_deleted))
+        let res = DeleteResult::new(keys_deleted);
+
+        Ok(res)
     }
 
     // execute_one
