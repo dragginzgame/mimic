@@ -161,6 +161,18 @@ impl LoadResultDyn {
         self.rows.len()
     }
 
+    // data_row
+    #[must_use]
+    pub fn data_row(self) -> Option<DataRow> {
+        self.rows.first().cloned()
+    }
+
+    // data_rows
+    #[must_use]
+    pub fn data_rows(self) -> Vec<DataRow> {
+        self.rows
+    }
+
     // key
     #[must_use]
     pub fn key(self) -> Option<DataKey> {
