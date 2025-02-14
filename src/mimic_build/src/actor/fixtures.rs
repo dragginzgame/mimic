@@ -73,8 +73,6 @@ pub fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
         #[allow(clippy::too_many_lines)]
         #[allow(clippy::missing_const_for_fn)]
         pub fn fixtures_replace_all() -> Result<(), ::mimic::Error> {
-            use ::mimic::orm::traits::EntityFixture;
-
             #inner
         }
     }
