@@ -28,7 +28,7 @@ pub fn fixtures(builder: &mut ActorBuilder) {
                 let store = DB.with(|db| db.try_get_store(&entity.store_dyn()))?;
 
                 ::mimic::query::replace_dyn()
-                    .debug()
+     //               .debug()
                     .from_entity_dyn(entity)
                     .execute(store)?;
             }
