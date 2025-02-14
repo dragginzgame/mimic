@@ -3,6 +3,7 @@ pub mod types;
 
 pub use store::{Store, StoreLocal};
 
+use crate::Error;
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use std::{cell::RefCell, collections::HashMap, thread::LocalKey};
@@ -41,9 +42,10 @@ impl Db {
     }
 
     // try_get_store
-    pub fn try_get_store(&self, path: &str) -> Result<StoreLocal, DbError> {
+    pub fn try_get_store(&self, path: &str) -> Result<StoreLocal, Error> {
         self.get_store(path)
             .ok_or_else(|| DbError::StoreNotFound(path.to_string()))
+            .map_err(Error::DbError)
     }
 
     // insert_store
@@ -56,7 +58,7 @@ impl Db {
     }
 
     // with_store
-    pub fn with_store<F, R>(&self, path: &str, f: F) -> Result<R, DbError>
+    pub fn with_store<F, R>(&self, path: &str, f: F) -> Result<R, Error>
     where
         F: FnOnce(&Store) -> R,
     {
@@ -66,7 +68,7 @@ impl Db {
     }
 
     // with_store_mut
-    pub fn with_store_mut<F, R>(&self, path: &str, f: F) -> Result<R, DbError>
+    pub fn with_store_mut<F, R>(&self, path: &str, f: F) -> Result<R, Error>
     where
         F: FnOnce(&mut Store) -> R,
     {
