@@ -19,6 +19,9 @@ macro_rules! mimic_start {
             // config
             let toml = include_str!($config);
             ::mimic::config::init_config_toml(toml).unwrap();
+
+            // fixtures
+            init_fixtures().unwrap();
         }
     };
 }
