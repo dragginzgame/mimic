@@ -78,7 +78,7 @@ fn composite_key(node: &Entity) -> TokenStream {
 
 // entity_dyn
 pub fn entity_dyn(node: &Entity, t: Trait) -> TokenStream {
-    let mut q = quote! {};
+    let mut q = quote!();
 
     q.extend(composite_key_dyn(node));
     q.extend(serialize_dyn(node));
