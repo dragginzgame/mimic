@@ -10,10 +10,12 @@ pub use delete::{
 };
 pub use load::{
     LoadBuilder, LoadBuilderPath, LoadError, LoadExecutor, LoadExecutorPath, LoadQuery,
-    LoadQueryPath, LoadResult, LoadResultDyn,
+    LoadQueryPath, LoadResponse, LoadResult, LoadResultDyn,
 };
 pub use resolver::{Resolver, ResolverError};
-pub use save::{SaveBuilder, SaveBuilderDyn, SaveError, SaveMode, SaveQuery, SaveQueryDyn};
+pub use save::{
+    SaveBuilder, SaveBuilderDyn, SaveError, SaveMode, SaveQuery, SaveQueryDyn, SaveResponse,
+};
 pub use types::*;
 
 use crate::{orm::traits::Entity, ThisError};
