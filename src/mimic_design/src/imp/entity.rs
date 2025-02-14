@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_one, to_string},
+    helper::{quote_one, to_path},
     imp::Implementor,
     node::{Entity, Trait},
 };
@@ -113,7 +113,7 @@ fn serialize_dyn(_: &Entity) -> TokenStream {
 }
 
 fn store_dyn(node: &Entity) -> TokenStream {
-    let store = quote_one(&node.store, to_string);
+    let store = quote_one(&node.store, to_path);
 
     quote! {
         fn store_dyn(&self) -> String {
