@@ -12,10 +12,7 @@ use crate::{
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
-use std::{
-    collections::HashSet,
-    sync::{LazyLock, OnceLock, RwLock, RwLockReadGuard, RwLockWriteGuard},
-};
+use std::sync::{LazyLock, OnceLock, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 ///
 /// BuildError
@@ -25,43 +22,6 @@ use std::{
 pub enum BuildError {
     #[error("validation failed: {0}")]
     Validation(ErrorTree),
-}
-
-///
-/// Builder
-/// hooks that can be registered in advance of building
-///
-
-pub struct Builder {
-    pub reserved_prefixes: HashSet<&'static str>,
-    pub reserved_words: HashSet<&'static str>,
-}
-
-impl Builder {
-    pub fn add_reserved_prefixes(prefixes: &[&'static str]) {
-        let mut builder = BUILDER.write().unwrap();
-
-        builder.reserved_prefixes.extend(prefixes);
-    }
-
-    pub fn add_reserved_words(words: &[&'static str]) {
-        let mut builder = BUILDER.write().unwrap();
-
-        builder.reserved_words.extend(words);
-    }
-}
-
-static BUILDER: LazyLock<RwLock<Builder>> = LazyLock::new(|| {
-    RwLock::new(Builder {
-        reserved_prefixes: HashSet::new(),
-        reserved_words: reserved::WORDS.clone(),
-    })
-});
-
-// schema_builder
-// To interact with the singleton builder
-pub fn schema_builder() -> RwLockReadGuard<'static, Builder> {
-    BUILDER.read().unwrap()
 }
 
 ///

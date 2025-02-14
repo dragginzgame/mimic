@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.3.3]
+- removed the iterator from the load query, it's not really needed and makes the code super complex
+- moved the build code into a new mimic_build crate
+
 ## [0.3.2]
 - query::load<E> now replaced with Query::<E>::load() so I can have a map of string -> Type
 

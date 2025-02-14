@@ -1,4 +1,4 @@
-use crate::schema::build::schema_builder;
+use crate::schema::build::reserved::WORDS;
 
 // validate_ident
 pub fn validate_ident(ident: &str) -> Result<(), String> {
@@ -14,26 +14,9 @@ pub fn validate_ident(ident: &str) -> Result<(), String> {
 
 // is_reserved
 pub fn is_reserved(word: &str) -> Result<(), String> {
-    if has_reserved_prefix(word) {
-        return Err(format!("the word '{word}' has a reserved prefix"));
-    }
-
-    if is_reserved_word(word) {
+    if WORDS.contains(word) {
         return Err(format!("the word '{word}' is reserved"));
     }
 
     Ok(())
-}
-
-// has_reserved_prefix
-fn has_reserved_prefix(s: &str) -> bool {
-    schema_builder()
-        .reserved_prefixes
-        .iter()
-        .any(|&prefix| s.starts_with(prefix))
-}
-
-// is_reserved_word
-fn is_reserved_word(s: &str) -> bool {
-    schema_builder().reserved_words.contains(s)
 }
