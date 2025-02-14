@@ -7,7 +7,7 @@ pub use path::{DeleteBuilderPath, DeleteExecutorPath, DeleteQueryPath};
 use crate::{
     db::{types::DataKey, DbError},
     query::resolver::ResolverError,
-    Error, ThisError,
+    ThisError,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -45,18 +45,6 @@ pub struct DeleteRequest {
 ///
 
 #[derive(CandidType, Debug, Serialize, Deserialize)]
-pub struct DeleteResponse {
-    keys: Vec<DataKey>,
-}
-
-impl DeleteResponse {
-    // new
-    const fn new(keys: Vec<DataKey>) -> Self {
-        Self { keys }
-    }
-
-    // keys
-    pub fn keys(self) -> Result<Vec<DataKey>, Error> {
-        Ok(self.keys)
-    }
+pub enum DeleteResponse {
+    Keys(Vec<DataKey>),
 }

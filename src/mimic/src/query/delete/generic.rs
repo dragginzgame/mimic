@@ -125,7 +125,7 @@ where
 
     // execute
     pub fn execute(&self, store: StoreLocal) -> Result<DeleteResponse, Error> {
-        let mut results = Vec::new();
+        let mut keys_deleted = Vec::new();
         crate::ic::println!("delete: keys {:?}", &self.query.keys);
 
         for key in &self.query.keys {
@@ -134,14 +134,14 @@ where
                 .execute_one(store, key)
                 .map_err(QueryError::DeleteError)?;
 
-            results.push(res);
+            keys_deleted.push(res);
         }
 
         self.query
             .debug
-            .println(&format!("deleted keys {results:?}"));
+            .println(&format!("deleted keys {keys_deleted:?}"));
 
-        Ok(DeleteResponse::new(results))
+        Ok(DeleteResponse::Keys(keys_deleted))
     }
 
     // execute_one
