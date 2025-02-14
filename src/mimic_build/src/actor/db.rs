@@ -28,7 +28,7 @@ fn stores(builder: &mut ActorBuilder) {
 
         // Prepare insertions into the Db
         db_inserts.extend(quote! {
-            db.insert(#store_path, &#cell_ident);
+            db.insert_store(#store_path, &#cell_ident);
         });
     }
 

@@ -20,7 +20,7 @@ use thiserror::Error as ThisError;
 
 #[derive(Debug, Serialize, Deserialize, ThisError)]
 pub enum ActorError {
-    #[error("canister '{0}' not found")]
+    #[error("canister path not found: {0}")]
     CanisterNotFound(String),
 
     #[error(transparent)]
@@ -28,15 +28,14 @@ pub enum ActorError {
 }
 
 // generate
-pub fn generate(canister_name: &str) -> Result<String, Error> {
+pub fn generate(canister_path: &str) -> Result<String, Error> {
     // load schema and get the specified canister
     let schema = mimic::schema::get_schema().map_err(ActorError::MimicError)?;
 
     // filter by name
-    let mut canisters = schema.filter_nodes::<Canister, _>(|node| node.name == canister_name);
-    let Some((_, canister)) = canisters.next() else {
-        return Err(ActorError::CanisterNotFound(canister_name.to_string()))?;
-    };
+    let canister = schema
+        .try_get_node_as::<Canister>(canister_path)
+        .map_err(|_| ActorError::CanisterNotFound(canister_path.to_string()))?;
 
     // create the ActorBuilder and generate the code
     let code = ActorBuilder::new(canister.clone());

@@ -17,7 +17,7 @@ pub const fn init() {}
 /// Canister
 ///
 
-#[canister(name = "test")]
+#[canister]
 pub struct Canister {}
 
 ///

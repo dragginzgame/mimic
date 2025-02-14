@@ -34,8 +34,24 @@ impl Db {
         Self::default()
     }
 
-    // insert
-    pub fn insert(&mut self, name: &'static str, accessor: &'static LocalKey<RefCell<Store>>) {
+    // get_store
+    #[must_use]
+    pub fn get_store(&self, path: &str) -> Option<StoreLocal> {
+        self.stores.get(path).copied()
+    }
+
+    // try_get_store
+    pub fn try_get_store(&self, path: &str) -> Result<StoreLocal, DbError> {
+        self.get_store(path)
+            .ok_or_else(|| DbError::StoreNotFound(path.to_string()))
+    }
+
+    // insert_store
+    pub fn insert_store(
+        &mut self,
+        name: &'static str,
+        accessor: &'static LocalKey<RefCell<Store>>,
+    ) {
         self.stores.insert(name, accessor);
     }
 
@@ -44,10 +60,7 @@ impl Db {
     where
         F: FnOnce(&Store) -> R,
     {
-        let store = self
-            .stores
-            .get(path)
-            .ok_or_else(|| DbError::StoreNotFound(path.to_string()))?;
+        let store = self.try_get_store(path)?;
 
         Ok(store.with_borrow(|store| f(store)))
     }
@@ -57,10 +70,7 @@ impl Db {
     where
         F: FnOnce(&mut Store) -> R,
     {
-        let store = self
-            .stores
-            .get(path)
-            .ok_or_else(|| DbError::StoreNotFound(path.to_string()))?;
+        let store = self.try_get_store(path)?;
 
         Ok(store.with_borrow_mut(|store| f(store)))
     }
