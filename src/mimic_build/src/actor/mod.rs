@@ -73,8 +73,11 @@ impl ActorBuilder {
     // expand
     #[must_use]
     pub fn expand(mut self) -> TokenStream {
-        // all get these
-        //   fixtures::extend(&mut self);
+        //
+        // shared between all crates
+        //
+
+        fixtures::extend(&mut self);
         db::extend(&mut self);
 
         //

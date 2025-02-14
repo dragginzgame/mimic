@@ -5,52 +5,34 @@ use syn::{parse_str, Path};
 
 // extend
 pub fn extend(builder: &mut ActorBuilder) {
-    fixture_actor(builder);
-    fixture_module(builder);
+    fixtures(builder);
 }
 
-// fixture_actor
-pub fn fixture_actor(builder: &mut ActorBuilder) {
-    let q = quote! {
-
-        // fixtures_replace_all
-        #[::mimic::ic::update]
-        async fn fixtures_replace_all() -> Result<(), ::mimic::api::Error> {
-            allow_any(vec![Auth::Controller]).await?;
-
-            actorgen::fixtures_replace_all()?;
-
-            Ok(())
-        }
-    };
-
-    builder.extend(q);
-}
-
-// fixture_module
-pub fn fixture_module(builder: &mut ActorBuilder) {
+// fixtures
+pub fn fixtures(builder: &mut ActorBuilder) {
     let fixtures_replace_all = fixtures_replace_all(builder);
 
     let q = quote! {
 
         // init_fixtures
-        pub fn init_fixtures() -> Result<(), ::mimic::api::Error> {
+        pub fn init_fixtures() -> Result<(), ::mimic::Error> {
             fixtures_replace_all()
         }
 
         // fixtures_replace_helper
         #[allow(dead_code)]
         fn fixtures_replace_helper(
-            fixtures: Vec<Box<dyn ::mimic::orm::traits::EntityDyn>>,
-        ) -> Result<(), ::mimic::api::Error> {
-            DB.with(|db| {
-                ::mimic::db::query::replace()
-          //          .debug()
-                    .from_entities_dynamic(fixtures)
-                    .execute(db)?;
+            fixtures: ::mimic::types::FixtureList,
+        ) -> Result<(), ::mimic::Error> {
+            for entity in fixtures {
+                let store = DB.with(|db| db.try_get_store(&entity.path_dyn()))?;
 
-                Ok(())
-            })
+                ::mimic::query::replace_dyn()
+                    .from_entity_dyn(entity)
+                    .execute(store)?;
+            }
+
+            Ok(())
         }
 
         // fixtures_replace_all
@@ -90,7 +72,9 @@ pub fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
     quote! {
         #[allow(clippy::too_many_lines)]
         #[allow(clippy::missing_const_for_fn)]
-        pub fn fixtures_replace_all() -> Result<(), ::mimic::api::Error> {
+        pub fn fixtures_replace_all() -> Result<(), ::mimic::Error> {
+            use ::mimic::orm::traits::EntityFixture;
+
             #inner
         }
     }
