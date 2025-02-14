@@ -25,7 +25,7 @@ pub fn fixtures(builder: &mut ActorBuilder) {
             fixtures: ::mimic::types::FixtureList,
         ) -> Result<(), ::mimic::Error> {
             for entity in fixtures {
-                let store = DB.with(|db| db.try_get_store(&entity.path_dyn()))?;
+                let store = DB.with(|db| db.try_get_store(&entity.store_dyn()))?;
 
                 ::mimic::query::replace_dyn()
                     .debug()
