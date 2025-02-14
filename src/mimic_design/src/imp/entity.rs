@@ -1,4 +1,5 @@
 use crate::{
+    helper::{quote_one, to_string},
     imp::Implementor,
     node::{Entity, Trait},
 };
@@ -81,6 +82,7 @@ pub fn entity_dyn(node: &Entity, t: Trait) -> TokenStream {
 
     q.extend(composite_key_dyn(node));
     q.extend(serialize_dyn(node));
+    q.extend(store_dyn(node));
 
     Implementor::new(&node.def, t)
         .set_tokens(q)
@@ -106,6 +108,16 @@ fn serialize_dyn(_: &Entity) -> TokenStream {
     quote! {
         fn serialize_dyn(&self) -> Result<Vec<u8>, ::mimic::orm::OrmError> {
             ::mimic::orm::serialize(&self)
+        }
+    }
+}
+
+fn store_dyn(node: &Entity) -> TokenStream {
+    let store = quote_one(&node.store, to_string);
+
+    quote! {
+        fn store_dyn(&self) -> String {
+            #store
         }
     }
 }

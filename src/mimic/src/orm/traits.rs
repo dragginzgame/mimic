@@ -373,6 +373,10 @@ pub trait EntityDyn: TypeDyn + Visitable {
     // serialize_dyn
     // entities need dynamic serialization when saving different types
     fn serialize_dyn(&self) -> Result<Vec<u8>, OrmError>;
+
+    // store_dyn
+    // returns the path of the store
+    fn store_dyn(&self) -> String;
 }
 
 ///
