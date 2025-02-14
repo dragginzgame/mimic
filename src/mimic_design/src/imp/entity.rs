@@ -1,5 +1,7 @@
-use super::Implementor;
-use crate::node::{Entity, Trait};
+use crate::{
+    imp::Implementor,
+    node::{Entity, Trait},
+};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use syn::Ident;
