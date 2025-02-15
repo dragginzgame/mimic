@@ -12,6 +12,39 @@ use serde::Serialize;
 use std::{fmt::Display, marker::PhantomData};
 
 ///
+/// DeleteBuilder
+///
+
+#[derive(Default)]
+pub struct DeleteBuilder<E>
+where
+    E: Entity,
+{
+    phantom: PhantomData<E>,
+}
+
+impl<E> DeleteBuilder<E>
+where
+    E: Entity,
+{
+    // new
+    #[must_use]
+    pub fn new() -> Self {
+        Self {
+            phantom: PhantomData,
+        }
+    }
+
+    // one
+    pub fn one<T: Display>(self, ck: &[T]) -> DeleteQuery<E> {
+        let key = ck.iter().map(ToString::to_string).collect();
+        let keys = vec![key];
+
+        DeleteQuery::new(&keys)
+    }
+}
+
+///
 /// DeleteQuery
 ///
 /// results : all the keys that have successfully been deleted
@@ -33,8 +66,11 @@ where
 {
     // new
     #[must_use]
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(keys: &[Vec<String>]) -> Self {
+        Self {
+            keys: keys.to_vec(),
+            ..Default::default()
+        }
     }
 
     // debug

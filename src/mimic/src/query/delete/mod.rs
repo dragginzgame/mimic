@@ -1,8 +1,8 @@
 pub mod dynamic;
 pub mod generic;
 
-pub use dynamic::{DeleteExecutorDyn, DeleteQueryDyn};
-pub use generic::{DeleteExecutor, DeleteQuery};
+pub use dynamic::{DeleteBuilderDyn, DeleteExecutorDyn, DeleteQueryDyn};
+pub use generic::{DeleteBuilder, DeleteExecutor, DeleteQuery};
 
 use crate::{
     ThisError,

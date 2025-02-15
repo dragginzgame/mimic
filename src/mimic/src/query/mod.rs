@@ -5,7 +5,8 @@ pub mod save;
 pub mod types;
 
 pub use delete::{
-    DeleteError, DeleteExecutor, DeleteExecutorDyn, DeleteQuery, DeleteQueryDyn, DeleteResponse,
+    DeleteBuilder, DeleteBuilderDyn, DeleteError, DeleteExecutor, DeleteExecutorDyn, DeleteQuery,
+    DeleteQueryDyn, DeleteResponse,
 };
 pub use load::{
     LoadBuilder, LoadBuilderDyn, LoadError, LoadExecutor, LoadExecutorDyn, LoadQuery, LoadQueryDyn,
@@ -20,7 +21,6 @@ pub use types::*;
 use crate::{ThisError, orm::traits::Entity};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
-use std::marker::PhantomData;
 
 ///
 /// QueryError
@@ -38,63 +38,35 @@ pub enum QueryError {
     SaveError(#[from] SaveError),
 }
 
-///
-/// Query
-/// a builder that's generic over Entity
-///
-
-#[derive(Default)]
-pub struct Query<E>
-where
-    E: Entity,
-{
-    phantom: PhantomData<E>,
+// load
+#[must_use]
+pub fn load<E: Entity>() -> LoadBuilder<E> {
+    LoadBuilder::new()
 }
 
-impl<E> Query<E>
-where
-    E: Entity,
-{
-    #[must_use]
-    pub const fn new() -> Self {
-        Self {
-            phantom: PhantomData,
-        }
-    }
-
-    #[must_use]
-    pub fn load() -> LoadBuilder<E> {
-        LoadBuilder::new()
-    }
-
-    // delete
-    #[must_use]
-    pub fn delete() -> DeleteQuery<E> {
-        DeleteQuery::new()
-    }
-
-    // create
-    #[must_use]
-    pub fn create() -> SaveBuilder<E> {
-        SaveBuilder::new(SaveMode::Create)
-    }
-
-    // replace
-    #[must_use]
-    pub fn replace() -> SaveBuilder<E> {
-        SaveBuilder::new(SaveMode::Replace)
-    }
-
-    // update
-    #[must_use]
-    pub fn update() -> SaveBuilder<E> {
-        SaveBuilder::new(SaveMode::Update)
-    }
+// load_dyn
+#[must_use]
+pub fn load_dyn(path: &str) -> LoadBuilderDyn {
+    LoadBuilderDyn::new(path)
 }
 
-///
-/// Other Query Builders
-///
+// delete
+#[must_use]
+pub fn delete<E: Entity>() -> DeleteBuilder<E> {
+    DeleteBuilder::new()
+}
+
+// delete_dyn
+#[must_use]
+pub fn delete_dyn(path: &str) -> DeleteBuilderDyn {
+    DeleteBuilderDyn::new(path)
+}
+
+// create
+#[must_use]
+pub fn create<E: Entity>() -> SaveBuilder<E> {
+    SaveBuilder::new(SaveMode::Create)
+}
 
 // create_dyn
 #[must_use]
@@ -102,10 +74,22 @@ pub fn create_dyn() -> SaveBuilderDyn {
     SaveBuilderDyn::new(SaveMode::Create)
 }
 
+// replace
+#[must_use]
+pub fn replace<E: Entity>() -> SaveBuilder<E> {
+    SaveBuilder::new(SaveMode::Replace)
+}
+
 // replace_dyn
 #[must_use]
 pub fn replace_dyn() -> SaveBuilderDyn {
     SaveBuilderDyn::new(SaveMode::Replace)
+}
+
+// update
+#[must_use]
+pub fn update<E: Entity>() -> SaveBuilder<E> {
+    SaveBuilder::new(SaveMode::Update)
 }
 
 // update_dyn

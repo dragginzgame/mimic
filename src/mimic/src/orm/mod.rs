@@ -11,15 +11,14 @@ pub mod prelude {
     pub use crate::{
         ic::structures::storable::Bound,
         orm::{
+            OrmError,
             base::types::Ulid,
             traits::{
                 EntityDyn, EntityFixture, EntityId as _, Filterable, Inner as _, NumCast,
                 Orderable, Path, Selector as _, SortKey as _, Storable, Validate as _,
                 ValidateManual, Validator, Visitable,
             },
-            OrmError,
         },
-        query::Query,
         types::{ErrorVec, FixtureList},
         utils::case::{Case, Casing},
     };
@@ -29,11 +28,11 @@ pub mod prelude {
     pub use ::std::{cmp::Ordering, collections::HashSet, fmt::Display};
 }
 
-use crate::{ic::serialize::SerializeError, types::ErrorTree, Error, ThisError};
+use crate::{Error, ThisError, ic::serialize::SerializeError, types::ErrorTree};
 use candid::CandidType;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use traits::Visitable;
-use visit::{perform_visit, ValidateVisitor};
+use visit::{ValidateVisitor, perform_visit};
 
 ///
 /// OrmError

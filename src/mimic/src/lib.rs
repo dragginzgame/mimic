@@ -28,6 +28,7 @@ extern crate self as mimic;
 
 pub mod prelude {
     pub use crate::{
+        Log,
         db::Store,
         ic::{caller, format_cycles, id, init, query, update},
         log, mimic_end, mimic_memory_manager, mimic_start,
@@ -36,8 +37,6 @@ pub mod prelude {
             traits::{EntityDyn, EntityFixture, NumFromPrimitive, NumToPrimitive, Path, Validator},
         },
         perf,
-        query::Query,
-        Log,
     };
     pub use ::candid::{CandidType, Principal};
     pub use ::std::cell::RefCell;

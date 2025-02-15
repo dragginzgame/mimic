@@ -11,6 +11,33 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
 ///
+/// DeleteBuilderDyn
+///
+
+#[derive(Default)]
+pub struct DeleteBuilderDyn {
+    path: String,
+}
+
+impl DeleteBuilderDyn {
+    // new
+    #[must_use]
+    pub fn new(path: &str) -> Self {
+        Self {
+            path: path.to_string(),
+        }
+    }
+
+    // one
+    pub fn one<T: Display>(self, ck: &[T]) -> DeleteQueryDyn {
+        let key = ck.iter().map(ToString::to_string).collect();
+        let keys = vec![key];
+
+        DeleteQueryDyn::new(&self.path, &keys)
+    }
+}
+
+///
 /// DeleteQueryDyn
 /// no builder needed as its simple
 ///
@@ -45,16 +72,6 @@ impl DeleteQueryDyn {
     pub fn path(mut self, path: &str) -> Self {
         self.path = path.to_string();
         self
-    }
-
-    // one
-    pub fn one<T: Display>(mut self, ck: &[T]) -> Result<DeleteExecutorDyn, Error> {
-        let key = ck.iter().map(ToString::to_string).collect();
-        self.keys = vec![key];
-
-        let executor = DeleteExecutorDyn::new(self);
-
-        Ok(executor)
     }
 }
 
