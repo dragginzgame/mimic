@@ -1,12 +1,12 @@
 use crate::{
+    Error,
     db::types::{DataKey, DataRow, EntityRow},
     orm::traits::Entity,
     query::{
+        QueryError,
         load::LoadError,
         types::{Filter, Order},
-        QueryError,
     },
-    Error,
 };
 
 ///
@@ -121,7 +121,6 @@ where
             .rows
             .first()
             .ok_or(LoadError::NoResultsFound)
-            .map_err(LoadError::from)
             .map_err(QueryError::LoadError)?;
 
         Ok(res.clone())

@@ -1,11 +1,11 @@
 use crate::{
+    Error,
     db::StoreLocal,
     orm::{deserialize, traits::Entity},
     query::{
-        save::{save, SaveError, SaveMode},
         DebugContext, QueryError,
+        save::{SaveError, SaveMode, save},
     },
-    Error,
 };
 use candid::CandidType;
 use serde::Serialize;
@@ -20,7 +20,6 @@ where
     E: Entity,
 {
     mode: SaveMode,
-    debug: DebugContext,
     _phantom: PhantomData<E>,
 }
 
@@ -33,16 +32,8 @@ where
     pub fn new(mode: SaveMode) -> Self {
         Self {
             mode,
-            debug: DebugContext::default(),
             _phantom: PhantomData,
         }
-    }
-
-    // debug
-    #[must_use]
-    pub fn debug(mut self) -> Self {
-        self.debug.enable();
-        self
     }
 
     // from_data
@@ -51,18 +42,18 @@ where
             .map_err(SaveError::OrmError)
             .map_err(QueryError::SaveError)?;
 
-        Ok(SaveQuery::from_builder(self, vec![entity]))
+        Ok(SaveQuery::new(self.mode, vec![entity]))
     }
 
     // from_entity
     pub fn from_entity(self, entity: E) -> SaveQuery<E> {
-        SaveQuery::from_builder(self, vec![entity])
+        SaveQuery::new(self.mode, vec![entity])
     }
 
     // from_entities
     #[must_use]
-    pub const fn from_entities(self, entities: Vec<E>) -> SaveQuery<E> {
-        SaveQuery::from_builder(self, entities)
+    pub fn from_entities(self, entities: Vec<E>) -> SaveQuery<E> {
+        SaveQuery::new(self.mode, entities)
     }
 }
 
@@ -86,22 +77,19 @@ where
 {
     // new
     #[must_use]
-    pub fn new(mode: SaveMode, entities: &[E]) -> Self {
+    pub fn new(mode: SaveMode, entities: Vec<E>) -> Self {
         Self {
             mode,
-            entities: entities.to_vec(),
+            entities,
             debug: DebugContext::default(),
         }
     }
 
-    // from_builder
+    // debug
     #[must_use]
-    const fn from_builder(builder: SaveBuilder<E>, entities: Vec<E>) -> Self {
-        Self {
-            mode: builder.mode,
-            entities,
-            debug: builder.debug,
-        }
+    pub fn debug(mut self) -> Self {
+        self.debug.enable();
+        self
     }
 
     // execute

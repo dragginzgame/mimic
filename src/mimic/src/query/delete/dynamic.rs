@@ -1,62 +1,28 @@
 use crate::{
-    db::{types::DataKey, StoreLocal},
-    query::{
-        delete::{DeleteError, DeleteResult},
-        DebugContext, QueryError, Resolver,
-    },
     Error,
+    db::{StoreLocal, types::DataKey},
+    query::{
+        DebugContext, QueryError, Resolver,
+        delete::{DeleteError, DeleteResult},
+    },
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
 ///
-/// DeleteBuilderPath
-///
-
-pub struct DeleteBuilderPath {
-    debug: DebugContext,
-}
-
-impl DeleteBuilderPath {
-    // new
-    #[must_use]
-    pub(crate) fn new() -> Self {
-        Self {
-            debug: DebugContext::default(),
-        }
-    }
-
-    // debug
-    #[must_use]
-    pub fn debug(mut self) -> Self {
-        self.debug.enable();
-        self
-    }
-
-    // one
-    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQueryPath, Error> {
-        let key: Vec<String> = ck.iter().map(ToString::to_string).collect();
-        let executor = DeleteQueryPath::from_builder(self, vec![key]);
-
-        Ok(executor)
-    }
-}
-
-///
-/// DeleteQueryPath
-///
-/// results : all the keys that have successfully been deleted
+/// DeleteQueryDyn
+/// no builder needed as its simple
 ///
 
 #[derive(CandidType, Debug, Default, Serialize, Deserialize)]
-pub struct DeleteQueryPath {
+pub struct DeleteQueryDyn {
     path: String,
     keys: Vec<Vec<String>>,
     debug: DebugContext,
 }
 
-impl DeleteQueryPath {
+impl DeleteQueryDyn {
     // new
     #[must_use]
     pub fn new(path: &str, keys: &[Vec<String>]) -> Self {
@@ -67,14 +33,11 @@ impl DeleteQueryPath {
         }
     }
 
-    // from_builder
+    // debug
     #[must_use]
-    const fn from_builder(builder: DeleteBuilderPath, keys: Vec<Vec<String>>) -> Self {
-        Self {
-            path: String::new(),
-            keys,
-            debug: builder.debug,
-        }
+    pub fn debug(mut self) -> Self {
+        self.debug.enable();
+        self
     }
 
     // path
@@ -84,11 +47,14 @@ impl DeleteQueryPath {
         self
     }
 
-    // execute
-    pub fn execute(self, store: StoreLocal) -> Result<DeleteResult, Error> {
-        let executor = DeleteExecutorPath::new(self);
+    // one
+    pub fn one<T: Display>(mut self, ck: &[T]) -> Result<DeleteExecutorDyn, Error> {
+        let key = ck.iter().map(ToString::to_string).collect();
+        self.keys = vec![key];
 
-        executor.execute(store)
+        let executor = DeleteExecutorDyn::new(self);
+
+        Ok(executor)
     }
 }
 
@@ -96,15 +62,15 @@ impl DeleteQueryPath {
 /// DeleteExecutorDyn
 ///
 
-pub struct DeleteExecutorPath {
-    query: DeleteQueryPath,
+pub struct DeleteExecutorDyn {
+    query: DeleteQueryDyn,
     resolver: Resolver,
 }
 
-impl DeleteExecutorPath {
+impl DeleteExecutorDyn {
     // new
     #[must_use]
-    pub fn new(query: DeleteQueryPath) -> Self {
+    pub fn new(query: DeleteQueryDyn) -> Self {
         let resolver = Resolver::new(&query.path);
 
         Self { query, resolver }

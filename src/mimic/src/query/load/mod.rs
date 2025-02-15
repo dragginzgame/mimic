@@ -1,23 +1,23 @@
+pub mod dynamic;
 pub mod generic;
-pub mod path;
 pub mod result;
 
+pub use dynamic::{LoadBuilderDyn, LoadExecutorDyn, LoadQueryDyn};
 pub use generic::{LoadBuilder, LoadExecutor, LoadQuery};
-pub use path::{LoadBuilderPath, LoadExecutorPath, LoadQueryPath};
 pub use result::{LoadResult, LoadResultDyn};
 
 use crate::{
+    Error, ThisError,
     db::{
-        types::{DataKey, DataRow},
         DbError, StoreLocal,
+        types::{DataKey, DataRow},
     },
     ic::serialize::SerializeError,
     query::{
+        QueryError,
         resolver::{Resolver, ResolverError},
         types::{Filter, Order},
-        QueryError,
     },
-    Error, ThisError,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -28,6 +28,12 @@ use serde::{Deserialize, Serialize};
 
 #[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum LoadError {
+    #[error("method can only be set once")]
+    MethodAlreadySet,
+
+    #[error("method is not set")]
+    MethodNotSet,
+
     #[error("key not found: {0}")]
     KeyNotFound(DataKey),
 

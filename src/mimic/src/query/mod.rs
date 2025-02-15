@@ -5,12 +5,11 @@ pub mod save;
 pub mod types;
 
 pub use delete::{
-    DeleteBuilder, DeleteBuilderPath, DeleteError, DeleteExecutor, DeleteExecutorPath, DeleteQuery,
-    DeleteQueryPath, DeleteResponse,
+    DeleteError, DeleteExecutor, DeleteExecutorDyn, DeleteQuery, DeleteQueryDyn, DeleteResponse,
 };
 pub use load::{
-    LoadBuilder, LoadBuilderPath, LoadError, LoadExecutor, LoadExecutorPath, LoadQuery,
-    LoadQueryPath, LoadResponse, LoadResult, LoadResultDyn,
+    LoadBuilder, LoadBuilderDyn, LoadError, LoadExecutor, LoadExecutorDyn, LoadQuery, LoadQueryDyn,
+    LoadResponse, LoadResult, LoadResultDyn,
 };
 pub use resolver::{Resolver, ResolverError};
 pub use save::{
@@ -18,7 +17,7 @@ pub use save::{
 };
 pub use types::*;
 
-use crate::{orm::traits::Entity, ThisError};
+use crate::{ThisError, orm::traits::Entity};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
@@ -70,8 +69,8 @@ where
 
     // delete
     #[must_use]
-    pub fn delete() -> DeleteBuilder<E> {
-        DeleteBuilder::new()
+    pub fn delete() -> DeleteQuery<E> {
+        DeleteQuery::new()
     }
 
     // create
@@ -96,18 +95,6 @@ where
 ///
 /// Other Query Builders
 ///
-
-// load_path
-#[must_use]
-pub fn load_path() -> LoadBuilderPath {
-    LoadBuilderPath::new()
-}
-
-// delete_path
-#[must_use]
-pub fn delete_path() -> DeleteBuilderPath {
-    DeleteBuilderPath::new()
-}
 
 // create_dyn
 #[must_use]

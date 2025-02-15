@@ -1,12 +1,12 @@
 use crate::{
+    Error,
     db::{store::StoreLocal, types::EntityRow},
     orm::traits::Entity,
     query::{
+        DebugContext, QueryError, Resolver,
         load::{LoadError, LoadMethod, LoadResult, Loader},
         types::{Filter, Order},
-        DebugContext, QueryError, Resolver,
     },
-    Error,
 };
 use candid::CandidType;
 use serde::Serialize;
@@ -21,7 +21,6 @@ pub struct LoadBuilder<E>
 where
     E: Entity,
 {
-    debug: DebugContext,
     phantom: PhantomData<E>,
 }
 
@@ -33,34 +32,26 @@ where
     #[must_use]
     pub fn new() -> Self {
         Self {
-            debug: DebugContext::default(),
             phantom: PhantomData,
         }
     }
 
-    // debug
-    #[must_use]
-    pub fn debug(mut self) -> Self {
-        self.debug.enable();
-        self
-    }
-
     // method
     #[must_use]
-    pub const fn method(self, method: LoadMethod) -> LoadQuery<E> {
-        LoadQuery::from_builder(self, method)
+    pub fn method(self, method: LoadMethod) -> LoadQuery<E> {
+        LoadQuery::new(method)
     }
 
     // all
     #[must_use]
-    pub const fn all(self) -> LoadQuery<E> {
-        LoadQuery::from_builder(self, LoadMethod::All)
+    pub fn all(self) -> LoadQuery<E> {
+        LoadQuery::new(LoadMethod::All)
     }
 
     // only
     #[must_use]
-    pub const fn only(self) -> LoadQuery<E> {
-        LoadQuery::from_builder(self, LoadMethod::Only)
+    pub fn only(self) -> LoadQuery<E> {
+        LoadQuery::new(LoadMethod::Only)
     }
 
     // one
@@ -68,7 +59,7 @@ where
         let ck_str: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let method = LoadMethod::One(ck_str);
 
-        LoadQuery::from_builder(self, method)
+        LoadQuery::new(method)
     }
 
     // many
@@ -76,7 +67,7 @@ where
     pub fn many(self, cks: &[Vec<String>]) -> LoadQuery<E> {
         let method = LoadMethod::Many(cks.to_vec());
 
-        LoadQuery::from_builder(self, method)
+        LoadQuery::new(method)
     }
 
     // range
@@ -85,7 +76,7 @@ where
         let end = end.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Range(start, end);
 
-        LoadQuery::from_builder(self, method)
+        LoadQuery::new(method)
     }
 
     // prefix
@@ -93,7 +84,7 @@ where
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Prefix(prefix);
 
-        LoadQuery::from_builder(self, method)
+        LoadQuery::new(method)
     }
 }
 
@@ -128,18 +119,11 @@ where
         }
     }
 
-    // from_builder
+    // debug
     #[must_use]
-    pub const fn from_builder(builder: LoadBuilder<E>, method: LoadMethod) -> Self {
-        Self {
-            method,
-            offset: 0,
-            limit: None,
-            filter: None,
-            order: None,
-            debug: builder.debug,
-            phantom: PhantomData,
-        }
+    pub fn debug(mut self) -> Self {
+        self.debug.enable();
+        self
     }
 
     // offset
@@ -173,7 +157,7 @@ where
     // filter_option
     #[must_use]
     pub fn filter_option(mut self, filter: Option<Filter>) -> Self {
-        self.filter = filter.map(Into::into);
+        self.filter = filter;
         self
     }
 

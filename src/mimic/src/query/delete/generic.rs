@@ -1,56 +1,15 @@
 use crate::{
-    db::{types::DataKey, StoreLocal},
+    Error,
+    db::{StoreLocal, types::DataKey},
     orm::traits::Entity,
     query::{
-        delete::{DeleteError, DeleteResult},
         DebugContext, QueryError, Resolver,
+        delete::{DeleteError, DeleteResult},
     },
-    Error,
 };
 use candid::CandidType;
 use serde::Serialize;
 use std::{fmt::Display, marker::PhantomData};
-
-///
-/// DeleteBuilder
-///
-
-pub struct DeleteBuilder<E>
-where
-    E: Entity,
-{
-    debug: DebugContext,
-    _phantom: PhantomData<E>,
-}
-
-impl<E> DeleteBuilder<E>
-where
-    E: Entity,
-{
-    // new
-    #[must_use]
-    pub(crate) fn new() -> Self {
-        Self {
-            debug: DebugContext::default(),
-            _phantom: PhantomData,
-        }
-    }
-
-    // debug
-    #[must_use]
-    pub fn debug(mut self) -> Self {
-        self.debug.enable();
-        self
-    }
-
-    // one
-    pub fn one<T: Display>(self, ck: &[T]) -> Result<DeleteQuery<E>, Error> {
-        let key: Vec<String> = ck.iter().map(ToString::to_string).collect();
-        let executor = DeleteQuery::from_builder(self, vec![key]);
-
-        Ok(executor)
-    }
-}
 
 ///
 /// DeleteQuery
@@ -74,28 +33,25 @@ where
 {
     // new
     #[must_use]
-    pub fn new(keys: &[Vec<String>]) -> Self {
-        Self {
-            keys: keys.to_vec(),
-            ..Default::default()
-        }
+    pub fn new() -> Self {
+        Self::default()
     }
 
-    // from_builder
+    // debug
     #[must_use]
-    const fn from_builder(builder: DeleteBuilder<E>, keys: Vec<Vec<String>>) -> Self {
-        Self {
-            keys,
-            debug: builder.debug,
-            _phantom: PhantomData,
-        }
+    pub fn debug(mut self) -> Self {
+        self.debug.enable();
+        self
     }
 
-    // execute
-    pub fn execute(self, store: StoreLocal) -> Result<DeleteResult, Error> {
+    // one
+    pub fn one<T: Display>(mut self, ck: &[T]) -> Result<DeleteExecutor<E>, Error> {
+        let key: Vec<String> = ck.iter().map(ToString::to_string).collect();
+        self.keys = vec![key];
+
         let executor = DeleteExecutor::new(self);
 
-        executor.execute(store)
+        Ok(executor)
     }
 }
 

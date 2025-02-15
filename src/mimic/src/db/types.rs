@@ -1,10 +1,10 @@
 use crate::{
-    ic::serialize::{deserialize, serialize, SerializeError},
+    ic::serialize::{SerializeError, deserialize, serialize},
     impl_storable_bounded, impl_storable_unbounded,
     orm::traits::Path,
 };
 use candid::CandidType;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use std::fmt;
 
 ///
@@ -61,7 +61,7 @@ impl DataKey {
     pub fn create_upper_bound(&self) -> Self {
         let mut new_parts = self.0.clone();
 
-        if let Some((_, ref mut last_key)) = new_parts.last_mut() {
+        if let Some((_, last_key)) = new_parts.last_mut() {
             match last_key {
                 Some(key) => key.push('~'), // Append `~` to the existing key
                 None => *last_key = Some("~".to_string()), // Create a new key with `~` if None

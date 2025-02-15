@@ -5,16 +5,16 @@ pub use dynamic::{SaveBuilderDyn, SaveExecutorDyn, SaveQueryDyn};
 pub use generic::{SaveBuilder, SaveExecutor, SaveQuery};
 
 use crate::{
-    db::{
-        types::{DataKey, DataRow, DataValue, Metadata},
-        DbError, StoreLocal,
-    },
-    orm::{traits::EntityDyn, OrmError},
-    query::{
-        resolver::{Resolver, ResolverError},
-        DebugContext,
-    },
     ThisError,
+    db::{
+        DbError, StoreLocal,
+        types::{DataKey, DataRow, DataValue, Metadata},
+    },
+    orm::{OrmError, traits::EntityDyn},
+    query::{
+        DebugContext,
+        resolver::{Resolver, ResolverError},
+    },
 };
 use candid::CandidType;
 use derive_more::Display;
@@ -122,7 +122,7 @@ fn save<'a>(
 
     let ck = entity.composite_key_dyn();
     let resolver = Resolver::new(&entity.path_dyn());
-    let key = resolver.data_key(&ck).map(DataKey::from)?;
+    let key = resolver.data_key(&ck)?;
 
     // debug
     debug.println(&format!("store.{mode}: {key}",));

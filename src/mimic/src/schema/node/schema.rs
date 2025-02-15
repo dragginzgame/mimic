@@ -1,18 +1,18 @@
 use crate::{
+    Error,
     schema::{
+        SchemaError,
         node::{
             Canister, Constant, Def, Entity, Enum, EnumValue, MacroNode, Map, Newtype, NodeError,
             Primitive, Record, Selector, Store, Tuple, TypeNode, ValidateNode, Validator,
             VisitableNode,
         },
         visit::Visitor,
-        SchemaError,
     },
-    Error,
 };
 use serde::{
-    ser::{SerializeStruct, Serializer},
     Deserialize, Serialize,
+    ser::{SerializeStruct, Serializer},
 };
 use sha2::{Digest, Sha256};
 use std::{
@@ -46,14 +46,14 @@ impl SchemaNode {
     #[must_use]
     pub fn get_type(&self) -> Option<Box<dyn TypeNode>> {
         match self {
-            Self::Entity(ref n) => Some(Box::new(n.clone())),
-            Self::Enum(ref n) => Some(Box::new(n.clone())),
-            Self::EnumValue(ref n) => Some(Box::new(n.clone())),
-            Self::Map(ref n) => Some(Box::new(n.clone())),
-            Self::Newtype(ref n) => Some(Box::new(n.clone())),
-            Self::Primitive(ref n) => Some(Box::new(n.clone())),
-            Self::Record(ref n) => Some(Box::new(n.clone())),
-            Self::Tuple(ref n) => Some(Box::new(n.clone())),
+            Self::Entity(n) => Some(Box::new(n.clone())),
+            Self::Enum(n) => Some(Box::new(n.clone())),
+            Self::EnumValue(n) => Some(Box::new(n.clone())),
+            Self::Map(n) => Some(Box::new(n.clone())),
+            Self::Newtype(n) => Some(Box::new(n.clone())),
+            Self::Primitive(n) => Some(Box::new(n.clone())),
+            Self::Record(n) => Some(Box::new(n.clone())),
+            Self::Tuple(n) => Some(Box::new(n.clone())),
             _ => None,
         }
     }

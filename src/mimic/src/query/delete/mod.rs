@@ -1,13 +1,13 @@
+pub mod dynamic;
 pub mod generic;
-pub mod path;
 
-pub use generic::{DeleteBuilder, DeleteExecutor, DeleteQuery};
-pub use path::{DeleteBuilderPath, DeleteExecutorPath, DeleteQueryPath};
+pub use dynamic::{DeleteExecutorDyn, DeleteQueryDyn};
+pub use generic::{DeleteExecutor, DeleteQuery};
 
 use crate::{
-    db::{types::DataKey, DbError},
-    query::resolver::ResolverError,
     ThisError,
+    db::{DbError, types::DataKey},
+    query::resolver::ResolverError,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};

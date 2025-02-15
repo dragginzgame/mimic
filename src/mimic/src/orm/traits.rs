@@ -3,7 +3,7 @@
 pub use candid::CandidType;
 pub use ic_stable_structures::storable::Storable;
 pub use num_traits::{FromPrimitive as NumFromPrimitive, NumCast, ToPrimitive as NumToPrimitive};
-pub use serde::{de::DeserializeOwned, Deserialize, Serialize};
+pub use serde::{Deserialize, Serialize, de::DeserializeOwned};
 pub use std::{
     cmp::Ordering,
     collections::HashSet,
@@ -17,7 +17,7 @@ pub use std::{
 };
 
 use crate::{
-    orm::{base::types::Ulid, visit::Visitor, OrmError},
+    orm::{OrmError, base::types::Ulid, visit::Visitor},
     types::{ErrorVec, FixtureList, SortDirection},
 };
 
@@ -199,7 +199,9 @@ macro_rules! impl_primitive_filterable {
     };
 }
 
-impl_primitive_filterable!(i8, i16, i32, i64, i128, u8, u16, u32, u64, u128, f32, f64, bool);
+impl_primitive_filterable!(
+    i8, i16, i32, i64, i128, u8, u16, u32, u64, u128, f32, f64, bool
+);
 
 ///
 /// Inner
@@ -227,7 +229,9 @@ macro_rules! impl_primitive_inner {
     };
 }
 
-impl_primitive_inner!(bool, f32, f64, i8, i16, i32, i64, i128, String, u8, u16, u32, u64, u128);
+impl_primitive_inner!(
+    bool, f32, f64, i8, i16, i32, i64, i128, String, u8, u16, u32, u64, u128
+);
 
 ///
 /// Orderable
@@ -260,7 +264,9 @@ macro_rules! impl_primitive_order {
     };
 }
 
-impl_primitive_order!(bool, i8, i16, i32, i64, i128, String, u8, u16, u32, u64, u128);
+impl_primitive_order!(
+    bool, i8, i16, i32, i64, i128, String, u8, u16, u32, u64, u128
+);
 
 impl<T: Orderable> Orderable for Option<T> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
@@ -273,7 +279,7 @@ impl<T: Orderable> Orderable for Option<T> {
             (Some(_), None) => std::cmp::Ordering::Greater,
 
             // If both are Some, compare the inner values
-            (Some(ref a), Some(ref b)) => a.cmp(b),
+            (Some(a), Some(b)) => a.cmp(b),
         }
     }
 }

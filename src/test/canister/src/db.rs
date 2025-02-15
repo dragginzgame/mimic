@@ -2,7 +2,7 @@ use super::STORE;
 use mimic::{
     orm::{deserialize, serialize},
     prelude::*,
-    query::{types::Order, Query},
+    query::{Query, types::Order},
 };
 
 ///
@@ -67,8 +67,8 @@ impl DbTester {
         // count keys
         assert_eq!(
             Query::<CreateBasic>::load()
-                .debug()
                 .all()
+                .debug()
                 .execute(&STORE)
                 .unwrap()
                 .count(),
@@ -242,8 +242,8 @@ impl DbTester {
         for value in 1..100 {
             let e = Limit { value };
             Query::replace()
-                .debug()
                 .from_entity(e)
+                .debug()
                 .execute(&STORE)
                 .unwrap();
         }

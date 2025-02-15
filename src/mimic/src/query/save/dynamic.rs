@@ -1,14 +1,14 @@
 use crate::{
+    Error,
     db::StoreLocal,
     orm::{
         deserialize,
         traits::{Entity, EntityDyn},
     },
     query::{
-        save::{save, SaveError, SaveMode},
         DebugContext, QueryError,
+        save::{SaveError, SaveMode, save},
     },
-    Error,
 };
 use std::mem;
 
@@ -18,24 +18,13 @@ use std::mem;
 
 pub struct SaveBuilderDyn {
     mode: SaveMode,
-    debug: DebugContext,
 }
 
 impl SaveBuilderDyn {
     // new
     #[must_use]
     pub fn new(mode: SaveMode) -> Self {
-        Self {
-            mode,
-            debug: DebugContext::default(),
-        }
-    }
-
-    // debug
-    #[must_use]
-    pub fn debug(mut self) -> Self {
-        self.debug.enable();
-        self
+        Self { mode }
     }
 
     // from_data
@@ -44,12 +33,12 @@ impl SaveBuilderDyn {
             .map_err(SaveError::OrmError)
             .map_err(QueryError::SaveError)?;
 
-        Ok(SaveQueryDyn::from_builder(self, vec![Box::new(entity)]))
+        Ok(SaveQueryDyn::new(self.mode, vec![Box::new(entity)]))
     }
 
     // from_entity
     pub fn from_entity<E: EntityDyn + 'static>(self, entity: E) -> SaveQueryDyn {
-        SaveQueryDyn::from_builder(self, vec![Box::new(entity)])
+        SaveQueryDyn::new(self.mode, vec![Box::new(entity)])
     }
 
     // from_entities
@@ -60,19 +49,19 @@ impl SaveBuilderDyn {
             .map(|entity| Box::new(entity) as Box<dyn EntityDyn>)
             .collect();
 
-        SaveQueryDyn::from_builder(self, boxed_entities)
+        SaveQueryDyn::new(self.mode, boxed_entities)
     }
 
     // from_entity_dyn
     #[must_use]
     pub fn from_entity_dyn(self, entity: Box<dyn EntityDyn>) -> SaveQueryDyn {
-        SaveQueryDyn::from_builder(self, vec![entity])
+        SaveQueryDyn::new(self.mode, vec![entity])
     }
 
     // from_entities_dyn
     #[must_use]
     pub fn from_entities_dyn(self, entities: Vec<Box<dyn EntityDyn>>) -> SaveQueryDyn {
-        SaveQueryDyn::from_builder(self, entities)
+        SaveQueryDyn::new(self.mode, entities)
     }
 }
 
@@ -98,14 +87,11 @@ impl SaveQueryDyn {
         }
     }
 
-    // from_builder
+    // debug
     #[must_use]
-    pub fn from_builder(builder: SaveBuilderDyn, entities: Vec<Box<dyn EntityDyn>>) -> Self {
-        Self {
-            mode: builder.mode,
-            entities,
-            debug: builder.debug,
-        }
+    pub fn debug(mut self) -> Self {
+        self.debug.enable();
+        self
     }
 
     // execute
