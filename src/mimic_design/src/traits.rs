@@ -42,7 +42,7 @@ pub trait Schemable {
 
         quote! {
             #[cfg(not(target_arch = "wasm32"))]
-            #[::mimic::export::ctor::ctor]
+            #[ctor::ctor]
             fn #ctor_fn() {
                 ::mimic::schema::build::schema_write().insert_node(
                     #schema

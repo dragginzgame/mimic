@@ -786,6 +786,7 @@ name = "test_schema"
 version = "0.3.3"
 dependencies = [
  "candid",
+ "ctor",
  "derive_more",
  "ic-cdk",
  "mimic",

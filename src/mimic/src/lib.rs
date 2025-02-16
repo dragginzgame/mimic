@@ -13,7 +13,6 @@ pub mod types;
 pub mod utils;
 
 pub mod export {
-    pub use ctor;
     pub use defer;
     pub use derive_more;
     pub use num_traits;
