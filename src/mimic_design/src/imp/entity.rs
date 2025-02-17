@@ -1,10 +1,9 @@
 use crate::{
-    helper::{quote_one, to_path},
     imp::Implementor,
     node::{Entity, Trait},
 };
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::{ToTokens, quote};
 use syn::Ident;
 
 ///
@@ -20,7 +19,10 @@ fn entity_get_fields(node: &Entity) -> Vec<Ident> {
 
 // entity
 pub fn entity(node: &Entity, t: Trait) -> TokenStream {
-    let mut q = quote!();
+    let store = &node.store;
+    let mut q = quote! {
+        const STORE: &'static str = <#store as ::mimic::orm::traits::Path>::PATH;
+    };
 
     q.extend(composite_key(node));
 
@@ -114,11 +116,11 @@ fn serialize_dyn(_: &Entity) -> TokenStream {
 
 // store_dyn
 fn store_dyn(node: &Entity) -> TokenStream {
-    let store = quote_one(&node.store, to_path);
+    let store = &node.store;
 
     quote! {
         fn store_dyn(&self) -> String {
-            #store
+            <#store as ::mimic::orm::traits::Path>::PATH.to_string()
         }
     }
 }

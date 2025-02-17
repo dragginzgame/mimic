@@ -1,6 +1,6 @@
 use crate::{
     Error,
-    db::{StoreLocal, types::DataKey},
+    db::{DbLocal, StoreLocal, types::DataKey},
     query::{
         DebugContext, QueryError, Resolver,
         delete::{DeleteError, DeleteResult},
@@ -94,10 +94,19 @@ impl DeleteExecutorDyn {
     }
 
     // execute
-    pub fn execute(&self, store: StoreLocal) -> Result<DeleteResult, Error> {
+    pub fn execute(&self, db: DbLocal) -> Result<DeleteResult, Error> {
         let mut keys_deleted = Vec::new();
         crate::ic::println!("delete: keys {:?}", &self.query.keys);
 
+        // get store
+        let store_path = &self
+            .resolver
+            .store()
+            .map_err(DeleteError::ResolverError)
+            .map_err(QueryError::DeleteError)?;
+        let store = db.with(|db| db.try_get_store(store_path))?;
+
+        // execute for every different key
         for key in &self.query.keys {
             // If successful, push the key to results
             let res = self.execute_one(store, key)?;

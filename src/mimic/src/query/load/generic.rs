@@ -1,6 +1,6 @@
 use crate::{
     Error,
-    db::{store::StoreLocal, types::EntityRow},
+    db::{DbLocal, types::EntityRow},
     orm::traits::Entity,
     query::{
         DebugContext, QueryError, Resolver,
@@ -190,10 +190,10 @@ where
     }
 
     // execute
-    pub fn execute(self, store: StoreLocal) -> Result<LoadResult<E>, Error> {
+    pub fn execute(self, db: DbLocal) -> Result<LoadResult<E>, Error> {
         let executor = LoadExecutor::new(self);
 
-        executor.execute(store)
+        executor.execute(db)
     }
 }
 
@@ -225,9 +225,9 @@ where
     // execute
     // convert into EntityRows and return a RowIterator
     // also make sure we're deserializing the correct entity path
-    pub fn execute(self, store: StoreLocal) -> Result<LoadResult<E>, Error> {
+    pub fn execute(self, db: DbLocal) -> Result<LoadResult<E>, Error> {
         // loader
-        let loader = Loader::new(store, self.resolver);
+        let loader = Loader::new(db, self.resolver);
         let res = loader.load(&self.query.method)?;
 
         let rows = res

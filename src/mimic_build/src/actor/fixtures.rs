@@ -1,7 +1,7 @@
 use super::ActorBuilder;
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{parse_str, Path};
+use syn::{Path, parse_str};
 
 // extend
 pub fn extend(builder: &mut ActorBuilder) {
@@ -25,12 +25,10 @@ pub fn fixtures(builder: &mut ActorBuilder) {
             fixtures: ::mimic::types::FixtureList,
         ) -> Result<(), ::mimic::Error> {
             for entity in fixtures {
-                let store = DB.with(|db| db.try_get_store(&entity.store_dyn()))?;
-
                 ::mimic::query::replace_dyn()
      //               .debug()
                     .from_entity_dyn(entity)
-                    .execute(store)?;
+                    .execute(&DB)?;
             }
 
             Ok(())

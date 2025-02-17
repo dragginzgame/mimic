@@ -1,9 +1,11 @@
-use super::STORE;
+use crate::DB;
 use mimic::{
+    orm::traits::Path,
     orm::{deserialize, serialize},
     prelude::*,
     query::{self, types::Order},
 };
+use test_schema::Store;
 
 ///
 /// DbTester
@@ -36,18 +38,18 @@ impl DbTester {
         // Insert rows
         for _ in 0..100 {
             let e = CreateBasic::default();
-            query::create().from_entity(e).execute(&STORE).unwrap();
+            query::create().from_entity(e).execute(&DB).unwrap();
         }
 
         // clear
-        STORE.with_borrow_mut(|store| {
-            store.clear();
+        DB.with(|db| {
+            db.with_store_mut(Store::PATH, |store| store.clear()).ok();
         });
 
         // Retrieve the count of keys (or entities) from the store
         let count = query::load::<CreateBasic>()
             .all()
-            .execute(&STORE)
+            .execute(&DB)
             .unwrap()
             .count();
 
@@ -59,17 +61,19 @@ impl DbTester {
         use test_schema::db::CreateBasic;
 
         // clear
-        STORE.with_borrow_mut(|store| store.clear());
+        DB.with(|db| {
+            db.with_store_mut(Store::PATH, |store| store.clear()).ok();
+        });
 
         let e = CreateBasic::default();
-        query::create().from_entity(e).execute(&STORE).unwrap();
+        query::create().from_entity(e).execute(&DB).unwrap();
 
         // count keys
         assert_eq!(
             query::load::<CreateBasic>()
                 .all()
                 .debug()
-                .execute(&STORE)
+                .execute(&DB)
                 .unwrap()
                 .count(),
             1
@@ -77,13 +81,13 @@ impl DbTester {
 
         // insert another
         let e = CreateBasic::default();
-        query::create().from_entity(e).execute(&STORE).unwrap();
+        query::create().from_entity(e).execute(&DB).unwrap();
 
         // count keys
         assert_eq!(
             query::load::<CreateBasic>()
                 .all()
-                .execute(&STORE)
+                .execute(&DB)
                 .unwrap()
                 .count(),
             2
@@ -96,18 +100,20 @@ impl DbTester {
         const ROWS: usize = 1_000;
 
         // clear
-        STORE.with_borrow_mut(|store| store.clear());
+        DB.with(|db| {
+            db.with_store_mut(Store::PATH, |store| store.clear()).ok();
+        });
 
         // insert rows
         for _ in 0..ROWS {
             let e = CreateBasic::default();
-            query::create().from_entity(e).execute(&STORE).unwrap();
+            query::create().from_entity(e).execute(&DB).unwrap();
         }
 
         // Retrieve the count from the store
         let count = query::load::<CreateBasic>()
             .all()
-            .execute(&STORE)
+            .execute(&DB)
             .unwrap()
             .count();
 
@@ -122,19 +128,21 @@ impl DbTester {
         const ROWS: u16 = 1_000;
 
         // clear
-        STORE.with_borrow_mut(|store| store.clear());
+        DB.with(|db| {
+            db.with_store_mut(Store::PATH, |store| store.clear()).ok();
+        });
 
         // Insert rows
         for _ in 1..ROWS {
             let e = SortKeyOrder::default();
-            query::create().from_entity(e).execute(&STORE).unwrap();
+            query::create().from_entity(e).execute(&DB).unwrap();
         }
 
         // Retrieve rows in B-Tree order
         let keys = query::load::<SortKeyOrder>()
             .all()
             .order(Order::from(vec!["id"]))
-            .execute(&STORE)
+            .execute(&DB)
             .unwrap()
             .keys();
 
@@ -157,11 +165,11 @@ impl DbTester {
         e.map_int_string.push((4, "value".to_string()));
         query::create::<HasMap>()
             .from_entity(e)
-            .execute(&STORE)
+            .execute(&DB)
             .unwrap();
 
         // load all keys
-        let res = query::load::<HasMap>().only().execute(&STORE).unwrap();
+        let res = query::load::<HasMap>().only().execute(&DB).unwrap();
 
         assert!(res.count() == 1);
     }
@@ -171,7 +179,9 @@ impl DbTester {
         use test_schema::db::Filterable;
 
         // clear
-        STORE.with_borrow_mut(|store| store.clear());
+        DB.with(|db| {
+            db.with_store_mut(Store::PATH, |store| store.clear()).ok();
+        });
 
         // Test data
         let test_entities = vec![
@@ -198,7 +208,7 @@ impl DbTester {
                 description: description.into(),
             };
 
-            query::replace().from_entity(e).execute(&STORE).unwrap();
+            query::replace().from_entity(e).execute(&DB).unwrap();
         }
 
         // Array of tests with expected number of matching rows
@@ -219,7 +229,7 @@ impl DbTester {
             let count = query::load::<Filterable>()
                 .all()
                 .filter_all(search)
-                .execute(&STORE)
+                .execute(&DB)
                 .unwrap()
                 .count();
 
@@ -235,7 +245,9 @@ impl DbTester {
         use test_schema::db::Limit;
 
         // clear
-        STORE.with_borrow_mut(|store| store.clear());
+        DB.with(|db| {
+            db.with_store_mut(Store::PATH, |store| store.clear()).ok();
+        });
 
         // Insert 100 rows
         // overwrite the ulid with replace()
@@ -244,7 +256,7 @@ impl DbTester {
             query::replace()
                 .from_entity(e)
                 .debug()
-                .execute(&STORE)
+                .execute(&DB)
                 .unwrap();
         }
 
@@ -255,7 +267,7 @@ impl DbTester {
                     .all()
                     .offset(offset)
                     .limit(limit)
-                    .execute(&STORE)
+                    .execute(&DB)
                     .unwrap();
 
                 let count = res.count();

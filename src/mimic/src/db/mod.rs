@@ -3,10 +3,9 @@ pub mod types;
 
 pub use store::{Store, StoreLocal};
 
-use crate::Error;
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
-use std::{cell::RefCell, collections::HashMap, thread::LocalKey};
+use std::{cell::RefCell, collections::HashMap, rc::Rc, thread::LocalKey};
 use thiserror::Error as ThisError;
 
 ///
@@ -42,10 +41,9 @@ impl Db {
     }
 
     // try_get_store
-    pub fn try_get_store(&self, path: &str) -> Result<StoreLocal, Error> {
+    pub fn try_get_store(&self, path: &str) -> Result<StoreLocal, DbError> {
         self.get_store(path)
             .ok_or_else(|| DbError::StoreNotFound(path.to_string()))
-            .map_err(Error::DbError)
     }
 
     // insert_store
@@ -58,7 +56,7 @@ impl Db {
     }
 
     // with_store
-    pub fn with_store<F, R>(&self, path: &str, f: F) -> Result<R, Error>
+    pub fn with_store<F, R>(&self, path: &str, f: F) -> Result<R, DbError>
     where
         F: FnOnce(&Store) -> R,
     {
@@ -68,7 +66,7 @@ impl Db {
     }
 
     // with_store_mut
-    pub fn with_store_mut<F, R>(&self, path: &str, f: F) -> Result<R, Error>
+    pub fn with_store_mut<F, R>(&self, path: &str, f: F) -> Result<R, DbError>
     where
         F: FnOnce(&mut Store) -> R,
     {
@@ -77,3 +75,9 @@ impl Db {
         Ok(store.with_borrow_mut(|store| f(store)))
     }
 }
+
+///
+/// DbLocal
+///
+
+pub type DbLocal = &'static LocalKey<Rc<Db>>;

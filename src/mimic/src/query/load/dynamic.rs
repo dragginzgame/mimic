@@ -1,5 +1,5 @@
 use crate::{
-    db::StoreLocal,
+    db::DbLocal,
     query::{
         DebugContext, Resolver,
         load::{Error, LoadMethod, LoadResultDyn, Loader},
@@ -131,10 +131,10 @@ impl LoadQueryDyn {
     }
 
     // execute
-    pub fn execute(self, store: StoreLocal) -> Result<LoadResultDyn, Error> {
+    pub fn execute(self, db: DbLocal) -> Result<LoadResultDyn, Error> {
         let executor = LoadExecutorDyn::new(self);
 
-        executor.execute(store)
+        executor.execute(db)
     }
 }
 
@@ -157,9 +157,9 @@ impl LoadExecutorDyn {
     }
 
     // execute
-    pub fn execute(self, store: StoreLocal) -> Result<LoadResultDyn, Error> {
+    pub fn execute(self, db: DbLocal) -> Result<LoadResultDyn, Error> {
         // loader
-        let loader = Loader::new(store, self.resolver);
+        let loader = Loader::new(db, self.resolver);
         let rows = loader.load(&self.query.method)?;
 
         Ok(LoadResultDyn::new(

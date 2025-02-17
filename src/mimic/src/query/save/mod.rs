@@ -7,7 +7,7 @@ pub use generic::{SaveBuilder, SaveExecutor, SaveQuery};
 use crate::{
     ThisError,
     db::{
-        DbError, StoreLocal,
+        DbError, DbLocal,
         types::{DataKey, DataRow, DataValue, Metadata},
     },
     orm::{OrmError, traits::EntityDyn},
@@ -111,7 +111,7 @@ pub enum SaveMode {
 
 // save
 fn save<'a>(
-    store: StoreLocal,
+    db: DbLocal,
     mode: &SaveMode,
     debug: &DebugContext,
     entity: Box<dyn EntityDyn + 'a>,
@@ -136,6 +136,7 @@ fn save<'a>(
     //
 
     let now = crate::utils::time::now_secs();
+    let store = db.with(|db| db.try_get_store(&entity.store_dyn()))?;
     let result = store.with_borrow(|store| store.get(&key));
 
     let (created, modified) = match mode {

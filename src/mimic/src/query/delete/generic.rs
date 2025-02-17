@@ -1,6 +1,6 @@
 use crate::{
     Error,
-    db::{StoreLocal, types::DataKey},
+    db::{DbLocal, types::DataKey},
     orm::traits::Entity,
     query::{
         DebugContext, QueryError, Resolver,
@@ -116,15 +116,13 @@ where
     }
 
     // execute
-    pub fn execute(&self, store: StoreLocal) -> Result<DeleteResult, Error> {
+    pub fn execute(&self, db: DbLocal) -> Result<DeleteResult, Error> {
         let mut keys_deleted = Vec::new();
         crate::ic::println!("delete: keys {:?}", &self.query.keys);
 
         for key in &self.query.keys {
             // If successful, push the key to results
-            let res = self
-                .execute_one(store, key)
-                .map_err(QueryError::DeleteError)?;
+            let res = self.execute_one(db, key).map_err(QueryError::DeleteError)?;
 
             keys_deleted.push(res);
         }
@@ -137,11 +135,15 @@ where
     }
 
     // execute_one
-    fn execute_one(&self, store: StoreLocal, ck: &[String]) -> Result<DataKey, DeleteError> {
+    fn execute_one(&self, db: DbLocal, ck: &[String]) -> Result<DataKey, DeleteError> {
         let key = self
             .resolver
             .data_key(ck)
             .map_err(DeleteError::ResolverError)?;
+
+        let store = db
+            .with(|db| db.try_get_store(E::STORE))
+            .map_err(DeleteError::DbError)?;
 
         // Attempt to remove the item from the store
         store.with_borrow_mut(|store| {

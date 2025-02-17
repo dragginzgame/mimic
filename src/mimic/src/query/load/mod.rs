@@ -9,7 +9,7 @@ pub use result::{LoadResult, LoadResultDyn};
 use crate::{
     Error, ThisError,
     db::{
-        DbError, StoreLocal,
+        DbError, DbLocal, StoreLocal,
         types::{DataKey, DataRow},
     },
     ic::serialize::SerializeError,
@@ -126,15 +126,15 @@ pub enum LoadResponse {
 ///
 
 pub struct Loader {
-    store: StoreLocal,
+    db: DbLocal,
     resolver: Resolver,
 }
 
 impl Loader {
     // new
     #[must_use]
-    pub const fn new(store: StoreLocal, resolver: Resolver) -> Self {
-        Self { store, resolver }
+    pub const fn new(db: DbLocal, resolver: Resolver) -> Self {
+        Self { db, resolver }
     }
 
     // load
@@ -147,17 +147,20 @@ impl Loader {
     // load_unmapped
     // for easier error wrapping
     fn load_unmapped(&self, method: &LoadMethod) -> Result<Vec<DataRow>, LoadError> {
+        let store_path = &self.resolver.store()?;
+        let store = self.db.with(|db| db.try_get_store(store_path))?;
+
         let res = match method {
             LoadMethod::All | LoadMethod::Only => {
                 let start = self.data_key(&[])?;
                 let end = start.create_upper_bound();
 
-                self.query_range(start, end)
+                self.query_range(store, start, end)
             }
 
             LoadMethod::One(ck) => {
                 let key = self.data_key(ck)?;
-                let row = self.query_data_key(key)?;
+                let row = self.query_data_key(store, key)?;
 
                 vec![row]
             }
@@ -169,7 +172,7 @@ impl Loader {
                     .collect::<Result<Vec<_>, _>>()?;
 
                 keys.into_iter()
-                    .map(|key| self.query_data_key(key))
+                    .map(|key| self.query_data_key(store, key))
                     .filter_map(Result::ok)
                     .collect::<Vec<_>>()
             }
@@ -178,14 +181,14 @@ impl Loader {
                 let start = self.data_key(prefix)?;
                 let end = start.create_upper_bound();
 
-                self.query_range(start, end)
+                self.query_range(store, start, end)
             }
 
             LoadMethod::Range(start_ck, end_ck) => {
                 let start = self.data_key(start_ck)?;
                 let end = self.data_key(end_ck)?;
 
-                self.query_range(start, end)
+                self.query_range(store, start, end)
             }
         };
 
@@ -201,8 +204,8 @@ impl Loader {
     }
 
     // query_data_key
-    fn query_data_key(&self, key: DataKey) -> Result<DataRow, LoadError> {
-        self.store.with_borrow(|this| {
+    fn query_data_key(&self, store: StoreLocal, key: DataKey) -> Result<DataRow, LoadError> {
+        store.with_borrow(|this| {
             this.get(&key)
                 .map(|value| DataRow {
                     key: key.clone(),
@@ -213,8 +216,8 @@ impl Loader {
     }
 
     // query_range
-    fn query_range(&self, start: DataKey, end: DataKey) -> Vec<DataRow> {
-        self.store.with_borrow(|this| {
+    fn query_range(&self, store: StoreLocal, start: DataKey, end: DataKey) -> Vec<DataRow> {
+        store.with_borrow(|this| {
             this.range(start..=end)
                 .map(|(key, value)| DataRow { key, value })
                 .collect()

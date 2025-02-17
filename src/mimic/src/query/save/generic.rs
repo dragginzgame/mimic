@@ -1,6 +1,6 @@
 use crate::{
     Error,
-    db::StoreLocal,
+    db::DbLocal,
     orm::{deserialize, traits::Entity},
     query::{
         DebugContext, QueryError,
@@ -93,10 +93,10 @@ where
     }
 
     // execute
-    pub fn execute(self, store: StoreLocal) -> Result<(), Error> {
+    pub fn execute(self, db: DbLocal) -> Result<(), Error> {
         let executor = SaveExecutor::new(self);
 
-        executor.execute(store)
+        executor.execute(db)
     }
 }
 
@@ -122,7 +122,7 @@ where
     }
 
     // execute
-    pub fn execute(self, store: StoreLocal) -> Result<(), Error> {
+    pub fn execute(self, db: DbLocal) -> Result<(), Error> {
         // Validate all entities first
         for entity in &self.query.entities {
             crate::orm::validate(entity)?;
@@ -134,7 +134,7 @@ where
         let entities = self.query.entities;
 
         for entity in entities {
-            save(store, &mode, &debug, Box::new(entity)).map_err(QueryError::SaveError)?;
+            save(db, &mode, &debug, Box::new(entity)).map_err(QueryError::SaveError)?;
         }
 
         Ok(())
