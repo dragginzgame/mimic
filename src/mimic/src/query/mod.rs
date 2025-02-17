@@ -15,6 +15,7 @@ pub use load::{
 pub use resolver::{Resolver, ResolverError};
 pub use save::{
     SaveBuilder, SaveBuilderDyn, SaveError, SaveMode, SaveQuery, SaveQueryDyn, SaveResponse,
+    SaveResponseDyn,
 };
 pub use types::*;
 

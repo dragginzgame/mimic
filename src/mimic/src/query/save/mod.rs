@@ -54,6 +54,13 @@ pub enum SaveError {
 pub struct SaveResponse();
 
 ///
+/// SaveResponseDyn
+///
+
+#[derive(CandidType, Debug, Serialize, Deserialize)]
+pub struct SaveResponseDyn();
+
+///
 /// SaveMode
 ///
 /// Create  : will only insert a row if it's empty
