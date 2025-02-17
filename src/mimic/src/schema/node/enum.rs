@@ -17,6 +17,8 @@ use std::ops::Not;
 pub struct Enum {
     pub def: Def,
     pub variants: Vec<EnumVariant>,
+
+    #[serde(default, skip_serializing_if = "Type::skip_serializing")]
     pub ty: Type,
 }
 

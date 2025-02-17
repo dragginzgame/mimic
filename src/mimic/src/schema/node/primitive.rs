@@ -15,6 +15,8 @@ use serde::{Deserialize, Serialize};
 pub struct Primitive {
     pub def: Def,
     pub variant: PrimitiveType,
+
+    #[serde(default, skip_serializing_if = "Type::skip_serializing")]
     pub ty: Type,
 }
 

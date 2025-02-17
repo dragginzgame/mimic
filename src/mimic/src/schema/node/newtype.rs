@@ -19,6 +19,7 @@ pub struct Newtype {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub primitive: Option<PrimitiveType>,
 
+    #[serde(default, skip_serializing_if = "Type::skip_serializing")]
     pub ty: Type,
 }
 

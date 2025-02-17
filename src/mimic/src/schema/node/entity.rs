@@ -26,6 +26,8 @@ pub struct Entity {
     pub indexes: Vec<Index>,
 
     pub fields: FieldList,
+
+    #[serde(default, skip_serializing_if = "Type::skip_serializing")]
     pub ty: Type,
 }
 

@@ -12,6 +12,8 @@ use serde::{Deserialize, Serialize};
 pub struct Record {
     pub def: Def,
     pub fields: FieldList,
+
+    #[serde(default, skip_serializing_if = "Type::skip_serializing")]
     pub ty: Type,
 }
 

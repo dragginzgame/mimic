@@ -12,6 +12,8 @@ use serde::{Deserialize, Serialize};
 pub struct Tuple {
     pub def: Def,
     pub values: Vec<Value>,
+
+    #[serde(default, skip_serializing_if = "Type::skip_serializing")]
     pub ty: Type,
 }
 
