@@ -13,7 +13,9 @@ pub use load::{
     LoadResponse, LoadResponseDyn,
 };
 pub use resolver::{Resolver, ResolverError};
-pub use save::{SaveBuilder, SaveBuilderDyn, SaveError, SaveMode, SaveQuery, SaveQueryDyn};
+pub use save::{
+    SaveBuilder, SaveBuilderDyn, SaveError, SaveMode, SaveQuery, SaveQueryDyn, SaveResponse,
+};
 pub use types::*;
 
 use crate::{ThisError, orm::traits::Entity};

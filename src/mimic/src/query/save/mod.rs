@@ -46,25 +46,12 @@ pub enum SaveError {
 }
 
 ///
-/// SaveRequest
+/// SaveResponse
+/// empty for now
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub struct SaveRequest {
-    pub entity: String,
-    pub data: Vec<u8>,
-    pub action: SaveRequestAction,
-}
-
-///
-/// SaveRequestAction
-///
-
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub enum SaveRequestAction {
-    Create,
-    Update,
-}
+#[derive(CandidType, Debug, Serialize, Deserialize)]
+pub struct SaveResponse();
 
 ///
 /// SaveMode
