@@ -1,6 +1,6 @@
 use crate::{
     Error,
-    db::types::{DataKey, DataRow, EntityRow},
+    db::types::{DataKey, DataRow, EntityRow, EntityValue},
     orm::traits::Entity,
     query::{
         QueryError,
@@ -142,6 +142,28 @@ impl LoadResponseDyn {
         let rows = apply_offset_limit(rows, offset, limit);
 
         Self(rows)
+    }
+
+    // as_generic
+    // Converts LoadResponseDyn (Vec<DataRow>) into LoadResponse<E> (Vec<EntityRow<E>>)
+    pub fn as_generic<E: Entity>(self) -> Result<LoadResponse<E>, Error> {
+        let entity_rows = self
+            .into_iter()
+            .map(|row| {
+                let value: EntityValue<E> = row
+                    .value
+                    .try_into()
+                    .map_err(LoadError::SerializeError)
+                    .map_err(QueryError::LoadError)?;
+
+                Ok(EntityRow {
+                    key: row.key,
+                    value,
+                })
+            })
+            .collect::<Result<Vec<EntityRow<E>>, Error>>()?;
+
+        Ok(LoadResponse(entity_rows))
     }
 
     // count
