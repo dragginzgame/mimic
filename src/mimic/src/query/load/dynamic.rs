@@ -2,7 +2,7 @@ use crate::{
     db::DbLocal,
     query::{
         DebugContext, Resolver,
-        load::{Error, LoadMethod, LoadResultDyn, Loader},
+        load::{Error, LoadMethod, LoadResponseDyn, Loader},
     },
 };
 use candid::CandidType;
@@ -131,7 +131,7 @@ impl LoadQueryDyn {
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<LoadResultDyn, Error> {
+    pub fn execute(self, db: DbLocal) -> Result<LoadResponseDyn, Error> {
         let executor = LoadExecutorDyn::new(self);
 
         executor.execute(db)
@@ -157,12 +157,12 @@ impl LoadExecutorDyn {
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<LoadResultDyn, Error> {
+    pub fn execute(self, db: DbLocal) -> Result<LoadResponseDyn, Error> {
         // loader
         let loader = Loader::new(db, self.resolver);
         let rows = loader.load(&self.query.method)?;
 
-        Ok(LoadResultDyn::new(
+        Ok(LoadResponseDyn::new(
             rows,
             self.query.limit,
             self.query.offset,

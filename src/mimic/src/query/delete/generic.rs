@@ -4,7 +4,7 @@ use crate::{
     orm::traits::Entity,
     query::{
         DebugContext, QueryError, Resolver,
-        delete::{DeleteError, DeleteResult},
+        delete::{DeleteError, DeleteResponse},
     },
 };
 use candid::CandidType;
@@ -29,7 +29,7 @@ where
 {
     // new
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             phantom: PhantomData,
         }
@@ -116,7 +116,7 @@ where
     }
 
     // execute
-    pub fn execute(&self, db: DbLocal) -> Result<DeleteResult, Error> {
+    pub fn execute(&self, db: DbLocal) -> Result<DeleteResponse, Error> {
         let mut keys_deleted = Vec::new();
         crate::ic::println!("delete: keys {:?}", &self.query.keys);
 
@@ -131,7 +131,7 @@ where
             .debug
             .println(&format!("deleted keys {keys_deleted:?}"));
 
-        Ok(DeleteResult::new(keys_deleted))
+        Ok(DeleteResponse::new(keys_deleted))
     }
 
     // execute_one

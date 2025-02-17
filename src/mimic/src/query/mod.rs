@@ -10,12 +10,10 @@ pub use delete::{
 };
 pub use load::{
     LoadBuilder, LoadBuilderDyn, LoadError, LoadExecutor, LoadExecutorDyn, LoadQuery, LoadQueryDyn,
-    LoadResponse, LoadResult, LoadResultDyn,
+    LoadResponse, LoadResponseDyn,
 };
 pub use resolver::{Resolver, ResolverError};
-pub use save::{
-    SaveBuilder, SaveBuilderDyn, SaveError, SaveMode, SaveQuery, SaveQueryDyn, SaveResponse,
-};
+pub use save::{SaveBuilder, SaveBuilderDyn, SaveError, SaveMode, SaveQuery, SaveQueryDyn};
 pub use types::*;
 
 use crate::{ThisError, orm::traits::Entity};
@@ -40,7 +38,7 @@ pub enum QueryError {
 
 // load
 #[must_use]
-pub fn load<E: Entity>() -> LoadBuilder<E> {
+pub const fn load<E: Entity>() -> LoadBuilder<E> {
     LoadBuilder::new()
 }
 
@@ -52,7 +50,7 @@ pub fn load_dyn(path: &str) -> LoadBuilderDyn {
 
 // delete
 #[must_use]
-pub fn delete<E: Entity>() -> DeleteBuilder<E> {
+pub const fn delete<E: Entity>() -> DeleteBuilder<E> {
     DeleteBuilder::new()
 }
 
@@ -64,37 +62,37 @@ pub fn delete_dyn(path: &str) -> DeleteBuilderDyn {
 
 // create
 #[must_use]
-pub fn create<E: Entity>() -> SaveBuilder<E> {
+pub const fn create<E: Entity>() -> SaveBuilder<E> {
     SaveBuilder::new(SaveMode::Create)
 }
 
 // create_dyn
 #[must_use]
-pub fn create_dyn() -> SaveBuilderDyn {
+pub const fn create_dyn() -> SaveBuilderDyn {
     SaveBuilderDyn::new(SaveMode::Create)
 }
 
 // replace
 #[must_use]
-pub fn replace<E: Entity>() -> SaveBuilder<E> {
+pub const fn replace<E: Entity>() -> SaveBuilder<E> {
     SaveBuilder::new(SaveMode::Replace)
 }
 
 // replace_dyn
 #[must_use]
-pub fn replace_dyn() -> SaveBuilderDyn {
+pub const fn replace_dyn() -> SaveBuilderDyn {
     SaveBuilderDyn::new(SaveMode::Replace)
 }
 
 // update
 #[must_use]
-pub fn update<E: Entity>() -> SaveBuilder<E> {
+pub const fn update<E: Entity>() -> SaveBuilder<E> {
     SaveBuilder::new(SaveMode::Update)
 }
 
 // update_dyn
 #[must_use]
-pub fn update_dyn() -> SaveBuilderDyn {
+pub const fn update_dyn() -> SaveBuilderDyn {
     SaveBuilderDyn::new(SaveMode::Update)
 }
 

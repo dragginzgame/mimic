@@ -8,7 +8,7 @@ use crate::{
     ThisError,
     db::{
         DbError, DbLocal,
-        types::{DataKey, DataRow, DataValue, Metadata},
+        types::{DataKey, DataValue, Metadata},
     },
     orm::{OrmError, traits::EntityDyn},
     query::{
@@ -64,34 +64,6 @@ pub struct SaveRequest {
 pub enum SaveRequestAction {
     Create,
     Update,
-}
-
-///
-/// SaveResponse
-///
-
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub enum SaveResponse {
-    Create(CreateResponse),
-    Update(UpdateResponse),
-}
-
-///
-/// CreateResponse
-///
-
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub struct CreateResponse {
-    pub row: DataRow,
-}
-
-///
-/// UpdateResponse
-///
-
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub struct UpdateResponse {
-    pub row: DataRow,
 }
 
 ///

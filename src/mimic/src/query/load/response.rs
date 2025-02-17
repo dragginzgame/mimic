@@ -8,19 +8,18 @@ use crate::{
         types::{Filter, Order},
     },
 };
+use candid::CandidType;
+use derive_more::{Deref, DerefMut, IntoIterator};
+use serde::{Deserialize, Serialize};
 
 ///
-/// LoadResult
+/// LoadResponse
 ///
 
-pub struct LoadResult<E>
-where
-    E: Entity,
-{
-    rows: Vec<EntityRow<E>>,
-}
+#[derive(Debug, Deref, DerefMut, IntoIterator)]
+pub struct LoadResponse<E: Entity>(Vec<EntityRow<E>>);
 
-impl<E> LoadResult<E>
+impl<E> LoadResponse<E>
 where
     E: Entity,
 {
@@ -53,25 +52,24 @@ where
         // offset and limit
         let rows = apply_offset_limit(rows, offset, limit);
 
-        Self { rows }
+        Self(rows)
     }
 
     // count
     #[must_use]
     pub fn count(self) -> usize {
-        self.rows.len()
+        self.len()
     }
 
     // key
     #[must_use]
     pub fn key(self) -> Option<DataKey> {
-        self.rows.first().map(|row| row.key.clone())
+        self.first().map(|row| row.key.clone())
     }
 
     // try_key
     pub fn try_key(self) -> Result<DataKey, Error> {
         let row = self
-            .rows
             .first()
             .ok_or(LoadError::NoResultsFound)
             .map_err(QueryError::LoadError)?;
@@ -82,19 +80,18 @@ where
     // keys
     #[must_use]
     pub fn keys(self) -> Vec<DataKey> {
-        self.rows.into_iter().map(|row| row.key).collect()
+        self.into_iter().map(|row| row.key).collect()
     }
 
     // entity
     #[must_use]
     pub fn entity(self) -> Option<E> {
-        self.rows.first().map(|row| row.value.entity.clone())
+        self.first().map(|row| row.value.entity.clone())
     }
 
     // try_entity
     pub fn try_entity(self) -> Result<E, Error> {
         let res = self
-            .rows
             .first()
             .map(|row| row.value.entity.clone())
             .ok_or(LoadError::NoResultsFound)
@@ -106,19 +103,18 @@ where
     // entities
     #[must_use]
     pub fn entities(self) -> Vec<E> {
-        self.rows.into_iter().map(|row| row.value.entity).collect()
+        self.into_iter().map(|row| row.value.entity).collect()
     }
 
     // entity_row
     #[must_use]
     pub fn entity_row(self) -> Option<EntityRow<E>> {
-        self.rows.first().cloned()
+        self.first().cloned()
     }
 
     // try_entity_row
     pub fn try_entity_row(self) -> Result<EntityRow<E>, Error> {
         let res = self
-            .rows
             .first()
             .ok_or(LoadError::NoResultsFound)
             .map_err(QueryError::LoadError)?;
@@ -129,58 +125,52 @@ where
     // entity_rows
     #[must_use]
     pub fn entity_rows(self) -> Vec<EntityRow<E>> {
-        self.rows
+        self.0
     }
 }
 
 ///
-/// LoadResultDyn
-///
-/// Complex logic is handled better with iter::from_fn and move_next().
-/// All iterator methods (for now) are consuming.
+/// LoadResponseDyn
 ///
 
-#[derive(Debug)]
-pub struct LoadResultDyn {
-    rows: Vec<DataRow>,
-}
+#[derive(CandidType, Debug, Deref, DerefMut, IntoIterator, Serialize, Deserialize)]
+pub struct LoadResponseDyn(Vec<DataRow>);
 
-impl LoadResultDyn {
+impl LoadResponseDyn {
     #[must_use]
     pub fn new(rows: Vec<DataRow>, limit: Option<u32>, offset: u32) -> Self {
         let rows = apply_offset_limit(rows, offset, limit);
 
-        Self { rows }
+        Self(rows)
     }
 
     // count
     #[must_use]
     pub fn count(self) -> usize {
-        self.rows.len()
+        self.len()
     }
 
     // data_row
     #[must_use]
     pub fn data_row(self) -> Option<DataRow> {
-        self.rows.first().cloned()
+        self.first().cloned()
     }
 
     // data_rows
     #[must_use]
     pub fn data_rows(self) -> Vec<DataRow> {
-        self.rows
+        self.0
     }
 
     // key
     #[must_use]
     pub fn key(self) -> Option<DataKey> {
-        self.rows.first().map(|row| row.key.clone())
+        self.first().map(|row| row.key.clone())
     }
 
     // try_key
     pub fn try_key(self) -> Result<DataKey, Error> {
         let row = self
-            .rows
             .first()
             .ok_or(LoadError::NoResultsFound)
             .map_err(QueryError::LoadError)?;
@@ -191,13 +181,12 @@ impl LoadResultDyn {
     // keys
     #[must_use]
     pub fn keys(self) -> Vec<DataKey> {
-        self.rows.into_iter().map(|row| row.key).collect()
+        self.into_iter().map(|row| row.key).collect()
     }
 
     // try_blob
     pub fn try_blob(self) -> Result<Vec<u8>, Error> {
-        self.rows
-            .into_iter()
+        self.into_iter()
             .next()
             .map(|row| row.value.data)
             .ok_or_else(|| QueryError::LoadError(LoadError::NoResultsFound).into())
@@ -206,7 +195,7 @@ impl LoadResultDyn {
     // blobs
     #[must_use]
     pub fn blobs(self) -> Vec<Vec<u8>> {
-        self.rows.into_iter().map(|row| row.value.data).collect()
+        self.into_iter().map(|row| row.value.data).collect()
     }
 }
 

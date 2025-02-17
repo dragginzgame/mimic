@@ -10,6 +10,7 @@ use crate::{
     query::resolver::ResolverError,
 };
 use candid::CandidType;
+use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
 
 ///
@@ -39,32 +40,17 @@ pub struct DeleteRequest {
 }
 
 ///
-/// DeleteResult
-///
-
-pub struct DeleteResult {
-    pub keys: Vec<DataKey>,
-}
-
-impl DeleteResult {
-    #[must_use]
-    pub const fn new(keys: Vec<DataKey>) -> Self {
-        Self { keys }
-    }
-
-    #[must_use]
-    pub fn response(self) -> DeleteResponse {
-        DeleteResponse::Keys(self.keys)
-    }
-}
-
-///
 /// DeleteResponse
 ///
 /// keys : all the keys that have successfully been deleted
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize)]
-pub enum DeleteResponse {
-    Keys(Vec<DataKey>),
+#[derive(CandidType, Debug, Deref, DerefMut, Serialize, Deserialize)]
+pub struct DeleteResponse(Vec<DataKey>);
+
+impl DeleteResponse {
+    #[must_use]
+    pub fn new(keys: Vec<DataKey>) -> Self {
+        Self(keys)
+    }
 }

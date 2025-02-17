@@ -3,7 +3,7 @@ use crate::{
     db::{DbLocal, StoreLocal, types::DataKey},
     query::{
         DebugContext, QueryError, Resolver,
-        delete::{DeleteError, DeleteResult},
+        delete::{DeleteError, DeleteResponse},
     },
 };
 use candid::CandidType;
@@ -94,7 +94,7 @@ impl DeleteExecutorDyn {
     }
 
     // execute
-    pub fn execute(&self, db: DbLocal) -> Result<DeleteResult, Error> {
+    pub fn execute(&self, db: DbLocal) -> Result<DeleteResponse, Error> {
         let mut keys_deleted = Vec::new();
         crate::ic::println!("delete: keys {:?}", &self.query.keys);
 
@@ -118,7 +118,7 @@ impl DeleteExecutorDyn {
             .debug
             .println(&format!("deleted keys {keys_deleted:?}"));
 
-        let res = DeleteResult::new(keys_deleted);
+        let res = DeleteResponse::new(keys_deleted);
 
         Ok(res)
     }

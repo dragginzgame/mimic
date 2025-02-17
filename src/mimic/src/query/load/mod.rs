@@ -1,10 +1,10 @@
 pub mod dynamic;
 pub mod generic;
-pub mod result;
+pub mod response;
 
 pub use dynamic::{LoadBuilderDyn, LoadExecutorDyn, LoadQueryDyn};
 pub use generic::{LoadBuilder, LoadExecutor, LoadQuery};
-pub use result::{LoadResult, LoadResultDyn};
+pub use response::{LoadResponse, LoadResponseDyn};
 
 use crate::{
     Error, ThisError,
@@ -109,18 +109,6 @@ pub enum LoadMethod {
 }
 
 ///
-/// LoadResponse
-/// The variant that defines what format the results of a request
-/// will be returned in
-///
-
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub enum LoadResponse {
-    Rows(Vec<DataRow>),
-    Count(u32),
-}
-
-///
 /// Loader
 /// took logic from both Load types and stuck it here
 ///
@@ -155,12 +143,12 @@ impl Loader {
                 let start = self.data_key(&[])?;
                 let end = start.create_upper_bound();
 
-                self.query_range(store, start, end)
+                query_range(store, start, end)
             }
 
             LoadMethod::One(ck) => {
                 let key = self.data_key(ck)?;
-                let row = self.query_data_key(store, key)?;
+                let row = query_data_key(store, key)?;
 
                 vec![row]
             }
@@ -172,7 +160,7 @@ impl Loader {
                     .collect::<Result<Vec<_>, _>>()?;
 
                 keys.into_iter()
-                    .map(|key| self.query_data_key(store, key))
+                    .map(|key| query_data_key(store, key))
                     .filter_map(Result::ok)
                     .collect::<Vec<_>>()
             }
@@ -181,14 +169,14 @@ impl Loader {
                 let start = self.data_key(prefix)?;
                 let end = start.create_upper_bound();
 
-                self.query_range(store, start, end)
+                query_range(store, start, end)
             }
 
             LoadMethod::Range(start_ck, end_ck) => {
                 let start = self.data_key(start_ck)?;
                 let end = self.data_key(end_ck)?;
 
-                self.query_range(store, start, end)
+                query_range(store, start, end)
             }
         };
 
@@ -202,25 +190,25 @@ impl Loader {
 
         Ok(key)
     }
+}
 
-    // query_data_key
-    fn query_data_key(&self, store: StoreLocal, key: DataKey) -> Result<DataRow, LoadError> {
-        store.with_borrow(|this| {
-            this.get(&key)
-                .map(|value| DataRow {
-                    key: key.clone(),
-                    value,
-                })
-                .ok_or_else(|| LoadError::KeyNotFound(key.clone()))
-        })
-    }
+// query_data_key
+fn query_data_key(store: StoreLocal, key: DataKey) -> Result<DataRow, LoadError> {
+    store.with_borrow(|this| {
+        this.get(&key)
+            .map(|value| DataRow {
+                key: key.clone(),
+                value,
+            })
+            .ok_or_else(|| LoadError::KeyNotFound(key.clone()))
+    })
+}
 
-    // query_range
-    fn query_range(&self, store: StoreLocal, start: DataKey, end: DataKey) -> Vec<DataRow> {
-        store.with_borrow(|this| {
-            this.range(start..=end)
-                .map(|(key, value)| DataRow { key, value })
-                .collect()
-        })
-    }
+// query_range
+fn query_range(store: StoreLocal, start: DataKey, end: DataKey) -> Vec<DataRow> {
+    store.with_borrow(|this| {
+        this.range(start..=end)
+            .map(|(key, value)| DataRow { key, value })
+            .collect()
+    })
 }

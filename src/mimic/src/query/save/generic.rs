@@ -29,7 +29,7 @@ where
 {
     // new
     #[must_use]
-    pub fn new(mode: SaveMode) -> Self {
+    pub const fn new(mode: SaveMode) -> Self {
         Self {
             mode,
             _phantom: PhantomData,

@@ -4,7 +4,7 @@ use crate::{
     orm::traits::Entity,
     query::{
         DebugContext, QueryError, Resolver,
-        load::{LoadError, LoadMethod, LoadResult, Loader},
+        load::{LoadError, LoadMethod, LoadResponse, Loader},
         types::{Filter, Order},
     },
 };
@@ -30,7 +30,7 @@ where
 {
     // new
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             phantom: PhantomData,
         }
@@ -190,7 +190,7 @@ where
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<LoadResult<E>, Error> {
+    pub fn execute(self, db: DbLocal) -> Result<LoadResponse<E>, Error> {
         let executor = LoadExecutor::new(self);
 
         executor.execute(db)
@@ -223,9 +223,8 @@ where
     }
 
     // execute
-    // convert into EntityRows and return a RowIterator
     // also make sure we're deserializing the correct entity path
-    pub fn execute(self, db: DbLocal) -> Result<LoadResult<E>, Error> {
+    pub fn execute(self, db: DbLocal) -> Result<LoadResponse<E>, Error> {
         // loader
         let loader = Loader::new(db, self.resolver);
         let res = loader.load(&self.query.method)?;
@@ -238,7 +237,7 @@ where
             .map_err(LoadError::SerializeError)
             .map_err(QueryError::LoadError)?;
 
-        Ok(LoadResult::new(
+        Ok(LoadResponse::new(
             rows,
             self.query.limit,
             self.query.offset,

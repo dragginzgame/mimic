@@ -23,7 +23,7 @@ pub struct SaveBuilderDyn {
 impl SaveBuilderDyn {
     // new
     #[must_use]
-    pub fn new(mode: SaveMode) -> Self {
+    pub const fn new(mode: SaveMode) -> Self {
         Self { mode }
     }
 

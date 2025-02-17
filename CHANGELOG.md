@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - removed the iterator from the load query, it's not really needed and makes the code super complex
 - moved the build code into a new mimic_build crate
 - made load, save, delete much cleaner and following exactly the same builder pattern
+- standardised LoadResponse, DeleteResponse and removed the extra Result types
 
 ## [0.3.2]
 - query::load<E> now replaced with Query::<E>::load() so I can have a map of string -> Type
