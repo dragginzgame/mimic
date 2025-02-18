@@ -13,7 +13,7 @@ use std::fmt::Display;
 /// DeleteError
 ///
 
-#[derive(CandidType, Debug, Serialize, ThisError)]
+#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum DeleteError {
     #[error("key not found: {0}")]
     KeyNotFound(DataKey),

@@ -24,7 +24,7 @@ use serde::{Deserialize, Serialize};
 /// QueryError
 ///
 
-#[derive(CandidType, Debug, Serialize, ThisError)]
+#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum QueryError {
     #[error(transparent)]
     DeleteError(#[from] DeleteError),
