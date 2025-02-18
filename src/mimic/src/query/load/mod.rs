@@ -257,16 +257,16 @@ impl LoadQuery {
 
     // execute
     pub fn execute(self, db: DbLocal) -> Result<LoadResponseDyn, Error> {
-        let executor = LoadExecutor::new(db, self);
+        let executor = LoadExecutor::new(self);
 
-        executor.execute()
+        executor.execute(db)
     }
 
     // execute_as
     pub fn execute_as<E: Entity>(self, db: DbLocal) -> Result<LoadResponse<E>, Error> {
-        let executor = LoadExecutor::new(db, self);
+        let executor = LoadExecutor::new(self);
 
-        executor.execute_as()
+        executor.execute_as(db)
     }
 }
 
@@ -276,26 +276,21 @@ impl LoadQuery {
 
 pub struct LoadExecutor {
     query: LoadQuery,
-    db: DbLocal,
     resolver: Resolver,
 }
 
 impl LoadExecutor {
     // new
     #[must_use]
-    pub fn new(db: DbLocal, query: LoadQuery) -> Self {
+    pub fn new(query: LoadQuery) -> Self {
         let resolver = Resolver::new(&query.path);
 
-        Self {
-            db,
-            query,
-            resolver,
-        }
+        Self { query, resolver }
     }
 
     // execute
-    pub fn execute(self) -> Result<LoadResponseDyn, Error> {
-        let data_rows = self.load(&self.query.method)?;
+    pub fn execute(self, db: DbLocal) -> Result<LoadResponseDyn, Error> {
+        let data_rows = self.load(db, &self.query.method)?;
 
         Ok(LoadResponseDyn::new(
             data_rows,
@@ -306,8 +301,8 @@ impl LoadExecutor {
 
     // execute_as
     // also make sure we're deserializing the correct entity path
-    pub fn execute_as<E: Entity>(self) -> Result<LoadResponse<E>, Error> {
-        let data_rows = self.load(&self.query.method)?;
+    pub fn execute_as<E: Entity>(self, db: DbLocal) -> Result<LoadResponse<E>, Error> {
+        let data_rows = self.load(db, &self.query.method)?;
 
         let rows = data_rows
             .into_iter()
@@ -327,17 +322,17 @@ impl LoadExecutor {
     }
 
     // load
-    pub fn load(&self, method: &LoadMethod) -> Result<Vec<DataRow>, Error> {
-        self.load_unmapped(method)
+    pub fn load(&self, db: DbLocal, method: &LoadMethod) -> Result<Vec<DataRow>, Error> {
+        self.load_unmapped(db, method)
             .map_err(QueryError::LoadError)
             .map_err(Error::QueryError)
     }
 
     // load_unmapped
     // for easier error wrapping
-    fn load_unmapped(&self, method: &LoadMethod) -> Result<Vec<DataRow>, LoadError> {
+    fn load_unmapped(&self, db: DbLocal, method: &LoadMethod) -> Result<Vec<DataRow>, LoadError> {
         let store_path = &self.resolver.store()?;
-        let store = self.db.with(|db| db.try_get_store(store_path))?;
+        let store = db.with(|db| db.try_get_store(store_path))?;
 
         let res = match method {
             LoadMethod::All | LoadMethod::Only => {

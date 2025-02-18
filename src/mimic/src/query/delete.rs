@@ -103,6 +103,13 @@ impl DeleteQuery {
         self.debug.enable();
         self
     }
+
+    // execute
+    pub fn execute(self, db: DbLocal) -> Result<DeleteResponse, Error> {
+        let executor = DeleteExecutor::new(self);
+
+        executor.execute(db)
+    }
 }
 
 ///
