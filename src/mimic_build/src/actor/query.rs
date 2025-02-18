@@ -27,7 +27,7 @@ fn query_load(builder: &mut ActorBuilder) {
         });
     }
 
-    // query_load
+    // function
     q.extend(quote! {
         #[::mimic::ic::query]
         pub fn query_load(
@@ -80,6 +80,7 @@ fn query_save(builder: &mut ActorBuilder) {
         });
     }
 
+    // function
     q.extend(quote! {
         #[::mimic::ic::update]
         pub fn query_save(
