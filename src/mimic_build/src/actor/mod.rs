@@ -1,24 +1,25 @@
 pub mod db;
 pub mod fixtures;
+pub mod query;
 
 use crate::Error;
 use mimic::{
+    Error as MimicError,
     schema::{
         get_schema,
         node::{Canister, Entity, Store},
     },
-    Error as MimicError,
 };
 use proc_macro2::TokenStream;
 use quote::quote;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use thiserror::Error as ThisError;
 
 ///
 /// ActorError
 ///
 
-#[derive(Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, Serialize, ThisError)]
 pub enum ActorError {
     #[error("canister path not found: {0}")]
     CanisterNotFound(String),
@@ -77,8 +78,9 @@ impl ActorBuilder {
         // shared between all crates
         //
 
-        fixtures::extend(&mut self);
         db::extend(&mut self);
+        fixtures::extend(&mut self);
+        query::extend(&mut self);
 
         //
         // generate code

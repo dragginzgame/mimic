@@ -4,7 +4,7 @@ pub mod schema;
 
 use actor::ActorError;
 use schema::SchemaError;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use thiserror::Error as ThisError;
 
 ///
@@ -12,7 +12,7 @@ use thiserror::Error as ThisError;
 /// top level crate error
 ///
 
-#[derive(Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, Serialize, ThisError)]
 pub enum Error {
     #[error(transparent)]
     ActorError(#[from] ActorError),

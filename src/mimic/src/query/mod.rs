@@ -4,10 +4,7 @@ pub mod resolver;
 pub mod save;
 pub mod types;
 
-pub use delete::{
-    DeleteBuilder, DeleteBuilderDyn, DeleteError, DeleteExecutor, DeleteExecutorDyn, DeleteQuery,
-    DeleteQueryDyn, DeleteResponse,
-};
+pub use delete::{DeleteBuilder, DeleteError, DeleteExecutor, DeleteQuery, DeleteResponse};
 pub use load::{
     LoadBuilder, LoadBuilderDyn, LoadError, LoadExecutor, LoadExecutorDyn, LoadQuery, LoadQueryDyn,
     LoadResponse, LoadResponseDyn,
@@ -27,7 +24,7 @@ use serde::{Deserialize, Serialize};
 /// QueryError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(CandidType, Debug, Serialize, ThisError)]
 pub enum QueryError {
     #[error(transparent)]
     DeleteError(#[from] DeleteError),
@@ -41,8 +38,11 @@ pub enum QueryError {
 
 // load
 #[must_use]
-pub const fn load<E: Entity>() -> LoadBuilder<E> {
-    LoadBuilder::new()
+pub fn load<E>() -> LoadBuilder
+where
+    E: Entity,
+{
+    LoadBuilder::new(E::PATH)
 }
 
 // load_dyn
@@ -53,50 +53,56 @@ pub fn load_dyn(path: &str) -> LoadBuilderDyn {
 
 // delete
 #[must_use]
-pub const fn delete<E: Entity>() -> DeleteBuilder<E> {
-    DeleteBuilder::new()
+pub fn delete<E: Entity>() -> DeleteBuilder {
+    DeleteBuilder::new(E::PATH)
 }
 
-// delete_dyn
+// save
 #[must_use]
-pub fn delete_dyn(path: &str) -> DeleteBuilderDyn {
-    DeleteBuilderDyn::new(path)
+pub const fn save(mode: SaveMode) -> SaveBuilder {
+    SaveBuilder::new(mode)
+}
+
+// save_dyn
+#[must_use]
+pub fn save_dyn(path: &str, mode: SaveMode) -> SaveBuilderDyn {
+    SaveBuilderDyn::new(path, mode)
 }
 
 // create
 #[must_use]
-pub const fn create<E: Entity>() -> SaveBuilder<E> {
+pub const fn create() -> SaveBuilder {
     SaveBuilder::new(SaveMode::Create)
 }
 
 // create_dyn
 #[must_use]
-pub const fn create_dyn() -> SaveBuilderDyn {
-    SaveBuilderDyn::new(SaveMode::Create)
+pub fn create_dyn(path: &str) -> SaveBuilderDyn {
+    SaveBuilderDyn::new(path, SaveMode::Create)
 }
 
 // replace
 #[must_use]
-pub const fn replace<E: Entity>() -> SaveBuilder<E> {
+pub const fn replace() -> SaveBuilder {
     SaveBuilder::new(SaveMode::Replace)
 }
 
 // replace_dyn
 #[must_use]
-pub const fn replace_dyn() -> SaveBuilderDyn {
-    SaveBuilderDyn::new(SaveMode::Replace)
+pub fn replace_dyn(path: &str) -> SaveBuilderDyn {
+    SaveBuilderDyn::new(path, SaveMode::Replace)
 }
 
 // update
 #[must_use]
-pub const fn update<E: Entity>() -> SaveBuilder<E> {
+pub const fn update() -> SaveBuilder {
     SaveBuilder::new(SaveMode::Update)
 }
 
 // update_dyn
 #[must_use]
-pub const fn update_dyn() -> SaveBuilderDyn {
-    SaveBuilderDyn::new(SaveMode::Update)
+pub fn update_dyn(path: &str) -> SaveBuilderDyn {
+    SaveBuilderDyn::new(path, SaveMode::Update)
 }
 
 ///

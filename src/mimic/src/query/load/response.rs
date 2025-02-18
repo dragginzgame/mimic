@@ -1,6 +1,6 @@
 use crate::{
     Error,
-    db::types::{DataKey, DataRow, EntityRow, EntityValue},
+    db::types::{DataKey, DataRow, EntityRow},
     orm::traits::Entity,
     query::{
         QueryError,
@@ -127,6 +127,23 @@ where
     pub fn entity_rows(self) -> Vec<EntityRow<E>> {
         self.0
     }
+
+    // as_dynamic
+    pub fn as_dynamic(self) -> Result<LoadResponseDyn, Error> {
+        let rows = self
+            .into_iter()
+            .map(|row| {
+                let data_row: DataRow = row
+                    .try_into()
+                    .map_err(LoadError::SerializeError)
+                    .map_err(QueryError::LoadError)?;
+
+                Ok(data_row)
+            })
+            .collect::<Result<Vec<DataRow>, Error>>()?;
+
+        Ok(LoadResponseDyn(rows))
+    }
 }
 
 ///
@@ -142,28 +159,6 @@ impl LoadResponseDyn {
         let rows = apply_offset_limit(rows, offset, limit);
 
         Self(rows)
-    }
-
-    // as_generic
-    // Converts LoadResponseDyn (Vec<DataRow>) into LoadResponse<E> (Vec<EntityRow<E>>)
-    pub fn as_generic<E: Entity>(self) -> Result<LoadResponse<E>, Error> {
-        let entity_rows = self
-            .into_iter()
-            .map(|row| {
-                let value: EntityValue<E> = row
-                    .value
-                    .try_into()
-                    .map_err(LoadError::SerializeError)
-                    .map_err(QueryError::LoadError)?;
-
-                Ok(EntityRow {
-                    key: row.key,
-                    value,
-                })
-            })
-            .collect::<Result<Vec<EntityRow<E>>, Error>>()?;
-
-        Ok(LoadResponse(entity_rows))
     }
 
     // count
@@ -214,10 +209,34 @@ impl LoadResponseDyn {
             .ok_or_else(|| QueryError::LoadError(LoadError::NoResultsFound).into())
     }
 
+    // blob
+    #[must_use]
+    pub fn blob(self) -> Option<Vec<u8>> {
+        self.first().map(|row| row.value.data.clone())
+    }
+
     // blobs
     #[must_use]
     pub fn blobs(self) -> Vec<Vec<u8>> {
         self.into_iter().map(|row| row.value.data).collect()
+    }
+
+    // as_generic
+    // Converts LoadResponseDyn (Vec<DataRow>) into LoadResponse<E> (Vec<EntityRow<E>>)
+    pub fn as_generic<E: Entity>(self) -> Result<LoadResponse<E>, Error> {
+        let entity_rows = self
+            .into_iter()
+            .map(|row| {
+                let entity_row: EntityRow<E> = row
+                    .try_into()
+                    .map_err(LoadError::SerializeError)
+                    .map_err(QueryError::LoadError)?;
+
+                Ok(entity_row)
+            })
+            .collect::<Result<Vec<EntityRow<E>>, Error>>()?;
+
+        Ok(LoadResponse(entity_rows))
     }
 }
 

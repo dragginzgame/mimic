@@ -1,7 +1,7 @@
 pub mod dynamic;
 pub mod generic;
 
-pub use dynamic::{SaveBuilderDyn, SaveExecutorDyn, SaveQueryDyn};
+pub use dynamic::{SaveBuilderDyn, SaveExecutorDyn, SaveQueryDyn, SaveResponseDyn};
 pub use generic::{SaveBuilder, SaveExecutor, SaveQuery};
 
 use crate::{
@@ -24,7 +24,7 @@ use serde::{Deserialize, Serialize};
 /// SaveError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(CandidType, Debug, Serialize, ThisError)]
 pub enum SaveError {
     #[error("key exists: {0}")]
     KeyExists(DataKey),
@@ -44,21 +44,6 @@ pub enum SaveError {
     #[error(transparent)]
     ResolverError(#[from] ResolverError),
 }
-
-///
-/// SaveResponse
-/// empty for now
-///
-
-#[derive(CandidType, Debug, Serialize, Deserialize)]
-pub struct SaveResponse();
-
-///
-/// SaveResponseDyn
-///
-
-#[derive(CandidType, Debug, Serialize, Deserialize)]
-pub struct SaveResponseDyn();
 
 ///
 /// SaveMode
@@ -154,3 +139,11 @@ fn save<'a>(
 
     Ok(())
 }
+
+///
+/// SaveResponse
+/// empty for now
+///
+
+#[derive(CandidType, Debug, Serialize)]
+pub struct SaveResponse();

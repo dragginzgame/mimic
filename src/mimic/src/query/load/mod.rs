@@ -16,7 +16,6 @@ use crate::{
     query::{
         QueryError,
         resolver::{Resolver, ResolverError},
-        types::{Filter, Order},
     },
 };
 use candid::CandidType;
@@ -54,25 +53,6 @@ pub enum LoadError {
 }
 
 ///
-/// LoadRequest
-/// (from the front end, so no generics)
-///
-/// entity : Entity path
-/// format : the format you want the results in (Rows or Count)
-///
-
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub struct LoadRequest {
-    pub entity: String,
-    pub method: LoadMethod,
-    pub offset: u32,
-    pub limit: Option<u32>,
-    pub filter: Option<Filter>,
-    pub order: Option<Order>,
-    pub format: LoadFormat,
-}
-
-///
 /// LoadFormat
 ///
 /// a variant that specifies the format the LoadResponse should be in
@@ -97,9 +77,8 @@ pub enum LoadFormat {
 /// Range  : user-defined range, ie. Item=1000 Item=1500
 ///
 
-#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
 pub enum LoadMethod {
-    #[default]
     All,
     Only,
     One(Vec<String>),

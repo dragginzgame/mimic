@@ -40,21 +40,15 @@ use visit::{ValidateVisitor, perform_visit};
 
 #[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum OrmError {
-    #[error("cannot parse field '{0}'")]
-    ParseField(String),
+    // entity not found, used for auto-generated endpoints
+    #[error("entity not found: {0}")]
+    EntityNotFound(String),
 
     #[error("validation failed: {0}")]
     Validation(ErrorTree),
 
     #[error(transparent)]
     SerializeError(#[from] SerializeError),
-}
-
-impl OrmError {
-    #[must_use]
-    pub fn parse_field(field: &str) -> Self {
-        Self::ParseField(field.to_string())
-    }
 }
 
 // validate

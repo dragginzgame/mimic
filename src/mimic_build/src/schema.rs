@@ -1,13 +1,13 @@
 use crate::Error;
-use mimic::{schema::build::get_schema, Error as MimicError};
-use serde::{Deserialize, Serialize};
+use mimic::{Error as MimicError, schema::build::get_schema};
+use serde::Serialize;
 use thiserror::Error as ThisError;
 
 ///
 /// SchemaError
 ///
 
-#[derive(Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, Serialize, ThisError)]
 pub enum SchemaError {
     #[error("serde json error: {0}")]
     SerdeJson(String),

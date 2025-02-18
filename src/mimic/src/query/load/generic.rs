@@ -9,82 +9,75 @@ use crate::{
     },
 };
 use candid::CandidType;
-use serde::Serialize;
-use std::marker::PhantomData;
+use serde::{Deserialize, Serialize};
 
 ///
 /// LoadBuilder
 ///
 
-#[derive(Default)]
-pub struct LoadBuilder<E>
-where
-    E: Entity,
-{
-    phantom: PhantomData<E>,
+#[derive(Debug)]
+pub struct LoadBuilder {
+    path: String,
 }
 
-impl<E> LoadBuilder<E>
-where
-    E: Entity,
-{
+impl LoadBuilder {
     // new
     #[must_use]
-    pub const fn new() -> Self {
+    pub fn new(path: &str) -> Self {
         Self {
-            phantom: PhantomData,
+            path: path.to_string(),
         }
     }
 
     // method
     #[must_use]
-    pub fn method(self, method: LoadMethod) -> LoadQuery<E> {
-        LoadQuery::new(method)
+    pub fn method(self, method: LoadMethod) -> LoadQuery {
+        LoadQuery::new(&self.path, method)
     }
 
     // all
     #[must_use]
-    pub fn all(self) -> LoadQuery<E> {
-        LoadQuery::new(LoadMethod::All)
+    pub fn all(self) -> LoadQuery {
+        LoadQuery::new(&self.path, LoadMethod::All)
     }
 
     // only
     #[must_use]
-    pub fn only(self) -> LoadQuery<E> {
-        LoadQuery::new(LoadMethod::Only)
+    pub fn only(self) -> LoadQuery {
+        LoadQuery::new(&self.path, LoadMethod::Only)
     }
 
     // one
-    pub fn one<T: ToString>(self, ck: &[T]) -> LoadQuery<E> {
+    pub fn one<T: ToString>(self, ck: &[T]) -> LoadQuery {
         let ck_str: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let method = LoadMethod::One(ck_str);
 
-        LoadQuery::new(method)
+        LoadQuery::new(&self.path, method)
     }
 
     // many
     #[must_use]
-    pub fn many(self, cks: &[Vec<String>]) -> LoadQuery<E> {
+    pub fn many(self, cks: &[Vec<String>]) -> LoadQuery {
         let method = LoadMethod::Many(cks.to_vec());
 
-        LoadQuery::new(method)
+        LoadQuery::new(&self.path, method)
     }
 
     // range
-    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> LoadQuery<E> {
+    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> LoadQuery {
         let start = start.iter().map(ToString::to_string).collect();
         let end = end.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Range(start, end);
 
-        LoadQuery::new(method)
+        LoadQuery::new(&self.path, method)
     }
 
     // prefix
-    pub fn prefix<T: ToString>(self, prefix: &[T]) -> LoadQuery<E> {
+    pub fn prefix<T: ToString>(self, prefix: &[T]) -> LoadQuery {
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Prefix(prefix);
 
-        LoadQuery::new(method)
+        LoadQuery::new(&self.path, method)
     }
 }
 
@@ -92,30 +85,29 @@ where
 /// LoadQuery
 ///
 
-#[derive(CandidType, Debug, Default, Serialize)]
-pub struct LoadQuery<E>
-where
-    E: Entity,
-{
-    method: LoadMethod,
-    offset: u32,
-    limit: Option<u32>,
-    filter: Option<Filter>,
-    order: Option<Order>,
-    debug: DebugContext,
-    phantom: PhantomData<E>,
+#[derive(CandidType, Debug, Serialize, Deserialize)]
+pub struct LoadQuery {
+    pub path: String,
+    pub method: LoadMethod,
+    pub offset: u32,
+    pub limit: Option<u32>,
+    pub filter: Option<Filter>,
+    pub order: Option<Order>,
+    pub debug: DebugContext,
 }
 
-impl<E> LoadQuery<E>
-where
-    E: Entity,
-{
+impl LoadQuery {
     // new
     #[must_use]
-    pub fn new(method: LoadMethod) -> Self {
+    pub fn new(path: &str, method: LoadMethod) -> Self {
         Self {
+            path: path.to_string(),
             method,
-            ..Default::default()
+            offset: 0,
+            limit: None,
+            filter: None,
+            order: None,
+            debug: DebugContext::default(),
         }
     }
 
@@ -190,7 +182,10 @@ where
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<LoadResponse<E>, Error> {
+    pub fn execute<E>(self, db: DbLocal) -> Result<LoadResponse<E>, Error>
+    where
+        E: Entity,
+    {
         let executor = LoadExecutor::new(self);
 
         executor.execute(db)
@@ -201,32 +196,26 @@ where
 /// LoadExecutor
 ///
 
-pub struct LoadExecutor<E>
-where
-    E: Entity,
-{
-    query: LoadQuery<E>,
-    resolver: Resolver,
+pub struct LoadExecutor {
+    query: LoadQuery,
 }
 
-impl<E> LoadExecutor<E>
-where
-    E: Entity,
-{
+impl LoadExecutor {
     // new
     #[must_use]
-    pub fn new(query: LoadQuery<E>) -> Self {
-        Self {
-            query,
-            resolver: Resolver::new(&E::path()),
-        }
+    pub fn new(query: LoadQuery) -> Self {
+        Self { query }
     }
 
     // execute
     // also make sure we're deserializing the correct entity path
-    pub fn execute(self, db: DbLocal) -> Result<LoadResponse<E>, Error> {
+    pub fn execute<E>(self, db: DbLocal) -> Result<LoadResponse<E>, Error>
+    where
+        E: Entity,
+    {
         // loader
-        let loader = Loader::new(db, self.resolver);
+        let resolver = Resolver::new(&self.query.path);
+        let loader = Loader::new(db, resolver);
         let res = loader.load(&self.query.method)?;
 
         let rows = res

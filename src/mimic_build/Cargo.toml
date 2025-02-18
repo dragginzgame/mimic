@@ -8,6 +8,7 @@ version = { workspace = true }
 workspace = true
 
 [dependencies]
+candid = { workspace = true }
 darling = { workspace = true }
 derive_more = { workspace = true }
 mimic = { workspace = true }

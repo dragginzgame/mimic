@@ -1,7 +1,7 @@
 use super::Implementor;
 use crate::node::{Enum, Newtype, PrimitiveGroup, Trait};
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote, ToTokens};
+use quote::{ToTokens, format_ident, quote};
 
 // enum_
 // any variants that have the invalid flag set should not pass validation if selected
@@ -64,7 +64,7 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
             let path = &val.path;
             let args = &val.args;
 
-            let constructor = if args.len() == 0 {
+            let constructor = if args.is_empty() {
                 quote! { #path::default() }
             } else {
                 quote! { #path::new(#(#args),*) }

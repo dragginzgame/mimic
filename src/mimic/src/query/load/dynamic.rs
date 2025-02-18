@@ -82,7 +82,7 @@ impl LoadBuilderDyn {
 /// LoadQueryDyn
 ///
 
-#[derive(CandidType, Debug, Default, Serialize, Deserialize)]
+#[derive(CandidType, Debug, Serialize, Deserialize)]
 pub struct LoadQueryDyn {
     path: String,
     method: LoadMethod,
@@ -98,7 +98,9 @@ impl LoadQueryDyn {
         Self {
             path: path.to_string(),
             method,
-            ..Default::default()
+            offset: 0,
+            limit: None,
+            debug: DebugContext::default(),
         }
     }
 

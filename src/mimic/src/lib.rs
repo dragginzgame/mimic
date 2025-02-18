@@ -42,7 +42,7 @@ pub mod prelude {
 }
 
 use candid::CandidType;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use thiserror::Error as ThisError;
 
 // init
@@ -55,7 +55,7 @@ pub const fn init() {
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(CandidType, Debug, Serialize, ThisError)]
 pub enum Error {
     #[error(transparent)]
     ConfigError(#[from] config::ConfigError),
