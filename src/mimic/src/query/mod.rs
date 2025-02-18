@@ -39,10 +39,22 @@ pub fn load<E: Entity>() -> LoadBuilder {
     LoadBuilder::new(E::PATH)
 }
 
+// load_by_path
+#[must_use]
+pub fn load_by_path(path: &str) -> LoadBuilder {
+    LoadBuilder::new(path)
+}
+
 // delete
 #[must_use]
 pub fn delete<E: Entity>() -> DeleteBuilder {
     DeleteBuilder::new(E::PATH)
+}
+
+// delete_path
+#[must_use]
+pub fn delete_by_path(path: &str) -> DeleteBuilder {
+    DeleteBuilder::new(path)
 }
 
 // save
