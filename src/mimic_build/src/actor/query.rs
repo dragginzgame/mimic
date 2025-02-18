@@ -4,9 +4,9 @@ use syn::{Path, parse_str};
 
 // extend
 pub fn extend(builder: &mut ActorBuilder) {
-    query_load(builder);
+    //  query_load(builder);
     query_delete(builder);
-    query_save(builder);
+    //   query_save(builder);
 }
 
 // query_load
