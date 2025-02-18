@@ -5,10 +5,7 @@ pub mod save;
 pub mod types;
 
 pub use delete::{DeleteBuilder, DeleteError, DeleteExecutor, DeleteQuery, DeleteResponse};
-pub use load::{
-    LoadBuilder, LoadBuilderDyn, LoadError, LoadExecutor, LoadExecutorDyn, LoadQuery, LoadQueryDyn,
-    LoadResponse, LoadResponseDyn,
-};
+pub use load::{LoadBuilder, LoadError, LoadExecutor, LoadQuery, LoadResponse, LoadResponseDyn};
 pub use resolver::{Resolver, ResolverError};
 pub use save::{
     SaveBuilder, SaveBuilderDyn, SaveError, SaveMode, SaveQuery, SaveQueryDyn, SaveResponse,
@@ -38,17 +35,8 @@ pub enum QueryError {
 
 // load
 #[must_use]
-pub fn load<E>() -> LoadBuilder
-where
-    E: Entity,
-{
+pub fn load<E: Entity>() -> LoadBuilder {
     LoadBuilder::new(E::PATH)
-}
-
-// load_dyn
-#[must_use]
-pub fn load_dyn(path: &str) -> LoadBuilderDyn {
-    LoadBuilderDyn::new(path)
 }
 
 // delete

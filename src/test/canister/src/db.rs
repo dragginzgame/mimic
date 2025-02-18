@@ -49,7 +49,7 @@ impl DbTester {
         // Retrieve the count of keys (or entities) from the store
         let count = query::load::<CreateBasic>()
             .all()
-            .execute::<CreateBasic>(&DB)
+            .execute(&DB)
             .unwrap()
             .count();
 
@@ -70,7 +70,7 @@ impl DbTester {
 
         // count keys
         assert_eq!(
-            query::load_dyn(CreateBasic::PATH)
+            query::load::<CreateBasic>()
                 .all()
                 .debug()
                 .execute(&DB)
@@ -85,7 +85,7 @@ impl DbTester {
 
         // count keys
         assert_eq!(
-            query::load_dyn(CreateBasic::PATH)
+            query::load::<CreateBasic>()
                 .all()
                 .execute(&DB)
                 .unwrap()
@@ -111,7 +111,7 @@ impl DbTester {
         }
 
         // Retrieve the count from the store
-        let count = query::load_dyn(CreateBasic::PATH)
+        let count = query::load::<CreateBasic>()
             .all()
             .execute(&DB)
             .unwrap()
@@ -142,7 +142,7 @@ impl DbTester {
         let keys = query::load::<SortKeyOrder>()
             .all()
             .order(Order::from(vec!["id"]))
-            .execute::<SortKeyOrder>(&DB)
+            .execute_as::<SortKeyOrder>(&DB)
             .unwrap()
             .keys();
 
@@ -166,7 +166,7 @@ impl DbTester {
         query::create().from_entity(e).execute(&DB).unwrap();
 
         // load all keys
-        let res = query::load_dyn(HasMap::PATH).only().execute(&DB).unwrap();
+        let res = query::load::<HasMap>().only().execute(&DB).unwrap();
 
         assert!(res.count() == 1);
     }
@@ -226,7 +226,7 @@ impl DbTester {
             let count = query::load::<Filterable>()
                 .all()
                 .filter_all(search)
-                .execute::<Filterable>(&DB)
+                .execute_as::<Filterable>(&DB)
                 .unwrap()
                 .count();
 
@@ -260,7 +260,7 @@ impl DbTester {
         // Test various limits and offsets
         for limit in [10, 20, 50] {
             for offset in [0, 5, 10] {
-                let res = query::load_dyn(Limit::PATH)
+                let res = query::load::<Limit>()
                     .all()
                     .offset(offset)
                     .limit(limit)

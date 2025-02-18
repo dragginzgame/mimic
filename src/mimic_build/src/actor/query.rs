@@ -22,8 +22,7 @@ fn query_load(builder: &mut ActorBuilder) {
             #entity_path => {
                 ::mimic::query::load::<#generic>()
                     .method(query.method)
-                    .execute::<#generic>(&DB)?
-                    .as_dynamic()
+                    .execute(&DB)
             }
         });
     }
