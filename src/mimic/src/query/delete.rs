@@ -182,5 +182,5 @@ impl DeleteExecutor {
 /// DeleteResponse
 ///
 
-#[derive(CandidType, Debug, Deref, DerefMut, Serialize)]
+#[derive(CandidType, Debug, Deref, DerefMut, Serialize, Deserialize)]
 pub struct DeleteResponse(Vec<DataKey>);

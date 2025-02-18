@@ -145,5 +145,5 @@ fn save<'a>(
 /// empty for now
 ///
 
-#[derive(CandidType, Debug, Serialize)]
+#[derive(CandidType, Debug, Serialize, Deserialize)]
 pub struct SaveResponse();
