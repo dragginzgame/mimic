@@ -6,12 +6,13 @@ pub mod types;
 
 pub use delete::{DeleteBuilder, DeleteError, DeleteExecutor, DeleteQuery, DeleteResponse};
 pub use load::{
-    LoadBuilder, LoadBuilderDyn, LoadError, LoadExecutor, LoadQuery, LoadResponse, LoadResponseDyn,
+    LoadBuilder, LoadBuilderDyn, LoadError, LoadExecutor, LoadExecutorDyn, LoadQuery, LoadQueryDyn,
+    LoadResponse, LoadResponseDyn,
 };
 pub use resolver::{Resolver, ResolverError};
 pub use save::{
-    SaveBuilder, SaveBuilderDyn, SaveError, SaveMode, SaveQuery, SaveQueryDyn, SaveResponse,
-    SaveResponseDyn,
+    SaveBuilder, SaveBuilderDyn, SaveError, SaveExecutor, SaveExecutorDyn, SaveMode, SaveQuery,
+    SaveQueryDyn, SaveResponse, SaveResponseDyn,
 };
 pub use types::*;
 

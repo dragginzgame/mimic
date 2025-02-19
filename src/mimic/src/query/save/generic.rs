@@ -76,7 +76,7 @@ impl SaveQuery {
     }
 
     // execute
-    pub fn execute<E>(self, db: DbLocal) -> Result<(), Error>
+    pub fn execute<E>(self, db: DbLocal) -> Result<SaveResponse, Error>
     where
         E: Entity,
     {
@@ -102,7 +102,7 @@ impl SaveExecutor {
     }
 
     // execute
-    pub fn execute<E>(self, db: DbLocal) -> Result<(), Error>
+    pub fn execute<E>(self, db: DbLocal) -> Result<SaveResponse, Error>
     where
         E: Entity,
     {
@@ -115,7 +115,7 @@ impl SaveExecutor {
         save(db, &self.query.mode, &self.query.debug, Box::new(entity))
             .map_err(QueryError::SaveError)?;
 
-        Ok(())
+        Ok(SaveResponse())
     }
 }
 
