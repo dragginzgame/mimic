@@ -39,7 +39,7 @@ fn query_load(builder: &mut ActorBuilder) {
             let path = &query.path;
             let res = match path.as_str() {
                 #load_entities
-                _ => return Err(::mimic::orm::OrmError::EntityNotFound(path.clone()).into()),
+                _ => return Err(::mimic::orm::OrmError::EntityNotFound(path.clone()).into())
             }?;
 
             Ok(res)
