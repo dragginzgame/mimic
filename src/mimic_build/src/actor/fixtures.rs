@@ -27,7 +27,7 @@ pub fn fixtures(builder: &mut ActorBuilder) {
             for entity in fixtures {
                 ::mimic::query::replace_dyn()
                     .from_entity_dyn(entity)
-                    .debug()
+                  //  .debug()
                     .execute(&DB)?;
             }
 
