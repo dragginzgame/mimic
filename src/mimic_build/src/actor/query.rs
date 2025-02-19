@@ -19,7 +19,7 @@ fn query_load(builder: &mut ActorBuilder) {
     let inner = if entities.is_empty() {
         // If there are no entities, insert a dummy match arm
         quote! {
-            Err(::mimic::orm::OrmError::EntityNotFound(&query.path.to_string()).into())
+            Err(::mimic::orm::OrmError::EntityNotFound(query.path.to_string()).into())
         }
     } else {
         // Otherwise, generate match arms dynamically
