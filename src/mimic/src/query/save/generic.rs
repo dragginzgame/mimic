@@ -1,67 +1,44 @@
 use crate::{
     Error,
     db::DbLocal,
-    orm::{
-        deserialize,
-        traits::{Entity, EntityDyn},
-    },
+    orm::{serialize, traits::Entity},
     query::{
         DebugContext, QueryError,
-        save::{SaveError, SaveMode, SaveResponse, save},
+        save::{SaveMode, save},
     },
 };
-use std::mem;
+use candid::CandidType;
+use serde::{Deserialize, Serialize};
 
 ///
 /// SaveBuilder
 ///
 
 pub struct SaveBuilder {
+    path: String,
     mode: SaveMode,
 }
 
 impl SaveBuilder {
     // new
     #[must_use]
-    pub const fn new(mode: SaveMode) -> Self {
-        Self { mode }
-    }
-
-    // from_bytes
-    pub fn from_bytes<E: Entity + 'static>(self, data: &[u8]) -> Result<SaveQuery, Error> {
-        let entity: E = deserialize(data)
-            .map_err(SaveError::OrmError)
-            .map_err(QueryError::SaveError)?;
-
-        Ok(SaveQuery::new(self.mode, vec![Box::new(entity)]))
+    pub fn new(path: &str, mode: SaveMode) -> Self {
+        Self {
+            path: path.to_string(),
+            mode,
+        }
     }
 
     // from_entity
-    pub fn from_entity<E: Entity + 'static>(self, entity: E) -> SaveQuery {
-        SaveQuery::new(self.mode, vec![Box::new(entity)])
+    pub fn from_entity<E: Entity>(self, entity: E) -> Result<SaveQuery, Error> {
+        let bytes = serialize(&entity)?;
+
+        Ok(SaveQuery::new(&self.path, self.mode, bytes))
     }
 
-    // from_entities
-    #[must_use]
-    pub fn from_entities<E: Entity + 'static>(self, entities: Vec<E>) -> SaveQuery {
-        let boxed_entities = entities
-            .into_iter()
-            .map(|entity| Box::new(entity) as Box<dyn EntityDyn>)
-            .collect();
-
-        SaveQuery::new(self.mode, boxed_entities)
-    }
-
-    // from_entity_dyn
-    #[must_use]
-    pub fn from_entity_dyn(self, entity: Box<dyn EntityDyn>) -> SaveQuery {
-        SaveQuery::new(self.mode, vec![entity])
-    }
-
-    // from_entities_dyn
-    #[must_use]
-    pub fn from_entities_dyn(self, entities: Vec<Box<dyn EntityDyn>>) -> SaveQuery {
-        SaveQuery::new(self.mode, entities)
+    // from_bytes
+    pub fn from_bytes(self, bytes: &[u8]) -> Result<SaveQuery, Error> {
+        Ok(SaveQuery::new(&self.path, self.mode, bytes.to_vec()))
     }
 }
 
@@ -69,20 +46,22 @@ impl SaveBuilder {
 /// SaveQuery
 ///
 
-#[derive(Debug)]
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
 pub struct SaveQuery {
-    mode: SaveMode,
-    entities: Vec<Box<dyn EntityDyn>>,
-    debug: DebugContext,
+    pub path: String,
+    pub mode: SaveMode,
+    pub bytes: Vec<u8>,
+    pub debug: DebugContext,
 }
 
 impl SaveQuery {
     // new
     #[must_use]
-    pub fn new(mode: SaveMode, entities: Vec<Box<dyn EntityDyn>>) -> Self {
+    pub fn new(path: &str, mode: SaveMode, bytes: Vec<u8>) -> Self {
         Self {
+            path: path.to_string(),
             mode,
-            entities,
+            bytes,
             debug: DebugContext::default(),
         }
     }
@@ -95,10 +74,13 @@ impl SaveQuery {
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<SaveResponse, Error> {
+    pub fn execute<E>(self, db: DbLocal) -> Result<(), Error>
+    where
+        E: Entity,
+    {
         let executor = SaveExecutor::new(self);
 
-        executor.execute(db)
+        executor.execute::<E>(db)
     }
 }
 
@@ -118,23 +100,26 @@ impl SaveExecutor {
     }
 
     // execute
-    pub fn execute(mut self, db: DbLocal) -> Result<SaveResponse, Error> {
+    pub fn execute<E>(self, db: DbLocal) -> Result<(), Error>
+    where
+        E: Entity,
+    {
         // Validate all entities first
-        for entity in &self.query.entities {
-            let adapter = crate::orm::visit::EntityAdapter(&**entity);
-            crate::orm::validate(&adapter)?;
-        }
-
-        // Temporarily take the entities out of self to avoid borrowing issues
-        let mode = self.query.mode;
-        let debug = self.query.debug;
-        let entities = mem::take(&mut self.query.entities);
+        let entity: E = crate::orm::deserialize(&self.query.bytes)?;
+        let adapter = crate::orm::visit::EntityAdapter(&entity);
+        crate::orm::validate(&adapter)?;
 
         // save entities
-        for entity in entities {
-            save(db, &mode, &debug, entity).map_err(QueryError::SaveError)?;
-        }
+        save(db, &self.query.mode, &self.query.debug, Box::new(entity))
+            .map_err(QueryError::SaveError)?;
 
-        Ok(SaveResponse())
+        Ok(())
     }
 }
+
+///
+/// SaveResponse
+///
+
+#[derive(CandidType, Debug, Serialize, Deserialize)]
+pub struct SaveResponse();

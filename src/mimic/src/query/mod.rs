@@ -5,7 +5,9 @@ pub mod save;
 pub mod types;
 
 pub use delete::{DeleteBuilder, DeleteError, DeleteExecutor, DeleteQuery, DeleteResponse};
-pub use load::{LoadBuilder, LoadError, LoadExecutor, LoadQuery, LoadResponse, LoadResponseDyn};
+pub use load::{
+    LoadBuilder, LoadBuilderDyn, LoadError, LoadExecutor, LoadQuery, LoadResponse, LoadResponseDyn,
+};
 pub use resolver::{Resolver, ResolverError};
 pub use save::{
     SaveBuilder, SaveBuilderDyn, SaveError, SaveMode, SaveQuery, SaveQueryDyn, SaveResponse,
@@ -35,81 +37,75 @@ pub enum QueryError {
 
 // load
 #[must_use]
-pub fn load<E: Entity>() -> LoadBuilder {
-    LoadBuilder::new(E::PATH)
+pub fn load<E: Entity>() -> LoadBuilder<E> {
+    LoadBuilder::<E>::new()
 }
 
-// load_by_path
+// load_dyn
 #[must_use]
-pub fn load_by_path(path: &str) -> LoadBuilder {
-    LoadBuilder::new(path)
+pub fn load_dyn<E: Entity>() -> LoadBuilderDyn {
+    LoadBuilderDyn::new(E::PATH)
 }
 
 // delete
 #[must_use]
-pub fn delete<E: Entity>() -> DeleteBuilder {
-    DeleteBuilder::new(E::PATH)
-}
-
-// delete_path
-#[must_use]
-pub fn delete_by_path(path: &str) -> DeleteBuilder {
-    DeleteBuilder::new(path)
+pub fn delete<E: Entity>() -> DeleteBuilder<E> {
+    DeleteBuilder::<E>::new()
 }
 
 // save
 #[must_use]
-pub const fn save(mode: SaveMode) -> SaveBuilder {
-    SaveBuilder::new(mode)
+pub fn save<E: Entity>(mode: SaveMode) -> SaveBuilder {
+    SaveBuilder::new(E::PATH, mode)
 }
 
 // save_dyn
 #[must_use]
-pub fn save_dyn(path: &str, mode: SaveMode) -> SaveBuilderDyn {
-    SaveBuilderDyn::new(path, mode)
+pub fn save_dyn(mode: SaveMode) -> SaveBuilderDyn {
+    SaveBuilderDyn::new(mode)
 }
 
 // create
 #[must_use]
-pub const fn create() -> SaveBuilder {
-    SaveBuilder::new(SaveMode::Create)
+pub fn create<E: Entity>() -> SaveBuilder {
+    SaveBuilder::new(E::PATH, SaveMode::Create)
 }
 
 // create_dyn
 #[must_use]
-pub fn create_dyn(path: &str) -> SaveBuilderDyn {
-    SaveBuilderDyn::new(path, SaveMode::Create)
+pub fn create_dyn() -> SaveBuilderDyn {
+    SaveBuilderDyn::new(SaveMode::Create)
 }
 
 // replace
 #[must_use]
-pub const fn replace() -> SaveBuilder {
-    SaveBuilder::new(SaveMode::Replace)
+pub fn replace<E: Entity>() -> SaveBuilder {
+    SaveBuilder::new(E::PATH, SaveMode::Replace)
 }
 
 // replace_dyn
 #[must_use]
-pub fn replace_dyn(path: &str) -> SaveBuilderDyn {
-    SaveBuilderDyn::new(path, SaveMode::Replace)
+pub fn replace_dyn() -> SaveBuilderDyn {
+    SaveBuilderDyn::new(SaveMode::Replace)
 }
 
 // update
 #[must_use]
-pub const fn update() -> SaveBuilder {
-    SaveBuilder::new(SaveMode::Update)
+pub fn update<E: Entity>() -> SaveBuilder {
+    SaveBuilder::new(E::PATH, SaveMode::Update)
 }
 
 // update_dyn
 #[must_use]
-pub fn update_dyn(path: &str) -> SaveBuilderDyn {
-    SaveBuilderDyn::new(path, SaveMode::Update)
+pub fn update_dyn() -> SaveBuilderDyn {
+    SaveBuilderDyn::new(SaveMode::Update)
 }
 
 ///
 /// DebugContext
 ///
 
-#[derive(CandidType, Debug, Default, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
 pub struct DebugContext {
     enabled: bool,
 }

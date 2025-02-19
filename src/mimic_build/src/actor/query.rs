@@ -6,10 +6,13 @@ use syn::{Path, parse_str};
 pub fn extend(builder: &mut ActorBuilder) {
     query_load(builder);
     query_delete(builder);
-    query_save(builder);
+    //   query_save(builder);
 }
 
+//
 // query_load
+//
+
 fn query_load(builder: &mut ActorBuilder) {
     let mut q = quote!();
     let mut inner = quote!();
@@ -20,9 +23,8 @@ fn query_load(builder: &mut ActorBuilder) {
 
         inner.extend(quote! {
             #entity_path => {
-                ::mimic::query::load::<#generic>()
-                    .method(query.method)
-                    .execute(&DB)
+                executor.execute::<#generic>(&DB)?
+                    .as_dynamic()
             }
         });
     }
@@ -33,10 +35,12 @@ fn query_load(builder: &mut ActorBuilder) {
         pub fn query_load(
             query: ::mimic::query::LoadQuery,
         ) -> Result<::mimic::query::LoadResponseDyn, ::mimic::Error> {
+            let executor = ::mimic::query::LoadExecutor::new(query.clone());
+            let path = &query.path;
 
-            let res = match query.path.as_str() {
+            let res = match path.as_str() {
                 #inner
-                _ => Err(::mimic::orm::OrmError::EntityNotFound(query.path.clone()))?
+                _ => Err(::mimic::orm::OrmError::EntityNotFound(path.clone()))?
             }?;
 
             Ok(res)
@@ -46,7 +50,10 @@ fn query_load(builder: &mut ActorBuilder) {
     builder.extend(q);
 }
 
+//
 // query_delete
+//
+
 fn query_delete(builder: &mut ActorBuilder) {
     let mut q = quote!();
 
@@ -66,7 +73,10 @@ fn query_delete(builder: &mut ActorBuilder) {
     builder.extend(q);
 }
 
+//
 // query_save
+//
+/*
 fn query_save(builder: &mut ActorBuilder) {
     let mut q = quote!();
     let mut inner = quote!();
@@ -76,7 +86,8 @@ fn query_save(builder: &mut ActorBuilder) {
         let generic: Path = parse_str(&entity_path).unwrap();
 
         inner.extend(quote! {
-            #entity_path => builder.from_bytes::<#generic>(&query.bytes),
+            #entity_path => builder.from_bytes::<#generic>(&query.bytes)
+                .map_err(::mimic::query::QueryError::SaveError)
         });
     }
 
@@ -86,13 +97,14 @@ fn query_save(builder: &mut ActorBuilder) {
         pub fn query_save(
             query: ::mimic::query::SaveQueryDyn
         ) -> Result<::mimic::query::SaveResponse, ::mimic::Error> {
-            let builder = ::mimic::query::save(query.mode);
+            let executor = ::mimic::query::SaveExecutorDyn(query);
+
             let query = match query.path.as_str() {
                 #inner
-                _ => Err(::mimic::orm::OrmError::EntityNotFound(query.path.clone()))?
+                _ => Err(::mimic::orm::OrmError::EntityNotFound(query.path.clone()))
             }?;
 
-            let res = query.debug().execute(&DB)?;
+            let res = executor.execute(&DB)?;
 
             Ok(res)
         }
@@ -100,3 +112,4 @@ fn query_save(builder: &mut ActorBuilder) {
 
     builder.extend(q);
 }
+*/

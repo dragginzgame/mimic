@@ -2,7 +2,7 @@ pub mod dynamic;
 pub mod generic;
 
 pub use dynamic::{SaveBuilderDyn, SaveExecutorDyn, SaveQueryDyn, SaveResponseDyn};
-pub use generic::{SaveBuilder, SaveExecutor, SaveQuery};
+pub use generic::{SaveBuilder, SaveExecutor, SaveQuery, SaveResponse};
 
 use crate::{
     ThisError,
@@ -53,7 +53,7 @@ pub enum SaveError {
 /// Update  : will only change an existing row
 ///
 
-#[derive(CandidType, Debug, Display, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Copy, Debug, Display, Serialize, Deserialize)]
 pub enum SaveMode {
     Create,
     Replace,
@@ -139,11 +139,3 @@ fn save<'a>(
 
     Ok(())
 }
-
-///
-/// SaveResponse
-/// empty for now
-///
-
-#[derive(CandidType, Debug, Serialize, Deserialize)]
-pub struct SaveResponse();

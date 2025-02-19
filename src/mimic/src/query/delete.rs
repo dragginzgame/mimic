@@ -1,13 +1,14 @@
 use crate::{
     Error,
     db::{DbLocal, StoreLocal, types::DataKey},
+    orm::traits::Entity,
     query::{DebugContext, QueryError, Resolver},
 };
 use crate::{ThisError, db::DbError, query::resolver::ResolverError};
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
-use std::fmt::Display;
+use std::{fmt::Display, marker::PhantomData};
 
 ///
 /// DeleteError
@@ -42,25 +43,29 @@ pub enum DeleteMethod {
 /// DeleteBuilder
 ///
 
-#[derive(Default)]
-pub struct DeleteBuilder {
-    path: String,
+#[derive(Debug, Default)]
+pub struct DeleteBuilder<E>
+where
+    E: Entity,
+{
+    phantom: PhantomData<E>,
 }
 
-impl DeleteBuilder {
+impl<E> DeleteBuilder<E>
+where
+    E: Entity,
+{
     // new
     #[must_use]
-    pub fn new(path: &str) -> Self {
-        Self {
-            path: path.to_string(),
-        }
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // one
     pub fn one<T: Display>(self, ck: &[T]) -> DeleteQuery {
         let key = ck.iter().map(ToString::to_string).collect();
 
-        DeleteQuery::new(&self.path, DeleteMethod::One(key))
+        DeleteQuery::new(E::PATH, DeleteMethod::One(key))
     }
 
     // many
@@ -71,7 +76,7 @@ impl DeleteBuilder {
             .map(|inner_vec| inner_vec.iter().map(ToString::to_string).collect())
             .collect();
 
-        DeleteQuery::new(&self.path, DeleteMethod::Many(keys))
+        DeleteQuery::new(E::PATH, DeleteMethod::Many(keys))
     }
 }
 
@@ -79,7 +84,7 @@ impl DeleteBuilder {
 /// DeleteQuery
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
 pub struct DeleteQuery {
     path: String,
     method: DeleteMethod,

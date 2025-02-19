@@ -38,7 +38,11 @@ impl DbTester {
         // Insert rows
         for _ in 0..100 {
             let e = CreateBasic::default();
-            query::create().from_entity(e).execute(&DB).unwrap();
+            query::create::<CreateBasic>()
+                .from_entity(e)
+                .unwrap()
+                .execute::<CreateBasic>(&DB)
+                .unwrap();
         }
 
         // clear
@@ -47,7 +51,7 @@ impl DbTester {
         });
 
         // Retrieve the count of keys (or entities) from the store
-        let count = query::load::<CreateBasic>()
+        let count = query::load_dyn::<CreateBasic>()
             .all()
             .execute(&DB)
             .unwrap()
@@ -66,11 +70,11 @@ impl DbTester {
         });
 
         let e = CreateBasic::default();
-        query::create().from_entity(e).execute(&DB).unwrap();
+        query::create_dyn().from_entity(e).execute(&DB).unwrap();
 
         // count keys
         assert_eq!(
-            query::load::<CreateBasic>()
+            query::load_dyn::<CreateBasic>()
                 .all()
                 .debug()
                 .execute(&DB)
@@ -81,11 +85,11 @@ impl DbTester {
 
         // insert another
         let e = CreateBasic::default();
-        query::create().from_entity(e).execute(&DB).unwrap();
+        query::create_dyn().from_entity(e).execute(&DB).unwrap();
 
         // count keys
         assert_eq!(
-            query::load::<CreateBasic>()
+            query::load_dyn::<CreateBasic>()
                 .all()
                 .execute(&DB)
                 .unwrap()
@@ -107,11 +111,11 @@ impl DbTester {
         // insert rows
         for _ in 0..ROWS {
             let e = CreateBasic::default();
-            query::create().from_entity(e).execute(&DB).unwrap();
+            query::create_dyn().from_entity(e).execute(&DB).unwrap();
         }
 
         // Retrieve the count from the store
-        let count = query::load::<CreateBasic>()
+        let count = query::load_dyn::<CreateBasic>()
             .all()
             .execute(&DB)
             .unwrap()
@@ -135,14 +139,14 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = SortKeyOrder::default();
-            query::create().from_entity(e).execute(&DB).unwrap();
+            query::create_dyn().from_entity(e).execute(&DB).unwrap();
         }
 
         // Retrieve rows in B-Tree order
         let keys = query::load::<SortKeyOrder>()
             .all()
             .order(Order::from(vec!["id"]))
-            .execute_as::<SortKeyOrder>(&DB)
+            .execute::<SortKeyOrder>(&DB)
             .unwrap()
             .keys();
 
@@ -163,12 +167,16 @@ impl DbTester {
         let mut e = HasMap::default();
         e.map_int_string.push((3, "value".to_string()));
         e.map_int_string.push((4, "value".to_string()));
-        query::create().from_entity(e).execute(&DB).unwrap();
+        query::create_dyn().from_entity(e).execute(&DB).unwrap();
 
         // load all keys
-        let res = query::load::<HasMap>().only().execute(&DB).unwrap();
+        let count = query::load_dyn::<HasMap>()
+            .only()
+            .execute(&DB)
+            .unwrap()
+            .count();
 
-        assert!(res.count() == 1);
+        assert!(count == 1);
     }
 
     // filter_query
@@ -205,7 +213,7 @@ impl DbTester {
                 description: description.into(),
             };
 
-            query::replace().from_entity(e).execute(&DB).unwrap();
+            query::replace_dyn().from_entity(e).execute(&DB).unwrap();
         }
 
         // Array of tests with expected number of matching rows
@@ -226,7 +234,7 @@ impl DbTester {
             let count = query::load::<Filterable>()
                 .all()
                 .filter_all(search)
-                .execute_as::<Filterable>(&DB)
+                .execute::<Filterable>(&DB)
                 .unwrap()
                 .count();
 
@@ -250,7 +258,7 @@ impl DbTester {
         // overwrite the ulid with replace()
         for value in 1..100 {
             let e = Limit { value };
-            query::replace()
+            query::replace_dyn()
                 .from_entity(e)
                 .debug()
                 .execute(&DB)
@@ -260,14 +268,14 @@ impl DbTester {
         // Test various limits and offsets
         for limit in [10, 20, 50] {
             for offset in [0, 5, 10] {
-                let res = query::load::<Limit>()
+                let count = query::load_dyn::<Limit>()
                     .all()
                     .offset(offset)
                     .limit(limit)
                     .execute(&DB)
-                    .unwrap();
+                    .unwrap()
+                    .count();
 
-                let count = res.count();
                 assert_eq!(count, limit as usize, "{limit} not equal to {count}");
                 //    if !results.is_empty() {
                 //        assert_eq!(results[0].value, offset + 1);

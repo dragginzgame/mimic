@@ -3,8 +3,9 @@ mod default;
 mod validate;
 
 use mimic::{
+    Log,
     ic::{init, update},
-    log, mimic_end, mimic_memory_manager, mimic_start, Log,
+    log, mimic_end, mimic_memory_manager, mimic_start,
 };
 
 mimic_memory_manager!(MEMORY_MANAGER);
