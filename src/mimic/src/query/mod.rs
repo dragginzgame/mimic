@@ -7,7 +7,7 @@ pub mod types;
 pub use delete::{DeleteBuilder, DeleteError, DeleteExecutor, DeleteQuery, DeleteResponse};
 pub use load::{
     LoadBuilder, LoadBuilderDyn, LoadError, LoadExecutor, LoadExecutorDyn, LoadQuery, LoadQueryDyn,
-    LoadResponse, LoadResponseDyn,
+    LoadResponse,
 };
 pub use resolver::{Resolver, ResolverError};
 pub use save::{

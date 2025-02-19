@@ -29,17 +29,17 @@ fn query_load(builder: &mut ActorBuilder) {
 
             load_entities.extend(quote! {
                 #entity_path => {
-                    executor.execute::<#generic>(&DB)?.as_dynamic()
+                    let executor = ::mimic::query::LoadExecutor::<#generic>::new(query.clone());
+                    executor.response(&DB)
                 }
             });
         }
 
         quote! {
-            let executor = ::mimic::query::LoadExecutor::new(query.clone());
             let path = &query.path;
             let res = match path.as_str() {
                 #load_entities
-                _ => return Err(::mimic::orm::OrmError::EntityNotFound(path.to_string()).into())
+                _ => Err(::mimic::orm::OrmError::EntityNotFound(path.to_string()).into())
             }?;
 
             Ok(res)
@@ -50,7 +50,7 @@ fn query_load(builder: &mut ActorBuilder) {
         #[::mimic::ic::query]
         pub fn query_load(
             query: ::mimic::query::LoadQuery,
-        ) -> Result<::mimic::query::LoadResponseDyn, ::mimic::Error> {
+        ) -> Result<::mimic::query::LoadResponse, ::mimic::Error> {
             #inner
         }
     };

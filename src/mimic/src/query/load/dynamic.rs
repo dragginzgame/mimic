@@ -1,9 +1,13 @@
 use crate::{
-    db::DbLocal,
+    Error,
+    db::{
+        DbLocal,
+        types::{DataKey, DataRow},
+    },
     orm::traits::Entity,
     query::{
-        DebugContext, Resolver,
-        load::{Error, LoadMethod, LoadResponseDyn, Loader},
+        DebugContext, QueryError, Resolver,
+        load::{LoadError, LoadFormat, LoadMethod, LoadResponse, Loader},
     },
 };
 use candid::CandidType;
@@ -92,6 +96,7 @@ where
 pub struct LoadQueryDyn {
     path: String,
     method: LoadMethod,
+    format: LoadFormat,
     offset: u32,
     limit: Option<u32>,
     debug: DebugContext,
@@ -104,6 +109,7 @@ impl LoadQueryDyn {
         Self {
             path: path.to_string(),
             method,
+            format: LoadFormat::default(),
             offset: 0,
             limit: None,
             debug: DebugContext::default(),
@@ -114,6 +120,13 @@ impl LoadQueryDyn {
     #[must_use]
     pub fn debug(mut self) -> Self {
         self.debug.enable();
+        self
+    }
+
+    // format
+    #[must_use]
+    pub fn format(mut self, format: LoadFormat) -> Self {
+        self.format = format;
         self
     }
 
@@ -139,10 +152,15 @@ impl LoadQueryDyn {
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<LoadResponseDyn, Error> {
+    pub fn execute(self, db: DbLocal) -> Result<LoadCollectionDyn, Error> {
         let executor = LoadExecutorDyn::new(self);
-
         executor.execute(db)
+    }
+
+    // response
+    pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
+        let executor = LoadExecutorDyn::new(self);
+        executor.response(db)
     }
 }
 
@@ -165,15 +183,102 @@ impl LoadExecutorDyn {
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<LoadResponseDyn, Error> {
+    pub fn execute(self, db: DbLocal) -> Result<LoadCollectionDyn, Error> {
         // loader
         let loader = Loader::new(db, self.resolver);
         let rows = loader.load(&self.query.method)?;
 
-        Ok(LoadResponseDyn::new(
-            rows,
-            self.query.limit,
-            self.query.offset,
-        ))
+        let filtered_rows = rows
+            .into_iter()
+            .skip(self.query.offset as usize)
+            .take(self.query.limit.unwrap_or(u32::MAX) as usize)
+            .collect::<Vec<_>>();
+
+        Ok(LoadCollectionDyn(filtered_rows))
+    }
+
+    // response
+    pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
+        let format = self.query.format.clone();
+        let collection = self.execute(db)?;
+
+        let response = match format {
+            LoadFormat::DataRows => LoadResponse::DataRows(collection.data_rows()),
+            LoadFormat::Keys => LoadResponse::Keys(collection.keys()),
+            LoadFormat::Count => LoadResponse::Count(collection.count()),
+        };
+
+        Ok(response)
+    }
+}
+
+///
+/// LoadCollectionDyn
+///
+
+#[derive(CandidType, Debug, Serialize, Deserialize)]
+pub struct LoadCollectionDyn(pub Vec<DataRow>);
+
+impl LoadCollectionDyn {
+    // count
+    #[must_use]
+    pub fn count(self) -> usize {
+        self.0.len()
+    }
+
+    // data_row
+    #[must_use]
+    pub fn data_row(self) -> Option<DataRow> {
+        self.0.first().cloned()
+    }
+
+    // data_rows
+    #[must_use]
+    pub fn data_rows(self) -> Vec<DataRow> {
+        self.0
+    }
+
+    // key
+    #[must_use]
+    pub fn key(self) -> Option<DataKey> {
+        self.0.first().map(|row| row.key.clone())
+    }
+
+    // try_key
+    pub fn try_key(self) -> Result<DataKey, Error> {
+        let row = self
+            .0
+            .first()
+            .ok_or(LoadError::NoResultsFound)
+            .map_err(QueryError::LoadError)?;
+
+        Ok(row.key.clone())
+    }
+
+    // keys
+    #[must_use]
+    pub fn keys(self) -> Vec<DataKey> {
+        self.0.into_iter().map(|row| row.key).collect()
+    }
+
+    // try_blob
+    pub fn try_blob(self) -> Result<Vec<u8>, Error> {
+        self.0
+            .into_iter()
+            .next()
+            .map(|row| row.value.data)
+            .ok_or_else(|| QueryError::LoadError(LoadError::NoResultsFound).into())
+    }
+
+    // blob
+    #[must_use]
+    pub fn blob(self) -> Option<Vec<u8>> {
+        self.0.first().map(|row| row.value.data.clone())
+    }
+
+    // blobs
+    #[must_use]
+    pub fn blobs(self) -> Vec<Vec<u8>> {
+        self.0.into_iter().map(|row| row.value.data).collect()
     }
 }

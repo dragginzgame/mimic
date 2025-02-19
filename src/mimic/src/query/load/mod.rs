@@ -1,10 +1,8 @@
 pub mod dynamic;
 pub mod generic;
-pub mod response;
 
 pub use dynamic::{LoadBuilderDyn, LoadExecutorDyn, LoadQueryDyn};
 pub use generic::{LoadBuilder, LoadExecutor, LoadQuery};
-pub use response::{LoadResponse, LoadResponseDyn};
 
 use crate::{
     Error, ThisError,
@@ -53,18 +51,6 @@ pub enum LoadError {
 }
 
 ///
-/// LoadFormat
-///
-/// a variant that specifies the format the LoadResponse should be in
-///
-
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub enum LoadFormat {
-    Rows,
-    Count,
-}
-
-///
 /// LoadMethod
 ///
 /// All    : no sort key prefix, only works with top-level Sort Keys,
@@ -85,6 +71,29 @@ pub enum LoadMethod {
     Many(Vec<Vec<String>>),
     Prefix(Vec<String>),
     Range(Vec<String>, Vec<String>),
+}
+
+///
+/// LoadFormat
+///
+
+#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
+pub enum LoadFormat {
+    #[default]
+    DataRows,
+    Keys,
+    Count,
+}
+
+///
+/// LoadResponse
+///
+
+#[derive(CandidType, Debug, Serialize, Deserialize)]
+pub enum LoadResponse {
+    DataRows(Vec<DataRow>),
+    Keys(Vec<DataKey>),
+    Count(usize),
 }
 
 ///

@@ -1,10 +1,13 @@
 use crate::{
     Error,
-    db::{DbLocal, types::EntityRow},
+    db::{
+        DbLocal,
+        types::{DataKey, DataRow, EntityRow},
+    },
     orm::traits::Entity,
     query::{
         DebugContext, QueryError, Resolver,
-        load::{LoadError, LoadMethod, LoadResponse, Loader},
+        load::{LoadError, LoadFormat, LoadMethod, LoadResponse, Loader},
         types::{Filter, Order},
     },
 };
@@ -94,6 +97,7 @@ where
 pub struct LoadQuery {
     pub path: String,
     pub method: LoadMethod,
+    pub format: LoadFormat,
     pub offset: u32,
     pub limit: Option<u32>,
     pub filter: Option<Filter>,
@@ -108,12 +112,20 @@ impl LoadQuery {
         Self {
             path: path.to_string(),
             method,
+            format: LoadFormat::default(),
             offset: 0,
             limit: None,
             filter: None,
             order: None,
             debug: DebugContext::default(),
         }
+    }
+
+    // format
+    #[must_use]
+    pub fn format(mut self, format: LoadFormat) -> Self {
+        self.format = format;
+        self
     }
 
     // debug
@@ -187,13 +199,22 @@ impl LoadQuery {
     }
 
     // execute
-    pub fn execute<E>(self, db: DbLocal) -> Result<LoadResponse<E>, Error>
+    // excutes the query and returns a collection
+    pub fn execute<E>(self, db: DbLocal) -> Result<LoadCollection<E>, Error>
     where
         E: Entity,
     {
-        let executor = LoadExecutor::new(self);
-
+        let executor = LoadExecutor::<E>::new(self);
         executor.execute(db)
+    }
+
+    // response
+    pub fn response<E>(self, db: DbLocal) -> Result<LoadResponse, Error>
+    where
+        E: Entity,
+    {
+        let executor = LoadExecutor::<E>::new(self);
+        executor.response(db)
     }
 }
 
@@ -201,28 +222,35 @@ impl LoadQuery {
 /// LoadExecutor
 ///
 
-pub struct LoadExecutor {
+pub struct LoadExecutor<E>
+where
+    E: Entity,
+{
     query: LoadQuery,
+    phantom: PhantomData<E>,
 }
 
-impl LoadExecutor {
+impl<E> LoadExecutor<E>
+where
+    E: Entity,
+{
     // new
     #[must_use]
     pub fn new(query: LoadQuery) -> Self {
-        Self { query }
+        Self {
+            query,
+            phantom: PhantomData,
+        }
     }
 
     // execute
-    // also make sure we're deserializing the correct entity path
-    pub fn execute<E>(self, db: DbLocal) -> Result<LoadResponse<E>, Error>
-    where
-        E: Entity,
-    {
+    pub fn execute(self, db: DbLocal) -> Result<LoadCollection<E>, Error> {
         // loader
         let resolver = Resolver::new(&self.query.path);
         let loader = Loader::new(db, resolver);
         let res = loader.load(&self.query.method)?;
 
+        // convert
         let rows = res
             .into_iter()
             .filter(|row| row.value.path == E::path())
@@ -231,12 +259,145 @@ impl LoadExecutor {
             .map_err(LoadError::SerializeError)
             .map_err(QueryError::LoadError)?;
 
-        Ok(LoadResponse::new(
-            rows,
-            self.query.limit,
-            self.query.offset,
-            self.query.filter,
-            self.query.order,
-        ))
+        // filter
+        let rows = rows
+            .into_iter()
+            .filter(|row| match &self.query.filter {
+                Some(Filter::All(text)) => row.value.entity.filter_all(text),
+                Some(Filter::Fields(fields)) => row.value.entity.filter_fields(fields.clone()),
+                None => true,
+            })
+            .collect::<Vec<_>>();
+
+        // sort
+        let mut rows = rows;
+        if let Some(order) = &self.query.order {
+            let sorter = E::sort(order);
+            rows.sort_by(|a, b| sorter(&a.value.entity, &b.value.entity));
+        }
+
+        // offset and limit
+        let rows = rows
+            .into_iter()
+            .skip(self.query.offset as usize)
+            .take(self.query.limit.unwrap_or(u32::MAX) as usize)
+            .collect();
+
+        Ok(LoadCollection(rows))
+    }
+
+    // response
+    pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
+        let format = self.query.format.clone();
+        let collection = self.execute(db)?;
+
+        let response = match format {
+            LoadFormat::DataRows => LoadResponse::DataRows(collection.data_rows()?),
+            LoadFormat::Keys => LoadResponse::Keys(collection.keys()),
+            LoadFormat::Count => LoadResponse::Count(collection.count()),
+        };
+
+        Ok(response)
+    }
+}
+
+///
+/// LoadCollection
+///
+
+#[derive(Debug)]
+pub struct LoadCollection<E: Entity>(pub Vec<EntityRow<E>>);
+
+impl<E> LoadCollection<E>
+where
+    E: Entity,
+{
+    // count
+    #[must_use]
+    pub fn count(self) -> usize {
+        self.0.len()
+    }
+
+    // key
+    #[must_use]
+    pub fn key(self) -> Option<DataKey> {
+        self.0.first().map(|row| row.key.clone())
+    }
+
+    // try_key
+    pub fn try_key(self) -> Result<DataKey, Error> {
+        let row = self
+            .0
+            .first()
+            .ok_or(LoadError::NoResultsFound)
+            .map_err(QueryError::LoadError)?;
+
+        Ok(row.key.clone())
+    }
+
+    // keys
+    #[must_use]
+    pub fn keys(self) -> Vec<DataKey> {
+        self.0.into_iter().map(|row| row.key).collect()
+    }
+
+    // data_rows
+    pub fn data_rows(self) -> Result<Vec<DataRow>, Error> {
+        self.0
+            .into_iter()
+            .map(|row| {
+                row.try_into()
+                    .map_err(LoadError::SerializeError)
+                    .map_err(QueryError::LoadError)
+                    .map_err(Error::from)
+            })
+            .collect()
+    }
+
+    // entity
+    #[must_use]
+    pub fn entity(self) -> Option<E> {
+        self.0.first().map(|row| row.value.entity.clone())
+    }
+
+    // try_entity
+    pub fn try_entity(self) -> Result<E, Error> {
+        let res = self
+            .0
+            .first()
+            .map(|row| row.value.entity.clone())
+            .ok_or(LoadError::NoResultsFound)
+            .map_err(QueryError::LoadError)?;
+
+        Ok(res)
+    }
+
+    // entities
+    #[must_use]
+    pub fn entities(self) -> Vec<E> {
+        self.0.iter().map(|row| row.value.entity.clone()).collect()
+    }
+
+    // entity_row
+    #[must_use]
+    pub fn entity_row(self) -> Option<EntityRow<E>> {
+        self.0.first().cloned()
+    }
+
+    // try_entity_row
+    pub fn try_entity_row(self) -> Result<EntityRow<E>, Error> {
+        let res = self
+            .0
+            .first()
+            .ok_or(LoadError::NoResultsFound)
+            .map_err(QueryError::LoadError)?;
+
+        Ok(res.clone())
+    }
+
+    // entity_rows
+    #[must_use]
+    pub fn entity_rows(self) -> Vec<EntityRow<E>> {
+        self.0
     }
 }

@@ -502,18 +502,13 @@ dependencies = [
 name = "mimic_build"
 version = "0.3.3"
 dependencies = [
- "candid",
- "darling",
- "derive_more",
  "mimic",
  "proc-macro2",
  "quote",
- "remain",
  "serde",
  "serde_json",
  "syn 2.0.98",
  "thiserror 2.0.11",
- "tinyrand",
 ]
 
 [[package]]
