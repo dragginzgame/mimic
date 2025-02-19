@@ -22,9 +22,8 @@ fn query_load(builder: &mut ActorBuilder) {
             Err(::mimic::orm::OrmError::EntityNotFound(path.clone()).into())
         }
     } else {
-        let mut load_entities = quote!();
-
         // Otherwise, generate match arms dynamically
+        let mut load_entities = quote!();
         for (entity_path, _) in entities {
             let generic: Path = parse_str(&entity_path).unwrap();
             load_entities.extend(quote! {
@@ -39,7 +38,7 @@ fn query_load(builder: &mut ActorBuilder) {
             let path = &query.path;
             let res = match path.as_str() {
                 #load_entities
-                _ => return Err(::mimic::orm::OrmError::EntityNotFound(path.clone()).into())
+                _ => return Err(::mimic::orm::OrmError::EntityNotFound(path.to_string()).into())
             }?;
 
             Ok(res)
