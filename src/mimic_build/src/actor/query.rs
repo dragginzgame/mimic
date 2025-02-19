@@ -14,50 +14,49 @@ pub fn extend(builder: &mut ActorBuilder) {
 //
 
 fn query_load(builder: &mut ActorBuilder) {
-    let mut q = quote!();
-    let mut inner = quote!();
-
     let entities = builder.get_entities();
 
-    if entities.is_empty() {
+    let inner = if entities.is_empty() {
         // If there are no entities, insert a dummy match arm
-        inner.extend(quote! {
-            _ => return Err(::mimic::orm::OrmError::EntityNotFound(path.clone()).into()),
-        });
+        quote! {
+            Err(::mimic::orm::OrmError::EntityNotFound(path.clone()).into()),
+        }
     } else {
+        let mut load_entities = quote!();
+
         // Otherwise, generate match arms dynamically
         for (entity_path, _) in entities {
             let generic: Path = parse_str(&entity_path).unwrap();
 
-            inner.extend(quote! {
+            load_entities.extend(quote! {
                 #entity_path => {
                     executor.execute::<#generic>(&DB)?.as_dynamic()
                 }
             });
         }
 
-        // Add a fallback case for unknown paths
-        inner.extend(quote! {
-            _ => return Err(::mimic::orm::OrmError::EntityNotFound(path.clone()).into()),
-        });
-    }
-
-    // Generate the function
-    q.extend(quote! {
-        #[::mimic::ic::query]
-        pub fn query_load(
-            query: ::mimic::query::LoadQuery,
-        ) -> Result<::mimic::query::LoadResponseDyn, ::mimic::Error> {
+        quote! {
             let executor = ::mimic::query::LoadExecutor::new(query.clone());
             let path = &query.path;
 
             let res = match path.as_str() {
-                #inner
+                #load_entities
+                _ => return Err(::mimic::orm::OrmError::EntityNotFound(path.clone()).into()),
             }?;
 
             Ok(res)
         }
-    });
+    };
+
+    // Generate the function
+    let q = quote! {
+        #[::mimic::ic::query]
+        pub fn query_load(
+            query: ::mimic::query::LoadQuery,
+        ) -> Result<::mimic::query::LoadResponseDyn, ::mimic::Error> {
+            #inner
+        }
+    };
 
     builder.extend(q);
 }
