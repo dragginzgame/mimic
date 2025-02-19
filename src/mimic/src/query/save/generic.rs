@@ -9,36 +9,38 @@ use crate::{
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
+use std::marker::PhantomData;
 
 ///
 /// SaveBuilder
 ///
 
-pub struct SaveBuilder {
-    path: String,
+pub struct SaveBuilder<E>
+where
+    E: Entity,
+{
     mode: SaveMode,
+    phantom: PhantomData<E>,
 }
 
-impl SaveBuilder {
+impl<E> SaveBuilder<E>
+where
+    E: Entity,
+{
     // new
     #[must_use]
-    pub fn new(path: &str, mode: SaveMode) -> Self {
+    pub fn new(mode: SaveMode) -> Self {
         Self {
-            path: path.to_string(),
             mode,
+            phantom: PhantomData,
         }
     }
 
     // from_entity
-    pub fn from_entity<E: Entity>(self, entity: E) -> Result<SaveQuery, Error> {
+    pub fn from_entity(self, entity: E) -> Result<SaveQuery, Error> {
         let bytes = serialize(&entity)?;
 
-        Ok(SaveQuery::new(&self.path, self.mode, bytes))
-    }
-
-    // from_bytes
-    pub fn from_bytes(self, bytes: &[u8]) -> Result<SaveQuery, Error> {
-        Ok(SaveQuery::new(&self.path, self.mode, bytes.to_vec()))
+        Ok(SaveQuery::new(E::PATH, self.mode, bytes))
     }
 }
 

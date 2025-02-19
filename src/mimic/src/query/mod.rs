@@ -55,8 +55,8 @@ pub fn delete<E: Entity>() -> DeleteBuilder<E> {
 
 // save
 #[must_use]
-pub fn save<E: Entity>(mode: SaveMode) -> SaveBuilder {
-    SaveBuilder::new(E::PATH, mode)
+pub fn save<E: Entity>(mode: SaveMode) -> SaveBuilder<E> {
+    SaveBuilder::<E>::new(mode)
 }
 
 // save_dyn
@@ -67,8 +67,8 @@ pub fn save_dyn(mode: SaveMode) -> SaveBuilderDyn {
 
 // create
 #[must_use]
-pub fn create<E: Entity>() -> SaveBuilder {
-    SaveBuilder::new(E::PATH, SaveMode::Create)
+pub fn create<E: Entity>() -> SaveBuilder<E> {
+    SaveBuilder::<E>::new(SaveMode::Create)
 }
 
 // create_dyn
@@ -79,8 +79,8 @@ pub fn create_dyn() -> SaveBuilderDyn {
 
 // replace
 #[must_use]
-pub fn replace<E: Entity>() -> SaveBuilder {
-    SaveBuilder::new(E::PATH, SaveMode::Replace)
+pub fn replace<E: Entity>() -> SaveBuilder<E> {
+    SaveBuilder::<E>::new(SaveMode::Replace)
 }
 
 // replace_dyn
@@ -91,8 +91,8 @@ pub fn replace_dyn() -> SaveBuilderDyn {
 
 // update
 #[must_use]
-pub fn update<E: Entity>() -> SaveBuilder {
-    SaveBuilder::new(E::PATH, SaveMode::Update)
+pub fn update<E: Entity>() -> SaveBuilder<E> {
+    SaveBuilder::<E>::new(SaveMode::Update)
 }
 
 // update_dyn
