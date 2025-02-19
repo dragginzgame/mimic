@@ -1,5 +1,6 @@
 use crate::{
     db::DbLocal,
+    orm::traits::Entity,
     query::{
         DebugContext, Resolver,
         load::{Error, LoadMethod, LoadResponseDyn, Loader},
@@ -7,41 +8,46 @@ use crate::{
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
+use std::marker::PhantomData;
 
 ///
 /// LoadBuilderDyn
 ///
 
-#[derive(Default)]
-pub struct LoadBuilderDyn {
-    path: String,
+#[derive(Debug, Default)]
+pub struct LoadBuilderDyn<E>
+where
+    E: Entity,
+{
+    phantom: PhantomData<E>,
 }
 
-impl LoadBuilderDyn {
+impl<E> LoadBuilderDyn<E>
+where
+    E: Entity,
+{
     // new
     #[must_use]
-    pub fn new(path: &str) -> Self {
-        Self {
-            path: path.to_string(),
-        }
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // method
     #[must_use]
     pub fn method(self, method: LoadMethod) -> LoadQueryDyn {
-        LoadQueryDyn::new(&self.path, method)
+        LoadQueryDyn::new(E::PATH, method)
     }
 
     // all
     #[must_use]
     pub fn all(self) -> LoadQueryDyn {
-        LoadQueryDyn::new(&self.path, LoadMethod::All)
+        LoadQueryDyn::new(E::PATH, LoadMethod::All)
     }
 
     // only
     #[must_use]
     pub fn only(self) -> LoadQueryDyn {
-        LoadQueryDyn::new(&self.path, LoadMethod::Only)
+        LoadQueryDyn::new(E::PATH, LoadMethod::Only)
     }
 
     // one
@@ -49,7 +55,7 @@ impl LoadBuilderDyn {
         let ck_str: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let method = LoadMethod::One(ck_str);
 
-        LoadQueryDyn::new(&self.path, method)
+        LoadQueryDyn::new(E::PATH, method)
     }
 
     // many
@@ -57,24 +63,24 @@ impl LoadBuilderDyn {
     pub fn many(self, cks: &[Vec<String>]) -> LoadQueryDyn {
         let method = LoadMethod::Many(cks.to_vec());
 
-        LoadQueryDyn::new(&self.path, method)
+        LoadQueryDyn::new(E::PATH, method)
     }
 
     // range
-    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> Result<LoadQueryDyn, Error> {
+    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> LoadQueryDyn {
         let start = start.iter().map(ToString::to_string).collect();
         let end = end.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Range(start, end);
 
-        Ok(LoadQueryDyn::new(&self.path, method))
+        LoadQueryDyn::new(E::PATH, method)
     }
 
     // prefix
-    pub fn prefix<T: ToString>(self, prefix: &[T]) -> Result<LoadQueryDyn, Error> {
+    pub fn prefix<T: ToString>(self, prefix: &[T]) -> LoadQueryDyn {
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Prefix(prefix);
 
-        Ok(LoadQueryDyn::new(&self.path, method))
+        LoadQueryDyn::new(E::PATH, method)
     }
 }
 

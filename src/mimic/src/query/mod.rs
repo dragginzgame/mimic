@@ -43,8 +43,8 @@ pub fn load<E: Entity>() -> LoadBuilder<E> {
 
 // load_dyn
 #[must_use]
-pub fn load_dyn<E: Entity>() -> LoadBuilderDyn {
-    LoadBuilderDyn::new(E::PATH)
+pub fn load_dyn<E: Entity>() -> LoadBuilderDyn<E> {
+    LoadBuilderDyn::<E>::new()
 }
 
 // delete
