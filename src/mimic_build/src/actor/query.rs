@@ -19,7 +19,7 @@ fn query_load(builder: &mut ActorBuilder) {
     let inner = if entities.is_empty() {
         // If there are no entities, insert a dummy match arm
         quote! {
-            Err(::mimic::orm::OrmError::EntityNotFound(path.clone()).into()),
+            Err(::mimic::orm::OrmError::EntityNotFound(path.clone()).into())
         }
     } else {
         let mut load_entities = quote!();
@@ -27,7 +27,6 @@ fn query_load(builder: &mut ActorBuilder) {
         // Otherwise, generate match arms dynamically
         for (entity_path, _) in entities {
             let generic: Path = parse_str(&entity_path).unwrap();
-
             load_entities.extend(quote! {
                 #entity_path => {
                     executor.execute::<#generic>(&DB)?.as_dynamic()
@@ -38,7 +37,6 @@ fn query_load(builder: &mut ActorBuilder) {
         quote! {
             let executor = ::mimic::query::LoadExecutor::new(query.clone());
             let path = &query.path;
-
             let res = match path.as_str() {
                 #load_entities
                 _ => return Err(::mimic::orm::OrmError::EntityNotFound(path.clone()).into()),
