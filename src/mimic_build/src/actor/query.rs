@@ -17,19 +17,32 @@ fn query_load(builder: &mut ActorBuilder) {
     let mut q = quote!();
     let mut inner = quote!();
 
-    // build inner
-    for (entity_path, _) in builder.get_entities() {
-        let generic: Path = parse_str(&entity_path).unwrap();
+    let entities = builder.get_entities();
 
+    if entities.is_empty() {
+        // If there are no entities, insert a dummy match arm
         inner.extend(quote! {
-            #entity_path => {
-                executor.execute::<#generic>(&DB)?
-                    .as_dynamic()
-            }
+            _ => return Err(::mimic::orm::OrmError::EntityNotFound(path.clone()).into()),
+        });
+    } else {
+        // Otherwise, generate match arms dynamically
+        for (entity_path, _) in entities {
+            let generic: Path = parse_str(&entity_path).unwrap();
+
+            inner.extend(quote! {
+                #entity_path => {
+                    executor.execute::<#generic>(&DB)?.as_dynamic()
+                }
+            });
+        }
+
+        // Add a fallback case for unknown paths
+        inner.extend(quote! {
+            _ => return Err(::mimic::orm::OrmError::EntityNotFound(path.clone()).into()),
         });
     }
 
-    // function
+    // Generate the function
     q.extend(quote! {
         #[::mimic::ic::query]
         pub fn query_load(
@@ -40,7 +53,6 @@ fn query_load(builder: &mut ActorBuilder) {
 
             let res = match path.as_str() {
                 #inner
-                _ => Err(::mimic::orm::OrmError::EntityNotFound(path.clone()))?
             }?;
 
             Ok(res)
