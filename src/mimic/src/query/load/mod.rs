@@ -19,6 +19,13 @@ use crate::{
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+
+///
+/// LoadMap
+///
+
+pub type LoadMap<E> = HashMap<String, E>;
 
 ///
 /// LoadError
