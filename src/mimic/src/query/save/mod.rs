@@ -126,13 +126,15 @@ fn save<'a>(
         },
     };
 
-    // insert data
+    // prepare data value
     let path = entity.path_dyn();
     let value = DataValue {
         data,
         path,
         metadata: Metadata { created, modified },
     };
+
+    // insert data row
     store.with_borrow_mut(|store| {
         store.data.insert(key.clone(), value.clone());
     });
