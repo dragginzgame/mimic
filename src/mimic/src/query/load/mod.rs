@@ -8,9 +8,10 @@ use crate::{
     Error, ThisError,
     db::{
         DbError, DbLocal, StoreLocal,
-        types::{DataKey, DataRow},
+        types::{DataKey, DataRow, EntityRow},
     },
     ic::serialize::SerializeError,
+    orm::traits::Entity,
     query::{
         QueryError,
         resolver::{Resolver, ResolverError},
@@ -30,6 +31,9 @@ pub enum LoadError {
 
     #[error("no results found")]
     NoResultsFound,
+
+    #[error("response has no entity data")]
+    ResponseHasNoEntityData,
 
     #[error(transparent)]
     DbError(#[from] DbError),
@@ -85,6 +89,26 @@ pub enum LoadResponse {
     DataRows(Vec<DataRow>),
     Keys(Vec<DataKey>),
     Count(usize),
+}
+
+impl LoadResponse {
+    pub fn as_entity_rows<E: Entity>(&self) -> Result<Vec<EntityRow<E>>, Error> {
+        let convert_err = |e| Error::QueryError(QueryError::LoadError(e));
+
+        match self {
+            LoadResponse::DataRows(rows) => rows
+                .clone()
+                .into_iter()
+                .map(|row| {
+                    row.try_into()
+                        .map_err(LoadError::SerializeError)
+                        .map_err(convert_err)
+                })
+                .collect(),
+
+            _ => Err(convert_err(LoadError::ResponseHasNoEntityData)),
+        }
+    }
 }
 
 ///
