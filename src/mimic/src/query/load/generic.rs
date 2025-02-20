@@ -7,7 +7,7 @@ use crate::{
     orm::traits::Entity,
     query::{
         DebugContext, QueryError, Resolver,
-        load::{LoadError, LoadFormat, LoadMethod, LoadResponse, Loader},
+        load::{LoadError, LoadFormat, LoadMap, LoadMethod, LoadResponse, Loader},
         types::{Filter, Order},
     },
 };
@@ -320,8 +320,9 @@ where
 
     // map
     #[must_use]
-    pub fn map(self) -> HashMap<String, E> {
-        self.0
+    pub fn map(self) -> LoadMap<E> {
+        let map: HashMap<String, E> = self
+            .0
             .into_iter()
             .filter_map(|row| {
                 row.value
@@ -329,7 +330,9 @@ where
                     .id()
                     .map(|id| (id, row.value.entity.clone()))
             })
-            .collect()
+            .collect();
+
+        LoadMap::<E>(map)
     }
 
     // key

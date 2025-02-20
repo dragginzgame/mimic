@@ -18,14 +18,9 @@ use crate::{
     },
 };
 use candid::CandidType;
+use derive_more::Deref;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-
-///
-/// LoadMap
-///
-
-pub type LoadMap<E> = HashMap<String, E>;
+use std::{collections::HashMap, fmt::Display};
 
 ///
 /// LoadError
@@ -115,6 +110,19 @@ impl LoadResponse {
 
             _ => Err(convert_err(LoadError::ResponseHasNoEntityData)),
         }
+    }
+}
+
+///
+/// LoadMap
+///
+
+#[derive(Debug, Deref)]
+pub struct LoadMap<E>(HashMap<String, E>);
+
+impl<E> LoadMap<E> {
+    pub fn get<D: Display>(&self, d: &D) -> Option<&E> {
+        self.0.get(&d.to_string())
     }
 }
 
