@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - moved the build code into a new mimic_build crate
 - made load, save, delete much cleaner and following exactly the same builder pattern
 - standardised LoadResponse, DeleteResponse and removed the extra Result types
+- added LoadMap and id to Entity trait to prepare for DTO hash maps
 
 ## [0.3.2]
 - query::load<E> now replaced with Query::<E>::load() so I can have a map of string -> Type

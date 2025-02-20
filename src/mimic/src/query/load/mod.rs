@@ -2,7 +2,7 @@ pub mod dynamic;
 pub mod generic;
 
 pub use dynamic::{LoadBuilderDyn, LoadExecutorDyn, LoadQueryDyn};
-pub use generic::{LoadBuilder, LoadExecutor, LoadMap, LoadQuery};
+pub use generic::{LoadBuilder, LoadExecutor, LoadQuery};
 
 use crate::{
     Error, ThisError,
