@@ -4,7 +4,7 @@ use crate::{
         DbLocal,
         types::{DataKey, DataRow, EntityRow},
     },
-    orm::traits::Entity,
+    orm::{base::types::Ulid, traits::Entity},
     query::{
         DebugContext, QueryError, Resolver,
         load::{LoadError, LoadFormat, LoadMethod, LoadResponse, Loader},
@@ -12,8 +12,9 @@ use crate::{
     },
 };
 use candid::CandidType;
+use derive_more::Deref;
 use serde::{Deserialize, Serialize};
-use std::marker::PhantomData;
+use std::{collections::HashMap, marker::PhantomData};
 
 ///
 /// LoadBuilder
@@ -401,3 +402,10 @@ where
         self.0
     }
 }
+
+///
+/// LoadMap
+///
+
+#[derive(Debug, Deref)]
+pub struct LoadMap<E: Entity>(HashMap<Ulid, E>);

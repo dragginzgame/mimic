@@ -24,11 +24,29 @@ pub fn entity(node: &Entity, t: Trait) -> TokenStream {
         const STORE: &'static str = <#store as ::mimic::orm::traits::Path>::PATH;
     };
 
+    q.extend(id(node));
     q.extend(composite_key(node));
 
     Implementor::new(&node.def, t)
         .set_tokens(q)
         .to_token_stream()
+}
+
+// id
+fn id(node: &Entity) -> TokenStream {
+    let last_sk = node.sort_keys.last().expect("no sort keys!");
+    let inner = match last_sk.field.as_ref() {
+        Some(field) => quote! {
+            Some(::mimic::orm::traits::SortKey::format(&self.#field))
+        },
+        None => quote! { None },
+    };
+
+    quote! {
+        fn id(&self) -> Option<String> {
+            #inner
+        }
+    }
 }
 
 // composite_key

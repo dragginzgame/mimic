@@ -2,7 +2,7 @@ pub mod dynamic;
 pub mod generic;
 
 pub use dynamic::{LoadBuilderDyn, LoadExecutorDyn, LoadQueryDyn};
-pub use generic::{LoadBuilder, LoadExecutor, LoadQuery};
+pub use generic::{LoadBuilder, LoadExecutor, LoadMap, LoadQuery};
 
 use crate::{
     Error, ThisError,
@@ -25,20 +25,11 @@ use serde::{Deserialize, Serialize};
 
 #[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum LoadError {
-    #[error("method can only be set once")]
-    MethodAlreadySet,
-
-    #[error("method is not set")]
-    MethodNotSet,
-
     #[error("key not found: {0}")]
     KeyNotFound(DataKey),
 
     #[error("no results found")]
     NoResultsFound,
-
-    #[error("range queries not allowed on composite keys")]
-    RangeNotAllowed,
 
     #[error(transparent)]
     DbError(#[from] DbError),

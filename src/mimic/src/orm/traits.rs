@@ -364,6 +364,11 @@ impl_primitive!(Visitable);
 pub trait Entity: Type + EntityFixture + EntityDyn + FieldSort + FieldFilter {
     const STORE: &'static str;
 
+    // id
+    // returns the id of the entity (as there can be 0 or 1 fields in
+    // the entity's sort key)
+    fn id(&self) -> Option<String>;
+
     // composite_key
     // returns the record's sort keys as a Vec<String>
     fn composite_key(_keys: &[String]) -> Vec<String>;

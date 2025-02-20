@@ -32,9 +32,6 @@ pub enum SaveError {
     #[error("key not found: {0}")]
     KeyNotFound(DataKey),
 
-    #[error("no results found")]
-    NoResultsFound,
-
     #[error(transparent)]
     DbError(#[from] DbError),
 
