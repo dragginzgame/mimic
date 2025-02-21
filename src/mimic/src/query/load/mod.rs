@@ -115,14 +115,28 @@ impl LoadResponse {
 
 ///
 /// LoadMap
+/// a HashMap indexed by id to provide an indexed alternative
+/// to Vec<Row>
 ///
 
 #[derive(Debug, Deref)]
 pub struct LoadMap<E>(HashMap<String, E>);
 
 impl<E> LoadMap<E> {
+    // get
     pub fn get<D: Display>(&self, d: &D) -> Option<&E> {
         self.0.get(&d.to_string())
+    }
+
+    // get_many
+    // currently ignores keys that aren't found for simplicity
+    pub fn get_many<D: Display>(&self, ids: &[D]) -> Vec<&E> {
+        ids.iter()
+            .filter_map(|id| {
+                let key = id.to_string();
+                self.0.get(&key)
+            })
+            .collect()
     }
 }
 
