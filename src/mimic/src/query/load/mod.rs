@@ -29,7 +29,7 @@ use std::{collections::HashMap, fmt::Display};
 #[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum LoadError {
     #[error("key not found: {0}")]
-    KeyNotFound(DataKey),
+    KeyNotFound(String),
 
     #[error("no results found")]
     NoResultsFound,
@@ -129,8 +129,20 @@ impl<E> LoadMap<E> {
     }
 
     // get_many
-    // currently ignores keys that aren't found for simplicity
-    pub fn get_many<D: Display>(&self, ids: &[D]) -> Vec<&E> {
+    pub fn get_many<D: Display>(&self, ids: &[D]) -> Result<Vec<&E>, Error> {
+        ids.iter()
+            .map(|id| {
+                let key = id.to_string();
+                self.0.get(&key).ok_or({
+                    Error::QueryError(QueryError::LoadError(LoadError::KeyNotFound(key)))
+                })
+            })
+            .collect()
+    }
+
+    // get_many_skip
+    // ignores keys that aren't found for simplicity
+    pub fn get_many_skip<D: Display>(&self, ids: &[D]) -> Vec<&E> {
         ids.iter()
             .filter_map(|id| {
                 let key = id.to_string();
@@ -232,7 +244,7 @@ fn query_data_key(store: StoreLocal, key: DataKey) -> Result<DataRow, LoadError>
                 key: key.clone(),
                 value,
             })
-            .ok_or_else(|| LoadError::KeyNotFound(key.clone()))
+            .ok_or_else(|| LoadError::KeyNotFound(key.to_string()))
     })
 }
 
