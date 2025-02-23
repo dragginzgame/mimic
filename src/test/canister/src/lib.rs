@@ -8,7 +8,7 @@ use mimic::{
     log, mimic_end, mimic_memory_manager, mimic_start,
 };
 
-mimic_memory_manager!(MEMORY_MANAGER);
+mimic_memory_manager!();
 mimic_start!("../mimic.toml");
 
 #[init]
