@@ -770,7 +770,6 @@ name = "test_canister"
 version = "0.3.3"
 dependencies = [
  "candid",
- "ctor",
  "ic-cdk",
  "mimic",
  "mimic_build",

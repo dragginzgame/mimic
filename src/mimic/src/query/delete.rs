@@ -1,10 +1,9 @@
 use crate::{
-    Error,
-    db::{DbLocal, types::DataKey},
+    Error, ThisError,
+    db::{DbError, DbLocal, types::DataKey},
     orm::traits::Entity,
-    query::{DebugContext, QueryError, Resolver},
+    query::{DebugContext, QueryError, Resolver, resolver::ResolverError},
 };
-use crate::{ThisError, db::DbError, query::resolver::ResolverError};
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
