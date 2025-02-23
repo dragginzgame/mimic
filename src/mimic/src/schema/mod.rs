@@ -6,8 +6,8 @@ pub mod visit;
 pub use build::get_schema;
 
 use crate::{
-    schema::{build::BuildError, node::NodeError, state::StateError},
     ThisError,
+    schema::{build::BuildError, node::NodeError, state::StateError},
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};

@@ -2,6 +2,7 @@ pub mod fixture;
 pub mod generator;
 
 use crate::{
+    Error, ThisError,
     ic::serialize::{deserialize, serialize},
     impl_storable_bounded,
     orm::{
@@ -9,7 +10,6 @@ use crate::{
         traits::{Filterable, Inner, Orderable, SortKey, ValidateAuto},
     },
     types::ErrorVec,
-    Error, ThisError,
 };
 use derive_more::{Deref, DerefMut, FromStr};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};

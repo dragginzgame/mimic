@@ -1,6 +1,6 @@
 use crate::{
     Error,
-    db::{DbLocal, StoreLocal, types::DataKey},
+    db::{DbLocal, types::DataKey},
     orm::traits::Entity,
     query::{DebugContext, QueryError, Resolver},
 };
@@ -16,9 +16,6 @@ use std::{fmt::Display, marker::PhantomData};
 
 #[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum DeleteError {
-    #[error("key not found: {0}")]
-    KeyNotFound(DataKey),
-
     #[error(transparent)]
     DbError(#[from] DbError),
 
@@ -137,13 +134,13 @@ impl DeleteExecutor {
 
     // execute
     pub fn execute(&self, db: DbLocal) -> Result<DeleteResponse, Error> {
-        let mut keys_deleted = Vec::new();
-
-        let keys = match self.query.method.clone() {
+        let keys = match &self.query.method {
             DeleteMethod::One(key) => vec![key],
-            DeleteMethod::Many(keys) => keys,
+            DeleteMethod::Many(keys) => keys.iter().collect(),
         };
-        crate::ic::println!("delete: keys {:?}", &keys);
+
+        // debug
+        self.query.debug.println(&format!("delete: keys {keys:?}"));
 
         // get store
         let store_path = &self
@@ -151,42 +148,33 @@ impl DeleteExecutor {
             .store()
             .map_err(DeleteError::ResolverError)
             .map_err(QueryError::DeleteError)?;
-
         let store = db.with(|db| db.try_get_store(store_path))?;
 
         // execute for every different key
+        let mut deleted_keys = Vec::new();
         for key in keys {
-            let res = self.execute_one(store, key)?;
+            let data_key = self
+                .resolver
+                .data_key(key)
+                .map_err(DeleteError::ResolverError)
+                .map_err(QueryError::DeleteError)?;
 
-            keys_deleted.push(res);
+            // remove returns DataValue but we ignore it for now
+            // if the key is deleted then add it to the vec
+            if store
+                .with_borrow_mut(|store| store.remove(&data_key))
+                .is_some()
+            {
+                deleted_keys.push(data_key);
+            };
         }
 
         // debug
         self.query
             .debug
-            .println(&format!("deleted keys {keys_deleted:?}"));
+            .println(&format!("keys deleted: {deleted_keys:?}"));
 
-        Ok(DeleteResponse(keys_deleted))
-    }
-
-    // execute_one
-    fn execute_one(&self, store: StoreLocal, key: Vec<String>) -> Result<DataKey, Error> {
-        // Attempt to remove the item from the store
-        let data_key = self
-            .resolver
-            .data_key(&key)
-            .map_err(DeleteError::ResolverError)
-            .map_err(QueryError::DeleteError)?;
-
-        store.with_borrow_mut(|store| {
-            if store.remove(&data_key).is_none() {
-                crate::ic::println!("key {data_key:?} not found");
-            }
-
-            Ok::<_, Error>(())
-        })?;
-
-        Ok(data_key)
+        Ok(DeleteResponse(deleted_keys))
     }
 }
 
