@@ -128,25 +128,34 @@ impl<E> LoadMap<E> {
         self.0.get(&d.to_string())
     }
 
+    // try_get
+    pub fn try_get<D: Display>(&self, d: &D) -> Result<&E, Error> {
+        self.0
+            .get(&d.to_string())
+            .ok_or(Error::QueryError(QueryError::LoadError(
+                LoadError::KeyNotFound(d.to_string()),
+            )))
+    }
+
     // get_many
-    pub fn get_many<D: Display>(&self, ids: &[D]) -> Result<Vec<&E>, Error> {
+    // ignores keys that aren't found for simplicity
+    pub fn get_many<D: Display>(&self, ids: &[D]) -> Vec<&E> {
+        ids.iter()
+            .filter_map(|id| {
+                let key = id.to_string();
+                self.0.get(&key)
+            })
+            .collect()
+    }
+
+    // try_get_many
+    pub fn try_get_many<D: Display>(&self, ids: &[D]) -> Result<Vec<&E>, Error> {
         ids.iter()
             .map(|id| {
                 let key = id.to_string();
                 self.0.get(&key).ok_or({
                     Error::QueryError(QueryError::LoadError(LoadError::KeyNotFound(key)))
                 })
-            })
-            .collect()
-    }
-
-    // get_many_skip
-    // ignores keys that aren't found for simplicity
-    pub fn get_many_skip<D: Display>(&self, ids: &[D]) -> Vec<&E> {
-        ids.iter()
-            .filter_map(|id| {
-                let key = id.to_string();
-                self.0.get(&key)
             })
             .collect()
     }
