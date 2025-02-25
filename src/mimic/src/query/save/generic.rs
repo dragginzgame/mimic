@@ -29,7 +29,7 @@ where
 {
     // new
     #[must_use]
-    pub fn new(mode: SaveMode) -> Self {
+    pub const fn new(mode: SaveMode) -> Self {
         Self {
             mode,
             phantom: PhantomData,
@@ -112,7 +112,7 @@ impl SaveExecutor {
         crate::orm::validate(&adapter)?;
 
         // save entities
-        save(db, &self.query.mode, &self.query.debug, Box::new(entity))
+        save(db, self.query.mode, &self.query.debug, Box::new(entity))
             .map_err(QueryError::SaveError)?;
 
         Ok(SaveResponse())

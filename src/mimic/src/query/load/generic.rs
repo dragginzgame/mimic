@@ -123,7 +123,7 @@ impl LoadQuery {
 
     // format
     #[must_use]
-    pub fn format(mut self, format: LoadFormat) -> Self {
+    pub const fn format(mut self, format: LoadFormat) -> Self {
         self.format = format;
         self
     }
@@ -236,7 +236,7 @@ where
 {
     // new
     #[must_use]
-    pub fn new(query: LoadQuery) -> Self {
+    pub const fn new(query: LoadQuery) -> Self {
         Self {
             query,
             phantom: PhantomData,

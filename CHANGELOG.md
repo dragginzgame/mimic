@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.3.4]
+- the Map type has been removed.  It was only a pseudo-map anyway as it was Vec<(K, V)> in the database.
+Map logic can be handled in the DTO/game logic layers instead.
+
 ## [0.3.3]
 - removed the iterator from the load query, it's not really needed and makes the code super complex
 - moved the build code into a new mimic_build crate

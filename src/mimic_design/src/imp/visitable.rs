@@ -1,10 +1,10 @@
 use super::Implementor;
 use crate::node::{
-    Cardinality, Entity, Enum, EnumVariant, FieldList, MacroNode, Map, Newtype, Record, Trait,
-    Tuple, Value,
+    Cardinality, Entity, Enum, EnumVariant, FieldList, MacroNode, Newtype, Record, Trait, Tuple,
+    Value,
 };
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::{ToTokens, quote};
 use syn::{Expr, Ident};
 
 //
@@ -58,22 +58,6 @@ pub fn enum_(node: &Enum, t: Trait) -> TokenStream {
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
     let var_expr: Expr = syn::parse_str("self.0").expect("can parse");
     let inner = quote_value(&node.value, &var_expr, "");
-    let q = drive_inner(&inner);
-
-    Implementor::new(&node.def, t)
-        .set_tokens(q)
-        .to_token_stream()
-}
-
-// map
-pub fn map(node: &Map, t: Trait) -> TokenStream {
-    let inner = quote! {
-        for (map_key, map_value) in self.0.iter() {
-            let key = map_key.to_string();
-            ::mimic::orm::visit::perform_visit(visitor, map_key, &key);
-            ::mimic::orm::visit::perform_visit(visitor, map_value, &key);
-        }
-    };
     let q = drive_inner(&inner);
 
     Implementor::new(&node.def, t)

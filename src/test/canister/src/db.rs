@@ -21,7 +21,6 @@ impl DbTester {
         Self::create();
         Self::create_lots();
         Self::data_key_order();
-        Self::entity_with_map();
         Self::filter_query();
         Self::limit_query();
         Self::missing_field();
@@ -157,26 +156,6 @@ impl DbTester {
                 "key ordering is incorrect at index {i}"
             );
         }
-    }
-
-    // entity_with_map
-    fn entity_with_map() {
-        use test_schema::map::HasMap;
-
-        // create with map data
-        let mut e = HasMap::default();
-        e.map_int_string.push((3, "value".to_string()));
-        e.map_int_string.push((4, "value".to_string()));
-        query::create_dyn().from_entity(e).execute(&DB).unwrap();
-
-        // load all keys
-        let count = query::load_dyn::<HasMap>()
-            .only()
-            .execute(&DB)
-            .unwrap()
-            .count();
-
-        assert!(count == 1);
     }
 
     // filter_query

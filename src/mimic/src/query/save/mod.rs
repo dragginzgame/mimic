@@ -60,7 +60,7 @@ pub enum SaveMode {
 // save
 fn save<'a>(
     db: DbLocal,
-    mode: &SaveMode,
+    mode: SaveMode,
     debug: &DebugContext,
     entity: Box<dyn EntityDyn + 'a>,
 ) -> Result<(), SaveError> {
@@ -90,6 +90,7 @@ fn save<'a>(
     let (created, modified) = match mode {
         SaveMode::Create => {
             if result.is_some() {
+                #[allow(clippy::redundant_clone)]
                 Err(SaveError::KeyExists(key.clone()))?;
             }
 

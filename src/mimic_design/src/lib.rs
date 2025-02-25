@@ -9,10 +9,10 @@ mod node;
 mod traits;
 
 use crate::node::{Def, Node};
-use darling::{ast::NestedMeta, Error as DarlingError, FromMeta};
+use darling::{Error as DarlingError, FromMeta, ast::NestedMeta};
 use proc_macro2::{Delimiter, TokenStream, TokenTree};
 use quote::quote;
-use syn::{parse_macro_input, ItemStruct, Visibility};
+use syn::{ItemStruct, Visibility, parse_macro_input};
 
 ///
 /// Node Macro Macros
@@ -70,7 +70,6 @@ macro_node!(entity, node::Entity);
 macro_node!(entity_id, node::EntityId);
 macro_node!(enum_, node::Enum);
 macro_node!(enum_value, node::EnumValue);
-macro_node!(map, node::Map);
 macro_node!(newtype, node::Newtype);
 macro_node!(primitive, node::Primitive);
 macro_node!(record, node::Record);

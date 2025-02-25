@@ -14,7 +14,7 @@ resolver = "2"
 [workspace.package]
 rust-version = "1.85.0"
 edition = "2024"
-version = "0.3.3"
+version = "0.3.4"
 authors = ["borovan <84897664+borovan@users.noreply.github.com>"]
 description = "ORM/Database framework for the Internet Computer"
 license = "MIT"
@@ -70,8 +70,8 @@ ulid = { version = "1.2", default-features = false }
 # clippy
 [workspace.lints.clippy]
 all = { level = "warn", priority = -1 }
-pedantic = { level = "allow", priority = -1 }
-nursery = { level = "allow", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+nursery = { level = "warn", priority = -1 }
 
 # always warn
 must-use-candidate = "warn"

@@ -98,7 +98,7 @@ impl LoadResponse {
         let convert_err = |e| Error::QueryError(QueryError::LoadError(e));
 
         match self {
-            LoadResponse::DataRows(rows) => rows
+            Self::DataRows(rows) => rows
                 .clone()
                 .into_iter()
                 .map(|row| {
@@ -130,11 +130,9 @@ impl<E> LoadMap<E> {
 
     // try_get
     pub fn try_get<D: Display>(&self, d: &D) -> Result<&E, Error> {
-        self.0
-            .get(&d.to_string())
-            .ok_or(Error::QueryError(QueryError::LoadError(
-                LoadError::KeyNotFound(d.to_string()),
-            )))
+        self.0.get(&d.to_string()).ok_or_else(|| {
+            Error::QueryError(QueryError::LoadError(LoadError::KeyNotFound(d.to_string())))
+        })
     }
 
     // get_many

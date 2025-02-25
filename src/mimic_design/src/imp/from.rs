@@ -1,36 +1,7 @@
 use super::Implementor;
-use crate::node::{
-    Cardinality, MacroNode, Map, Newtype, PrimitiveGroup, PrimitiveType, Trait, Tuple,
-};
+use crate::node::{Cardinality, MacroNode, Newtype, PrimitiveGroup, PrimitiveType, Trait, Tuple};
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
-
-///
-/// Map
-///
-
-pub fn map(node: &Map, t: Trait) -> TokenStream {
-    let key = &node.key;
-    let value = &node.value;
-
-    let q = quote! {
-        fn from(entries: Vec<(IK, IV)>) -> Self {
-            Self(entries
-                .into_iter()
-                .map(|(k, v)| (k.into(), v.into()))
-                .collect())
-        }
-    };
-
-    Implementor::new(node.def(), t)
-        .set_tokens(q)
-        .add_impl_constraint(quote!(IK: Into<#key>))
-        .add_impl_constraint(quote!(IV: Into<#value>))
-        .add_impl_generic(quote!(IK))
-        .add_impl_generic(quote!(IV))
-        .add_trait_generic(quote!(Vec<(IK, IV)>))
-        .to_token_stream()
-}
+use quote::{ToTokens, quote};
 
 ///
 /// Newtype

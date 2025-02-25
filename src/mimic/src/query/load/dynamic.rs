@@ -125,7 +125,7 @@ impl LoadQueryDyn {
 
     // format
     #[must_use]
-    pub fn format(mut self, format: LoadFormat) -> Self {
+    pub const fn format(mut self, format: LoadFormat) -> Self {
         self.format = format;
         self
     }

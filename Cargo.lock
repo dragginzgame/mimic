@@ -34,7 +34,7 @@ checksum = "7dfdb4953a096c551ce9ace855a604d702e6e62d77fac690575ae347571717f5"
 
 [[package]]
 name = "benches"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "bencher",
 ]
@@ -299,9 +299,9 @@ dependencies = [
 
 [[package]]
 name = "either"
-version = "1.13.0"
+version = "1.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "60b1af1c220855b6ceac025d3f6ecdd2b7c4894bfe9cd9bda4fbb4bc7c0d4cf0"
+checksum = "b7914353092ddf589ad78f25c5c1c21b7f80b0ff8621e7c814c3485b5306da9d"
 
 [[package]]
 name = "equivalent"
@@ -448,9 +448,9 @@ checksum = "884e2677b40cc8c339eaefcb701c32ef1fd2493d71118dc0ca4b6a736c93bd67"
 
 [[package]]
 name = "libc"
-version = "0.2.169"
+version = "0.2.170"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5aba8db14291edd000dfcc4d620c7ebfb122c613afb886ca8803fa4e128a20a"
+checksum = "875b3680cb2f8f71bdcf9a30f38d48282f5d3c95cbf9b3fa57269bb5d5c06828"
 
 [[package]]
 name = "libm"
@@ -472,7 +472,7 @@ checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 
 [[package]]
 name = "mimic"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "candid",
  "ciborium",
@@ -500,7 +500,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_build"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "mimic",
  "proc-macro2",
@@ -513,7 +513,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_design"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "darling",
  "derive_more",
@@ -767,7 +767,7 @@ dependencies = [
 
 [[package]]
 name = "test_canister"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -778,7 +778,7 @@ dependencies = [
 
 [[package]]
 name = "test_schema"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "candid",
  "ctor",
@@ -789,7 +789,7 @@ dependencies = [
 
 [[package]]
 name = "tests"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "mimic",
  "test_schema",

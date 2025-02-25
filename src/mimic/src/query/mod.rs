@@ -56,49 +56,49 @@ pub fn delete<E: Entity>() -> DeleteBuilder<E> {
 
 // save
 #[must_use]
-pub fn save<E: Entity>(mode: SaveMode) -> SaveBuilder<E> {
+pub const fn save<E: Entity>(mode: SaveMode) -> SaveBuilder<E> {
     SaveBuilder::<E>::new(mode)
 }
 
 // save_dyn
 #[must_use]
-pub fn save_dyn(mode: SaveMode) -> SaveBuilderDyn {
+pub const fn save_dyn(mode: SaveMode) -> SaveBuilderDyn {
     SaveBuilderDyn::new(mode)
 }
 
 // create
 #[must_use]
-pub fn create<E: Entity>() -> SaveBuilder<E> {
+pub const fn create<E: Entity>() -> SaveBuilder<E> {
     SaveBuilder::<E>::new(SaveMode::Create)
 }
 
 // create_dyn
 #[must_use]
-pub fn create_dyn() -> SaveBuilderDyn {
+pub const fn create_dyn() -> SaveBuilderDyn {
     SaveBuilderDyn::new(SaveMode::Create)
 }
 
 // replace
 #[must_use]
-pub fn replace<E: Entity>() -> SaveBuilder<E> {
+pub const fn replace<E: Entity>() -> SaveBuilder<E> {
     SaveBuilder::<E>::new(SaveMode::Replace)
 }
 
 // replace_dyn
 #[must_use]
-pub fn replace_dyn() -> SaveBuilderDyn {
+pub const fn replace_dyn() -> SaveBuilderDyn {
     SaveBuilderDyn::new(SaveMode::Replace)
 }
 
 // update
 #[must_use]
-pub fn update<E: Entity>() -> SaveBuilder<E> {
+pub const fn update<E: Entity>() -> SaveBuilder<E> {
     SaveBuilder::<E>::new(SaveMode::Update)
 }
 
 // update_dyn
 #[must_use]
-pub fn update_dyn() -> SaveBuilderDyn {
+pub const fn update_dyn() -> SaveBuilderDyn {
     SaveBuilderDyn::new(SaveMode::Update)
 }
 

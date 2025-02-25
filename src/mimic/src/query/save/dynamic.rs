@@ -134,7 +134,7 @@ impl SaveExecutorDyn {
 
         // save entities
         for entity in entities {
-            save(db, &mode, &debug, entity).map_err(QueryError::SaveError)?;
+            save(db, mode, &debug, entity).map_err(QueryError::SaveError)?;
         }
 
         Ok(SaveResponseDyn())

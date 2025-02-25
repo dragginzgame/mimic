@@ -44,18 +44,6 @@ use mimic::orm::{base::types, prelude::*};
         field(name = "variant_simple", value(item(is = "EnumB"))),
         field(name = "variant_simple_many", value(many, item(is = "EnumB"))),
         field(name = "variant_simple_opt", value(opt, item(is = "EnumB"))),
-        field(name = "map_int_string", value(item(is = "MapIntString"))),
-        field(name = "map_int_string_many", value(many, item(is = "MapIntString"))),
-        field(name = "map_string_string", value(item(is = "MapStringString"))),
-        field(
-            name = "map_string_string_many",
-            value(many, item(is = "MapStringString"))
-        ),
-        field(name = "map_string_record", value(item(is = "MapStringRecord"))),
-        field(
-            name = "map_string_record_many",
-            value(many, item(is = "MapStringRecord"))
-        ),
     ),
     traits(remove(Eq))
 )]
@@ -87,13 +75,6 @@ pub struct ComplexEntity {}
         field(name = "variant_simple", value(item(is = "EnumB"))),
         field(name = "variant_simple_many", value(many, item(is = "EnumB"))),
         field(name = "variant_simple_opt", value(opt, item(is = "EnumB"))),
-        field(name = "map_int_string", value(item(is = "MapIntString"))),
-        field(name = "map_int_string_many", value(many, item(is = "MapIntString"))),
-        field(name = "map_string_string", value(item(is = "MapStringString"))),
-        field(
-            name = "map_string_string_many",
-            value(many, item(is = "MapStringString"))
-        ),
     )
 )]
 pub struct AdminEntity {}
@@ -174,32 +155,9 @@ pub struct EnumB {}
 
 #[enum_(
     variant(name = "F", value(item(is = "types::String"))),
-    variant(name = "G", value(item(is = "MapStringString"))),
-    variant(name = "H", value(item(is = "MapStringRecord"))),
     variant(name = "I", value(item(is = "RecordB")))
 )]
 pub struct EnumC {}
-
-///
-/// MapIntString
-///
-
-#[map(key(is = "types::I32"), value(item(is = "types::String")))]
-pub struct MapIntString {}
-
-///
-/// MapStringRecord
-///
-
-#[map(key(is = "types::String"), value(item(is = "RecordA")))]
-pub struct MapStringRecord {}
-
-///
-/// MapStringString
-///
-
-#[map(key(is = "types::String"), value(item(is = "types::String")))]
-pub struct MapStringString {}
 
 ///
 /// Newtype

@@ -35,11 +35,12 @@ pub fn entity(node: &Entity, t: Trait) -> TokenStream {
 // id
 fn id(node: &Entity) -> TokenStream {
     let last_sk = node.sort_keys.last().expect("no sort keys!");
-    let inner = match last_sk.field.as_ref() {
-        Some(field) => quote! {
+    let inner = if let Some(field) = last_sk.field.as_ref() {
+        quote! {
             Some(::mimic::orm::traits::SortKey::format(&self.#field))
-        },
-        None => quote! { None },
+        }
+    } else {
+        quote!(None)
     };
 
     quote! {
