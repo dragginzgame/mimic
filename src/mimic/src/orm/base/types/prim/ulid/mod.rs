@@ -210,8 +210,8 @@ impl fmt::Display for UlidSet {
     }
 }
 
-impl From<Vec<Ulid>> for UlidSet {
-    fn from(ulids: Vec<Ulid>) -> Self {
-        Self(ulids.into_iter().collect())
+impl<U: Into<Ulid>> From<Vec<U>> for UlidSet {
+    fn from(ulids: Vec<U>) -> Self {
+        Self(ulids.into_iter().map(Into::into).collect())
     }
 }
