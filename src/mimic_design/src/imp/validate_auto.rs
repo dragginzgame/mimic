@@ -41,6 +41,10 @@ pub fn enum_(node: &Enum, t: Trait) -> TokenStream {
         .to_token_stream()
 }
 
+//
+// NEWTYPE
+//
+
 // newtype
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
     let mut checks = quote!();
@@ -79,7 +83,7 @@ pub fn newtype_map(node: &Newtype) -> TokenStream {
         let key = &map.key;
 
         quote! {
-            let mut seen = HashSet::new();
+            let mut seen = ::std::collections::HashSet::new();
 
             for item in &self.0 {
                 let key = &item.#key;
@@ -95,40 +99,39 @@ pub fn newtype_map(node: &Newtype) -> TokenStream {
 
 // newtype_validators
 pub fn newtype_validators(node: &Newtype) -> TokenStream {
-    // Generate inner logic
     if node.ty.validators.is_empty() {
-        quote!()
-    } else {
-        // validate function name
-        let validate_fn = match node.primitive {
-            Some(prim) => match prim.group() {
-                PrimitiveGroup::Blob => quote! { validate_blob },
-                PrimitiveGroup::Decimal | PrimitiveGroup::Integer => quote! { validate_number },
-                PrimitiveGroup::String => quote! { validate_string },
+        return TokenStream::new();
+    }
 
-                _ => panic!("validator error - invalid primitive group"),
-            },
-            None => panic!("validator error - no primitive"),
+    // validate function name
+    let validate_fn = match node.primitive {
+        Some(prim) => match prim.group() {
+            PrimitiveGroup::Blob => quote! { validate_blob },
+            PrimitiveGroup::Decimal | PrimitiveGroup::Integer => quote! { validate_number },
+            PrimitiveGroup::String => quote! { validate_string },
+
+            _ => panic!("validator error - invalid primitive group"),
+        },
+        None => panic!("validator error - no primitive"),
+    };
+
+    // Generate rules
+    let rules = node.ty.validators.iter().map(|val| {
+        let path = &val.path;
+        let args = &val.args;
+
+        let constructor = if args.is_empty() {
+            quote! { #path::default() }
+        } else {
+            quote! { #path::new(#(#args),*) }
         };
 
-        // Generate rules
-        let rules = node.ty.validators.iter().map(|val| {
-            let path = &val.path;
-            let args = &val.args;
-
-            let constructor = if args.is_empty() {
-                quote! { #path::default() }
-            } else {
-                quote! { #path::new(#(#args),*) }
-            };
-
-            quote! {
-                errs.add_result(#constructor.#validate_fn(&self.0));
-            }
-        });
-
         quote! {
-            #( #rules )*
+            errs.add_result(#constructor.#validate_fn(&self.0));
         }
+    });
+
+    quote! {
+        #( #rules )*
     }
 }
