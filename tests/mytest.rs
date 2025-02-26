@@ -6,6 +6,18 @@
 mod tests {
 
     #[test]
+    fn test_map_validates() {
+        use test_schema::map::{Entry, Map};
+
+        let entries = vec![Entry::new("hello", 3), Entry::new("", 3)];
+
+        let e = Map::from(entries);
+
+        let errs = mimic::orm::validate(&e);
+        println!("{errs:?}");
+    }
+
+    #[test]
     fn test_default_validates() {
         use test_schema::validate::{MultipleTenType, ValidateTest};
 

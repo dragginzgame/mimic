@@ -1,5 +1,5 @@
 use crate::{
-    helper::quote_option,
+    helper::{quote_one, quote_option, to_string},
     imp,
     node::{
         Cardinality, Def, MacroNode, Node, PrimitiveGroup, PrimitiveType, Trait, TraitNode, Traits,
@@ -9,7 +9,8 @@ use crate::{
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::{ToTokens, quote};
+use syn::Ident;
 
 ///
 /// Newtype
@@ -27,6 +28,9 @@ pub struct Newtype {
 
     #[darling(default)]
     pub ty: Type,
+
+    #[darling(default)]
+    pub map: Option<NewtypeMap>,
 
     #[darling(default)]
     pub traits: Traits,
@@ -150,6 +154,7 @@ impl Schemable for Newtype {
         let def = self.def.schema();
         let value = self.value.schema();
         let primitive = quote_option(self.primitive.as_ref(), PrimitiveType::schema);
+        let map = quote_option(self.map.as_ref(), NewtypeMap::schema);
         let ty = self.ty.schema();
 
         quote! {
@@ -157,6 +162,7 @@ impl Schemable for Newtype {
                 def: #def,
                 value: #value,
                 primitive: #primitive,
+                map: #map,
                 ty: #ty,
             })
         }
@@ -176,5 +182,26 @@ impl ToTokens for Newtype {
         };
 
         tokens.extend(q);
+    }
+}
+
+///
+/// NewtypeMap
+///
+
+#[derive(Clone, Debug, FromMeta)]
+pub struct NewtypeMap {
+    pub key: Ident,
+}
+
+impl Schemable for NewtypeMap {
+    fn schema(&self) -> TokenStream {
+        let key = quote_one(&self.key, to_string);
+
+        quote! {
+            ::mimic::schema::node::NewtypeMap {
+                key: #key,
+            }
+        }
     }
 }

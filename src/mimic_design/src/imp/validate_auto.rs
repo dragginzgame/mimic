@@ -43,9 +43,61 @@ pub fn enum_(node: &Enum, t: Trait) -> TokenStream {
 
 // newtype
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
-    // Generate inner logic
-    let inner = if node.ty.validators.is_empty() {
+    let mut checks = quote!();
+
+    // checks
+    checks.extend(newtype_map(node));
+    checks.extend(newtype_validators(node));
+
+    // inner
+    let inner = if checks.is_empty() {
         quote!(Ok(()))
+    } else {
+        quote! {
+            let mut errs = ::mimic::types::ErrorVec::new();
+            #checks
+
+            errs.result()
+        }
+    };
+
+    // quote
+    let q = quote! {
+        fn validate_auto(&self) -> ::std::result::Result<(), ::mimic::types::ErrorVec> {
+            #inner
+        }
+    };
+
+    Implementor::new(&node.def, t)
+        .set_tokens(q)
+        .to_token_stream()
+}
+
+// newtype_map
+pub fn newtype_map(node: &Newtype) -> TokenStream {
+    if let Some(map) = &node.map {
+        let key = &map.key;
+
+        quote! {
+            let mut seen = HashSet::new();
+
+            for item in &self.0 {
+                let key = &item.#key;
+                if !seen.insert(key) {
+                    errs.add(format!("duplicate key found: {key}"));
+                }
+            }
+        }
+    } else {
+        quote!()
+    }
+}
+
+// newtype_validators
+pub fn newtype_validators(node: &Newtype) -> TokenStream {
+    // Generate inner logic
+    if node.ty.validators.is_empty() {
+        quote!()
     } else {
         // validate function name
         let validate_fn = match node.primitive {
@@ -76,20 +128,7 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
         });
 
         quote! {
-            let mut errs = ::mimic::types::ErrorVec::new();
             #( #rules )*
-            errs.result()
         }
-    };
-
-    // quote
-    let q = quote! {
-        fn validate_auto(&self) -> ::std::result::Result<(), ::mimic::types::ErrorVec> {
-            #inner
-        }
-    };
-
-    Implementor::new(&node.def, t)
-        .set_tokens(q)
-        .to_token_stream()
+    }
 }

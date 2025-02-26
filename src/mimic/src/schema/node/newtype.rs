@@ -19,6 +19,9 @@ pub struct Newtype {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub primitive: Option<PrimitiveType>,
 
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub map: Option<NewtypeMap>,
+
     #[serde(default, skip_serializing_if = "Type::skip_serializing")]
     pub ty: Type,
 }
@@ -48,3 +51,16 @@ impl VisitableNode for Newtype {
         self.ty.accept(v);
     }
 }
+
+///
+/// NewtypeMap
+///
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct NewtypeMap {
+    pub key: String,
+}
+
+impl ValidateNode for NewtypeMap {}
+
+impl VisitableNode for NewtypeMap {}
