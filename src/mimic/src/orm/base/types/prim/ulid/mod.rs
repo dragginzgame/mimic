@@ -11,7 +11,7 @@ use crate::{
     },
     types::ErrorVec,
 };
-use derive_more::{Deref, DerefMut, FromStr};
+use derive_more::{Deref, DerefMut, FromStr, IntoIterator};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{borrow::Cow, cmp::Ordering, fmt};
 use ulid::Ulid as WrappedUlid;
@@ -183,7 +183,17 @@ impl Visitable for Ulid {}
 ///
 
 #[derive(
-    CandidType, Clone, Debug, Default, Deref, DerefMut, Eq, PartialEq, Serialize, Deserialize,
+    CandidType,
+    Clone,
+    Debug,
+    Default,
+    Deref,
+    DerefMut,
+    Eq,
+    PartialEq,
+    IntoIterator,
+    Serialize,
+    Deserialize,
 )]
 pub struct UlidSet(HashSet<Ulid>);
 
