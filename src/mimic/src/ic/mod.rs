@@ -2,10 +2,10 @@
 /// IMPORT IC CRATES
 ///
 pub mod api {
-    pub mod mgmt {
-        pub use ic_cdk::api::management_canister::*;
-    }
     pub use ic_cdk::api::*;
+}
+pub mod mgmt {
+    pub use ic_cdk::management_canister::*;
 }
 pub use ic_cdk::*;
 pub use serialize::{deserialize, serialize};
