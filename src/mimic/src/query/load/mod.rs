@@ -20,7 +20,7 @@ use crate::{
 use candid::CandidType;
 use derive_more::Deref;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, fmt::Display};
+use std::collections::HashMap;
 
 ///
 /// LoadError
@@ -124,36 +124,43 @@ pub struct LoadMap<E>(HashMap<String, E>);
 
 impl<E> LoadMap<E> {
     // get
-    pub fn get<D: Display>(&self, d: &D) -> Option<&E> {
-        self.0.get(&d.to_string())
+    pub fn get<S: ToString>(&self, s: &S) -> Option<&E> {
+        self.0.get(&s.to_string())
     }
 
     // try_get
-    pub fn try_get<D: Display>(&self, d: &D) -> Result<&E, Error> {
-        self.0.get(&d.to_string()).ok_or_else(|| {
-            Error::QueryError(QueryError::LoadError(LoadError::KeyNotFound(d.to_string())))
+    pub fn try_get<S: ToString>(&self, s: &S) -> Result<&E, Error> {
+        self.0.get(&s.to_string()).ok_or_else(|| {
+            Error::QueryError(QueryError::LoadError(LoadError::KeyNotFound(s.to_string())))
         })
     }
 
     // get_many
     // ignores keys that aren't found for simplicity
-    pub fn get_many<D: Display>(&self, ids: &[D]) -> Vec<&E> {
-        ids.iter()
-            .filter_map(|id| {
-                let key = id.to_string();
-                self.0.get(&key)
-            })
+    pub fn get_many<S, I>(&self, ids: I) -> Vec<&E>
+    where
+        S: ToString,
+        I: IntoIterator<Item = S>,
+    {
+        ids.into_iter()
+            .filter_map(|id| self.0.get(&id.to_string()))
             .collect()
     }
 
     // try_get_many
-    pub fn try_get_many<D: Display>(&self, ids: &[D]) -> Result<Vec<&E>, Error> {
-        ids.iter()
+    pub fn try_get_many<S, I>(&self, ids: I) -> Result<Vec<&E>, Error>
+    where
+        S: ToString,
+        I: IntoIterator<Item = S>,
+    {
+        ids.into_iter()
             .map(|id| {
                 let key = id.to_string();
-                self.0.get(&key).ok_or({
-                    Error::QueryError(QueryError::LoadError(LoadError::KeyNotFound(key)))
-                })
+                self.0
+                    .get(&key)
+                    .ok_or(Error::QueryError(QueryError::LoadError(
+                        LoadError::KeyNotFound(key),
+                    )))
             })
             .collect()
     }
