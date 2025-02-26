@@ -29,7 +29,10 @@ pub mod prelude {
     pub use crate::{
         Log,
         db::Store,
-        ic::{caller, format_cycles, id, init, query, update},
+        ic::{
+            api::{canister_self, msg_caller},
+            format_cycles, init, query, update,
+        },
         log, mimic_end, mimic_memory_manager, mimic_start,
         orm::{
             base::{

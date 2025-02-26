@@ -1,5 +1,6 @@
 use crate::{
-    ic::{api::caller, structures::storable::Bound},
+    Error, ThisError,
+    ic::{api::msg_caller, structures::storable::Bound},
     impl_storable_bounded,
     orm::{
         prelude::*,
@@ -8,7 +9,6 @@ use crate::{
             Visitable,
         },
     },
-    Error, ThisError,
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut};
@@ -56,8 +56,8 @@ pub struct Principal(WrappedPrincipal);
 
 impl Principal {
     #[must_use]
-    pub fn caller() -> Self {
-        Self(caller())
+    pub fn msg_caller() -> Self {
+        Self(msg_caller())
     }
 }
 
