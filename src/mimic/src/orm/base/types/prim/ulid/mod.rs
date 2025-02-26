@@ -177,3 +177,31 @@ impl ValidateManual for Ulid {
 impl ValidateAuto for Ulid {}
 
 impl Visitable for Ulid {}
+
+///
+/// UlidSet
+///
+
+#[derive(
+    CandidType, Clone, Debug, Default, Deref, DerefMut, Eq, PartialEq, Serialize, Deserialize,
+)]
+pub struct UlidSet(HashSet<Ulid>);
+
+impl fmt::Display for UlidSet {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let formatted = self
+            .0
+            .iter()
+            .map(Ulid::to_string)
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        write!(f, "[{}]", formatted)
+    }
+}
+
+impl From<Vec<Ulid>> for UlidSet {
+    fn from(ulids: Vec<Ulid>) -> Self {
+        Self(ulids.into_iter().collect())
+    }
+}

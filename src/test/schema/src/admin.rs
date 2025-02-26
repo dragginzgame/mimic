@@ -80,6 +80,25 @@ pub struct ComplexEntity {}
 pub struct AdminEntity {}
 
 ///
+/// RelatedEntity
+///
+
+#[entity(
+    store = "crate::Store",
+    sk(entity = "RelatedEntity", field = "id"),
+    fields(
+        field(
+            name = "id",
+            value(item(is = "types::Ulid"), default = "types::Ulid::generate")
+        ),
+        field(name = "simple_id", value(item(rel = "SimpleEntity"))),
+        field(name = "opt_simple_id", value(opt, item(rel = "SimpleEntity"))),
+        field(name = "simple_ids", value(many, item(rel = "SimpleEntity"))),
+    )
+)]
+pub struct RelatedEntity {}
+
+///
 /// SimpleEntity
 ///
 

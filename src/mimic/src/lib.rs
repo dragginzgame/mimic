@@ -32,7 +32,10 @@ pub mod prelude {
         ic::{caller, format_cycles, id, init, query, update},
         log, mimic_end, mimic_memory_manager, mimic_start,
         orm::{
-            base::{self, types::Ulid},
+            base::{
+                self,
+                types::{Ulid, UlidSet},
+            },
             traits::{EntityDyn, EntityFixture, NumFromPrimitive, NumToPrimitive, Path, Validator},
         },
         perf,

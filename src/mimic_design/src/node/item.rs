@@ -4,7 +4,7 @@ use crate::{
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::{ToTokens, quote};
 use syn::Path;
 
 ///
@@ -30,6 +30,10 @@ pub struct Item {
 }
 
 impl Item {
+    pub fn is_relation(&self) -> bool {
+        self.relation.is_some()
+    }
+
     pub fn quoted_path(&self) -> TokenStream {
         match (&self.is, &self.relation) {
             (Some(is), None) => quote!(#is),

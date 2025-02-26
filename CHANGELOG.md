@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - the Map type has been removed.  It was only a pseudo-map anyway as it was Vec<(K, V)> in the database.
 Map logic can be handled in the DTO/game logic layers instead.
 - map(key = "field") has been added to newtypes, validation is automatically carried out in validate_auto
+- UlidSet replaces Vec<Ulid>
 
 ## [0.3.3]
 - removed the iterator from the load query, it's not really needed and makes the code super complex

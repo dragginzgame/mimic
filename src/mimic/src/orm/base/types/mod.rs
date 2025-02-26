@@ -9,6 +9,8 @@ pub mod time;
 
 use crate::orm::{base::types, prelude::*};
 
+pub use prim::ulid::UlidSet;
+
 ///
 /// Unit
 ///

@@ -5,7 +5,7 @@ use crate::{
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::{ToTokens, quote};
 
 ///
 /// Value
@@ -57,10 +57,18 @@ impl ToTokens for Value {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let item = &self.item;
 
-        tokens.extend(match self.cardinality() {
+        let q = match self.cardinality() {
             Cardinality::One => quote!(#item),
             Cardinality::Opt => quote!(Option<#item>),
-            Cardinality::Many => quote!(Vec<#item>),
-        });
+            Cardinality::Many => {
+                if item.is_relation() {
+                    quote!(UlidSet)
+                } else {
+                    quote!(Vec<#item>)
+                }
+            }
+        };
+
+        tokens.extend(q);
     }
 }
