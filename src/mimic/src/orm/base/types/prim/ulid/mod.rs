@@ -215,3 +215,13 @@ impl<U: Into<Ulid>> From<Vec<U>> for UlidSet {
         Self(ulids.into_iter().map(Into::into).collect())
     }
 }
+
+/// Allow `UlidSet` to be iterated over by reference (`for ulid in &ulid_set`)
+impl<'a> IntoIterator for &'a UlidSet {
+    type Item = &'a Ulid;
+    type IntoIter = std::collections::hash_set::Iter<'a, Ulid>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.iter()
+    }
+}
