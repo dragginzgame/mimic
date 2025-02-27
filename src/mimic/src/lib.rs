@@ -31,6 +31,7 @@ pub mod prelude {
         db::Store,
         ic::{
             api::{canister_self, msg_caller},
+            call::Call,
             format_cycles, init, query, update,
         },
         log, mimic_end, mimic_memory_manager, mimic_start,
