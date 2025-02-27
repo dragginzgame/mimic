@@ -46,7 +46,7 @@ anyhow = "1.0"
 bencher = "0.1"
 ciborium = "0.2"
 ctor = "0.4"
-convert_case = "0.7"
+convert_case = "0.8"
 defer = "0.2"
 derive_more = { version = "2.0", default-features = false, features = ["full"] }
 hex = "0.4"
