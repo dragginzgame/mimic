@@ -64,11 +64,6 @@ impl ValidateNode for Entity {
                             if sk.entity != self.def.path() {
                                 errs.add("the last sort key must point to this entity");
                             }
-                            if field.name == "id" && field.value.default.is_none() {
-                                errs.add(format!(
-                                    "last sort key field '{field_name}' must have a default value"
-                                ));
-                            }
                         } else if let Some(relation) = &field.value.item.relation {
                             if *relation != sk.entity {
                                 errs.add("related entity does not match sort key");

@@ -5,6 +5,11 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.3.5]
+- Map and List are back, and the Map logic has been taken out of Newtype, it's much cleaner this way.
+- Fixed a bug with Filterable not working on Ulids
+- Default has moved from Value, it's now on Newtype and Field
+
 ## [0.3.4]
 - the Map type has been removed.  It was only a pseudo-map anyway as it was Vec<(K, V)> in the database.
 Map logic can be handled in the DTO/game logic layers instead.

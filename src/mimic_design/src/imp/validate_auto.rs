@@ -1,7 +1,11 @@
 use super::Implementor;
-use crate::node::{Enum, Newtype, PrimitiveGroup, Trait};
+use crate::node::{Enum, Map, Newtype, PrimitiveGroup, Trait};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
+
+///
+/// ENUM
+///
 
 // enum_
 // any variants that have the invalid flag set should not pass validation if selected
@@ -41,16 +45,44 @@ pub fn enum_(node: &Enum, t: Trait) -> TokenStream {
         .to_token_stream()
 }
 
-//
-// NEWTYPE
-//
+///
+/// MAP
+///
+
+// map
+pub fn map(node: &Map, t: Trait) -> TokenStream {
+    let key = &node.key;
+
+    let q = quote! {
+        fn validate_auto(&self) -> ::std::result::Result<(), ::mimic::types::ErrorVec> {
+            let mut errs = ::mimic::types::ErrorVec::new();
+            let mut seen = ::std::collections::HashSet::new();
+
+            for item in &self.0 {
+                let key = &item.#key;
+                if !seen.insert(key) {
+                    errs.add(format!("duplicate key found: {key}"));
+                }
+            }
+
+            errs.result()
+        }
+    };
+
+    Implementor::new(&node.def, t)
+        .set_tokens(q)
+        .to_token_stream()
+}
+
+///
+/// NEWTYPE
+///
 
 // newtype
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
     let mut checks = quote!();
 
     // checks
-    checks.extend(newtype_map(node));
     checks.extend(newtype_validators(node));
 
     // inner
@@ -75,26 +107,6 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
     Implementor::new(&node.def, t)
         .set_tokens(q)
         .to_token_stream()
-}
-
-// newtype_map
-pub fn newtype_map(node: &Newtype) -> TokenStream {
-    if let Some(map) = &node.map {
-        let key = &map.key;
-
-        quote! {
-            let mut seen = ::std::collections::HashSet::new();
-
-            for item in &self.0 {
-                let key = &item.#key;
-                if !seen.insert(key) {
-                    errs.add(format!("duplicate key found: {key}"));
-                }
-            }
-        }
-    } else {
-        quote!()
-    }
 }
 
 // newtype_validators

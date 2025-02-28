@@ -1,7 +1,7 @@
 use super::Implementor;
 use crate::node::{Newtype, PrimitiveType, Trait};
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote, ToTokens};
+use quote::{ToTokens, format_ident, quote};
 
 ///
 /// NumCast
@@ -40,16 +40,16 @@ pub mod from_primitive {
 
     // newtype
     pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
-        let value = &node.value;
+        let item = &node.item;
 
         let mut q = quote! {
             fn from_i64(n: i64) -> Option<Self> {
-                type Ty = #value;
+                type Ty = #item;
                 Ty::from_i64(n).map(Self)
             }
 
             fn from_u64(n: u64) -> Option<Self> {
-                type Ty = #value;
+                type Ty = #item;
                 Ty::from_u64(n).map(Self)
             }
         };
@@ -61,7 +61,7 @@ pub mod from_primitive {
         ) {
             q.extend(quote! {
                 fn from_f64(n: f64) -> Option<Self> {
-                    type Ty = #value;
+                    type Ty = #item;
                     Ty::from_f64(n).map(Self)
                 }
             });

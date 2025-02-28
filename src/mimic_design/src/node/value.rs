@@ -1,6 +1,5 @@
 use crate::{
-    helper::quote_option,
-    node::{Arg, Cardinality, Item},
+    node::{Cardinality, Item},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -20,9 +19,6 @@ pub struct Value {
     pub many: bool,
 
     pub item: Item,
-
-    #[darling(default)]
-    pub default: Option<Arg>,
 }
 
 impl Value {
@@ -41,13 +37,11 @@ impl Schemable for Value {
     fn schema(&self) -> TokenStream {
         let cardinality = &self.cardinality().schema();
         let item = &self.item.schema();
-        let default = quote_option(self.default.as_ref(), Arg::schema);
 
         quote!(
             ::mimic::schema::node::Value {
                 cardinality: #cardinality,
                 item: #item,
-                default: #default,
             }
         )
     }

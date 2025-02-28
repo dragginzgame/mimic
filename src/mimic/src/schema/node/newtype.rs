@@ -1,6 +1,6 @@
 use crate::{
     schema::{
-        node::{Def, MacroNode, Type, TypeNode, ValidateNode, Value, VisitableNode},
+        node::{Arg, Def, Item, MacroNode, Type, TypeNode, ValidateNode, VisitableNode},
         visit::Visitor,
     },
     types::PrimitiveType,
@@ -14,13 +14,13 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Newtype {
     pub def: Def,
-    pub value: Value,
+    pub item: Item,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub primitive: Option<PrimitiveType>,
 
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub map: Option<NewtypeMap>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default: Option<Arg>,
 
     #[serde(default, skip_serializing_if = "Type::skip_serializing")]
     pub ty: Type,
@@ -47,20 +47,10 @@ impl VisitableNode for Newtype {
 
     fn drive<V: Visitor>(&self, v: &mut V) {
         self.def.accept(v);
-        self.value.accept(v);
+        self.item.accept(v);
+        if let Some(node) = &self.default {
+            node.accept(v);
+        }
         self.ty.accept(v);
     }
 }
-
-///
-/// NewtypeMap
-///
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct NewtypeMap {
-    pub key: String,
-}
-
-impl ValidateNode for NewtypeMap {}
-
-impl VisitableNode for NewtypeMap {}

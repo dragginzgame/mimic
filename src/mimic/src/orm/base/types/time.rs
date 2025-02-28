@@ -4,28 +4,28 @@ pub use crate::orm::{base::types, prelude::*};
 /// Milliseconds
 ///
 
-#[newtype(primitive = "U64", value(item(is = "types::U64")))]
+#[newtype(primitive = "U64", item(is = "types::U64"))]
 pub struct Milliseconds {}
 
 ///
 /// Seconds
 ///
 
-#[newtype(primitive = "U64", value(item(is = "types::U64")))]
+#[newtype(primitive = "U64", item(is = "types::U64"))]
 pub struct Seconds {}
 
 ///
 /// Minutes
 ///
 
-#[newtype(primitive = "U64", value(item(is = "types::U64")))]
+#[newtype(primitive = "U64", item(is = "types::U64"))]
 pub struct Minutes {}
 
 ///
 /// Timestamp
 ///
 
-#[newtype(primitive = "U64", value(item(is = "types::U64")))]
+#[newtype(primitive = "U64", item(is = "types::U64"))]
 pub struct Timestamp {}
 
 impl Timestamp {
@@ -43,9 +43,7 @@ impl Timestamp {
 
 #[newtype(
     primitive = "U64",
-    value(
-        item(is = "types::time::Timestamp"),
-        default = "types::time::Timestamp::now"
-    )
+    item(is = "types::time::Timestamp"),
+    default = "types::time::Timestamp::now"
 )]
 pub struct Created {}

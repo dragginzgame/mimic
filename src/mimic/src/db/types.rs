@@ -63,8 +63,8 @@ impl DataKey {
 
         if let Some((_, last_key)) = new_parts.last_mut() {
             match last_key {
-                Some(key) => key.push('~'), // Append `~` to the existing key
-                None => *last_key = Some("~".to_string()), // Create a new key with `~` if None
+                Some(key) => key.push('~'),
+                None => *last_key = Some("~".to_string()),
             }
         }
 

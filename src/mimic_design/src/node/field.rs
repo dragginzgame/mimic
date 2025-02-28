@@ -1,11 +1,11 @@
 use crate::{
-    helper::{quote_one, quote_vec, to_string},
-    node::{SortDirection, Value},
+    helper::{quote_one, quote_option, quote_vec, to_string},
+    node::{Arg, SortDirection, Value},
     traits::Schemable,
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::{ToTokens, quote};
 use syn::Ident;
 
 ///
@@ -25,7 +25,7 @@ pub struct FieldList {
 
 impl FieldList {
     pub fn has_default(&self) -> bool {
-        self.fields.iter().any(|f| f.value.default.is_some())
+        self.fields.iter().any(|f| f.default.is_some())
     }
 }
 
@@ -61,17 +61,22 @@ impl ToTokens for FieldList {
 pub struct Field {
     pub name: Ident,
     pub value: Value,
+
+    #[darling(default)]
+    pub default: Option<Arg>,
 }
 
 impl Schemable for Field {
     fn schema(&self) -> TokenStream {
         let name = quote_one(&self.name, to_string);
         let value = self.value.schema();
+        let default = quote_option(self.default.as_ref(), Arg::schema);
 
         quote! {
             ::mimic::schema::node::Field {
                 name: #name,
                 value: #value,
+                default: #default,
             }
         }
     }

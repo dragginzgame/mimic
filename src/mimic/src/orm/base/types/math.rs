@@ -1,9 +1,9 @@
 use crate::{
+    Error, ThisError,
     orm::{
         base::{types, validator},
         prelude::*,
     },
-    Error, ThisError,
 };
 
 ///
@@ -12,7 +12,7 @@ use crate::{
 
 #[newtype(
     primitive = "Decimal",
-    value(item(is = "types::Decimal")),
+    item(is = "types::Decimal"),
     traits(remove(ValidateManual))
 )]
 pub struct DecimalFormat<const I: usize, const F: usize> {}
@@ -50,7 +50,7 @@ impl<const I: usize, const F: usize> ValidateManual for DecimalFormat<I, F> {
 
 #[newtype(
     primitive = "U16",
-    value(item(is = "types::U16")),
+    item(is = "types::U16"),
     ty(validator(path = "validator::number::Range", args(0, 360)))
 )]
 pub struct Degrees {}
@@ -63,7 +63,7 @@ pub struct Degrees {}
 
 #[newtype(
     primitive = "U8",
-    value(item(is = "types::U8")),
+    item(is = "types::U8"),
     ty(validator(path = "validator::number::Range", args(0, 100)))
 )]
 pub struct Percent {}
@@ -74,7 +74,7 @@ pub struct Percent {}
 
 #[newtype(
     primitive = "U16",
-    value(item(is = "types::U16")),
+    item(is = "types::U16"),
     ty(validator(path = "validator::number::Range", args(0, 10_000)))
 )]
 pub struct PercentModifier {}

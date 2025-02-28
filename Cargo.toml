@@ -14,7 +14,7 @@ resolver = "2"
 [workspace.package]
 rust-version = "1.85.0"
 edition = "2024"
-version = "0.3.4"
+version = "0.3.5"
 authors = ["borovan <84897664+borovan@users.noreply.github.com>"]
 description = "ORM/Database framework for the Internet Computer"
 license = "MIT"
@@ -32,7 +32,7 @@ test_schema = { path = "src/test/schema" }
 
 # ic cdk
 candid = "0.10.13"
-ic-cdk = "0.18.0-alpha"
+ic-cdk = "0.18.0-alpha.1"
 ic-stable-structures = "0.6.7"
 
 # macros

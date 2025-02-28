@@ -4,7 +4,7 @@ use mimic::orm::{base::types, prelude::*};
 /// Map
 ///
 
-#[newtype(map(key = "key"), value(many, item(is = "Entry")))]
+#[map(item(is = "Entry"), key = "key")]
 pub struct Map {}
 
 ///

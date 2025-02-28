@@ -1,7 +1,7 @@
 use super::Implementor;
 use crate::node::{Arg, Entity, FieldList, MacroNode, Newtype, Record, Trait};
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::{ToTokens, quote};
 
 // entity
 pub fn entity(node: &Entity, t: Trait) -> TokenStream {
@@ -28,7 +28,7 @@ fn field_list(node: &FieldList) -> TokenStream {
     for field in &node.fields {
         let name = &field.name;
 
-        if let Some(default) = &field.value.default {
+        if let Some(default) = &field.default {
             let arg = format_default(default);
 
             inner.extend(quote! {
@@ -53,9 +53,7 @@ fn field_list(node: &FieldList) -> TokenStream {
 
 // newtype
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
-    let value = &node.value;
-
-    let inner = match &value.default {
+    let inner = match &node.default {
         Some(arg) => format_default(arg),
         None => panic!("default impl but no default"),
     };

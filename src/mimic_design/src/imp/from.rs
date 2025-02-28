@@ -1,7 +1,49 @@
 use super::Implementor;
-use crate::node::{Cardinality, MacroNode, Newtype, PrimitiveGroup, PrimitiveType, Trait, Tuple};
+use crate::node::{List, MacroNode, Map, Newtype, PrimitiveGroup, PrimitiveType, Trait, Tuple};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
+
+///
+/// List
+///
+
+// list
+pub fn list(node: &List, t: Trait) -> TokenStream {
+    let mut imp = Implementor::new(node.def(), t);
+
+    // match cardinality
+    let item = &node.item;
+    imp = imp.add_trait_generic(quote!(Vec<#item>));
+
+    let tokens = quote! {
+        fn from(items: Vec<#item>) -> Self {
+            Self(items)
+        }
+    };
+
+    imp.set_tokens(tokens).to_token_stream()
+}
+
+///
+/// MAP
+///
+
+// map
+pub fn map(node: &Map, t: Trait) -> TokenStream {
+    let mut imp = Implementor::new(node.def(), t);
+
+    // match cardinality
+    let item = &node.item;
+    imp = imp.add_trait_generic(quote!(Vec<#item>));
+
+    let tokens = quote! {
+        fn from(items: Vec<#item>) -> Self {
+            Self(items)
+        }
+    };
+
+    imp.set_tokens(tokens).to_token_stream()
+}
 
 ///
 /// Newtype
@@ -39,34 +81,11 @@ pub fn newtype_inner(node: &Newtype, t: Trait) -> TokenStream {
     let mut imp = Implementor::new(node.def(), t);
 
     // match cardinality
-    let item = &node.value.item;
-    let tokens = match node.value.cardinality() {
-        Cardinality::One => {
-            imp = imp.add_trait_generic(quote!(#item));
-
-            quote! {
-                fn from(item: #item) -> Self {
-                    Self(item)
-                }
-            }
-        }
-        Cardinality::Opt => {
-            imp = imp.add_trait_generic(quote!(#item));
-
-            quote! {
-                fn from(item: #item) -> Self {
-                    Self(Some(item))
-                }
-            }
-        }
-        Cardinality::Many => {
-            imp = imp.add_trait_generic(quote!(Vec<#item>));
-
-            quote! {
-                fn from(items: Vec<#item>) -> Self {
-                    Self(items)
-                }
-            }
+    let item = &node.item;
+    imp = imp.add_trait_generic(quote!(#item));
+    let tokens = quote! {
+        fn from(item: #item) -> Self {
+            Self(item)
         }
     };
 
@@ -75,39 +94,14 @@ pub fn newtype_inner(node: &Newtype, t: Trait) -> TokenStream {
 
 // newtype_into_inner
 pub fn newtype_into_inner(node: &Newtype, t: Trait) -> TokenStream {
-    let value = &node.value;
-    let item = &value.item;
+    let item = &node.item;
 
     let mut imp = Implementor::new(node.def(), t);
+    imp = imp.add_trait_generic(quote!(T));
 
-    let tokens = match value.cardinality() {
-        Cardinality::One => {
-            imp = imp.add_trait_generic(quote!(T));
-
-            quote! {
-                fn from(t: T) -> Self {
-                    Self(t.into())
-                }
-            }
-        }
-        Cardinality::Opt => {
-            imp = imp.add_trait_generic(quote!(T));
-
-            quote! {
-                fn from(t: T) -> Self {
-                    Self(Some(t.into()))
-                }
-            }
-        }
-        Cardinality::Many => {
-            imp = imp.add_trait_generic(quote!(Vec<T>));
-
-            quote! {
-                fn from(t: Vec<T>) -> Self {
-                    let vec: Vec<#item> = t.into_iter().map(|item| item.into()).collect();
-                    Self(vec)
-                }
-            }
+    let tokens = quote! {
+        fn from(t: T) -> Self {
+            Self(t.into())
         }
     };
 
@@ -120,36 +114,12 @@ pub fn newtype_into_inner(node: &Newtype, t: Trait) -> TokenStream {
 // newtype_str
 pub fn newtype_str(node: &Newtype, t: Trait) -> TokenStream {
     let mut imp = Implementor::new(node.def(), t);
+    imp = imp.add_trait_generic(quote!(&str));
 
-    // match cardinality
-    let tokens = match node.value.cardinality() {
-        Cardinality::One => {
-            imp = imp.add_trait_generic(quote!(&str));
-
-            quote! {
-                fn from(s: &str) -> Self {
-                    Self(s.into())
-                }
-            }
-        }
-        Cardinality::Opt => {
-            imp = imp.add_trait_generic(quote!(&str));
-
-            quote! {
-                fn from(s: &str) -> Self {
-                    Self(Some(s.into()))
-                }
-            }
-        }
-        Cardinality::Many => {
-            imp = imp.add_trait_generic(quote!(&str));
-
-            quote! {
-                fn from(ss: Vec<&str>) -> Self {
-                    let vec: Vec<&str> = ss.into_iter().map(|item| item.into()).collect();
-                    Self(vec)
-                }
-            }
+    // tokens
+    let tokens = quote! {
+        fn from(s: &str) -> Self {
+            Self(s.into())
         }
     };
 

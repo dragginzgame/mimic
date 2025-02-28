@@ -1,16 +1,15 @@
 use crate::{
-    helper::{quote_one, quote_option, to_string},
+    helper::quote_option,
     imp,
     node::{
-        Cardinality, Def, MacroNode, Node, PrimitiveGroup, PrimitiveType, Trait, TraitNode, Traits,
-        Type, Value,
+        Arg, Def, Item, MacroNode, Node, PrimitiveGroup, PrimitiveType, Trait, TraitNode, Traits,
+        Type,
     },
     traits::Schemable,
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::Ident;
 
 ///
 /// Newtype
@@ -21,16 +20,16 @@ pub struct Newtype {
     #[darling(default, skip)]
     pub def: Def,
 
-    pub value: Value,
+    pub item: Item,
 
     #[darling(default)]
     pub primitive: Option<PrimitiveType>,
 
     #[darling(default)]
-    pub ty: Type,
+    pub default: Option<Arg>,
 
     #[darling(default)]
-    pub map: Option<NewtypeMap>,
+    pub ty: Type,
 
     #[darling(default)]
     pub traits: Traits,
@@ -84,39 +83,32 @@ impl TraitNode for Newtype {
 
             // ord
             if primitive.is_orderable() {
-                match &self.value.cardinality() {
-                    Cardinality::One | Cardinality::Opt => {
-                        traits.extend(vec![Trait::Ord, Trait::PartialOrd]);
-                    }
-                    Cardinality::Many => {}
-                }
+                traits.extend(vec![Trait::Ord, Trait::PartialOrd]);
             }
         }
 
         // group traits
-        if self.value.cardinality() == Cardinality::One {
-            match self.primitive.map(PrimitiveType::group) {
-                Some(PrimitiveGroup::Integer | PrimitiveGroup::Decimal) => {
-                    traits.extend(vec![
-                        Trait::Add,
-                        Trait::AddAssign,
-                        Trait::Copy,
-                        Trait::Display,
-                        Trait::FromStr,
-                        Trait::Mul,
-                        Trait::MulAssign,
-                        Trait::NumCast,
-                        Trait::NumFromPrimitive,
-                        Trait::NumToPrimitive,
-                        Trait::Sub,
-                        Trait::SubAssign,
-                    ]);
-                }
-                Some(PrimitiveGroup::String | PrimitiveGroup::Ulid) => {
-                    traits.extend(vec![Trait::Display, Trait::FromStr]);
-                }
-                _ => {}
+        match self.primitive.map(PrimitiveType::group) {
+            Some(PrimitiveGroup::Integer | PrimitiveGroup::Decimal) => {
+                traits.extend(vec![
+                    Trait::Add,
+                    Trait::AddAssign,
+                    Trait::Copy,
+                    Trait::Display,
+                    Trait::FromStr,
+                    Trait::Mul,
+                    Trait::MulAssign,
+                    Trait::NumCast,
+                    Trait::NumFromPrimitive,
+                    Trait::NumToPrimitive,
+                    Trait::Sub,
+                    Trait::SubAssign,
+                ]);
             }
+            Some(PrimitiveGroup::String | PrimitiveGroup::Ulid) => {
+                traits.extend(vec![Trait::Display, Trait::FromStr]);
+            }
+            _ => {}
         }
 
         traits.list()
@@ -125,14 +117,14 @@ impl TraitNode for Newtype {
     fn map_derive(&self, t: Trait) -> bool {
         match t {
             // derive default if no default value
-            Trait::Default => self.value.default.is_none(),
+            Trait::Default => self.default.is_none(),
             _ => true,
         }
     }
 
     fn map_imp(&self, t: Trait) -> TokenStream {
         match t {
-            Trait::Default if self.value.default.is_some() => imp::default::newtype(self, t),
+            Trait::Default if self.default.is_some() => imp::default::newtype(self, t),
             Trait::Filterable => imp::filterable::newtype(self, t),
             Trait::From => imp::from::newtype(self, t),
             Trait::Inner => imp::inner::newtype(self, t),
@@ -152,17 +144,17 @@ impl TraitNode for Newtype {
 impl Schemable for Newtype {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
-        let value = self.value.schema();
+        let item = self.item.schema();
         let primitive = quote_option(self.primitive.as_ref(), PrimitiveType::schema);
-        let map = quote_option(self.map.as_ref(), NewtypeMap::schema);
+        let default = quote_option(self.default.as_ref(), Arg::schema);
         let ty = self.ty.schema();
 
         quote! {
             ::mimic::schema::node::SchemaNode::Newtype(::mimic::schema::node::Newtype {
                 def: #def,
-                value: #value,
+                item: #item,
                 primitive: #primitive,
-                map: #map,
+                default: #default,
                 ty: #ty,
             })
         }
@@ -174,34 +166,12 @@ impl ToTokens for Newtype {
         let Def {
             ident, generics, ..
         } = &self.def;
-        let value = &self.value;
+        let item = &self.item;
 
-        // cannot skip if hidden as the traits break
         let q = quote! {
-            pub struct #ident #generics(#value);
+            pub struct #ident #generics(#item);
         };
 
         tokens.extend(q);
-    }
-}
-
-///
-/// NewtypeMap
-///
-
-#[derive(Clone, Debug, FromMeta)]
-pub struct NewtypeMap {
-    pub key: Ident,
-}
-
-impl Schemable for NewtypeMap {
-    fn schema(&self) -> TokenStream {
-        let key = quote_one(&self.key, to_string);
-
-        quote! {
-            ::mimic::schema::node::NewtypeMap {
-                key: #key,
-            }
-        }
     }
 }

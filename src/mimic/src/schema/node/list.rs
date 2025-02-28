@@ -5,34 +5,33 @@ use crate::schema::{
 use serde::{Deserialize, Serialize};
 
 ///
-/// Map
+/// List
 ///
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Map {
+pub struct List {
     pub def: Def,
     pub item: Item,
-    pub key: String,
 
     #[serde(default, skip_serializing_if = "Type::skip_serializing")]
     pub ty: Type,
 }
 
-impl MacroNode for Map {
+impl MacroNode for List {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }
 }
 
-impl TypeNode for Map {
+impl TypeNode for List {
     fn ty(&self) -> &Type {
         &self.ty
     }
 }
 
-impl ValidateNode for Map {}
+impl ValidateNode for List {}
 
-impl VisitableNode for Map {
+impl VisitableNode for List {
     fn route_key(&self) -> String {
         self.def.path()
     }

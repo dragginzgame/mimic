@@ -10,7 +10,7 @@ use crate::orm::{
 
 #[newtype(
     primitive = "String",
-    value(item(is = "types::String")),
+    item(is = "types::String"),
     traits(add(Hash), remove(ValidateManual))
 )]
 pub struct Text<const LEN: usize> {}

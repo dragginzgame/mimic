@@ -1,7 +1,7 @@
 use crate::{
     schema::{
         build::validate::validate_ident,
-        node::{ValidateNode, Value, VisitableNode},
+        node::{Arg, ValidateNode, Value, VisitableNode},
         visit::Visitor,
     },
     types::{Cardinality, ErrorVec, SortDirection},
@@ -63,6 +63,9 @@ impl VisitableNode for FieldList {
 pub struct Field {
     pub name: String,
     pub value: Value,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default: Option<Arg>,
 }
 
 impl ValidateNode for Field {
@@ -107,6 +110,9 @@ impl VisitableNode for Field {
 
     fn drive<V: Visitor>(&self, v: &mut V) {
         self.value.accept(v);
+        if let Some(node) = &self.default {
+            node.accept(v);
+        }
     }
 }
 

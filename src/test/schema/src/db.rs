@@ -7,10 +7,7 @@ use mimic::orm::{base::types, prelude::*};
 #[entity(
     store = "crate::Store",
     sk(entity = "CreateBasic", field = "id"),
-    fields(field(
-        name = "id",
-        value(item(is = "types::Ulid"), default = "types::Ulid::generate")
-    ))
+    fields(field(name = "id", value(item(is = "types::db::UlidGenerate"))))
 )]
 pub struct CreateBasic {}
 
@@ -22,10 +19,7 @@ pub struct CreateBasic {}
     store = "crate::Store",
     sk(entity = "Filterable", field = "id"),
     fields(
-        field(
-            name = "id",
-            value(item(is = "types::Ulid"), default = "types::Ulid::generate")
-        ),
+        field(name = "id", value(item(is = "types::db::UlidGenerate"))),
         field(name = "name", value(item(is = "types::String"))),
         field(name = "description", value(item(is = "types::String"))),
     )
@@ -50,10 +44,7 @@ pub struct Limit {}
 #[entity(
     store = "crate::Store",
     sk(entity = "SortKeyOrder", field = "id"),
-    fields(field(
-        name = "id",
-        value(item(is = "types::Ulid"), default = "types::Ulid::generate")
-    ))
+    fields(field(name = "id", value(item(is = "types::db::UlidGenerate"))))
 )]
 pub struct SortKeyOrder {}
 
@@ -64,10 +55,7 @@ pub struct SortKeyOrder {}
 #[entity(
     store = "crate::Store",
     sk(entity = "SortKeyA", field = "a_id"),
-    fields(field(
-        name = "a_id",
-        value(item(is = "types::Ulid"), default = "types::Ulid::generate")
-    ))
+    fields(field(name = "a_id", value(item(is = "types::db::UlidGenerate"))))
 )]
 pub struct SortKeyA {}
 
@@ -81,10 +69,7 @@ pub struct SortKeyA {}
     sk(entity = "SortKeyB", field = "b_id"),
     fields(
         field(name = "a_id", value(item(rel = "SortKeyA"))),
-        field(
-            name = "b_id",
-            value(item(is = "types::Ulid"), default = "types::Ulid::generate")
-        ),
+        field(name = "b_id", value(item(is = "types::db::UlidGenerate"))),
     )
 )]
 pub struct SortKeyB {}
@@ -101,10 +86,7 @@ pub struct SortKeyB {}
     fields(
         field(name = "a_id", value(item(rel = "SortKeyA"))),
         field(name = "b_id", value(item(rel = "SortKeyB"))),
-        field(
-            name = "c_id",
-            value(item(is = "types::Ulid"), default = "types::Ulid::generate")
-        )
+        field(name = "c_id", value(item(is = "types::db::UlidGenerate")))
     )
 )]
 pub struct SortKeyC {}

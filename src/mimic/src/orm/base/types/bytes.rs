@@ -9,7 +9,7 @@ use crate::orm::{
 
 #[newtype(
     primitive = "Blob",
-    value(item(is = "types::Blob")),
+    item(is = "types::Blob"),
     traits(remove(ValidateManual))
 )]
 pub struct Bytes<const LEN: usize> {}
@@ -32,7 +32,7 @@ impl<const LEN: usize> ValidateManual for Bytes<LEN> {
 
 #[newtype(
     primitive = "Blob",
-    value(item(is = "types::Blob")),
+    item(is = "types::Blob"),
     traits(remove(ValidateManual))
 )]
 pub struct Utf8<const LEN: usize> {}

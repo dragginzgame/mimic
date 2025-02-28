@@ -1,7 +1,7 @@
 use super::Implementor;
 use crate::node::{
-    Cardinality, Entity, Enum, EnumVariant, FieldList, MacroNode, Newtype, Record, Trait, Tuple,
-    Value,
+    Cardinality, Entity, Enum, EnumVariant, FieldList, List, MacroNode, Map, Newtype, Record,
+    Trait, Tuple, Value,
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -54,10 +54,29 @@ pub fn enum_(node: &Enum, t: Trait) -> TokenStream {
         .to_token_stream()
 }
 
+// list
+pub fn list(node: &List, t: Trait) -> TokenStream {
+    let inner = quote_value(&self0_expr(), Cardinality::Many, "");
+    let q = drive_inner(&inner);
+
+    Implementor::new(&node.def, t)
+        .set_tokens(q)
+        .to_token_stream()
+}
+
+// map
+pub fn map(node: &Map, t: Trait) -> TokenStream {
+    let inner = quote_value(&self0_expr(), Cardinality::Many, "");
+    let q = drive_inner(&inner);
+
+    Implementor::new(&node.def, t)
+        .set_tokens(q)
+        .to_token_stream()
+}
+
 // newtype
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
-    let var_expr: Expr = syn::parse_str("self.0").expect("can parse");
-    let inner = quote_value(&node.value, &var_expr, "");
+    let inner = quote_value(&self0_expr(), Cardinality::One, "");
     let q = drive_inner(&inner);
 
     Implementor::new(&node.def, t)
@@ -80,7 +99,7 @@ pub fn field_list(node: &FieldList) -> TokenStream {
         let key = f.name.to_string();
         let var_expr: Expr = syn::parse_str(&var).expect("can parse");
 
-        inner.extend(quote_value(&f.value, &var_expr, &key));
+        inner.extend(quote_value(&var_expr, f.value.cardinality(), &key));
     }
 
     drive_inner(&inner)
@@ -94,32 +113,13 @@ pub fn tuple(node: &Tuple, t: Trait) -> TokenStream {
         let key = format!("{i}");
         let var_expr: Expr = syn::parse_str(&var).expect("can parse");
 
-        inner.extend(quote_value(value, &var_expr, &key));
+        inner.extend(quote_value(&var_expr, value.cardinality(), &key));
     }
     let q = drive_inner(&inner);
 
     Implementor::new(&node.def, t)
         .set_tokens(q)
         .to_token_stream()
-}
-
-// quote_value
-fn quote_value(value: &Value, var: &syn::Expr, name: &str) -> TokenStream {
-    match value.cardinality() {
-        Cardinality::One => quote! {
-            ::mimic::orm::visit::perform_visit(visitor, &#var, #name);
-        },
-        Cardinality::Opt => quote! {
-            if let Some(value) = #var.as_ref() {
-                ::mimic::orm::visit::perform_visit(visitor, value, #name);
-            }
-        },
-        Cardinality::Many => quote! {
-            for value in #var.iter() {
-                ::mimic::orm::visit::perform_visit(visitor, value, #name);
-            }
-        },
-    }
 }
 
 ///
@@ -164,6 +164,11 @@ fn quote_variant(value: &Value, ident: &Ident) -> TokenStream {
 /// HELPERS
 ///
 
+// self0_expr
+fn self0_expr() -> Expr {
+    syn::parse_str("self.0").expect("Failed to parse 'self.0'")
+}
+
 // drive_inner
 // to eliminate a lot of repeating code shared between Node types
 fn drive_inner(inner: &TokenStream) -> TokenStream {
@@ -177,5 +182,24 @@ fn drive_inner(inner: &TokenStream) -> TokenStream {
         fn drive(&self, #visitor: &mut dyn ::mimic::orm::visit::Visitor) {
             #inner
         }
+    }
+}
+
+// quote_value
+fn quote_value(var: &syn::Expr, cardinality: Cardinality, name: &str) -> TokenStream {
+    match cardinality {
+        Cardinality::One => quote! {
+            ::mimic::orm::visit::perform_visit(visitor, &#var, #name);
+        },
+        Cardinality::Opt => quote! {
+            if let Some(value) = #var.as_ref() {
+                ::mimic::orm::visit::perform_visit(visitor, value, #name);
+            }
+        },
+        Cardinality::Many => quote! {
+            for value in #var.iter() {
+                ::mimic::orm::visit::perform_visit(visitor, value, #name);
+            }
+        },
     }
 }
