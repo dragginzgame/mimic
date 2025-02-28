@@ -103,7 +103,6 @@ static TYPE_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
         Trait::Eq,
         Trait::Deserialize,
         Trait::Filterable,
-        Trait::From,
         Trait::Orderable,
         Trait::PartialEq,
         Trait::Serialize,

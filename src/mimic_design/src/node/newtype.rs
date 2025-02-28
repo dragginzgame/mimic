@@ -73,6 +73,7 @@ impl TraitNode for Newtype {
             Trait::Default,
             Trait::Deref,
             Trait::DerefMut,
+            Trait::From,
             Trait::Into,
         ]);
 
