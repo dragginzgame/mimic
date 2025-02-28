@@ -66,7 +66,6 @@ impl TraitNode for Map {
             Trait::Default,
             Trait::Deref,
             Trait::DerefMut,
-            Trait::From,
         ]);
 
         traits.list()
@@ -74,7 +73,6 @@ impl TraitNode for Map {
 
     fn map_imp(&self, t: Trait) -> TokenStream {
         match t {
-            Trait::From => imp::from::map(self, t),
             Trait::ValidateAuto => imp::validate_auto::map(self, t),
             Trait::Visitable => imp::visitable::map(self, t),
 

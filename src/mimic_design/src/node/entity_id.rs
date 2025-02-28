@@ -58,21 +58,12 @@ impl MacroNode for EntityId {
 impl TraitNode for EntityId {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = Traits::default();
-        traits.extend(vec![
-            Trait::Copy,
-            Trait::Display,
-            Trait::EntityId,
-            Trait::Into,
-        ]);
+        traits.extend(vec![Trait::Copy, Trait::Display, Trait::EntityId]);
 
         traits.list()
     }
 
     fn map_imp(&self, t: Trait) -> TokenStream {
-        match t {
-            Trait::Into => imp::into::entity_id(self, t),
-
-            _ => imp::any(self, t),
-        }
+        imp::any(self, t)
     }
 }

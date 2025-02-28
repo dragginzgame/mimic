@@ -73,7 +73,7 @@ impl TraitNode for Newtype {
             Trait::Default,
             Trait::Deref,
             Trait::DerefMut,
-            Trait::From,
+            Trait::Into,
         ]);
 
         // primitive traits
@@ -126,7 +126,6 @@ impl TraitNode for Newtype {
         match t {
             Trait::Default if self.default.is_some() => imp::default::newtype(self, t),
             Trait::Filterable => imp::filterable::newtype(self, t),
-            Trait::From => imp::from::newtype(self, t),
             Trait::Inner => imp::inner::newtype(self, t),
             Trait::NumCast => imp::num::cast::newtype(self, t),
             Trait::NumToPrimitive => imp::num::to_primitive::newtype(self, t),

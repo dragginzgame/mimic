@@ -2,10 +2,8 @@ pub mod default;
 pub mod entity;
 pub mod enum_value;
 pub mod filterable;
-pub mod from;
 pub mod implementor;
 pub mod inner;
-pub mod into;
 pub mod num;
 pub mod orderable;
 pub mod record_filter;
@@ -17,7 +15,7 @@ pub mod visitable;
 use crate::node::{MacroNode, Trait};
 use implementor::Implementor;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::{ToTokens, quote};
 
 ///
 /// any

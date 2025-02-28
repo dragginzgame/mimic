@@ -1,7 +1,7 @@
-use darling::{ast::NestedMeta, Error as DarlingError, FromMeta};
+use darling::{Error as DarlingError, FromMeta, ast::NestedMeta};
 use derive_more::{Deref, DerefMut, Display, FromStr};
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote, ToTokens};
+use quote::{ToTokens, format_ident, quote};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, hash::Hash, str::FromStr, sync::LazyLock};
 
@@ -104,6 +104,7 @@ static TYPE_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
         Trait::Eq,
         Trait::Deserialize,
         Trait::Filterable,
+        Trait::From,
         Trait::Orderable,
         Trait::PartialEq,
         Trait::Serialize,
@@ -142,8 +143,10 @@ impl Trait {
             Self::Deserialize => Some(quote!(::serde::Deserialize)),
             Self::Display => Some(quote!(::mimic::export::derive_more::Display)),
             Self::Eq => Some(quote!(Eq)),
+            Self::From => Some(quote!(::mimic::export::derive_more::From)),
             Self::FromStr => Some(quote!(::mimic::export::derive_more::FromStr)),
             Self::Hash => Some(quote!(Hash)),
+            Self::Into => Some(quote!(::mimic::export::derive_more::Into)),
             Self::IntoIterator => Some(quote!(::mimic::export::derive_more::IntoIterator)),
             Self::Mul => Some(quote!(::mimic::export::derive_more::Mul)),
             Self::MulAssign => Some(quote!(::mimic::export::derive_more::MulAssign)),

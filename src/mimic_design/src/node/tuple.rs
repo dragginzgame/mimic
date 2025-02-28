@@ -6,7 +6,7 @@ use crate::{
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::{ToTokens, quote};
 
 ///
 /// Tuple
@@ -81,14 +81,13 @@ impl TraitNode for Tuple {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
-        traits.extend(vec![Trait::Deref, Trait::DerefMut, Trait::From]);
+        traits.extend(vec![Trait::Deref, Trait::DerefMut]);
 
         traits.list()
     }
 
     fn map_imp(&self, t: Trait) -> TokenStream {
         match t {
-            Trait::From => imp::from::tuple(self, t),
             Trait::Visitable => imp::visitable::tuple(self, t),
 
             _ => imp::any(self, t),

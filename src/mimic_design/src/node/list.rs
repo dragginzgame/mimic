@@ -63,7 +63,6 @@ impl TraitNode for List {
             Trait::Default,
             Trait::Deref,
             Trait::DerefMut,
-            Trait::From,
         ]);
 
         traits.list()
@@ -71,7 +70,6 @@ impl TraitNode for List {
 
     fn map_imp(&self, t: Trait) -> TokenStream {
         match t {
-            Trait::From => imp::from::list(self, t),
             Trait::Visitable => imp::visitable::list(self, t),
 
             _ => imp::any(self, t),
