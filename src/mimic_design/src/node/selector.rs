@@ -79,7 +79,6 @@ impl Schemable for Selector {
 impl TraitNode for Selector {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = Traits::default();
-        traits.add(Trait::Into);
 
         // add default if needed
         if self.variants.iter().any(|v| v.default) {
