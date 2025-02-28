@@ -8,7 +8,7 @@ use mimic::orm::{base::types, prelude::*};
     store = "crate::Store",
     sk(entity = "ComplexEntity", field = "id"),
     fields(
-        field(name = "id", value(item(is = "types::db::UlidGenerate"))),
+        field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
         field(name = "string_test", value(item(is = "types::String"))),
         field(name = "principal_test", value(item(is = "types::Principal"))),
         field(name = "blob_test", value(item(is = "types::Blob"))),
@@ -53,7 +53,7 @@ pub struct ComplexEntity {}
     store = "crate::Store",
     sk(entity = "AdminEntity", field = "id"),
     fields(
-        field(name = "id", value(item(is = "types::db::UlidGenerate"))),
+        field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
         field(name = "simple_text", value(item(is = "types::String"))),
         field(name = "tuple_test", value(item(is = "Tuple"))),
         field(name = "text_many", value(many, item(is = "types::String"))),
@@ -80,7 +80,7 @@ pub struct AdminEntity {}
     store = "crate::Store",
     sk(entity = "RelatedEntity", field = "id"),
     fields(
-        field(name = "id", value(item(is = "types::db::UlidGenerate"))),
+        field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
         field(name = "simple_id", value(item(rel = "SimpleEntity"))),
         field(name = "opt_simple_id", value(opt, item(rel = "SimpleEntity"))),
         field(name = "simple_ids", value(many, item(rel = "SimpleEntity"))),
@@ -96,7 +96,7 @@ pub struct RelatedEntity {}
     store = "crate::Store",
     sk(entity = "SimpleEntity", field = "id"),
     fields(
-        field(name = "id", value(item(is = "types::db::UlidGenerate"))),
+        field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
         field(name = "name", value(item(is = "types::String"))),
     )
 )]
@@ -108,7 +108,7 @@ pub struct SimpleEntity {}
 
 #[record(
     fields(
-        field(name = "id", value(item(is = "types::db::UlidGenerate"))),
+        field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
         field(name = "variant_a", value(item(is = "EnumA"))),
         field(name = "description", value(item(is = "types::String"))),
     ),

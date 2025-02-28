@@ -11,7 +11,7 @@ use mimic::orm::{
     store = "crate::Store",
     sk(entity = "ValidateTest", field = "id"),
     fields(
-        field(name = "id", value(item(is = "types::db::UlidGenerate"))),
+        field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
         field(name = "multiple_ten", value(item(is = "MultipleTenType")))
     )
 )]
