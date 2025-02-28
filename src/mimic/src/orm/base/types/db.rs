@@ -15,9 +15,3 @@ use crate::orm::{
     traits(add(SortKey))
 )]
 pub struct UlidGenerate {}
-
-impl<T: EntityId> From<T> for UlidGenerate {
-    fn from(t: T) -> Self {
-        Self(t.ulid())
-    }
-}

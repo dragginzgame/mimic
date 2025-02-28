@@ -1,17 +1,17 @@
 use super::Implementor;
-use crate::node::{MacroNode, Newtype, PrimitiveGroup, PrimitiveType, Trait};
+use crate::node::{MacroNode, Newtype, PrimitiveGroup, Trait};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 // newtype
 pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
-    let inner = if let Some(
+    let inner = if matches!(
+        node.primitive.group(),
         PrimitiveGroup::Float
-        | PrimitiveGroup::Integer
-        | PrimitiveGroup::String
-        | PrimitiveGroup::Ulid,
-    ) = &node.primitive.map(PrimitiveType::group)
-    {
+            | PrimitiveGroup::Integer
+            | PrimitiveGroup::String
+            | PrimitiveGroup::Ulid,
+    ) {
         quote!(Some(self.to_string()))
     } else {
         quote!(None)

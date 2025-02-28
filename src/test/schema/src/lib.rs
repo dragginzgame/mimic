@@ -38,19 +38,19 @@ pub struct EntityIdTest {}
 /// TodoUnit
 ///
 
-#[newtype(item(todo))]
+#[newtype(item(todo), primitive = "Unit")]
 pub struct TodoUnit {}
 
 ///
 /// TodoTarget
 ///
 
-#[newtype(item(todo, is = "Todo"))]
+#[newtype(item(todo, is = "Todo"), primitive = "U8")]
 pub struct TodoTarget {}
 
 ///
 /// Todo
 ///
 
-#[newtype(ty(todo), item(is = "types::U8"))]
+#[newtype(ty(todo), item(is = "types::U8"), primitive = "U8")]
 pub struct Todo {}

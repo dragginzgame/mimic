@@ -116,15 +116,12 @@ pub fn newtype_validators(node: &Newtype) -> TokenStream {
     }
 
     // validate function name
-    let validate_fn = match node.primitive {
-        Some(prim) => match prim.group() {
-            PrimitiveGroup::Blob => quote! { validate_blob },
-            PrimitiveGroup::Decimal | PrimitiveGroup::Integer => quote! { validate_number },
-            PrimitiveGroup::String => quote! { validate_string },
+    let validate_fn = match &node.primitive.group() {
+        PrimitiveGroup::Blob => quote! { validate_blob },
+        PrimitiveGroup::Decimal | PrimitiveGroup::Integer => quote! { validate_number },
+        PrimitiveGroup::String => quote! { validate_string },
 
-            _ => panic!("validator error - invalid primitive group"),
-        },
-        None => panic!("validator error - no primitive"),
+        _ => panic!("validator error - invalid primitive group"),
     };
 
     // Generate rules

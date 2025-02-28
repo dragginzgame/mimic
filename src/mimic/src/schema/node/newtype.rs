@@ -15,9 +15,7 @@ use serde::{Deserialize, Serialize};
 pub struct Newtype {
     pub def: Def,
     pub item: Item,
-
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub primitive: Option<PrimitiveType>,
+    pub primitive: PrimitiveType,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default: Option<Arg>,

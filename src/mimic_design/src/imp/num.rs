@@ -13,7 +13,7 @@ pub mod cast {
     use quote::quote;
 
     pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
-        let num_fn = node.primitive.expect("has primitive").num_cast_fn();
+        let num_fn = node.primitive.num_cast_fn();
 
         let to_method = format_ident!("to_{}", num_fn);
         let from_method = format_ident!("from_{}", num_fn);
@@ -55,10 +55,7 @@ pub mod from_primitive {
         };
 
         // Decimal
-        if matches!(
-            node.primitive,
-            Some(PrimitiveType::Decimal | PrimitiveType::F64)
-        ) {
+        if matches!(node.primitive, PrimitiveType::Decimal | PrimitiveType::F64) {
             q.extend(quote! {
                 fn from_f64(n: f64) -> Option<Self> {
                     type Ty = #item;
