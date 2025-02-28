@@ -31,7 +31,7 @@ impl<'a> Implementor<'a> {
     //
 
     pub fn add_impl_constraint(mut self, tokens: TokenStream) -> Self {
-        let constraint: WherePredicate = parse2(tokens).unwrap();
+        let constraint: WherePredicate = parse2(tokens).expect("where predicate parses");
         let where_clause = self.impl_generics.make_where_clause();
         where_clause.predicates.push(constraint);
 
@@ -39,7 +39,7 @@ impl<'a> Implementor<'a> {
     }
 
     pub fn add_impl_generic(mut self, tokens: TokenStream) -> Self {
-        let generic_param = syn::parse2::<GenericParam>(tokens).unwrap();
+        let generic_param = syn::parse2::<GenericParam>(tokens).expect("generic param parses");
         self.impl_generics.params.push(generic_param);
 
         self

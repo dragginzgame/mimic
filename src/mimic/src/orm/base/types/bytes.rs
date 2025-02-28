@@ -20,7 +20,7 @@ impl ValidateManual for Utf8 {
         let mut errs = ErrorVec::default();
 
         // utf8
-        errs.add_result(validator::bytes::Utf8::default().validate_blob(&self.0));
+        errs.add_result(validator::bytes::Utf8 {}.validate_blob(&self.0));
 
         errs.result()
     }

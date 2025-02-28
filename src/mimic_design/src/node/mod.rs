@@ -81,64 +81,60 @@ pub trait MacroNode {
 /// TraitNode
 ///
 
+pub struct TraitTokens {
+    pub derive: TokenStream,
+    pub impls: TokenStream,
+}
+
 pub trait TraitNode: MacroNode {
     // traits
-    // for each type this should return the list of traits it requires
-    // want to make the function explicit to make it less confusing
+    // returns the list of traits for this type
     fn traits(&self) -> Vec<Trait>;
 
-    // derive
-    fn derive(&self) -> TokenStream {
-        let mut derives = Vec::new();
+    // trait_tokens
+    fn trait_tokens(&self) -> TraitTokens {
+        let mut impls = quote!();
+        let traits = self.traits();
 
         // we only derive traits that have no map_imp tokens
-        for t in self.traits() {
-            if self.map_imp(t).is_empty() {
-                if let Some(path) = t.derive_path() {
-                    derives.push(path);
-                }
+        let mut derived_traits = Vec::new();
+        for t in traits.iter() {
+            match self.map_trait(*t) {
+                Some(tokens) => impls.extend(tokens),
+                None => derived_traits.push(
+                    t.derive_path()
+                        .unwrap_or_else(|| panic!("trait '{t}' can be derived")),
+                ),
             }
         }
 
-        if derives.is_empty() {
+        // derive
+        let mut derive = if derived_traits.is_empty() {
             quote!()
         } else {
             quote! {
-                #[derive(#(#derives),*)]
+                #[derive(#(#derived_traits),*)]
             }
-        }
-    }
+        };
 
-    // derive_struct
-    // includes the extra attributes that a struct needs
-    fn derive_struct(&self) -> TokenStream {
-        let mut q = self.derive();
-
-        // attributes
-        if self.traits().contains(&Trait::Default) {
-            q.extend(quote! {
-                #[serde(default)]
-            });
+        // derive attributes
+        if let Some(attrs) = self.derive_attributes() {
+            derive.extend(attrs);
         }
 
-        q
+        TraitTokens { derive, impls }
     }
 
-    /// imp
-    /// every trait that returns Some(tokens) is an impl block
-    fn imp(&self) -> TokenStream {
-        let mut output = quote!();
+    // map_trait
+    // if None is returned it means that this trait should be derived
+    // otherwise it's the code for the implementation
+    fn map_trait(&self, t: Trait) -> Option<TokenStream>;
 
-        for t in self.traits() {
-            output.extend(self.map_imp(t));
-        }
-
-        output
+    // derive_attributes
+    // extra attributes for the derive
+    fn derive_attributes(&self) -> Option<TokenStream> {
+        None
     }
-
-    // map_imp
-    // passes through the trait to the impl generator function
-    fn map_imp(&self, t: Trait) -> TokenStream;
 }
 
 ///

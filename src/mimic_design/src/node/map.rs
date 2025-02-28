@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, to_string},
     imp,
-    node::{Def, Item, MacroNode, Node, Trait, TraitNode, Traits, Type},
+    node::{Def, Item, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -30,15 +30,15 @@ pub struct Map {
 
 impl Node for Map {
     fn expand(&self) -> TokenStream {
+        let TraitTokens { derive, impls } = self.trait_tokens();
+
         // quote
         let schema = self.ctor_schema();
-        let derive = self.derive();
-        let imp = self.imp();
         let q = quote! {
             #schema
             #derive
             #self
-            #imp
+            #impls
         };
 
         // debug
@@ -72,7 +72,7 @@ impl TraitNode for Map {
         traits.list()
     }
 
-    fn map_imp(&self, t: Trait) -> TokenStream {
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::From => imp::from::map(self, t),
             Trait::ValidateAuto => imp::validate_auto::map(self, t),

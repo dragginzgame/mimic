@@ -9,7 +9,7 @@ use quote::{ToTokens, format_ident, quote};
 
 // enum_
 // any variants that have the invalid flag set should not pass validation if selected
-pub fn enum_(node: &Enum, t: Trait) -> TokenStream {
+pub fn enum_(node: &Enum, t: Trait) -> Option<TokenStream> {
     let invalid_arms: TokenStream = node
         .variants
         .iter()
@@ -40,9 +40,11 @@ pub fn enum_(node: &Enum, t: Trait) -> TokenStream {
         }
     };
 
-    Implementor::new(&node.def, t)
+    let imp = Implementor::new(&node.def, t)
         .set_tokens(q)
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(imp)
 }
 
 ///
@@ -50,7 +52,7 @@ pub fn enum_(node: &Enum, t: Trait) -> TokenStream {
 ///
 
 // map
-pub fn map(node: &Map, t: Trait) -> TokenStream {
+pub fn map(node: &Map, t: Trait) -> Option<TokenStream> {
     let key = &node.key;
 
     let q = quote! {
@@ -69,9 +71,11 @@ pub fn map(node: &Map, t: Trait) -> TokenStream {
         }
     };
 
-    Implementor::new(&node.def, t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(tokens)
 }
 
 ///
@@ -79,7 +83,7 @@ pub fn map(node: &Map, t: Trait) -> TokenStream {
 ///
 
 // newtype
-pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
+pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
     let mut checks = quote!();
 
     // checks
@@ -104,9 +108,11 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
         }
     };
 
-    Implementor::new(&node.def, t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(tokens)
 }
 
 // newtype_validators

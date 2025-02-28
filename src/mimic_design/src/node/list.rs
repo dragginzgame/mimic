@@ -1,6 +1,6 @@
 use crate::{
     imp,
-    node::{Def, Item, MacroNode, Node, Trait, TraitNode, Traits, Type},
+    node::{Def, Item, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -27,15 +27,15 @@ pub struct List {
 
 impl Node for List {
     fn expand(&self) -> TokenStream {
+        let TraitTokens { derive, impls } = self.trait_tokens();
+
         // quote
         let schema = self.ctor_schema();
-        let derive = self.derive();
-        let imp = self.imp();
         let q = quote! {
             #schema
             #derive
             #self
-            #imp
+            #impls
         };
 
         // debug
@@ -69,7 +69,7 @@ impl TraitNode for List {
         traits.list()
     }
 
-    fn map_imp(&self, t: Trait) -> TokenStream {
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::From => imp::from::list(self, t),
             Trait::Visitable => imp::visitable::list(self, t),

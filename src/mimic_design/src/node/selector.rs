@@ -1,7 +1,7 @@
 use crate::imp;
 use crate::{
     helper::{quote_one, quote_vec, to_path, to_string},
-    node::{Arg, Def, MacroNode, Node, Trait, TraitNode, Traits},
+    node::{Arg, Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -27,19 +27,18 @@ pub struct Selector {
 impl Node for Selector {
     fn expand(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
+        let TraitTokens { derive, impls } = self.trait_tokens();
 
         // quote
         let schema = self.ctor_schema();
-        let derive = self.derive();
         let variants = self.variants.iter().map(Node::expand);
-        let imp = self.imp();
         let q = quote! {
             #schema
             #derive
             pub enum #ident {
                 #(#variants,)*
             }
-            #imp
+            #impls
         };
 
         // debug
@@ -89,7 +88,7 @@ impl TraitNode for Selector {
         traits.list()
     }
 
-    fn map_imp(&self, t: Trait) -> TokenStream {
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::Into => imp::into::selector(self, t),
 

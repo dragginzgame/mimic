@@ -1,7 +1,10 @@
 use crate::imp;
 use crate::{
     helper::{quote_one, quote_vec, to_path},
-    node::{Def, FieldList, Index, MacroNode, Node, SortKey, Trait, TraitNode, Traits, Type},
+    node::{
+        Def, FieldList, Index, MacroNode, Node, SortKey, Trait, TraitNode, TraitTokens, Traits,
+        Type,
+    },
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -40,18 +43,18 @@ impl Node for Entity {
     fn expand(&self) -> TokenStream {
         let Self { fields, .. } = self;
         let Def { ident, .. } = &self.def;
+        let TraitTokens { derive, impls } = self.trait_tokens();
 
         // quote
         let schema = self.ctor_schema();
-        let derive = self.derive_struct();
-        let imp = self.imp();
         let q = quote! {
             #schema
             #derive
+            #[serde(default)]
             pub struct #ident {
                 #fields
             }
-            #imp
+            #impls
         };
 
         // debug
@@ -103,13 +106,12 @@ impl TraitNode for Entity {
             Trait::EntityFixture,
             Trait::FieldSort,
             Trait::FieldFilter,
-            Trait::SortKey,
         ]);
 
         traits.list()
     }
 
-    fn map_imp(&self, t: Trait) -> TokenStream {
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::Default if self.fields.has_default() => imp::default::entity(self, t),
             Trait::Entity => imp::entity::entity(self, t),

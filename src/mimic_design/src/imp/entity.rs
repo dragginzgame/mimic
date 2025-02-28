@@ -10,15 +10,8 @@ use syn::Ident;
 /// ENTITY
 ///
 
-fn entity_get_fields(node: &Entity) -> Vec<Ident> {
-    node.sort_keys
-        .iter()
-        .filter_map(|sk| sk.field.clone())
-        .collect::<Vec<_>>()
-}
-
 // entity
-pub fn entity(node: &Entity, t: Trait) -> TokenStream {
+pub fn entity(node: &Entity, t: Trait) -> Option<TokenStream> {
     let store = &node.store;
     let mut q = quote! {
         const STORE: &'static str = <#store as ::mimic::orm::traits::Path>::PATH;
@@ -27,9 +20,11 @@ pub fn entity(node: &Entity, t: Trait) -> TokenStream {
     q.extend(id(node));
     q.extend(composite_key(node));
 
-    Implementor::new(&node.def, t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(tokens)
 }
 
 // id
@@ -98,16 +93,18 @@ fn composite_key(node: &Entity) -> TokenStream {
 ///
 
 // entity_dyn
-pub fn entity_dyn(node: &Entity, t: Trait) -> TokenStream {
+pub fn entity_dyn(node: &Entity, t: Trait) -> Option<TokenStream> {
     let mut q = quote!();
 
     q.extend(composite_key_dyn(node));
     q.extend(serialize_dyn(node));
     q.extend(store_dyn(node));
 
-    Implementor::new(&node.def, t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(tokens)
 }
 
 // composite_key_dyn
@@ -142,4 +139,15 @@ fn store_dyn(node: &Entity) -> TokenStream {
             <#store as ::mimic::orm::traits::Path>::PATH.to_string()
         }
     }
+}
+
+///
+/// Helper
+///
+
+fn entity_get_fields(node: &Entity) -> Vec<Ident> {
+    node.sort_keys
+        .iter()
+        .filter_map(|sk| sk.field.clone())
+        .collect::<Vec<_>>()
 }

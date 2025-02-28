@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, to_path, to_string},
     imp,
-    node::{Def, MacroNode, Node, Trait, TraitNode, Traits},
+    node::{Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -26,14 +26,14 @@ pub struct Store {
 impl Node for Store {
     fn expand(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
+        let TraitTokens { impls, .. } = self.trait_tokens();
 
         // quote
         let schema = self.ctor_schema();
-        let imp = self.imp();
         let q = quote! {
             #schema
             pub struct #ident {}
-            #imp
+            #impls
         };
 
         // debug
@@ -75,7 +75,7 @@ impl TraitNode for Store {
         Traits::default().list()
     }
 
-    fn map_imp(&self, t: Trait) -> TokenStream {
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         imp::any(self, t)
     }
 }

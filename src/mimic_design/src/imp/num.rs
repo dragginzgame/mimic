@@ -12,9 +12,8 @@ pub mod cast {
     use proc_macro2::TokenStream;
     use quote::quote;
 
-    pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
+    pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
         let num_fn = node.primitive.num_cast_fn();
-
         let to_method = format_ident!("to_{}", num_fn);
         let from_method = format_ident!("from_{}", num_fn);
 
@@ -25,9 +24,11 @@ pub mod cast {
             }
         };
 
-        Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
-            .to_token_stream()
+            .to_token_stream();
+
+        Some(tokens)
     }
 }
 
@@ -39,7 +40,7 @@ pub mod from_primitive {
     use super::*;
 
     // newtype
-    pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
+    pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
         let item = &node.item;
 
         let mut q = quote! {
@@ -64,9 +65,11 @@ pub mod from_primitive {
             });
         }
 
-        Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
-            .to_token_stream()
+            .to_token_stream();
+
+        Some(tokens)
     }
 }
 
@@ -78,7 +81,7 @@ pub mod to_primitive {
     use super::*;
 
     // newtype
-    pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
+    pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
         let q = quote! {
             fn to_i64(&self) -> Option<i64> {
                 ::mimic::export::num_traits::NumCast::from(self.0)
@@ -89,8 +92,10 @@ pub mod to_primitive {
             }
         };
 
-        Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
-            .to_token_stream()
+            .to_token_stream();
+
+        Some(tokens)
     }
 }

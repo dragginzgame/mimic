@@ -1,14 +1,14 @@
 use super::Implementor;
 use crate::node::{EnumValue, MacroNode, Trait};
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::{ToTokens, quote};
 
 ///
 /// ENUM_VALUE
 ///
 
 // enum_value
-pub fn enum_value(node: &EnumValue, t: Trait) -> TokenStream {
+pub fn enum_value(node: &EnumValue, t: Trait) -> Option<TokenStream> {
     let mut inner = quote!();
 
     // iterate variants
@@ -30,7 +30,9 @@ pub fn enum_value(node: &EnumValue, t: Trait) -> TokenStream {
         }
     };
 
-    Implementor::new(node.def(), t)
+    let tokens = Implementor::new(node.def(), t)
         .set_tokens(q)
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(tokens)
 }

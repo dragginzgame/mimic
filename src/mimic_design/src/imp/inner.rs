@@ -4,7 +4,7 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 // newtype
-pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
+pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
     let primitive = &node.primitive;
 
     // quote
@@ -18,8 +18,10 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
         }
     };
 
-    Implementor::new(node.def(), t)
+    let tokens = Implementor::new(node.def(), t)
         .add_trait_generic(quote!(#primitive))
         .set_tokens(q)
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(tokens)
 }

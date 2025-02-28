@@ -17,25 +17,29 @@ use syn::{Expr, Ident};
 ///
 
 // entity
-pub fn entity(node: &Entity, t: Trait) -> TokenStream {
+pub fn entity(node: &Entity, t: Trait) -> Option<TokenStream> {
     let q = field_list(&node.fields);
 
-    Implementor::new(node.def(), t)
+    let tokens = Implementor::new(node.def(), t)
         .set_tokens(q)
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(tokens)
 }
 
 // record
-pub fn record(node: &Record, t: Trait) -> TokenStream {
+pub fn record(node: &Record, t: Trait) -> Option<TokenStream> {
     let q = field_list(&node.fields);
 
-    Implementor::new(node.def(), t)
+    let tokens = Implementor::new(node.def(), t)
         .set_tokens(q)
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(tokens)
 }
 
 // enum
-pub fn enum_(node: &Enum, t: Trait) -> TokenStream {
+pub fn enum_(node: &Enum, t: Trait) -> Option<TokenStream> {
     // build inner
     let mut inner = quote!();
     for variant in &node.variants {
@@ -49,39 +53,66 @@ pub fn enum_(node: &Enum, t: Trait) -> TokenStream {
     };
     let q = drive_inner(&inner);
 
-    Implementor::new(&node.def, t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(tokens)
 }
 
 // list
-pub fn list(node: &List, t: Trait) -> TokenStream {
+pub fn list(node: &List, t: Trait) -> Option<TokenStream> {
     let inner = quote_value(&self0_expr(), Cardinality::Many, "");
     let q = drive_inner(&inner);
 
-    Implementor::new(&node.def, t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(tokens)
 }
 
 // map
-pub fn map(node: &Map, t: Trait) -> TokenStream {
+pub fn map(node: &Map, t: Trait) -> Option<TokenStream> {
     let inner = quote_value(&self0_expr(), Cardinality::Many, "");
     let q = drive_inner(&inner);
 
-    Implementor::new(&node.def, t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(tokens)
 }
 
 // newtype
-pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
+pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
     let inner = quote_value(&self0_expr(), Cardinality::One, "");
     let q = drive_inner(&inner);
 
-    Implementor::new(&node.def, t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(tokens)
+}
+
+// tuple
+pub fn tuple(node: &Tuple, t: Trait) -> Option<TokenStream> {
+    let mut inner = quote!();
+    for (i, value) in node.values.iter().enumerate() {
+        let var = format!("self.0.{i}");
+        let key = format!("{i}");
+        let var_expr: Expr = syn::parse_str(&var).expect("can parse");
+
+        inner.extend(quote_value(&var_expr, value.cardinality(), &key));
+    }
+    let q = drive_inner(&inner);
+
+    let tokens = Implementor::new(&node.def, t)
+        .set_tokens(q)
+        .to_token_stream();
+
+    Some(tokens)
 }
 
 //
@@ -103,23 +134,6 @@ pub fn field_list(node: &FieldList) -> TokenStream {
     }
 
     drive_inner(&inner)
-}
-
-// tuple
-pub fn tuple(node: &Tuple, t: Trait) -> TokenStream {
-    let mut inner = quote!();
-    for (i, value) in node.values.iter().enumerate() {
-        let var = format!("self.0.{i}");
-        let key = format!("{i}");
-        let var_expr: Expr = syn::parse_str(&var).expect("can parse");
-
-        inner.extend(quote_value(&var_expr, value.cardinality(), &key));
-    }
-    let q = drive_inner(&inner);
-
-    Implementor::new(&node.def, t)
-        .set_tokens(q)
-        .to_token_stream()
 }
 
 ///

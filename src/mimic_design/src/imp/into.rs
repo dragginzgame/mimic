@@ -7,35 +7,26 @@ use quote::{ToTokens, quote};
 /// ENTITY_ID
 ///
 
-pub fn entity_id(node: &EntityId, t: Trait) -> TokenStream {
-    let mut q = quote!();
-
-    q.extend(entity_id_ulid(node, t));
-
-    q
-}
-
-pub fn entity_id_ulid(node: &EntityId, t: Trait) -> TokenStream {
-    let imp = Implementor::new(node.def(), t);
-
-    // match cardinality
+pub fn entity_id(node: &EntityId, t: Trait) -> Option<TokenStream> {
     let q = quote! {
         fn into(self) -> mimic::orm::base::types::Ulid {
             self.ulid()
         }
     };
 
-    imp.set_tokens(q)
+    let tokens = Implementor::new(node.def(), t)
+        .set_tokens(q)
         .add_trait_generic(quote!(mimic::orm::base::types::Ulid))
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(tokens)
 }
 
 ///
 /// SELECTOR
 ///
 
-pub fn selector(node: &Selector, t: Trait) -> TokenStream {
-    let imp = Implementor::new(node.def(), t);
+pub fn selector(node: &Selector, t: Trait) -> Option<TokenStream> {
     let target = &node.target;
 
     // iterate variants
@@ -58,7 +49,10 @@ pub fn selector(node: &Selector, t: Trait) -> TokenStream {
         }
     };
 
-    imp.set_tokens(q)
+    let tokens = Implementor::new(node.def(), t)
+        .set_tokens(q)
         .add_trait_generic(quote!(#target))
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(tokens)
 }

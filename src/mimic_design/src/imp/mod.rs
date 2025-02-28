@@ -26,10 +26,10 @@ use quote::{ToTokens, quote};
 /// that can be used by a Node of any type
 ///
 
-pub fn any<N: MacroNode>(node: &N, t: Trait) -> TokenStream {
+pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
     let def = node.def();
 
-    let imp = match t {
+    match t {
         Trait::NodeDyn => {
             let q = quote! {
                 fn path_dyn(&self) -> String {
@@ -37,7 +37,7 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> TokenStream {
                 }
             };
 
-            Implementor::new(def, t).set_tokens(q).to_token_stream()
+            Some(Implementor::new(def, t).set_tokens(q).to_token_stream())
         }
 
         Trait::Path => {
@@ -47,24 +47,24 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> TokenStream {
                 const PATH: &'static str = concat!(module_path!(), "::", #ident_str);
             };
 
-            Implementor::new(def, t).set_tokens(q).to_token_stream()
+            Some(Implementor::new(def, t).set_tokens(q).to_token_stream())
         }
 
         Trait::Storable => {
             let q = quote! {
                 fn to_bytes(&self) -> ::std::borrow::Cow<[u8]> {
-                    let serialized_data = ::mimic::orm::serialize(self).unwrap();
+                    let serialized_data = ::mimic::orm::serialize(self).expect("storable trait serializes");
                     ::std::borrow::Cow::Owned(serialized_data)
                 }
 
                 fn from_bytes(bytes: ::std::borrow::Cow<[u8]>) -> Self {
-                    ::mimic::orm::deserialize(&bytes).unwrap()
+                    ::mimic::orm::deserialize(&bytes).expect("storable trait deserializes")
                 }
 
                 const BOUND: ::ic::storage::storable::Bound = ::ic::storage::storable::Bound::Unbounded;
             };
 
-            Implementor::new(def, t).set_tokens(q).to_token_stream()
+            Some(Implementor::new(def, t).set_tokens(q).to_token_stream())
         }
 
         // empty implementations are generated for these traits
@@ -74,10 +74,8 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> TokenStream {
         | Trait::Orderable
         | Trait::ValidateManual
         | Trait::ValidateAuto
-        | Trait::Visitable => Implementor::new(def, t).to_token_stream(),
+        | Trait::Visitable => Some(Implementor::new(def, t).to_token_stream()),
 
-        _ => quote!(),
-    };
-
-    imp
+        _ => None,
+    }
 }

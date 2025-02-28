@@ -4,21 +4,23 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 // entity
-pub fn entity(node: &Entity, t: Trait) -> TokenStream {
+pub fn entity(node: &Entity, t: Trait) -> Option<TokenStream> {
     let q = field_list(&node.fields);
-
-    Implementor::new(node.def(), t)
+    let tokens = Implementor::new(node.def(), t)
         .set_tokens(q)
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(tokens)
 }
 
 // record
-pub fn record(node: &Record, t: Trait) -> TokenStream {
+pub fn record(node: &Record, t: Trait) -> Option<TokenStream> {
     let q = field_list(&node.fields);
-
-    Implementor::new(node.def(), t)
+    let tokens = Implementor::new(node.def(), t)
         .set_tokens(q)
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(tokens)
 }
 
 // field_list
@@ -52,7 +54,7 @@ fn field_list(node: &FieldList) -> TokenStream {
 }
 
 // newtype
-pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
+pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
     let inner = match &node.default {
         Some(arg) => format_default(arg),
         None => panic!("default impl but no default"),
@@ -65,9 +67,11 @@ pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
         }
     };
 
-    Implementor::new(node.def(), t)
+    let tokens = Implementor::new(node.def(), t)
         .set_tokens(q)
-        .to_token_stream()
+        .to_token_stream();
+
+    Some(tokens)
 }
 
 // format_default
@@ -77,7 +81,7 @@ fn format_default(arg: &Arg) -> TokenStream {
         Arg::Path(path) => quote!(#path().into()),
         Arg::Bool(v) => quote!(#v.into()),
         Arg::Char(v) => quote!(#v.into()),
-        Arg::Number(v) => quote!(::mimic::orm::traits::NumCast::from(#v).unwrap()),
+        Arg::Number(v) => quote!(::mimic::orm::traits::NumCast::from(#v).expect("number is valid")),
         Arg::String(v) => quote!(#v.into()),
     }
 }

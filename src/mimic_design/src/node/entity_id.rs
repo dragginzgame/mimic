@@ -1,4 +1,4 @@
-use super::{Def, MacroNode, Node, Sorted, Trait, TraitNode, Traits};
+use super::{Def, MacroNode, Node, Sorted, Trait, TraitNode, TraitTokens, Traits};
 use crate::imp;
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -25,18 +25,17 @@ impl Node for EntityId {
     fn expand(&self) -> TokenStream {
         let Self { sorted, .. } = self;
         let Def { ident, .. } = &self.def;
+        let TraitTokens { derive, impls } = self.trait_tokens();
 
         // quote
-        let derive = self.derive();
         let keys = self.keys.iter().map(quote::ToTokens::to_token_stream);
-        let imp = self.imp();
         let q = quote! {
             #derive
             #sorted
             pub enum #ident {
                 #(#keys,)*
             }
-            #imp
+            #impls
         };
 
         // debug
@@ -68,7 +67,7 @@ impl TraitNode for EntityId {
         traits.list()
     }
 
-    fn map_imp(&self, t: Trait) -> TokenStream {
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::Into => imp::into::entity_id(self, t),
 

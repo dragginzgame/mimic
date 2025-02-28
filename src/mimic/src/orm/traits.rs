@@ -116,7 +116,7 @@ impl_primitive_list!(
 /// allows a node to validate primitives
 ///
 
-pub trait Validator: Default {
+pub trait Validator {
     fn validate_blob(&self, _: &[u8]) -> Result<(), String> {
         Ok(())
     }

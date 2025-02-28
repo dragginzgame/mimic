@@ -1,6 +1,6 @@
 use crate::{
     imp,
-    node::{Def, MacroNode, Node, Trait, TraitNode, Traits},
+    node::{Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -20,16 +20,15 @@ pub struct Validator {
 impl Node for Validator {
     fn expand(&self) -> TokenStream {
         let Def { tokens, .. } = &self.def;
+        let TraitTokens { derive, impls } = self.trait_tokens();
 
         // quote
         let schema = self.ctor_schema();
-        let derive = self.derive();
-        let imp = self.imp();
         let q = quote! {
             #schema
             #derive
             #tokens
-            #imp
+            #impls
         };
 
         // debug
@@ -68,7 +67,7 @@ impl TraitNode for Validator {
         traits
     }
 
-    fn map_imp(&self, t: Trait) -> TokenStream {
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         imp::any(self, t)
     }
 }

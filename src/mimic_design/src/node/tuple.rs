@@ -1,7 +1,7 @@
 use crate::imp;
 use crate::{
     helper::quote_vec,
-    node::{Def, MacroNode, Node, Trait, TraitNode, Traits, Type, Value},
+    node::{Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type, Value},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -29,18 +29,18 @@ pub struct Tuple {
 
 impl Node for Tuple {
     fn expand(&self) -> TokenStream {
+        let TraitTokens { derive, impls } = self.trait_tokens();
+
         // vars
         let Def { ident, .. } = &self.def;
         let schema = self.ctor_schema();
-        let derive = self.derive();
-        let imp = self.imp();
 
         // quote
         let q = quote! {
             #schema
             #derive
             pub struct #ident(pub #self);
-            #imp
+            #impls
         };
 
         // debug
@@ -84,7 +84,7 @@ impl TraitNode for Tuple {
         traits.list()
     }
 
-    fn map_imp(&self, t: Trait) -> TokenStream {
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::Visitable => imp::visitable::tuple(self, t),
 

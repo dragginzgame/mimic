@@ -1,7 +1,7 @@
 use crate::imp;
 use crate::{
     helper::{quote_one, quote_vec, to_string},
-    node::{ArgNumber, Def, MacroNode, Node, Trait, TraitNode, Traits, Type},
+    node::{ArgNumber, Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -37,19 +37,18 @@ impl EnumValue {
 impl Node for EnumValue {
     fn expand(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
+        let TraitTokens { derive, impls } = self.trait_tokens();
 
         // quote
         let schema = self.ctor_schema();
-        let derive = self.derive();
         let variants = self.variants.iter().map(Node::expand);
-        let imp = self.imp();
         let q = quote! {
             #schema
             #derive
             pub enum #ident {
                 #(#variants,)*
             }
-            #imp
+            #impls
         };
 
         // debug
@@ -106,7 +105,7 @@ impl TraitNode for EnumValue {
         traits.list()
     }
 
-    fn map_imp(&self, t: Trait) -> TokenStream {
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::EnumValue => imp::enum_value::enum_value(self, t),
 

@@ -2,8 +2,8 @@ use crate::{
     helper::{quote_one, quote_option},
     imp,
     node::{
-        Arg, Def, Item, MacroNode, Node, PrimitiveGroup, PrimitiveType, Trait, TraitNode, Traits,
-        Type,
+        Arg, Def, Item, MacroNode, Node, PrimitiveGroup, PrimitiveType, Trait, TraitNode,
+        TraitTokens, Traits, Type,
     },
     traits::Schemable,
 };
@@ -35,15 +35,15 @@ pub struct Newtype {
 
 impl Node for Newtype {
     fn expand(&self) -> TokenStream {
+        let TraitTokens { derive, impls } = self.trait_tokens();
+
         // quote
         let schema = self.ctor_schema();
-        let derive = self.derive();
-        let imp = self.imp();
         let q = quote! {
             #schema
             #derive
             #self
-            #imp
+            #impls
         };
 
         // debug
@@ -107,7 +107,7 @@ impl TraitNode for Newtype {
         traits.list()
     }
 
-    fn map_imp(&self, t: Trait) -> TokenStream {
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::Default if self.default.is_some() => imp::default::newtype(self, t),
             Trait::Filterable => imp::filterable::newtype(self, t),

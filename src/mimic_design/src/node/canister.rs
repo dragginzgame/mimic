@@ -1,6 +1,6 @@
 use crate::{
     imp,
-    node::{Def, MacroNode, Node, Trait, TraitNode, Traits},
+    node::{Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -21,14 +21,14 @@ pub struct Canister {
 impl Node for Canister {
     fn expand(&self) -> TokenStream {
         let Def { ident, .. } = &self.def();
+        let TraitTokens { impls, .. } = self.trait_tokens();
 
         // quote
         let schema = self.ctor_schema();
-        let imp = &self.imp();
         let q = quote! {
             #schema
             pub struct #ident {}
-            #imp
+            #impls
         };
 
         // debug
@@ -64,7 +64,7 @@ impl TraitNode for Canister {
         Traits::default().list()
     }
 
-    fn map_imp(&self, t: Trait) -> TokenStream {
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         imp::any(self, t)
     }
 }

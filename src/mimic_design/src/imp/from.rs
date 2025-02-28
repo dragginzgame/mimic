@@ -8,20 +8,20 @@ use quote::{ToTokens, quote};
 ///
 
 // list
-pub fn list(node: &List, t: Trait) -> TokenStream {
-    let mut imp = Implementor::new(node.def(), t);
-
-    // match cardinality
+pub fn list(node: &List, t: Trait) -> Option<TokenStream> {
     let item = &node.item;
-    imp = imp.add_trait_generic(quote!(Vec<#item>));
-
     let tokens = quote! {
         fn from(items: Vec<#item>) -> Self {
             Self(items)
         }
     };
 
-    imp.set_tokens(tokens).to_token_stream()
+    let tokens = Implementor::new(node.def(), t)
+        .add_trait_generic(quote!(Vec<#item>))
+        .set_tokens(tokens)
+        .to_token_stream();
+
+    Some(tokens)
 }
 
 ///
@@ -29,20 +29,20 @@ pub fn list(node: &List, t: Trait) -> TokenStream {
 ///
 
 // map
-pub fn map(node: &Map, t: Trait) -> TokenStream {
-    let mut imp = Implementor::new(node.def(), t);
-
-    // match cardinality
+pub fn map(node: &Map, t: Trait) -> Option<TokenStream> {
     let item = &node.item;
-    imp = imp.add_trait_generic(quote!(Vec<#item>));
-
-    let tokens = quote! {
+    let q = quote! {
         fn from(items: Vec<#item>) -> Self {
             Self(items)
         }
     };
 
-    imp.set_tokens(tokens).to_token_stream()
+    let tokens = Implementor::new(node.def(), t)
+        .add_trait_generic(quote!(Vec<#item>))
+        .set_tokens(q)
+        .to_token_stream();
+
+    Some(tokens)
 }
 
 ///
@@ -55,21 +55,21 @@ pub fn map(node: &Map, t: Trait) -> TokenStream {
 // possibility to optimise here as we do have fine-grained control over the
 // From implementation for each PrimitiveType
 //
-pub fn newtype(node: &Newtype, t: Trait) -> TokenStream {
+pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
     let item = &node.item;
     let primitive = &node.primitive;
-
-    let mut imp = Implementor::new(node.def(), t);
-    imp = imp.add_trait_generic(quote!(T));
-
-    let tokens = quote! {
+    let q = quote! {
         fn from(t: T) -> Self {
             Self(<#item as std::convert::From<#primitive>>::from(t.into()))
         }
     };
 
-    imp.set_tokens(tokens)
+    let tokens = Implementor::new(node.def(), t)
+        .set_tokens(q)
         .add_impl_constraint(quote!(T: Into<#primitive>))
         .add_impl_generic(quote!(T))
-        .to_token_stream()
+        .add_trait_generic(quote!(T))
+        .to_token_stream();
+
+    Some(tokens)
 }
