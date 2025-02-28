@@ -11,7 +11,7 @@ use crate::{
     },
     types::ErrorVec,
 };
-use derive_more::{Deref, DerefMut, FromStr, IntoIterator};
+use derive_more::{Deref, DerefMut, From, FromStr, IntoIterator};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{borrow::Cow, cmp::Ordering, fmt};
 use ulid::Ulid as WrappedUlid;
@@ -181,6 +181,7 @@ impl Visitable for Ulid {}
     DerefMut,
     Eq,
     PartialEq,
+    From,
     IntoIterator,
     Serialize,
     Deserialize,
