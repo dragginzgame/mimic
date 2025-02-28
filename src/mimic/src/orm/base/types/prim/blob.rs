@@ -1,4 +1,7 @@
-use crate::orm::{prelude::*, traits::ValidateAuto};
+use crate::orm::{
+    prelude::*,
+    traits::{Inner, ValidateAuto},
+};
 use derive_more::{Deref, DerefMut};
 use serde_bytes::ByteBuf;
 
@@ -40,6 +43,16 @@ impl Filterable for Blob {}
 impl From<Vec<u8>> for Blob {
     fn from(bytes: Vec<u8>) -> Self {
         Self(ByteBuf::from(bytes))
+    }
+}
+
+impl Inner<Self> for Blob {
+    fn inner(&self) -> &Self {
+        self
+    }
+
+    fn into_inner(self) -> Self {
+        self
     }
 }
 

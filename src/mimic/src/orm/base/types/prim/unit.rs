@@ -1,4 +1,7 @@
-use crate::orm::{prelude::*, traits::ValidateAuto};
+use crate::orm::{
+    prelude::*,
+    traits::{Inner, ValidateAuto},
+};
 use derive_more::{Deref, DerefMut};
 use serde_bytes::ByteBuf;
 
@@ -12,6 +15,16 @@ use serde_bytes::ByteBuf;
 pub struct Unit();
 
 impl Filterable for Unit {}
+
+impl Inner<Self> for Unit {
+    fn inner(&self) -> &Self {
+        self
+    }
+
+    fn into_inner(self) -> Self {
+        self
+    }
+}
 
 impl Orderable for Unit {}
 

@@ -204,6 +204,37 @@ impl_primitive_filterable!(
 );
 
 ///
+/// Inner
+/// a trait for Newtypes to recurse downwards to find the innermost value
+///
+
+pub trait Inner<T> {
+    fn inner(&self) -> &T;
+    fn into_inner(self) -> T;
+}
+
+// impl_primitive_inner
+#[macro_export]
+macro_rules! impl_primitive_inner {
+    ($($type:ty),*) => {
+        $(
+            impl Inner<$type> for $type {
+                fn inner(&self) -> &$type {
+                    &self
+                }
+                fn into_inner(self) -> $type {
+                    self
+                }
+            }
+        )*
+    };
+}
+
+impl_primitive_inner!(
+    bool, f32, f64, i8, i16, i32, i64, i128, String, u8, u16, u32, u64, u128
+);
+
+///
 /// Orderable
 ///
 /// wrapper around the Ord/PartialOrd traits so that we can extend it to

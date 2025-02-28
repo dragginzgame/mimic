@@ -7,7 +7,7 @@ use crate::{
     impl_storable_bounded,
     orm::{
         prelude::*,
-        traits::{EntityId, Filterable, Orderable, SortKey, ValidateAuto},
+        traits::{EntityId, Filterable, Inner, Orderable, SortKey, ValidateAuto},
     },
     types::ErrorVec,
 };
@@ -111,6 +111,16 @@ impl fmt::Display for Ulid {
 impl Filterable for Ulid {
     fn as_text(&self) -> Option<String> {
         Some(self.to_string())
+    }
+}
+
+impl Inner<Self> for Ulid {
+    fn inner(&self) -> &Self {
+        self
+    }
+
+    fn into_inner(self) -> Self {
+        self
     }
 }
 

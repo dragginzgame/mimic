@@ -3,9 +3,9 @@ use crate::node::{EntityId, MacroNode, Selector, Trait};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
-//
-// ENTITY_ID
-//
+///
+/// ENTITY_ID
+///
 
 pub fn entity_id(node: &EntityId, t: Trait) -> TokenStream {
     let mut q = quote!();
@@ -30,9 +30,9 @@ pub fn entity_id_ulid(node: &EntityId, t: Trait) -> TokenStream {
         .to_token_stream()
 }
 
-//
-// SELECTOR
-//
+///
+/// SELECTOR
+///
 
 pub fn selector(node: &Selector, t: Trait) -> TokenStream {
     let imp = Implementor::new(node.def(), t);
