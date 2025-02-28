@@ -41,7 +41,10 @@ pub mod prelude {
                 self,
                 types::{Ulid, UlidSet},
             },
-            traits::{EntityDyn, EntityFixture, NumFromPrimitive, NumToPrimitive, Path, Validator},
+            traits::{
+                EntityDyn, EntityFixture, Inner as _, NumFromPrimitive, NumToPrimitive, Path,
+                Validator,
+            },
         },
         perf,
     };
