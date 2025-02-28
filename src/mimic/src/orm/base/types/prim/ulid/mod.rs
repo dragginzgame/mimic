@@ -7,7 +7,7 @@ use crate::{
     impl_storable_bounded,
     orm::{
         prelude::*,
-        traits::{Filterable, Orderable, SortKey, ValidateAuto},
+        traits::{EntityId, Filterable, Orderable, SortKey, ValidateAuto},
     },
     types::ErrorVec,
 };
@@ -201,9 +201,9 @@ impl fmt::Display for UlidSet {
     }
 }
 
-impl<U: Into<Ulid>> From<Vec<U>> for UlidSet {
-    fn from(ulids: Vec<U>) -> Self {
-        Self(ulids.into_iter().map(Into::into).collect())
+impl<T: EntityId> From<Vec<T>> for UlidSet {
+    fn from(ids: Vec<T>) -> Self {
+        Self(ids.into_iter().map(|id| id.ulid()).collect())
     }
 }
 
