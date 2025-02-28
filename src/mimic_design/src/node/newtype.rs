@@ -160,8 +160,19 @@ impl ToTokens for Newtype {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Def { ident, .. } = &self.def;
         let item = &self.item;
+        let mut from = quote!();
+
+        // extra from derives
+        if self.traits().contains(&Trait::From) {
+            if let Some(primitive) = self.primitive {
+                if primitive.group() == PrimitiveGroup::String {
+                    from.extend(quote!(#[from(&str)]));
+                }
+            }
+        };
 
         let q = quote! {
+            #from
             pub struct #ident(#item);
         };
 
