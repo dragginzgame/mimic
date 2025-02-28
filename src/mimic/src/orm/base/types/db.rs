@@ -1,6 +1,7 @@
 use crate::orm::{
     base::{types, validator},
     prelude::*,
+    traits::EntityId,
 };
 
 ///
@@ -9,8 +10,14 @@ use crate::orm::{
 
 #[newtype(
     primitive = "Ulid",
-    item(is = "types::Ulid"),
-    default = "types::Ulid::generate",
+    item(is = "Ulid"),
+    default = "Ulid::generate",
     traits(add(SortKey))
 )]
 pub struct UlidGenerate {}
+
+impl<T: EntityId> From<T> for UlidGenerate {
+    fn from(t: T) -> Self {
+        Self(t.ulid())
+    }
+}
