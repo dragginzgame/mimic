@@ -84,13 +84,6 @@ impl TraitNode for Record {
         traits.list()
     }
 
-    fn map_derive(&self, t: Trait) -> bool {
-        match t {
-            Trait::Default => !self.fields.has_default(),
-            _ => true,
-        }
-    }
-
     fn map_imp(&self, t: Trait) -> TokenStream {
         match t {
             Trait::Default if self.fields.has_default() => imp::default::record(self, t),

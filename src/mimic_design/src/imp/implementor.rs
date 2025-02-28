@@ -23,7 +23,16 @@ impl<'a> Implementor<'a> {
         }
     }
 
-    // set_tokens
+    //
+    // Method Chains
+    //
+
+    pub fn add_trait_generic(mut self, tokens: TokenStream) -> Self {
+        self.trait_generics.push(tokens);
+
+        self
+    }
+
     pub fn set_tokens(mut self, tokens: TokenStream) -> Self {
         self.tokens = tokens;
 
@@ -41,7 +50,7 @@ impl ToTokens for Implementor<'_> {
 
         // quote
         tokens.extend(quote! {
-            impl #trait_<#(#trait_generics),*> for #ident  {
+            impl #trait_<#(#trait_generics),*> for #ident {
                 #inner_tokens
             }
         });

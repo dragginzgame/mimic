@@ -111,14 +111,6 @@ impl TraitNode for Newtype {
         traits.list()
     }
 
-    fn map_derive(&self, t: Trait) -> bool {
-        match t {
-            // derive default if no default value
-            Trait::Default => self.default.is_none(),
-            _ => true,
-        }
-    }
-
     fn map_imp(&self, t: Trait) -> TokenStream {
         match t {
             Trait::Default if self.default.is_some() => imp::default::newtype(self, t),

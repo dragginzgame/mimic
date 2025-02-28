@@ -91,10 +91,10 @@ pub trait TraitNode: MacroNode {
     fn derive(&self) -> TokenStream {
         let mut derives = Vec::new();
 
-        // map_derive checks if we should derive it
+        // we only derive traits that have no map_imp tokens
         for t in self.traits() {
-            if let Some(path) = t.derive_path() {
-                if self.map_derive(t) {
+            if self.map_imp(t).is_empty() {
+                if let Some(path) = t.derive_path() {
                     derives.push(path);
                 }
             }
@@ -122,12 +122,6 @@ pub trait TraitNode: MacroNode {
         }
 
         q
-    }
-
-    // map_derive
-    // should a deriveable trait be derived?
-    fn map_derive(&self, _: Trait) -> bool {
-        true
     }
 
     /// imp
