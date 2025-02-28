@@ -101,14 +101,12 @@ impl Schemable for Map {
 
 impl ToTokens for Map {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def {
-            ident, generics, ..
-        } = &self.def;
+        let Def { ident, .. } = &self.def;
         let item = &self.item;
 
         // quote
         let q = quote! {
-            pub struct #ident #generics(Vec<#item>);
+            pub struct #ident(Vec<#item>);
         };
 
         tokens.extend(q);

@@ -13,10 +13,10 @@ use crate::orm::{
     item(is = "types::String"),
     traits(add(Hash), remove(ValidateManual))
 )]
-pub struct Text<const LEN: usize> {}
+pub struct Text {}
 
 #[allow(clippy::cast_possible_wrap)]
-impl<const LEN: usize> ValidateManual for Text<LEN> {
+impl ValidateManual for Text {
     fn validate_manual(&self) -> Result<(), ErrorVec> {
         let mut errs = ErrorVec::new();
 
@@ -24,9 +24,6 @@ impl<const LEN: usize> ValidateManual for Text<LEN> {
         if !self.0.chars().all(|char| char.is_ascii() || char == '\0') {
             errs.add("invalid ascii character");
         }
-
-        // length check
-        errs.add_result(validator::string::len::Max::new(LEN).validate_string(&self.0));
 
         errs.result()
     }

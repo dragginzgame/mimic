@@ -1,7 +1,7 @@
 use crate::helper::{as_string, quote_one, to_string};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use syn::{Generics, Ident};
+use syn::Ident;
 
 ///
 /// Def
@@ -15,7 +15,6 @@ pub struct Def {
     pub comments: String,
     pub tokens: TokenStream,
     pub ident: Ident,
-    pub generics: Generics,
     pub debug: bool,
 }
 
@@ -25,7 +24,6 @@ impl Default for Def {
             comments: String::default(),
             tokens: TokenStream::default(),
             ident: format_ident!("temp"),
-            generics: Generics::default(),
             debug: false,
         }
     }

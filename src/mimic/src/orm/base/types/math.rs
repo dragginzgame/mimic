@@ -10,12 +10,10 @@ use crate::{
 /// DecimalFormat
 ///
 
-#[newtype(
-    primitive = "Decimal",
-    item(is = "types::Decimal"),
-    traits(remove(ValidateManual))
-)]
-pub struct DecimalFormat<const I: usize, const F: usize> {}
+#[newtype(primitive = "Decimal", item(is = "types::Decimal"))]
+pub struct DecimalFormat {}
+
+/*
 
 #[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum DecimalFormatError {
@@ -43,6 +41,7 @@ impl<const I: usize, const F: usize> ValidateManual for DecimalFormat<I, F> {
         Ok(())
     }
 }
+*/
 
 ///
 /// Degrees (°)

@@ -50,7 +50,6 @@ macro_rules! macro_node {
                         comments,
                         tokens,
                         ident: item.ident.clone(),
-                        generics: item.generics.clone(),
                         debug,
                     };
 

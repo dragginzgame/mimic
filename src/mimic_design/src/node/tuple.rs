@@ -30,9 +30,7 @@ pub struct Tuple {
 impl Node for Tuple {
     fn expand(&self) -> TokenStream {
         // vars
-        let Def {
-            ident, generics, ..
-        } = &self.def;
+        let Def { ident, .. } = &self.def;
         let schema = self.ctor_schema();
         let derive = self.derive();
         let imp = self.imp();
@@ -41,7 +39,7 @@ impl Node for Tuple {
         let q = quote! {
             #schema
             #derive
-            pub struct #ident #generics(pub #self);
+            pub struct #ident(pub #self);
             #imp
         };
 

@@ -162,13 +162,11 @@ impl Schemable for Newtype {
 
 impl ToTokens for Newtype {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def {
-            ident, generics, ..
-        } = &self.def;
+        let Def { ident, .. } = &self.def;
         let item = &self.item;
 
         let q = quote! {
-            pub struct #ident #generics(#item);
+            pub struct #ident(#item);
         };
 
         tokens.extend(q);
