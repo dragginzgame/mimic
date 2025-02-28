@@ -78,9 +78,6 @@ impl TraitNode for Newtype {
 
         // primitive traits
         if let Some(primitive) = &self.primitive {
-            // inner
-            traits.add(Trait::Inner);
-
             // ord
             if primitive.is_orderable() {
                 traits.extend(vec![Trait::Ord, Trait::PartialOrd]);
@@ -126,7 +123,6 @@ impl TraitNode for Newtype {
         match t {
             Trait::Default if self.default.is_some() => imp::default::newtype(self, t),
             Trait::Filterable => imp::filterable::newtype(self, t),
-            Trait::Inner => imp::inner::newtype(self, t),
             Trait::NumCast => imp::num::cast::newtype(self, t),
             Trait::NumToPrimitive => imp::num::to_primitive::newtype(self, t),
             Trait::NumFromPrimitive => imp::num::from_primitive::newtype(self, t),

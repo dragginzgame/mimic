@@ -1,7 +1,4 @@
-use crate::orm::{
-    prelude::*,
-    traits::{Inner, ValidateAuto},
-};
+use crate::orm::{prelude::*, traits::ValidateAuto};
 use derive_more::{Deref, DerefMut};
 use serde_bytes::ByteBuf;
 

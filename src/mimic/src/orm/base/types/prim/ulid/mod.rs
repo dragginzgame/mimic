@@ -7,7 +7,7 @@ use crate::{
     impl_storable_bounded,
     orm::{
         prelude::*,
-        traits::{Filterable, Inner, Orderable, SortKey, ValidateAuto},
+        traits::{Filterable, Orderable, SortKey, ValidateAuto},
     },
     types::ErrorVec,
 };
@@ -117,16 +117,6 @@ impl Filterable for Ulid {
 impl<T: Into<WrappedUlid>> From<T> for Ulid {
     fn from(t: T) -> Self {
         Self(t.into())
-    }
-}
-
-impl Inner<Self> for Ulid {
-    fn inner(&self) -> &Self {
-        self
-    }
-
-    fn into_inner(self) -> Self {
-        self
     }
 }
 

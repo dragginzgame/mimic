@@ -23,16 +23,7 @@ impl<'a> Implementor<'a> {
         }
     }
 
-    //
-    // Method Chains
-    //
-
-    pub fn add_trait_generic(mut self, tokens: TokenStream) -> Self {
-        self.trait_generics.push(tokens);
-
-        self
-    }
-
+    // set_tokens
     pub fn set_tokens(mut self, tokens: TokenStream) -> Self {
         self.tokens = tokens;
 

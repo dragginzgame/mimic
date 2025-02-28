@@ -5,8 +5,7 @@ use crate::{
     orm::{
         prelude::*,
         traits::{
-            Filterable, Inner, Orderable, SortKey, Storable, ValidateAuto, ValidateManual,
-            Visitable,
+            Filterable, Orderable, SortKey, Storable, ValidateAuto, ValidateManual, Visitable,
         },
     },
 };
@@ -100,16 +99,6 @@ impl FromStr for Principal {
             .map_err(|e| PrincipalError::Wrapped(e.to_string()))?;
 
         Ok(this)
-    }
-}
-
-impl Inner<Self> for Principal {
-    fn inner(&self) -> &Self {
-        self
-    }
-
-    fn into_inner(self) -> Self {
-        self
     }
 }
 

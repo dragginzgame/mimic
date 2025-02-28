@@ -14,9 +14,9 @@ pub mod prelude {
             OrmError,
             base::types::{Ulid, UlidSet},
             traits::{
-                EntityDyn, EntityFixture, EntityId as _, Filterable, Inner as _, NumCast,
-                Orderable, Path, Selector as _, SortKey as _, Storable, Validate as _,
-                ValidateManual, Validator, Visitable,
+                EntityDyn, EntityFixture, EntityId as _, Filterable, NumCast, Orderable, Path,
+                Selector as _, SortKey as _, Storable, Validate as _, ValidateManual, Validator,
+                Visitable,
             },
         },
         types::{ErrorVec, FixtureList},

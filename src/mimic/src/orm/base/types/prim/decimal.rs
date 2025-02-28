@@ -1,9 +1,9 @@
-use crate::orm::traits::{Filterable, Inner, Orderable, ValidateAuto, ValidateManual, Visitable};
+use crate::orm::traits::{Filterable, Orderable, ValidateAuto, ValidateManual, Visitable};
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
 use num_traits::{FromPrimitive, NumCast, ToPrimitive};
 use rust_decimal::Decimal as WrappedDecimal;
-use serde::{ser::Error, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, ser::Error};
 use std::{cmp::Ordering, fmt};
 
 ///
@@ -140,16 +140,6 @@ impl FromPrimitive for Decimal {
 
     fn from_f64(n: f64) -> Option<Self> {
         WrappedDecimal::from_f64(n).map(Into::into)
-    }
-}
-
-impl Inner<Self> for Decimal {
-    fn inner(&self) -> &Self {
-        self
-    }
-
-    fn into_inner(self) -> Self {
-        self
     }
 }
 
