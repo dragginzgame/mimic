@@ -2,6 +2,7 @@ pub mod default;
 pub mod entity;
 pub mod enum_value;
 pub mod filterable;
+pub mod from;
 pub mod implementor;
 pub mod into;
 pub mod num;
