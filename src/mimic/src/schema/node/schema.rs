@@ -50,6 +50,8 @@ impl SchemaNode {
             Self::Entity(n) => Some(Box::new(n.clone())),
             Self::Enum(n) => Some(Box::new(n.clone())),
             Self::EnumValue(n) => Some(Box::new(n.clone())),
+            Self::List(n) => Some(Box::new(n.clone())),
+            Self::Map(n) => Some(Box::new(n.clone())),
             Self::Newtype(n) => Some(Box::new(n.clone())),
             Self::Primitive(n) => Some(Box::new(n.clone())),
             Self::Record(n) => Some(Box::new(n.clone())),
