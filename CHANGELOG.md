@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.3.5]
 - Map and List are back, and the Map logic has been taken out of Newtype, it's much cleaner this way.
+- Newtype's Primitive is now not optional, as it's always Cardinality::One
 - Fixed a bug with Filterable not working on Ulids
 - Default has moved from Value, it's now on Newtype and Field
+- moved a lot of From/Into logic to derive_more
+- removed the map_derive() from the design logic, need a better way to do that
+- Newtypes now have a brand new From<X> that goes down all the way to the bottom primitive
 
 ## [0.3.4]
 - the Map type has been removed.  It was only a pseudo-map anyway as it was Vec<(K, V)> in the database.
