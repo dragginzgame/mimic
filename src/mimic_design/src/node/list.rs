@@ -63,6 +63,7 @@ impl TraitNode for List {
             Trait::Default,
             Trait::Deref,
             Trait::DerefMut,
+            Trait::From,
         ]);
 
         traits.list()

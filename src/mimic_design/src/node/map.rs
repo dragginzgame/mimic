@@ -66,6 +66,7 @@ impl TraitNode for Map {
             Trait::Default,
             Trait::Deref,
             Trait::DerefMut,
+            Trait::From,
         ]);
 
         traits.list()
