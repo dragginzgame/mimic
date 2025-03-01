@@ -1,6 +1,6 @@
 use super::Implementor;
 use crate::node::{
-    Cardinality, Entity, Enum, EnumVariant, FieldList, List, MacroNode, Map, Newtype, Record,
+    Cardinality, Entity, Enum, EnumVariant, FieldList, List, MacroNode, Map, Newtype, Record, Set,
     Trait, Tuple, Value,
 };
 use proc_macro2::TokenStream;
@@ -77,10 +77,10 @@ pub fn list(node: &List, t: Trait) -> Option<TokenStream> {
 // map
 pub fn map(node: &Map, t: Trait) -> Option<TokenStream> {
     let inner = quote! {
-        for (map_key, map_value) in self.0.iter() {
-            let key = map_key.to_string();
-            ::mimic::orm::visit::perform_visit(visitor, map_key, &key);
-            ::mimic::orm::visit::perform_visit(visitor, map_value, &key);
+        for (k, v) in self.0.iter() {
+            let visitor_key = k.to_string();
+            ::mimic::orm::visit::perform_visit(visitor, k, &visitor_key);
+            ::mimic::orm::visit::perform_visit(visitor, v, &visitor_key);
         }
     };
     let q = drive_inner(&inner);
@@ -95,6 +95,23 @@ pub fn map(node: &Map, t: Trait) -> Option<TokenStream> {
 // newtype
 pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
     let inner = quote_value(&self0_expr(), Cardinality::One, "");
+    let q = drive_inner(&inner);
+
+    let tokens = Implementor::new(&node.def, t)
+        .set_tokens(q)
+        .to_token_stream();
+
+    Some(tokens)
+}
+
+// set
+pub fn set(node: &Set, t: Trait) -> Option<TokenStream> {
+    let inner = quote! {
+        for (i, item) in self.0.iter().enumerate() {
+            let visitor_key = i.to_string();
+            ::mimic::orm::visit::perform_visit(visitor, item, &visitor_key);
+        }
+    };
     let q = drive_inner(&inner);
 
     let tokens = Implementor::new(&node.def, t)

@@ -1,5 +1,5 @@
 use super::Implementor;
-use crate::node::{List, MacroNode, Map, Newtype, Trait};
+use crate::node::{List, MacroNode, Map, Newtype, Set, Trait};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
@@ -78,6 +78,33 @@ pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
         .add_impl_constraint(quote!(T: Into<#primitive>))
         .add_impl_generic(quote!(T))
         .add_trait_generic(quote!(T))
+        .to_token_stream();
+
+    Some(tokens)
+}
+
+///
+/// SET
+///
+
+// set
+pub fn set(node: &Set, t: Trait) -> Option<TokenStream> {
+    let item = &node.item;
+
+    let q = quote! {
+        fn from(entries: Vec<I>) -> Self {
+            Self(entries
+                .into_iter()
+                .map(Into::into)
+                .collect())
+        }
+    };
+
+    let tokens = Implementor::new(node.def(), t)
+        .set_tokens(q)
+        .add_impl_constraint(quote!(I: Into<#item>))
+        .add_impl_generic(quote!(I))
+        .add_trait_generic(quote!(Vec<I>))
         .to_token_stream();
 
     Some(tokens)

@@ -75,6 +75,7 @@ macro_node!(newtype, node::Newtype);
 macro_node!(primitive, node::Primitive);
 macro_node!(record, node::Record);
 macro_node!(selector, node::Selector);
+macro_node!(set, node::Set);
 macro_node!(store, node::Store);
 macro_node!(tuple, node::Tuple);
 macro_node!(validator, node::Validator);
