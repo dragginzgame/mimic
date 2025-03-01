@@ -207,7 +207,7 @@ impl fmt::Display for UlidSet {
             .collect::<Vec<_>>()
             .join(", ");
 
-        write!(f, "[{}]", formatted)
+        write!(f, "[{formatted}]")
     }
 }
 

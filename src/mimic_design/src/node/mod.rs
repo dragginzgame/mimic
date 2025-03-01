@@ -100,8 +100,8 @@ pub trait TraitNode: MacroNode {
 
         // we only derive traits that have no map_imp tokens
         let mut derived_traits = Vec::new();
-        for t in traits.iter() {
-            match self.map_trait(*t) {
+        for t in traits {
+            match self.map_trait(t) {
                 Some(tokens) => impls.extend(tokens),
                 None => derived_traits.push(
                     t.derive_path()

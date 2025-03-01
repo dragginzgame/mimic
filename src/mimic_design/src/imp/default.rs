@@ -1,26 +1,44 @@
-use super::Implementor;
-use crate::node::{Arg, Entity, FieldList, Newtype, Record, Trait};
+use crate::{
+    imp::{Imp, Implementor},
+    node::{Arg, Entity, FieldList, Newtype, Record, Trait},
+};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
-// entity
-pub fn entity(node: &Entity, t: Trait) -> Option<TokenStream> {
-    let q = field_list(&node.fields);
-    let tokens = Implementor::new(&node.def, t)
-        .set_tokens(q)
-        .to_token_stream();
+///
+/// DefaultTrait
+///
 
-    Some(tokens)
+pub struct DefaultTrait {}
+
+///
+/// Entity
+///
+
+impl Imp<Entity> for DefaultTrait {
+    fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
+        let q = field_list(&node.fields);
+        let tokens = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(tokens)
+    }
 }
 
-// record
-pub fn record(node: &Record, t: Trait) -> Option<TokenStream> {
-    let q = field_list(&node.fields);
-    let tokens = Implementor::new(&node.def, t)
-        .set_tokens(q)
-        .to_token_stream();
+///
+/// Record
+///
 
-    Some(tokens)
+impl Imp<Record> for DefaultTrait {
+    fn tokens(node: &Record, t: Trait) -> Option<TokenStream> {
+        let q = field_list(&node.fields);
+        let tokens = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(tokens)
+    }
 }
 
 // field_list
@@ -53,25 +71,30 @@ fn field_list(node: &FieldList) -> TokenStream {
     }
 }
 
-// newtype
-pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
-    let inner = match &node.default {
-        Some(arg) => format_default(arg),
-        None => panic!("default impl but no default"),
-    };
+///
+/// Newtype
+///
 
-    // quote
-    let q = quote! {
-        fn default() -> Self {
-            Self(#inner)
-        }
-    };
+impl Imp<Newtype> for DefaultTrait {
+    fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
+        let inner = match &node.default {
+            Some(arg) => format_default(arg),
+            None => panic!("default impl but no default"),
+        };
 
-    let tokens = Implementor::new(&node.def, t)
-        .set_tokens(q)
-        .to_token_stream();
+        // quote
+        let q = quote! {
+            fn default() -> Self {
+                Self(#inner)
+            }
+        };
 
-    Some(tokens)
+        let tokens = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(tokens)
+    }
 }
 
 // format_default

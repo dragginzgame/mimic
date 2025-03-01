@@ -1,42 +1,60 @@
-use super::Implementor;
-use crate::node::{Enum, Newtype, Trait};
+use crate::{
+    imp::{Imp, Implementor},
+    node::{Enum, Newtype, Trait},
+};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
-// enum_
-pub fn enum_(node: &Enum, t: Trait) -> Option<TokenStream> {
-    let q = if node.is_orderable() {
-        quote! {
-            fn cmp(&self, other: &Self) -> ::std::cmp::Ordering {
-                Ord::cmp(self, other)
+///
+/// OrderableTrait
+///
+
+pub struct OrderableTrait {}
+
+///
+/// Enum
+///
+
+impl Imp<Enum> for OrderableTrait {
+    fn tokens(node: &Enum, t: Trait) -> Option<TokenStream> {
+        let q = if node.is_orderable() {
+            quote! {
+                fn cmp(&self, other: &Self) -> ::std::cmp::Ordering {
+                    Ord::cmp(self, other)
+                }
             }
-        }
-    } else {
-        quote!()
-    };
+        } else {
+            quote!()
+        };
 
-    let tokens = Implementor::new(&node.def, t)
-        .set_tokens(q)
-        .to_token_stream();
+        let tokens = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
 
-    Some(tokens)
+        Some(tokens)
+    }
 }
 
-// newtype
-pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
-    let q = if node.primitive.is_orderable() {
-        quote! {
-            fn cmp(&self, other: &Self) -> ::std::cmp::Ordering {
-                Ord::cmp(self, other)
+///
+/// Newtype
+///
+
+impl Imp<Newtype> for OrderableTrait {
+    fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
+        let q = if node.primitive.is_orderable() {
+            quote! {
+                fn cmp(&self, other: &Self) -> ::std::cmp::Ordering {
+                    Ord::cmp(self, other)
+                }
             }
-        }
-    } else {
-        quote!()
-    };
+        } else {
+            quote!()
+        };
 
-    let tokens = Implementor::new(&node.def, t)
-        .set_tokens(q)
-        .to_token_stream();
+        let tokens = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
 
-    Some(tokens)
+        Some(tokens)
+    }
 }

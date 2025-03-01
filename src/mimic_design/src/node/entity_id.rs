@@ -1,5 +1,7 @@
-use super::{Def, MacroNode, Node, Sorted, Trait, TraitNode, TraitTokens, Traits};
-use crate::imp;
+use crate::{
+    imp::{self, Imp},
+    node::{Def, MacroNode, Node, Sorted, Trait, TraitNode, TraitTokens, Traits},
+};
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -69,7 +71,7 @@ impl TraitNode for EntityId {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::Into => imp::into::entity_id(self, t),
+            Trait::Into => <imp::IntoTrait as Imp<Self>>::tokens(self, t),
 
             _ => imp::any(self, t),
         }

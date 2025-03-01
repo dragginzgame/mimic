@@ -1,6 +1,6 @@
-use crate::imp;
 use crate::{
     helper::quote_vec,
+    imp::{self, Imp},
     node::{Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type, Value},
     traits::Schemable,
 };
@@ -86,7 +86,7 @@ impl TraitNode for Tuple {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::Visitable => imp::visitable::tuple(self, t),
+            Trait::Visitable => <imp::VisitableTrait as Imp<Self>>::tokens(self, t),
 
             _ => imp::any(self, t),
         }

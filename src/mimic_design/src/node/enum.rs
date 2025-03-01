@@ -1,6 +1,6 @@
 use crate::{
     helper::{quote_one, quote_option, quote_vec, to_string},
-    imp,
+    imp::{self, Imp},
     node::{Def, MacroNode, Node, Sorted, Trait, TraitNode, TraitTokens, Traits, Type, Value},
     traits::Schemable,
 };
@@ -101,9 +101,9 @@ impl TraitNode for Enum {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::Orderable => imp::orderable::enum_(self, t),
-            Trait::ValidateAuto => imp::validate_auto::enum_(self, t),
-            Trait::Visitable => imp::visitable::enum_(self, t),
+            Trait::Orderable => <imp::OrderableTrait as Imp<Self>>::tokens(self, t),
+            Trait::ValidateAuto => <imp::ValidateAutoTrait as Imp<Self>>::tokens(self, t),
+            Trait::Visitable => <imp::VisitableTrait as Imp<Self>>::tokens(self, t),
 
             _ => imp::any(self, t),
         }

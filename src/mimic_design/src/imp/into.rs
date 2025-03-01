@@ -1,58 +1,70 @@
-use super::Implementor;
-use crate::node::{EntityId, Selector, Trait};
+use crate::{
+    imp::{Imp, Implementor},
+    node::{EntityId, Selector, Trait},
+};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 ///
-/// ENTITY_ID
+/// IntoTrait
 ///
 
-pub fn entity_id(node: &EntityId, t: Trait) -> Option<TokenStream> {
-    let q = quote! {
-        fn into(self) -> mimic::orm::base::types::Ulid {
-            self.ulid()
-        }
-    };
+pub struct IntoTrait {}
 
-    let tokens = Implementor::new(&node.def, t)
-        .set_tokens(q)
-        .add_trait_generic(quote!(mimic::orm::base::types::Ulid))
-        .to_token_stream();
+///
+/// EntityId
+///
 
-    Some(tokens)
+impl Imp<EntityId> for IntoTrait {
+    fn tokens(node: &EntityId, t: Trait) -> Option<TokenStream> {
+        let q = quote! {
+            fn into(self) -> mimic::orm::base::types::Ulid {
+                self.ulid()
+            }
+        };
+
+        let tokens = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .add_trait_generic(quote!(mimic::orm::base::types::Ulid))
+            .to_token_stream();
+
+        Some(tokens)
+    }
 }
 
 ///
-/// SELECTOR
+/// Selector
 ///
 
-pub fn selector(node: &Selector, t: Trait) -> Option<TokenStream> {
-    let target = &node.target;
+impl Imp<Selector> for IntoTrait {
+    fn tokens(node: &Selector, t: Trait) -> Option<TokenStream> {
+        let target = &node.target;
 
-    // iterate variants
-    let mut inner = quote!();
-    for variant in &node.variants {
-        let name = &variant.name;
-        let value = &variant.value;
+        // iterate variants
+        let mut inner = quote!();
+        for variant in &node.variants {
+            let name = &variant.name;
+            let value = &variant.value;
 
-        inner.extend(quote! {
-            Self::#name => <#target as ::std::convert::From<_>>::from(#value),
-        });
-    }
-
-    // match cardinality
-    let q = quote! {
-        fn into(self) -> #target {
-            match self {
-                #inner
-            }
+            inner.extend(quote! {
+                Self::#name => <#target as ::std::convert::From<_>>::from(#value),
+            });
         }
-    };
 
-    let tokens = Implementor::new(&node.def, t)
-        .set_tokens(q)
-        .add_trait_generic(quote!(#target))
-        .to_token_stream();
+        // match cardinality
+        let q = quote! {
+            fn into(self) -> #target {
+                match self {
+                    #inner
+                }
+            }
+        };
 
-    Some(tokens)
+        let tokens = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .add_trait_generic(quote!(#target))
+            .to_token_stream();
+
+        Some(tokens)
+    }
 }

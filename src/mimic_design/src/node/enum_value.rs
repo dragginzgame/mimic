@@ -1,6 +1,6 @@
-use crate::imp;
 use crate::{
     helper::{quote_one, quote_vec, to_string},
+    imp::{self, Imp},
     node::{ArgNumber, Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type},
     traits::Schemable,
 };
@@ -107,7 +107,7 @@ impl TraitNode for EnumValue {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::EnumValue => imp::enum_value::enum_value(self, t),
+            Trait::EnumValue => <imp::EnumValueTrait as Imp<Self>>::tokens(self, t),
 
             _ => imp::any(self, t),
         }

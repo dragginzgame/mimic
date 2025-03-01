@@ -1,38 +1,47 @@
-use super::Implementor;
-use crate::node::{EnumValue, Trait};
+use crate::{
+    imp::{Imp, Implementor},
+    node::{EnumValue, Trait},
+};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 ///
-/// ENUM_VALUE
+/// EnumValueTrait
 ///
 
-// enum_value
-pub fn enum_value(node: &EnumValue, t: Trait) -> Option<TokenStream> {
-    let mut inner = quote!();
+pub struct EnumValueTrait {}
 
-    // iterate variants
-    for variant in &node.variants {
-        let name = &variant.name;
-        let value = &variant.value;
+///
+/// EnumValue
+///
 
-        inner.extend(quote! {
-            Self::#name => #value,
-        });
-    }
+impl Imp<EnumValue> for EnumValueTrait {
+    fn tokens(node: &EnumValue, t: Trait) -> Option<TokenStream> {
+        let mut inner = quote!();
 
-    // quote
-    let q = quote! {
-        fn value(&self) -> i32 {
-            match self {
-                #inner
-            }
+        // iterate variants
+        for variant in &node.variants {
+            let name = &variant.name;
+            let value = &variant.value;
+
+            inner.extend(quote! {
+                Self::#name => #value,
+            });
         }
-    };
 
-    let tokens = Implementor::new(&node.def, t)
-        .set_tokens(q)
-        .to_token_stream();
+        // quote
+        let q = quote! {
+            fn value(&self) -> i32 {
+                match self {
+                    #inner
+                }
+            }
+        };
 
-    Some(tokens)
+        let tokens = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(tokens)
+    }
 }

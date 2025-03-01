@@ -1,18 +1,22 @@
-use super::Implementor;
-use crate::node::{Newtype, PrimitiveType, Trait};
+use crate::{
+    imp::{Imp, Implementor},
+    node::{Newtype, PrimitiveType, Trait},
+};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 
 ///
-/// NumCast
+/// NumCastTrait
 ///
 
-pub mod cast {
-    use super::*;
-    use proc_macro2::TokenStream;
-    use quote::quote;
+pub struct NumCastTrait {}
 
-    pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
+///
+/// Newtype
+///
+
+impl Imp<Newtype> for NumCastTrait {
+    fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
         let num_fn = node.primitive.num_cast_fn();
         let to_method = format_ident!("to_{}", num_fn);
         let from_method = format_ident!("from_{}", num_fn);
@@ -33,14 +37,17 @@ pub mod cast {
 }
 
 ///
-/// NumFromPrimitive
+/// NumFromPrimitiveTrait
 ///
 
-pub mod from_primitive {
-    use super::*;
+pub struct NumFromPrimitiveTrait {}
 
-    // newtype
-    pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
+///
+/// Newtype
+///
+
+impl Imp<Newtype> for NumFromPrimitiveTrait {
+    fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
         let item = &node.item;
 
         let mut q = quote! {
@@ -74,14 +81,17 @@ pub mod from_primitive {
 }
 
 ///
-/// NumToPrimitive
+/// NumToPrimitiveTrait
 ///
 
-pub mod to_primitive {
-    use super::*;
+pub struct NumToPrimitiveTrait {}
 
-    // newtype
-    pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
+///
+/// Newtype
+///
+
+impl Imp<Newtype> for NumToPrimitiveTrait {
+    fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
         let q = quote! {
             fn to_i64(&self) -> Option<i64> {
                 ::mimic::export::num_traits::NumCast::from(self.0)

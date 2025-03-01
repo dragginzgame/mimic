@@ -1,23 +1,45 @@
-pub mod default;
-pub mod entity;
-pub mod enum_value;
-pub mod filterable;
-pub mod from;
+mod default;
+mod entity;
+mod enum_value;
+mod fields;
+mod filterable;
+mod from;
+mod inner;
+mod into;
+mod num;
+mod orderable;
+mod sort_key;
+mod validate;
+mod visitable;
+
 pub mod implementor;
-pub mod inner;
-pub mod into;
-pub mod num;
-pub mod orderable;
-pub mod record_filter;
-pub mod record_sort;
-pub mod sort_key;
-pub mod validate_auto;
-pub mod visitable;
+
+pub use default::*;
+pub use entity::*;
+pub use enum_value::*;
+pub use fields::*;
+pub use filterable::*;
+pub use from::*;
+pub use inner::*;
+pub use into::*;
+pub use num::*;
+pub use orderable::*;
+pub use sort_key::*;
+pub use validate::*;
+pub use visitable::*;
 
 use crate::node::{MacroNode, Trait};
 use implementor::Implementor;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
+
+///
+/// Imp
+///
+
+pub trait Imp<N: MacroNode> {
+    fn tokens(node: &N, t: Trait) -> Option<TokenStream>;
+}
 
 ///
 /// any

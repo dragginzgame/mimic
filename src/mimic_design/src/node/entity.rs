@@ -1,6 +1,6 @@
-use crate::imp;
 use crate::{
     helper::{quote_one, quote_vec, to_path},
+    imp::{self, Imp},
     node::{
         Def, FieldList, Index, MacroNode, Node, SortKey, Trait, TraitNode, TraitTokens, Traits,
         Type,
@@ -112,13 +112,15 @@ impl TraitNode for Entity {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::Default if self.fields.has_default() => imp::default::entity(self, t),
-            Trait::Entity => imp::entity::entity(self, t),
-            Trait::EntityDyn => imp::entity::entity_dyn(self, t),
-            Trait::FieldFilter => imp::record_filter::entity(self, t),
-            Trait::FieldSort => imp::record_sort::entity(self, t),
-            Trait::ValidateAuto => imp::validate_auto::entity(self, t),
-            Trait::Visitable => imp::visitable::entity(self, t),
+            Trait::Default if self.fields.has_default() => {
+                <imp::DefaultTrait as Imp<Self>>::tokens(self, t)
+            }
+            Trait::Entity => <imp::EntityTrait as Imp<Self>>::tokens(self, t),
+            Trait::EntityDyn => <imp::EntityDynTrait as Imp<Self>>::tokens(self, t),
+            Trait::FieldFilter => <imp::FieldFilterTrait as Imp<Self>>::tokens(self, t),
+            Trait::FieldSort => <imp::FieldSortTrait as Imp<Self>>::tokens(self, t),
+            Trait::ValidateAuto => <imp::ValidateAutoTrait as Imp<Self>>::tokens(self, t),
+            Trait::Visitable => <imp::VisitableTrait as Imp<Self>>::tokens(self, t),
 
             _ => imp::any(self, t),
         }

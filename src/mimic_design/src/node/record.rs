@@ -1,5 +1,5 @@
 use crate::{
-    imp,
+    imp::{self, Imp},
     node::{Def, FieldList, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type},
     traits::Schemable,
 };
@@ -85,11 +85,14 @@ impl TraitNode for Record {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::Default if self.fields.has_default() => imp::default::record(self, t),
-            Trait::FieldFilter => imp::record_filter::record(self, t),
-            Trait::FieldSort => imp::record_sort::record(self, t),
-            Trait::ValidateAuto => imp::validate_auto::record(self, t),
-            Trait::Visitable => imp::visitable::record(self, t),
+            Trait::Default if self.fields.has_default() => {
+                <imp::DefaultTrait as Imp<Self>>::tokens(self, t)
+            }
+
+            Trait::FieldFilter => <imp::FieldFilterTrait as Imp<Self>>::tokens(self, t),
+            Trait::FieldSort => <imp::FieldSortTrait as Imp<Self>>::tokens(self, t),
+            Trait::ValidateAuto => <imp::ValidateAutoTrait as Imp<Self>>::tokens(self, t),
+            Trait::Visitable => <imp::VisitableTrait as Imp<Self>>::tokens(self, t),
 
             _ => imp::any(self, t),
         }

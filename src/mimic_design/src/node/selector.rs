@@ -1,6 +1,6 @@
-use crate::imp;
 use crate::{
     helper::{quote_one, quote_vec, to_path, to_string},
+    imp::{self, Imp},
     node::{Arg, Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits},
     traits::Schemable,
 };
@@ -90,7 +90,7 @@ impl TraitNode for Selector {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::Into => imp::into::selector(self, t),
+            Trait::Into => <imp::IntoTrait as Imp<Self>>::tokens(self, t),
 
             _ => imp::any(self, t),
         }

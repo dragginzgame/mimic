@@ -1,5 +1,5 @@
 use crate::{
-    imp,
+    imp::{self, Imp},
     node::{Def, Item, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type},
     traits::Schemable,
 };
@@ -71,8 +71,8 @@ impl TraitNode for List {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::From => imp::from::list(self, t),
-            Trait::Visitable => imp::visitable::list(self, t),
+            Trait::From => <imp::FromTrait as Imp<Self>>::tokens(self, t),
+            Trait::Visitable => <imp::VisitableTrait as Imp<Self>>::tokens(self, t),
 
             _ => imp::any(self, t),
         }

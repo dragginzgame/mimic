@@ -1,5 +1,5 @@
 use crate::{
-    imp::Implementor,
+    imp::{Imp, Implementor},
     node::{Entity, Trait},
 };
 use proc_macro2::TokenStream;
@@ -7,24 +7,31 @@ use quote::{ToTokens, quote};
 use syn::Ident;
 
 ///
-/// ENTITY
+/// EntityTrait
 ///
 
-// entity
-pub fn entity(node: &Entity, t: Trait) -> Option<TokenStream> {
-    let store = &node.store;
-    let mut q = quote! {
-        const STORE: &'static str = <#store as ::mimic::orm::traits::Path>::PATH;
-    };
+pub struct EntityTrait {}
 
-    q.extend(id(node));
-    q.extend(composite_key(node));
+///
+/// Entity
+///
 
-    let tokens = Implementor::new(&node.def, t)
-        .set_tokens(q)
-        .to_token_stream();
+impl Imp<Entity> for EntityTrait {
+    fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
+        let store = &node.store;
+        let mut q = quote! {
+            const STORE: &'static str = <#store as ::mimic::orm::traits::Path>::PATH;
+        };
 
-    Some(tokens)
+        q.extend(id(node));
+        q.extend(composite_key(node));
+
+        let tokens = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(tokens)
+    }
 }
 
 // id
@@ -89,22 +96,29 @@ fn composite_key(node: &Entity) -> TokenStream {
 }
 
 ///
-/// EntityDyn
+/// EntityDynTrait
 ///
 
-// entity_dyn
-pub fn entity_dyn(node: &Entity, t: Trait) -> Option<TokenStream> {
-    let mut q = quote!();
+pub struct EntityDynTrait {}
 
-    q.extend(composite_key_dyn(node));
-    q.extend(serialize_dyn(node));
-    q.extend(store_dyn(node));
+///
+/// Entity
+///
 
-    let tokens = Implementor::new(&node.def, t)
-        .set_tokens(q)
-        .to_token_stream();
+impl Imp<Entity> for EntityDynTrait {
+    fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
+        let mut q = quote!();
 
-    Some(tokens)
+        q.extend(composite_key_dyn(node));
+        q.extend(serialize_dyn(node));
+        q.extend(store_dyn(node));
+
+        let tokens = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(tokens)
+    }
 }
 
 // composite_key_dyn
