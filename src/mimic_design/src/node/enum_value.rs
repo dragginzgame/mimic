@@ -107,7 +107,7 @@ impl TraitNode for EnumValue {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::EnumValue => <imp::EnumValueTrait as Imp<Self>>::tokens(self, t),
+            Trait::EnumValue => imp::EnumValueTrait::tokens(self, t),
 
             _ => imp::any(self, t),
         }

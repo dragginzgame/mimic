@@ -90,7 +90,7 @@ impl TraitNode for Selector {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::Into => <imp::IntoTrait as Imp<Self>>::tokens(self, t),
+            Trait::Into => imp::IntoTrait::tokens(self, t),
 
             _ => imp::any(self, t),
         }

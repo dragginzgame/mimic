@@ -109,19 +109,17 @@ impl TraitNode for Newtype {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::Default if self.default.is_some() => {
-                <imp::DefaultTrait as Imp<Self>>::tokens(self, t)
-            }
-            Trait::Filterable => <imp::FilterableTrait as Imp<Self>>::tokens(self, t),
-            Trait::From => <imp::FromTrait as Imp<Self>>::tokens(self, t),
-            Trait::Inner => <imp::InnerTrait as Imp<Self>>::tokens(self, t),
-            Trait::NumCast => <imp::NumCastTrait as Imp<Self>>::tokens(self, t),
-            Trait::NumToPrimitive => <imp::NumToPrimitiveTrait as Imp<Self>>::tokens(self, t),
-            Trait::NumFromPrimitive => <imp::NumFromPrimitiveTrait as Imp<Self>>::tokens(self, t),
-            Trait::Orderable => <imp::OrderableTrait as Imp<Self>>::tokens(self, t),
-            Trait::SortKey => <imp::SortKeyTrait as Imp<Self>>::tokens(self, t),
-            Trait::ValidateAuto => <imp::ValidateAutoTrait as Imp<Self>>::tokens(self, t),
-            Trait::Visitable => <imp::VisitableTrait as Imp<Self>>::tokens(self, t),
+            Trait::Default if self.default.is_some() => imp::DefaultTrait::tokens(self, t),
+            Trait::Filterable => imp::FilterableTrait::tokens(self, t),
+            Trait::From => imp::FromTrait::tokens(self, t),
+            Trait::Inner => imp::InnerTrait::tokens(self, t),
+            Trait::NumCast => imp::NumCastTrait::tokens(self, t),
+            Trait::NumToPrimitive => imp::NumToPrimitiveTrait::tokens(self, t),
+            Trait::NumFromPrimitive => imp::NumFromPrimitiveTrait::tokens(self, t),
+            Trait::Orderable => imp::OrderableTrait::tokens(self, t),
+            Trait::SortKey => imp::SortKeyTrait::tokens(self, t),
+            Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
+            Trait::Visitable => imp::VisitableTrait::tokens(self, t),
 
             _ => imp::any(self, t),
         }
