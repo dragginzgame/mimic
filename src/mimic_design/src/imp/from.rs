@@ -10,15 +10,21 @@ use quote::{ToTokens, quote};
 // list
 pub fn list(node: &List, t: Trait) -> Option<TokenStream> {
     let item = &node.item;
-    let tokens = quote! {
-        fn from(items: Vec<#item>) -> Self {
-            Self(items)
+
+    let q = quote! {
+        fn from(entries: Vec<I>) -> Self {
+            Self(entries
+                .into_iter()
+                .map(Into::into)
+                .collect())
         }
     };
 
     let tokens = Implementor::new(node.def(), t)
-        .add_trait_generic(quote!(Vec<#item>))
-        .set_tokens(tokens)
+        .set_tokens(q)
+        .add_impl_constraint(quote!(I: Into<#item>))
+        .add_impl_generic(quote!(I))
+        .add_trait_generic(quote!(Vec<I>))
         .to_token_stream();
 
     Some(tokens)
@@ -67,6 +73,7 @@ pub fn map(node: &Map, t: Trait) -> Option<TokenStream> {
 pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
     let item = &node.item;
     let primitive = &node.primitive;
+
     let q = quote! {
         fn from(t: T) -> Self {
             Self(<#item as std::convert::From<#primitive>>::from(t.into()))
