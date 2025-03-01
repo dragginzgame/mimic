@@ -38,7 +38,7 @@ pub fn field_list(node: &FieldList) -> TokenStream {
         .iter()
         .flat_map(|field| {
             field.validators.iter().map(move |val| {
-                let field_ident = &field.name; // assumes field.name is an Ident
+                let field_ident = &field.name;
                 let path = &val.path;
                 let args = &val.args;
 
@@ -48,7 +48,7 @@ pub fn field_list(node: &FieldList) -> TokenStream {
                     quote! { #path::new(#(#args),*) }
                 };
 
-                // Instead of calling self.validate(validator), call the field's validate
+                // pass self.field to the validator
                 quote! {
                     errs.add_result(#validator.validate(&self.#field_ident));
                 }
@@ -68,7 +68,6 @@ pub fn field_list(node: &FieldList) -> TokenStream {
         }
     };
 
-    // quote
     quote! {
         fn validate_auto(&self) -> ::std::result::Result<(), ::mimic::types::ErrorVec> {
             #inner
