@@ -1,5 +1,5 @@
 use crate::schema::{
-    node::{Def, Item, MacroNode, Type, TypeNode, ValidateNode, VisitableNode},
+    node::{Def, Item, MacroNode, Type, TypeNode, ValidateNode, Value, VisitableNode},
     visit::Visitor,
 };
 use serde::{Deserialize, Serialize};
@@ -11,8 +11,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Map {
     pub def: Def,
-    pub item: Item,
-    pub key: String,
+    pub key: Item,
+    pub value: Value,
 
     #[serde(default, skip_serializing_if = "Type::skip_serializing")]
     pub ty: Type,
@@ -39,7 +39,8 @@ impl VisitableNode for Map {
 
     fn drive<V: Visitor>(&self, v: &mut V) {
         self.def.accept(v);
-        self.item.accept(v);
+        self.key.accept(v);
+        self.value.accept(v);
         self.ty.accept(v);
     }
 }

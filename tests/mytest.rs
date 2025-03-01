@@ -16,11 +16,12 @@ mod tests {
 
     #[test]
     fn test_map_validates() {
-        use test_schema::map::{Entry, Map};
+        use test_schema::map::Map;
 
-        let entries = vec![Entry::new("hello", 3), Entry::new("hello", 3)];
+        let entries = vec![("hello", 3), ("hello", 3)];
 
         let e = Map::from(entries);
+        println!("{e:?}");
 
         let errs = mimic::orm::validate(&e);
         println!("{errs:?}");

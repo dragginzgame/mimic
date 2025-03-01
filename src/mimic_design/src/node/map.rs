@@ -1,13 +1,11 @@
 use crate::{
-    helper::{quote_one, to_string},
     imp,
-    node::{Def, Item, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type},
+    node::{Def, Item, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type, Value},
     traits::Schemable,
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::Ident;
 
 ///
 /// Map
@@ -18,8 +16,8 @@ pub struct Map {
     #[darling(default, skip)]
     pub def: Def,
 
-    pub item: Item,
-    pub key: Ident,
+    pub key: Item,
+    pub value: Value,
 
     #[darling(default)]
     pub ty: Type,
@@ -75,7 +73,6 @@ impl TraitNode for Map {
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::From => imp::from::map(self, t),
-            Trait::ValidateAuto => imp::validate_auto::map(self, t),
             Trait::Visitable => imp::visitable::map(self, t),
 
             _ => imp::any(self, t),
@@ -86,15 +83,15 @@ impl TraitNode for Map {
 impl Schemable for Map {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
-        let item = self.item.schema();
-        let key = quote_one(&self.key, to_string);
+        let key = self.key.schema();
+        let value = self.value.schema();
         let ty = self.ty.schema();
 
         quote! {
             ::mimic::schema::node::SchemaNode::Map(::mimic::schema::node::Map {
                 def: #def,
-                item: #item,
                 key: #key,
+                value: #value,
                 ty: #ty,
             })
         }
@@ -104,11 +101,12 @@ impl Schemable for Map {
 impl ToTokens for Map {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Def { ident, .. } = &self.def;
-        let item = &self.item;
+        let key = &self.key;
+        let value = &self.value;
 
         // quote
         let q = quote! {
-            pub struct #ident(Vec<#item>);
+            pub struct #ident(::std::collections::HashMap<#key, #value>);
         };
 
         tokens.extend(q);

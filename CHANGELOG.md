@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Newtypes now have a brand new From<X> that goes down all the way to the bottom primitive
 - BIG rewrite of trait derives/impls in the mimic_design package.  Now they're only calculated once and the functions
 return Option<TokenStream> so it's easier to fall through to a simple derive
+- Maps are now proper HashMap<K, V>
 
 ## [0.3.4]
 - the Map type has been removed.  It was only a pseudo-map anyway as it was Vec<(K, V)> in the database.

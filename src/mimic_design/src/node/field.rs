@@ -1,6 +1,6 @@
 use crate::{
     helper::{quote_one, quote_option, quote_vec, to_string},
-    node::{Arg, SortDirection, Value},
+    node::{Arg, SortDirection, TypeValidator, Value},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -64,6 +64,9 @@ pub struct Field {
 
     #[darling(default)]
     pub default: Option<Arg>,
+
+    #[darling(multiple, rename = "validator")]
+    pub validators: Vec<TypeValidator>,
 }
 
 impl Schemable for Field {
@@ -71,12 +74,14 @@ impl Schemable for Field {
         let name = quote_one(&self.name, to_string);
         let value = self.value.schema();
         let default = quote_option(self.default.as_ref(), Arg::schema);
+        let validators = quote_vec(&self.validators, TypeValidator::schema);
 
         quote! {
             ::mimic::schema::node::Field {
                 name: #name,
                 value: #value,
                 default: #default,
+                validators: #validators,
             }
         }
     }

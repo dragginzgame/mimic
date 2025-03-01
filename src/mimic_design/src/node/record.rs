@@ -95,10 +95,8 @@ impl TraitNode for Record {
     }
 
     fn derive_attributes(&self) -> Option<TokenStream> {
-        if self.traits().contains(&Trait::Default) {
-            Some(quote!(#[serde(default)]))
-        } else {
-            None
-        }
+        self.traits()
+            .contains(&Trait::Default)
+            .then(|| quote! { #[serde(default)] })
     }
 }

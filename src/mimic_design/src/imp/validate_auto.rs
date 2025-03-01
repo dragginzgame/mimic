@@ -1,5 +1,5 @@
 use super::Implementor;
-use crate::node::{Enum, Map, Newtype, PrimitiveGroup, Trait};
+use crate::node::{Enum, Newtype, PrimitiveGroup, Trait};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 
@@ -45,37 +45,6 @@ pub fn enum_(node: &Enum, t: Trait) -> Option<TokenStream> {
         .to_token_stream();
 
     Some(imp)
-}
-
-///
-/// MAP
-///
-
-// map
-pub fn map(node: &Map, t: Trait) -> Option<TokenStream> {
-    let key = &node.key;
-
-    let q = quote! {
-        fn validate_auto(&self) -> ::std::result::Result<(), ::mimic::types::ErrorVec> {
-            let mut errs = ::mimic::types::ErrorVec::new();
-            let mut seen = ::std::collections::HashSet::new();
-
-            for item in &self.0 {
-                let key = &item.#key;
-                if !seen.insert(key) {
-                    errs.add(format!("duplicate key found: {key}"));
-                }
-            }
-
-            errs.result()
-        }
-    };
-
-    let tokens = Implementor::new(&node.def, t)
-        .set_tokens(q)
-        .to_token_stream();
-
-    Some(tokens)
 }
 
 ///

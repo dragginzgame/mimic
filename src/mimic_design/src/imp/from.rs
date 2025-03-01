@@ -30,16 +30,25 @@ pub fn list(node: &List, t: Trait) -> Option<TokenStream> {
 
 // map
 pub fn map(node: &Map, t: Trait) -> Option<TokenStream> {
-    let item = &node.item;
+    let key = &node.key;
+    let value = &node.value;
+
     let q = quote! {
-        fn from(items: Vec<#item>) -> Self {
-            Self(items)
+        fn from(entries: Vec<(IK, IV)>) -> Self {
+            Self(entries
+                .into_iter()
+                .map(|(k, v)| (k.into(), v.into()))
+                .collect())
         }
     };
 
     let tokens = Implementor::new(node.def(), t)
-        .add_trait_generic(quote!(Vec<#item>))
         .set_tokens(q)
+        .add_impl_constraint(quote!(IK: Into<#key>))
+        .add_impl_constraint(quote!(IV: Into<#value>))
+        .add_impl_generic(quote!(IK))
+        .add_impl_generic(quote!(IV))
+        .add_trait_generic(quote!(Vec<(IK, IV)>))
         .to_token_stream();
 
     Some(tokens)

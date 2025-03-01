@@ -41,16 +41,18 @@ pub fn record(node: &Record, t: Trait) -> Option<TokenStream> {
 // enum
 pub fn enum_(node: &Enum, t: Trait) -> Option<TokenStream> {
     // build inner
-    let mut inner = quote!();
+    let mut variant_tokens = quote!();
     for variant in &node.variants {
-        inner.extend(enum_variant(variant));
+        variant_tokens.extend(enum_variant(variant));
     }
+
     let inner = quote! {
         match self {
-            #inner
+            #variant_tokens
             _ => {},
         }
     };
+
     let q = drive_inner(&inner);
 
     let tokens = Implementor::new(&node.def, t)
@@ -74,7 +76,13 @@ pub fn list(node: &List, t: Trait) -> Option<TokenStream> {
 
 // map
 pub fn map(node: &Map, t: Trait) -> Option<TokenStream> {
-    let inner = quote_value(&self0_expr(), Cardinality::Many, "");
+    let inner = quote! {
+        for (map_key, map_value) in self.0.iter() {
+            let key = map_key.to_string();
+            ::mimic::orm::visit::perform_visit(visitor, map_key, &key);
+            ::mimic::orm::visit::perform_visit(visitor, map_value, &key);
+        }
+    };
     let q = drive_inner(&inner);
 
     let tokens = Implementor::new(&node.def, t)

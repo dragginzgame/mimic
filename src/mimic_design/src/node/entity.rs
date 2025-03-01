@@ -50,7 +50,6 @@ impl Node for Entity {
         let q = quote! {
             #schema
             #derive
-            #[serde(default)]
             pub struct #ident {
                 #fields
             }
@@ -122,5 +121,11 @@ impl TraitNode for Entity {
 
             _ => imp::any(self, t),
         }
+    }
+
+    fn derive_attributes(&self) -> Option<TokenStream> {
+        self.traits()
+            .contains(&Trait::Default)
+            .then(|| quote! { #[serde(default)] })
     }
 }
