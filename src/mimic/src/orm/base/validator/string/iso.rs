@@ -10,8 +10,8 @@ use crate::orm::prelude::*;
 #[validator]
 pub struct Iso6391 {}
 
-impl Validator for Iso6391 {
-    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+impl ValidatorString for Iso6391 {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
         let s = s.to_string();
 
         if s.len() != 2 || !s.chars().all(|c| c.is_ascii_lowercase()) {

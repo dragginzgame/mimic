@@ -117,6 +117,7 @@ impl TraitNode for Entity {
             Trait::EntityDyn => imp::entity::entity_dyn(self, t),
             Trait::FieldFilter => imp::record_filter::entity(self, t),
             Trait::FieldSort => imp::record_sort::entity(self, t),
+            Trait::ValidateAuto => imp::validate_auto::entity(self, t),
             Trait::Visitable => imp::visitable::entity(self, t),
 
             _ => imp::any(self, t),

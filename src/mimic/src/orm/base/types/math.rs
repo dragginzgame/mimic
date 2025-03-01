@@ -13,36 +13,6 @@ use crate::{
 #[newtype(primitive = "Decimal", item(is = "types::Decimal"))]
 pub struct DecimalFormat {}
 
-/*
-
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
-pub enum DecimalFormatError {
-    #[error("integer length {0} exceeds maximum {1}")]
-    IntegerLengthExceeded(usize, usize),
-
-    #[error("fractional length {0} exceeds maximum {1}")]
-    FractionalLengthExceeded(usize, usize),
-}
-
-impl<const I: usize, const F: usize> ValidateManual for DecimalFormat<I, F> {
-    fn validate_manual(&self) -> Result<(), ErrorVec> {
-        let (ilen, flen) = self.0.count_digits();
-
-        // integer part I
-        if ilen > I {
-            return Err(DecimalFormatError::IntegerLengthExceeded(ilen, I).into());
-        }
-
-        // fractional part F
-        if flen > F {
-            return Err(DecimalFormatError::FractionalLengthExceeded(flen, F).into());
-        }
-
-        Ok(())
-    }
-}
-*/
-
 ///
 /// Degrees (°)
 ///

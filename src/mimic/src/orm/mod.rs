@@ -16,7 +16,7 @@ pub mod prelude {
             traits::{
                 EntityDyn, EntityFixture, EntityId as _, Filterable, Inner as _, NumCast,
                 Orderable, Path, Selector as _, SortKey as _, Storable, Validate as _,
-                ValidateManual, Validator, Visitable,
+                ValidateManual, ValidatorBytes, ValidatorNumber, ValidatorString, Visitable,
             },
         },
         types::{ErrorVec, FixtureList},

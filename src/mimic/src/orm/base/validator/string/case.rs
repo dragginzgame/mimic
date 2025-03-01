@@ -9,8 +9,8 @@ use crate::orm::prelude::*;
 #[validator]
 pub struct AlphaUscore {}
 
-impl Validator for AlphaUscore {
-    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+impl ValidatorString for AlphaUscore {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
         let s = s.to_string();
 
         if s.chars().all(|c| c.is_alphabetic() || c == '_') {
@@ -28,8 +28,8 @@ impl Validator for AlphaUscore {
 #[validator]
 pub struct AlphanumUscore {}
 
-impl Validator for AlphanumUscore {
-    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+impl ValidatorString for AlphanumUscore {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
         let s = s.to_string();
 
         if s.chars().all(|c| c.is_alphanumeric() || c == '_') {
@@ -47,8 +47,8 @@ impl Validator for AlphanumUscore {
 #[validator]
 pub struct Kebab {}
 
-impl Validator for Kebab {
-    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+impl ValidatorString for Kebab {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
         let s = s.to_string();
 
         if s.is_case(Case::Kebab) {
@@ -66,8 +66,8 @@ impl Validator for Kebab {
 #[validator]
 pub struct Lower {}
 
-impl Validator for Lower {
-    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+impl ValidatorString for Lower {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
         let s = s.to_string();
 
         if s.is_case(Case::Lower) {
@@ -85,8 +85,8 @@ impl Validator for Lower {
 #[validator]
 pub struct LowerUscore {}
 
-impl Validator for LowerUscore {
-    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+impl ValidatorString for LowerUscore {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
         let s = s.to_string();
 
         if s.chars().all(|c| c.is_lowercase() || c == '_') {
@@ -104,8 +104,8 @@ impl Validator for LowerUscore {
 #[validator]
 pub struct Snake {}
 
-impl Validator for Snake {
-    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+impl ValidatorString for Snake {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
         let s = s.to_string();
 
         if s.is_case(Case::Snake) {
@@ -123,8 +123,8 @@ impl Validator for Snake {
 #[validator]
 pub struct Title {}
 
-impl Validator for Title {
-    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+impl ValidatorString for Title {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
         let s = s.to_string();
 
         if s.is_case(Case::Title) {
@@ -142,8 +142,8 @@ impl Validator for Title {
 #[validator]
 pub struct Upper {}
 
-impl Validator for Upper {
-    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+impl ValidatorString for Upper {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
         let s = s.to_string();
 
         if s.is_case(Case::Upper) {

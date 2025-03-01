@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.3.6]
+- completely redid the type validators, and now we have field-level validators too, so you can make a
+field a U8 and validate it between 10 and 100
+
 ## [0.3.5]
 - Map and List are back, and the Map logic has been taken out of Newtype, it's much cleaner this way.
 - Newtype's Primitive is now not optional, as it's always Cardinality::One

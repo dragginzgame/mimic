@@ -1,7 +1,7 @@
 use super::Implementor;
 use crate::node::{
-    Cardinality, Entity, Enum, EnumVariant, FieldList, List, MacroNode, Map, Newtype, Record, Set,
-    Trait, Tuple, Value,
+    Cardinality, Entity, Enum, EnumVariant, FieldList, List, Map, Newtype, Record, Set, Trait,
+    Tuple, Value,
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -20,7 +20,7 @@ use syn::{Expr, Ident};
 pub fn entity(node: &Entity, t: Trait) -> Option<TokenStream> {
     let q = field_list(&node.fields);
 
-    let tokens = Implementor::new(node.def(), t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
         .to_token_stream();
 
@@ -31,7 +31,7 @@ pub fn entity(node: &Entity, t: Trait) -> Option<TokenStream> {
 pub fn record(node: &Record, t: Trait) -> Option<TokenStream> {
     let q = field_list(&node.fields);
 
-    let tokens = Implementor::new(node.def(), t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
         .to_token_stream();
 

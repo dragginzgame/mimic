@@ -48,7 +48,7 @@ impl Rgba {
     primitive = "String",
     item(is = "types::String"),
     default = "FFFFFF",
-    ty(validator(path = "validator::color::RgbHex"))
+    ty(validator(path = "validator::string::color::RgbHex"))
 )]
 pub struct RgbHex {}
 
@@ -60,7 +60,7 @@ pub struct RgbHex {}
     primitive = "String",
     item(is = "types::String"),
     default = "FFFFFFFF",
-    ty(validator(path = "validator::color::RgbaHex")),
+    ty(validator(path = "validator::string::color::RgbaHex")),
     traits(remove(From))
 )]
 pub struct RgbaHex {}

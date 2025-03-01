@@ -1,5 +1,5 @@
 use super::Implementor;
-use crate::node::{EntityId, MacroNode, Selector, Trait};
+use crate::node::{EntityId, Selector, Trait};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
@@ -14,7 +14,7 @@ pub fn entity_id(node: &EntityId, t: Trait) -> Option<TokenStream> {
         }
     };
 
-    let tokens = Implementor::new(node.def(), t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
         .add_trait_generic(quote!(mimic::orm::base::types::Ulid))
         .to_token_stream();
@@ -49,7 +49,7 @@ pub fn selector(node: &Selector, t: Trait) -> Option<TokenStream> {
         }
     };
 
-    let tokens = Implementor::new(node.def(), t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
         .add_trait_generic(quote!(#target))
         .to_token_stream();

@@ -1,5 +1,5 @@
 use super::Implementor;
-use crate::node::{List, MacroNode, Map, Newtype, Set, Trait};
+use crate::node::{List, Map, Newtype, Set, Trait};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
@@ -20,7 +20,7 @@ pub fn list(node: &List, t: Trait) -> Option<TokenStream> {
         }
     };
 
-    let tokens = Implementor::new(node.def(), t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
         .add_impl_constraint(quote!(I: Into<#item>))
         .add_impl_generic(quote!(I))
@@ -48,7 +48,7 @@ pub fn map(node: &Map, t: Trait) -> Option<TokenStream> {
         }
     };
 
-    let tokens = Implementor::new(node.def(), t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
         .add_impl_constraint(quote!(IK: Into<#key>))
         .add_impl_constraint(quote!(IV: Into<#value>))
@@ -80,7 +80,7 @@ pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
         }
     };
 
-    let tokens = Implementor::new(node.def(), t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
         .add_impl_constraint(quote!(T: Into<#primitive>))
         .add_impl_generic(quote!(T))
@@ -107,7 +107,7 @@ pub fn set(node: &Set, t: Trait) -> Option<TokenStream> {
         }
     };
 
-    let tokens = Implementor::new(node.def(), t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
         .add_impl_constraint(quote!(I: Into<#item>))
         .add_impl_generic(quote!(I))

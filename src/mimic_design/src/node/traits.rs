@@ -71,6 +71,7 @@ pub enum Trait {
     Path,
     SortKey,
     Storable,
+    TypeValidate,
     Validator,
     ValidateManual,
     ValidateAuto,

@@ -88,6 +88,7 @@ impl TraitNode for Record {
             Trait::Default if self.fields.has_default() => imp::default::record(self, t),
             Trait::FieldFilter => imp::record_filter::record(self, t),
             Trait::FieldSort => imp::record_sort::record(self, t),
+            Trait::ValidateAuto => imp::validate_auto::record(self, t),
             Trait::Visitable => imp::visitable::record(self, t),
 
             _ => imp::any(self, t),

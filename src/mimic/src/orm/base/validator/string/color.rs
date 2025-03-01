@@ -7,8 +7,8 @@ use crate::orm::prelude::*;
 #[validator]
 pub struct RgbHex {}
 
-impl Validator for RgbHex {
-    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+impl ValidatorString for RgbHex {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
         let s = s.to_string();
 
         if s.len() == 6 && s.chars().all(|c| c.is_ascii_hexdigit()) {
@@ -28,8 +28,8 @@ impl Validator for RgbHex {
 #[validator]
 pub struct RgbaHex {}
 
-impl Validator for RgbaHex {
-    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+impl ValidatorString for RgbaHex {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
         let s = s.to_string();
 
         if s.len() == 8 && s.chars().all(|c| c.is_ascii_hexdigit()) {

@@ -21,6 +21,8 @@ impl ValidateTester {
         // ok
         let e = ValidateTest {
             multiple_ten: 30.into(),
+            ltoe_ten: 5,
+            gt_fifty: 80,
             ..Default::default()
         };
         let res = mimic::orm::validate(&e);

@@ -1,4 +1,6 @@
 pub mod case;
+pub mod color;
+pub mod iso;
 pub mod len;
 
 use crate::orm::prelude::*;
@@ -10,8 +12,8 @@ use crate::orm::prelude::*;
 #[validator]
 pub struct Ascii {}
 
-impl Validator for Ascii {
-    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+impl ValidatorString for Ascii {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
         if s.to_string().is_ascii() {
             Ok(())
         } else {
@@ -28,8 +30,8 @@ impl Validator for Ascii {
 #[validator]
 pub struct Version {}
 
-impl Validator for Version {
-    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+impl ValidatorString for Version {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
         match semver::Version::parse(&s.to_string()) {
             Ok(_) => Ok(()),
             Err(e) => Err(format!("invalid version {e}")),

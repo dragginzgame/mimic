@@ -1,5 +1,5 @@
 use super::Implementor;
-use crate::node::{Cardinality, Entity, FieldList, MacroNode, Record, Trait};
+use crate::node::{Cardinality, Entity, FieldList, Record, Trait};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
@@ -7,7 +7,7 @@ use quote::{ToTokens, quote};
 pub fn entity(node: &Entity, t: Trait) -> Option<TokenStream> {
     let q = field_list(&node.fields);
 
-    let tokens = Implementor::new(node.def(), t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
         .to_token_stream();
 
@@ -18,7 +18,7 @@ pub fn entity(node: &Entity, t: Trait) -> Option<TokenStream> {
 pub fn record(node: &Record, t: Trait) -> Option<TokenStream> {
     let q = field_list(&node.fields);
 
-    let tokens = Implementor::new(node.def(), t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
         .to_token_stream();
 

@@ -31,8 +31,8 @@ impl Equal {
     }
 }
 
-impl Validator for Equal {
-    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+impl ValidatorString for Equal {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
         let string = s.to_string();
         let len = string.len();
 
@@ -66,8 +66,8 @@ impl Min {
     }
 }
 
-impl Validator for Min {
-    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+impl ValidatorString for Min {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
         let string = s.to_string();
         let len = string.len();
 
@@ -101,8 +101,8 @@ impl Max {
     }
 }
 
-impl Validator for Max {
-    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+impl ValidatorString for Max {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
         let string = s.to_string();
         let len = string.len();
 
@@ -138,13 +138,13 @@ impl Range {
     }
 }
 
-impl Validator for Range {
-    fn validate_string<S: ToString>(&self, s: &S) -> Result<(), String> {
+impl ValidatorString for Range {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
         let min = Min::new(self.min);
-        min.validate_string(s)?;
+        min.validate(s)?;
 
         let max = Max::new(self.max);
-        max.validate_string(s)?;
+        max.validate(s)?;
 
         Ok(())
     }

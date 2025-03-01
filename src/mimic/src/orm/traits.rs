@@ -113,24 +113,28 @@ impl_primitive_list!(
 
 ///
 /// Validator
-/// allows a node to validate primitives
+/// allows a node to validate different types of primitives
 ///
 
-pub trait Validator {
-    fn validate_blob(&self, _: &[u8]) -> Result<(), String> {
+pub trait ValidatorBytes {
+    fn validate(&self, _: &[u8]) -> Result<(), String> {
         Ok(())
     }
+}
 
-    fn validate_number<N>(&self, _: &N) -> Result<(), String>
+pub trait ValidatorNumber {
+    fn validate<T>(&self, _: &T) -> Result<(), String>
     where
-        N: Copy + Display + NumCast,
+        T: Copy + Display + NumCast,
     {
         Ok(())
     }
+}
 
-    fn validate_string<S>(&self, _: &S) -> Result<(), String>
+pub trait ValidatorString {
+    fn validate<T>(&self, _: &T) -> Result<(), String>
     where
-        S: ToString,
+        T: ToString,
     {
         Ok(())
     }
@@ -563,5 +567,4 @@ pub trait EnumValue {
 
 pub trait Selector {
     fn value(&self) -> isize;
-    //    fn value_as<T: NumCast>(&self) -> Option<T>;
 }

@@ -1,5 +1,5 @@
 use super::Implementor;
-use crate::node::{MacroNode, Newtype, PrimitiveGroup, Trait};
+use crate::node::{Newtype, PrimitiveGroup, Trait};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
@@ -24,7 +24,7 @@ pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
         }
     };
 
-    let tokens = Implementor::new(node.def(), t)
+    let tokens = Implementor::new(&node.def, t)
         .set_tokens(q)
         .to_token_stream();
 

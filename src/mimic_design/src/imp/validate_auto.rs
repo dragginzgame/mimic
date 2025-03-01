@@ -1,7 +1,80 @@
 use super::Implementor;
-use crate::node::{Enum, Newtype, PrimitiveGroup, Trait};
+use crate::node::{Entity, Enum, FieldList, Newtype, Record, Trait};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
+
+///
+/// ENTITY
+///
+
+// entity
+pub fn entity(node: &Entity, t: Trait) -> Option<TokenStream> {
+    let q = field_list(&node.fields);
+
+    let tokens = Implementor::new(&node.def, t)
+        .set_tokens(q)
+        .to_token_stream();
+
+    Some(tokens)
+}
+
+// record
+pub fn record(node: &Record, t: Trait) -> Option<TokenStream> {
+    let q = field_list(&node.fields);
+
+    let tokens = Implementor::new(&node.def, t)
+        .set_tokens(q)
+        .to_token_stream();
+
+    Some(tokens)
+}
+
+// field_list
+// check if a node's fields are empty and generate an appropriate logical expression
+pub fn field_list(node: &FieldList) -> TokenStream {
+    // Generate rules
+    let rules: Vec<_> = node
+        .fields
+        .iter()
+        .flat_map(|field| {
+            field.validators.iter().map(move |val| {
+                let field_ident = &field.name; // assumes field.name is an Ident
+                let path = &val.path;
+                let args = &val.args;
+
+                let validator = if args.is_empty() {
+                    quote! { #path::default() }
+                } else {
+                    quote! { #path::new(#(#args),*) }
+                };
+
+                // Instead of calling self.validate(validator), call the field's validate
+                quote! {
+                    errs.add_result(#validator.validate(&self.#field_ident));
+                }
+            })
+        })
+        .collect();
+
+    // inner
+    let inner = if rules.is_empty() {
+        quote!(Ok(()))
+    } else {
+        quote! {
+            let mut errs = ::mimic::types::ErrorVec::new();
+            #( #rules )*
+
+            errs.result()
+        }
+    };
+
+    // quote
+    quote! {
+        fn validate_auto(&self) -> ::std::result::Result<(), ::mimic::types::ErrorVec> {
+            #inner
+        }
+    }
+}
 
 ///
 /// ENUM
@@ -34,6 +107,7 @@ pub fn enum_(node: &Enum, t: Trait) -> Option<TokenStream> {
             }
         }
     };
+
     let q = quote! {
         fn validate_auto(&self) -> ::std::result::Result<(), ::mimic::types::ErrorVec> {
             #inner
@@ -53,18 +127,34 @@ pub fn enum_(node: &Enum, t: Trait) -> Option<TokenStream> {
 
 // newtype
 pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
-    let mut checks = quote!();
+    // Generate rules
+    let rules: Vec<_> = node
+        .ty
+        .validators
+        .iter()
+        .map(|val| {
+            let path = &val.path;
+            let args = &val.args;
 
-    // checks
-    checks.extend(newtype_validators(node));
+            let validator = if args.is_empty() {
+                quote! { #path::default() }
+            } else {
+                quote! { #path::new(#(#args),*) }
+            };
+
+            quote! {
+                errs.add_result(#validator.validate(&self.0));
+            }
+        })
+        .collect();
 
     // inner
-    let inner = if checks.is_empty() {
+    let inner = if rules.is_empty() {
         quote!(Ok(()))
     } else {
         quote! {
             let mut errs = ::mimic::types::ErrorVec::new();
-            #checks
+            #( #rules )*
 
             errs.result()
         }
@@ -82,40 +172,4 @@ pub fn newtype(node: &Newtype, t: Trait) -> Option<TokenStream> {
         .to_token_stream();
 
     Some(tokens)
-}
-
-// newtype_validators
-pub fn newtype_validators(node: &Newtype) -> TokenStream {
-    if node.ty.validators.is_empty() {
-        return TokenStream::new();
-    }
-
-    // validate function name
-    let validate_fn = match &node.primitive.group() {
-        PrimitiveGroup::Blob => quote! { validate_blob },
-        PrimitiveGroup::Decimal | PrimitiveGroup::Integer => quote! { validate_number },
-        PrimitiveGroup::String => quote! { validate_string },
-
-        _ => panic!("validator error - invalid primitive group"),
-    };
-
-    // Generate rules
-    let rules = node.ty.validators.iter().map(|val| {
-        let path = &val.path;
-        let args = &val.args;
-
-        let constructor = if args.is_empty() {
-            quote! { #path::default() }
-        } else {
-            quote! { #path::new(#(#args),*) }
-        };
-
-        quote! {
-            errs.add_result(#constructor.#validate_fn(&self.0));
-        }
-    });
-
-    quote! {
-        #( #rules )*
-    }
 }

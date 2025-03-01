@@ -18,8 +18,8 @@ impl Lt {
     }
 }
 
-impl Validator for Lt {
-    fn validate_number<N>(&self, n: &N) -> Result<(), String>
+impl ValidatorNumber for Lt {
+    fn validate<N>(&self, n: &N) -> Result<(), String>
     where
         N: Copy + Display + NumCast,
     {
@@ -52,8 +52,8 @@ impl Gt {
     }
 }
 
-impl Validator for Gt {
-    fn validate_number<N>(&self, n: &N) -> Result<(), String>
+impl ValidatorNumber for Gt {
+    fn validate<N>(&self, n: &N) -> Result<(), String>
     where
         N: Copy + Display + NumCast,
     {
@@ -86,8 +86,8 @@ impl Ltoe {
     }
 }
 
-impl Validator for Ltoe {
-    fn validate_number<N>(&self, n: &N) -> Result<(), String>
+impl ValidatorNumber for Ltoe {
+    fn validate<N>(&self, n: &N) -> Result<(), String>
     where
         N: Copy + Display + NumCast,
     {
@@ -123,8 +123,8 @@ impl Gtoe {
     }
 }
 
-impl Validator for Gtoe {
-    fn validate_number<N>(&self, n: &N) -> Result<(), String>
+impl ValidatorNumber for Gtoe {
+    fn validate<N>(&self, n: &N) -> Result<(), String>
     where
         N: Copy + Display + NumCast,
     {
@@ -160,8 +160,8 @@ impl Equal {
     }
 }
 
-impl Validator for Equal {
-    fn validate_number<N>(&self, n: &N) -> Result<(), String>
+impl ValidatorNumber for Equal {
+    fn validate<N>(&self, n: &N) -> Result<(), String>
     where
         N: Copy + Display + NumCast,
     {
@@ -193,8 +193,8 @@ impl NotEqual {
         }
     }
 }
-impl Validator for NotEqual {
-    fn validate_number<N>(&self, n: &N) -> Result<(), String>
+impl ValidatorNumber for NotEqual {
+    fn validate<N>(&self, n: &N) -> Result<(), String>
     where
         N: Copy + Display + NumCast,
     {
@@ -232,8 +232,8 @@ impl Range {
     }
 }
 
-impl Validator for Range {
-    fn validate_number<N>(&self, n: &N) -> Result<(), String>
+impl ValidatorNumber for Range {
+    fn validate<N>(&self, n: &N) -> Result<(), String>
     where
         N: Copy + Display + NumCast,
     {
@@ -269,8 +269,8 @@ impl MultipleOf {
     }
 }
 
-impl Validator for MultipleOf {
-    fn validate_number<N>(&self, n: &N) -> Result<(), String>
+impl ValidatorNumber for MultipleOf {
+    fn validate<N>(&self, n: &N) -> Result<(), String>
     where
         N: Copy + Display + NumCast,
     {
@@ -306,8 +306,8 @@ impl InArray {
     }
 }
 
-impl Validator for InArray {
-    fn validate_number<N>(&self, n: &N) -> Result<(), String>
+impl ValidatorNumber for InArray {
+    fn validate<N>(&self, n: &N) -> Result<(), String>
     where
         N: Copy + Display + NumCast,
     {
@@ -335,40 +335,40 @@ mod tests {
 
     #[test]
     fn test_lt_validator_success() {
-        let result = Lt::new(10).validate_number(&5);
+        let result = Lt::new(10).validate(&5);
         assert!(result.is_ok());
 
-        let result = Lt::new(5.1).validate_number(&5);
+        let result = Lt::new(5.1).validate(&5);
         assert!(result.is_ok());
     }
 
     #[test]
     fn test_lt_validator_failure() {
-        let result = Lt::new(5).validate_number(&10);
+        let result = Lt::new(5).validate(&10);
         assert!(result.is_err());
     }
 
     #[test]
     fn test_gt_validator_success() {
-        let result = Gt::new(5).validate_number(&10);
+        let result = Gt::new(5).validate(&10);
         assert!(result.is_ok());
     }
 
     #[test]
     fn test_gt_validator_failure() {
-        let result = Gt::new(10).validate_number(&5);
+        let result = Gt::new(10).validate(&5);
         assert!(result.is_err());
     }
 
     #[test]
     fn test_equal_validator_success() {
-        let result = Equal::new(5).validate_number(&5);
+        let result = Equal::new(5).validate(&5);
         assert!(result.is_ok());
     }
 
     #[test]
     fn test_equal_validator_failure() {
-        let result = Equal::new(5).validate_number(&10);
+        let result = Equal::new(5).validate(&10);
         assert!(result.is_err());
     }
 }

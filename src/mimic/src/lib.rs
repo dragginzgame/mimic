@@ -43,7 +43,6 @@ pub mod prelude {
             },
             traits::{
                 EntityDyn, EntityFixture, Inner as _, NumFromPrimitive, NumToPrimitive, Path,
-                Validator,
             },
         },
         perf,
