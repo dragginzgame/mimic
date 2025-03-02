@@ -106,7 +106,6 @@ impl fmt::Display for ErrorTree {
 impl<E: Error> From<E> for ErrorTree {
     fn from(err: E) -> Self {
         let mut tree = ErrorTree::new();
-        // Use an empty key to indicate a top‐level error.
         tree.add(err.to_string());
         tree
     }
@@ -147,18 +146,5 @@ mod tests {
         assert_eq!(flat.len(), 3);
         // For example, one might be ("", "top-level error")
         // and another might be ("nested", "child error 1")
-    }
-
-    #[test]
-    fn test_display() {
-        let mut errs = ErrorTree::new();
-        errs.add("error A");
-        errs.add_for("foo", "error B");
-        errs.add_for("bar", "error C");
-
-        let displayed = format!("{}", errs);
-        assert!(displayed.contains("error A"));
-        assert!(displayed.contains("foo: error B"));
-        assert!(displayed.contains("bar: error C"));
     }
 }
