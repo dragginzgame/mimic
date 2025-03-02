@@ -11,13 +11,13 @@ use crate::orm::{
 #[newtype(
     primitive = "String",
     item(is = "types::String"),
-    traits(add(Hash), remove(ValidateManual))
+    traits(add(Hash), remove(ValidateCustom))
 )]
 pub struct Text {}
 
 #[allow(clippy::cast_possible_wrap)]
-impl ValidateManual for Text {
-    fn validate_manual(&self) -> Result<(), ErrorTree> {
+impl ValidateCustom for Text {
+    fn validate_custom(&self) -> Result<(), ErrorTree> {
         let mut errs = ErrorTree::new();
 
         // ascii check

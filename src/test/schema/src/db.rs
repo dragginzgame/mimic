@@ -7,7 +7,7 @@ use mimic::orm::{base::types, prelude::*};
 #[entity(
     store = "crate::Store",
     sk(entity = "CreateBasic", field = "id"),
-    fields(field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),)
+    fields(field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"))
 )]
 pub struct CreateBasic {}
 

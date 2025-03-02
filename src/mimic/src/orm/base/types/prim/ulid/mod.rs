@@ -7,7 +7,7 @@ use crate::{
     impl_storable_bounded,
     orm::{
         prelude::*,
-        traits::{EntityId, Filterable, Inner, Orderable, SortKey, ValidateAuto},
+        traits::{EntityId, Filterable, Inner, Orderable, SortKey, ValidateAuto, ValidateCustom},
     },
     types::ErrorTree,
 };
@@ -164,8 +164,8 @@ impl SortKey for Ulid {}
 
 impl_storable_bounded!(Ulid, 16, true);
 
-impl ValidateManual for Ulid {
-    fn validate_manual(&self) -> Result<(), ErrorTree> {
+impl ValidateAuto for Ulid {
+    fn validate_self(&self) -> Result<(), ErrorTree> {
         if self.is_nil() {
             Err(UlidError::Nil.to_string().into())
         } else {
@@ -174,7 +174,7 @@ impl ValidateManual for Ulid {
     }
 }
 
-impl ValidateAuto for Ulid {}
+impl ValidateCustom for Ulid {}
 
 impl Visitable for Ulid {}
 

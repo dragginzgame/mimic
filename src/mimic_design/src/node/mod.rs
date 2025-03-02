@@ -105,7 +105,7 @@ pub trait TraitNode: MacroNode {
                 Some(tokens) => impls.extend(tokens),
                 None => derived_traits.push(
                     t.derive_path()
-                        .unwrap_or_else(|| panic!("trait '{t}' can be derived")),
+                        .unwrap_or_else(|| panic!("trait '{t}' cannot be derived")),
                 ),
             }
         }

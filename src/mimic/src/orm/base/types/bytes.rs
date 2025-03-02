@@ -10,13 +10,13 @@ use crate::orm::{
 #[newtype(
     primitive = "Blob",
     item(is = "types::Blob"),
-    traits(remove(ValidateManual))
+    traits(remove(ValidateCustom))
 )]
 pub struct Utf8 {}
 
 #[allow(clippy::cast_possible_wrap)]
-impl ValidateManual for Utf8 {
-    fn validate_manual(&self) -> Result<(), ErrorTree> {
+impl ValidateCustom for Utf8 {
+    fn validate_custom(&self) -> Result<(), ErrorTree> {
         let mut errs = ErrorTree::default();
 
         // utf8

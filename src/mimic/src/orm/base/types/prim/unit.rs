@@ -1,6 +1,6 @@
 use crate::orm::{
     prelude::*,
-    traits::{Inner, ValidateAuto},
+    traits::{Inner, ValidateAuto, ValidateCustom},
 };
 use derive_more::{Deref, DerefMut};
 use serde_bytes::ByteBuf;
@@ -28,8 +28,8 @@ impl Inner<Self> for Unit {
 
 impl Orderable for Unit {}
 
-impl ValidateManual for Unit {}
-
 impl ValidateAuto for Unit {}
+
+impl ValidateCustom for Unit {}
 
 impl Visitable for Unit {}

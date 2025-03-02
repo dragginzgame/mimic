@@ -1,5 +1,5 @@
 use crate::{
-    orm::traits::{EntityDyn, ValidateAuto, ValidateManual, Visitable},
+    orm::traits::{EntityDyn, ValidateAuto, ValidateCustom, Visitable},
     types::ErrorTree,
 };
 
@@ -110,5 +110,5 @@ impl Visitable for EntityAdapter<'_> {
     }
 }
 
-impl ValidateManual for EntityAdapter<'_> {}
 impl ValidateAuto for EntityAdapter<'_> {}
+impl ValidateCustom for EntityAdapter<'_> {}

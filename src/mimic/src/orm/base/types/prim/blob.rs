@@ -58,8 +58,8 @@ impl Inner<Self> for Blob {
 
 impl Orderable for Blob {}
 
-impl ValidateManual for Blob {}
-
 impl ValidateAuto for Blob {}
+
+impl ValidateCustom for Blob {}
 
 impl Visitable for Blob {}

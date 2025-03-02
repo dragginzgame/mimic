@@ -5,7 +5,7 @@ use crate::{
     orm::{
         prelude::*,
         traits::{
-            Filterable, Inner, Orderable, SortKey, Storable, ValidateAuto, ValidateManual,
+            Filterable, Inner, Orderable, SortKey, Storable, ValidateAuto, ValidateCustom,
             Visitable,
         },
     },
@@ -123,8 +123,8 @@ impl SortKey for Principal {}
 
 impl_storable_bounded!(Principal, 30, true);
 
-impl ValidateManual for Principal {
-    fn validate_manual(&self) -> Result<(), ErrorTree> {
+impl ValidateAuto for Principal {
+    fn validate_self(&self) -> Result<(), ErrorTree> {
         if self.0.as_slice().is_empty() {
             Err(PrincipalError::EmptyPrincipal.to_string().into())
         } else {
@@ -133,6 +133,6 @@ impl ValidateManual for Principal {
     }
 }
 
-impl ValidateAuto for Principal {}
+impl ValidateCustom for Principal {}
 
 impl Visitable for Principal {}

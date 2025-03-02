@@ -293,14 +293,17 @@ impl<T: Orderable> Orderable for Option<T> {
 /// Validate
 ///
 
-pub trait Validate: ValidateManual + ValidateAuto {
+pub trait Validate: ValidateAuto + ValidateCustom {
     fn validate(&self) -> Result<(), ErrorTree> {
         let mut errs = ErrorTree::new();
 
-        if let Err(e) = self.validate_auto() {
+        if let Err(e) = self.validate_self() {
             errs.merge(e);
         }
-        if let Err(e) = self.validate_manual() {
+        if let Err(e) = self.validate_children() {
+            errs.merge(e);
+        }
+        if let Err(e) = self.validate_custom() {
             errs.merge(e);
         }
 
@@ -308,17 +311,21 @@ pub trait Validate: ValidateManual + ValidateAuto {
     }
 }
 
-impl<T> Validate for T where T: ValidateManual + ValidateAuto {}
+impl<T> Validate for T where T: ValidateAuto + ValidateCustom {}
 
 ///
 /// ValidateAuto
 ///
-/// this is for extra derived methods, such as checking invalid
-/// variants of an enum
+/// derived code that is used to generate the validation rules for a type and
+/// its children, via schema validation rules
 ///
 
 pub trait ValidateAuto {
-    fn validate_auto(&self) -> Result<(), ErrorTree> {
+    fn validate_self(&self) -> Result<(), ErrorTree> {
+        Ok(())
+    }
+
+    fn validate_children(&self) -> Result<(), ErrorTree> {
         Ok(())
     }
 }
@@ -327,20 +334,19 @@ impl<T: ValidateAuto> ValidateAuto for Box<T> {}
 impl_primitive!(ValidateAuto);
 
 ///
-/// ValidateManual
+/// ValidateCustom
 ///
-/// The default behaviour is Ok() so no errors unless
-/// this method is overridden
+/// custom validation behaviour that can be added to any type
 ///
 
-pub trait ValidateManual {
-    fn validate_manual(&self) -> Result<(), ErrorTree> {
+pub trait ValidateCustom {
+    fn validate_custom(&self) -> Result<(), ErrorTree> {
         Ok(())
     }
 }
 
-impl<T: ValidateManual> ValidateManual for Box<T> {}
-impl_primitive!(ValidateManual);
+impl<T: ValidateCustom> ValidateCustom for Box<T> {}
+impl_primitive!(ValidateCustom);
 
 ///
 /// Visitable

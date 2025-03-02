@@ -1,7 +1,8 @@
 use crate::{
     schema::{
         build::schema_read,
-        node::{Entity, Selector, ValidateNode, VisitableNode},
+        node::{Entity, Selector, TypeValidator, ValidateNode, VisitableNode},
+        visit::Visitor,
     },
     types::ErrorTree,
 };
@@ -22,6 +23,9 @@ pub struct Item {
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub selector: Option<String>,
+
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub validators: Vec<TypeValidator>,
 
     #[serde(default, skip_serializing_if = "Not::not")]
     pub indirect: bool,
@@ -81,4 +85,10 @@ impl ValidateNode for Item {
     }
 }
 
-impl VisitableNode for Item {}
+impl VisitableNode for Item {
+    fn drive<V: Visitor>(&self, v: &mut V) {
+        for node in &self.validators {
+            node.accept(v);
+        }
+    }
+}

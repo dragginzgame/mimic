@@ -1,5 +1,6 @@
 use crate::{
-    helper::{quote_one, quote_option, to_path},
+    helper::{quote_one, quote_option, quote_vec, to_path},
+    node::TypeValidator,
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -21,6 +22,9 @@ pub struct Item {
 
     #[darling(default)]
     pub selector: Option<Path>,
+
+    #[darling(multiple, rename = "validator")]
+    pub validators: Vec<TypeValidator>,
 
     #[darling(default)]
     pub indirect: bool,
@@ -49,6 +53,7 @@ impl Schemable for Item {
         let path = quote_one(&self.quoted_path(), to_path);
         let relation = quote_option(self.relation.as_ref(), to_path);
         let selector = quote_option(self.selector.as_ref(), to_path);
+        let validators = quote_vec(&self.validators, TypeValidator::schema);
         let indirect = self.indirect;
         let todo = self.todo;
 
@@ -57,6 +62,7 @@ impl Schemable for Item {
                 path: #path,
                 relation: #relation,
                 selector: #selector,
+                validators: #validators,
                 indirect: #indirect,
                 todo: #todo,
             }

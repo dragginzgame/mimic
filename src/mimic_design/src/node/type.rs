@@ -49,6 +49,19 @@ pub struct TypeValidator {
     pub args: Args,
 }
 
+impl TypeValidator {
+    pub fn quote_constructor(&self) -> TokenStream {
+        let path = &self.path;
+        let args = &self.args;
+
+        if args.is_empty() {
+            quote! { #path::default() }
+        } else {
+            quote! { #path::new(#(#args),*) }
+        }
+    }
+}
+
 impl Schemable for TypeValidator {
     fn schema(&self) -> TokenStream {
         let path = quote_one(&self.path, to_path);

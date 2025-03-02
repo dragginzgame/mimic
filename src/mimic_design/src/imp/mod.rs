@@ -42,6 +42,15 @@ pub trait Imp<N: MacroNode> {
 }
 
 ///
+/// ImpFn
+/// for breaking down traits even further
+///
+
+pub trait ImpFn<N: MacroNode> {
+    fn tokens(node: &N) -> TokenStream;
+}
+
+///
 /// any
 ///
 /// shared implementation
@@ -94,8 +103,8 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
         | Trait::EntityId
         | Trait::Filterable
         | Trait::Orderable
-        | Trait::ValidateManual
         | Trait::ValidateAuto
+        | Trait::ValidateCustom
         | Trait::Visitable => Some(Implementor::new(def, t).to_token_stream()),
 
         _ => None,

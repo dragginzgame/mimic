@@ -1,4 +1,4 @@
-use crate::orm::traits::{Filterable, Inner, Orderable, ValidateAuto, ValidateManual, Visitable};
+use crate::orm::traits::{Filterable, Inner, Orderable, ValidateAuto, ValidateCustom, Visitable};
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
 use num_traits::{FromPrimitive, NumCast, ToPrimitive};
@@ -187,8 +187,8 @@ impl ToPrimitive for Decimal {
     }
 }
 
-impl ValidateManual for Decimal {}
-
 impl ValidateAuto for Decimal {}
+
+impl ValidateCustom for Decimal {}
 
 impl Visitable for Decimal {}

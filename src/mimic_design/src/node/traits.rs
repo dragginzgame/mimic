@@ -73,8 +73,8 @@ pub enum Trait {
     Storable,
     TypeValidate,
     Validator,
-    ValidateManual,
     ValidateAuto,
+    ValidateCustom,
     Visitable,
 }
 
@@ -108,8 +108,8 @@ static TYPE_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
         Trait::Orderable,
         Trait::PartialEq,
         Trait::Serialize,
-        Trait::ValidateManual,
         Trait::ValidateAuto,
+        Trait::ValidateCustom,
         Trait::Visitable,
     ]
 });
