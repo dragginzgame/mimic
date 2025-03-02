@@ -20,7 +20,7 @@ use std::sync::{LazyLock, OnceLock, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 #[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum BuildError {
-    #[error("validation failed: {0}")]
+    #[error("validation failed: {0:?}")]
     Validation(ErrorTree),
 }
 

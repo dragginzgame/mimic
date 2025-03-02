@@ -1,6 +1,6 @@
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, error::Error, fmt};
+use std::{collections::HashMap, fmt};
 
 ///
 /// ErrorTree
@@ -99,14 +99,25 @@ impl fmt::Display for ErrorTree {
                 writeln!(f, "{}: {}", key, msg)?;
             }
         }
+
         Ok(())
     }
 }
 
-impl<E: Error> From<E> for ErrorTree {
-    fn from(err: E) -> Self {
+impl From<&str> for ErrorTree {
+    fn from(err: &str) -> Self {
         let mut tree = ErrorTree::new();
         tree.add(err.to_string());
+
+        tree
+    }
+}
+
+impl From<String> for ErrorTree {
+    fn from(s: String) -> Self {
+        let mut tree = ErrorTree::new();
+        tree.add(s);
+
         tree
     }
 }

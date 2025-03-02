@@ -167,7 +167,7 @@ impl_storable_bounded!(Ulid, 16, true);
 impl ValidateManual for Ulid {
     fn validate_manual(&self) -> Result<(), ErrorTree> {
         if self.is_nil() {
-            Err(UlidError::Nil.into())
+            Err(UlidError::Nil.to_string().into())
         } else {
             Ok(())
         }
