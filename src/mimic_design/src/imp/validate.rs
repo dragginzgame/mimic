@@ -64,7 +64,9 @@ pub fn field_list(node: &FieldList) -> TokenStream {
 
                 // pass self.field to the validator
                 quote! {
-                    errs.add_result(#validator.validate(&self.#field_ident));
+                    if let Err(e) = #validator.validate(&self.#field_ident) {
+                        errs.add(format!("field {} {e}", stringify!(#field_ident)));
+                    }
                 }
             })
         })
@@ -75,7 +77,7 @@ pub fn field_list(node: &FieldList) -> TokenStream {
         quote!(Ok(()))
     } else {
         quote! {
-            let mut errs = ::mimic::types::ErrorVec::new();
+            let mut errs = ::mimic::types::ErrorTree::new();
             #( #rules )*
 
             errs.result()
@@ -83,7 +85,7 @@ pub fn field_list(node: &FieldList) -> TokenStream {
     };
 
     quote! {
-        fn validate_auto(&self) -> ::std::result::Result<(), ::mimic::types::ErrorVec> {
+        fn validate_auto(&self) -> ::std::result::Result<(), ::mimic::types::ErrorTree> {
             #inner
         }
     }
@@ -122,7 +124,7 @@ impl Imp<Enum> for ValidateAutoTrait {
         };
 
         let q = quote! {
-            fn validate_auto(&self) -> ::std::result::Result<(), ::mimic::types::ErrorVec> {
+            fn validate_auto(&self) -> ::std::result::Result<(), ::mimic::types::ErrorTree> {
                 #inner
             }
         };
@@ -167,7 +169,7 @@ impl Imp<Newtype> for ValidateAutoTrait {
             quote!(Ok(()))
         } else {
             quote! {
-                let mut errs = ::mimic::types::ErrorVec::new();
+                let mut errs = ::mimic::types::ErrorTree::new();
                 #( #rules )*
 
                 errs.result()
@@ -176,7 +178,7 @@ impl Imp<Newtype> for ValidateAutoTrait {
 
         // quote
         let q = quote! {
-            fn validate_auto(&self) -> ::std::result::Result<(), ::mimic::types::ErrorVec> {
+            fn validate_auto(&self) -> ::std::result::Result<(), ::mimic::types::ErrorTree> {
                 #inner
             }
         };

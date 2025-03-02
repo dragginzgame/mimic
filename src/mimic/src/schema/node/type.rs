@@ -3,7 +3,7 @@ use crate::{
         build::schema_read,
         node::{Args, ValidateNode, Validator, VisitableNode, Visitor},
     },
-    types::ErrorVec,
+    types::ErrorTree,
 };
 use serde::{Deserialize, Serialize};
 use std::ops::Not;
@@ -51,8 +51,8 @@ pub struct TypeValidator {
 }
 
 impl ValidateNode for TypeValidator {
-    fn validate(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
+    fn validate(&self) -> Result<(), ErrorTree> {
+        let mut errs = ErrorTree::new();
 
         // check path
         let res = schema_read().check_node_as::<Validator>(&self.path);

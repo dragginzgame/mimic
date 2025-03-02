@@ -50,7 +50,7 @@ pub use self::value::*;
 
 use crate::{
     schema::visit::{Event, Visitor},
-    types::ErrorVec,
+    types::ErrorTree,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -101,7 +101,7 @@ pub trait TypeNode: MacroNode {
 ///
 
 pub trait ValidateNode {
-    fn validate(&self) -> Result<(), ErrorVec> {
+    fn validate(&self) -> Result<(), ErrorTree> {
         Ok(())
     }
 }

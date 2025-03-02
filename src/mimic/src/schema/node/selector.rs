@@ -1,6 +1,6 @@
 use crate::{
     schema::node::{Arg, Def, MacroNode, ValidateNode, VisitableNode, Visitor},
-    types::ErrorVec,
+    types::ErrorTree,
     utils::case::{Case, Casing},
 };
 use serde::{Deserialize, Serialize};
@@ -54,8 +54,8 @@ pub struct SelectorVariant {
 }
 
 impl ValidateNode for SelectorVariant {
-    fn validate(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
+    fn validate(&self) -> Result<(), ErrorTree> {
+        let mut errs = ErrorTree::default();
 
         // name
         if !self.name.is_case(Case::UpperCamel) {

@@ -1,4 +1,4 @@
-use super::ActorBuilder;
+use crate::actor::ActorBuilder;
 use quote::{format_ident, quote};
 
 // extend

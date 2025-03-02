@@ -2,13 +2,13 @@ pub mod reserved;
 pub mod validate;
 
 use crate::{
+    Error as MimicError, ThisError,
     schema::{
-        node::{Schema, VisitableNode},
-        visit::Validator,
         SchemaError,
+        node::{Schema, VisitableNode},
+        visit::ValidateVisitor,
     },
     types::ErrorTree,
-    Error as MimicError, ThisError,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -62,9 +62,9 @@ fn validate(schema: &Schema) -> Result<(), ErrorTree> {
     }
 
     // validate
-    let mut visitor = Validator::new();
+    let mut visitor = ValidateVisitor::new();
     schema.accept(&mut visitor);
-    visitor.errors().result()?;
+    visitor.errors.result()?;
 
     SCHEMA_VALIDATED.set(true).ok();
 

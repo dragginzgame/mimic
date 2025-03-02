@@ -3,7 +3,7 @@ use crate::{
         build::schema_read,
         node::{Entity, ValidateNode, VisitableNode},
     },
-    types::ErrorVec,
+    types::ErrorTree,
 };
 use serde::{Deserialize, Serialize};
 
@@ -18,8 +18,8 @@ pub struct SortKey {
 }
 
 impl ValidateNode for SortKey {
-    fn validate(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
+    fn validate(&self) -> Result<(), ErrorTree> {
+        let mut errs = ErrorTree::new();
 
         // check entity
         errs.add_result(schema_read().check_node_as::<Entity>(&self.entity));

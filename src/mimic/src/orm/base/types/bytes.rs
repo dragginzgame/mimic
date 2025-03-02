@@ -16,8 +16,8 @@ pub struct Utf8 {}
 
 #[allow(clippy::cast_possible_wrap)]
 impl ValidateManual for Utf8 {
-    fn validate_manual(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::default();
+    fn validate_manual(&self) -> Result<(), ErrorTree> {
+        let mut errs = ErrorTree::default();
 
         // utf8
         errs.add_result(validator::bytes::Utf8 {}.validate(self));

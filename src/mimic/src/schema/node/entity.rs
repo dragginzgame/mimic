@@ -5,7 +5,7 @@ use crate::{
         },
         visit::Visitor,
     },
-    types::ErrorVec,
+    types::ErrorTree,
 };
 use serde::{Deserialize, Serialize};
 
@@ -44,8 +44,8 @@ impl TypeNode for Entity {
 }
 
 impl ValidateNode for Entity {
-    fn validate(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
+    fn validate(&self) -> Result<(), ErrorTree> {
+        let mut errs = ErrorTree::new();
 
         // ensure there are sort keys
         if self.sort_keys.is_empty() {

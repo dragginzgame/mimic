@@ -3,7 +3,7 @@ use crate::{
         node::{Def, MacroNode, Type, TypeNode, ValidateNode, Value, VisitableNode},
         visit::Visitor,
     },
-    types::ErrorVec,
+    types::ErrorTree,
     utils::case::{Case, Casing},
 };
 use serde::{Deserialize, Serialize};
@@ -35,8 +35,8 @@ impl TypeNode for Enum {
 }
 
 impl ValidateNode for Enum {
-    fn validate(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
+    fn validate(&self) -> Result<(), ErrorTree> {
+        let mut errs = ErrorTree::new();
 
         // check variants for unspecified
         let mut un_count = 0;
@@ -99,8 +99,8 @@ pub struct EnumVariant {
 }
 
 impl ValidateNode for EnumVariant {
-    fn validate(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
+    fn validate(&self) -> Result<(), ErrorTree> {
+        let mut errs = ErrorTree::new();
 
         // name
         if !self.name.is_case(Case::UpperCamel) {

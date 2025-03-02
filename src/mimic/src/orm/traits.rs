@@ -18,7 +18,7 @@ pub use std::{
 
 use crate::{
     orm::{OrmError, base::types::Ulid, visit::Visitor},
-    types::{ErrorVec, FixtureList, SortDirection},
+    types::{ErrorTree, FixtureList, SortDirection},
 };
 
 ///
@@ -294,10 +294,15 @@ impl<T: Orderable> Orderable for Option<T> {
 ///
 
 pub trait Validate: ValidateManual + ValidateAuto {
-    fn validate(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
-        errs.merge(self.validate_manual());
-        errs.merge(self.validate_auto());
+    fn validate(&self) -> Result<(), ErrorTree> {
+        let mut errs = ErrorTree::new();
+
+        if let Err(e) = self.validate_auto() {
+            errs.merge(e);
+        }
+        if let Err(e) = self.validate_manual() {
+            errs.merge(e);
+        }
 
         errs.result()
     }
@@ -313,7 +318,7 @@ impl<T> Validate for T where T: ValidateManual + ValidateAuto {}
 ///
 
 pub trait ValidateAuto {
-    fn validate_auto(&self) -> Result<(), ErrorVec> {
+    fn validate_auto(&self) -> Result<(), ErrorTree> {
         Ok(())
     }
 }
@@ -329,7 +334,7 @@ impl_primitive!(ValidateAuto);
 ///
 
 pub trait ValidateManual {
-    fn validate_manual(&self) -> Result<(), ErrorVec> {
+    fn validate_manual(&self) -> Result<(), ErrorTree> {
         Ok(())
     }
 }

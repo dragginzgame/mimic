@@ -1,4 +1,4 @@
-use super::snake::to_snake_case;
+use crate::utils::case::snake::to_snake_case;
 
 /// to_constant_case
 pub fn to_constant_case(s: &str) -> String {

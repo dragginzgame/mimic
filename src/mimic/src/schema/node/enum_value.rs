@@ -2,7 +2,7 @@ use crate::{
     schema::node::{
         ArgNumber, Def, MacroNode, Type, TypeNode, ValidateNode, VisitableNode, Visitor,
     },
-    types::ErrorVec,
+    types::ErrorTree,
     utils::case::{Case, Casing},
 };
 use serde::{Deserialize, Serialize};
@@ -68,8 +68,8 @@ pub struct EnumValueVariant {
 }
 
 impl ValidateNode for EnumValueVariant {
-    fn validate(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
+    fn validate(&self) -> Result<(), ErrorTree> {
+        let mut errs = ErrorTree::new();
 
         // name
         if !self.name.is_case(Case::UpperCamel) {

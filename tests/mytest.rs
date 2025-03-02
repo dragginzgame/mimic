@@ -19,6 +19,9 @@ mod tests {
 
         let errs = mimic::orm::validate(&e);
         println!("{errs:?}");
+        if let Err(e) = errs {
+            println!("{e}");
+        }
     }
 
     #[test]

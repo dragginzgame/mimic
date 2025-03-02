@@ -17,8 +17,8 @@ pub struct Text {}
 
 #[allow(clippy::cast_possible_wrap)]
 impl ValidateManual for Text {
-    fn validate_manual(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
+    fn validate_manual(&self) -> Result<(), ErrorTree> {
+        let mut errs = ErrorTree::new();
 
         // ascii check
         if !self.0.chars().all(|char| char.is_ascii() || char == '\0') {

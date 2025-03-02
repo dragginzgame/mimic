@@ -9,7 +9,7 @@ use crate::{
         prelude::*,
         traits::{EntityId, Filterable, Inner, Orderable, SortKey, ValidateAuto},
     },
-    types::ErrorVec,
+    types::ErrorTree,
 };
 use derive_more::{Deref, DerefMut, From, FromStr, IntoIterator};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -165,7 +165,7 @@ impl SortKey for Ulid {}
 impl_storable_bounded!(Ulid, 16, true);
 
 impl ValidateManual for Ulid {
-    fn validate_manual(&self) -> Result<(), ErrorVec> {
+    fn validate_manual(&self) -> Result<(), ErrorTree> {
         if self.is_nil() {
             Err(UlidError::Nil.into())
         } else {

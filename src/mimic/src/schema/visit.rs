@@ -17,9 +17,6 @@ pub enum Event {
 ///
 
 pub trait Visitor {
-    // name
-    fn name(&self) -> &'static str;
-
     // visit
     fn visit<V: VisitableNode + ?Sized>(&mut self, _: &V, _: Event) {}
 
@@ -29,18 +26,17 @@ pub trait Visitor {
 }
 
 ///
-/// Validator
-/// (Visitor)
+/// ValidateVisitor
 ///
 
 #[derive(Debug, Default)]
-pub struct Validator {
-    errors: ErrorTree,
-    route: Vec<String>,
-    node_count: usize,
+pub struct ValidateVisitor {
+    pub errors: ErrorTree,
+    pub path: Vec<String>,
+    pub node_count: usize,
 }
 
-impl Validator {
+impl ValidateVisitor {
     #[must_use]
     pub fn new() -> Self {
         Self {
@@ -53,18 +49,20 @@ impl Validator {
     pub const fn node_count(&self) -> usize {
         self.node_count
     }
+}
 
-    #[must_use]
-    pub fn errors(&self) -> ErrorTree {
-        self.errors.clone()
+impl ValidateVisitor {
+    fn current_route(&self) -> String {
+        self.path
+            .iter()
+            .filter(|s| !s.is_empty())
+            .cloned()
+            .collect::<Vec<_>>()
+            .join(".")
     }
 }
 
-impl Visitor for Validator {
-    fn name(&self) -> &'static str {
-        "Validator"
-    }
-
+impl Visitor for ValidateVisitor {
     fn visit<T: VisitableNode + ?Sized>(&mut self, node: &T, event: Event) {
         match event {
             Event::Enter => {
@@ -74,15 +72,15 @@ impl Visitor for Validator {
                     Ok(()) => {}
                     Err(errs) => {
                         if !errs.is_empty() {
-                            let route = &self
-                                .route
-                                .iter()
-                                .filter(|s| !s.is_empty())
-                                .cloned()
-                                .collect::<Vec<String>>()
-                                .join(" -> ");
+                            let route = self.current_route();
 
-                            self.errors.set_list(route, &errs);
+                            if route.is_empty() {
+                                // At the current level, merge directly.
+                                self.errors.merge(errs);
+                            } else {
+                                // Add to a child entry under the computed route.
+                                self.errors.children.entry(route).or_default().merge(errs);
+                            }
                         }
                     }
                 }
@@ -92,10 +90,10 @@ impl Visitor for Validator {
     }
 
     fn push(&mut self, s: &str) {
-        self.route.push(s.to_string());
+        self.path.push(s.to_string());
     }
 
     fn pop(&mut self) {
-        self.route.pop();
+        self.path.pop();
     }
 }

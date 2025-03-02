@@ -15,7 +15,6 @@ pub enum Event {
 
 ///
 /// Visitor
-///
 /// plus helper functions that allow navigation of the tree in an object-safe way
 ///
 
@@ -54,25 +53,35 @@ impl ValidateVisitor {
     }
 }
 
+impl ValidateVisitor {
+    fn current_route(&self) -> String {
+        self.path
+            .iter()
+            .filter(|s| !s.is_empty())
+            .cloned()
+            .collect::<Vec<_>>()
+            .join(".")
+    }
+}
+
 impl Visitor for ValidateVisitor {
     fn visit(&mut self, item: &dyn Visitable, event: Event) {
         match event {
-            Event::Enter => match item.validate() {
-                Ok(()) => {}
-                Err(errs) => {
+            Event::Enter => {
+                if let Err(errs) = item.validate() {
                     if !errs.is_empty() {
-                        let key = self
-                            .path
-                            .iter()
-                            .filter(|s| !s.is_empty())
-                            .cloned()
-                            .collect::<Vec<String>>()
-                            .join(".");
+                        let route = self.current_route();
 
-                        self.errors.set_list(&key, &errs);
+                        if route.is_empty() {
+                            // At the current level, merge directly.
+                            self.errors.merge(errs);
+                        } else {
+                            // Add to a child entry under the computed route.
+                            self.errors.children.entry(route).or_default().merge(errs);
+                        }
                     }
                 }
-            },
+            }
             Event::Exit => {}
         }
     }

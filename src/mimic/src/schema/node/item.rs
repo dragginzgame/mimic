@@ -3,7 +3,7 @@ use crate::{
         build::schema_read,
         node::{Entity, Selector, ValidateNode, VisitableNode},
     },
-    types::ErrorVec,
+    types::ErrorTree,
 };
 use serde::{Deserialize, Serialize};
 use std::ops::Not;
@@ -38,8 +38,8 @@ impl Item {
 }
 
 impl ValidateNode for Item {
-    fn validate(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
+    fn validate(&self) -> Result<(), ErrorTree> {
+        let mut errs = ErrorTree::new();
         let schema = schema_read();
 
         // Validate path

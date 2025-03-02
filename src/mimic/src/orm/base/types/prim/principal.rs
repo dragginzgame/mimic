@@ -124,7 +124,7 @@ impl SortKey for Principal {}
 impl_storable_bounded!(Principal, 30, true);
 
 impl ValidateManual for Principal {
-    fn validate_manual(&self) -> Result<(), ErrorVec> {
+    fn validate_manual(&self) -> Result<(), ErrorTree> {
         if self.0.as_slice().is_empty() {
             Err(PrincipalError::EmptyPrincipal.into())
         } else {

@@ -1,7 +1,7 @@
 use crate::{
+    Error, ThisError,
     orm::base::types::prim::ulid::{Ulid, UlidError},
     utils::time::now_millis,
-    Error, ThisError,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -12,10 +12,11 @@ use std::sync::{LazyLock, Mutex};
 /// it has to keep state to make sure key order is maintained
 ///
 
-static GENERATOR: LazyLock<Mutex<Generator>> = LazyLock::new(|| Mutex::new(Generator::new()));
+static GENERATOR: LazyLock<Mutex<Generator>> = LazyLock::new(|| Mutex::new(Generator::default()));
 
 pub fn generate() -> Result<Ulid, UlidError> {
     let mut generator = GENERATOR.lock().unwrap();
+
     generator.generate()
 }
 
@@ -26,18 +27,12 @@ pub fn generate() -> Result<Ulid, UlidError> {
 /// as the ulid crate doesn't support a no-std generator
 ///
 
+#[derive(Default)]
 pub struct Generator {
     previous: Ulid,
 }
 
 impl Generator {
-    #[must_use]
-    pub const fn new() -> Self {
-        Self {
-            previous: Ulid::nil(),
-        }
-    }
-
     // generate
     pub fn generate(&mut self) -> Result<Ulid, UlidError> {
         let last_ts = self.previous.timestamp_ms();
@@ -63,11 +58,5 @@ impl Generator {
         self.previous = ulid;
 
         Ok(ulid)
-    }
-}
-
-impl Default for Generator {
-    fn default() -> Self {
-        Self::new()
     }
 }

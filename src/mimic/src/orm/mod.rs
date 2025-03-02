@@ -19,7 +19,7 @@ pub mod prelude {
                 ValidateManual, ValidatorBytes, ValidatorNumber, ValidatorString, Visitable,
             },
         },
-        types::{ErrorVec, FixtureList},
+        types::{ErrorTree, FixtureList},
         utils::case::{Case, Casing},
     };
     pub use ::candid::CandidType;

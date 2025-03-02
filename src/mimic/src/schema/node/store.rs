@@ -3,7 +3,7 @@ use crate::{
         node::{Def, MacroNode, ValidateNode, VisitableNode},
         visit::Visitor,
     },
-    types::ErrorVec,
+    types::ErrorTree,
     utils::case::{Case, Casing},
 };
 use serde::{Deserialize, Serialize};
@@ -39,8 +39,8 @@ impl MacroNode for Store {
 }
 
 impl ValidateNode for Store {
-    fn validate(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
+    fn validate(&self) -> Result<(), ErrorTree> {
+        let mut errs = ErrorTree::new();
 
         // ident
         if !self.ident.is_case(Case::UpperSnake) {

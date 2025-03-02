@@ -4,7 +4,7 @@ use crate::{
         node::{Arg, TypeValidator, ValidateNode, Value, VisitableNode},
         visit::Visitor,
     },
-    types::{Cardinality, ErrorVec, SortDirection},
+    types::{Cardinality, ErrorTree, SortDirection},
     utils::case::{Case, Casing},
 };
 use serde::{Deserialize, Serialize};
@@ -30,8 +30,8 @@ impl FieldList {
 }
 
 impl ValidateNode for FieldList {
-    fn validate(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
+    fn validate(&self) -> Result<(), ErrorTree> {
+        let mut errs = ErrorTree::new();
 
         // order
         for rule in &self.order {
@@ -72,8 +72,8 @@ pub struct Field {
 }
 
 impl ValidateNode for Field {
-    fn validate(&self) -> Result<(), ErrorVec> {
-        let mut errs = ErrorVec::new();
+    fn validate(&self) -> Result<(), ErrorTree> {
+        let mut errs = ErrorTree::new();
         let ident = self.name.clone();
 
         // idents

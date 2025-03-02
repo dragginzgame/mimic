@@ -1,6 +1,6 @@
 mod error;
 
-pub use error::{tree::ErrorTree, vec::ErrorVec};
+pub use error::ErrorTree;
 
 use crate::orm::traits::EntityDyn;
 use candid::CandidType;

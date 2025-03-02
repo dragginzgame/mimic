@@ -1,4 +1,4 @@
-use super::ActorBuilder;
+use crate::actor::ActorBuilder;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Path, parse_str};
