@@ -22,16 +22,6 @@ impl ImpFn<Entity> for ValidateChildFunction {
 }
 
 ///
-/// Record
-///
-
-impl ImpFn<Record> for ValidateChildFunction {
-    fn tokens(node: &Record) -> TokenStream {
-        field_list(&node.fields)
-    }
-}
-
-///
 /// List
 ///
 
@@ -110,6 +100,16 @@ impl ImpFn<Newtype> for ValidateChildFunction {
         };
 
         format_fn(inner)
+    }
+}
+
+///
+/// Record
+///
+
+impl ImpFn<Record> for ValidateChildFunction {
+    fn tokens(node: &Record) -> TokenStream {
+        field_list(&node.fields)
     }
 }
 

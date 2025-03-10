@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - completely redid the type validators, and now we have field-level validators too, so you can make a
 field a U8 and validate it between 10 and 100
 - went through the mimic_design/imp directory and forced everything into traits to be tidy
+- moved type validators into the Item struct, so they can be used on basically anything
 
 ## [0.3.5]
 - Map and List are back, and the Map logic has been taken out of Newtype, it's much cleaner this way.

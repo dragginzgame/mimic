@@ -33,7 +33,7 @@ test_schema = { path = "src/test/schema" }
 # ic cdk
 candid = "0.10.13"
 ic-cdk = "0.18.0-alpha.1"
-ic-stable-structures = "0.6.7"
+ic-stable-structures = "0.6.8"
 
 # macros
 darling = "0.20"

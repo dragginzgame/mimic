@@ -49,22 +49,6 @@ impl Imp<Enum> for ValidateAutoTrait {
 }
 
 ///
-/// Record
-///
-
-impl Imp<Record> for ValidateAutoTrait {
-    fn tokens(node: &Record, t: Trait) -> Option<TokenStream> {
-        let q = ValidateChildFunction::tokens(node);
-
-        let tokens = Implementor::new(&node.def, t)
-            .set_tokens(q)
-            .to_token_stream();
-
-        Some(tokens)
-    }
-}
-
-///
 /// List
 ///
 
@@ -102,6 +86,22 @@ impl Imp<Map> for ValidateAutoTrait {
 
 impl Imp<Newtype> for ValidateAutoTrait {
     fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
+        let q = ValidateChildFunction::tokens(node);
+
+        let tokens = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(tokens)
+    }
+}
+
+///
+/// Record
+///
+
+impl Imp<Record> for ValidateAutoTrait {
+    fn tokens(node: &Record, t: Trait) -> Option<TokenStream> {
         let q = ValidateChildFunction::tokens(node);
 
         let tokens = Implementor::new(&node.def, t)
