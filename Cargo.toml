@@ -12,7 +12,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-rust-version = "1.85.0"
+rust-version = "1.85.1"
 edition = "2024"
 version = "0.3.6"
 authors = ["borovan <84897664+borovan@users.noreply.github.com>"]
@@ -32,7 +32,7 @@ test_schema = { path = "src/test/schema" }
 
 # ic cdk
 candid = "0.10.13"
-ic-cdk = "0.18.0-alpha.1"
+ic-cdk = "0.18.0-alpha.2"
 ic-stable-structures = "0.6.8"
 
 # macros
@@ -52,7 +52,7 @@ derive_more = { version = "2.0", default-features = false, features = ["full"] }
 hex = "0.4"
 num-traits = { version = "0.2", default-features = false, features = ["libm"] }
 remain = "0.2"
-rust_decimal = { version = "1.36", default-features = false, features = [
+rust_decimal = { version = "1.37", default-features = false, features = [
     "serde",
     "serde-float",
 ] }

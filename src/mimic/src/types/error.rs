@@ -77,7 +77,7 @@ impl ErrorTree {
             let new_prefix = if prefix.is_empty() {
                 key.clone()
             } else {
-                format!("{}.{}", prefix, key)
+                format!("{prefix}.{key}")
             };
             child.flatten_helper_ref(new_prefix, result);
         }
@@ -94,9 +94,9 @@ impl fmt::Display for ErrorTree {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for (key, msg) in self.flatten_ref() {
             if key.is_empty() {
-                writeln!(f, "{}", msg)?;
+                writeln!(f, "{msg}")?;
             } else {
-                writeln!(f, "{}: {}", key, msg)?;
+                writeln!(f, "{key}: {msg}")?;
             }
         }
 
@@ -106,7 +106,7 @@ impl fmt::Display for ErrorTree {
 
 impl From<&str> for ErrorTree {
     fn from(err: &str) -> Self {
-        let mut tree = ErrorTree::new();
+        let mut tree = Self::new();
         tree.add(err.to_string());
 
         tree
@@ -115,7 +115,7 @@ impl From<&str> for ErrorTree {
 
 impl From<String> for ErrorTree {
     fn from(s: String) -> Self {
-        let mut tree = ErrorTree::new();
+        let mut tree = Self::new();
         tree.add(s);
 
         tree

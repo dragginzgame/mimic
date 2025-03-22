@@ -188,7 +188,7 @@ fn generate_validation_rules(
 ) -> Vec<TokenStream> {
     let mut rules = Vec::new();
 
-    for val in validators.iter() {
+    for val in validators {
         let constructor = val.quote_constructor();
 
         rules.push(quote! {
