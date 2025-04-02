@@ -1,6 +1,23 @@
 use crate::orm::{base::types, prelude::*};
 
 ///
+/// Account
+///
+
+#[record(fields(
+    field(name = "owner", value(item(is = "types::Principal"))),
+    field(name = "subaccount", value(opt, item(is = "Subaccount"))),
+))]
+pub struct Account {}
+
+///
+/// Subaccount
+///
+
+#[newtype(primitive = "Blob", item(is = "types::Blob"))]
+pub struct Subaccount {}
+
+///
 /// Value
 /// Generic value in accordance with ICRC-3
 ///
@@ -13,7 +30,6 @@ use crate::orm::{base::types, prelude::*};
     variant(name = "Nat", value(item(is = "types::Usize"))),
     variant(name = "Text", value(item(is = "types::String")))
 )]
-
 pub struct Value {}
 
 ///
