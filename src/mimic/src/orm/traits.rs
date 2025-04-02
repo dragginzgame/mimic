@@ -106,8 +106,8 @@ macro_rules! impl_primitive_list {
 }
 
 impl_primitive_list!(
-    i8 => "I8", i16 => "I16", i32 => "I32", i64 => "I64", i128 => "I128", isize => "ISize",
-    u8 => "U8", u16 => "U16", u32 => "U32", u64 => "U64", u128 => "U128", usize => "USize",
+    i8 => "I8", i16 => "I16", i32 => "I32", i64 => "I64", i128 => "I128", isize => "Isize",
+    u8 => "U8", u16 => "U16", u32 => "U32", u64 => "U64", u128 => "U128", usize => "Usize",
     f32 => "F32", f64 => "F64", bool => "Bool", String => "String"
 );
 
