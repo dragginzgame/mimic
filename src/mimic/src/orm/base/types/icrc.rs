@@ -18,6 +18,13 @@ pub struct Account {}
 pub struct Subaccount {}
 
 ///
+/// Memo
+///
+
+#[newtype(primitive = "Blob", item(is = "types::Blob"))]
+pub struct Memo {}
+
+///
 /// Value
 /// Generic value in accordance with ICRC-3
 ///
