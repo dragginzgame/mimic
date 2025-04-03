@@ -59,6 +59,11 @@ impl Principal {
     pub fn msg_caller() -> Self {
         Self(msg_caller())
     }
+
+    #[must_use]
+    pub fn anonymous() -> Self {
+        Self(WrappedPrincipal::anonymous())
+    }
 }
 
 impl Default for Principal {
