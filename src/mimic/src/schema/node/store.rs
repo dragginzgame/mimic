@@ -7,13 +7,13 @@ use crate::{
     utils::case::{Case, Casing},
 };
 use serde::{Deserialize, Serialize};
-use std::ops::Range;
+use std::ops::RangeInclusive;
 
 ///
 /// CONSTS
 ///
 
-pub const RESERVED_MEMORY_RANGE: Range<u8> = 0..19;
+pub const RESERVED_MEMORY_RANGE: RangeInclusive<u8> = 0..=19;
 
 ///
 /// Store
