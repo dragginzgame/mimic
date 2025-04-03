@@ -12,7 +12,7 @@ pub mod prelude {
         ic::structures::storable::Bound,
         orm::{
             base::types::{
-                Decimal, Float32, Float64, Int, Int8, Int16, Int32, Int64, Int128, Nat, Nat8,
+                Blob, Decimal, Float32, Float64, Int, Int8, Int16, Int32, Int64, Int128, Nat, Nat8,
                 Nat16, Nat32, Nat64, Nat128, Principal, Ulid, UlidSet,
             },
             traits::{
