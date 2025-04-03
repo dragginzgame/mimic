@@ -11,7 +11,10 @@ pub mod prelude {
     pub use crate::{
         ic::structures::storable::Bound,
         orm::{
-            base::types::{Ulid, UlidSet},
+            base::types::{
+                Decimal, Float32, Float64, Int, Int8, Int16, Int32, Int64, Int128, Nat, Nat8,
+                Nat16, Nat32, Nat64, Nat128, Principal, Ulid, UlidSet,
+            },
             traits::{
                 EntityDyn, EntityFixture, EntityId as _, Filterable, Inner as _, NumCast,
                 Orderable, Path, Selector as _, SortKey as _, Storable, Validate as _,
