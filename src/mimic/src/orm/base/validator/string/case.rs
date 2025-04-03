@@ -1,4 +1,7 @@
-use crate::orm::prelude::*;
+use crate::{
+    orm::prelude::*,
+    utils::case::{Case, Casing},
+};
 
 ///
 /// AlphaUscore

@@ -11,7 +11,6 @@ pub mod prelude {
     pub use crate::{
         ic::structures::storable::Bound,
         orm::{
-            OrmError,
             base::types::{Ulid, UlidSet},
             traits::{
                 EntityDyn, EntityFixture, EntityId as _, Filterable, Inner as _, NumCast,
@@ -20,12 +19,9 @@ pub mod prelude {
             },
         },
         types::{ErrorTree, FixtureList},
-        utils::case::{Case, Casing},
     };
     pub use ::candid::CandidType;
     pub use ::mimic_design::*;
-    pub use ::serde::{Deserialize, Serialize};
-    pub use ::std::{cmp::Ordering, collections::HashSet, fmt::Display};
 }
 
 use crate::{Error, ThisError, ic::serialize::SerializeError, types::ErrorTree};

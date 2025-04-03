@@ -3,6 +3,7 @@ use crate::orm::{
     traits::{Inner, ValidateAuto},
 };
 use derive_more::{Deref, DerefMut};
+use serde::{Deserialize, Serialize};
 use serde_bytes::ByteBuf;
 
 ///

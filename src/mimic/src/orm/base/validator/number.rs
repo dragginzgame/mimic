@@ -1,5 +1,6 @@
 use crate::orm::{base::types::Decimal, prelude::*};
 use num_traits::{NumCast, Zero};
+use std::fmt::Display;
 
 ///
 /// Lt

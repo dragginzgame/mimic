@@ -16,7 +16,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Entity {
     pub def: Def,
-
     pub store: String,
 
     #[serde(default, skip_serializing_if = "Vec::is_empty")]

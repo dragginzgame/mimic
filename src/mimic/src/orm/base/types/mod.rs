@@ -7,6 +7,7 @@ pub mod math;
 pub mod prim;
 pub mod text;
 pub mod time;
+pub mod web;
 
 use crate::orm::{base::types, prelude::*};
 
