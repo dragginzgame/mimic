@@ -39,6 +39,13 @@ pub struct Memo {}
 )]
 pub struct Value {}
 
+impl Value {
+    #[must_use]
+    pub fn text(s: &str) -> Self {
+        Self::Text(s.to_string())
+    }
+}
+
 ///
 /// Value Map
 ///
