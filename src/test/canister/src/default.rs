@@ -16,7 +16,7 @@ impl DefaultTester {
     fn test_record() {
         let r = Record::default();
 
-        assert_eq!(r.u8_value, 1);
-        assert_eq!(r.u8_static_fn, 32);
+        assert_eq!(r.nat8_value, 1);
+        assert_eq!(r.nat8_static_fn, 32);
     }
 }

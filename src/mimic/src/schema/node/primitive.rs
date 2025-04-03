@@ -1,9 +1,7 @@
-use crate::{
-    schema::{
-        node::{Def, MacroNode, Type, TypeNode, ValidateNode, VisitableNode},
-        visit::Visitor,
-    },
+use crate::schema::{
+    node::{Def, MacroNode, Type, TypeNode, ValidateNode, VisitableNode},
     types::PrimitiveType,
+    visit::Visitor,
 };
 use serde::{Deserialize, Serialize};
 

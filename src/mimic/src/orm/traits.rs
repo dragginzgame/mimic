@@ -18,7 +18,8 @@ pub use std::{
 
 use crate::{
     orm::{OrmError, base::types::Ulid, visit::Visitor},
-    types::{ErrorTree, FixtureList, SortDirection},
+    schema::types::SortDirection,
+    types::{ErrorTree, FixtureList},
 };
 
 ///
@@ -104,9 +105,9 @@ macro_rules! impl_primitive_list {
 }
 
 impl_primitive_list!(
-    i8 => "I8", i16 => "I16", i32 => "I32", i64 => "I64", i128 => "I128",
-    u8 => "U8", u16 => "U16", u32 => "U32", u64 => "U64", u128 => "U128",
-    f32 => "F32", f64 => "F64", bool => "Bool", String => "String"
+    i8 => "Int8", i16 => "Int16", i32 => "Int32", i64 => "Int64", i128 => "Int128",
+    u8 => "Nat8", u16 => "Nat16", u32 => "Nat32", u64 => "Nat64", u128 => "Nat128",
+    f32 => "Float32", f64 => "Float64", bool => "Bool", String => "String"
 );
 
 ///

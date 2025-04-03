@@ -45,12 +45,12 @@ pub struct TodoUnit {}
 /// TodoTarget
 ///
 
-#[newtype(item(todo, is = "Todo"), primitive = "U8")]
+#[newtype(item(todo, is = "Todo"), primitive = "Nat8")]
 pub struct TodoTarget {}
 
 ///
 /// Todo
 ///
 
-#[newtype(ty(todo), item(is = "types::U8"), primitive = "U8")]
+#[newtype(ty(todo), item(is = "types::Nat8"), primitive = "Nat8")]
 pub struct Todo {}

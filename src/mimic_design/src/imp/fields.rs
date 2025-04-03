@@ -153,7 +153,7 @@ fn fields_sort(node: &FieldList) -> TokenStream {
 
         inner.extend(quote! {
             #field_str => {
-                if matches!(direction, ::mimic::types::SortDirection::Asc) {
+                if matches!(direction, ::mimic::schema::types::SortDirection::Asc) {
                     funcs.push(Box::new(|a, b| ::mimic::orm::traits::Orderable::cmp(&a.#field_ident, &b.#field_ident)));
                 } else {
                     funcs.push(Box::new(|a, b| ::mimic::orm::traits::Orderable::cmp(&b.#field_ident, &a.#field_ident)));
@@ -165,11 +165,11 @@ fn fields_sort(node: &FieldList) -> TokenStream {
     // quote
     let order = &node.order;
     quote! {
-        fn default_order() -> Vec<(String, ::mimic::types::SortDirection)> {
+        fn default_order() -> Vec<(String, ::mimic::schema::types::SortDirection)> {
             vec![#(#order),*]
         }
 
-        fn generate_sorter(order: &[(String, ::mimic::types::SortDirection)]) -> Box<dyn Fn(&Self, &Self) -> ::std::cmp::Ordering> {
+        fn generate_sorter(order: &[(String, ::mimic::schema::types::SortDirection)]) -> Box<dyn Fn(&Self, &Self) -> ::std::cmp::Ordering> {
             let mut funcs: Vec<Box<dyn Fn(&Self, &Self) -> ::std::cmp::Ordering>> = Vec::new();
 
             for (field, direction) in order {

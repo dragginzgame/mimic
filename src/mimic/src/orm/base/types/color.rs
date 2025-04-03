@@ -8,9 +8,9 @@ use crate::orm::{
 ///
 
 #[record(fields(
-    field(name = "r", value(item(is = "types::U8"))),
-    field(name = "g", value(item(is = "types::U8"))),
-    field(name = "b", value(item(is = "types::U8")))
+    field(name = "r", value(item(is = "types::Nat8"))),
+    field(name = "g", value(item(is = "types::Nat8"))),
+    field(name = "b", value(item(is = "types::Nat8")))
 ))]
 pub struct Rgb {}
 
@@ -26,10 +26,10 @@ impl Rgb {
 ///
 
 #[record(fields(
-    field(name = "r", value(item(is = "types::U8"))),
-    field(name = "g", value(item(is = "types::U8"))),
-    field(name = "b", value(item(is = "types::U8"))),
-    field(name = "a", value(item(is = "types::U8")))
+    field(name = "r", value(item(is = "types::Nat8"))),
+    field(name = "g", value(item(is = "types::Nat8"))),
+    field(name = "b", value(item(is = "types::Nat8"))),
+    field(name = "a", value(item(is = "types::Nat8")))
 ))]
 pub struct Rgba {}
 

@@ -63,7 +63,10 @@ impl Imp<Newtype> for NumFromPrimitiveTrait {
         };
 
         // Decimal
-        if matches!(node.primitive, PrimitiveType::Decimal | PrimitiveType::F64) {
+        if matches!(
+            node.primitive,
+            PrimitiveType::Decimal | PrimitiveType::Float64
+        ) {
             q.extend(quote! {
                 fn from_f64(n: f64) -> Option<Self> {
                     type Ty = #item;

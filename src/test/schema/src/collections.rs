@@ -14,7 +14,7 @@ pub struct List {}
 /// Map
 ///
 
-#[map(key(is = "types::String"), value(item(is = "types::U8")))]
+#[map(key(is = "types::String"), value(item(is = "types::Nat8")))]
 pub struct Map {}
 
 ///
@@ -28,7 +28,10 @@ pub struct Set {}
 /// ListValidated
 ///
 
-#[list(item(is = "types::U8", validator(path = "validator::number::Lt", args(10))))]
+#[list(item(
+    is = "types::Nat8",
+    validator(path = "validator::number::Lt", args(10))
+))]
 pub struct ListValidated {}
 
 ///
@@ -36,8 +39,14 @@ pub struct ListValidated {}
 ///
 
 #[map(
-    key(is = "types::U8", validator(path = "validator::number::Lt", args(10))),
-    value(item(is = "types::U8", validator(path = "validator::number::Lt", args(10))))
+    key(
+        is = "types::Nat8",
+        validator(path = "validator::number::Lt", args(10))
+    ),
+    value(item(
+        is = "types::Nat8",
+        validator(path = "validator::number::Lt", args(10))
+    ))
 )]
 pub struct MapValidated {}
 
@@ -45,5 +54,8 @@ pub struct MapValidated {}
 /// SetValidated
 ///
 
-#[set(item(is = "types::U8", validator(path = "validator::number::Lt", args(10))))]
+#[set(item(
+    is = "types::Nat8",
+    validator(path = "validator::number::Lt", args(10))
+))]
 pub struct SetValidated {}

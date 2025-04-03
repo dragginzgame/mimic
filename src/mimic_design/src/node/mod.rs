@@ -160,9 +160,9 @@ pub enum Cardinality {
 impl Schemable for Cardinality {
     fn schema(&self) -> TokenStream {
         match &self {
-            Self::One => quote!(::mimic::types::Cardinality::One),
-            Self::Opt => quote!(::mimic::types::Cardinality::Opt),
-            Self::Many => quote!(::mimic::types::Cardinality::Many),
+            Self::One => quote!(::mimic::schema::types::Cardinality::One),
+            Self::Opt => quote!(::mimic::schema::types::Cardinality::Opt),
+            Self::Many => quote!(::mimic::schema::types::Cardinality::Many),
         }
     }
 }
@@ -177,17 +177,17 @@ impl Schemable for Cardinality {
 #[remain::sorted]
 pub enum ConstantType {
     Bool,
-    I8,
-    I16,
-    I32,
-    I64,
-    I128,
+    Int8,
+    Int16,
+    Int32,
+    Int64,
+    Int128,
+    Nat8,
+    Nat16,
+    Nat32,
+    Nat64,
+    Nat128,
     Str,
-    U8,
-    U16,
-    U32,
-    U64,
-    U128,
 }
 
 impl FromMeta for ConstantType {
@@ -200,7 +200,7 @@ impl Schemable for ConstantType {
     fn schema(&self) -> TokenStream {
         let ident = format_ident!("{}", self.to_string());
 
-        quote!(::mimic::types::ConstantType::#ident)
+        quote!(::mimic::schema::types::ConstantType::#ident)
     }
 }
 
@@ -208,17 +208,17 @@ impl ToTokens for ConstantType {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let ty = match self {
             Self::Bool => quote!(bool),
-            Self::I8 => quote!(i8),
-            Self::I16 => quote!(i16),
-            Self::I32 => quote!(i32),
-            Self::I64 => quote!(i64),
-            Self::I128 => quote!(i128),
+            Self::Int8 => quote!(i8),
+            Self::Int16 => quote!(i16),
+            Self::Int32 => quote!(i32),
+            Self::Int64 => quote!(i64),
+            Self::Int128 => quote!(i128),
+            Self::Nat8 => quote!(u8),
+            Self::Nat16 => quote!(u16),
+            Self::Nat32 => quote!(u32),
+            Self::Nat64 => quote!(u64),
+            Self::Nat128 => quote!(u128),
             Self::Str => quote!(&str),
-            Self::U8 => quote!(u8),
-            Self::U16 => quote!(u16),
-            Self::U32 => quote!(u32),
-            Self::U64 => quote!(u64),
-            Self::U128 => quote!(u128),
         };
         tokens.extend(ty);
     }
@@ -313,21 +313,23 @@ pub enum PrimitiveType {
     Blob,
     Bool,
     Decimal,
-    F32,
-    F64,
-    I8,
-    I16,
-    I32,
-    I64,
-    I128,
+    Float32,
+    Float64,
+    Int,
+    Int8,
+    Int16,
+    Int32,
+    Int64,
+    Int128,
+    Nat,
+    Nat8,
+    Nat16,
+    Nat32,
+    Nat64,
+    Nat128,
     Principal,
     String,
     Todo,
-    U8,
-    U16,
-    U32,
-    U64,
-    U128,
     Ulid,
     Unit,
 }
@@ -335,7 +337,7 @@ pub enum PrimitiveType {
 impl PrimitiveType {
     #[must_use]
     pub const fn is_orderable(self) -> bool {
-        !matches!(self, Self::Blob | Self::F32 | Self::F64)
+        !matches!(self, Self::Blob | Self::Float32 | Self::Float64)
     }
 
     #[must_use]
@@ -344,17 +346,19 @@ impl PrimitiveType {
             Self::Blob => PrimitiveGroup::Blob,
             Self::Bool | Self::Todo => PrimitiveGroup::Bool,
             Self::Decimal => PrimitiveGroup::Decimal,
-            Self::F32 | Self::F64 => PrimitiveGroup::Float,
-            Self::I8
-            | Self::I16
-            | Self::I32
-            | Self::I64
-            | Self::I128
-            | Self::U8
-            | Self::U16
-            | Self::U32
-            | Self::U64
-            | Self::U128 => PrimitiveGroup::Integer,
+            Self::Float32 | Self::Float64 => PrimitiveGroup::Float,
+            Self::Int
+            | Self::Int8
+            | Self::Int16
+            | Self::Int32
+            | Self::Int64
+            | Self::Int128
+            | Self::Nat
+            | Self::Nat8
+            | Self::Nat16
+            | Self::Nat32
+            | Self::Nat64
+            | Self::Nat128 => PrimitiveGroup::Integer,
             Self::String | Self::Principal => PrimitiveGroup::String,
             Self::Ulid => PrimitiveGroup::Ulid,
             Self::Unit => PrimitiveGroup::Unit,
@@ -364,18 +368,18 @@ impl PrimitiveType {
     #[must_use]
     pub fn num_cast_fn(self) -> String {
         match self {
-            Self::F32 => "f32",
-            Self::Decimal | Self::F64 => "f64",
-            Self::I8 => "i8",
-            Self::I16 => "i16",
-            Self::I32 => "i32",
-            Self::I64 => "i64",
-            Self::I128 => "i128",
-            Self::U8 => "u8",
-            Self::U16 => "u16",
-            Self::U32 => "u32",
-            Self::U64 => "u64",
-            Self::U128 => "u128",
+            Self::Float32 => "f32",
+            Self::Decimal | Self::Float64 => "f64",
+            Self::Int8 => "i8",
+            Self::Int16 => "i16",
+            Self::Int32 => "i32",
+            Self::Int64 => "i64",
+            Self::Int128 => "i128",
+            Self::Nat8 => "u8",
+            Self::Nat16 => "u16",
+            Self::Nat32 => "u32",
+            Self::Nat64 => "u64",
+            Self::Nat128 => "u128",
             _ => panic!("unexpected primitive type"),
         }
         .into()
@@ -392,7 +396,7 @@ impl Schemable for PrimitiveType {
     fn schema(&self) -> TokenStream {
         let ident = format_ident!("{}", self.to_string());
 
-        quote!(::mimic::types::PrimitiveType::#ident)
+        quote!(::mimic::schema::types::PrimitiveType::#ident)
     }
 }
 
@@ -402,21 +406,23 @@ impl ToTokens for PrimitiveType {
             Self::Bool => quote!(bool),
             Self::Blob => quote!(::mimic::orm::base::types::Blob),
             Self::Decimal => quote!(::mimic::orm::base::types::Decimal),
-            Self::F32 => quote!(f32),
-            Self::F64 => quote!(f64),
-            Self::I8 => quote!(i8),
-            Self::I16 => quote!(i16),
-            Self::I32 => quote!(i32),
-            Self::I64 => quote!(i64),
-            Self::I128 => quote!(i128),
+            Self::Float32 => quote!(f32),
+            Self::Float64 => quote!(f64),
+            Self::Int => quote!(::mimic::orm::base::types::Int),
+            Self::Int8 => quote!(i8),
+            Self::Int16 => quote!(i16),
+            Self::Int32 => quote!(i32),
+            Self::Int64 => quote!(i64),
+            Self::Int128 => quote!(i128),
             Self::Principal => quote!(::mimic::orm::base::types::Principal),
             Self::String => quote!(String),
             Self::Todo => quote!(::mimic::orm::base::types::Todo),
-            Self::U8 => quote!(u8),
-            Self::U16 => quote!(u16),
-            Self::U32 => quote!(u32),
-            Self::U64 => quote!(u64),
-            Self::U128 => quote!(u128),
+            Self::Nat => quote!(::mimic::orm::base::types::Int),
+            Self::Nat8 => quote!(u8),
+            Self::Nat16 => quote!(u16),
+            Self::Nat32 => quote!(u32),
+            Self::Nat64 => quote!(u64),
+            Self::Nat128 => quote!(u128),
             Self::Unit => quote!(::mimic::orm::base::types::Unit),
             Self::Ulid => quote!(::mimic::orm::base::types::Ulid),
         };
@@ -453,7 +459,7 @@ impl Schemable for PrimitiveGroup {
     fn schema(&self) -> TokenStream {
         let ident = format_ident!("{}", self.to_string());
 
-        quote!(::mimic::types::PrimitiveGroup::#ident)
+        quote!(::mimic::schema::types::PrimitiveGroup::#ident)
     }
 }
 
@@ -473,8 +479,8 @@ pub enum SortDirection {
 impl Schemable for SortDirection {
     fn schema(&self) -> TokenStream {
         match &self {
-            Self::Asc => quote!(::mimic::types::SortDirection::Asc),
-            Self::Desc => quote!(::mimic::types::SortDirection::Desc),
+            Self::Asc => quote!(::mimic::schema::types::SortDirection::Asc),
+            Self::Desc => quote!(::mimic::schema::types::SortDirection::Desc),
         }
     }
 }
@@ -482,8 +488,8 @@ impl Schemable for SortDirection {
 impl ToTokens for SortDirection {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let ts = match self {
-            Self::Asc => quote!(::mimic::types::SortDirection::Asc),
-            Self::Desc => quote!(::mimic::types::SortDirection::Desc),
+            Self::Asc => quote!(::mimic::schema::types::SortDirection::Asc),
+            Self::Desc => quote!(::mimic::schema::types::SortDirection::Desc),
         };
         tokens.extend(ts);
     }

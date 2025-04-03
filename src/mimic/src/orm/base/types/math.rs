@@ -18,9 +18,9 @@ pub struct DecimalFormat {}
 ///
 
 #[newtype(
-    primitive = "U16",
-    item(is = "types::U16"),
-    ty(validator(path = "validator::number::Range", args(0, 360)))
+    primitive = "Nat16",
+    item(is = "types::Nat16"),
+    ty(validator(path = "validator::number::Range", args(0_u16, 360_u16)))
 )]
 pub struct Degrees {}
 
@@ -31,8 +31,8 @@ pub struct Degrees {}
 ///
 
 #[newtype(
-    primitive = "U8",
-    item(is = "types::U8"),
+    primitive = "Nat8",
+    item(is = "types::Nat8"),
     ty(validator(path = "validator::number::Range", args(0, 100)))
 )]
 pub struct Percent {}
@@ -42,8 +42,8 @@ pub struct Percent {}
 ///
 
 #[newtype(
-    primitive = "U16",
-    item(is = "types::U16"),
-    ty(validator(path = "validator::number::Range", args(0, 10_000)))
+    primitive = "Nat16",
+    item(is = "types::Nat16"),
+    ty(validator(path = "validator::number::Range", args(0_u16, 10_000_u16)))
 )]
 pub struct PercentModifier {}

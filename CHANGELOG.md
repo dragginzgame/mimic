@@ -5,6 +5,9 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.3.7]
+- standardising with the ICRC standardisations.  Nat, Int, Nat8 etc.
+
 ## [0.3.6]
 - completely redid the type validators, and now we have field-level validators too, so you can make a
 field a U8 and validate it between 10 and 100

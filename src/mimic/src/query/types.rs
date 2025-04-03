@@ -1,4 +1,4 @@
-use crate::types::SortDirection;
+use crate::schema::types::SortDirection;
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};

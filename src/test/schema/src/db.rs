@@ -33,7 +33,7 @@ pub struct Filterable {}
 #[entity(
     store = "crate::Store",
     sk(entity = "Limit", field = "value"),
-    fields(field(name = "value", value(item(is = "types::U32"))))
+    fields(field(name = "value", value(item(is = "types::Nat32"))))
 )]
 pub struct Limit {}
 

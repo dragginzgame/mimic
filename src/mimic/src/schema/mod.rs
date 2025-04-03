@@ -1,6 +1,7 @@
 pub mod build;
 pub mod node;
 pub mod state;
+pub mod types;
 pub mod visit;
 
 pub use build::get_schema;

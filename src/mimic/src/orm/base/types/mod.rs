@@ -13,18 +13,6 @@ use crate::orm::{base::types, prelude::*};
 pub use prim::ulid::UlidSet;
 
 ///
-/// Unit
-///
-
-#[primitive(variant = "Unit", path = "types::prim::Unit")]
-pub struct Unit {}
-
-impl Path for Unit {
-    const IDENT: &'static str = "Unit";
-    const PATH: &'static str = "mimic::orm::base::types::Unit";
-}
-
-///
 /// Bool
 ///
 
@@ -56,53 +44,112 @@ impl Path for Decimal {
 }
 
 ///
-/// F32
+/// Float32
 ///
 
-#[primitive(variant = "F32", path = "f32")]
-pub struct F32 {}
+#[primitive(variant = "Float32", path = "f32")]
+pub struct Float32 {}
 
 ///
-/// F64
+/// Float64
 ///
 
-#[primitive(variant = "F64", path = "f64")]
-pub struct F64 {}
+#[primitive(variant = "Float64", path = "f64")]
+pub struct Float64 {}
 
 ///
-/// I8
+/// Int
 ///
 
-#[primitive(variant = "I8", path = "i8")]
-pub struct I8 {}
+#[primitive(variant = "Int", path = "types::prim::Int")]
+pub struct Int {}
+
+impl Path for Int {
+    const IDENT: &'static str = "Int";
+    const PATH: &'static str = "mimic::orm::base::types::Int";
+}
 
 ///
-/// I16
+/// Int8
 ///
 
-#[primitive(variant = "I16", path = "i16")]
-pub struct I16 {}
+#[primitive(variant = "Int8", path = "i8")]
+pub struct Int8 {}
 
 ///
-/// I32
+/// Int16
 ///
 
-#[primitive(variant = "I32", path = "i32")]
-pub struct I32 {}
+#[primitive(variant = "Int16", path = "i16")]
+pub struct Int16 {}
 
 ///
-/// I64
+/// Int32
 ///
 
-#[primitive(variant = "I64", path = "i64")]
-pub struct I64 {}
+#[primitive(variant = "Int32", path = "i32")]
+pub struct Int32 {}
 
 ///
-/// I128
+/// Int64
 ///
 
-#[primitive(variant = "I128", path = "i128")]
-pub struct I128 {}
+#[primitive(variant = "Int64", path = "i64")]
+pub struct Int64 {}
+
+///
+/// Int128
+///
+
+#[primitive(variant = "Int128", path = "i128")]
+pub struct Int128 {}
+
+///
+/// Nat
+///
+
+#[primitive(variant = "Nat", path = "types::prim::Nat")]
+pub struct Nat {}
+
+impl Path for Nat {
+    const IDENT: &'static str = "Nat";
+    const PATH: &'static str = "mimic::orm::base::types::Nat";
+}
+
+///
+/// Nat8
+///
+
+#[primitive(variant = "Nat8", path = "u8")]
+pub struct Nat8 {}
+
+///
+/// Nat16
+///
+
+#[primitive(variant = "Nat16", path = "u16")]
+pub struct Nat16 {}
+
+///
+/// Nat32
+///
+
+#[primitive(variant = "Nat32", path = "u32")]
+pub struct Nat32 {}
+
+///
+/// Nat64
+///
+
+#[primitive(variant = "Nat64", path = "u64")]
+pub struct Nat64 {}
+
+///
+/// Nat128
+///
+
+#[primitive(variant = "Nat128", path = "u128")]
+pub struct Nat128 {}
 
 ///
 /// Principal
@@ -136,36 +183,13 @@ impl Path for Ulid {
 }
 
 ///
-/// U8
+/// Unit
 ///
 
-#[primitive(variant = "U8", path = "u8")]
-pub struct U8 {}
+#[primitive(variant = "Unit", path = "types::prim::Unit")]
+pub struct Unit {}
 
-///
-/// U16
-///
-
-#[primitive(variant = "U16", path = "u16")]
-pub struct U16 {}
-
-///
-/// U32
-///
-
-#[primitive(variant = "U32", path = "u32")]
-pub struct U32 {}
-
-///
-/// U64
-///
-
-#[primitive(variant = "U64", path = "u64")]
-pub struct U64 {}
-
-///
-/// U128
-///
-
-#[primitive(variant = "U128", path = "u128")]
-pub struct U128 {}
+impl Path for Unit {
+    const IDENT: &'static str = "Unit";
+    const PATH: &'static str = "mimic::orm::base::types::Unit";
+}

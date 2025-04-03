@@ -55,19 +55,18 @@ impl ValidateNode for Args {}
 #[derive(Clone, Debug, Display, Serialize, Deserialize)]
 pub enum ArgNumber {
     Float(f64),
-    F32(f32),
-    F64(f64),
-    Integer(i128),
-    I8(i8),
-    I16(i16),
-    I32(i32),
-    I64(i64),
-    I128(i128),
-    U8(u8),
-    U16(u16),
-    U32(u32),
-    U64(u64),
-    U128(u128),
+    Float32(f32),
+    Float64(f64),
+    Int8(i8),
+    Int16(i16),
+    Int32(i32),
+    Int64(i64),
+    Int128(i128),
+    Nat8(u8),
+    Nat16(u16),
+    Nat32(u32),
+    Nat64(u64),
+    Nat128(u128),
 }
 
 impl ValidateNode for ArgNumber {}
