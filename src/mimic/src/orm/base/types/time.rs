@@ -47,3 +47,35 @@ impl Timestamp {
     default = "types::time::Timestamp::now"
 )]
 pub struct Created {}
+
+///
+/// Duration
+///
+/// just a quick one, can make it better
+/// seconds for now, maybe we need ms?
+///
+
+#[newtype(primitive = "Nat64", item(is = "types::Nat64"))]
+pub struct Duration {}
+
+impl Duration {
+    #[must_use]
+    pub fn from_minutes(minutes: u64) -> Self {
+        Self(minutes * 60)
+    }
+
+    #[must_use]
+    pub fn from_hours(hours: u64) -> Self {
+        Self(hours * 3_600)
+    }
+
+    #[must_use]
+    pub fn from_days(days: u64) -> Self {
+        Self(days * 86_400)
+    }
+
+    #[must_use]
+    pub fn as_secs(&self) -> u64 {
+        self.0
+    }
+}
