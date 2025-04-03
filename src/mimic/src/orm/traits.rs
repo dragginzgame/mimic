@@ -34,13 +34,11 @@ macro_rules! impl_primitive {
         impl $trait for i32 {}
         impl $trait for i64 {}
         impl $trait for i128 {}
-        impl $trait for isize {}
         impl $trait for u8 {}
         impl $trait for u16 {}
         impl $trait for u32 {}
         impl $trait for u64 {}
         impl $trait for u128 {}
-        impl $trait for usize {}
         impl $trait for f32 {}
         impl $trait for f64 {}
         impl $trait for bool {}
@@ -106,8 +104,8 @@ macro_rules! impl_primitive_list {
 }
 
 impl_primitive_list!(
-    i8 => "I8", i16 => "I16", i32 => "I32", i64 => "I64", i128 => "I128", isize => "Isize",
-    u8 => "U8", u16 => "U16", u32 => "U32", u64 => "U64", u128 => "U128", usize => "Usize",
+    i8 => "I8", i16 => "I16", i32 => "I32", i64 => "I64", i128 => "I128",
+    u8 => "U8", u16 => "U16", u32 => "U32", u64 => "U64", u128 => "U128",
     f32 => "F32", f64 => "F64", bool => "Bool", String => "String"
 );
 

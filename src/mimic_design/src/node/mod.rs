@@ -182,14 +182,12 @@ pub enum ConstantType {
     I32,
     I64,
     I128,
-    Isize,
     Str,
     U8,
     U16,
     U32,
     U64,
     U128,
-    Usize,
 }
 
 impl FromMeta for ConstantType {
@@ -215,14 +213,12 @@ impl ToTokens for ConstantType {
             Self::I32 => quote!(i32),
             Self::I64 => quote!(i64),
             Self::I128 => quote!(i128),
-            Self::Isize => quote!(isize),
             Self::Str => quote!(&str),
             Self::U8 => quote!(u8),
             Self::U16 => quote!(u16),
             Self::U32 => quote!(u32),
             Self::U64 => quote!(u64),
             Self::U128 => quote!(u128),
-            Self::Usize => quote!(usize),
         };
         tokens.extend(ty);
     }
@@ -324,7 +320,6 @@ pub enum PrimitiveType {
     I32,
     I64,
     I128,
-    Isize,
     Principal,
     String,
     Todo,
@@ -335,7 +330,6 @@ pub enum PrimitiveType {
     U128,
     Ulid,
     Unit,
-    Usize,
 }
 
 impl PrimitiveType {
@@ -356,13 +350,11 @@ impl PrimitiveType {
             | Self::I32
             | Self::I64
             | Self::I128
-            | Self::Isize
             | Self::U8
             | Self::U16
             | Self::U32
             | Self::U64
-            | Self::U128
-            | Self::Usize => PrimitiveGroup::Integer,
+            | Self::U128 => PrimitiveGroup::Integer,
             Self::String | Self::Principal => PrimitiveGroup::String,
             Self::Ulid => PrimitiveGroup::Ulid,
             Self::Unit => PrimitiveGroup::Unit,
@@ -379,13 +371,11 @@ impl PrimitiveType {
             Self::I32 => "i32",
             Self::I64 => "i64",
             Self::I128 => "i128",
-            Self::Isize => "isize",
             Self::U8 => "u8",
             Self::U16 => "u16",
             Self::U32 => "u32",
             Self::U64 => "u64",
             Self::U128 => "u128",
-            Self::Usize => "usize",
             _ => panic!("unexpected primitive type"),
         }
         .into()
@@ -419,7 +409,6 @@ impl ToTokens for PrimitiveType {
             Self::I32 => quote!(i32),
             Self::I64 => quote!(i64),
             Self::I128 => quote!(i128),
-            Self::Isize => quote!(isize),
             Self::Principal => quote!(::mimic::orm::base::types::Principal),
             Self::String => quote!(String),
             Self::Todo => quote!(::mimic::orm::base::types::Todo),
@@ -430,7 +419,6 @@ impl ToTokens for PrimitiveType {
             Self::U128 => quote!(u128),
             Self::Unit => quote!(::mimic::orm::base::types::Unit),
             Self::Ulid => quote!(::mimic::orm::base::types::Ulid),
-            Self::Usize => quote!(usize),
         };
         tokens.extend(ty);
     }

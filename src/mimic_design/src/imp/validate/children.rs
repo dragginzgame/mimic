@@ -6,16 +6,16 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 ///
-/// ValidateChildFunction
+/// ValidateChildrenFunction
 ///
 
-pub struct ValidateChildFunction {}
+pub struct ValidateChildrenFunction {}
 
 ///
 /// Entity
 ///
 
-impl ImpFn<Entity> for ValidateChildFunction {
+impl ImpFn<Entity> for ValidateChildrenFunction {
     fn tokens(node: &Entity) -> TokenStream {
         field_list(&node.fields)
     }
@@ -25,7 +25,7 @@ impl ImpFn<Entity> for ValidateChildFunction {
 /// List
 ///
 
-impl ImpFn<List> for ValidateChildFunction {
+impl ImpFn<List> for ValidateChildrenFunction {
     fn tokens(node: &List) -> TokenStream {
         let rules = generate_validation_rules(&node.item.validators, quote!(v));
 
@@ -43,7 +43,7 @@ impl ImpFn<List> for ValidateChildFunction {
             }
         };
 
-        format_fn(inner)
+        wrap_validate_fn(inner)
     }
 }
 
@@ -51,7 +51,7 @@ impl ImpFn<List> for ValidateChildFunction {
 /// Map
 ///
 
-impl ImpFn<Map> for ValidateChildFunction {
+impl ImpFn<Map> for ValidateChildrenFunction {
     fn tokens(node: &Map) -> TokenStream {
         // rules
         let mut rules = Vec::<TokenStream>::new();
@@ -75,17 +75,20 @@ impl ImpFn<Map> for ValidateChildFunction {
             }
         };
 
-        format_fn(inner)
+        wrap_validate_fn(inner)
     }
 }
 
 ///
 /// Newtype
+/// technically a newtype can have validation rules in two places
 ///
 
-impl ImpFn<Newtype> for ValidateChildFunction {
+impl ImpFn<Newtype> for ValidateChildrenFunction {
     fn tokens(node: &Newtype) -> TokenStream {
-        let rules = generate_validation_rules(&node.item.validators, quote!(&self.0));
+        let type_rules = generate_validation_rules(&node.ty.validators, quote!(&self.0));
+        let item_rules = generate_validation_rules(&node.item.validators, quote!(&self.0));
+        let rules: Vec<TokenStream> = type_rules.into_iter().chain(item_rules).collect();
 
         // inner
         let inner = if rules.is_empty() {
@@ -99,7 +102,7 @@ impl ImpFn<Newtype> for ValidateChildFunction {
             }
         };
 
-        format_fn(inner)
+        wrap_validate_fn(inner)
     }
 }
 
@@ -107,7 +110,7 @@ impl ImpFn<Newtype> for ValidateChildFunction {
 /// Record
 ///
 
-impl ImpFn<Record> for ValidateChildFunction {
+impl ImpFn<Record> for ValidateChildrenFunction {
     fn tokens(node: &Record) -> TokenStream {
         field_list(&node.fields)
     }
@@ -117,7 +120,7 @@ impl ImpFn<Record> for ValidateChildFunction {
 /// Set
 ///
 
-impl ImpFn<Set> for ValidateChildFunction {
+impl ImpFn<Set> for ValidateChildrenFunction {
     fn tokens(node: &Set) -> TokenStream {
         let rules = generate_validation_rules(&node.item.validators, quote!(v));
 
@@ -135,7 +138,7 @@ impl ImpFn<Set> for ValidateChildFunction {
             }
         };
 
-        format_fn(inner)
+        wrap_validate_fn(inner)
     }
 }
 
@@ -177,7 +180,7 @@ fn field_list(node: &FieldList) -> TokenStream {
         }
     };
 
-    format_fn(inner)
+    wrap_validate_fn(inner)
 }
 
 // generate_validation_rules
@@ -199,8 +202,8 @@ fn generate_validation_rules(
     rules
 }
 
-// format_fn
-fn format_fn(inner: TokenStream) -> TokenStream {
+// wrap_validate_fn
+fn wrap_validate_fn(inner: TokenStream) -> TokenStream {
     quote! {
         fn validate_children(&self) -> ::std::result::Result<(), ::mimic::types::ErrorTree> {
             #inner

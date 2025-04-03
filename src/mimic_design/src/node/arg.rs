@@ -2,10 +2,10 @@ use crate::{
     helper::{quote_one, quote_vec, to_string},
     traits::Schemable,
 };
-use darling::{ast::NestedMeta, Error as DarlingError, FromMeta};
+use darling::{Error as DarlingError, FromMeta, ast::NestedMeta};
 use derive_more::Deref;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::{ToTokens, quote};
 use std::fmt::{self, Display};
 use syn::{Lit, Path};
 
@@ -203,13 +203,11 @@ pub enum ArgNumber {
     I32(i32),
     I64(i64),
     I128(i128),
-    Isize(isize),
     U8(u8),
     U16(u16),
     U32(u32),
     U64(u64),
     U128(u128),
-    Usize(usize),
 }
 
 macro_rules! impl_from_for_numeric_value {
@@ -232,13 +230,11 @@ impl_from_for_numeric_value! {
     i32 => I32,
     i64 => I64,
     i128 => I128,
-    isize => Isize,
     u8 => U8,
     u16 => U16,
     u32 => U32,
     u64 => U64,
-    u128 => U128,
-    usize => Usize
+    u128 => U128
 }
 
 impl ArgNumber {
@@ -248,7 +244,6 @@ impl ArgNumber {
 
         let suffixes = [
             "f32", "f64", "i8", "i16", "i32", "i64", "i128", "u8", "u16", "u32", "u64", "u128",
-            "usize", "isize",
         ];
 
         for &suffix in &suffixes {
@@ -274,8 +269,6 @@ impl ArgNumber {
                         "u32" => num_part.parse::<u32>().map(ArgNumber::U32),
                         "u64" => num_part.parse::<u64>().map(ArgNumber::U64),
                         "u128" => num_part.parse::<u128>().map(ArgNumber::U128),
-                        "usize" => num_part.parse::<usize>().map(ArgNumber::Usize),
-                        "isize" => num_part.parse::<isize>().map(ArgNumber::Isize),
                         _ => unreachable!(),
                     }
                     .map_err(|_| {})
@@ -313,13 +306,11 @@ impl Display for ArgNumber {
             Self::I16(v) => write!(f, "{v}"),
             Self::I32(v) => write!(f, "{v}"),
             Self::I64(v) => write!(f, "{v}"),
-            Self::Isize(v) => write!(f, "{v}"),
             Self::U8(v) => write!(f, "{v}"),
             Self::U16(v) => write!(f, "{v}"),
             Self::U32(v) => write!(f, "{v}"),
             Self::U64(v) => write!(f, "{v}"),
             Self::U128(v) => write!(f, "{v}"),
-            Self::Usize(v) => write!(f, "{v}"),
         }
     }
 }
@@ -356,13 +347,11 @@ impl PartialEq for ArgNumber {
             (Self::I16(a), Self::I16(b)) => a == b,
             (Self::I32(a), Self::I32(b)) => a == b,
             (Self::I64(a), Self::I64(b)) => a == b,
-            (Self::Isize(a), Self::Isize(b)) => a == b,
             (Self::U8(a), Self::U8(b)) => a == b,
             (Self::U16(a), Self::U16(b)) => a == b,
             (Self::U32(a), Self::U32(b)) => a == b,
             (Self::U64(a), Self::U64(b)) => a == b,
             (Self::U128(a), Self::U128(b)) => a == b,
-            (Self::Usize(a), Self::Usize(b)) => a == b,
             _ => false,
         }
     }
@@ -380,13 +369,11 @@ impl Schemable for ArgNumber {
             Self::I32(v) => quote!(::mimic::schema::node::ArgNumber::I32(#v)),
             Self::I64(v) => quote!(::mimic::schema::node::ArgNumber::I64(#v)),
             Self::I128(v) => quote!(::mimic::schema::node::ArgNumber::I128(#v)),
-            Self::Isize(v) => quote!(::mimic::schema::node::ArgNumber::Isize(#v)),
             Self::U8(v) => quote!(::mimic::schema::node::ArgNumber::U8(#v)),
             Self::U16(v) => quote!(::mimic::schema::node::ArgNumber::U16(#v)),
             Self::U32(v) => quote!(::mimic::schema::node::ArgNumber::U32(#v)),
             Self::U64(v) => quote!(::mimic::schema::node::ArgNumber::U64(#v)),
             Self::U128(v) => quote!(::mimic::schema::node::ArgNumber::U128(#v)),
-            Self::Usize(v) => quote!(::mimic::schema::node::ArgNumber::Usize(#v)),
         }
     }
 }
@@ -409,13 +396,11 @@ impl ToTokens for ArgNumber {
             Self::I32(v) => quote!(#v),
             Self::I64(v) => quote!(#v),
             Self::I128(v) => quote!(#v),
-            Self::Isize(v) => quote!(#v),
             Self::U8(v) => quote!(#v),
             Self::U16(v) => quote!(#v),
             Self::U32(v) => quote!(#v),
             Self::U64(v) => quote!(#v),
             Self::U128(v) => quote!(#v),
-            Self::Usize(v) => quote!(#v),
         };
 
         tokens.extend(q);
@@ -435,10 +420,6 @@ mod number_tests {
         assert_eq!(
             ArgNumber::parse_numeric_string("42i8").unwrap(),
             ArgNumber::I8(42)
-        );
-        assert_eq!(
-            ArgNumber::parse_numeric_string("-100_isize").unwrap(),
-            ArgNumber::Isize(-100)
         );
         assert_eq!(
             ArgNumber::parse_numeric_string("-100").unwrap(),
@@ -518,10 +499,6 @@ mod number_tests {
         let num = ArgNumber::parse_numeric_string("10").unwrap();
         let tokens = quote!(#num);
         assert_eq!(tokens.to_string(), "10");
-
-        let num = ArgNumber::parse_numeric_string("10_isize").unwrap();
-        let tokens = quote!(#num);
-        assert_eq!(tokens.to_string(), "10isize");
     }
 
     #[test]

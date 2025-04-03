@@ -31,14 +31,12 @@ pub enum ConstantType {
     I32,
     I64,
     I128,
-    Isize,
     Str,
     U8,
     U16,
     U32,
     U64,
     U128,
-    Usize,
 }
 
 ///
@@ -89,7 +87,6 @@ pub enum PrimitiveType {
     I32,
     I64,
     I128,
-    Isize,
     Principal,
     String,
     U8,
@@ -99,7 +96,6 @@ pub enum PrimitiveType {
     U128,
     Ulid,
     Unit,
-    Usize,
 }
 
 ///

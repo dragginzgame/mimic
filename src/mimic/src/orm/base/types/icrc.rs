@@ -32,9 +32,9 @@ pub struct Memo {}
 #[enum_(
     variant(name = "Array", value(many, item(is = "Value"))),
     variant(name = "Blob", value(item(is = "types::Blob"))),
-    variant(name = "Int", value(item(is = "types::Isize"))),
+    variant(name = "Int", value(item(is = "types::I64"))),
     variant(name = "Map", value(item(is = "Map"))),
-    variant(name = "Nat", value(item(is = "types::Usize"))),
+    variant(name = "Nat", value(item(is = "types::U64"))),
     variant(name = "Text", value(item(is = "types::String")))
 )]
 pub struct Value {}

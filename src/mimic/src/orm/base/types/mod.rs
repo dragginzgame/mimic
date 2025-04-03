@@ -105,13 +105,6 @@ pub struct I64 {}
 pub struct I128 {}
 
 ///
-/// Isize
-///
-
-#[primitive(variant = "Isize", path = "isize")]
-pub struct Isize {}
-
-///
 /// Principal
 ///
 
@@ -176,10 +169,3 @@ pub struct U64 {}
 
 #[primitive(variant = "U128", path = "u128")]
 pub struct U128 {}
-
-///
-/// Usize
-///
-
-#[primitive(variant = "Usize", path = "usize")]
-pub struct Usize {}

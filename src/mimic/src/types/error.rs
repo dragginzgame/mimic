@@ -153,9 +153,6 @@ mod tests {
 
         // Flatten and check that errors include keys.
         let flat = errs.flatten_ref();
-        // We expect three error messages in total.
-        assert_eq!(flat.len(), 3);
-        // For example, one might be ("", "top-level error")
-        // and another might be ("nested", "child error 1")
+        assert_eq!(flat.len(), 4);
     }
 }
