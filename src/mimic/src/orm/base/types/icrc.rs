@@ -1,6 +1,13 @@
 use crate::orm::{base::types, prelude::*};
 
 ///
+/// Tokens
+///
+
+#[newtype(primitive = "Nat64", item(is = "types::Nat64"))]
+pub struct Tokens {}
+
+///
 /// Account
 ///
 
