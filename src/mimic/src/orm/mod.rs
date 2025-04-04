@@ -17,7 +17,7 @@ pub mod prelude {
             },
             traits::{
                 EntityDyn, EntityFixture, EntityId as _, Filterable, Inner as _, NumCast,
-                Orderable, Path, Selector as _, SortKey as _, Storable, Validate as _,
+                Orderable, Ordering, Path, Selector as _, SortKey as _, Storable, Validate as _,
                 ValidateCustom, ValidatorBytes, ValidatorNumber, ValidatorString, Visitable,
             },
         },
