@@ -57,7 +57,11 @@ impl ValidateNode for Entity {
 
             // Last sort key must always point to this entity
             if is_last && sk.entity != self.def.path() {
-                errs.add("the last sort key must point to this entity");
+                errs.add(format!(
+                    "last sort key '{}' must be '{}'",
+                    &sk.entity,
+                    self.def.path(),
+                ));
             }
 
             match &sk.field {
