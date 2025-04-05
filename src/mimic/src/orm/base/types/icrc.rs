@@ -8,6 +8,16 @@ use crate::orm::{base::types, prelude::*};
 pub struct Tokens {}
 
 ///
+/// Icrc1Tokens
+///
+
+#[record(fields(
+    field(name = "ledger_canister", value(item(is = "types::Principal"))),
+    field(name = "tokens", value(item(is = "Nat64"))),
+))]
+pub struct Icrc1Tokens {}
+
+///
 /// Account
 ///
 
