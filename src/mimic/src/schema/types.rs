@@ -20,6 +20,8 @@ pub enum Cardinality {
 #[remain::sorted]
 pub enum ConstantType {
     Bool,
+    Float32,
+    Float64,
     Int8,
     Int16,
     Int32,

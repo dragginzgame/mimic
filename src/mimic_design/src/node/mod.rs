@@ -177,6 +177,8 @@ impl Schemable for Cardinality {
 #[remain::sorted]
 pub enum ConstantType {
     Bool,
+    Float32,
+    Float64,
     Int8,
     Int16,
     Int32,
@@ -208,6 +210,8 @@ impl ToTokens for ConstantType {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let ty = match self {
             Self::Bool => quote!(bool),
+            Self::Float32 => quote!(f32),
+            Self::Float64 => quote!(f64),
             Self::Int8 => quote!(i8),
             Self::Int16 => quote!(i16),
             Self::Int32 => quote!(i32),
