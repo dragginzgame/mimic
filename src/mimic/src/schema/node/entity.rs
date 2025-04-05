@@ -51,28 +51,39 @@ impl ValidateNode for Entity {
             errs.add("entity has no sort keys");
         }
 
-        // check sort keys
+        // Check sort keys
         for (i, sk) in self.sort_keys.iter().enumerate() {
-            if let Some(field_name) = &sk.field {
-                // Check if the field exists
-                match self.fields.get_field(field_name) {
-                    None => errs.add(format!("sort key field '{field_name}' does not exist")),
-                    Some(field) => {
-                        if i == self.sort_keys.len() - 1 {
-                            // Last sort key: must point to this entity and have a default value
-                            if sk.entity != self.def.path() {
-                                errs.add("the last sort key must point to this entity");
-                            }
-                        } else if let Some(relation) = &field.value.item.relation {
-                            if *relation != sk.entity {
-                                errs.add("related entity does not match sort key");
-                            }
-                        } else {
-                            // Non-last sort keys: must be of type relation
-                            errs.add(format!(
-                                "non-last sort key field '{field_name}' must be of type relation"
-                            ));
+            match &sk.field {
+                Some(field_name) => {
+                    match self.fields.get_field(field_name) {
+                        None => {
+                            errs.add(format!("sort key field '{field_name}' does not exist"));
                         }
+                        Some(field) => {
+                            let is_last = i == self.sort_keys.len() - 1;
+
+                            if is_last {
+                                // Last sort key must reference this entity and have a default value
+                                if sk.entity != self.def.path() {
+                                    errs.add("the last sort key must point to this entity");
+                                }
+                            } else {
+                                match &field.value.item.relation {
+                                    Some(relation) if *relation == sk.entity => {}
+                                    Some(_) => errs.add("related entity does not match sort key"),
+                                    None => errs.add(format!(
+                                        "non-last sort key field '{field_name}' must be of type relation"
+                                    )),
+                                }
+                            }
+                        }
+                    }
+                }
+
+                None => {
+                    // No field set: check if 'id' exists on this entity
+                    if self.fields.get_field("id").is_some() {
+                        errs.add("sort key is missing a field, but entity has an 'id' field — you must specify it explicitly");
                     }
                 }
             }
