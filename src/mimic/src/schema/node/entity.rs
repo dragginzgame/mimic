@@ -30,6 +30,13 @@ pub struct Entity {
     pub ty: Type,
 }
 
+impl Entity {
+    #[must_use]
+    pub fn can_be_relation(&self) -> bool {
+        self.sort_keys.last().is_some_and(|k| k.field.is_some())
+    }
+}
+
 impl MacroNode for Entity {
     fn as_any(&self) -> &dyn std::any::Any {
         self

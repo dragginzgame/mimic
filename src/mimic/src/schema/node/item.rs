@@ -56,7 +56,15 @@ impl ValidateNode for Item {
             if self.indirect {
                 errs.add("relations cannot be set to indirect");
             }
-            errs.add_result(schema.check_node_as::<Entity>(relation));
+
+            match schema.try_get_node_as::<Entity>(relation) {
+                Ok(entity) => {
+                    if !entity.can_be_relation() {
+                        errs.add("entity cannot be a relation");
+                    }
+                }
+                Err(e) => errs.add(e),
+            }
         }
 
         // type node (both is and relation)
