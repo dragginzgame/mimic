@@ -33,7 +33,7 @@ pub struct Entity {
 impl Entity {
     #[must_use]
     pub fn can_be_relation(&self) -> bool {
-        self.sort_keys.last().is_some_and(|k| k.field.is_some())
+        self.sort_keys.len() == 1 && self.sort_keys[0].field.is_some()
     }
 }
 
