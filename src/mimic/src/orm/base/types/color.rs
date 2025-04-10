@@ -7,11 +7,14 @@ use crate::orm::{
 /// Rgb
 ///
 
-#[record(fields(
-    field(name = "r", value(item(is = "types::Nat8"))),
-    field(name = "g", value(item(is = "types::Nat8"))),
-    field(name = "b", value(item(is = "types::Nat8")))
-))]
+#[record(
+    fields(
+        field(name = "r", value(item(is = "types::Nat8"))),
+        field(name = "g", value(item(is = "types::Nat8"))),
+        field(name = "b", value(item(is = "types::Nat8")))
+    ),
+    traits(add(Default))
+)]
 pub struct Rgb {}
 
 impl Rgb {
@@ -25,12 +28,15 @@ impl Rgb {
 /// Rgba
 ///
 
-#[record(fields(
-    field(name = "r", value(item(is = "types::Nat8"))),
-    field(name = "g", value(item(is = "types::Nat8"))),
-    field(name = "b", value(item(is = "types::Nat8"))),
-    field(name = "a", value(item(is = "types::Nat8")))
-))]
+#[record(
+    fields(
+        field(name = "r", value(item(is = "types::Nat8"))),
+        field(name = "g", value(item(is = "types::Nat8"))),
+        field(name = "b", value(item(is = "types::Nat8"))),
+        field(name = "a", value(item(is = "types::Nat8")))
+    ),
+    traits(add(Default))
+)]
 pub struct Rgba {}
 
 impl Rgba {

@@ -60,6 +60,7 @@ impl ValidateNode for Entity {
 
         // check sort keys
         for (i, sk) in self.sort_keys.iter().enumerate() {
+            let is_first = i == 0;
             let is_last = i == self.sort_keys.len() - 1;
 
             // Last sort key must always point to this entity
@@ -72,25 +73,25 @@ impl ValidateNode for Entity {
             }
 
             match &sk.field {
-                Some(field_name) => match self.fields.get_field(field_name) {
-                    None => {
-                        errs.add(format!("sort key field '{field_name}' does not exist"));
-                    }
-                    Some(field) => {
-                        if !is_last {
-                            match &field.value.item.relation {
-                                Some(relation) if *relation == sk.entity => {}
-                                Some(_) => errs.add("related entity does not match sort key"),
-                                None => errs.add(format!(
-                                    "non-last sort key field '{field_name}' must be of type relation"
-                                )),
+                Some(field_name) => {
+                    match self.fields.get_field(field_name) {
+                        Some(field) if is_first => {
+                            if let Some(rel) = &field.value.item.relation {
+                                if *rel != sk.entity {
+                                    errs.add(format!(
+                                        "related entity {} does not match sort key {}",
+                                        rel, sk.entity
+                                    ));
+                                }
                             }
                         }
+                        Some(_) => {} // not first, no validation needed
+                        None => {
+                            errs.add(format!("sort key field '{field_name}' does not exist"));
+                        }
                     }
-                },
-
+                }
                 None => {
-                    // No field set: check if 'id' exists on this entity
                     if self.fields.get_field("id").is_some() {
                         errs.add("sort key is missing a field, but entity has an 'id' field — you must specify it explicitly");
                     }

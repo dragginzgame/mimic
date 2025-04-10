@@ -85,7 +85,7 @@ pub struct SortKeyB {}
     sk(entity = "SortKeyC", field = "c_id"),
     fields(
         field(name = "a_id", value(item(rel = "SortKeyA"))),
-        field(name = "b_id", value(item(rel = "SortKeyB"))),
+        field(name = "b_id", value(item(is = "Ulid"))),
         field(name = "c_id", value(item(is = "Ulid")), default = "Ulid::generate"),
     )
 )]

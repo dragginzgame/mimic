@@ -60,7 +60,7 @@ impl ValidateNode for Item {
             match schema.try_get_node_as::<Entity>(relation) {
                 Ok(entity) => {
                     if !entity.can_be_relation() {
-                        errs.add("entity cannot be a relation");
+                        errs.add("a related entity must have one sort key and a field");
                     }
                 }
                 Err(e) => errs.add(e),
