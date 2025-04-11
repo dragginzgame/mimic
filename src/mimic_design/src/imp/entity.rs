@@ -39,7 +39,7 @@ fn id(node: &Entity) -> TokenStream {
     let last_sk = node.sort_keys.last().expect("no sort keys!");
     let inner = if let Some(field) = last_sk.field.as_ref() {
         quote! {
-            Some(::mimic::orm::traits::SortKey::format(&self.#field))
+            Some(::mimic::orm::traits::SortKeyValue::format(&self.#field))
         }
     } else {
         quote!(None)
@@ -69,7 +69,7 @@ fn composite_key(node: &Entity) -> TokenStream {
     // format each field as a sort key
     let format_keys = fields.iter().map(|ident| {
         quote! {
-            ::mimic::orm::traits::SortKey::format(&this.#ident)
+            ::mimic::orm::traits::SortKeyValue::format(&this.#ident)
         }
     });
 
@@ -125,7 +125,7 @@ impl Imp<Entity> for EntityDynTrait {
 fn composite_key_dyn(node: &Entity) -> TokenStream {
     let parts = entity_get_fields(node)
         .into_iter()
-        .map(|field| quote!(::mimic::orm::traits::SortKey::format(&self.#field)));
+        .map(|field| quote!(::mimic::orm::traits::SortKeyValue::format(&self.#field)));
 
     // quote
     quote! {

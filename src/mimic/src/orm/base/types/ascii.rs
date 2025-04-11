@@ -1,7 +1,4 @@
-use crate::orm::{
-    base::{types, validator},
-    prelude::*,
-};
+use crate::orm::{base::types, prelude::*};
 
 ///
 /// Text

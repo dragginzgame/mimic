@@ -2,9 +2,7 @@ use crate::orm::{
     prelude::*,
     traits::{Inner, ValidateAuto, ValidateCustom},
 };
-use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
-use serde_bytes::ByteBuf;
 
 ///
 /// Unit

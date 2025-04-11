@@ -1,12 +1,11 @@
 use crate::{
-    Error, ThisError,
-    ic::{api::msg_caller, structures::storable::Bound},
+    ThisError,
+    ic::api::msg_caller,
     impl_storable_bounded,
     orm::{
         prelude::*,
         traits::{
-            Filterable, Inner, Orderable, SortKey, Storable, ValidateAuto, ValidateCustom,
-            Visitable,
+            Filterable, Inner, Orderable, SortKeyValue, ValidateAuto, ValidateCustom, Visitable,
         },
     },
 };
@@ -14,7 +13,6 @@ use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
 use std::{
-    borrow::Cow,
     cmp::Ordering,
     fmt::{self},
     str::FromStr,
@@ -124,7 +122,7 @@ impl Orderable for Principal {
     }
 }
 
-impl SortKey for Principal {}
+impl SortKeyValue for Principal {}
 
 impl_storable_bounded!(Principal, 30, true);
 

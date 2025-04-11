@@ -1,7 +1,7 @@
 use crate::{
     schema::{
         build::schema_read,
-        node::{Entity, Selector, TypeValidator, ValidateNode, VisitableNode},
+        node::{Selector, TypeValidator, ValidateNode, VisitableNode},
         visit::Visitor,
     },
     types::ErrorTree,
@@ -52,19 +52,8 @@ impl ValidateNode for Item {
         }
 
         // relation
-        if let Some(relation) = &self.relation {
-            if self.indirect {
-                errs.add("relations cannot be set to indirect");
-            }
-
-            match schema.try_get_node_as::<Entity>(relation) {
-                Ok(entity) => {
-                    //if !entity.can_be_relation() {
-                    //         errs.add("a related entity must have one sort key and a field");
-                    // }
-                }
-                Err(e) => errs.add(e),
-            }
+        if self.is_relation() && self.indirect {
+            errs.add("relations cannot be set to indirect");
         }
 
         // type node (both is and relation)

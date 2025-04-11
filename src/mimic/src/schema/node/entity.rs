@@ -30,13 +30,6 @@ pub struct Entity {
     pub ty: Type,
 }
 
-impl Entity {
-    #[must_use]
-    pub fn can_be_relation(&self) -> bool {
-        self.sort_keys.len() == 1 && self.sort_keys[0].field.is_some()
-    }
-}
-
 impl MacroNode for Entity {
     fn as_any(&self) -> &dyn std::any::Any {
         self
@@ -60,7 +53,6 @@ impl ValidateNode for Entity {
 
         // check sort keys
         for (i, sk) in self.sort_keys.iter().enumerate() {
-            let is_first = i == 0;
             let is_last = i == self.sort_keys.len() - 1;
 
             // Last sort key must always point to this entity
@@ -75,17 +67,14 @@ impl ValidateNode for Entity {
             match &sk.field {
                 Some(field_name) => {
                     match self.fields.get_field(field_name) {
-                        Some(field) if is_first => {
-                            if let Some(rel) = &field.value.item.relation {
-                                if *rel != sk.entity {
-                                    errs.add(format!(
-                                        "related entity {} does not match sort key {}",
-                                        rel, sk.entity
-                                    ));
-                                }
+                        Some(field) => {
+                            // no relations
+                            if field.value.item.is_relation() {
+                                errs.add(
+                                    "sort key field '{field}' is a relation, which is not allowed",
+                                );
                             }
                         }
-                        Some(_) => {} // not first, no validation needed
                         None => {
                             errs.add(format!("sort key field '{field_name}' does not exist"));
                         }

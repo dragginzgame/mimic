@@ -2,18 +2,16 @@ pub mod fixture;
 pub mod generator;
 
 use crate::{
-    Error, ThisError,
-    ic::serialize::{deserialize, serialize},
-    impl_storable_bounded,
+    ThisError, impl_storable_bounded,
     orm::{
         prelude::*,
-        traits::{EntityId, Filterable, Inner, Orderable, SortKey, ValidateAuto, ValidateCustom},
+        traits::{Filterable, Inner, Orderable, SortKeyValue, ValidateAuto, ValidateCustom},
     },
     types::ErrorTree,
 };
-use derive_more::{Deref, DerefMut, From, FromStr, IntoIterator};
+use derive_more::{Deref, DerefMut, FromStr};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::{borrow::Cow, cmp::Ordering, collections::HashSet, fmt};
+use std::{cmp::Ordering, fmt};
 use ulid::Ulid as WrappedUlid;
 
 ///
@@ -160,7 +158,7 @@ impl<'de> Deserialize<'de> for Ulid {
     }
 }
 
-impl SortKey for Ulid {}
+impl SortKeyValue for Ulid {}
 
 impl_storable_bounded!(Ulid, 16, true);
 
@@ -177,52 +175,3 @@ impl ValidateAuto for Ulid {
 impl ValidateCustom for Ulid {}
 
 impl Visitable for Ulid {}
-
-///
-/// UlidSet
-///
-
-#[derive(
-    CandidType,
-    Clone,
-    Debug,
-    Default,
-    Deref,
-    DerefMut,
-    Eq,
-    PartialEq,
-    From,
-    IntoIterator,
-    Serialize,
-    Deserialize,
-)]
-pub struct UlidSet(HashSet<Ulid>);
-
-impl fmt::Display for UlidSet {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let formatted = self
-            .0
-            .iter()
-            .map(Ulid::to_string)
-            .collect::<Vec<_>>()
-            .join(", ");
-
-        write!(f, "[{formatted}]")
-    }
-}
-
-impl<T: EntityId> From<Vec<T>> for UlidSet {
-    fn from(ids: Vec<T>) -> Self {
-        Self(ids.into_iter().map(|id| id.ulid()).collect())
-    }
-}
-
-/// Allow `UlidSet` to be iterated over by reference (`for ulid in &ulid_set`)
-impl<'a> IntoIterator for &'a UlidSet {
-    type Item = &'a Ulid;
-    type IntoIter = std::collections::hash_set::Iter<'a, Ulid>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.0.iter()
-    }
-}

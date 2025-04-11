@@ -1,10 +1,10 @@
 use crate::{
-    db::types::DataKey,
+    ThisError,
+    orm::base::types::SortKey,
     schema::{
         node::Entity,
-        state::{get_schema, StateError as SchemaStateError},
+        state::{StateError as SchemaStateError, get_schema},
     },
-    ThisError,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -51,7 +51,7 @@ impl Resolver {
     }
 
     // data_key
-    pub fn data_key(&self, ck: &[String]) -> Result<DataKey, ResolverError> {
+    pub fn data_key(&self, ck: &[String]) -> Result<SortKey, ResolverError> {
         let chain_format = self.chain_format()?;
 
         // Initialize an empty vector to store key parts
@@ -62,7 +62,7 @@ impl Resolver {
             data_key_parts.push((part.clone(), key));
         }
 
-        Ok(DataKey::new(data_key_parts))
+        Ok(SortKey::new(data_key_parts))
     }
 
     // chain_format

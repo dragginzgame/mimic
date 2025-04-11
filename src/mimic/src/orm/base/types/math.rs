@@ -1,9 +1,6 @@
-use crate::{
-    Error, ThisError,
-    orm::{
-        base::{types, validator},
-        prelude::*,
-    },
+use crate::orm::{
+    base::{types, validator},
+    prelude::*,
 };
 
 ///

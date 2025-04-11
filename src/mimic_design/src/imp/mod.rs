@@ -8,7 +8,7 @@ mod inner;
 mod into;
 mod num;
 mod orderable;
-mod sort_key;
+mod sort_key_value;
 mod validate;
 mod visitable;
 
@@ -24,7 +24,7 @@ pub use inner::*;
 pub use into::*;
 pub use num::*;
 pub use orderable::*;
-pub use sort_key::*;
+pub use sort_key_value::*;
 pub use validate::*;
 pub use visitable::*;
 

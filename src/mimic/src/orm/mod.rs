@@ -15,12 +15,13 @@ pub mod prelude {
         orm::{
             base::types::{
                 Blob, Bool, Decimal, Float32, Float64, Int, Int8, Int16, Int32, Int64, Int128, Nat,
-                Nat8, Nat16, Nat32, Nat64, Nat128, Principal, Ulid, UlidSet,
+                Nat8, Nat16, Nat32, Nat64, Nat128, Principal, SortKey, SortKeySet, Ulid,
             },
             traits::{
                 EntityDyn, EntityFixture, EntityId as _, Filterable, Inner as _, NumCast,
-                Orderable, Ordering, Path, Selector as _, SortKey as _, Storable, Validate as _,
-                ValidateCustom, ValidatorBytes, ValidatorNumber, ValidatorString, Visitable,
+                Orderable, Ordering, Path, Selector as _, SortKeyValue as _, Storable,
+                Validate as _, ValidateCustom, ValidatorBytes, ValidatorNumber, ValidatorString,
+                Visitable,
             },
         },
         types::{ErrorTree, FixtureList},

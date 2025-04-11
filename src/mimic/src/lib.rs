@@ -39,7 +39,7 @@ pub mod prelude {
         orm::{
             base::{
                 self,
-                types::{Ulid, UlidSet},
+                types::{SortKey, SortKeySet, Ulid},
             },
             traits::{
                 EntityDyn, EntityFixture, Inner as _, NumFromPrimitive, NumToPrimitive, Path,

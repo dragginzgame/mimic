@@ -60,6 +60,7 @@ pub enum PrimitiveType {
     Nat64,
     Nat128,
     Principal,
+    SortKey,
     String,
     Ulid,
     Unit,
@@ -77,8 +78,10 @@ pub enum PrimitiveGroup {
     Decimal,
     Float,
     Integer,
+    SortKey,
     String,
     Ulid,
+    Unit,
 }
 
 ///

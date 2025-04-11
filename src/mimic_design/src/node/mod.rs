@@ -332,6 +332,7 @@ pub enum PrimitiveType {
     Nat64,
     Nat128,
     Principal,
+    SortKey,
     String,
     Todo,
     Ulid,
@@ -363,6 +364,7 @@ impl PrimitiveType {
             | Self::Nat32
             | Self::Nat64
             | Self::Nat128 => PrimitiveGroup::Integer,
+            Self::SortKey => PrimitiveGroup::SortKey,
             Self::String | Self::Principal => PrimitiveGroup::String,
             Self::Ulid => PrimitiveGroup::Ulid,
             Self::Unit => PrimitiveGroup::Unit,
@@ -419,6 +421,7 @@ impl ToTokens for PrimitiveType {
             Self::Int64 => quote!(i64),
             Self::Int128 => quote!(i128),
             Self::Principal => quote!(::mimic::orm::base::types::Principal),
+            Self::SortKey => quote!(::mimic::orm::base::types::SortKey),
             Self::String => quote!(String),
             Self::Todo => quote!(::mimic::orm::base::types::Todo),
             Self::Nat => quote!(::mimic::orm::base::types::Int),
@@ -448,6 +451,7 @@ pub enum PrimitiveGroup {
     Decimal,
     Float,
     Integer,
+    SortKey,
     String,
     Ulid,
     Unit,

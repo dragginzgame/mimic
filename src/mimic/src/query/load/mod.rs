@@ -8,10 +8,10 @@ use crate::{
     Error, ThisError,
     db::{
         DbError, DbLocal, StoreLocal,
-        types::{DataKey, DataRow, EntityRow},
+        types::{DataRow, EntityRow},
     },
     ic::serialize::SerializeError,
-    orm::traits::Entity,
+    orm::{base::types::SortKey, traits::Entity},
     query::{
         QueryError,
         resolver::{Resolver, ResolverError},
@@ -89,7 +89,7 @@ pub enum LoadFormat {
 #[derive(CandidType, Debug, Serialize, Deserialize)]
 pub enum LoadResponse {
     DataRows(Vec<DataRow>),
-    Keys(Vec<DataKey>),
+    Keys(Vec<SortKey>),
     Count(usize),
 }
 
@@ -243,7 +243,7 @@ impl Loader {
 
     // data_key
     // for easy error converstion
-    fn data_key(&self, ck: &[String]) -> Result<DataKey, LoadError> {
+    fn data_key(&self, ck: &[String]) -> Result<SortKey, LoadError> {
         let key = self.resolver.data_key(ck)?;
 
         Ok(key)
@@ -251,7 +251,7 @@ impl Loader {
 }
 
 // query_data_key
-fn query_data_key(store: StoreLocal, key: DataKey) -> Result<DataRow, LoadError> {
+fn query_data_key(store: StoreLocal, key: SortKey) -> Result<DataRow, LoadError> {
     store.with_borrow(|this| {
         this.get(&key)
             .map(|value| DataRow {
@@ -263,7 +263,7 @@ fn query_data_key(store: StoreLocal, key: DataKey) -> Result<DataRow, LoadError>
 }
 
 // query_range
-fn query_range(store: StoreLocal, start: DataKey, end: DataKey) -> Vec<DataRow> {
+fn query_range(store: StoreLocal, start: SortKey, end: SortKey) -> Vec<DataRow> {
     store.with_borrow(|this| {
         this.range(start..=end)
             .map(|(key, value)| DataRow { key, value })

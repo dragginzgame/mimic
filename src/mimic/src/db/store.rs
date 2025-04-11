@@ -1,6 +1,7 @@
 use crate::{
-    db::types::{DataKey, DataValue},
-    ic::structures::{btreemap::BTreeMap, DefaultMemory},
+    db::types::DataValue,
+    ic::structures::{DefaultMemory, btreemap::BTreeMap},
+    orm::base::types::SortKey,
 };
 use derive_more::{Deref, DerefMut};
 use std::{cell::RefCell, thread::LocalKey};
@@ -11,7 +12,7 @@ use std::{cell::RefCell, thread::LocalKey};
 
 #[derive(Deref, DerefMut)]
 pub struct Store {
-    pub data: BTreeMap<DataKey, DataValue>,
+    pub data: BTreeMap<SortKey, DataValue>,
 }
 
 impl Store {

@@ -1,10 +1,7 @@
 use crate::{
     Error,
-    db::{
-        DbLocal,
-        types::{DataKey, DataRow},
-    },
-    orm::traits::Entity,
+    db::{DbLocal, types::DataRow},
+    orm::{base::types::SortKey, traits::Entity},
     query::{
         DebugContext, QueryError, Resolver,
         load::{LoadError, LoadFormat, LoadMethod, LoadResponse, Loader},
@@ -240,12 +237,12 @@ impl LoadCollectionDyn {
 
     // key
     #[must_use]
-    pub fn key(self) -> Option<DataKey> {
+    pub fn key(self) -> Option<SortKey> {
         self.0.first().map(|row| row.key.clone())
     }
 
     // try_key
-    pub fn try_key(self) -> Result<DataKey, Error> {
+    pub fn try_key(self) -> Result<SortKey, Error> {
         let row = self
             .0
             .first()
@@ -257,7 +254,7 @@ impl LoadCollectionDyn {
 
     // keys
     #[must_use]
-    pub fn keys(self) -> Vec<DataKey> {
+    pub fn keys(self) -> Vec<SortKey> {
         self.0.into_iter().map(|row| row.key).collect()
     }
 

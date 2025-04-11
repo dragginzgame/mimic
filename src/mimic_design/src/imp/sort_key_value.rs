@@ -6,17 +6,17 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 ///
-/// SortKeyTrait
+/// SortKeyValueTrait
 ///
 
-pub struct SortKeyTrait {}
+pub struct SortKeyValueTrait {}
 
 ///
 /// Newtype
 /// simply delegates to the wrapped type
 ///
 
-impl Imp<Newtype> for SortKeyTrait {
+impl Imp<Newtype> for SortKeyValueTrait {
     fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
         let q = quote! {
             fn format(&self) -> String {

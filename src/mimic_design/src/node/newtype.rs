@@ -117,7 +117,7 @@ impl TraitNode for Newtype {
             Trait::NumToPrimitive => imp::NumToPrimitiveTrait::tokens(self, t),
             Trait::NumFromPrimitive => imp::NumFromPrimitiveTrait::tokens(self, t),
             Trait::Orderable => imp::OrderableTrait::tokens(self, t),
-            Trait::SortKey => imp::SortKeyTrait::tokens(self, t),
+            Trait::SortKeyValue => imp::SortKeyValueTrait::tokens(self, t),
             Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => imp::VisitableTrait::tokens(self, t),
 

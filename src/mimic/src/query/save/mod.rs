@@ -8,9 +8,9 @@ use crate::{
     ThisError,
     db::{
         DbError, DbLocal,
-        types::{DataKey, DataValue, Metadata},
+        types::{DataValue, Metadata},
     },
-    orm::{OrmError, traits::EntityDyn},
+    orm::{OrmError, base::types::SortKey, traits::EntityDyn},
     query::{
         DebugContext,
         resolver::{Resolver, ResolverError},
@@ -27,10 +27,10 @@ use serde::{Deserialize, Serialize};
 #[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum SaveError {
     #[error("key exists: {0}")]
-    KeyExists(DataKey),
+    KeyExists(SortKey),
 
     #[error("key not found: {0}")]
-    KeyNotFound(DataKey),
+    KeyNotFound(SortKey),
 
     #[error(transparent)]
     DbError(#[from] DbError),

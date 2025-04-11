@@ -1,7 +1,7 @@
 use crate::{
     Error, ThisError,
-    db::{DbError, DbLocal, types::DataKey},
-    orm::traits::Entity,
+    db::{DbError, DbLocal},
+    orm::{base::types::SortKey, traits::Entity},
     query::{DebugContext, QueryError, Resolver, resolver::ResolverError},
 };
 use candid::CandidType;
@@ -182,4 +182,4 @@ impl DeleteExecutor {
 ///
 
 #[derive(CandidType, Debug, Deref, DerefMut, Serialize, Deserialize)]
-pub struct DeleteResponse(Vec<DataKey>);
+pub struct DeleteResponse(Vec<SortKey>);

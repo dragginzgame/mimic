@@ -2,9 +2,9 @@ use crate::{
     Error,
     db::{
         DbLocal,
-        types::{DataKey, DataRow, EntityRow},
+        types::{DataRow, EntityRow},
     },
-    orm::traits::Entity,
+    orm::{base::types::SortKey, traits::Entity},
     query::{
         DebugContext, QueryError, Resolver,
         load::{LoadError, LoadFormat, LoadMap, LoadMethod, LoadResponse, Loader},
@@ -337,12 +337,12 @@ where
 
     // key
     #[must_use]
-    pub fn key(self) -> Option<DataKey> {
+    pub fn key(self) -> Option<SortKey> {
         self.0.first().map(|row| row.key.clone())
     }
 
     // try_key
-    pub fn try_key(self) -> Result<DataKey, Error> {
+    pub fn try_key(self) -> Result<SortKey, Error> {
         let row = self
             .0
             .first()
@@ -354,7 +354,7 @@ where
 
     // keys
     #[must_use]
-    pub fn keys(self) -> Vec<DataKey> {
+    pub fn keys(self) -> Vec<SortKey> {
         self.0.into_iter().map(|row| row.key).collect()
     }
 

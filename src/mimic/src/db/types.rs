@@ -1,11 +1,10 @@
 use crate::{
     ic::serialize::{SerializeError, deserialize, serialize},
-    impl_storable_bounded, impl_storable_unbounded,
-    orm::traits::Path,
+    impl_storable_unbounded,
+    orm::{base::types::SortKey, traits::Path},
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
-use std::fmt;
 
 ///
 /// STORAGE & API TYPES
@@ -18,13 +17,13 @@ use std::fmt;
 
 #[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
 pub struct DataRow {
-    pub key: DataKey,
+    pub key: SortKey,
     pub value: DataValue,
 }
 
 impl DataRow {
     #[must_use]
-    pub const fn new(key: DataKey, value: DataValue) -> Self {
+    pub const fn new(key: SortKey, value: DataValue) -> Self {
         Self { key, value }
     }
 }
@@ -42,52 +41,6 @@ where
         })
     }
 }
-
-///
-/// DataKey
-///
-
-#[derive(CandidType, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
-pub struct DataKey(Vec<(String, Option<String>)>);
-
-impl DataKey {
-    #[must_use]
-    pub const fn new(parts: Vec<(String, Option<String>)>) -> Self {
-        Self(parts)
-    }
-
-    /// Creates an upper bound for the `DataKey` by appending `~` to the last part's key.
-    #[must_use]
-    pub fn create_upper_bound(&self) -> Self {
-        let mut new_parts = self.0.clone();
-
-        if let Some((_, last_key)) = new_parts.last_mut() {
-            match last_key {
-                Some(key) => key.push('~'),
-                None => *last_key = Some("~".to_string()),
-            }
-        }
-
-        Self(new_parts)
-    }
-}
-
-impl fmt::Display for DataKey {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let formatted_parts: Vec<String> = self
-            .0
-            .iter()
-            .map(|(path, key)| match key {
-                Some(k) => format!("{path} ({k})"),
-                None => format!("{path} (None)"),
-            })
-            .collect();
-
-        write!(f, "[{}]", formatted_parts.join(", "))
-    }
-}
-
-impl_storable_bounded!(DataKey, 255, false);
 
 ///
 /// DataValue
@@ -129,7 +82,7 @@ pub struct EntityRow<E>
 where
     E: DeserializeOwned,
 {
-    pub key: DataKey,
+    pub key: SortKey,
     pub value: EntityValue<E>,
 }
 
@@ -137,7 +90,7 @@ impl<E> EntityRow<E>
 where
     E: DeserializeOwned,
 {
-    pub const fn new(key: DataKey, value: EntityValue<E>) -> Self {
+    pub const fn new(key: SortKey, value: EntityValue<E>) -> Self {
         Self { key, value }
     }
 }
@@ -205,7 +158,7 @@ mod tests {
             ("part1".to_string(), Some("alpha".to_string())),
             ("part2".to_string(), Some("gamma".to_string())),
         ];
-        let data_key = DataKey::new(parts);
+        let data_key = SortKey::new(parts);
         let upper_bound_key = data_key.create_upper_bound();
 
         assert!(
@@ -220,7 +173,7 @@ mod tests {
             ("part1".to_string(), Some("alpha".to_string())),
             ("part2".to_string(), None), // Initially empty key
         ];
-        let data_key = DataKey::new(parts);
+        let data_key = SortKey::new(parts);
         let upper_bound_key = data_key.create_upper_bound();
 
         assert!(
@@ -240,7 +193,7 @@ mod tests {
             ("part1".to_string(), Some("alpha".to_string())),
             ("part2".to_string(), Some("gamma".to_string())),
         ];
-        let data_key = DataKey::new(parts);
+        let data_key = SortKey::new(parts);
         let upper_bound_key = data_key.create_upper_bound();
 
         assert_eq!(
@@ -252,10 +205,10 @@ mod tests {
 
     #[test]
     fn test_rarity_ordering() {
-        let rarity_empty = DataKey::new(vec![("Rarity".to_string(), None)]);
+        let rarity_empty = SortKey::new(vec![("Rarity".to_string(), None)]);
         let rarity_with_key =
-            DataKey::new(vec![("Rarity".to_string(), Some("123123".to_string()))]);
-        let rarity_upper_bound = DataKey::new(vec![("Rarity".to_string(), Some("~".to_string()))]);
+            SortKey::new(vec![("Rarity".to_string(), Some("123123".to_string()))]);
+        let rarity_upper_bound = SortKey::new(vec![("Rarity".to_string(), Some("~".to_string()))]);
 
         assert!(
             rarity_empty < rarity_with_key,

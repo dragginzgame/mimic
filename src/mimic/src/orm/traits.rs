@@ -497,10 +497,11 @@ pub trait FieldSort {
 }
 
 ///
-/// SortKey
+/// SortKeyValue
+/// a type that can be used inside a SortKey's value
 ///
 
-pub trait SortKey: FromStr + ToString {
+pub trait SortKeyValue: FromStr + ToString {
     // format
     // how is this type formatted within a sort key string, we may want
     // to overwrite for fixed-width values
@@ -509,12 +510,12 @@ pub trait SortKey: FromStr + ToString {
     }
 }
 
-impl SortKey for String {}
+impl SortKeyValue for String {}
 
 macro_rules! impl_sort_key_for_ints {
     ($($t:ty, $ut:ty, $len:expr),* $(,)?) => {
         $(
-            impl SortKey for $t {
+            impl SortKeyValue for $t {
                 #[allow(clippy::cast_sign_loss)]
                 fn format(&self) -> String {
                     if *self < 0 {
@@ -532,7 +533,7 @@ macro_rules! impl_sort_key_for_ints {
 macro_rules! impl_sort_key_for_uints {
     ($($t:ty, $len:expr),* $(,)?) => {
         $(
-            impl SortKey for $t {
+            impl SortKeyValue for $t {
                 fn format(&self) -> String {
                     format!("{:0>width$}", self, width = $len)
                 }
