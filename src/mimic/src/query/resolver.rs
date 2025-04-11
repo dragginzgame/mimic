@@ -1,6 +1,6 @@
 use crate::{
     ThisError,
-    orm::base::types::SortKey,
+    db::types::SortKey,
     schema::{
         node::Entity,
         state::{StateError as SchemaStateError, get_schema},

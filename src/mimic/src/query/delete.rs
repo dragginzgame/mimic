@@ -1,7 +1,7 @@
 use crate::{
     Error, ThisError,
-    db::{DbError, DbLocal},
-    orm::{base::types::SortKey, traits::Entity},
+    db::{DbError, DbLocal, types::SortKey},
+    orm::traits::Entity,
     query::{DebugContext, QueryError, Resolver, resolver::ResolverError},
 };
 use candid::CandidType;

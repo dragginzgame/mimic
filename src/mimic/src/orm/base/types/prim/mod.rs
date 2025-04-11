@@ -3,7 +3,7 @@ pub mod decimal;
 pub mod int;
 pub mod nat;
 pub mod principal;
-pub mod sort_key;
+pub mod relation;
 pub mod ulid;
 pub mod unit;
 
@@ -12,6 +12,6 @@ pub use decimal::Decimal;
 pub use int::Int;
 pub use nat::Nat;
 pub use principal::Principal;
-pub use sort_key::SortKey;
+pub use relation::Relation;
 pub use ulid::Ulid;
 pub use unit::Unit;

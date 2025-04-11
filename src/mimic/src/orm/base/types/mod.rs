@@ -11,8 +11,6 @@ pub mod web;
 
 use crate::orm::{base::types, prelude::*};
 
-pub use prim::sort_key::SortKeySet;
-
 ///
 /// Bool
 ///
@@ -165,15 +163,15 @@ impl Path for Principal {
 }
 
 ///
-/// SortKey
+/// Relation
 ///
 
-#[primitive(variant = "SortKey", path = "types::prim::SortKey")]
-pub struct SortKey {}
+#[primitive(variant = "Relation", path = "types::prim::Relation")]
+pub struct Relation {}
 
-impl Path for SortKey {
-    const IDENT: &'static str = "SortKey";
-    const PATH: &'static str = "mimic::orm::base::types::SortKey";
+impl Path for Relation {
+    const IDENT: &'static str = "Relation";
+    const PATH: &'static str = "mimic::orm::base::types::Relation";
 }
 
 ///

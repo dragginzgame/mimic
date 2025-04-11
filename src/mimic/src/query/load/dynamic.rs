@@ -1,7 +1,10 @@
 use crate::{
     Error,
-    db::{DbLocal, types::DataRow},
-    orm::{base::types::SortKey, traits::Entity},
+    db::{
+        DbLocal,
+        types::{DataRow, SortKey},
+    },
+    orm::traits::Entity,
     query::{
         DebugContext, QueryError, Resolver,
         load::{LoadError, LoadFormat, LoadMethod, LoadResponse, Loader},

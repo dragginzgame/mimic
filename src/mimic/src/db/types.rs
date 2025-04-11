@@ -1,10 +1,11 @@
 use crate::{
     ic::serialize::{SerializeError, deserialize, serialize},
-    impl_storable_unbounded,
-    orm::{base::types::SortKey, traits::Path},
+    impl_storable_bounded, impl_storable_unbounded,
+    orm::traits::Path,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use std::fmt;
 
 ///
 /// STORAGE & API TYPES
@@ -41,6 +42,54 @@ where
         })
     }
 }
+
+///
+/// SortKey
+///
+
+#[derive(
+    CandidType, Clone, Debug, Default, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize,
+)]
+pub struct SortKey(pub Vec<(String, Option<String>)>);
+
+impl SortKey {
+    #[must_use]
+    pub const fn new(parts: Vec<(String, Option<String>)>) -> Self {
+        Self(parts)
+    }
+
+    /// Creates an upper bound for the `DataKey` by appending `~` to the last part's key.
+    #[must_use]
+    pub fn create_upper_bound(&self) -> Self {
+        let mut new_parts = self.0.clone();
+
+        if let Some((_, last_key)) = new_parts.last_mut() {
+            match last_key {
+                Some(key) => key.push('~'),
+                None => *last_key = Some("~".to_string()),
+            }
+        }
+
+        Self(new_parts)
+    }
+}
+
+impl fmt::Display for SortKey {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let formatted_parts: Vec<String> = self
+            .0
+            .iter()
+            .map(|(path, key)| match key {
+                Some(k) => format!("{path} ({k})"),
+                None => format!("{path} (None)"),
+            })
+            .collect();
+
+        write!(f, "[{}]", formatted_parts.join(", "))
+    }
+}
+
+impl_storable_bounded!(SortKey, 255, false);
 
 ///
 /// DataValue

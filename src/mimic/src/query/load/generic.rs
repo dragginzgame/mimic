@@ -2,9 +2,9 @@ use crate::{
     Error,
     db::{
         DbLocal,
-        types::{DataRow, EntityRow},
+        types::{DataRow, EntityRow, SortKey},
     },
-    orm::{base::types::SortKey, traits::Entity},
+    orm::traits::Entity,
     query::{
         DebugContext, QueryError, Resolver,
         load::{LoadError, LoadFormat, LoadMap, LoadMethod, LoadResponse, Loader},

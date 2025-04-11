@@ -8,10 +8,10 @@ use crate::{
     Error, ThisError,
     db::{
         DbError, DbLocal, StoreLocal,
-        types::{DataRow, EntityRow},
+        types::{DataRow, EntityRow, SortKey},
     },
     ic::serialize::SerializeError,
-    orm::{base::types::SortKey, traits::Entity},
+    orm::traits::Entity,
     query::{
         QueryError,
         resolver::{Resolver, ResolverError},

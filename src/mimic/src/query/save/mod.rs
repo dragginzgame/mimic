@@ -8,9 +8,9 @@ use crate::{
     ThisError,
     db::{
         DbError, DbLocal,
-        types::{DataValue, Metadata},
+        types::{DataValue, Metadata, SortKey},
     },
-    orm::{OrmError, base::types::SortKey, traits::EntityDyn},
+    orm::{OrmError, traits::EntityDyn},
     query::{
         DebugContext,
         resolver::{Resolver, ResolverError},
