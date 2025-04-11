@@ -113,7 +113,7 @@ fn extract_comments(input: TokenStream) -> String {
                     }
                 }
             }
-            _ => continue,
+            _ => {}
         }
     }
 

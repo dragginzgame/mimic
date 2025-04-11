@@ -163,7 +163,7 @@ fn normalize_rgba_hex(input: &str) -> String {
     let hex = input.trim_start_matches('#').to_ascii_uppercase();
     match hex.len() {
         6 => format!("{hex}FF"),
-        8 => hex.to_string(),
+        8 => hex,
         _ => String::from("FFFFFFFF"), // fallback default
     }
 }
@@ -171,7 +171,7 @@ fn normalize_rgba_hex(input: &str) -> String {
 fn normalize_rgb_hex(input: &str) -> String {
     let hex = input.trim_start_matches('#').to_ascii_uppercase();
     if hex.len() == 6 {
-        hex.to_string()
+        hex
     } else {
         String::from("FFFFFF") // fallback
     }

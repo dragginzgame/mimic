@@ -60,22 +60,22 @@ pub struct Duration {}
 
 impl Duration {
     #[must_use]
-    pub fn from_minutes(minutes: u64) -> Self {
+    pub const fn from_minutes(minutes: u64) -> Self {
         Self(minutes * 60)
     }
 
     #[must_use]
-    pub fn from_hours(hours: u64) -> Self {
+    pub const fn from_hours(hours: u64) -> Self {
         Self(hours * 3_600)
     }
 
     #[must_use]
-    pub fn from_days(days: u64) -> Self {
+    pub const fn from_days(days: u64) -> Self {
         Self(days * 86_400)
     }
 
     #[must_use]
-    pub fn as_secs(&self) -> u64 {
+    pub const fn as_secs(&self) -> u64 {
         self.0
     }
 }

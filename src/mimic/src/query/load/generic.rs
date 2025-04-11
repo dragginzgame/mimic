@@ -130,7 +130,7 @@ impl LoadQuery {
 
     // debug
     #[must_use]
-    pub fn debug(mut self) -> Self {
+    pub const fn debug(mut self) -> Self {
         self.debug.enable();
         self
     }

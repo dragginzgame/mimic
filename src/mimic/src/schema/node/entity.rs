@@ -70,9 +70,9 @@ impl ValidateNode for Entity {
                         Some(field) => {
                             // no relations
                             if field.value.item.is_relation() {
-                                errs.add(
-                                    "sort key field '{field}' is a relation, which is not allowed",
-                                );
+                                errs.add(format!(
+                                    "sort key field '{field_name}' is a relation, which is not allowed",
+                                ));
                             }
                         }
                         None => {

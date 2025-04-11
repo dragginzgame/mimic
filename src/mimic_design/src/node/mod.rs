@@ -424,7 +424,7 @@ impl ToTokens for PrimitiveType {
             Self::SortKey => quote!(::mimic::orm::base::types::SortKey),
             Self::String => quote!(String),
             Self::Todo => quote!(::mimic::orm::base::types::Todo),
-            Self::Nat => quote!(::mimic::orm::base::types::Int),
+            Self::Nat => quote!(::mimic::orm::base::types::Nat),
             Self::Nat8 => quote!(u8),
             Self::Nat16 => quote!(u16),
             Self::Nat32 => quote!(u32),

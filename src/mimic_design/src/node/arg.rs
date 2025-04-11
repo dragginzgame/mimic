@@ -279,7 +279,12 @@ impl ArgNumber {
         }
 
         // 2. Unsuffixed: first try integers
-        if !s.contains('.') {
+        if s.contains('.') {
+            // 3. Unsuffixed float, just do f64 as easier
+            if let Ok(f) = s.parse::<f64>() {
+                return Ok(Self::Float64(f));
+            }
+        } else {
             macro_rules! try_parse {
                 ($($ty:ty => $variant:ident),*) => {
                     $(
@@ -303,11 +308,6 @@ impl ArgNumber {
                 u64 => Nat64,
                 u128 => Nat128
             );
-        } else {
-            // 3. Unsuffixed float, just do f64 as easier
-            if let Ok(f) = s.parse::<f64>() {
-                return Ok(Self::Float64(f));
-            }
         }
 
         // Return error if no match found

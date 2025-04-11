@@ -59,7 +59,7 @@ impl Principal {
     }
 
     #[must_use]
-    pub fn anonymous() -> Self {
+    pub const fn anonymous() -> Self {
         Self(WrappedPrincipal::anonymous())
     }
 }

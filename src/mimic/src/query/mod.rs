@@ -112,7 +112,7 @@ pub struct DebugContext {
 }
 
 impl DebugContext {
-    pub fn enable(&mut self) {
+    pub const fn enable(&mut self) {
         self.enabled = true;
     }
 
