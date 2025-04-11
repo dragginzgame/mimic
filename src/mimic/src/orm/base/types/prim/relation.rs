@@ -1,8 +1,10 @@
 use crate::{
     impl_storable_bounded,
     orm::{
-        base::types::Ulid,
-        traits::{Filterable, Inner, Orderable, ValidateAuto, ValidateCustom, Visitable},
+        base::types::{Ulid, prim::ulid::UlidError},
+        traits::{
+            Filterable, Inner, Orderable, SortKeyValue, ValidateAuto, ValidateCustom, Visitable,
+        },
     },
 };
 use candid::CandidType;
@@ -12,6 +14,7 @@ use std::{
     cmp::Ordering,
     collections::HashSet,
     fmt::{self},
+    str::FromStr,
 };
 
 ///
@@ -38,7 +41,19 @@ impl fmt::Display for Relation {
 
 impl Filterable for Relation {}
 
+impl FromStr for Relation {
+    type Err = UlidError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let ulid = Ulid::from_str(s)?;
+
+        Ok(Relation(vec![ulid]))
+    }
+}
+
 impl Orderable for Relation {}
+
+impl SortKeyValue for Relation {}
 
 impl ValidateCustom for Relation {}
 
