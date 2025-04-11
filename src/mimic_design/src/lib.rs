@@ -90,30 +90,27 @@ fn extract_comments(input: TokenStream) -> String {
     let mut comments = Vec::new();
 
     for token in input {
-        match token {
-            TokenTree::Group(group) => {
-                if group.delimiter() == Delimiter::Bracket {
-                    let mut inner_tokens = group.stream().into_iter();
-                    if let (
-                        Some(TokenTree::Ident(ident)),
-                        Some(TokenTree::Punct(punct)),
-                        Some(TokenTree::Literal(lit)),
-                    ) = (
-                        inner_tokens.next(),
-                        inner_tokens.next(),
-                        inner_tokens.next(),
-                    ) {
-                        if ident == "doc" && punct.as_char() == '=' {
-                            let comment = lit.to_string();
-                            // Remove the outermost quotes and the first space of each line
-                            let cleaned_comment = clean_comment(&comment);
+        if let TokenTree::Group(group) = token {
+            if group.delimiter() == Delimiter::Bracket {
+                let mut inner_tokens = group.stream().into_iter();
+                if let (
+                    Some(TokenTree::Ident(ident)),
+                    Some(TokenTree::Punct(punct)),
+                    Some(TokenTree::Literal(lit)),
+                ) = (
+                    inner_tokens.next(),
+                    inner_tokens.next(),
+                    inner_tokens.next(),
+                ) {
+                    if ident == "doc" && punct.as_char() == '=' {
+                        let comment = lit.to_string();
+                        // Remove the outermost quotes and the first space of each line
+                        let cleaned_comment = clean_comment(&comment);
 
-                            comments.push(cleaned_comment);
-                        }
+                        comments.push(cleaned_comment);
                     }
                 }
             }
-            _ => {}
         }
     }
 
