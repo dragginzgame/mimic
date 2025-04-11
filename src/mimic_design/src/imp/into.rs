@@ -18,14 +18,14 @@ pub struct IntoTrait {}
 impl Imp<EntityId> for IntoTrait {
     fn tokens(node: &EntityId, t: Trait) -> Option<TokenStream> {
         let q = quote! {
-            fn into(self) -> mimic::orm::base::types::Ulid {
-                self.ulid()
+            fn into(self) -> mimic::orm::base::types::Relation {
+                self.relation()
             }
         };
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
-            .add_trait_generic(quote!(mimic::orm::base::types::Ulid))
+            .add_trait_generic(quote!(mimic::orm::base::types::Relation))
             .to_token_stream();
 
         Some(tokens)

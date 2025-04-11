@@ -41,6 +41,12 @@ impl fmt::Display for Relation {
 
 impl Filterable for Relation {}
 
+impl From<Ulid> for Relation {
+    fn from(ulid: Ulid) -> Self {
+        Self(vec![ulid])
+    }
+}
+
 impl FromStr for Relation {
     type Err = UlidError;
 

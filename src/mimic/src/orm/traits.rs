@@ -17,7 +17,11 @@ pub use std::{
 };
 
 use crate::{
-    orm::{OrmError, base::types::Ulid, visit::Visitor},
+    orm::{
+        OrmError,
+        base::types::{Relation, Ulid},
+        visit::Visitor,
+    },
     schema::types::SortDirection,
     types::{ErrorTree, FixtureList},
 };
@@ -430,6 +434,11 @@ pub trait EntityId: NodeDyn + Display {
     fn ulid(&self) -> Ulid {
         let digest = format!("{}-{}", self.path_dyn(), self);
         Ulid::from_string_digest(&digest)
+    }
+
+    #[must_use]
+    fn relation(&self) -> Relation {
+        Relation::from(self.ulid())
     }
 }
 
