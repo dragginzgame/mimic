@@ -231,7 +231,7 @@ fn quote_variant(value: &Value, ident: &Ident) -> TokenStream {
             },
         },
         Cardinality::Many => quote! {
-            Self::#ident(values) => for value in values {
+            Self::#ident(values) => for value in values.iter() {
                 ::mimic::orm::visit::perform_visit(visitor, value, #name);
             },
         },
