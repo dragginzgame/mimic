@@ -22,7 +22,7 @@ use std::{
 ///
 
 #[derive(
-    CandidType, Clone, Debug, Default, Deref, DerefMut, Eq, PartialEq, Serialize, Deserialize,
+    CandidType, Clone, Debug, Default, Deref, DerefMut, Eq, PartialEq, Hash, Serialize, Deserialize,
 )]
 pub struct Relation(Vec<Ulid>);
 
