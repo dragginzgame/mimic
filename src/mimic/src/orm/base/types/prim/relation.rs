@@ -47,6 +47,12 @@ impl From<Ulid> for Relation {
     }
 }
 
+impl<U: Into<Ulid>> From<Vec<U>> for Relation {
+    fn from(ulids: Vec<U>) -> Self {
+        Self(ulids.into_iter().map(Into::into).collect())
+    }
+}
+
 impl FromStr for Relation {
     type Err = UlidError;
 
