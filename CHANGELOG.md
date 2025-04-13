@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - standardising with the ICRC standardisations.  Nat, Int, Nat8 etc.
 - lots more work on the RGBA types, thanks ChatGPT
 - Relations are now a whole sort key not a ulid
+- enforced _id, _ids, _key, _keys
 
 ## [0.3.6]
 - completely redid the type validators, and now we have field-level validators too, so you can make a

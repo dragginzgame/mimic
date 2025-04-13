@@ -82,20 +82,35 @@ impl ValidateNode for Field {
             errs.add(format!("field name '{}' must be in snake_case", self.name));
         }
 
-        // check for relations with confusing idents
-        if self.value.item.is_relation() {
-            let one_suffix = ident.ends_with("id");
-            let many_suffix = ident.ends_with("ids");
-
+        // check for ulids with confusing idents
+        if self.value.item.is_ulid() {
             match self.value.cardinality {
-                Cardinality::Many if !many_suffix => {
-                    errs.add(format!("many relationship '{ident}' should end with 'ids'"));
-                }
-                Cardinality::One | Cardinality::Opt if !one_suffix => {
+                Cardinality::One | Cardinality::Opt if !ident.ends_with("id") => {
                     errs.add(format!(
-                        "one or optional relationship '{ident}' should end with 'id'"
+                        "one or optional Ulid field '{ident}' should end with 'id'"
                     ));
                 }
+                Cardinality::Many if !ident.ends_with("ids") => {
+                    errs.add(format!("many Ulid field '{ident}' should end with 'ids'"));
+                }
+                _ => {}
+            }
+        }
+
+        // relation naming
+        if self.value.item.is_relation() {
+            match self.value.cardinality {
+                Cardinality::One | Cardinality::Opt if !ident.ends_with("key") => {
+                    errs.add(format!(
+                        "one or optional relationship '{ident}' should end with 'key'"
+                    ));
+                }
+                Cardinality::Many if !ident.ends_with("keys") => {
+                    errs.add(format!(
+                        "many relationship '{ident}' should end with 'keys'"
+                    ));
+                }
+
                 _ => {}
             }
         }

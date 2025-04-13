@@ -1,4 +1,5 @@
 use crate::{
+    orm::{base::types::Ulid, traits::Path},
     schema::{
         build::schema_read,
         node::{Selector, TypeValidator, ValidateNode, VisitableNode},
@@ -35,6 +36,11 @@ pub struct Item {
 }
 
 impl Item {
+    #[must_use]
+    pub fn is_ulid(&self) -> bool {
+        self.path == Ulid::path()
+    }
+
     #[must_use]
     pub const fn is_relation(&self) -> bool {
         self.relation.is_some()

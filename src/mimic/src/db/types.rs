@@ -58,7 +58,7 @@ impl SortKey {
         Self(parts)
     }
 
-    /// Creates an upper bound for the `DataKey` by appending `~` to the last part's key.
+    /// creates an upper bound for the key by appending `~` to the last part's key.
     #[must_use]
     pub fn create_upper_bound(&self) -> Self {
         let mut new_parts = self.0.clone();
