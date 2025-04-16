@@ -131,3 +131,14 @@ impl fmt::Display for RelationSet {
         write!(f, "[{}]", formatted)
     }
 }
+
+impl<T: Into<Ulid>> From<Vec<T>> for RelationSet {
+    fn from(vec: Vec<T>) -> Self {
+        let rels = vec
+            .into_iter()
+            .map(|t| Relation::from(t.into()))
+            .collect::<HashSet<_>>();
+
+        Self(rels)
+    }
+}

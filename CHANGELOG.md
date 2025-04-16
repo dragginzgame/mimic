@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Relations are now a whole sort key not a ulid
 - enforced _id, _ids, _key, _keys
 - renamed the primitive type String to Text to match the Candid interface
+- fixed a bug where RelationSet wasn't being used (a HashSet of Relations)
 
 ## [0.3.6]
 - completely redid the type validators, and now we have field-level validators too, so you can make a
