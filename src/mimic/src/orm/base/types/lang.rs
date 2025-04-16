@@ -9,9 +9,9 @@ use crate::orm::{
 ///
 
 #[newtype(
-    primitive = "String",
-    item(is = "types::String"),
-    ty(validator(path = "validator::string::iso::Iso6391"))
+    primitive = "Text",
+    item(is = "types::Text"),
+    ty(validator(path = "validator::text::iso::Iso6391"))
 )]
 pub struct Code {}
 

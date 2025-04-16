@@ -107,10 +107,10 @@ impl TryFrom<&str> for Rgba {
 ///
 
 #[newtype(
-    primitive = "String",
-    item(is = "types::String"),
+    primitive = "Text",
+    item(is = "types::Text"),
     default = "FFFFFF",
-    ty(validator(path = "validator::string::color::RgbHex")),
+    ty(validator(path = "validator::text::color::RgbHex")),
     traits(remove(From))
 )]
 pub struct RgbHex {}
@@ -132,10 +132,10 @@ impl From<Rgb> for RgbHex {
 ///
 
 #[newtype(
-    primitive = "String",
-    item(is = "types::String"),
+    primitive = "Text",
+    item(is = "types::Text"),
     default = "FFFFFFFF",
-    ty(validator(path = "validator::string::color::RgbaHex")),
+    ty(validator(path = "validator::text::color::RgbaHex")),
     traits(remove(From))
 )]
 pub struct RgbaHex {}

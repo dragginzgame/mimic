@@ -7,21 +7,21 @@ use mimic::orm::{
 /// List
 ///
 
-#[list(item(is = "types::String"))]
+#[list(item(is = "types::Text"))]
 pub struct List {}
 
 ///
 /// Map
 ///
 
-#[map(key(is = "types::String"), value(item(is = "types::Nat8")))]
+#[map(key(is = "types::Text"), value(item(is = "types::Nat8")))]
 pub struct Map {}
 
 ///
 /// Set
 ///
 
-#[set(item(is = "types::String"))]
+#[set(item(is = "types::Text"))]
 pub struct Set {}
 
 ///

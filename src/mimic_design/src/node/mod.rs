@@ -333,8 +333,7 @@ pub enum PrimitiveType {
     Nat128,
     Principal,
     Relation,
-    String,
-    Todo,
+    Text,
     Ulid,
     Unit,
 }
@@ -349,7 +348,7 @@ impl PrimitiveType {
     pub const fn group(self) -> PrimitiveGroup {
         match self {
             Self::Blob => PrimitiveGroup::Blob,
-            Self::Bool | Self::Todo => PrimitiveGroup::Bool,
+            Self::Bool => PrimitiveGroup::Bool,
             Self::Decimal => PrimitiveGroup::Decimal,
             Self::Float32 | Self::Float64 => PrimitiveGroup::Float,
             Self::Int
@@ -365,7 +364,7 @@ impl PrimitiveType {
             | Self::Nat64
             | Self::Nat128 => PrimitiveGroup::Integer,
             Self::Relation => PrimitiveGroup::Relation,
-            Self::String | Self::Principal => PrimitiveGroup::String,
+            Self::Text | Self::Principal => PrimitiveGroup::Text,
             Self::Ulid => PrimitiveGroup::Ulid,
             Self::Unit => PrimitiveGroup::Unit,
         }
@@ -422,14 +421,13 @@ impl ToTokens for PrimitiveType {
             Self::Int128 => quote!(i128),
             Self::Principal => quote!(::mimic::orm::base::types::Principal),
             Self::Relation => quote!(::mimic::orm::base::types::Relation),
-            Self::String => quote!(String),
-            Self::Todo => quote!(::mimic::orm::base::types::Todo),
             Self::Nat => quote!(::mimic::orm::base::types::Nat),
             Self::Nat8 => quote!(u8),
             Self::Nat16 => quote!(u16),
             Self::Nat32 => quote!(u32),
             Self::Nat64 => quote!(u64),
             Self::Nat128 => quote!(u128),
+            Self::Text => quote!(::std::string::String),
             Self::Unit => quote!(::mimic::orm::base::types::Unit),
             Self::Ulid => quote!(::mimic::orm::base::types::Ulid),
         };
@@ -452,7 +450,7 @@ pub enum PrimitiveGroup {
     Float,
     Integer,
     Relation,
-    String,
+    Text,
     Ulid,
     Unit,
 }

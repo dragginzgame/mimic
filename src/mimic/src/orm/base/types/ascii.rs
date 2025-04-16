@@ -6,8 +6,8 @@ use crate::orm::{base::types, prelude::*};
 ///
 
 #[newtype(
-    primitive = "String",
-    item(is = "types::String"),
+    primitive = "Text",
+    item(is = "types::Text"),
     traits(add(Hash), remove(ValidateCustom))
 )]
 pub struct Text {}

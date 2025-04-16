@@ -175,11 +175,11 @@ impl Path for Relation {
 }
 
 ///
-/// String
+/// Text
 ///
 
-#[primitive(variant = "String", path = "::std::string::String")]
-pub struct String {}
+#[primitive(variant = "Text", path = "::std::string::String")]
+pub struct Text {}
 
 ///
 /// Ulid

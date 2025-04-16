@@ -61,7 +61,7 @@ pub enum PrimitiveType {
     Nat128,
     Principal,
     Relation,
-    String,
+    Text,
     Ulid,
     Unit,
 }
@@ -79,7 +79,7 @@ pub enum PrimitiveGroup {
     Float,
     Integer,
     Relation,
-    String,
+    Text,
     Ulid,
     Unit,
 }

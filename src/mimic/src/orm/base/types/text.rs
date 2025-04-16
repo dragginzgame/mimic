@@ -10,11 +10,11 @@ use crate::orm::{
 ///
 
 #[newtype(
-    primitive = "String",
-    item(is = "types::String"),
+    primitive = "Text",
+    item(is = "types::Text"),
     ty(
-        validator(path = "validator::string::len::Range", args(3, 30)),
-        validator(path = "validator::string::case::Snake"),
+        validator(path = "validator::text::len::Range", args(3, 30)),
+        validator(path = "validator::text::case::Snake"),
     ),
     traits(add(Hash))
 )]

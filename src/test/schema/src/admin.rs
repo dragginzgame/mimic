@@ -9,7 +9,7 @@ use mimic::orm::{base::types, prelude::*};
     sk(entity = "ComplexEntity", field = "id"),
     fields(
         field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
-        field(name = "string_test", value(item(is = "types::String"))),
+        field(name = "string_test", value(item(is = "types::Text"))),
         field(name = "principal_test", value(item(is = "types::Principal"))),
         field(name = "blob_test", value(item(is = "types::Blob"))),
         field(name = "int_8", value(item(is = "types::Int8"))),
@@ -29,8 +29,8 @@ use mimic::orm::{base::types, prelude::*};
         field(name = "utf8_test", value(item(is = "types::bytes::Utf8"))),
         field(name = "timestamp", value(item(is = "types::time::Timestamp"))),
         field(name = "tuple_test", value(item(is = "Tuple"))),
-        field(name = "name_many", value(many, item(is = "types::String"))),
-        field(name = "name_opt", value(opt, item(is = "types::String"))),
+        field(name = "name_many", value(many, item(is = "types::Text"))),
+        field(name = "name_opt", value(opt, item(is = "types::Text"))),
         field(name = "record_a", value(item(is = "RecordA"))),
         field(name = "record_opt", value(opt, item(is = "RecordB"))),
         field(name = "record_many", value(many, item(is = "RecordB"))),
@@ -54,10 +54,10 @@ pub struct ComplexEntity {}
     sk(entity = "AdminEntity", field = "id"),
     fields(
         field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
-        field(name = "simple_text", value(item(is = "types::String"))),
+        field(name = "simple_text", value(item(is = "types::Text"))),
         field(name = "tuple_test", value(item(is = "Tuple"))),
-        field(name = "text_many", value(many, item(is = "types::String"))),
-        field(name = "text_opt", value(opt, item(is = "types::String"))),
+        field(name = "text_many", value(many, item(is = "types::Text"))),
+        field(name = "text_opt", value(opt, item(is = "types::Text"))),
         field(name = "nat_32", value(item(is = "types::Nat32"))),
         field(name = "record_a", value(item(is = "RecordA"))),
         field(name = "record_opt", value(opt, item(is = "RecordB"))),
@@ -97,7 +97,7 @@ pub struct RelatedEntity {}
     sk(entity = "SimpleEntity", field = "id"),
     fields(
         field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
-        field(name = "name", value(item(is = "types::String"))),
+        field(name = "name", value(item(is = "types::Text"))),
     )
 )]
 pub struct SimpleEntity {}
@@ -110,7 +110,7 @@ pub struct SimpleEntity {}
     fields(
         field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
         field(name = "variant_a", value(item(is = "EnumA"))),
-        field(name = "description", value(item(is = "types::String"))),
+        field(name = "description", value(item(is = "types::Text"))),
     ),
     traits(add(Default))
 )]
@@ -121,8 +121,8 @@ pub struct RecordA {}
 ///
 
 #[record(fields(
-    field(name = "name", value(item(is = "types::String"))),
-    field(name = "name_opt", value(opt, item(is = "types::String")))
+    field(name = "name", value(item(is = "types::Text"))),
+    field(name = "name_opt", value(opt, item(is = "types::Text")))
 ))]
 pub struct RecordB {}
 
@@ -130,7 +130,7 @@ pub struct RecordB {}
 /// RecordC
 ///
 
-#[record(fields(field(name = "prim", value(item(is = "types::String")))))]
+#[record(fields(field(name = "prim", value(item(is = "types::Text")))))]
 pub struct RecordC {}
 
 ///
@@ -139,7 +139,7 @@ pub struct RecordC {}
 
 #[enum_(
     variant(name = "A", default),
-    variant(name = "B", value(item(is = "types::String"))),
+    variant(name = "B", value(item(is = "types::Text"))),
     variant(name = "C", value(item(is = "RecordB"))),
     variant(name = "D", value(item(is = "RecordC")))
 )]
@@ -157,7 +157,7 @@ pub struct EnumB {}
 ///
 
 #[enum_(
-    variant(name = "F", value(item(is = "types::String"))),
+    variant(name = "F", value(item(is = "types::Text"))),
     variant(name = "I", value(item(is = "RecordB")))
 )]
 pub struct EnumC {}
@@ -166,7 +166,7 @@ pub struct EnumC {}
 /// Newtype
 ///
 
-#[newtype(primitive = "String", item(is = "types::String"))]
+#[newtype(primitive = "Text", item(is = "types::Text"))]
 pub struct Newtype {}
 
 ///
@@ -174,8 +174,8 @@ pub struct Newtype {}
 ///
 
 #[tuple(
-    value(item(is = "types::String")),
-    value(item(is = "types::String")),
+    value(item(is = "types::Text")),
+    value(item(is = "types::Text")),
     traits(add(Default))
 )]
 pub struct Tuple {}

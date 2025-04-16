@@ -21,7 +21,7 @@ impl Imp<Newtype> for FilterableTrait {
             node.primitive.group(),
             PrimitiveGroup::Float
                 | PrimitiveGroup::Integer
-                | PrimitiveGroup::String
+                | PrimitiveGroup::Text
                 | PrimitiveGroup::Ulid,
         ) {
             quote!(Some(self.to_string()))

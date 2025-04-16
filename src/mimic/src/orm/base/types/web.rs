@@ -8,8 +8,8 @@ use crate::orm::{
 ///
 
 #[newtype(
-    primitive = "String",
-    item(is = "types::String"),
+    primitive = "Text",
+    item(is = "types::Text"),
     ty(validator(path = "validator::web::Url"))
 )]
 pub struct Url {}

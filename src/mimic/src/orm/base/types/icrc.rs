@@ -52,7 +52,7 @@ pub struct Memo {}
     variant(name = "Int", value(item(is = "types::Int64"))),
     variant(name = "Map", value(item(is = "Map"))),
     variant(name = "Nat", value(item(is = "types::Nat64"))),
-    variant(name = "Text", value(item(is = "types::String")))
+    variant(name = "Text", value(item(is = "types::Text")))
 )]
 pub struct Value {}
 
@@ -67,5 +67,5 @@ impl Value {
 /// Value Map
 ///
 
-#[map(key(is = "types::String"), value(item(is = "Value")))]
+#[map(key(is = "types::Text"), value(item(is = "Value")))]
 pub struct Map {}

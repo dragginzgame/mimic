@@ -20,8 +20,8 @@ pub struct CreateBasic {}
     sk(entity = "Filterable", field = "id"),
     fields(
         field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
-        field(name = "name", value(item(is = "types::String"))),
-        field(name = "description", value(item(is = "types::String"))),
+        field(name = "name", value(item(is = "types::Text"))),
+        field(name = "description", value(item(is = "types::Text"))),
     )
 )]
 pub struct Filterable {}
