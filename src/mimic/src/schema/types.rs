@@ -61,6 +61,7 @@ pub enum PrimitiveType {
     Nat128,
     Principal,
     Relation,
+    RelationSet,
     Text,
     Ulid,
     Unit,

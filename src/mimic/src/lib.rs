@@ -39,7 +39,7 @@ pub mod prelude {
         orm::{
             base::{
                 self,
-                types::{Relation, Ulid},
+                types::{Relation, RelationSet, Ulid},
             },
             traits::{
                 EntityDyn, EntityFixture, Inner as _, NumFromPrimitive, NumToPrimitive, Path,

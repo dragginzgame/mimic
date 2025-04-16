@@ -12,6 +12,6 @@ pub use decimal::Decimal;
 pub use int::Int;
 pub use nat::Nat;
 pub use principal::Principal;
-pub use relation::Relation;
+pub use relation::{Relation, RelationSet};
 pub use ulid::Ulid;
 pub use unit::Unit;

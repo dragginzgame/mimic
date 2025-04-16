@@ -175,6 +175,18 @@ impl Path for Relation {
 }
 
 ///
+/// RelationSet
+///
+
+#[primitive(variant = "RelationSet", path = "types::prim::RelationSet")]
+pub struct RelationSet {}
+
+impl Path for RelationSet {
+    const IDENT: &'static str = "RelationSet";
+    const PATH: &'static str = "mimic::orm::base::types::RelationSet";
+}
+
+///
 /// Text
 ///
 
