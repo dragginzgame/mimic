@@ -15,7 +15,7 @@ pub mod prelude {
         orm::{
             base::types::{
                 Blob, Bool, Decimal, Float32, Float64, Int, Int8, Int16, Int32, Int64, Int128, Nat,
-                Nat8, Nat16, Nat32, Nat64, Nat128, Principal, Relation, RelationSet, Ulid,
+                Nat8, Nat16, Nat32, Nat64, Nat128, Principal, Relation, RelationSet, Text, Ulid,
             },
             traits::{
                 EntityDyn, EntityFixture, EntityId as _, Filterable, Inner as _, NumCast,
