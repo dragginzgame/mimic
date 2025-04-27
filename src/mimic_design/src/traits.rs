@@ -39,7 +39,6 @@ pub trait Schemable {
         let ctor_fn = format_ident!("ctor_{}", rng.next_u32());
 
         let schema = self.schema();
-
         quote! {
             #[cfg(not(target_arch = "wasm32"))]
             #[::mimic::export::ctor::ctor]

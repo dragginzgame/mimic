@@ -42,6 +42,7 @@ pub struct Payment {}
 
 ///
 /// Tokens
+/// always denominated in e8s
 ///
 
 #[newtype(primitive = "Nat64", item(is = "types::Nat64"))]
