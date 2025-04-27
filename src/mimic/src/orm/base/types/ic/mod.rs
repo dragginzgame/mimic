@@ -42,8 +42,16 @@ pub struct Payment {}
 
 ///
 /// Tokens
-/// always denominated in e8s
 ///
 
-#[newtype(primitive = "Nat64", item(is = "types::Nat64"))]
+#[record(
+    fields(field(name = "e8s", value(item(is = "Nat64")))),
+    traits(add(Default))
+)]
 pub struct Tokens {}
+
+impl From<u64> for Tokens {
+    fn from(e8s: u64) -> Self {
+        Self { e8s }
+    }
+}
