@@ -2,7 +2,7 @@ use crate::{
     orm::{base::types::Ulid, traits::Path},
     schema::{
         build::schema_read,
-        node::{Selector, TypeValidator, ValidateNode, VisitableNode},
+        node::{Entity, Selector, TypeValidator, ValidateNode, VisitableNode},
         visit::Visitor,
     },
     types::ErrorTree,
@@ -52,14 +52,19 @@ impl ValidateNode for Item {
         let mut errs = ErrorTree::new();
         let schema = schema_read();
 
-        // Validate path
-        if let Err(e) = schema.try_get_node(&self.path) {
-            errs.add(e);
-        }
-
         // relation
-        if self.is_relation() && self.indirect {
-            errs.add("relations cannot be set to indirect");
+        if let Some(rel) = &self.relation {
+            if self.indirect {
+                errs.add("relations cannot be set to indirect");
+            }
+
+            // has to be an entity
+            errs.add_result(schema.check_node_as::<Entity>(rel));
+        } else {
+            // cannot be an entity
+            if schema.check_node_as::<Entity>(&self.path).is_ok() {
+                errs.add("a non-relation Item cannot reference an Entity");
+            }
         }
 
         // type node (both is and relation)

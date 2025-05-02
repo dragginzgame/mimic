@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - renamed the primitive type String to Text to match the Candid interface
 - fixed a bug where RelationSet wasn't being used (a HashSet of Relations)
 - fixed a bug where Opt/Many types with embedded validators wouldn't respect the cardinality
+- is = Entity would work when it shouldnt
+- added MimeType
 
 ## [0.3.6]
 - completely redid the type validators, and now we have field-level validators too, so you can make a
