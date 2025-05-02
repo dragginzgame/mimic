@@ -1,6 +1,7 @@
 pub mod ascii;
 pub mod bytes;
 pub mod color;
+pub mod hash;
 pub mod ic;
 pub mod lang;
 pub mod math;
