@@ -12,4 +12,4 @@ use crate::orm::{
     item(is = "types::Text"),
     ty(validator(path = "validator::hash::Sha256"))
 )]
-pub struct Hash {}
+pub struct Sha256 {}
