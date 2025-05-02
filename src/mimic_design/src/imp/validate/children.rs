@@ -1,6 +1,6 @@
 use crate::{
     imp::ImpFn,
-    node::{Entity, FieldList, List, Map, Newtype, Record, Set, TypeValidator, Value},
+    node::{Cardinality, Entity, FieldList, List, Map, Newtype, Record, Set, TypeValidator, Value},
 };
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -17,7 +17,7 @@ pub struct ValidateChildrenFunction {}
 
 impl ImpFn<Entity> for ValidateChildrenFunction {
     fn tokens(node: &Entity) -> TokenStream {
-        field_list(&node.fields)
+        wrap_validate_fn(field_list(&node.fields))
     }
 }
 
@@ -27,13 +27,15 @@ impl ImpFn<Entity> for ValidateChildrenFunction {
 
 impl ImpFn<List> for ValidateChildrenFunction {
     fn tokens(node: &List) -> TokenStream {
-        let inner = generate_validators_inner(&node.item.validators, quote!(v));
-
-        wrap_validate_fn(quote! {
-            for v in &self.0 {
-                #inner
-            }
-        })
+        generate_validators_inner(&node.item.validators, quote!(v))
+            .map(|inner| {
+                wrap_validate_fn(quote! {
+                    for v in &self.0 {
+                        #inner
+                    }
+                })
+            })
+            .unwrap_or_else(wrap_validate_stub)
     }
 }
 
@@ -46,12 +48,18 @@ impl ImpFn<Map> for ValidateChildrenFunction {
         let key_rules = generate_validators_inner(&node.key.validators, quote!(k));
         let value_rules = generate_value_validation_inner(&node.value, quote!(v));
 
-        wrap_validate_fn(quote! {
+        if key_rules.is_none() && value_rules.is_none() {
+            return wrap_validate_stub();
+        }
+
+        let inner = quote! {
             for (k, v) in &self.0 {
                 #key_rules
                 #value_rules
             }
-        })
+        };
+
+        wrap_validate_fn(inner)
     }
 }
 
@@ -63,6 +71,10 @@ impl ImpFn<Newtype> for ValidateChildrenFunction {
     fn tokens(node: &Newtype) -> TokenStream {
         let type_rules = generate_validators_inner(&node.ty.validators, quote!(&self.0));
         let item_rules = generate_validators_inner(&node.item.validators, quote!(&self.0));
+
+        if type_rules.is_none() && item_rules.is_none() {
+            return wrap_validate_stub();
+        }
 
         wrap_validate_fn(quote! {
             #type_rules
@@ -77,7 +89,7 @@ impl ImpFn<Newtype> for ValidateChildrenFunction {
 
 impl ImpFn<Record> for ValidateChildrenFunction {
     fn tokens(node: &Record) -> TokenStream {
-        field_list(&node.fields)
+        wrap_validate_fn(field_list(&node.fields))
     }
 }
 
@@ -87,13 +99,15 @@ impl ImpFn<Record> for ValidateChildrenFunction {
 
 impl ImpFn<Set> for ValidateChildrenFunction {
     fn tokens(node: &Set) -> TokenStream {
-        let inner = generate_validators_inner(&node.item.validators, quote!(v));
-
-        wrap_validate_fn(quote! {
-            for v in &self.0 {
-                #inner
-            }
-        })
+        generate_validators_inner(&node.item.validators, quote!(v))
+            .map(|inner| {
+                wrap_validate_fn(quote! {
+                    for v in &self.0 {
+                        #inner
+                    }
+                })
+            })
+            .unwrap_or_else(wrap_validate_stub)
     }
 }
 
@@ -105,21 +119,19 @@ fn field_list(fields: &FieldList) -> TokenStream {
     let field_validations: Vec<TokenStream> = fields
         .fields
         .iter()
-        .map(|field| {
+        .filter_map(|field| {
             let field_ident = &field.name;
-            let validation =
-                generate_value_validation_inner(&field.value, quote!(&self.#field_ident));
-            quote! {
-                {
-                    #validation
-                }
-            }
+            generate_value_validation_inner(&field.value, quote!(&self.#field_ident))
         })
         .collect();
 
-    wrap_validate_fn(quote! {
+    if field_validations.is_empty() {
+        return quote!();
+    }
+
+    quote! {
         #(#field_validations)*
-    })
+    }
 }
 
 ///
@@ -140,71 +152,78 @@ fn generate_validators(validators: &[TypeValidator], var_expr: TokenStream) -> V
 ///
 /// Generate full validation logic from a list of validators
 ///
-fn generate_validators_inner(validators: &[TypeValidator], var_expr: TokenStream) -> TokenStream {
+fn generate_validators_inner(
+    validators: &[TypeValidator],
+    var_expr: TokenStream,
+) -> Option<TokenStream> {
     let rules = generate_validators(validators, quote!(v));
 
     if rules.is_empty() {
-        quote! {}
+        None
     } else {
-        quote! {
+        Some(quote! {
             let mut errs = ::mimic::types::ErrorTree::new();
             let v = #var_expr;
             #(#rules)*
             errs.result()?;
-        }
+        })
     }
 }
 
 ///
 /// Generate full validation logic for a Value (Item + Cardinality)
 ///
-fn generate_value_validation_inner(value: &Value, var_expr: TokenStream) -> TokenStream {
+fn generate_value_validation_inner(value: &Value, var_expr: TokenStream) -> Option<TokenStream> {
     let rules = generate_validators(&value.item.validators, quote!(v));
 
     if rules.is_empty() {
-        return quote! {};
+        return None;
     }
 
-    match value.cardinality() {
-        crate::node::Cardinality::One => {
-            quote! {
-                let mut errs = ::mimic::types::ErrorTree::new();
-                {
-                    let v = #var_expr;
-                    #(#rules)*
-                }
-                errs.result()?;
+    let body = match value.cardinality() {
+        Cardinality::One => quote! {
+            let v = #var_expr;
+            #(#rules)*
+        },
+        Cardinality::Opt => quote! {
+            if let Some(v) = #var_expr {
+                #(#rules)*
             }
-        }
-        crate::node::Cardinality::Opt => {
-            quote! {
-                let mut errs = ::mimic::types::ErrorTree::new();
-                if let Some(v) = #var_expr {
-                    #(#rules)*
-                }
-                errs.result()?;
+        },
+        Cardinality::Many => quote! {
+            for v in #var_expr {
+                #(#rules)*
             }
-        }
-        crate::node::Cardinality::Many => {
-            quote! {
-                let mut errs = ::mimic::types::ErrorTree::new();
-                for v in #var_expr {
-                    #(#rules)*
-                }
-                errs.result()?;
-            }
-        }
-    }
+        },
+    };
+
+    Some(quote! {
+        let mut errs = ::mimic::types::ErrorTree::new();
+        #body
+
+        errs.result()?;
+    })
 }
 
 ///
-/// Wrap validate_children function
+/// Emit validate_children with body
 ///
 fn wrap_validate_fn(inner: TokenStream) -> TokenStream {
     quote! {
         fn validate_children(&self) -> ::std::result::Result<(), ::mimic::types::ErrorTree> {
             #inner
 
+            Ok(())
+        }
+    }
+}
+
+///
+/// Emit a no-op validate_children if no validators exist
+///
+fn wrap_validate_stub() -> TokenStream {
+    quote! {
+        fn validate_children(&self) -> ::std::result::Result<(), ::mimic::types::ErrorTree> {
             Ok(())
         }
     }
