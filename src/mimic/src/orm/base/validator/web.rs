@@ -1,6 +1,39 @@
 use crate::orm::prelude::*;
 
 ///
+/// MimeType
+///
+
+#[validator]
+pub struct MimeType {}
+
+impl ValidatorString for MimeType {
+    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
+        let s = s.to_string();
+
+        let parts: Vec<&str> = s.split('/').collect();
+        if parts.len() != 2 {
+            return Err(format!("MIME type '{s}' must contain exactly one '/'"));
+        }
+
+        let is_valid_part = |part: &str| {
+            !part.is_empty()
+                && part
+                    .chars()
+                    .all(|c| c.is_ascii_alphanumeric() || "+.-".contains(c))
+        };
+
+        if !is_valid_part(parts[0]) || !is_valid_part(parts[1]) {
+            return Err(format!(
+                "MIME type '{s}' contains invalid characters; only alphanumeric, '+', '-', '.' allowed"
+            ));
+        }
+
+        Ok(())
+    }
+}
+
+///
 /// Url
 ///
 
