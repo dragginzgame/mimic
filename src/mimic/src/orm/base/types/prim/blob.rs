@@ -47,6 +47,12 @@ impl From<Vec<u8>> for Blob {
     }
 }
 
+impl From<&[u8]> for Blob {
+    fn from(bytes: &[u8]) -> Self {
+        Self(ByteBuf::from(bytes))
+    }
+}
+
 impl Inner<Self> for Blob {
     fn inner(&self) -> &Self {
         self
