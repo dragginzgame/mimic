@@ -47,9 +47,9 @@ impl From<Vec<u8>> for Blob {
     }
 }
 
-impl From<&[u8]> for Blob {
-    fn from(bytes: &[u8]) -> Self {
-        Self(ByteBuf::from(bytes))
+impl<const N: usize> From<&[u8; N]> for Blob {
+    fn from(bytes: &[u8; N]) -> Self {
+        Self(ByteBuf::from(&bytes[..]))
     }
 }
 
