@@ -10,7 +10,6 @@ pub mod mgmt {
 pub use ic_cdk::*;
 pub use serialize::{deserialize, serialize};
 
-pub mod helper;
 pub mod serialize;
 pub mod structures;
 
