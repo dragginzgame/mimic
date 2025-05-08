@@ -438,7 +438,7 @@ pub trait EntityId: NodeDyn + Display {
 
     #[must_use]
     fn relation(&self) -> Relation {
-        Relation::from(self.ulid())
+        Relation::from(vec![self.ulid()])
     }
 }
 

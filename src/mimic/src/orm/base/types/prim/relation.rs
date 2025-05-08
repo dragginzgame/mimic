@@ -1,7 +1,7 @@
 use crate::{
     impl_storable_bounded,
     orm::{
-        base::types::{Ulid, prim::ulid::UlidError},
+        base::types::Ulid,
         traits::{
             Filterable, Inner, Orderable, SortKeyValue, ValidateAuto, ValidateCustom, Visitable,
         },
@@ -10,12 +10,7 @@ use crate::{
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, IntoIterator};
 use serde::{Deserialize, Serialize};
-use std::{
-    cmp::Ordering,
-    collections::HashSet,
-    fmt::{self},
-    str::FromStr,
-};
+use std::{collections::HashSet, fmt, str::FromStr};
 
 ///
 /// Relation
@@ -24,58 +19,44 @@ use std::{
 #[derive(
     CandidType, Clone, Debug, Default, Deref, DerefMut, Eq, PartialEq, Hash, Serialize, Deserialize,
 )]
-pub struct Relation(Vec<Ulid>);
+pub struct Relation(Vec<String>);
 
 impl Relation {
     #[must_use]
-    pub fn contains(&self, ulid: &Ulid) -> bool {
-        self.0.contains(ulid)
+    pub fn contains(&self, s: &str) -> bool {
+        self.0.contains(&s.to_string())
     }
 
     #[must_use]
-    pub fn starts_with(&self, prefix: &[Ulid]) -> bool {
-        self.0.starts_with(prefix)
+    pub fn starts_with(&self, prefix: &[&str]) -> bool {
+        self.0.iter().zip(prefix).all(|(a, b)| a == b)
     }
 
-    pub fn push(&mut self, ulid: Ulid) {
-        self.0.push(ulid);
+    pub fn push(&mut self, s: &str) {
+        self.0.push(s.to_string());
     }
 }
 
 impl fmt::Display for Relation {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let formatted = self
-            .0
-            .iter()
-            .map(Ulid::to_string)
-            .collect::<Vec<_>>()
-            .join(", ");
-
+        let formatted = self.0.join(", ");
         write!(f, "[{formatted}]")
     }
 }
 
 impl Filterable for Relation {}
 
-impl From<Ulid> for Relation {
-    fn from(ulid: Ulid) -> Self {
-        Self(vec![ulid])
-    }
-}
-
-impl<U: Into<Ulid>> From<Vec<U>> for Relation {
-    fn from(ulids: Vec<U>) -> Self {
-        Self(ulids.into_iter().map(Into::into).collect())
+impl<S: ToString> From<Vec<S>> for Relation {
+    fn from(vec: Vec<S>) -> Self {
+        Self(vec.into_iter().map(|s| s.to_string()).collect())
     }
 }
 
 impl FromStr for Relation {
-    type Err = UlidError;
+    type Err = std::convert::Infallible;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let ulid = Ulid::from_str(s)?;
-
-        Ok(Relation(vec![ulid]))
+        Ok(Relation(vec![s.to_string()]))
     }
 }
 
@@ -104,8 +85,8 @@ impl RelationSet {
     }
 
     #[must_use]
-    pub fn contains_ulid(&self, ulid: &Ulid) -> bool {
-        self.0.iter().any(|r| r.contains(ulid))
+    pub fn contains_str(&self, s: &str) -> bool {
+        self.0.iter().any(|r| r.contains(s))
     }
 
     #[must_use]
@@ -114,7 +95,7 @@ impl RelationSet {
     }
 
     #[must_use]
-    pub fn find_by_prefix(&self, prefix: &[Ulid]) -> Vec<&Relation> {
+    pub fn find_by_prefix(&self, prefix: &[&str]) -> Vec<&Relation> {
         self.0.iter().filter(|r| r.starts_with(prefix)).collect()
     }
 }
@@ -128,16 +109,16 @@ impl fmt::Display for RelationSet {
             .collect::<Vec<_>>()
             .join(", ");
 
-        write!(f, "[{}]", formatted)
+        write!(f, "[{formatted}]")
     }
 }
 
-impl<T: Into<Ulid>> From<Vec<T>> for RelationSet {
-    fn from(vec: Vec<T>) -> Self {
+impl<S: ToString> From<Vec<S>> for RelationSet {
+    fn from(vec: Vec<S>) -> Self {
         let rels = vec
             .into_iter()
-            .map(|t| Relation::from(t.into()))
-            .collect::<HashSet<_>>();
+            .map(|s| Relation(vec![s.to_string()]))
+            .collect();
 
         Self(rels)
     }
