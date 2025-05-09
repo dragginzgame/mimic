@@ -117,3 +117,17 @@ pub struct MissingFieldSmall {}
     traits(add(Default))
 )]
 pub struct MissingFieldLarge {}
+
+///
+/// ContainsBlob
+///
+
+#[entity(
+    store = "crate::Store",
+    sk(entity = "ContainsBlob", field = "id"),
+    fields(
+        field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
+        field(name = "bytes", value(item(is = "types::Blob"))),
+    )
+)]
+pub struct ContainsBlob {}

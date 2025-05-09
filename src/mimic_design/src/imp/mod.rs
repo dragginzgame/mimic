@@ -81,23 +81,6 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
             Some(Implementor::new(def, t).set_tokens(q).to_token_stream())
         }
 
-        Trait::Storable => {
-            let q = quote! {
-                fn to_bytes(&self) -> ::std::borrow::Cow<[u8]> {
-                    let serialized_data = ::mimic::orm::serialize(self).expect("storable trait serializes");
-                    ::std::borrow::Cow::Owned(serialized_data)
-                }
-
-                fn from_bytes(bytes: ::std::borrow::Cow<[u8]>) -> Self {
-                    ::mimic::orm::deserialize(&bytes).expect("storable trait deserializes")
-                }
-
-                const BOUND: ::ic::storage::storable::Bound = ::ic::storage::storable::Bound::Unbounded;
-            };
-
-            Some(Implementor::new(def, t).set_tokens(q).to_token_stream())
-        }
-
         // empty implementations are generated for these traits
         Trait::EntityFixture
         | Trait::EntityId

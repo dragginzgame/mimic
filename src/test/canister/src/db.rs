@@ -17,56 +17,63 @@ impl DbTester {
     // test
     // best if these are kept in code order so we can see where it failed
     pub fn test() {
-        Self::clear();
-        Self::create();
-        Self::create_lots();
-        Self::data_key_order();
-        Self::filter_query();
-        Self::limit_query();
-        Self::missing_field();
+        let tests: Vec<(&str, fn())> = vec![
+            ("blob", Self::blob),
+            ("create", Self::create),
+            ("create_lots", Self::create_lots),
+            ("data_key_order", Self::data_key_order),
+            ("filter_query", Self::filter_query),
+            ("limit_query", Self::limit_query),
+            ("missing_field", Self::missing_field),
+        ];
+
+        for (name, test_fn) in tests {
+            println!("clearing db");
+            DB.with(|db| {
+                db.with_store_mut(Store::PATH, |store| store.clear()).ok();
+            });
+
+            println!("Running test: {name}");
+            test_fn();
+        }
     }
 
     //
     // TESTS
     //
 
-    // clear
-    fn clear() {
-        use test_schema::db::CreateBasic;
+    // blob
+    fn blob() {
+        use test_schema::db::ContainsBlob;
+
+        const ROWS: u16 = 100;
 
         // Insert rows
-        for _ in 0..100 {
-            let e = CreateBasic::default();
-            query::create::<CreateBasic>()
-                .from_entity(e)
-                .unwrap()
-                .execute::<CreateBasic>(&DB)
-                .unwrap();
+        for _ in 1..ROWS {
+            let e = ContainsBlob::default();
+            query::create_dyn().from_entity(e).execute(&DB).unwrap();
         }
 
-        // clear
-        DB.with(|db| {
-            db.with_store_mut(Store::PATH, |store| store.clear()).ok();
-        });
-
-        // Retrieve the count of keys (or entities) from the store
-        let count = query::load_dyn::<CreateBasic>()
+        // Retrieve rows in B-Tree order
+        let keys = query::load::<ContainsBlob>()
             .all()
-            .execute(&DB)
+            .order(Order::from(vec!["id"]))
+            .execute::<ContainsBlob>(&DB)
             .unwrap()
-            .count();
+            .keys();
 
-        assert_eq!(count, 0, "Expected 0 keys in the store");
+        // Verify the order
+        for i in 0..(keys.len() - 1) {
+            assert!(
+                keys[i] < keys[i + 1],
+                "key ordering is incorrect at index {i}"
+            );
+        }
     }
 
     // create
     fn create() {
         use test_schema::db::CreateBasic;
-
-        // clear
-        DB.with(|db| {
-            db.with_store_mut(Store::PATH, |store| store.clear()).ok();
-        });
 
         let e = CreateBasic::default();
         query::create_dyn().from_entity(e).execute(&DB).unwrap();
@@ -102,11 +109,6 @@ impl DbTester {
         use test_schema::db::CreateBasic;
         const ROWS: usize = 1_000;
 
-        // clear
-        DB.with(|db| {
-            db.with_store_mut(Store::PATH, |store| store.clear()).ok();
-        });
-
         // insert rows
         for _ in 0..ROWS {
             let e = CreateBasic::default();
@@ -129,11 +131,6 @@ impl DbTester {
         use test_schema::db::SortKeyOrder;
 
         const ROWS: u16 = 1_000;
-
-        // clear
-        DB.with(|db| {
-            db.with_store_mut(Store::PATH, |store| store.clear()).ok();
-        });
 
         // Insert rows
         for _ in 1..ROWS {
@@ -161,11 +158,6 @@ impl DbTester {
     // filter_query
     fn filter_query() {
         use test_schema::db::Filterable;
-
-        // clear
-        DB.with(|db| {
-            db.with_store_mut(Store::PATH, |store| store.clear()).ok();
-        });
 
         // Test data
         let test_entities = vec![
@@ -231,11 +223,6 @@ impl DbTester {
     // limit_query
     fn limit_query() {
         use test_schema::db::Limit;
-
-        // clear
-        DB.with(|db| {
-            db.with_store_mut(Store::PATH, |store| store.clear()).ok();
-        });
 
         // Insert 100 rows
         // overwrite the ulid with replace()

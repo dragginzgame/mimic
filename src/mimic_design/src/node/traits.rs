@@ -70,7 +70,6 @@ pub enum Trait {
     NumToPrimitive,
     Path,
     SortKeyValue,
-    Storable,
     TypeValidate,
     Validator,
     ValidateAuto,
