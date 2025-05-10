@@ -461,10 +461,11 @@ dependencies = [
 [[package]]
 name = "icu"
 version = "0.1.0"
-source = "git+https://github.com/dragginzgame/icu#1cc17e6e627d206a60bf10cec2b8b41b22aea4b8"
+source = "git+https://github.com/dragginzgame/icu#5b89da45a82dceb8889020c1cb20110ec387e29d"
 dependencies = [
  "candid",
  "ciborium",
+ "defer",
  "derive_more",
  "ic-cdk",
  "ic-stable-structures",
@@ -549,7 +550,6 @@ dependencies = [
  "candid",
  "convert_case 0.8.0",
  "ctor",
- "defer",
  "derive_more",
  "hex",
  "ic-cdk",

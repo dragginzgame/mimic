@@ -11,7 +11,6 @@ workspace = true
 candid = { workspace = true }
 convert_case = { workspace = true }
 ctor = { workspace = true }
-defer = { workspace = true }
 derive_more = { workspace = true }
 hex = { workspace = true }
 ic-cdk = { workspace = true }

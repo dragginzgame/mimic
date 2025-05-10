@@ -1,4 +1,3 @@
-pub mod btreemap;
 pub mod store;
 pub mod types;
 

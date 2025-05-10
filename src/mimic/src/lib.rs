@@ -4,7 +4,6 @@
 ///
 pub mod config;
 pub mod db;
-pub mod ic;
 pub mod macros;
 pub mod orm;
 pub mod query;
@@ -12,9 +11,12 @@ pub mod schema;
 pub mod types;
 pub mod utils;
 
+pub mod ic {
+    pub use icu::ic::*;
+}
+
 pub mod export {
     pub use ctor;
-    pub use defer;
     pub use derive_more;
     pub use num_traits;
     pub use remain;
@@ -30,11 +32,6 @@ pub mod prelude {
     pub use crate::{
         Log,
         db::Store,
-        ic::{
-            api::{canister_self, msg_caller},
-            call::Call,
-            init, query, update,
-        },
         log, mimic_end, mimic_memory_manager, mimic_start,
         orm::{
             base::{
@@ -45,9 +42,16 @@ pub mod prelude {
                 EntityDyn, EntityFixture, Inner as _, NumFromPrimitive, NumToPrimitive, Path,
             },
         },
-        perf,
     };
     pub use ::candid::{CandidType, Principal};
+    pub use ::icu::{
+        ic::{
+            api::{canister_self, msg_caller},
+            call::Call,
+            init, query, update,
+        },
+        perf,
+    };
     pub use ::std::cell::RefCell;
 }
 

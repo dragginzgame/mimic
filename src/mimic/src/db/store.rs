@@ -1,9 +1,6 @@
 use crate::{
-    db::{
-        btreemap::BTreeMap,
-        types::{DataValue, SortKey},
-    },
-    ic::structures::DefaultMemory,
+    db::types::{DataValue, SortKey},
+    ic::structures::{BTreeMap, DefaultMemory},
 };
 use derive_more::{Deref, DerefMut};
 use std::{cell::RefCell, thread::LocalKey};
