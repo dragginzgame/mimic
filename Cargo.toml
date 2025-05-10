@@ -41,10 +41,12 @@ proc-macro2 = "1.0"
 syn = "2.0"
 quote = "1.0"
 
+# icu
+icu = { git = "https://github.com/dragginzgame/icu" }
+
 # third party
 anyhow = "1.0"
 bencher = "0.1"
-ciborium = "0.2"
 ctor = "0.4"
 convert_case = "0.8"
 defer = "0.2"

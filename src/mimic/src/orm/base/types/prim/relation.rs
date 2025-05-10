@@ -1,14 +1,10 @@
-use crate::{
-    impl_storable_bounded,
-    orm::{
-        base::types::Ulid,
-        traits::{
-            Filterable, Inner, Orderable, SortKeyValue, ValidateAuto, ValidateCustom, Visitable,
-        },
-    },
+use crate::orm::{
+    base::types::Ulid,
+    traits::{Filterable, Inner, Orderable, SortKeyValue, ValidateAuto, ValidateCustom, Visitable},
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, IntoIterator};
+use icu::impl_storable_bounded;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, fmt, str::FromStr};
 

@@ -1,9 +1,9 @@
-use crate::{
-    db::serialize::{SerializeError, deserialize, serialize},
-    impl_storable_bounded, impl_storable_unbounded,
-    orm::traits::Path,
-};
+use crate::orm::traits::Path;
 use candid::CandidType;
+use icu::{
+    impl_storable_bounded, impl_storable_unbounded,
+    serialize::{SerializeError, deserialize, serialize},
+};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use std::fmt;
 

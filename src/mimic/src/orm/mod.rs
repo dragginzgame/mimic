@@ -29,8 +29,9 @@ pub mod prelude {
     pub use ::mimic_design::*;
 }
 
-use crate::{Error, ThisError, db::serialize::SerializeError, types::ErrorTree};
+use crate::{Error, ThisError, types::ErrorTree};
 use candid::CandidType;
+use icu::serialize::SerializeError;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use traits::Visitable;
 use visit::{ValidateVisitor, perform_visit};
@@ -67,7 +68,7 @@ pub fn serialize<T>(ty: &T) -> Result<Vec<u8>, OrmError>
 where
     T: Serialize,
 {
-    crate::db::serialize::serialize(ty).map_err(OrmError::SerializeError)
+    icu::serialize::serialize(ty).map_err(OrmError::SerializeError)
 }
 
 // deserialize
@@ -75,5 +76,5 @@ pub fn deserialize<T>(bytes: &[u8]) -> Result<T, OrmError>
 where
     T: DeserializeOwned,
 {
-    crate::db::serialize::deserialize(bytes).map_err(OrmError::SerializeError)
+    icu::serialize::deserialize(bytes).map_err(OrmError::SerializeError)
 }

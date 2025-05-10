@@ -1,7 +1,6 @@
 use crate::{
     ThisError,
     ic::api::msg_caller,
-    impl_storable_bounded,
     orm::{
         prelude::*,
         traits::{
@@ -11,6 +10,7 @@ use crate::{
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut};
+use icu::impl_storable_bounded;
 use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,

@@ -1,9 +1,7 @@
-use crate::{
-    impl_storable_unbounded,
-    orm::traits::{Filterable, Inner, Orderable, ValidateAuto, ValidateCustom, Visitable},
-};
+use crate::orm::traits::{Filterable, Inner, Orderable, ValidateAuto, ValidateCustom, Visitable};
 use candid::{CandidType, Nat as WrappedNat};
 use derive_more::{Deref, DerefMut};
+use icu::impl_storable_unbounded;
 use serde::{Deserialize, Serialize};
 use std::{cmp::Ordering, fmt};
 

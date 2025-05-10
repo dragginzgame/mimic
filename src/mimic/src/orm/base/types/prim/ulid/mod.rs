@@ -2,7 +2,7 @@ pub mod fixture;
 pub mod generator;
 
 use crate::{
-    ThisError, impl_storable_bounded,
+    ThisError,
     orm::{
         prelude::*,
         traits::{Filterable, Inner, Orderable, SortKeyValue, ValidateAuto, ValidateCustom},
@@ -10,6 +10,7 @@ use crate::{
     types::ErrorTree,
 };
 use derive_more::{Deref, DerefMut, FromStr};
+use icu::impl_storable_bounded;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{cmp::Ordering, fmt};
 use ulid::Ulid as WrappedUlid;

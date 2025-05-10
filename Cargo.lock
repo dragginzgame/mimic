@@ -459,6 +459,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "icu"
+version = "0.1.0"
+source = "git+https://github.com/dragginzgame/icu#1cc17e6e627d206a60bf10cec2b8b41b22aea4b8"
+dependencies = [
+ "candid",
+ "ciborium",
+ "derive_more",
+ "ic-cdk",
+ "ic-stable-structures",
+ "remain",
+ "serde",
+ "sha2",
+ "thiserror 2.0.12",
+]
+
+[[package]]
 name = "ident_case"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -531,7 +547,6 @@ name = "mimic"
 version = "0.3.8"
 dependencies = [
  "candid",
- "ciborium",
  "convert_case 0.8.0",
  "ctor",
  "defer",
@@ -539,6 +554,7 @@ dependencies = [
  "hex",
  "ic-cdk",
  "ic-stable-structures",
+ "icu",
  "mimic_design",
  "num-traits",
  "remain",

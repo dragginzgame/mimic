@@ -1,9 +1,7 @@
 pub mod btreemap;
-pub mod serialize;
 pub mod store;
 pub mod types;
 
-pub use serialize::{deserialize, serialize};
 pub use store::{Store, StoreLocal};
 
 use candid::CandidType;

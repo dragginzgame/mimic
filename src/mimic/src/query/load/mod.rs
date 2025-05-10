@@ -8,7 +8,6 @@ use crate::{
     Error, ThisError,
     db::{
         DbError, DbLocal, StoreLocal,
-        serialize::SerializeError,
         types::{DataRow, EntityRow, SortKey},
     },
     orm::traits::Entity,
@@ -19,6 +18,7 @@ use crate::{
 };
 use candid::CandidType;
 use derive_more::Deref;
+use icu::serialize::SerializeError;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
