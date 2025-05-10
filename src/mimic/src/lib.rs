@@ -68,9 +68,6 @@ pub enum Error {
     DbError(#[from] db::DbError),
 
     #[error(transparent)]
-    IcError(#[from] ic::IcError),
-
-    #[error(transparent)]
     OrmError(#[from] orm::OrmError),
 
     #[error(transparent)]

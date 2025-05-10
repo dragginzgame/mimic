@@ -8,9 +8,9 @@ use crate::{
     Error, ThisError,
     db::{
         DbError, DbLocal, StoreLocal,
+        serialize::SerializeError,
         types::{DataRow, EntityRow, SortKey},
     },
-    ic::serialize::SerializeError,
     orm::traits::Entity,
     query::{
         QueryError,

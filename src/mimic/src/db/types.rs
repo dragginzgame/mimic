@@ -1,5 +1,5 @@
 use crate::{
-    ic::serialize::{SerializeError, deserialize, serialize},
+    db::serialize::{SerializeError, deserialize, serialize},
     impl_storable_bounded, impl_storable_unbounded,
     orm::traits::Path,
 };

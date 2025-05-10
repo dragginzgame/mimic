@@ -63,11 +63,11 @@ macro_rules! impl_storable_bounded {
     ($ident:ident, $max_size:expr, $is_fixed_size:expr) => {
         impl ::mimic::ic::structures::storable::Storable for $ident {
             fn to_bytes(&self) -> ::std::borrow::Cow<[u8]> {
-                ::std::borrow::Cow::Owned(::mimic::ic::serialize(self).unwrap())
+                ::std::borrow::Cow::Owned(::mimic::db::serialize(self).unwrap())
             }
 
             fn from_bytes(bytes: ::std::borrow::Cow<[u8]>) -> Self {
-                ::mimic::ic::deserialize(&bytes).unwrap()
+                ::mimic::db::deserialize(&bytes).unwrap()
             }
 
             const BOUND: ::mimic::ic::structures::storable::Bound =
@@ -84,11 +84,11 @@ macro_rules! impl_storable_unbounded {
     ($ident:ident) => {
         impl ::mimic::ic::structures::storable::Storable for $ident {
             fn to_bytes(&self) -> ::std::borrow::Cow<[u8]> {
-                ::std::borrow::Cow::Owned(::mimic::ic::serialize(self).unwrap())
+                ::std::borrow::Cow::Owned(::mimic::db::serialize(self).unwrap())
             }
 
             fn from_bytes(bytes: ::std::borrow::Cow<[u8]>) -> Self {
-                ::mimic::ic::deserialize(&bytes).unwrap()
+                ::mimic::db::deserialize(&bytes).unwrap()
             }
 
             const BOUND: ::mimic::ic::structures::storable::Bound =

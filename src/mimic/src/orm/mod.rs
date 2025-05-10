@@ -29,7 +29,7 @@ pub mod prelude {
     pub use ::mimic_design::*;
 }
 
-use crate::{Error, ThisError, ic::serialize::SerializeError, types::ErrorTree};
+use crate::{Error, ThisError, db::serialize::SerializeError, types::ErrorTree};
 use candid::CandidType;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use traits::Visitable;
@@ -67,7 +67,7 @@ pub fn serialize<T>(ty: &T) -> Result<Vec<u8>, OrmError>
 where
     T: Serialize,
 {
-    crate::ic::serialize::serialize(ty).map_err(OrmError::SerializeError)
+    crate::db::serialize::serialize(ty).map_err(OrmError::SerializeError)
 }
 
 // deserialize
@@ -75,5 +75,5 @@ pub fn deserialize<T>(bytes: &[u8]) -> Result<T, OrmError>
 where
     T: DeserializeOwned,
 {
-    crate::ic::serialize::deserialize(bytes).map_err(OrmError::SerializeError)
+    crate::db::serialize::deserialize(bytes).map_err(OrmError::SerializeError)
 }
