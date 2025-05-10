@@ -15,14 +15,14 @@ fn fixtures(builder: &ActorBuilder) -> TokenStream {
 
     quote! {
 
-        // init_fixtures
-        pub fn init_fixtures() -> Result<(), ::mimic::Error> {
-            fixtures_replace_all()
+        // mimic_init_fixtures
+        pub fn mimic_init_fixtures() -> Result<(), ::mimic::Error> {
+            mimic_fixtures_replace_all()
         }
 
         // fixtures_replace_helper
         #[allow(dead_code)]
-        fn fixtures_replace_helper(
+        fn mimic_fixtures_replace_helper(
             fixtures: ::mimic::types::FixtureList,
         ) -> Result<(), ::mimic::Error> {
             for entity in fixtures {
@@ -49,7 +49,7 @@ fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
     for (entity_path, _) in builder.get_entities() {
         let entity_ident: Path = parse_str(&entity_path).unwrap();
         inner.push(quote! {
-            fixtures_replace_helper(<#entity_ident as ::mimic::orm::traits::EntityFixture>::fixtures())?;
+            mimic_fixtures_replace_helper(<#entity_ident as ::mimic::orm::traits::EntityFixture>::fixtures())?;
         });
     }
 
@@ -69,7 +69,7 @@ fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
     quote! {
         #[allow(clippy::too_many_lines)]
         #[allow(clippy::missing_const_for_fn)]
-        pub fn fixtures_replace_all() -> Result<(), ::mimic::Error> {
+        pub fn mimic_fixtures_replace_all() -> Result<(), ::mimic::Error> {
             #inner
         }
     }

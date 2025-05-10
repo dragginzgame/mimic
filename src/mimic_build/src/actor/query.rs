@@ -8,15 +8,15 @@ use syn::{Path, parse_str};
 pub fn generate(builder: &ActorBuilder) -> TokenStream {
     let mut tokens = quote!();
 
-    tokens.extend(mimic_query_load(builder));
-    tokens.extend(mimic_query_delete(builder));
-    tokens.extend(mimic_query_save(builder));
+    tokens.extend(query_load(builder));
+    tokens.extend(query_delete(builder));
+    tokens.extend(query_save(builder));
 
     tokens
 }
 
-// mimic_query_load
-fn mimic_query_load(builder: &ActorBuilder) -> TokenStream {
+// query_load
+fn query_load(builder: &ActorBuilder) -> TokenStream {
     let entities = builder.get_entities();
 
     let inner = if entities.is_empty() {
@@ -59,8 +59,8 @@ fn mimic_query_load(builder: &ActorBuilder) -> TokenStream {
     }
 }
 
-// mimic_query_save
-fn mimic_query_save(builder: &ActorBuilder) -> TokenStream {
+// query_save
+fn query_save(builder: &ActorBuilder) -> TokenStream {
     let entities = builder.get_entities();
 
     let inner = if entities.is_empty() {
@@ -101,8 +101,8 @@ fn mimic_query_save(builder: &ActorBuilder) -> TokenStream {
     }
 }
 
-// mimic_query_delete
-fn mimic_query_delete(_builder: &ActorBuilder) -> TokenStream {
+// query_delete
+fn query_delete(_builder: &ActorBuilder) -> TokenStream {
     quote! {
         #[::mimic::ic::update]
         pub fn mimic_query_delete(

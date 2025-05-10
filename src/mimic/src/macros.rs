@@ -21,7 +21,7 @@ macro_rules! mimic_start {
             ::mimic::config::init_config_toml(toml).unwrap();
 
             // fixtures
-            init_fixtures().unwrap();
+            mimic_init_fixtures().unwrap();
         }
     };
 }
