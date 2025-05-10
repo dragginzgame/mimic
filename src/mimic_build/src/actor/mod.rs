@@ -7,12 +7,13 @@ use mimic::{
     Error as MimicError,
     schema::{
         get_schema,
-        node::{Canister, Entity, Store},
+        node::{Canister, Entity, Schema, Store},
     },
 };
 use proc_macro2::TokenStream;
 use quote::quote;
 use serde::Serialize;
+use std::sync::Arc;
 use thiserror::Error as ThisError;
 
 ///
@@ -31,7 +32,7 @@ pub enum ActorError {
 // generate
 pub fn generate(canister_path: &str) -> Result<String, Error> {
     // load schema and get the specified canister
-    let schema = mimic::schema::get_schema().map_err(ActorError::MimicError)?;
+    let schema = get_schema().map_err(ActorError::MimicError)?;
 
     // filter by name
     let canister = schema
@@ -39,8 +40,8 @@ pub fn generate(canister_path: &str) -> Result<String, Error> {
         .map_err(|_| ActorError::CanisterNotFound(canister_path.to_string()))?;
 
     // create the ActorBuilder and generate the code
-    let code = ActorBuilder::new(canister.clone());
-    let tokens = code.expand();
+    let code = ActorBuilder::new(Arc::new(schema.clone()), canister.clone());
+    let tokens = code.generate();
 
     Ok(tokens.to_string())
 }
@@ -50,43 +51,28 @@ pub fn generate(canister_path: &str) -> Result<String, Error> {
 ///
 
 pub struct ActorBuilder {
+    pub schema: Arc<Schema>,
     pub canister: Canister,
-    pub init_hooks: Vec<String>,
-    pub tokens: TokenStream,
 }
 
 impl ActorBuilder {
     // new
     #[must_use]
-    pub fn new(canister: Canister) -> Self {
-        Self {
-            canister,
-            init_hooks: Vec::new(),
-            tokens: quote!(),
-        }
+    pub fn new(schema: Arc<Schema>, canister: Canister) -> Self {
+        Self { schema, canister }
     }
 
-    // extend_actor
-    pub fn extend(&mut self, tokens: TokenStream) {
-        self.tokens.extend(tokens);
-    }
-
-    // expand
+    // generate
     #[must_use]
-    pub fn expand(mut self) -> TokenStream {
-        //
+    pub fn generate(self) -> TokenStream {
+        let mut tokens = quote!();
+
         // shared between all crates
-        //
+        tokens.extend(db::generate(&self));
+        tokens.extend(fixtures::generate(&self));
+        tokens.extend(query::generate(&self));
 
-        db::extend(&mut self);
-        fixtures::extend(&mut self);
-        query::extend(&mut self);
-
-        //
-        // generate code
-        //
-
-        let tokens = &self.tokens;
+        // quote
         quote! {
             #tokens
         }
@@ -96,31 +82,27 @@ impl ActorBuilder {
     #[must_use]
     pub fn get_stores(&self) -> Vec<(String, Store)> {
         let canister_path = self.canister.def.path();
-        let mut stores = Vec::new();
 
-        for (store_path, store) in get_schema()
-            .unwrap()
+        self.schema
             .filter_nodes::<Store, _>(|node| node.canister == canister_path)
-        {
-            stores.push((store_path.to_string(), store.clone()));
-        }
-
-        stores
+            .map(|(path, store)| (path.to_string(), store.clone()))
+            .collect()
     }
 
     // get_entities
     // helper function to get all the entities for the current canister
     #[must_use]
     pub fn get_entities(&self) -> Vec<(String, Entity)> {
-        let schema = get_schema().unwrap();
         let canister_path = self.canister.def.path();
         let mut entities = Vec::new();
 
-        for (store_path, _) in
-            schema.filter_nodes::<Store, _>(|node| node.canister == canister_path)
+        for (store_path, _) in self
+            .schema
+            .filter_nodes::<Store, _>(|node| node.canister == canister_path)
         {
-            for (entity_path, entity) in
-                schema.filter_nodes::<Entity, _>(|node| node.store == store_path)
+            for (entity_path, entity) in self
+                .schema
+                .filter_nodes::<Entity, _>(|node| node.store == store_path)
             {
                 entities.push((entity_path.to_string(), entity.clone()));
             }

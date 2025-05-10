@@ -1,19 +1,22 @@
 use crate::actor::ActorBuilder;
+use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Path, parse_str};
 
-// extend
-pub fn extend(builder: &mut ActorBuilder) {
-    query_load(builder);
-    query_delete(builder);
-    query_save(builder);
+// generate
+#[must_use]
+pub fn generate(builder: &ActorBuilder) -> TokenStream {
+    let mut tokens = quote!();
+
+    tokens.extend(query_load(builder));
+    tokens.extend(query_delete(builder));
+    tokens.extend(query_save(builder));
+
+    tokens
 }
 
-//
 // query_load
-//
-
-fn query_load(builder: &mut ActorBuilder) {
+fn query_load(builder: &ActorBuilder) -> TokenStream {
     let entities = builder.get_entities();
 
     let inner = if entities.is_empty() {
@@ -46,23 +49,18 @@ fn query_load(builder: &mut ActorBuilder) {
         }
     };
 
-    let q = quote! {
+    quote! {
         #[::mimic::ic::query]
         pub fn query_load(
             query: ::mimic::query::LoadQuery,
         ) -> Result<::mimic::query::LoadResponse, ::mimic::Error> {
             #inner
         }
-    };
-
-    builder.extend(q);
+    }
 }
 
-//
 // query_save
-//
-
-fn query_save(builder: &mut ActorBuilder) {
+fn query_save(builder: &ActorBuilder) -> TokenStream {
     let entities = builder.get_entities();
 
     let inner = if entities.is_empty() {
@@ -93,27 +91,20 @@ fn query_save(builder: &mut ActorBuilder) {
         }
     };
 
-    let q = quote! {
+    quote! {
         #[::mimic::ic::update]
         pub fn query_save(
             query: ::mimic::query::SaveQuery
         ) -> Result<::mimic::query::SaveResponse, ::mimic::Error> {
             #inner
         }
-    };
-
-    builder.extend(q);
+    }
 }
 
-//
 // query_delete
-//
-
-fn query_delete(builder: &mut ActorBuilder) {
-    let mut q = quote!();
-
-    // doesn't need to match on the entity path
-    q.extend(quote! {
+// doesn't need to match on the entity path
+fn query_delete(_builder: &ActorBuilder) -> TokenStream {
+    quote! {
         #[::mimic::ic::update]
         pub fn query_delete(
             query: ::mimic::query::DeleteQuery,
@@ -123,7 +114,5 @@ fn query_delete(builder: &mut ActorBuilder) {
 
             Ok(res)
         }
-    });
-
-    builder.extend(q);
+    }
 }

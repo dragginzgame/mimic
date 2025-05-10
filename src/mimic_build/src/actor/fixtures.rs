@@ -3,16 +3,17 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Path, parse_str};
 
-// extend
-pub fn extend(builder: &mut ActorBuilder) {
-    fixtures(builder);
+// generate
+#[must_use]
+pub fn generate(builder: &ActorBuilder) -> TokenStream {
+    fixtures(builder)
 }
 
 // fixtures
-pub fn fixtures(builder: &mut ActorBuilder) {
+fn fixtures(builder: &ActorBuilder) -> TokenStream {
     let fixtures_replace_all = fixtures_replace_all(builder);
 
-    let q = quote! {
+    quote! {
 
         // init_fixtures
         pub fn init_fixtures() -> Result<(), ::mimic::Error> {
@@ -36,15 +37,12 @@ pub fn fixtures(builder: &mut ActorBuilder) {
 
         // fixtures_replace_all
         #fixtures_replace_all
-    };
-
-    builder.extend(q);
+    }
 }
 
 // fixtures_replace_all
 // replaces every single fixture with the latest version
-#[must_use]
-pub fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
+fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
     let mut inner = Vec::new();
 
     // stores

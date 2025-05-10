@@ -1,13 +1,15 @@
 use crate::actor::ActorBuilder;
+use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-// extend
-pub fn extend(builder: &mut ActorBuilder) {
-    stores(builder);
+// generate
+#[must_use]
+pub fn generate(builder: &ActorBuilder) -> TokenStream {
+    stores(builder)
 }
 
 // stores
-fn stores(builder: &mut ActorBuilder) {
+fn stores(builder: &ActorBuilder) -> TokenStream {
     let mut store_defs = quote!();
     let mut db_inserts = quote!();
 
@@ -49,13 +51,11 @@ fn stores(builder: &mut ActorBuilder) {
     };
 
     // combine everything into a thread_local! macro and additional functions
-    let q = quote! {
+    quote! {
         thread_local! {
             #store_defs
 
             static DB: ::std::rc::Rc<::mimic::db::Db> = ::std::rc::Rc::new(#db);
         }
-    };
-
-    builder.extend(q);
+    }
 }

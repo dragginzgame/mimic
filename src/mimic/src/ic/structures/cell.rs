@@ -1,9 +1,9 @@
 use crate::{
-    ic::{
-        structures::{DefaultMemory, Storable},
-        IcError,
-    },
     Error,
+    ic::{
+        IcError,
+        structures::{DefaultMemory, Storable},
+    },
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
