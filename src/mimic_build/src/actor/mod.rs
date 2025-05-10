@@ -67,7 +67,7 @@ impl ActorBuilder {
     pub fn generate(self) -> TokenStream {
         let mut tokens = quote!();
 
-        // shared between all crates
+        // shared between all canisters
         tokens.extend(db::generate(&self));
         tokens.extend(fixtures::generate(&self));
         tokens.extend(query::generate(&self));
