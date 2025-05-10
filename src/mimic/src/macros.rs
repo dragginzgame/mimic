@@ -54,6 +54,6 @@ macro_rules! mimic_end {
     () => {
         // export_candid
         // has to be at the end
-        ::mimic::ic::export_candid!();
+        ::ic_cdk::export_candid!();
     };
 }
