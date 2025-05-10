@@ -4,6 +4,7 @@
 ///
 pub mod config;
 pub mod db;
+pub mod interface;
 pub mod macros;
 pub mod orm;
 pub mod query;
@@ -70,6 +71,9 @@ pub enum Error {
 
     #[error(transparent)]
     DbError(#[from] db::DbError),
+
+    #[error(transparent)]
+    InterfaceError(#[from] interface::InterfaceError),
 
     #[error(transparent)]
     OrmError(#[from] orm::OrmError),
