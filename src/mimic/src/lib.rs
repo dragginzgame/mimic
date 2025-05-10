@@ -55,12 +55,6 @@ use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use thiserror::Error as ThisError;
 
-// init
-// schema generation requires a function stub to work on OSX
-pub const fn init() {
-    crate::orm::base::init();
-}
-
 ///
 /// Error
 ///

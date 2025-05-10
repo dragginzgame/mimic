@@ -1,8 +1,6 @@
-fn main() -> std::io::Result<()> {
-    // init design dependencies
-    mimic::init();
-    test_schema::init();
+use {mimic as _, test_schema as _};
 
+fn main() -> std::io::Result<()> {
     mimic_build::mimic_build!("test_schema::Canister");
 
     Ok(())

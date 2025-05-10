@@ -5,6 +5,3 @@
 
 pub mod types;
 pub mod validator;
-
-// init
-pub(crate) const fn init() {}
