@@ -8,15 +8,15 @@ use syn::{Path, parse_str};
 pub fn generate(builder: &ActorBuilder) -> TokenStream {
     let mut tokens = quote!();
 
-    tokens.extend(query_load(builder));
-    tokens.extend(query_delete(builder));
-    tokens.extend(query_save(builder));
+    tokens.extend(mimic_query_load(builder));
+    tokens.extend(mimic_query_delete(builder));
+    tokens.extend(mimic_query_save(builder));
 
     tokens
 }
 
-// query_load
-fn query_load(builder: &ActorBuilder) -> TokenStream {
+// mimic_query_load
+fn mimic_query_load(builder: &ActorBuilder) -> TokenStream {
     let entities = builder.get_entities();
 
     let inner = if entities.is_empty() {
@@ -51,7 +51,7 @@ fn query_load(builder: &ActorBuilder) -> TokenStream {
 
     quote! {
         #[::mimic::ic::query]
-        pub fn query_load(
+        pub fn mimic_query_load(
             query: ::mimic::query::LoadQuery,
         ) -> Result<::mimic::query::LoadResponse, ::mimic::Error> {
             #inner
@@ -59,8 +59,8 @@ fn query_load(builder: &ActorBuilder) -> TokenStream {
     }
 }
 
-// query_save
-fn query_save(builder: &ActorBuilder) -> TokenStream {
+// mimic_query_save
+fn mimic_query_save(builder: &ActorBuilder) -> TokenStream {
     let entities = builder.get_entities();
 
     let inner = if entities.is_empty() {
@@ -93,7 +93,7 @@ fn query_save(builder: &ActorBuilder) -> TokenStream {
 
     quote! {
         #[::mimic::ic::update]
-        pub fn query_save(
+        pub fn mimic_query_save(
             query: ::mimic::query::SaveQuery
         ) -> Result<::mimic::query::SaveResponse, ::mimic::Error> {
             #inner
@@ -101,12 +101,11 @@ fn query_save(builder: &ActorBuilder) -> TokenStream {
     }
 }
 
-// query_delete
-// doesn't need to match on the entity path
-fn query_delete(_builder: &ActorBuilder) -> TokenStream {
+// mimic_query_delete
+fn mimic_query_delete(_builder: &ActorBuilder) -> TokenStream {
     quote! {
         #[::mimic::ic::update]
-        pub fn query_delete(
+        pub fn mimic_query_delete(
             query: ::mimic::query::DeleteQuery,
         ) -> Result<::mimic::query::DeleteResponse, ::mimic::Error> {
             let executor = ::mimic::query::DeleteExecutor::new(query);
