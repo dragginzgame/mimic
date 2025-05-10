@@ -1,6 +1,10 @@
+pub mod serialize;
+pub mod structures;
+
 ///
 /// IMPORT IC CRATES
 ///
+
 pub mod api {
     pub use ic_cdk::api::*;
 }
@@ -9,9 +13,6 @@ pub mod mgmt {
 }
 pub use ic_cdk::*;
 pub use serialize::{deserialize, serialize};
-
-pub mod serialize;
-pub mod structures;
 
 use crate::ThisError;
 use candid::CandidType;

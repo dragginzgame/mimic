@@ -64,6 +64,7 @@ impl TraitNode for List {
             Trait::Deref,
             Trait::DerefMut,
             Trait::From,
+            Trait::IntoIterator,
         ]);
 
         traits.list()
