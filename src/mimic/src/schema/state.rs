@@ -1,9 +1,9 @@
 use crate::{
-    log,
-    schema::{node::Schema, SchemaError},
-    Error, Log, ThisError,
+    Error, ThisError,
+    schema::{SchemaError, node::Schema},
 };
 use candid::CandidType;
+use icu::{Log, log};
 use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 

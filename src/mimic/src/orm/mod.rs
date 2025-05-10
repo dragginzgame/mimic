@@ -9,9 +9,7 @@ pub mod visit;
 
 pub mod prelude {
     pub use crate::{
-        Log,
         ic::structures::storable::Bound,
-        log,
         orm::{
             base::types::{
                 Blob, Bool, Decimal, Float32, Float64, Int, Int8, Int16, Int32, Int64, Int128, Nat,
@@ -26,6 +24,7 @@ pub mod prelude {
         types::{ErrorTree, FixtureList},
     };
     pub use ::candid::CandidType;
+    pub use ::icu::{Log, log};
     pub use ::mimic_design::*;
 }
 

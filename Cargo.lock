@@ -461,7 +461,7 @@ dependencies = [
 [[package]]
 name = "icu"
 version = "0.1.0"
-source = "git+https://github.com/dragginzgame/icu#5b89da45a82dceb8889020c1cb20110ec387e29d"
+source = "git+https://github.com/dragginzgame/icu#d2a182c44429b18518bbdbf3e3aff1ac315c4920"
 dependencies = [
  "candid",
  "ciborium",
@@ -862,6 +862,7 @@ version = "0.3.8"
 dependencies = [
  "candid",
  "ic-cdk",
+ "icu",
  "mimic",
  "mimic_build",
  "test_schema",

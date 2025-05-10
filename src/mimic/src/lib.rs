@@ -30,9 +30,8 @@ extern crate self as mimic;
 
 pub mod prelude {
     pub use crate::{
-        Log,
         db::Store,
-        log, mimic_end, mimic_memory_manager, mimic_start,
+        mimic_end, mimic_memory_manager, mimic_start,
         orm::{
             base::{
                 self,
@@ -45,12 +44,13 @@ pub mod prelude {
     };
     pub use ::candid::{CandidType, Principal};
     pub use ::icu::{
+        Log,
         ic::{
             api::{canister_self, msg_caller},
             call::Call,
             init, query, update,
         },
-        perf,
+        log, perf,
     };
     pub use ::std::cell::RefCell;
 }
@@ -79,46 +79,4 @@ pub enum Error {
 
     #[error(transparent)]
     SchemaError(#[from] schema::SchemaError),
-}
-
-///
-/// Logging
-///
-
-pub enum Log {
-    Ok,
-    Perf,
-    Info,
-    Warn,
-    Error,
-}
-
-#[macro_export]
-macro_rules! log {
-    // Match when only the format string is provided (no additional args)
-    ($level:expr, $fmt:expr) => {{
-        // Pass an empty set of arguments to @inner
-        log!(@inner $level, $fmt,);
-    }};
-
-    // Match when additional arguments are provided
-    ($level:expr, $fmt:expr, $($arg:tt)*) => {{
-        log!(@inner $level, $fmt, $($arg)*);
-    }};
-
-    // Inner macro for actual logging logic to avoid code duplication
-    (@inner $level:expr, $fmt:expr, $($arg:tt)*) => {{
-        let level: Log = $level;
-        let formatted_message = format!($fmt, $($arg)*);  // Apply formatting with args
-
-        let msg = match level {
-            Log::Ok => format!("\x1b[32mOK\x1b[0m: {}", formatted_message),
-            Log::Perf => format!("\x1b[35mPERF\x1b[0m: {}", formatted_message),
-            Log::Info => format!("\x1b[34mINFO\x1b[0m: {}", formatted_message),
-            Log::Warn => format!("\x1b[33mWARN\x1b[0m: {}", formatted_message),
-            Log::Error => format!("\x1b[31mERROR\x1b[0m: {}", formatted_message),
-        };
-
-        $crate::ic::println!("{}", msg);
-    }};
 }
