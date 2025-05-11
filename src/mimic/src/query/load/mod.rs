@@ -5,7 +5,7 @@ pub use dynamic::{LoadBuilderDyn, LoadExecutorDyn, LoadQueryDyn};
 pub use generic::{LoadBuilder, LoadExecutor, LoadQuery};
 
 use crate::{
-    Error, SerializeError, ThisError,
+    SerializeError, ThisError,
     db::{
         DbError, DbLocal, StoreLocal,
         types::{DataRow, EntityRow, SortKey},
@@ -93,22 +93,17 @@ pub enum LoadResponse {
 }
 
 impl LoadResponse {
-    pub fn as_entity_rows<E: Entity>(&self) -> Result<Vec<EntityRow<E>>, Error> {
-        let convert_err = |e| Error::QueryError(QueryError::LoadError(e));
-
+    pub fn as_entity_rows<E: Entity>(&self) -> Result<Vec<EntityRow<E>>, QueryError> {
         match self {
             Self::DataRows(rows) => rows
                 .clone()
                 .into_iter()
-                .map(|row| {
-                    row.try_into()
-                        .map_err(LoadError::SerializeError)
-                        .map_err(convert_err)
-                })
+                .map(|row| row.try_into().map_err(LoadError::SerializeError))
                 .collect(),
 
-            _ => Err(convert_err(LoadError::ResponseHasNoEntityData)),
+            _ => Err(LoadError::ResponseHasNoEntityData),
         }
+        .map_err(QueryError::from)
     }
 }
 
@@ -128,10 +123,10 @@ impl<E> LoadMap<E> {
     }
 
     // try_get
-    pub fn try_get<S: ToString>(&self, s: &S) -> Result<&E, Error> {
-        self.0.get(&s.to_string()).ok_or_else(|| {
-            Error::QueryError(QueryError::LoadError(LoadError::KeyNotFound(s.to_string())))
-        })
+    pub fn try_get<S: ToString>(&self, s: &S) -> Result<&E, QueryError> {
+        self.0
+            .get(&s.to_string())
+            .ok_or_else(|| QueryError::LoadError(LoadError::KeyNotFound(s.to_string())))
     }
 
     // get_many
@@ -147,7 +142,7 @@ impl<E> LoadMap<E> {
     }
 
     // try_get_many
-    pub fn try_get_many<S, I>(&self, ids: I) -> Result<Vec<&E>, Error>
+    pub fn try_get_many<S, I>(&self, ids: I) -> Result<Vec<&E>, QueryError>
     where
         S: ToString,
         I: IntoIterator<Item = S>,
@@ -157,9 +152,7 @@ impl<E> LoadMap<E> {
                 let key = id.to_string();
                 self.0
                     .get(&key)
-                    .ok_or(Error::QueryError(QueryError::LoadError(
-                        LoadError::KeyNotFound(key),
-                    )))
+                    .ok_or(QueryError::LoadError(LoadError::KeyNotFound(key)))
             })
             .collect()
     }
@@ -183,17 +176,20 @@ impl Loader {
     }
 
     // load
-    pub fn load(&self, method: &LoadMethod) -> Result<Vec<DataRow>, Error> {
-        self.load_unmapped(method)
-            .map_err(QueryError::LoadError)
-            .map_err(Error::QueryError)
+    pub fn load(&self, method: &LoadMethod) -> Result<Vec<DataRow>, QueryError> {
+        let res = self.load_unmapped(method)?;
+
+        Ok(res)
     }
 
     // load_unmapped
     // for easier error wrapping
-    fn load_unmapped(&self, method: &LoadMethod) -> Result<Vec<DataRow>, LoadError> {
-        let store_path = &self.resolver.store()?;
-        let store = self.db.with(|db| db.try_get_store(store_path))?;
+    fn load_unmapped(&self, method: &LoadMethod) -> Result<Vec<DataRow>, QueryError> {
+        let store_path = &self.resolver.store().map_err(LoadError::from)?;
+        let store = self
+            .db
+            .with(|db| db.try_get_store(store_path))
+            .map_err(LoadError::from)?;
 
         let res = match method {
             LoadMethod::All | LoadMethod::Only => {
@@ -242,22 +238,22 @@ impl Loader {
 
     // data_key
     // for easy error converstion
-    fn data_key(&self, ck: &[String]) -> Result<SortKey, LoadError> {
-        let key = self.resolver.data_key(ck)?;
+    fn data_key(&self, ck: &[String]) -> Result<SortKey, QueryError> {
+        let key = self.resolver.data_key(ck).map_err(LoadError::from)?;
 
         Ok(key)
     }
 }
 
 // query_data_key
-fn query_data_key(store: StoreLocal, key: SortKey) -> Result<DataRow, LoadError> {
+fn query_data_key(store: StoreLocal, key: SortKey) -> Result<DataRow, QueryError> {
     store.with_borrow(|this| {
         this.get(&key)
             .map(|value| DataRow {
                 key: key.clone(),
                 value,
             })
-            .ok_or_else(|| LoadError::KeyNotFound(key.to_string()))
+            .ok_or_else(|| QueryError::LoadError(LoadError::KeyNotFound(key.to_string())))
     })
 }
 

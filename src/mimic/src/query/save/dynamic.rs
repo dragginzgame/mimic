@@ -1,10 +1,9 @@
 use crate::{
-    Error,
     db::DbLocal,
     deserialize,
     query::{
         DebugContext, QueryError,
-        save::{SaveMode, save},
+        save::{SaveError, SaveMode, save},
     },
     traits::{Entity, EntityDyn},
 };
@@ -28,8 +27,8 @@ impl SaveBuilderDyn {
     }
 
     // from_bytes
-    pub fn from_bytes<E: Entity + 'static>(self, data: &[u8]) -> Result<SaveQueryDyn, Error> {
-        let entity: E = deserialize(data)?;
+    pub fn from_bytes<E: Entity + 'static>(self, data: &[u8]) -> Result<SaveQueryDyn, QueryError> {
+        let entity: E = deserialize(data).map_err(SaveError::from)?;
 
         Ok(SaveQueryDyn::new(self.mode, vec![Box::new(entity)]))
     }
@@ -93,7 +92,7 @@ impl SaveQueryDyn {
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<SaveResponseDyn, Error> {
+    pub fn execute(self, db: DbLocal) -> Result<SaveResponseDyn, QueryError> {
         let executor = SaveExecutorDyn::new(self);
 
         executor.execute(db)
@@ -116,11 +115,11 @@ impl SaveExecutorDyn {
     }
 
     // execute
-    pub fn execute(mut self, db: DbLocal) -> Result<SaveResponseDyn, Error> {
+    pub fn execute(mut self, db: DbLocal) -> Result<SaveResponseDyn, QueryError> {
         // Validate all entities first
         for entity in &self.query.entities {
             let adapter = crate::visit::EntityAdapter(&**entity);
-            crate::validate(&adapter)?;
+            crate::validate(&adapter).map_err(SaveError::from)?;
         }
 
         // Temporarily take the entities out of self to avoid borrowing issues
@@ -130,7 +129,7 @@ impl SaveExecutorDyn {
 
         // save entities
         for entity in entities {
-            save(db, mode, &debug, entity).map_err(QueryError::SaveError)?;
+            save(db, mode, &debug, entity)?;
         }
 
         Ok(SaveResponseDyn())

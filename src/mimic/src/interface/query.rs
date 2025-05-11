@@ -16,6 +16,9 @@ use thiserror::Error as ThisError;
 pub enum QueryError {
     #[error("call error: {0}")]
     CallError(String),
+
+    #[error("entity not found: {0}")]
+    EntityNotFound(String),
 }
 
 // query_load

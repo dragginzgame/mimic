@@ -1,5 +1,4 @@
 use crate::{
-    Error,
     db::{
         DbLocal,
         types::{DataRow, EntityRow, SortKey},
@@ -200,7 +199,7 @@ impl LoadQuery {
 
     // execute
     // excutes the query and returns a collection
-    pub fn execute<E>(self, db: DbLocal) -> Result<LoadCollection<E>, Error>
+    pub fn execute<E>(self, db: DbLocal) -> Result<LoadCollection<E>, QueryError>
     where
         E: Entity,
     {
@@ -209,7 +208,7 @@ impl LoadQuery {
     }
 
     // response
-    pub fn response<E>(self, db: DbLocal) -> Result<LoadResponse, Error>
+    pub fn response<E>(self, db: DbLocal) -> Result<LoadResponse, QueryError>
     where
         E: Entity,
     {
@@ -244,7 +243,7 @@ where
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<LoadCollection<E>, Error> {
+    pub fn execute(self, db: DbLocal) -> Result<LoadCollection<E>, QueryError> {
         // loader
         let resolver = Resolver::new(&self.query.path);
         let loader = Loader::new(db, resolver);
@@ -256,8 +255,7 @@ where
             .filter(|row| row.value.path == E::path())
             .map(TryFrom::try_from)
             .collect::<Result<Vec<EntityRow<E>>, _>>()
-            .map_err(LoadError::SerializeError)
-            .map_err(QueryError::LoadError)?;
+            .map_err(LoadError::SerializeError)?;
 
         // filter
         let rows = rows
@@ -287,7 +285,7 @@ where
     }
 
     // response
-    pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
+    pub fn response(self, db: DbLocal) -> Result<LoadResponse, QueryError> {
         let format = self.query.format.clone();
         let collection = self.execute(db)?;
 
@@ -342,12 +340,8 @@ where
     }
 
     // try_key
-    pub fn try_key(self) -> Result<SortKey, Error> {
-        let row = self
-            .0
-            .first()
-            .ok_or(LoadError::NoResultsFound)
-            .map_err(QueryError::LoadError)?;
+    pub fn try_key(self) -> Result<SortKey, QueryError> {
+        let row = self.0.first().ok_or(LoadError::NoResultsFound)?;
 
         Ok(row.key.clone())
     }
@@ -359,14 +353,13 @@ where
     }
 
     // data_rows
-    pub fn data_rows(self) -> Result<Vec<DataRow>, Error> {
+    pub fn data_rows(self) -> Result<Vec<DataRow>, QueryError> {
         self.0
             .into_iter()
             .map(|row| {
                 row.try_into()
                     .map_err(LoadError::SerializeError)
                     .map_err(QueryError::LoadError)
-                    .map_err(Error::from)
             })
             .collect()
     }
@@ -378,7 +371,7 @@ where
     }
 
     // try_entity
-    pub fn try_entity(self) -> Result<E, Error> {
+    pub fn try_entity(self) -> Result<E, QueryError> {
         let res = self
             .0
             .first()
@@ -402,7 +395,7 @@ where
     }
 
     // try_entity_row
-    pub fn try_entity_row(self) -> Result<EntityRow<E>, Error> {
+    pub fn try_entity_row(self) -> Result<EntityRow<E>, QueryError> {
         let res = self
             .0
             .first()

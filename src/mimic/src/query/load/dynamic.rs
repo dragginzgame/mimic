@@ -1,5 +1,4 @@
 use crate::{
-    Error,
     db::{
         DbLocal,
         types::{DataRow, SortKey},
@@ -152,13 +151,13 @@ impl LoadQueryDyn {
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<LoadCollectionDyn, Error> {
+    pub fn execute(self, db: DbLocal) -> Result<LoadCollectionDyn, QueryError> {
         let executor = LoadExecutorDyn::new(self);
         executor.execute(db)
     }
 
     // response
-    pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
+    pub fn response(self, db: DbLocal) -> Result<LoadResponse, QueryError> {
         let executor = LoadExecutorDyn::new(self);
         executor.response(db)
     }
@@ -183,7 +182,7 @@ impl LoadExecutorDyn {
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<LoadCollectionDyn, Error> {
+    pub fn execute(self, db: DbLocal) -> Result<LoadCollectionDyn, QueryError> {
         // loader
         let loader = Loader::new(db, self.resolver);
         let rows = loader.load(&self.query.method)?;
@@ -198,7 +197,7 @@ impl LoadExecutorDyn {
     }
 
     // response
-    pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
+    pub fn response(self, db: DbLocal) -> Result<LoadResponse, QueryError> {
         let format = self.query.format.clone();
         let collection = self.execute(db)?;
 
@@ -245,7 +244,7 @@ impl LoadCollectionDyn {
     }
 
     // try_key
-    pub fn try_key(self) -> Result<SortKey, Error> {
+    pub fn try_key(self) -> Result<SortKey, QueryError> {
         let row = self
             .0
             .first()
@@ -262,12 +261,12 @@ impl LoadCollectionDyn {
     }
 
     // try_blob
-    pub fn try_blob(self) -> Result<Vec<u8>, Error> {
+    pub fn try_blob(self) -> Result<Vec<u8>, QueryError> {
         self.0
             .into_iter()
             .next()
             .map(|row| row.value.data)
-            .ok_or_else(|| QueryError::LoadError(LoadError::NoResultsFound).into())
+            .ok_or(QueryError::LoadError(LoadError::NoResultsFound))
     }
 
     // blob

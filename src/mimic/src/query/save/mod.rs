@@ -5,13 +5,13 @@ pub use dynamic::{SaveBuilderDyn, SaveExecutorDyn, SaveQueryDyn, SaveResponseDyn
 pub use generic::{SaveBuilder, SaveExecutor, SaveQuery, SaveResponse};
 
 use crate::{
-    SerializeError, ThisError,
+    SerializeError, ThisError, ValidationError,
     db::{
         DbError, DbLocal,
         types::{DataValue, Metadata, SortKey},
     },
     query::{
-        DebugContext,
+        DebugContext, QueryError,
         resolver::{Resolver, ResolverError},
     },
     traits::EntityDyn,
@@ -40,6 +40,9 @@ pub enum SaveError {
 
     #[error(transparent)]
     SerializeError(#[from] SerializeError),
+
+    #[error(transparent)]
+    ValidationError(#[from] ValidationError),
 }
 
 ///
@@ -63,20 +66,20 @@ fn save<'a>(
     mode: SaveMode,
     debug: &DebugContext,
     entity: Box<dyn EntityDyn + 'a>,
-) -> Result<(), SaveError> {
+) -> Result<(), QueryError> {
     //
     // build key / value
     //
 
     let ck = entity.composite_key_dyn();
     let resolver = Resolver::new(&entity.path_dyn());
-    let key = resolver.data_key(&ck)?;
+    let key = resolver.data_key(&ck).map_err(SaveError::from)?;
 
     // debug
     debug.println(&format!("store.{mode}: {key}",));
 
     // serialize
-    let data: Vec<u8> = entity.serialize_dyn()?;
+    let data: Vec<u8> = entity.serialize_dyn().map_err(SaveError::from)?;
 
     //
     // match mode
@@ -84,7 +87,9 @@ fn save<'a>(
     //
 
     let now = crate::utils::time::now_secs();
-    let store = db.with(|db| db.try_get_store(&entity.store_dyn()))?;
+    let store = db
+        .with(|db| db.try_get_store(&entity.store_dyn()))
+        .map_err(SaveError::from)?;
     let result = store.with_borrow(|store| store.get(&key));
 
     let (created, modified) = match mode {

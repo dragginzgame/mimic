@@ -66,10 +66,6 @@ use visit::{ValidateVisitor, perform_visit};
 
 #[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum Error {
-    // entity not found, used for auto-generated endpoints
-    #[error("entity not found: {0}")]
-    EntityNotFound(String),
-
     #[error(transparent)]
     DbError(#[from] db::DbError),
 
