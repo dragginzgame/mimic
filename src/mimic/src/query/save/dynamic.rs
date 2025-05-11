@@ -1,4 +1,5 @@
 use crate::{
+    Error,
     db::DbLocal,
     deserialize,
     query::{
@@ -92,7 +93,7 @@ impl SaveQueryDyn {
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<SaveResponseDyn, QueryError> {
+    pub fn execute(self, db: DbLocal) -> Result<SaveResponseDyn, Error> {
         let executor = SaveExecutorDyn::new(self);
 
         executor.execute(db)
@@ -115,11 +116,13 @@ impl SaveExecutorDyn {
     }
 
     // execute
-    pub fn execute(mut self, db: DbLocal) -> Result<SaveResponseDyn, QueryError> {
+    pub fn execute(mut self, db: DbLocal) -> Result<SaveResponseDyn, Error> {
         // Validate all entities first
         for entity in &self.query.entities {
             let adapter = crate::visit::EntityAdapter(&**entity);
-            crate::validate(&adapter).map_err(SaveError::from)?;
+            crate::validate(&adapter)
+                .map_err(SaveError::from)
+                .map_err(QueryError::SaveError)?;
         }
 
         // Temporarily take the entities out of self to avoid borrowing issues

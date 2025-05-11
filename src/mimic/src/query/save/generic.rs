@@ -1,4 +1,5 @@
 use crate::{
+    Error,
     db::DbLocal,
     query::{
         DebugContext, QueryError,
@@ -76,7 +77,7 @@ impl SaveQuery {
     }
 
     // execute
-    pub fn execute<E>(self, db: DbLocal) -> Result<SaveResponse, QueryError>
+    pub fn execute<E>(self, db: DbLocal) -> Result<SaveResponse, Error>
     where
         E: Entity,
     {
@@ -102,14 +103,19 @@ impl SaveExecutor {
     }
 
     // execute
-    pub fn execute<E>(self, db: DbLocal) -> Result<SaveResponse, QueryError>
+    pub fn execute<E>(self, db: DbLocal) -> Result<SaveResponse, Error>
     where
         E: Entity,
     {
         // Validate all entities first
-        let entity: E = crate::deserialize(&self.query.bytes).map_err(SaveError::from)?;
+        let entity: E = crate::deserialize(&self.query.bytes)
+            .map_err(SaveError::from)
+            .map_err(QueryError::SaveError)?;
         let adapter = crate::visit::EntityAdapter(&entity);
-        crate::validate(&adapter).map_err(SaveError::from)?;
+
+        crate::validate(&adapter)
+            .map_err(SaveError::from)
+            .map_err(QueryError::SaveError)?;
 
         // save entities
         save(db, self.query.mode, &self.query.debug, Box::new(entity))?;

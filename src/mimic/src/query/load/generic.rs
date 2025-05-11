@@ -1,4 +1,5 @@
 use crate::{
+    Error,
     db::{
         DbLocal,
         types::{DataRow, EntityRow, SortKey},
@@ -199,7 +200,7 @@ impl LoadQuery {
 
     // execute
     // excutes the query and returns a collection
-    pub fn execute<E>(self, db: DbLocal) -> Result<LoadCollection<E>, QueryError>
+    pub fn execute<E>(self, db: DbLocal) -> Result<LoadCollection<E>, Error>
     where
         E: Entity,
     {
@@ -208,7 +209,7 @@ impl LoadQuery {
     }
 
     // response
-    pub fn response<E>(self, db: DbLocal) -> Result<LoadResponse, QueryError>
+    pub fn response<E>(self, db: DbLocal) -> Result<LoadResponse, Error>
     where
         E: Entity,
     {
@@ -243,7 +244,7 @@ where
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<LoadCollection<E>, QueryError> {
+    pub fn execute(self, db: DbLocal) -> Result<LoadCollection<E>, Error> {
         // loader
         let resolver = Resolver::new(&self.query.path);
         let loader = Loader::new(db, resolver);
@@ -255,7 +256,8 @@ where
             .filter(|row| row.value.path == E::path())
             .map(TryFrom::try_from)
             .collect::<Result<Vec<EntityRow<E>>, _>>()
-            .map_err(LoadError::SerializeError)?;
+            .map_err(LoadError::SerializeError)
+            .map_err(QueryError::LoadError)?;
 
         // filter
         let rows = rows
@@ -285,7 +287,7 @@ where
     }
 
     // response
-    pub fn response(self, db: DbLocal) -> Result<LoadResponse, QueryError> {
+    pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
         let format = self.query.format.clone();
         let collection = self.execute(db)?;
 

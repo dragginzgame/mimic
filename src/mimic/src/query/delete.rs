@@ -1,5 +1,5 @@
 use crate::{
-    ThisError,
+    Error, ThisError,
     db::{DbError, DbLocal, types::SortKey},
     query::{DebugContext, QueryError, Resolver, resolver::ResolverError},
     traits::Entity,
@@ -106,7 +106,7 @@ impl DeleteQuery {
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<DeleteResponse, QueryError> {
+    pub fn execute(self, db: DbLocal) -> Result<DeleteResponse, Error> {
         let executor = DeleteExecutor::new(self);
 
         executor.execute(db)
@@ -132,7 +132,7 @@ impl DeleteExecutor {
     }
 
     // execute
-    pub fn execute(&self, db: DbLocal) -> Result<DeleteResponse, QueryError> {
+    pub fn execute(&self, db: DbLocal) -> Result<DeleteResponse, Error> {
         let keys = match &self.query.method {
             DeleteMethod::One(key) => vec![key],
             DeleteMethod::Many(keys) => keys.iter().collect(),
@@ -149,7 +149,8 @@ impl DeleteExecutor {
             .map_err(QueryError::DeleteError)?;
         let store = db
             .with(|db| db.try_get_store(store_path))
-            .map_err(DeleteError::from)?;
+            .map_err(DeleteError::from)
+            .map_err(QueryError::DeleteError)?;
 
         // execute for every different key
         let mut deleted_keys = Vec::new();

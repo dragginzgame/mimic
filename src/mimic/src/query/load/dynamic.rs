@@ -1,4 +1,5 @@
 use crate::{
+    Error,
     db::{
         DbLocal,
         types::{DataRow, SortKey},
@@ -151,15 +152,15 @@ impl LoadQueryDyn {
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<LoadCollectionDyn, QueryError> {
+    pub fn execute(self, db: DbLocal) -> Result<LoadCollectionDyn, Error> {
         let executor = LoadExecutorDyn::new(self);
-        executor.execute(db)
+        executor.execute(db).map_err(Error::from)
     }
 
     // response
-    pub fn response(self, db: DbLocal) -> Result<LoadResponse, QueryError> {
+    pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
         let executor = LoadExecutorDyn::new(self);
-        executor.response(db)
+        executor.response(db).map_err(Error::from)
     }
 }
 
