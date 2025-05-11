@@ -32,6 +32,10 @@ extern crate self as mimic;
 /// using _ brings traits into scope and avoids name conflicts
 ///
 
+pub mod prelude_actor {
+    pub use crate::{mimic_memory_manager, mimic_start};
+}
+
 pub mod prelude {
     pub use crate::{
         base::types::{

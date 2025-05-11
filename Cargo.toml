@@ -64,7 +64,6 @@ serde_json = "1.0"
 sha2 = "0.10"
 thiserror = "2.0"
 tinyrand = "0.5"
-toml = "0.8"
 # removed std because it imports rand.  serde feature doesn't compile without it
 ulid = { version = "1.2", default-features = false }
 
