@@ -6,7 +6,7 @@ pub mod default;
 pub mod index;
 pub mod validate;
 
-use mimic::orm::{base::types, prelude::*};
+use mimic::{orm::base::types, prelude::*};
 
 ///
 /// Canister

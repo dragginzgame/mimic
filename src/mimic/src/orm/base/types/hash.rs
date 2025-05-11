@@ -1,5 +1,5 @@
-use crate::orm::{
-    base::{types, validator},
+use crate::{
+    orm::base::{types, validator},
     prelude::*,
 };
 

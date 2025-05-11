@@ -1,4 +1,4 @@
-use crate::orm::{base::types::Decimal, prelude::*};
+use crate::prelude::*;
 use num_traits::{NumCast, Zero};
 use std::fmt::Display;
 

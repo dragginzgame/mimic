@@ -1,4 +1,4 @@
-use mimic::orm::prelude::*;
+use mimic::prelude::*;
 
 ///
 /// Stringy

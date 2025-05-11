@@ -3,10 +3,8 @@ pub mod generator;
 
 use crate::{
     ThisError,
-    orm::{
-        prelude::*,
-        traits::{Filterable, Inner, Orderable, SortKeyValue, ValidateAuto, ValidateCustom},
-    },
+    orm::traits::{Filterable, Inner, Orderable, SortKeyValue, ValidateAuto, ValidateCustom},
+    prelude::*,
     types::ErrorTree,
 };
 use derive_more::{Deref, DerefMut, FromStr};

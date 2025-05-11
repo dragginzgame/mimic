@@ -1,5 +1,5 @@
 use crate::{
-    orm::prelude::*,
+    prelude::*,
     utils::case::{Case, Casing},
 };
 

@@ -11,6 +11,7 @@ pub mod schema;
 pub mod types;
 pub mod utils;
 
+// makes it easier to use internally
 pub mod ic {
     pub use icu::ic::*;
 }
@@ -26,33 +27,26 @@ extern crate self as mimic;
 
 ///
 /// MIMIC PRELUDE
+/// using _ brings traits into scope and avoids name conflicts
 ///
 
 pub mod prelude {
     pub use crate::{
-        db::Store,
-        mimic_end, mimic_memory_manager, mimic_start,
         orm::{
-            base::{
-                self,
-                types::{Relation, RelationSet, Ulid},
+            base::types::{
+                Blob, Bool, Decimal, Float32, Float64, Int, Int8, Int16, Int32, Int64, Int128, Nat,
+                Nat8, Nat16, Nat32, Nat64, Nat128, Principal, Relation, RelationSet, Text, Ulid,
             },
             traits::{
-                EntityDyn, EntityFixture, Inner as _, NumFromPrimitive, NumToPrimitive, Path,
+                EntityDyn, EntityFixture, EntityId as _, Filterable, Inner as _, NumCast,
+                Orderable, Ordering, Path, Selector as _, SortKeyValue as _, Validate as _,
+                ValidateCustom, ValidatorBytes, ValidatorNumber, ValidatorString, Visitable,
             },
         },
+        types::{ErrorTree, FixtureList},
     };
-    pub use ::candid::{CandidType, Principal};
-    pub use ::icu::{
-        Log,
-        ic::{
-            api::{canister_self, msg_caller},
-            call::Call,
-            init, query, update,
-        },
-        log, perf,
-    };
-    pub use ::std::cell::RefCell;
+    pub use ::candid::CandidType;
+    pub use ::mimic_design::*;
 }
 
 use candid::CandidType;

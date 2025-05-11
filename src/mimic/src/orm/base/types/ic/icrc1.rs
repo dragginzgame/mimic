@@ -1,4 +1,4 @@
-use crate::orm::{base::types, prelude::*};
+use crate::{orm::base::types, prelude::*};
 
 ///
 /// Icrc1 Payment

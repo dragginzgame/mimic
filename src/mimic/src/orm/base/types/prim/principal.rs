@@ -1,16 +1,13 @@
 use crate::{
     ThisError,
-    ic::api::msg_caller,
-    orm::{
-        prelude::*,
-        traits::{
-            Filterable, Inner, Orderable, SortKeyValue, ValidateAuto, ValidateCustom, Visitable,
-        },
+    orm::traits::{
+        Filterable, Inner, Orderable, SortKeyValue, ValidateAuto, ValidateCustom, Visitable,
     },
+    prelude::*,
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut};
-use icu::impl_storable_bounded;
+use icu::{ic::api::msg_caller, impl_storable_bounded};
 use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,

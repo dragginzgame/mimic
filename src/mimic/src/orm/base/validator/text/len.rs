@@ -1,4 +1,4 @@
-use crate::orm::prelude::*;
+use crate::prelude::*;
 use num_traits::NumCast;
 
 const MAX_DISPLAY_CHARS: usize = 20;

@@ -1,6 +1,6 @@
-use crate::orm::{
+use crate::{
+    orm::traits::{Inner, ValidateAuto},
     prelude::*,
-    traits::{Inner, ValidateAuto},
 };
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};

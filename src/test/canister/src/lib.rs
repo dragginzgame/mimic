@@ -2,11 +2,15 @@ mod db;
 mod default;
 mod validate;
 
-use icu::{Log, log};
+use icu::{Log, ic::export_candid, log};
 use mimic::{
     ic::{init, update},
-    mimic_end, mimic_memory_manager, mimic_start,
+    mimic_memory_manager, mimic_start,
 };
+
+//
+// MIMIC
+//
 
 mimic_memory_manager!();
 mimic_start!();
@@ -26,4 +30,4 @@ pub fn test() {
     log!(Log::Ok, "test: all tests passed successfully");
 }
 
-mimic_end!();
+export_candid!();

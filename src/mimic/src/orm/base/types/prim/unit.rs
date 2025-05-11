@@ -1,6 +1,6 @@
-use crate::orm::{
+use crate::{
+    orm::traits::{Inner, ValidateAuto, ValidateCustom},
     prelude::*,
-    traits::{Inner, ValidateAuto, ValidateCustom},
 };
 use serde::{Deserialize, Serialize};
 

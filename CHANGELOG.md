@@ -5,6 +5,11 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.4.0]
+- breaking changes!  mimic_end is gone, moved a lot of things to ICU
+- no more config.toml
+- merged the preludes so there's just one and its top level
+
 ## [0.3.8]
 - Relation isn't Vec<Ulid> any more, instead it's Vec<String> to handle principals and other types
 - IntoIterator auto derived for List, Set, Map

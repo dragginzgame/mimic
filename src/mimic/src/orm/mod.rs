@@ -2,32 +2,6 @@ pub mod base;
 pub mod traits;
 pub mod visit;
 
-///
-/// PRELUDE
-/// using _ brings traits into scope and avoids name conflicts
-///
-
-pub mod prelude {
-    pub use crate::{
-        ic::structures::storable::Bound,
-        orm::{
-            base::types::{
-                Blob, Bool, Decimal, Float32, Float64, Int, Int8, Int16, Int32, Int64, Int128, Nat,
-                Nat8, Nat16, Nat32, Nat64, Nat128, Principal, Relation, RelationSet, Text, Ulid,
-            },
-            traits::{
-                EntityDyn, EntityFixture, EntityId as _, Filterable, Inner as _, NumCast,
-                Orderable, Ordering, Path, Selector as _, SortKeyValue as _, Validate as _,
-                ValidateCustom, ValidatorBytes, ValidatorNumber, ValidatorString, Visitable,
-            },
-        },
-        types::{ErrorTree, FixtureList},
-    };
-    pub use ::candid::CandidType;
-    pub use ::icu::{Log, log};
-    pub use ::mimic_design::*;
-}
-
 use crate::{Error, ThisError, types::ErrorTree};
 use candid::CandidType;
 use icu::serialize::SerializeError;

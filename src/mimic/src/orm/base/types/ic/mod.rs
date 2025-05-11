@@ -1,8 +1,8 @@
 pub mod icrc1;
 pub mod icrc3;
 
-use crate::orm::{
-    base::{types, validator},
+use crate::{
+    orm::base::{types, validator},
     prelude::*,
 };
 

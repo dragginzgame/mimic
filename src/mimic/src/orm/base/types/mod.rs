@@ -10,7 +10,7 @@ pub mod text;
 pub mod time;
 pub mod web;
 
-use crate::orm::{base::types, prelude::*};
+use crate::{orm::base::types, prelude::*};
 
 ///
 /// Bool

@@ -50,7 +50,7 @@ fn query_load(builder: &ActorBuilder) -> TokenStream {
     };
 
     quote! {
-        #[::mimic::ic::query]
+        #[::icu::ic::query]
         pub fn mimic_query_load(
             query: ::mimic::query::LoadQuery,
         ) -> Result<::mimic::query::LoadResponse, ::mimic::Error> {

@@ -118,7 +118,7 @@ impl DebugContext {
 
     pub fn println(&self, s: &str) {
         if self.enabled {
-            crate::ic::println!("{s}");
+            icu::ic::println!("{s}");
         }
     }
 }

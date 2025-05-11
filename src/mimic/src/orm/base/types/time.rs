@@ -1,4 +1,4 @@
-pub use crate::orm::{base::types, prelude::*};
+pub use crate::{orm::base::types, prelude::*};
 
 ///
 /// Milliseconds
