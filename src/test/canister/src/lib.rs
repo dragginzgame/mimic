@@ -9,7 +9,7 @@ use mimic::{
 };
 
 mimic_memory_manager!();
-mimic_start!("../mimic.toml");
+mimic_start!();
 
 #[init]
 pub fn init() {

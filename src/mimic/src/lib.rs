@@ -2,7 +2,6 @@
 /// mimic
 /// [for external use only, keep out of reach of children]
 ///
-pub mod config;
 pub mod db;
 pub mod interface;
 pub mod macros;
@@ -66,9 +65,6 @@ use thiserror::Error as ThisError;
 
 #[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum Error {
-    #[error(transparent)]
-    ConfigError(#[from] config::ConfigError),
-
     #[error(transparent)]
     DbError(#[from] db::DbError),
 

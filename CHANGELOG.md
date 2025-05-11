@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.3.8]
 - Relation isn't Vec<Ulid> any more, instead it's Vec<String> to handle principals and other types
 - IntoIterator auto derived for List, Set, Map
+- Removed config file as it's just extra setup pain and isn't needed
 
 ## [0.3.7]
 - standardising with the ICRC standardisations.  Nat, Int, Nat8 etc.
