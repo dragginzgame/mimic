@@ -48,7 +48,7 @@ impl FromStr for Relation {
     type Err = std::convert::Infallible;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Relation(vec![s.to_string()]))
+        Ok(Self(vec![s.to_string()]))
     }
 }
 

@@ -58,7 +58,7 @@ pub struct ActorBuilder {
 impl ActorBuilder {
     // new
     #[must_use]
-    pub fn new(schema: Arc<Schema>, canister: Canister) -> Self {
+    pub const fn new(schema: Arc<Schema>, canister: Canister) -> Self {
         Self { schema, canister }
     }
 
