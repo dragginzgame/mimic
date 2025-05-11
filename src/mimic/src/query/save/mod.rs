@@ -5,16 +5,16 @@ pub use dynamic::{SaveBuilderDyn, SaveExecutorDyn, SaveQueryDyn, SaveResponseDyn
 pub use generic::{SaveBuilder, SaveExecutor, SaveQuery, SaveResponse};
 
 use crate::{
-    ThisError,
+    SerializeError, ThisError,
     db::{
         DbError, DbLocal,
         types::{DataValue, Metadata, SortKey},
     },
-    orm::{OrmError, traits::EntityDyn},
     query::{
         DebugContext,
         resolver::{Resolver, ResolverError},
     },
+    traits::EntityDyn,
 };
 use candid::CandidType;
 use derive_more::Display;
@@ -36,10 +36,10 @@ pub enum SaveError {
     DbError(#[from] DbError),
 
     #[error(transparent)]
-    OrmError(#[from] OrmError),
+    ResolverError(#[from] ResolverError),
 
     #[error(transparent)]
-    ResolverError(#[from] ResolverError),
+    SerializeError(#[from] SerializeError),
 }
 
 ///

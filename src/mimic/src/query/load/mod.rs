@@ -5,20 +5,19 @@ pub use dynamic::{LoadBuilderDyn, LoadExecutorDyn, LoadQueryDyn};
 pub use generic::{LoadBuilder, LoadExecutor, LoadQuery};
 
 use crate::{
-    Error, ThisError,
+    Error, SerializeError, ThisError,
     db::{
         DbError, DbLocal, StoreLocal,
         types::{DataRow, EntityRow, SortKey},
     },
-    orm::traits::Entity,
     query::{
         QueryError,
         resolver::{Resolver, ResolverError},
     },
+    traits::Entity,
 };
 use candid::CandidType;
 use derive_more::Deref;
-use icu::serialize::SerializeError;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 

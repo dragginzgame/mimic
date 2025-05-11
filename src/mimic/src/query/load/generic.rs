@@ -4,12 +4,12 @@ use crate::{
         DbLocal,
         types::{DataRow, EntityRow, SortKey},
     },
-    orm::traits::Entity,
     query::{
         DebugContext, QueryError, Resolver,
         load::{LoadError, LoadFormat, LoadMap, LoadMethod, LoadResponse, Loader},
         types::{Filter, Order},
     },
+    traits::Entity,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};

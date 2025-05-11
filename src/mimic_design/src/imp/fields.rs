@@ -56,7 +56,7 @@ pub fn fields_filter(node: &FieldList) -> TokenStream {
             match field.value.cardinality() {
                 Cardinality::One => quote! {
                     #name_str => {
-                        if ::mimic::orm::traits::Filterable::contains_text(&self.#name, text) {
+                        if ::mimic::traits::Filterable::contains_text(&self.#name, text) {
                             return true;
                         }
                     }
@@ -64,7 +64,7 @@ pub fn fields_filter(node: &FieldList) -> TokenStream {
                 Cardinality::Opt => quote! {
                     #name_str => {
                         if let Some(value) = &self.#name {
-                            if ::mimic::orm::traits::Filterable::contains_text(value, text) {
+                            if ::mimic::traits::Filterable::contains_text(value, text) {
                                 return true;
                             }
                         }
@@ -154,9 +154,9 @@ fn fields_sort(node: &FieldList) -> TokenStream {
         inner.extend(quote! {
             #field_str => {
                 if matches!(direction, ::mimic::schema::types::SortDirection::Asc) {
-                    funcs.push(Box::new(|a, b| ::mimic::orm::traits::Orderable::cmp(&a.#field_ident, &b.#field_ident)));
+                    funcs.push(Box::new(|a, b| ::mimic::traits::Orderable::cmp(&a.#field_ident, &b.#field_ident)));
                 } else {
-                    funcs.push(Box::new(|a, b| ::mimic::orm::traits::Orderable::cmp(&b.#field_ident, &a.#field_ident)));
+                    funcs.push(Box::new(|a, b| ::mimic::traits::Orderable::cmp(&b.#field_ident, &a.#field_ident)));
                 }
             },
         });

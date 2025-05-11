@@ -17,7 +17,7 @@ mod tests {
         };
         println!("{e:?}");
 
-        let errs = mimic::orm::validate(&e);
+        let errs = mimic::validate(&e);
         println!("{errs:?}");
         if let Err(e) = errs {
             println!("{e}");
@@ -34,7 +34,7 @@ mod tests {
         };
         println!("{e:?}");
 
-        let errs = mimic::orm::validate(&e);
+        let errs = mimic::validate(&e);
         println!("{errs:?}");
 
         //
@@ -42,7 +42,7 @@ mod tests {
         let e = MultipleTenType::from(5);
         println!("{e:?}");
 
-        let errs = mimic::orm::validate(&e);
+        let errs = mimic::validate(&e);
         println!("{errs:?}");
     }
 }

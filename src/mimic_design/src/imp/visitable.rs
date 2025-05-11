@@ -102,8 +102,8 @@ impl Imp<Map> for VisitableTrait {
         let inner = quote! {
             for (k, v) in self.0.iter() {
                 let visitor_key = k.to_string();
-                ::mimic::orm::visit::perform_visit(visitor, k, &visitor_key);
-                ::mimic::orm::visit::perform_visit(visitor, v, &visitor_key);
+                ::mimic::visit::perform_visit(visitor, k, &visitor_key);
+                ::mimic::visit::perform_visit(visitor, v, &visitor_key);
             }
         };
         let q = drive_inner(&inner);
@@ -142,7 +142,7 @@ impl Imp<Set> for VisitableTrait {
         let inner = quote! {
             for (i, item) in self.0.iter().enumerate() {
                 let visitor_key = i.to_string();
-                ::mimic::orm::visit::perform_visit(visitor, item, &visitor_key);
+                ::mimic::visit::perform_visit(visitor, item, &visitor_key);
             }
         };
         let q = drive_inner(&inner);
@@ -223,16 +223,16 @@ fn quote_variant(value: &Value, ident: &Ident) -> TokenStream {
     let name = ident.to_string();
     match value.cardinality() {
         Cardinality::One => quote! {
-            Self::#ident(value) => ::mimic::orm::visit::perform_visit(visitor, value, #name),
+            Self::#ident(value) => ::mimic::visit::perform_visit(visitor, value, #name),
         },
         Cardinality::Opt => quote! {
             Self::#ident(option_value) => if let Some(value) = option_value {
-                ::mimic::orm::visit::perform_visit(visitor, value, #name);
+                ::mimic::visit::perform_visit(visitor, value, #name);
             },
         },
         Cardinality::Many => quote! {
             Self::#ident(values) => for value in values.iter() {
-                ::mimic::orm::visit::perform_visit(visitor, value, #name);
+                ::mimic::visit::perform_visit(visitor, value, #name);
             },
         },
     }
@@ -257,7 +257,7 @@ fn drive_inner(inner: &TokenStream) -> TokenStream {
     };
 
     quote! {
-        fn drive(&self, #visitor: &mut dyn ::mimic::orm::visit::Visitor) {
+        fn drive(&self, #visitor: &mut dyn ::mimic::visit::Visitor) {
             #inner
         }
     }
@@ -267,16 +267,16 @@ fn drive_inner(inner: &TokenStream) -> TokenStream {
 fn quote_value(var: &syn::Expr, cardinality: Cardinality, name: &str) -> TokenStream {
     match cardinality {
         Cardinality::One => quote! {
-            ::mimic::orm::visit::perform_visit(visitor, &#var, #name);
+            ::mimic::visit::perform_visit(visitor, &#var, #name);
         },
         Cardinality::Opt => quote! {
             if let Some(value) = #var.as_ref() {
-                ::mimic::orm::visit::perform_visit(visitor, value, #name);
+                ::mimic::visit::perform_visit(visitor, value, #name);
             }
         },
         Cardinality::Many => quote! {
             for value in #var.iter() {
-                ::mimic::orm::visit::perform_visit(visitor, value, #name);
+                ::mimic::visit::perform_visit(visitor, value, #name);
             }
         },
     }

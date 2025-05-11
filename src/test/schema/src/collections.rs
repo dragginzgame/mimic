@@ -1,5 +1,5 @@
 use mimic::{
-    orm::base::{types, validator},
+    base::{types, validator},
     prelude::*,
 };
 

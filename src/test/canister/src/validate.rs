@@ -28,17 +28,17 @@ impl ValidateTester {
 
         // list
         let list = ListValidated::from(vec![1, 2, 3, 4, 5, 6, 7, 8, 9]);
-        let res = mimic::orm::validate(&list);
+        let res = mimic::validate(&list);
         assert!(res.is_ok(), "{res:?}");
 
         // map
         let map = MapValidated::from(vec![(1, 2), (3, 4), (5, 6)]);
-        let res = mimic::orm::validate(&map);
+        let res = mimic::validate(&map);
         assert!(res.is_ok(), "{res:?}");
 
         // set
         let set = SetValidated::from(vec![1, 2, 2, 2, 2, 2, 3, 4, 8]);
-        let res = mimic::orm::validate(&set);
+        let res = mimic::validate(&set);
         assert!(res.is_ok(), "{res:?}");
 
         //
@@ -47,17 +47,17 @@ impl ValidateTester {
 
         // list
         let list = ListValidated::from(vec![1, 25, 38]);
-        let res = mimic::orm::validate(&list);
+        let res = mimic::validate(&list);
         assert!(res.is_err(), "{res:?}");
 
         // map
         let map = MapValidated::from(vec![(1, 2), (113, 4), (5, 6)]);
-        let res = mimic::orm::validate(&map);
+        let res = mimic::validate(&map);
         assert!(res.is_err(), "{res:?}");
 
         // set
         let set = SetValidated::from(vec![1, 2, 2, 2, 52, 2, 3, 4, 8]);
-        let res = mimic::orm::validate(&set);
+        let res = mimic::validate(&set);
         assert!(res.is_err(), "{res:?}");
     }
 
@@ -70,7 +70,7 @@ impl ValidateTester {
             gt_fifty: 80,
             ..Default::default()
         };
-        let res = mimic::orm::validate(&e);
+        let res = mimic::validate(&e);
         assert!(res.is_ok(), "{res:?}");
     }
 }

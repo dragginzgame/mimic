@@ -22,7 +22,7 @@ fn query_load(builder: &ActorBuilder) -> TokenStream {
     let inner = if entities.is_empty() {
         // if there are no entities return an error
         quote! {
-            Err(::mimic::orm::OrmError::EntityNotFound(query.path.to_string()).into())
+            Err(::mimic::Error::EntityNotFound(query.path.to_string()).into())
         }
     } else {
         // Otherwise, generate match arms dynamically
@@ -42,7 +42,7 @@ fn query_load(builder: &ActorBuilder) -> TokenStream {
             let path = &query.path;
             let res = match path.as_str() {
                 #load_entities
-                _ => Err(::mimic::orm::OrmError::EntityNotFound(path.to_string()).into())
+                _ => Err(::mimic::Error::EntityNotFound(path.to_string()).into())
             }?;
 
             Ok(res)
@@ -66,7 +66,7 @@ fn query_save(builder: &ActorBuilder) -> TokenStream {
     let inner = if entities.is_empty() {
         // if there are no entities return an error
         quote! {
-            Err(::mimic::orm::OrmError::EntityNotFound(query.path.to_string()).into())
+            Err(::mimic::Error::EntityNotFound(query.path.to_string()).into())
         }
     } else {
         // Otherwise, generate match arms dynamically
@@ -84,7 +84,7 @@ fn query_save(builder: &ActorBuilder) -> TokenStream {
             let path = &query.path;
             let res = match path.as_str() {
                 #save_entities
-                _ => Err(::mimic::orm::OrmError::EntityNotFound(path.to_string()).into())
+                _ => Err(::mimic::Error::EntityNotFound(path.to_string()).into())
             }?;
 
             Ok(res)

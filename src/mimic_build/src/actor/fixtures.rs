@@ -49,7 +49,7 @@ fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
     for (entity_path, _) in builder.get_entities() {
         let entity_ident: Path = parse_str(&entity_path).unwrap();
         inner.push(quote! {
-            mimic_fixtures_replace_helper(<#entity_ident as ::mimic::orm::traits::EntityFixture>::fixtures())?;
+            mimic_fixtures_replace_helper(<#entity_ident as ::mimic::traits::EntityFixture>::fixtures())?;
         });
     }
 

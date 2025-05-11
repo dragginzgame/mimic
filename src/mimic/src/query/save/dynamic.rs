@@ -1,14 +1,12 @@
 use crate::{
     Error,
     db::DbLocal,
-    orm::{
-        deserialize,
-        traits::{Entity, EntityDyn},
-    },
+    deserialize,
     query::{
         DebugContext, QueryError,
-        save::{SaveError, SaveMode, save},
+        save::{SaveMode, save},
     },
+    traits::{Entity, EntityDyn},
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -31,9 +29,7 @@ impl SaveBuilderDyn {
 
     // from_bytes
     pub fn from_bytes<E: Entity + 'static>(self, data: &[u8]) -> Result<SaveQueryDyn, Error> {
-        let entity: E = deserialize(data)
-            .map_err(SaveError::OrmError)
-            .map_err(QueryError::SaveError)?;
+        let entity: E = deserialize(data)?;
 
         Ok(SaveQueryDyn::new(self.mode, vec![Box::new(entity)]))
     }
@@ -123,8 +119,8 @@ impl SaveExecutorDyn {
     pub fn execute(mut self, db: DbLocal) -> Result<SaveResponseDyn, Error> {
         // Validate all entities first
         for entity in &self.query.entities {
-            let adapter = crate::orm::visit::EntityAdapter(&**entity);
-            crate::orm::validate(&adapter)?;
+            let adapter = crate::visit::EntityAdapter(&**entity);
+            crate::validate(&adapter)?;
         }
 
         // Temporarily take the entities out of self to avoid borrowing issues

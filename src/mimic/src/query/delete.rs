@@ -1,8 +1,8 @@
 use crate::{
     Error, ThisError,
     db::{DbError, DbLocal, types::SortKey},
-    orm::traits::Entity,
     query::{DebugContext, QueryError, Resolver, resolver::ResolverError},
+    traits::Entity,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};

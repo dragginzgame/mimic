@@ -41,8 +41,8 @@ impl Item {
     pub fn quoted_path(&self) -> TokenStream {
         match (&self.is, &self.relation) {
             (Some(is), None) => quote!(#is),
-            (None, Some(_)) => quote!(::mimic::orm::base::types::Relation),
-            (None, None) => quote!(::mimic::orm::base::types::Unit),
+            (None, Some(_)) => quote!(::mimic::base::types::Relation),
+            (None, None) => quote!(::mimic::base::types::Unit),
             _ => panic!("cannot set both is and relation"),
         }
     }

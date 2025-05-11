@@ -1,4 +1,4 @@
-use mimic::{orm::base::types, prelude::*};
+use mimic::{base::types, prelude::*};
 
 ///
 /// Record

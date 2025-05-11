@@ -188,7 +188,7 @@ and values in the schema).  It also strips the numeric annotation so you don't h
 ## [0.0.2]
 
 - actorgen and schemagen combined into a single `mimicli` executable
-- added mimic::prelude and mimic::orm::prelude for external actor and design crates
+- added mimic::prelude and mimic::prelude for external actor and design crates
 - added a skip-validation flag to `mimicli`
 
 ## [0.0.1]

@@ -1,11 +1,12 @@
 use crate::{
     Error,
     db::DbLocal,
-    orm::{serialize, traits::Entity},
     query::{
         DebugContext, QueryError,
         save::{SaveMode, save},
     },
+    serialize,
+    traits::Entity,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -107,9 +108,9 @@ impl SaveExecutor {
         E: Entity,
     {
         // Validate all entities first
-        let entity: E = crate::orm::deserialize(&self.query.bytes)?;
-        let adapter = crate::orm::visit::EntityAdapter(&entity);
-        crate::orm::validate(&adapter)?;
+        let entity: E = crate::deserialize(&self.query.bytes)?;
+        let adapter = crate::visit::EntityAdapter(&entity);
+        crate::validate(&adapter)?;
 
         // save entities
         save(db, self.query.mode, &self.query.debug, Box::new(entity))

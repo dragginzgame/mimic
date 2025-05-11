@@ -1,5 +1,5 @@
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote, ToTokens};
+use quote::{ToTokens, format_ident, quote};
 use syn::Ident;
 
 ///
@@ -69,7 +69,7 @@ pub fn to_string<T: ToTokens>(t: &T) -> TokenStream {
 /// to_path
 pub fn to_path<T: ToTokens>(t: &T) -> TokenStream {
     quote! {
-        <#t as ::mimic::orm::traits::Path>::path().to_string()
+        <#t as ::mimic::traits::Path>::path().to_string()
     }
 }
 

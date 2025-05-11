@@ -16,7 +16,7 @@ pub use save::{
 };
 pub use types::*;
 
-use crate::{ThisError, orm::traits::Entity};
+use crate::{ThisError, traits::Entity};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 

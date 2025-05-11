@@ -64,7 +64,7 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
         Trait::NodeDyn => {
             let q = quote! {
                 fn path_dyn(&self) -> String {
-                    <Self as ::mimic::orm::traits::Path>::path()
+                    <Self as ::mimic::traits::Path>::path()
                 }
             };
 

@@ -1,8 +1,10 @@
 use crate::DB;
 use mimic::{
-    orm::{deserialize, serialize, traits::Path},
+    deserialize,
     prelude::*,
     query::{self, types::Order},
+    serialize,
+    traits::Path,
 };
 use test_schema::Store;
 

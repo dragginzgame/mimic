@@ -2,7 +2,7 @@ mod error;
 
 pub use error::ErrorTree;
 
-use crate::orm::traits::EntityDyn;
+use crate::traits::EntityDyn;
 use derive_more::IntoIterator;
 
 ///

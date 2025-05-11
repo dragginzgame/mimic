@@ -1,10 +1,11 @@
 use crate::{
-    orm::{base::types::Ulid, traits::Path},
+    base::types::Ulid,
     schema::{
         build::schema_read,
         node::{Entity, Selector, TypeValidator, ValidateNode, VisitableNode},
         visit::Visitor,
     },
+    traits::Path,
     types::ErrorTree,
 };
 use serde::{Deserialize, Serialize};
