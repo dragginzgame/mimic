@@ -1,4 +1,7 @@
-use crate::traits::{Filterable, Orderable, SortKeyValue, ValidateAuto, ValidateCustom, Visitable};
+use crate::{
+    base::types::Ulid,
+    traits::{Filterable, Orderable, SortKeyValue, ValidateAuto, ValidateCustom, Visitable},
+};
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
@@ -37,6 +40,12 @@ impl fmt::Display for Relation {
 }
 
 impl Filterable for Relation {}
+
+impl From<Ulid> for Relation {
+    fn from(ulid: Ulid) -> Self {
+        Self(vec![ulid.to_string()])
+    }
+}
 
 impl<S: ToString> From<Vec<S>> for Relation {
     fn from(vec: Vec<S>) -> Self {
