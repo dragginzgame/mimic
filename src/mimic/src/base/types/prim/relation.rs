@@ -3,7 +3,7 @@ use crate::{
     traits::{Filterable, Orderable, SortKeyValue, ValidateAuto, ValidateCustom, Visitable},
 };
 use candid::CandidType;
-use derive_more::{Deref, DerefMut};
+use derive_more::{Deref, DerefMut, IntoIterator};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, fmt, str::FromStr};
 
@@ -12,7 +12,18 @@ use std::{collections::HashSet, fmt, str::FromStr};
 ///
 
 #[derive(
-    CandidType, Clone, Debug, Default, Deref, DerefMut, Eq, PartialEq, Hash, Serialize, Deserialize,
+    CandidType,
+    Clone,
+    Debug,
+    Default,
+    Deref,
+    DerefMut,
+    Eq,
+    PartialEq,
+    Hash,
+    IntoIterator,
+    Serialize,
+    Deserialize,
 )]
 pub struct Relation(Vec<String>);
 
@@ -76,7 +87,17 @@ impl Visitable for Relation {}
 ///
 
 #[derive(
-    CandidType, Clone, Debug, Default, Deref, DerefMut, Eq, PartialEq, Serialize, Deserialize,
+    CandidType,
+    Clone,
+    Debug,
+    Default,
+    Deref,
+    DerefMut,
+    Eq,
+    PartialEq,
+    IntoIterator,
+    Serialize,
+    Deserialize,
 )]
 pub struct RelationSet(HashSet<Relation>);
 
