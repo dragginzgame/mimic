@@ -154,13 +154,13 @@ impl LoadQueryDyn {
     // execute
     pub fn execute(self, db: DbLocal) -> Result<LoadCollectionDyn, Error> {
         let executor = LoadExecutorDyn::new(self);
-        executor.execute(db).map_err(Error::from)
+        executor.execute(db)
     }
 
     // response
     pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
         let executor = LoadExecutorDyn::new(self);
-        executor.response(db).map_err(Error::from)
+        executor.response(db)
     }
 }
 
@@ -183,7 +183,7 @@ impl LoadExecutorDyn {
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<LoadCollectionDyn, QueryError> {
+    pub fn execute(self, db: DbLocal) -> Result<LoadCollectionDyn, Error> {
         // loader
         let loader = Loader::new(db, self.resolver);
         let rows = loader.load(&self.query.method)?;
@@ -198,7 +198,7 @@ impl LoadExecutorDyn {
     }
 
     // response
-    pub fn response(self, db: DbLocal) -> Result<LoadResponse, QueryError> {
+    pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
         let format = self.query.format.clone();
         let collection = self.execute(db)?;
 

@@ -1,26 +1,13 @@
 use crate::{
-    Error, ThisError,
-    db::{DbError, DbLocal, types::SortKey},
-    query::{DebugContext, QueryError, Resolver, resolver::ResolverError},
+    Error,
+    db::{DbLocal, types::SortKey},
+    query::{DebugContext, QueryError, Resolver},
     traits::Entity,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, marker::PhantomData};
-
-///
-/// DeleteError
-///
-
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
-pub enum DeleteError {
-    #[error(transparent)]
-    DbError(#[from] DbError),
-
-    #[error(transparent)]
-    ResolverError(#[from] ResolverError),
-}
 
 ///
 /// DeleteMethod
@@ -142,15 +129,10 @@ impl DeleteExecutor {
         self.query.debug.println(&format!("delete: keys {keys:?}"));
 
         // get store
-        let store_path = &self
-            .resolver
-            .store()
-            .map_err(DeleteError::ResolverError)
-            .map_err(QueryError::DeleteError)?;
+        let store_path = &self.resolver.store().map_err(QueryError::ResolverError)?;
         let store = db
             .with(|db| db.try_get_store(store_path))
-            .map_err(DeleteError::from)
-            .map_err(QueryError::DeleteError)?;
+            .map_err(QueryError::DbError)?;
 
         // execute for every different key
         let mut deleted_keys = Vec::new();
@@ -158,8 +140,7 @@ impl DeleteExecutor {
             let data_key = self
                 .resolver
                 .data_key(key)
-                .map_err(DeleteError::ResolverError)
-                .map_err(QueryError::DeleteError)?;
+                .map_err(QueryError::ResolverError)?;
 
             // remove returns DataValue but we ignore it for now
             // if the key is deleted then add it to the vec

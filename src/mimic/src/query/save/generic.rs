@@ -2,8 +2,8 @@ use crate::{
     Error,
     db::DbLocal,
     query::{
-        DebugContext, QueryError,
-        save::{SaveError, SaveMode, save},
+        DebugContext,
+        save::{SaveMode, save},
     },
     serialize,
     traits::Entity,
@@ -38,8 +38,8 @@ where
     }
 
     // from_entity
-    pub fn from_entity(self, entity: E) -> Result<SaveQuery, QueryError> {
-        let bytes = serialize(&entity).map_err(SaveError::from)?;
+    pub fn from_entity(self, entity: E) -> Result<SaveQuery, Error> {
+        let bytes = serialize(&entity)?;
 
         Ok(SaveQuery::new(E::PATH, self.mode, bytes))
     }
@@ -108,14 +108,9 @@ impl SaveExecutor {
         E: Entity,
     {
         // Validate all entities first
-        let entity: E = crate::deserialize(&self.query.bytes)
-            .map_err(SaveError::from)
-            .map_err(QueryError::SaveError)?;
+        let entity: E = crate::deserialize(&self.query.bytes)?;
         let adapter = crate::visit::EntityAdapter(&entity);
-
-        crate::validate(&adapter)
-            .map_err(SaveError::from)
-            .map_err(QueryError::SaveError)?;
+        crate::validate(&adapter)?;
 
         // save entities
         save(db, self.query.mode, &self.query.debug, Box::new(entity))?;

@@ -5,15 +5,12 @@ pub use dynamic::{SaveBuilderDyn, SaveExecutorDyn, SaveQueryDyn, SaveResponseDyn
 pub use generic::{SaveBuilder, SaveExecutor, SaveQuery, SaveResponse};
 
 use crate::{
-    SerializeError, ThisError, ValidationError,
+    ThisError,
     db::{
-        DbError, DbLocal,
+        DbLocal,
         types::{DataValue, Metadata, SortKey},
     },
-    query::{
-        DebugContext, QueryError,
-        resolver::{Resolver, ResolverError},
-    },
+    query::{DebugContext, QueryError, resolver::Resolver},
     traits::EntityDyn,
 };
 use candid::CandidType;
@@ -31,18 +28,6 @@ pub enum SaveError {
 
     #[error("key not found: {0}")]
     KeyNotFound(SortKey),
-
-    #[error(transparent)]
-    DbError(#[from] DbError),
-
-    #[error(transparent)]
-    ResolverError(#[from] ResolverError),
-
-    #[error(transparent)]
-    SerializeError(#[from] SerializeError),
-
-    #[error(transparent)]
-    ValidationError(#[from] ValidationError),
 }
 
 ///
@@ -73,13 +58,13 @@ fn save<'a>(
 
     let ck = entity.composite_key_dyn();
     let resolver = Resolver::new(&entity.path_dyn());
-    let key = resolver.data_key(&ck).map_err(SaveError::from)?;
+    let key = resolver.data_key(&ck).map_err(QueryError::from)?;
 
     // debug
     debug.println(&format!("store.{mode}: {key}",));
 
     // serialize
-    let data: Vec<u8> = entity.serialize_dyn().map_err(SaveError::from)?;
+    let data: Vec<u8> = entity.serialize_dyn()?;
 
     //
     // match mode
@@ -89,7 +74,7 @@ fn save<'a>(
     let now = crate::utils::time::now_secs();
     let store = db
         .with(|db| db.try_get_store(&entity.store_dyn()))
-        .map_err(SaveError::from)?;
+        .map_err(QueryError::from)?;
     let result = store.with_borrow(|store| store.get(&key));
 
     let (created, modified) = match mode {

@@ -256,8 +256,7 @@ where
             .filter(|row| row.value.path == E::path())
             .map(TryFrom::try_from)
             .collect::<Result<Vec<EntityRow<E>>, _>>()
-            .map_err(LoadError::SerializeError)
-            .map_err(QueryError::LoadError)?;
+            .map_err(QueryError::SerializeError)?;
 
         // filter
         let rows = rows
@@ -358,11 +357,7 @@ where
     pub fn data_rows(self) -> Result<Vec<DataRow>, QueryError> {
         self.0
             .into_iter()
-            .map(|row| {
-                row.try_into()
-                    .map_err(LoadError::SerializeError)
-                    .map_err(QueryError::LoadError)
-            })
+            .map(|row| row.try_into().map_err(QueryError::SerializeError))
             .collect()
     }
 

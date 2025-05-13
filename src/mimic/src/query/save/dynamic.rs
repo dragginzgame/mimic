@@ -3,8 +3,8 @@ use crate::{
     db::DbLocal,
     deserialize,
     query::{
-        DebugContext, QueryError,
-        save::{SaveError, SaveMode, save},
+        DebugContext,
+        save::{SaveMode, save},
     },
     traits::{Entity, EntityDyn},
 };
@@ -28,8 +28,8 @@ impl SaveBuilderDyn {
     }
 
     // from_bytes
-    pub fn from_bytes<E: Entity + 'static>(self, data: &[u8]) -> Result<SaveQueryDyn, QueryError> {
-        let entity: E = deserialize(data).map_err(SaveError::from)?;
+    pub fn from_bytes<E: Entity + 'static>(self, data: &[u8]) -> Result<SaveQueryDyn, Error> {
+        let entity: E = deserialize(data)?;
 
         Ok(SaveQueryDyn::new(self.mode, vec![Box::new(entity)]))
     }
@@ -120,9 +120,7 @@ impl SaveExecutorDyn {
         // Validate all entities first
         for entity in &self.query.entities {
             let adapter = crate::visit::EntityAdapter(&**entity);
-            crate::validate(&adapter)
-                .map_err(SaveError::from)
-                .map_err(QueryError::SaveError)?;
+            crate::validate(&adapter)?;
         }
 
         // Temporarily take the entities out of self to avoid borrowing issues

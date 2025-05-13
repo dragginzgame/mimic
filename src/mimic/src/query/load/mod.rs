@@ -5,15 +5,12 @@ pub use dynamic::{LoadBuilderDyn, LoadExecutorDyn, LoadQueryDyn};
 pub use generic::{LoadBuilder, LoadExecutor, LoadQuery};
 
 use crate::{
-    SerializeError, ThisError,
+    ThisError,
     db::{
-        DbError, DbLocal, StoreLocal,
+        DbLocal, StoreLocal,
         types::{DataRow, EntityRow, SortKey},
     },
-    query::{
-        QueryError,
-        resolver::{Resolver, ResolverError},
-    },
+    query::{QueryError, resolver::Resolver},
     traits::Entity,
 };
 use candid::CandidType;
@@ -35,15 +32,6 @@ pub enum LoadError {
 
     #[error("response has no entity data")]
     ResponseHasNoEntityData,
-
-    #[error(transparent)]
-    DbError(#[from] DbError),
-
-    #[error(transparent)]
-    SerializeError(#[from] SerializeError),
-
-    #[error(transparent)]
-    ResolverError(#[from] ResolverError),
 }
 
 ///
@@ -98,12 +86,11 @@ impl LoadResponse {
             Self::DataRows(rows) => rows
                 .clone()
                 .into_iter()
-                .map(|row| row.try_into().map_err(LoadError::SerializeError))
-                .collect(),
+                .map(|row| row.try_into().map_err(QueryError::SerializeError))
+                .collect::<Result<_, QueryError>>(),
 
-            _ => Err(LoadError::ResponseHasNoEntityData),
+            _ => Err(LoadError::ResponseHasNoEntityData)?,
         }
-        .map_err(QueryError::from)
     }
 }
 
@@ -185,11 +172,8 @@ impl Loader {
     // load_unmapped
     // for easier error wrapping
     fn load_unmapped(&self, method: &LoadMethod) -> Result<Vec<DataRow>, QueryError> {
-        let store_path = &self.resolver.store().map_err(LoadError::from)?;
-        let store = self
-            .db
-            .with(|db| db.try_get_store(store_path))
-            .map_err(LoadError::from)?;
+        let store_path = &self.resolver.store()?;
+        let store = self.db.with(|db| db.try_get_store(store_path))?;
 
         let res = match method {
             LoadMethod::All | LoadMethod::Only => {
@@ -239,7 +223,7 @@ impl Loader {
     // data_key
     // for easy error converstion
     fn data_key(&self, ck: &[String]) -> Result<SortKey, QueryError> {
-        let key = self.resolver.data_key(ck).map_err(LoadError::from)?;
+        let key = self.resolver.data_key(ck)?;
 
         Ok(key)
     }

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - breaking changes!  mimic_end is gone, moved a lot of things to ICU
 - no more config.toml
 - merged the preludes so there's just one and its top level
+- renamed macro endpoints to have mimic_ prefix
 
 ## [0.3.8]
 - Relation isn't Vec<Ulid> any more, instead it's Vec<String> to handle principals and other types

@@ -4,7 +4,7 @@ pub mod resolver;
 pub mod save;
 pub mod types;
 
-pub use delete::{DeleteBuilder, DeleteError, DeleteExecutor, DeleteQuery, DeleteResponse};
+pub use delete::{DeleteBuilder, DeleteExecutor, DeleteQuery, DeleteResponse};
 pub use load::{
     LoadBuilder, LoadBuilderDyn, LoadError, LoadExecutor, LoadExecutorDyn, LoadMap, LoadQuery,
     LoadQueryDyn, LoadResponse,
@@ -16,7 +16,7 @@ pub use save::{
 };
 pub use types::*;
 
-use crate::{ThisError, traits::Entity};
+use crate::{SerializeError, ThisError, db::DbError, traits::Entity};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
@@ -27,13 +27,19 @@ use serde::{Deserialize, Serialize};
 #[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum QueryError {
     #[error(transparent)]
-    DeleteError(#[from] DeleteError),
+    DbError(#[from] DbError),
 
     #[error(transparent)]
     LoadError(#[from] LoadError),
 
     #[error(transparent)]
     SaveError(#[from] SaveError),
+
+    #[error(transparent)]
+    ResolverError(#[from] ResolverError),
+
+    #[error(transparent)]
+    SerializeError(#[from] SerializeError),
 }
 
 // load
