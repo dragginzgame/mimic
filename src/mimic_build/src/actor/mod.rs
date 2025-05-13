@@ -3,12 +3,9 @@ pub mod fixtures;
 pub mod query;
 
 use crate::Error;
-use mimic::{
-    Error as MimicError,
-    schema::{
-        get_schema,
-        node::{Canister, Entity, Schema, Store},
-    },
+use mimic::schema::{
+    get_schema,
+    node::{Canister, Entity, Schema, Store},
 };
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -24,15 +21,12 @@ use thiserror::Error as ThisError;
 pub enum ActorError {
     #[error("canister path not found: {0}")]
     CanisterNotFound(String),
-
-    #[error(transparent)]
-    MimicError(#[from] MimicError),
 }
 
 // generate
 pub fn generate(canister_path: &str) -> Result<String, Error> {
     // load schema and get the specified canister
-    let schema = get_schema().map_err(ActorError::MimicError)?;
+    let schema = get_schema()?;
 
     // filter by name
     let canister = schema

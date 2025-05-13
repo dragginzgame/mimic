@@ -3,6 +3,7 @@ pub mod macros;
 pub mod schema;
 
 use actor::ActorError;
+use mimic::Error as MimicError;
 use schema::SchemaError;
 use serde::Serialize;
 use thiserror::Error as ThisError;
@@ -19,4 +20,7 @@ pub enum Error {
 
     #[error(transparent)]
     SchemaError(#[from] SchemaError),
+
+    #[error(transparent)]
+    MimicError(#[from] MimicError),
 }

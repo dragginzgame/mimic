@@ -2,7 +2,7 @@ pub mod reserved;
 pub mod validate;
 
 use crate::{
-    Error as MimicError, ThisError,
+    Error, ThisError,
     schema::{
         SchemaError,
         node::{Schema, VisitableNode},
@@ -46,7 +46,7 @@ pub(crate) fn schema_read() -> RwLockReadGuard<'static, Schema> {
 
 // get_schema
 // validate will only be done once
-pub fn get_schema() -> Result<RwLockReadGuard<'static, Schema>, MimicError> {
+pub fn get_schema() -> Result<RwLockReadGuard<'static, Schema>, Error> {
     let schema = schema_read();
     validate(&schema)
         .map_err(BuildError::Validation)
