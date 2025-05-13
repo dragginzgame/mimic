@@ -380,9 +380,9 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "ic-cdk"
-version = "0.18.1"
+version = "0.18.0-alpha.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "977726fd275cca6229763726377e5eb8d10c1b441a6c8ddb80d7411864d15b6d"
+checksum = "3c9c87d961de7d2935a0bf19f4d6afe76f3d508b853ff5267e999beadd7e9286"
 dependencies = [
  "candid",
  "ic-cdk-macros",
@@ -397,14 +397,15 @@ dependencies = [
 
 [[package]]
 name = "ic-cdk-macros"
-version = "0.18.1"
+version = "0.18.0-alpha.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "669681748d5ef717d712db2be1aba3b3bdeffb1bac87c9dd39ad22bc109e938e"
+checksum = "4987a4c05c25d2871f8a0dd4b726733fbf4c55b5a82656976333ddd79d8e1ce6"
 dependencies = [
  "candid",
- "darling",
  "proc-macro2",
  "quote",
+ "serde",
+ "serde_tokenstream",
  "syn 2.0.101",
 ]
 
@@ -441,9 +442,9 @@ dependencies = [
 
 [[package]]
 name = "ic0"
-version = "0.25.0"
+version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ecd5c978846f2f917a899f5d644dca9a7f01b4cf7d16b361a5746c4f1922029"
+checksum = "673a6b846467547f3fc61f95d246aadff03e368b53c931655300b9d1bd05a55a"
 
 [[package]]
 name = "ic_principal"
@@ -461,7 +462,7 @@ dependencies = [
 [[package]]
 name = "icu"
 version = "0.1.2"
-source = "git+https://github.com/dragginzgame/icu#b8687f99fbacc379cf0318c6e23d8c5d15868968"
+source = "git+https://github.com/dragginzgame/icu#b3053062f594487543707bcd14d75ef782f56f47"
 dependencies = [
  "candid",
  "ciborium",
@@ -765,6 +766,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "87607cb1398ed59d48732e575a4c28a7a8ebf2454b964fe3f224f2afc07909e1"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "serde_tokenstream"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "64060d864397305347a78851c51588fd283767e7e7589829e8121d65512340f1"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "serde",
+ "syn 2.0.101",
 ]
 
 [[package]]
