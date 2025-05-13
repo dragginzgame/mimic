@@ -15,12 +15,6 @@ macro_rules! mimic_build {
         // all
         println!("cargo:rerun-if-changed=build.rs");
 
-        // macOS linker
-        if target.contains("apple") {
-            println!("cargo:rustc-link-arg=-Wl,-all_load");
-            println!("cargo:rustc-flags=-C opt-level=0");
-        }
-
         // Get the output directory set by Cargo
         let out_dir = ::std::env::var("OUT_DIR").expect("OUT_DIR not set");
 
