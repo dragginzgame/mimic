@@ -7,13 +7,6 @@ use crate::{
     utils::case::{Case, Casing},
 };
 use serde::{Deserialize, Serialize};
-use std::ops::RangeInclusive;
-
-///
-/// CONSTS
-///
-
-pub const RESERVED_MEMORY_RANGE: RangeInclusive<u8> = 0..=19;
 
 ///
 /// Store
@@ -29,7 +22,6 @@ pub struct Store {
     pub def: Def,
     pub ident: String,
     pub canister: String,
-    pub memory_id: u8,
 }
 
 impl MacroNode for Store {
@@ -45,16 +37,6 @@ impl ValidateNode for Store {
         // ident
         if !self.ident.is_case(Case::UpperSnake) {
             errs.add("store ident '{}' must be UPPER_SNAKE_CASE");
-        }
-
-        // memory id
-        if RESERVED_MEMORY_RANGE.contains(&self.memory_id) {
-            errs.add(format!(
-                "store memory_id '{}' is within the reserved range {} to {}",
-                &self.memory_id,
-                RESERVED_MEMORY_RANGE.min().unwrap(),
-                RESERVED_MEMORY_RANGE.max().unwrap()
-            ));
         }
 
         errs.result()

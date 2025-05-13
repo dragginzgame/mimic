@@ -19,7 +19,7 @@ pub struct Canister {}
 /// Store
 ///
 
-#[store(ident = "STORE", canister = "Canister", memory_id = 20)]
+#[store(ident = "STORE", canister = "Canister")]
 pub struct Store {}
 
 ///
