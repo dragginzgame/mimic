@@ -2,21 +2,18 @@ mod db;
 mod default;
 mod validate;
 
-use icu::{Log, ic::export_candid, log};
-use mimic::{
-    ic::{init, update},
-    mimic_memory_manager, mimic_start,
-};
+use icu::{ic::export_candid, prelude::*};
+use mimic::prelude_actor::*;
 
 //
-// MIMIC
+// INIT
 //
 
-mimic_memory_manager!();
+icu_memory_manager!();
 mimic_start!();
 
 #[init]
-pub fn init() {
+fn init() {
     mimic_init();
 }
 

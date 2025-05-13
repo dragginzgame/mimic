@@ -33,7 +33,7 @@ extern crate self as mimic;
 ///
 
 pub mod prelude_actor {
-    pub use crate::{base::types::Ulid, mimic_memory_manager, mimic_start};
+    pub use crate::{base::types::Ulid, mimic_start};
 }
 
 pub mod prelude {

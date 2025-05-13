@@ -1,7 +1,3 @@
-///
-/// MACROS
-///
-
 // mimic_start
 // macro to be included at the start of each canister lib.rs file
 #[macro_export]
@@ -18,27 +14,6 @@ macro_rules! mimic_start {
 
             // fixtures
             mimic_init_fixtures().unwrap();
-        }
-    };
-}
-
-// mimic_memory_manager
-#[macro_export]
-macro_rules! mimic_memory_manager {
-    () => {
-        thread_local! {
-
-            ///
-            /// Define MEMORY_MANAGER thread-locally for the entire scope
-            ///
-            pub static MEMORY_MANAGER: ::std::cell::RefCell<
-                ::mimic::ic::structures::memory::MemoryManager<
-                    ::mimic::ic::structures::DefaultMemoryImpl,
-                >,
-            > = ::std::cell::RefCell::new(::mimic::ic::structures::memory::MemoryManager::init(
-                ::mimic::ic::structures::DefaultMemoryImpl::default(),
-            ));
-
         }
     };
 }
