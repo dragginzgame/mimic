@@ -22,6 +22,7 @@ pub struct Store {
     pub def: Def,
     pub ident: String,
     pub canister: String,
+    pub memory_id: u8,
 }
 
 impl MacroNode for Store {

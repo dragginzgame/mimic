@@ -9,7 +9,6 @@ use mimic::prelude_actor::*;
 // INIT
 //
 
-icu_memory_manager!();
 mimic_start!();
 
 #[init]

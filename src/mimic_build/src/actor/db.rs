@@ -15,12 +15,12 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
 
     for (store_path, store) in builder.get_stores() {
         let cell_ident = format_ident!("{}", &store.ident);
+        let memory_id = store.memory_id;
 
         // define each store statically within the thread_local! macro
         store_defs.extend(quote! {
-            static #cell_ident: ::std::cell::RefCell<::mimic::db::Store> = ::std::cell::RefCell::new(
-                ::icu::memory::allocate_state(::mimic::db::Store::init)
-            );
+            static #cell_ident: ::std::cell::RefCell<::mimic::db::Store> =
+                ::std::cell::RefCell::new(::icu::icu_register_memory!(::mimic::db::Store, #memory_id, ::mimic::db::Store::init));
         });
 
         // Prepare insertions into the Db

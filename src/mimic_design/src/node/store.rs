@@ -20,6 +20,7 @@ pub struct Store {
 
     pub ident: Ident,
     pub canister: Path,
+    pub memory_id: u8,
 }
 
 impl Node for Store {
@@ -56,12 +57,14 @@ impl Schemable for Store {
         let def = &self.def.schema();
         let ident = quote_one(&self.ident, to_string);
         let canister = quote_one(&self.canister, to_path);
+        let memory_id = &self.memory_id;
 
         quote! {
             ::mimic::schema::node::SchemaNode::Store(::mimic::schema::node::Store{
                 def: #def,
                 ident: #ident,
                 canister: #canister,
+                memory_id: #memory_id,
             })
         }
     }
