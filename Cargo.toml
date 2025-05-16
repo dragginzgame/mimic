@@ -31,7 +31,7 @@ test_canister = { path = "src/test/canister" }
 test_schema = { path = "src/test/schema" }
 
 # ic cdk
-candid = "0.10.13"
+candid = "0.10"
 ic-cdk = "0.18.0-alpha.2"
 ic-stable-structures = "0.6.8"
 
