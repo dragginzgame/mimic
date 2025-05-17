@@ -17,7 +17,7 @@ use crate::{
 use candid::CandidType;
 use derive_more::Deref;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::{borrow::Borrow, collections::HashMap};
 
 ///
 /// LoadError
@@ -118,46 +118,45 @@ impl<T> LoadMap<T> {
     }
 
     // get
-    pub fn get<R: Into<Relation>>(&self, r: R) -> Option<&T> {
-        let rel: Relation = r.into();
-        self.0.get(&rel)
+    pub fn get<R: Borrow<Relation>>(&self, r: R) -> Option<&T> {
+        self.0.get(r.borrow())
     }
 
     // try_get
-    pub fn try_get<R: Into<Relation>>(&self, r: R) -> Result<&T, Error> {
-        let rel: Relation = r.into();
-        let res = self
-            .0
-            .get(&rel)
-            .ok_or(QueryError::LoadError(LoadError::RelationNotFound(rel)))?;
+    pub fn try_get<R: Borrow<Relation>>(&self, r: R) -> Result<&T, Error> {
+        let r = r.borrow();
 
-        Ok(res)
+        self.0.get(r).ok_or_else(|| {
+            Error::QueryError(QueryError::LoadError(LoadError::RelationNotFound(
+                Relation::from(r.clone()),
+            )))
+        })
     }
 
     // get_many
-    // ignores keys that aren't found for simplicity
-    pub fn get_many<R, I>(&self, ids: I) -> Vec<&T>
+    pub fn get_many<Q, I>(&self, keys: I) -> Vec<&T>
     where
-        R: Into<Relation>,
-        I: IntoIterator<Item = R>,
+        Q: Borrow<Relation>,
+        I: IntoIterator<Item = Q>,
     {
-        ids.into_iter()
-            .map(Into::into)
-            .filter_map(|rel| self.0.get(&rel))
+        keys.into_iter()
+            .filter_map(|k| self.0.get(k.borrow()))
             .collect()
     }
 
     // try_get_many
-    pub fn try_get_many<R, I>(&self, ids: I) -> Result<Vec<&T>, Error>
+    pub fn try_get_many<Q, I>(&self, keys: I) -> Result<Vec<&T>, Error>
     where
-        R: Into<Relation>,
-        I: IntoIterator<Item = R>,
+        Q: Borrow<Relation>,
+        I: IntoIterator<Item = Q>,
     {
-        ids.into_iter()
-            .map(|id| {
-                let rel: Relation = id.into();
-                self.0.get(&rel).ok_or({
-                    Error::QueryError(QueryError::LoadError(LoadError::RelationNotFound(rel)))
+        keys.into_iter()
+            .map(|k| {
+                let rel = k.borrow();
+                self.0.get(rel).ok_or_else(|| {
+                    Error::QueryError(QueryError::LoadError(LoadError::RelationNotFound(
+                        rel.clone(),
+                    )))
                 })
             })
             .collect()

@@ -6,7 +6,7 @@ use crate::{
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, IntoIterator};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashSet, fmt, str::FromStr};
+use std::{borrow::Borrow, collections::HashSet, fmt, str::FromStr};
 
 ///
 /// Relation
@@ -26,7 +26,7 @@ use std::{collections::HashSet, fmt, str::FromStr};
     Serialize,
     Deserialize,
 )]
-pub struct Relation(Vec<String>);
+pub struct Relation(pub Vec<String>);
 
 impl Relation {
     #[must_use]
@@ -41,6 +41,28 @@ impl Relation {
 
     pub fn push(&mut self, s: &str) {
         self.0.push(s.to_string());
+    }
+
+    #[must_use]
+    pub fn as_vec(&self) -> &Vec<String> {
+        &self.0
+    }
+
+    #[must_use]
+    pub fn into_vec(self) -> Vec<String> {
+        self.0
+    }
+}
+
+impl Borrow<[String]> for Relation {
+    fn borrow(&self) -> &[String] {
+        &self.0
+    }
+}
+
+impl Borrow<Vec<String>> for Relation {
+    fn borrow(&self) -> &Vec<String> {
+        &self.0
     }
 }
 

@@ -199,16 +199,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_data_key_order() {
+    fn test_sort_key_order() {
         let parts = vec![
             ("part1".to_string(), Some("alpha".to_string())),
             ("part2".to_string(), Some("gamma".to_string())),
         ];
-        let data_key = SortKey::new(parts);
-        let upper_bound_key = data_key.create_upper_bound();
+        let sort_key = SortKey::new(parts);
+        let upper_bound_key = sort_key.create_upper_bound();
 
         assert!(
-            data_key < upper_bound_key,
+            sort_key < upper_bound_key,
             "The original key should be less than the upper bound key."
         );
     }
@@ -219,8 +219,8 @@ mod tests {
             ("part1".to_string(), Some("alpha".to_string())),
             ("part2".to_string(), None), // Initially empty key
         ];
-        let data_key = SortKey::new(parts);
-        let upper_bound_key = data_key.create_upper_bound();
+        let sort_key = SortKey::new(parts);
+        let upper_bound_key = sort_key.create_upper_bound();
 
         assert!(
             upper_bound_key.0.last().unwrap().1.is_some(),
@@ -239,8 +239,8 @@ mod tests {
             ("part1".to_string(), Some("alpha".to_string())),
             ("part2".to_string(), Some("gamma".to_string())),
         ];
-        let data_key = SortKey::new(parts);
-        let upper_bound_key = data_key.create_upper_bound();
+        let sort_key = SortKey::new(parts);
+        let upper_bound_key = sort_key.create_upper_bound();
 
         assert_eq!(
             upper_bound_key.0.last().unwrap().1.as_deref(),
