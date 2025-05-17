@@ -85,15 +85,20 @@ pub enum LoadResponse {
 }
 
 impl LoadResponse {
-    pub fn as_entity_rows<E: Entity>(&self) -> Result<Vec<EntityRow<E>>, QueryError> {
+    pub fn as_entity_rows<E: Entity>(&self) -> Result<Vec<EntityRow<E>>, Error> {
         match self {
             Self::Rows(rows) => rows
                 .clone()
                 .into_iter()
-                .map(|row| row.try_into().map_err(QueryError::SerializeError))
-                .collect::<Result<_, QueryError>>(),
+                .map(|row| {
+                    row.try_into()
+                        .map_err(|e| Error::QueryError(QueryError::SerializeError(e)))
+                })
+                .collect(),
 
-            _ => Err(LoadError::ResponseHasNoEntityData)?,
+            _ => Err(Error::QueryError(QueryError::LoadError(
+                LoadError::ResponseHasNoEntityData,
+            ))),
         }
     }
 }
