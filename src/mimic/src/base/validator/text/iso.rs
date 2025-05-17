@@ -11,8 +11,8 @@ use crate::prelude::*;
 pub struct Iso6391 {}
 
 impl ValidatorString for Iso6391 {
-    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
-        let s = s.to_string();
+    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
+        let s = s.as_ref();
 
         if s.len() != 2 || !s.chars().all(|c| c.is_ascii_lowercase()) {
             Err(format!("invalid ISO 3166-1 alpha-2 country code {s}"))

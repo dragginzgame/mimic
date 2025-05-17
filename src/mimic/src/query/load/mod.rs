@@ -5,7 +5,7 @@ pub use dynamic::{LoadBuilderDyn, LoadExecutorDyn, LoadQueryDyn};
 pub use generic::{LoadBuilder, LoadExecutor, LoadQuery};
 
 use crate::{
-    ThisError,
+    Error, ThisError,
     db::{
         DbLocal, StoreLocal,
         types::{DataRow, EntityRow, SortKey},
@@ -110,36 +110,41 @@ impl<E> LoadMap<E> {
     }
 
     // try_get
-    pub fn try_get<S: ToString>(&self, s: &S) -> Result<&E, QueryError> {
-        self.0
+    pub fn try_get<S: ToString>(&self, s: &S) -> Result<&E, Error> {
+        let res = self
+            .0
             .get(&s.to_string())
-            .ok_or_else(|| QueryError::LoadError(LoadError::KeyNotFound(s.to_string())))
+            .ok_or(QueryError::LoadError(LoadError::KeyNotFound(s.to_string())))?;
+
+        Ok(res)
     }
 
     // get_many
     // ignores keys that aren't found for simplicity
     pub fn get_many<S, I>(&self, ids: I) -> Vec<&E>
     where
-        S: ToString,
+        S: AsRef<str>,
         I: IntoIterator<Item = S>,
     {
         ids.into_iter()
-            .filter_map(|id| self.0.get(&id.to_string()))
+            .filter_map(|id| self.0.get(id.as_ref()))
             .collect()
     }
 
     // try_get_many
-    pub fn try_get_many<S, I>(&self, ids: I) -> Result<Vec<&E>, QueryError>
+    pub fn try_get_many<S, I>(&self, ids: I) -> Result<Vec<&E>, Error>
     where
-        S: ToString,
+        S: AsRef<str>,
         I: IntoIterator<Item = S>,
     {
         ids.into_iter()
             .map(|id| {
-                let key = id.to_string();
-                self.0
-                    .get(&key)
-                    .ok_or(QueryError::LoadError(LoadError::KeyNotFound(key)))
+                let key = id.as_ref();
+                self.0.get(key).ok_or_else(|| {
+                    Error::QueryError(QueryError::LoadError(LoadError::KeyNotFound(
+                        key.to_string(),
+                    )))
+                })
             })
             .collect()
     }

@@ -133,9 +133,9 @@ pub trait ValidatorNumber {
 }
 
 pub trait ValidatorString {
-    fn validate<T>(&self, _: &T) -> Result<(), String>
+    fn validate<S>(&self, _: S) -> Result<(), String>
     where
-        T: ToString,
+        S: AsRef<str>,
     {
         Ok(())
     }

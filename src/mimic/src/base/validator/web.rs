@@ -8,8 +8,8 @@ use crate::prelude::*;
 pub struct MimeType {}
 
 impl ValidatorString for MimeType {
-    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
-        let s = s.to_string();
+    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
+        let s = s.as_ref();
 
         let parts: Vec<&str> = s.split('/').collect();
         if parts.len() != 2 {
@@ -41,8 +41,8 @@ impl ValidatorString for MimeType {
 pub struct Url {}
 
 impl ValidatorString for Url {
-    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
-        let s = s.to_string();
+    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
+        let s = s.as_ref();
 
         // Very basic check — can be expanded
         if s.starts_with("http://") || s.starts_with("https://") {

@@ -8,8 +8,8 @@ use crate::prelude::*;
 pub struct Sha256 {}
 
 impl ValidatorString for Sha256 {
-    fn validate<S: ToString>(&self, s: &S) -> Result<(), String> {
-        let s = s.to_string();
+    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
+        let s = s.as_ref();
 
         // len
         if s.len() != 64 {

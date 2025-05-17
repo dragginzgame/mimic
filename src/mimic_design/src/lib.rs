@@ -114,14 +114,12 @@ fn extract_comments(input: TokenStream) -> String {
         }
     }
 
-    let comments = comments
+    comments
         .into_iter()
         .filter(|line| !line.trim().is_empty())
         .collect::<Vec<_>>()
         .join("\n")
-        .replace(r#"\""#, r#"""#);
-
-    comments
+        .replace(r#"\""#, r#"""#)
 }
 
 /// Trims the outermost quotes, if they are unescaped, and removes the first space of each line
