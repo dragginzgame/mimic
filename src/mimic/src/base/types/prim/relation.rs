@@ -179,3 +179,12 @@ impl<S: ToString> From<Vec<S>> for RelationSet {
         Self(rels)
     }
 }
+
+impl<'a> IntoIterator for &'a RelationSet {
+    type Item = &'a Relation;
+    type IntoIter = std::collections::hash_set::Iter<'a, Relation>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.iter()
+    }
+}
