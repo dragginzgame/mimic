@@ -2,7 +2,7 @@ use crate::{
     Error,
     db::{
         DbLocal,
-        types::{DataRow, EntityRow, SortKey},
+        types::{DataRow, EntityRow, EntityValue, SortKey},
     },
     query::{
         DebugContext, QueryError, Resolver,
@@ -13,7 +13,7 @@ use crate::{
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, marker::PhantomData};
+use std::marker::PhantomData;
 
 ///
 /// LoadBuilder
@@ -291,7 +291,7 @@ where
         let collection = self.execute(db)?;
 
         let response = match format {
-            LoadFormat::DataRows => LoadResponse::DataRows(collection.data_rows()?),
+            LoadFormat::Rows => LoadResponse::Rows(collection.data_rows()?),
             LoadFormat::Keys => LoadResponse::Keys(collection.keys()),
             LoadFormat::Count => LoadResponse::Count(collection.count()),
         };
@@ -319,19 +319,14 @@ where
 
     // map
     #[must_use]
-    pub fn map(self) -> LoadMap<E> {
-        let map: HashMap<String, E> = self
+    pub fn map(self) -> LoadMap<EntityValue<E>> {
+        let pairs = self
             .0
             .into_iter()
-            .filter_map(|row| {
-                row.value
-                    .entity
-                    .id()
-                    .map(|id| (id, row.value.entity.clone()))
-            })
-            .collect();
+            .map(|row| (row.key.into(), row.value))
+            .collect::<Vec<_>>();
 
-        LoadMap::<E>(map)
+        LoadMap::from_pairs(pairs)
     }
 
     // key

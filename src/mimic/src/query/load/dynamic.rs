@@ -203,7 +203,7 @@ impl LoadExecutorDyn {
         let collection = self.execute(db)?;
 
         let response = match format {
-            LoadFormat::DataRows => LoadResponse::DataRows(collection.data_rows()),
+            LoadFormat::Rows => LoadResponse::Rows(collection.data_rows()),
             LoadFormat::Keys => LoadResponse::Keys(collection.keys()),
             LoadFormat::Count => LoadResponse::Count(collection.count()),
         };

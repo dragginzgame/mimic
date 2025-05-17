@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - merged the preludes so there's just one and its top level
 - renamed macro endpoints to have mimic_ prefix
 - as_ref only derived for strings and ulids now
+- refactored LoadMap to have a Relation as a key, and did From<SortKey> for Relation
 
 ## [0.3.8]
 - Relation isn't Vec<Ulid> any more, instead it's Vec<String> to handle principals and other types

@@ -1,5 +1,6 @@
 use crate::{
     base::types::Ulid,
+    db::types::SortKey,
     traits::{Filterable, Orderable, SortKeyValue, ValidateAuto, ValidateCustom, Visitable},
 };
 use candid::CandidType;
@@ -55,6 +56,17 @@ impl Filterable for Relation {}
 impl From<Ulid> for Relation {
     fn from(ulid: Ulid) -> Self {
         Self(vec![ulid.to_string()])
+    }
+}
+
+impl From<SortKey> for Relation {
+    fn from(key: SortKey) -> Self {
+        Self(
+            key.0
+                .into_iter()
+                .map(|(_, opt)| opt.unwrap_or_default())
+                .collect(),
+        )
     }
 }
 

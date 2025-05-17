@@ -6,6 +6,7 @@ pub use generic::{LoadBuilder, LoadExecutor, LoadQuery};
 
 use crate::{
     Error, ThisError,
+    base::types::Relation,
     db::{
         DbLocal, StoreLocal,
         types::{DataRow, EntityRow, SortKey},
@@ -25,7 +26,10 @@ use std::collections::HashMap;
 #[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum LoadError {
     #[error("key not found: {0}")]
-    KeyNotFound(String),
+    KeyNotFound(SortKey),
+
+    #[error("relation not found: {0}")]
+    RelationNotFound(Relation),
 
     #[error("no results found")]
     NoResultsFound,
@@ -64,7 +68,7 @@ pub enum LoadMethod {
 #[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
 pub enum LoadFormat {
     #[default]
-    DataRows,
+    Rows,
     Keys,
     Count,
 }
@@ -75,7 +79,7 @@ pub enum LoadFormat {
 
 #[derive(CandidType, Debug, Serialize, Deserialize)]
 pub enum LoadResponse {
-    DataRows(Vec<DataRow>),
+    Rows(Vec<DataRow>),
     Keys(Vec<SortKey>),
     Count(usize),
 }
@@ -83,7 +87,7 @@ pub enum LoadResponse {
 impl LoadResponse {
     pub fn as_entity_rows<E: Entity>(&self) -> Result<Vec<EntityRow<E>>, QueryError> {
         match self {
-            Self::DataRows(rows) => rows
+            Self::Rows(rows) => rows
                 .clone()
                 .into_iter()
                 .map(|row| row.try_into().map_err(QueryError::SerializeError))
@@ -101,49 +105,59 @@ impl LoadResponse {
 ///
 
 #[derive(Debug, Deref)]
-pub struct LoadMap<E>(HashMap<String, E>);
+pub struct LoadMap<T>(HashMap<Relation, T>);
 
-impl<E> LoadMap<E> {
+impl<T> LoadMap<T> {
+    // from_pairs
+    pub fn from_pairs<I>(pairs: I) -> Self
+    where
+        I: IntoIterator<Item = (Relation, T)>,
+    {
+        let map: HashMap<Relation, T> = pairs.into_iter().collect();
+        LoadMap(map)
+    }
+
     // get
-    pub fn get<S: ToString>(&self, s: &S) -> Option<&E> {
-        self.0.get(&s.to_string())
+    pub fn get<R: Into<Relation>>(&self, r: R) -> Option<&T> {
+        let rel: Relation = r.into();
+        self.0.get(&rel)
     }
 
     // try_get
-    pub fn try_get<S: ToString>(&self, s: &S) -> Result<&E, Error> {
+    pub fn try_get<R: Into<Relation>>(&self, r: R) -> Result<&T, Error> {
+        let rel: Relation = r.into();
         let res = self
             .0
-            .get(&s.to_string())
-            .ok_or(QueryError::LoadError(LoadError::KeyNotFound(s.to_string())))?;
+            .get(&rel)
+            .ok_or(QueryError::LoadError(LoadError::RelationNotFound(rel)))?;
 
         Ok(res)
     }
 
     // get_many
     // ignores keys that aren't found for simplicity
-    pub fn get_many<S, I>(&self, ids: I) -> Vec<&E>
+    pub fn get_many<R, I>(&self, ids: I) -> Vec<&T>
     where
-        S: AsRef<str>,
-        I: IntoIterator<Item = S>,
+        R: Into<Relation>,
+        I: IntoIterator<Item = R>,
     {
         ids.into_iter()
-            .filter_map(|id| self.0.get(id.as_ref()))
+            .map(Into::into)
+            .filter_map(|rel| self.0.get(&rel))
             .collect()
     }
 
     // try_get_many
-    pub fn try_get_many<S, I>(&self, ids: I) -> Result<Vec<&E>, Error>
+    pub fn try_get_many<R, I>(&self, ids: I) -> Result<Vec<&T>, Error>
     where
-        S: AsRef<str>,
-        I: IntoIterator<Item = S>,
+        R: Into<Relation>,
+        I: IntoIterator<Item = R>,
     {
         ids.into_iter()
             .map(|id| {
-                let key = id.as_ref();
-                self.0.get(key).ok_or_else(|| {
-                    Error::QueryError(QueryError::LoadError(LoadError::KeyNotFound(
-                        key.to_string(),
-                    )))
+                let rel: Relation = id.into();
+                self.0.get(&rel).ok_or({
+                    Error::QueryError(QueryError::LoadError(LoadError::RelationNotFound(rel)))
                 })
             })
             .collect()
@@ -242,7 +256,7 @@ fn query_data_key(store: StoreLocal, key: SortKey) -> Result<DataRow, QueryError
                 key: key.clone(),
                 value,
             })
-            .ok_or_else(|| QueryError::LoadError(LoadError::KeyNotFound(key.to_string())))
+            .ok_or(QueryError::LoadError(LoadError::KeyNotFound(key)))
     })
 }
 
