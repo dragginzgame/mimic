@@ -60,7 +60,6 @@ impl TraitNode for Map {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
         traits.extend(vec![
-            Trait::AsRef,
             Trait::Default,
             Trait::Deref,
             Trait::DerefMut,

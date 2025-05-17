@@ -67,7 +67,6 @@ impl TraitNode for Newtype {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
         traits.extend(vec![
-            Trait::AsRef,
             Trait::Default,
             Trait::Deref,
             Trait::DerefMut,
@@ -99,7 +98,7 @@ impl TraitNode for Newtype {
                 ]);
             }
             PrimitiveGroup::Text | PrimitiveGroup::Ulid => {
-                traits.extend(vec![Trait::Display, Trait::FromStr]);
+                traits.extend(vec![Trait::AsRef, Trait::Display, Trait::FromStr]);
             }
             _ => {}
         }
@@ -109,6 +108,7 @@ impl TraitNode for Newtype {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
+            Trait::AsRef => imp::AsRefTrait::tokens(self, t),
             Trait::Default if self.default.is_some() => imp::DefaultTrait::tokens(self, t),
             Trait::Filterable => imp::FilterableTrait::tokens(self, t),
             Trait::From => imp::FromTrait::tokens(self, t),

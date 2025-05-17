@@ -1,3 +1,4 @@
+mod as_ref;
 mod default;
 mod entity;
 mod enum_value;
@@ -14,6 +15,7 @@ mod visitable;
 
 pub mod implementor;
 
+pub use as_ref::*;
 pub use default::*;
 pub use entity::*;
 pub use enum_value::*;
