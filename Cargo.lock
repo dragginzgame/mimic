@@ -398,19 +398,53 @@ dependencies = [
 
 [[package]]
 name = "ic-cdk"
+version = "0.17.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "95a7344f41493cbf591f13ae9f90181076f808a83af799815c3074b19c693d2e"
+dependencies = [
+ "candid",
+ "ic-cdk-executor",
+ "ic-cdk-macros 0.17.2",
+ "ic0 0.23.0",
+ "serde",
+ "serde_bytes",
+]
+
+[[package]]
+name = "ic-cdk"
 version = "0.18.0-alpha.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3c9c87d961de7d2935a0bf19f4d6afe76f3d508b853ff5267e999beadd7e9286"
 dependencies = [
  "candid",
- "ic-cdk-macros",
+ "ic-cdk-macros 0.18.0-alpha.2",
  "ic-error-types",
  "ic-management-canister-types",
- "ic0",
+ "ic0 0.24.0",
  "serde",
  "serde_bytes",
  "slotmap",
  "thiserror 2.0.12",
+]
+
+[[package]]
+name = "ic-cdk-executor"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "903057edd3d4ff4b3fe44a64eaee1ceb73f579ba29e3ded372b63d291d7c16c2"
+
+[[package]]
+name = "ic-cdk-macros"
+version = "0.17.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "84cbaa50fa36d3e0616114becf81faa95a099e0d60948ed6978f30f1c77399fd"
+dependencies = [
+ "candid",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_tokenstream",
+ "syn 2.0.101",
 ]
 
 [[package]]
@@ -460,6 +494,12 @@ dependencies = [
 
 [[package]]
 name = "ic0"
+version = "0.23.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8de254dd67bbd58073e23dc1c8553ba12fa1dc610a19de94ad2bbcd0460c067f"
+
+[[package]]
+name = "ic0"
 version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "673a6b846467547f3fc61f95d246aadff03e368b53c931655300b9d1bd05a55a"
@@ -491,14 +531,15 @@ dependencies = [
 
 [[package]]
 name = "icrc-ledger-types"
-version = "0.1.8"
+version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6892e56ad2a8a08d2371b204103209ad335f63e9f0c1fcd00116d3df9e422a6f"
+checksum = "d6b8263cab9c48ecf70ee6a33600143612d515e581df410b3767a66e43004fc6"
 dependencies = [
  "base32",
  "candid",
  "crc32fast",
  "hex",
+ "ic-cdk 0.17.2",
  "ic-stable-structures",
  "icrc-cbor",
  "itertools",
@@ -522,7 +563,7 @@ dependencies = [
  "ciborium",
  "defer",
  "derive_more",
- "ic-cdk",
+ "ic-cdk 0.18.0-alpha.2",
  "ic-stable-structures",
  "icrc-ledger-types",
  "remain",
@@ -618,7 +659,7 @@ dependencies = [
  "ctor",
  "derive_more",
  "hex",
- "ic-cdk",
+ "ic-cdk 0.18.0-alpha.2",
  "ic-stable-structures",
  "icu",
  "mimic_design",
@@ -970,7 +1011,7 @@ name = "test_canister"
 version = "0.4.0"
 dependencies = [
  "candid",
- "ic-cdk",
+ "ic-cdk 0.18.0-alpha.2",
  "icu",
  "mimic",
  "mimic_build",
