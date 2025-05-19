@@ -6,6 +6,46 @@ pub mod len;
 use crate::prelude::*;
 
 ///
+/// AlphaUscore
+/// this doesn't force ASCII, instead we're using the unicode is_alphabetic
+/// and ASCII is handled in a separate validator
+///
+
+#[validator]
+pub struct AlphaUscore {}
+
+impl ValidatorString for AlphaUscore {
+    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
+        let s = s.as_ref();
+
+        if s.chars().all(|c| c.is_alphabetic() || c == '_') {
+            Ok(())
+        } else {
+            Err(format!("'{s}' is not alphabetic with underscores"))
+        }
+    }
+}
+
+///
+/// AlphanumUscore
+///
+
+#[validator]
+pub struct AlphanumUscore {}
+
+impl ValidatorString for AlphanumUscore {
+    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
+        let s = s.as_ref();
+
+        if s.chars().all(|c| c.is_alphanumeric() || c == '_') {
+            Ok(())
+        } else {
+            Err(format!("'{s}' is not alphanumeric with underscores"))
+        }
+    }
+}
+
+///
 /// Ascii
 ///
 
