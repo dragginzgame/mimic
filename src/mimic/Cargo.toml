@@ -4,9 +4,6 @@ edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }
 
-[lints]
-workspace = true
-
 [dependencies]
 candid = { workspace = true }
 convert_case = { workspace = true }
@@ -28,3 +25,6 @@ sha2 = { workspace = true }
 thiserror = { workspace = true }
 tinyrand = { workspace = true }
 ulid = { workspace = true }
+
+[lints]
+workspace = true

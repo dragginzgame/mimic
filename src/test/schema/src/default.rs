@@ -23,3 +23,24 @@ impl Record {
         32
     }
 }
+
+///
+/// WithPrincipal
+///
+
+#[record(
+    fields(field(
+        name = "static_fn",
+        value(item(is = "types::Principal")),
+        default = "crate::default::WithPrincipal::static_fn"
+    ),),
+    traits(add(Default))
+)]
+pub struct WithPrincipal {}
+
+impl WithPrincipal {
+    #[must_use]
+    pub const fn static_fn() -> Principal {
+        Principal::anonymous()
+    }
+}

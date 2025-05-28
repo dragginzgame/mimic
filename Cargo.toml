@@ -21,37 +21,32 @@ license = "MIT"
 
 [workspace.dependencies]
 
-# mimic
-mimic = { path = "src/mimic" }
-mimic_build = { path = "src/mimic_build" }
-mimic_design = { path = "src/mimic_design" }
-
-# test
-test_canister = { path = "src/test/canister" }
-test_schema = { path = "src/test/schema" }
+# third party
+anyhow = "1.0"
+bencher = "0.1"
 
 # ic cdk
 candid = "0.10"
-ic-cdk = "0.18.0-alpha.2"
-ic-stable-structures = "0.6.8"
+convert_case = "0.8"
+ctor = "0.4"
 
 # macros
 darling = "0.20"
-proc-macro2 = "1.0"
-syn = "2.0"
-quote = "1.0"
+derive_more = { version = "2.0", default-features = false, features = ["full"] }
+hex = "0.4"
+ic-cdk = "0.18.0-alpha.2"
+ic-stable-structures = "0.6.8"
 
 # icu
 icu = { git = "https://github.com/dragginzgame/icu" }
 
-# third party
-anyhow = "1.0"
-bencher = "0.1"
-ctor = "0.4"
-convert_case = "0.8"
-derive_more = { version = "2.0", default-features = false, features = ["full"] }
-hex = "0.4"
+# mimic
+mimic = { path = "src/mimic" }
+mimic_build = { path = "src/mimic_build" }
+mimic_design = { path = "src/mimic_design" }
 num-traits = { version = "0.2", default-features = false, features = ["libm"] }
+proc-macro2 = "1.0"
+quote = "1.0"
 remain = "0.2"
 rust_decimal = { version = "1.37", default-features = false, features = [
     "serde",
@@ -62,6 +57,11 @@ serde = { version = "1.0", default-features = false, features = ["derive"] }
 serde_bytes = "0.11"
 serde_json = "1.0"
 sha2 = "0.10"
+syn = "2.0"
+
+# test
+test_canister = { path = "src/test/canister" }
+test_schema = { path = "src/test/schema" }
 thiserror = "2.0"
 tinyrand = "0.5"
 # removed std because it imports rand.  serde feature doesn't compile without it

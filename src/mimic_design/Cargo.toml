@@ -7,9 +7,6 @@ version = { workspace = true }
 [lib]
 proc-macro = true
 
-[lints]
-workspace = true
-
 [dependencies]
 darling = { workspace = true }
 derive_more = { workspace = true }
@@ -19,3 +16,6 @@ remain = { workspace = true }
 serde = { workspace = true }
 syn = { workspace = true }
 tinyrand = { workspace = true }
+
+[lints]
+workspace = true

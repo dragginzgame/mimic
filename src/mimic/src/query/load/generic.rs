@@ -179,8 +179,13 @@ impl LoadQuery {
 
     // filter_fields
     #[must_use]
-    pub fn filter_fields(mut self, fields: &[(String, String)]) -> Self {
-        self.filter = Some(Filter::fields(fields.into()));
+    pub fn filter_fields<I, K, V>(mut self, fields: I) -> Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+        K: Into<String>,
+        V: Into<String>,
+    {
+        self.filter = Some(Filter::fields(fields));
         self
     }
 

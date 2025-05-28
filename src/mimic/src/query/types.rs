@@ -15,13 +15,23 @@ pub enum Filter {
 
 impl Filter {
     #[must_use]
-    pub const fn all(text: String) -> Self {
-        Self::All(text)
+    pub fn all<T: Into<String>>(text: T) -> Self {
+        Self::All(text.into())
     }
 
     #[must_use]
-    pub const fn fields(search: Vec<(String, String)>) -> Self {
-        Self::Fields(search)
+    pub fn fields<I, K, V>(search: I) -> Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+        K: Into<String>,
+        V: Into<String>,
+    {
+        let pairs = search
+            .into_iter()
+            .map(|(k, v)| (k.into(), v.into()))
+            .collect();
+
+        Self::Fields(pairs)
     }
 }
 
