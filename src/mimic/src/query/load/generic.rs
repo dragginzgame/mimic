@@ -96,14 +96,14 @@ where
 /// we don't allow passing a LoadQuery because we already know the path
 ///
 
-#[derive(Debug)]
+#[allow(clippy::type_complexity)]
 pub struct LoadQueryBuilder<E>
 where
     E: Entity,
 {
     query: LoadQuery,
+    filters: Vec<Box<dyn Fn(&E) -> bool>>,
     debug: DebugContext,
-    phantom: PhantomData<E>,
 }
 
 impl<E: Entity> LoadQueryBuilder<E> {
@@ -114,21 +114,27 @@ impl<E: Entity> LoadQueryBuilder<E> {
 
         Self {
             query,
+            filters: vec![],
             debug: DebugContext::default(),
-            phantom: PhantomData,
         }
+    }
+
+    // filter
+    pub fn filter<F: Fn(&E) -> bool + 'static>(mut self, f: F) -> Self {
+        self.filters.push(Box::new(f));
+        self
     }
 
     // execute
     // excutes the query and returns a collection
     pub fn execute(self, db: DbLocal) -> Result<LoadCollection<E>, Error> {
-        let executor = LoadExecutor::<E>::new(self);
+        let executor = LoadQueryExecutor::<E>::new(self);
         executor.execute(db)
     }
 
     // response
     pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
-        let executor = LoadExecutor::<E>::new(self);
+        let executor = LoadQueryExecutor::<E>::new(self);
         executor.response(db)
     }
 }
@@ -199,17 +205,17 @@ where
 }
 
 ///
-/// LoadExecutor
+/// LoadQueryExecutor
 ///
 
-pub struct LoadExecutor<E>
+pub struct LoadQueryExecutor<E>
 where
     E: Entity,
 {
     builder: LoadQueryBuilder<E>,
 }
 
-impl<E> LoadExecutor<E>
+impl<E> LoadQueryExecutor<E>
 where
     E: Entity,
 {
@@ -236,13 +242,27 @@ where
             .collect::<Result<Vec<EntityRow<E>>, _>>()
             .map_err(QueryError::SerializeError)?;
 
-        // search
+        // search and filters
         let rows = rows
             .into_iter()
-            .filter(|row| match &query.search {
-                Some(Search::All(text)) => row.value.entity.search_all(text),
-                Some(Search::Fields(fields)) => row.value.entity.search_fields(fields.clone()),
-                None => true,
+            .filter(|row| {
+                let entity = &row.value.entity;
+
+                // run query.search
+                let matches_search = match &query.search {
+                    Some(Search::All(text)) => entity.search_all(text),
+                    Some(Search::Fields(fields)) => entity.search_fields(fields.clone()),
+                    None => true,
+                };
+
+                // run additional filters
+                let matches_all_closures = self
+                    .builder
+                    .filters
+                    .iter()
+                    .all(|filter_fn| filter_fn(entity));
+
+                matches_search && matches_all_closures
             })
             .collect::<Vec<_>>();
 

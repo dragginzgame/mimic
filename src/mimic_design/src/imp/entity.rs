@@ -19,12 +19,36 @@ pub struct EntityTrait {}
 impl Imp<Entity> for EntityTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
         let store = &node.store;
-        let mut q = quote! {
+        let q = quote! {
             const STORE: &'static str = <#store as ::mimic::traits::Path>::PATH;
         };
 
+        let tokens = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(tokens)
+    }
+}
+
+///
+/// EntityDynTrait
+///
+
+pub struct EntityDynTrait {}
+
+///
+/// Entity
+///
+
+impl Imp<Entity> for EntityDynTrait {
+    fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
+        let mut q = quote!();
+
         q.extend(id(node));
         q.extend(composite_key(node));
+        q.extend(serialize(node));
+        q.extend(store(node));
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
@@ -54,102 +78,33 @@ fn id(node: &Entity) -> TokenStream {
 
 // composite_key
 fn composite_key(node: &Entity) -> TokenStream {
-    let fields = entity_get_fields(node);
-
-    // Prepare the quote for setting struct fields based on the provided values slice
-    let set_fields = fields.iter().enumerate().map(|(i, ident)| {
-        quote! {
-            if let Some(value) = values.get(#i) {
-                this.#ident = value.parse().unwrap_or_default();
-            }
-        }
-    });
-
-    // quote for generating the output vector using the ORM trait to
-    // format each field as a sort key
-    let format_keys = fields.iter().map(|ident| {
-        quote! {
-            ::mimic::traits::SortKeyValue::format(&this.#ident)
-        }
-    });
-
-    // create inner
-    let inner = if fields.is_empty() {
-        quote!(Vec::new())
-    } else {
-        quote! {
-            let mut this = Self::default();
-
-            #(#set_fields)*
-
-            // Collect formatted keys and then take only as many as there are input values
-            let format_keys = vec![#(#format_keys),*];
-            format_keys.into_iter().take(values.len()).collect()
-        }
-    };
-
-    quote! {
-        fn composite_key(values: &[String]) -> Vec<::std::string::String> {
-            #inner
-        }
-    }
-}
-
-///
-/// EntityDynTrait
-///
-
-pub struct EntityDynTrait {}
-
-///
-/// Entity
-///
-
-impl Imp<Entity> for EntityDynTrait {
-    fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
-        let mut q = quote!();
-
-        q.extend(composite_key_dyn(node));
-        q.extend(serialize_dyn(node));
-        q.extend(store_dyn(node));
-
-        let tokens = Implementor::new(&node.def, t)
-            .set_tokens(q)
-            .to_token_stream();
-
-        Some(tokens)
-    }
-}
-
-// composite_key_dyn
-fn composite_key_dyn(node: &Entity) -> TokenStream {
     let parts = entity_get_fields(node)
         .into_iter()
         .map(|field| quote!(::mimic::traits::SortKeyValue::format(&self.#field)));
 
     // quote
     quote! {
-        fn composite_key_dyn(&self) -> Vec<::std::string::String> {
+        fn composite_key(&self) -> Vec<::std::string::String> {
             vec![#(#parts),*]
         }
     }
 }
 
-// serialize_dyn
-fn serialize_dyn(_: &Entity) -> TokenStream {
+// serialize
+fn serialize(_: &Entity) -> TokenStream {
     quote! {
-        fn serialize_dyn(&self) -> Result<Vec<u8>, ::mimic::SerializeError> {
+        fn serialize(&self) -> Result<Vec<u8>, ::mimic::SerializeError> {
             ::mimic::serialize(&self)
         }
     }
 }
 
-// store_dyn
-fn store_dyn(node: &Entity) -> TokenStream {
+// store
+fn store(node: &Entity) -> TokenStream {
     let store = &node.store;
 
     quote! {
-        fn store_dyn(&self) -> String {
+        fn store(&self) -> String {
             <#store as ::mimic::traits::Path>::PATH.to_string()
         }
     }

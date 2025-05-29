@@ -380,33 +380,30 @@ impl_primitive!(Visitable);
 
 pub trait Entity: Type + EntityFixture + EntityDyn + FieldSearch + FieldSort {
     const STORE: &'static str;
+}
 
+///
+/// EntityDyn
+/// object-safe methods for entities
+///
+
+pub trait EntityDyn: TypeDyn + FieldSearchDyn + Visitable {
     // id
     // returns the id of the entity (as there can be 0 or 1 fields in
     // the entity's sort key)
     fn id(&self) -> Option<String>;
 
     // composite_key
-    // returns the record's sort keys as a Vec<String>
-    fn composite_key(_keys: &[String]) -> Vec<String>;
-}
+    // returns the record's sort key values as a Vec<String>
+    fn composite_key(&self) -> Vec<String>;
 
-///
-/// EntityDyn
-/// everything the Entity needs to interact with the Store dynamically
-///
-
-pub trait EntityDyn: TypeDyn + Visitable {
-    // composite_key_dyn
-    fn composite_key_dyn(&self) -> Vec<String>;
-
-    // serialize_dyn
+    // serialize
     // entities need dynamic serialization when saving different types
-    fn serialize_dyn(&self) -> Result<Vec<u8>, SerializeError>;
+    fn serialize(&self) -> Result<Vec<u8>, SerializeError>;
 
-    // store_dyn
+    // store
     // returns the path of the store
-    fn store_dyn(&self) -> String;
+    fn store(&self) -> String;
 }
 
 ///
@@ -444,12 +441,23 @@ pub trait EntityId: NodeDyn + Display {
 /// FieldSearch
 ///
 /// allows anything with a collection of fields to be filtered
-/// None means search all fields
 ///
 
 pub trait FieldSearch {
     fn list_fields(&self) -> &'static [&'static str];
     fn search_field(&self, field: &str, text: &str) -> bool;
+
+    // search_all
+    // true if any field matches
+    fn search_all(&self, text: &str) -> bool {
+        for field in self.list_fields() {
+            if self.search_field(field, text) {
+                return true;
+            }
+        }
+
+        false
+    }
 
     // search_fields
     // AND so we want to return if any specified field doesn't match
@@ -462,17 +470,20 @@ pub trait FieldSearch {
 
         true
     }
+}
 
-    // search_all
-    // true if any field matches
-    fn search_all(&self, text: &str) -> bool {
-        for field in self.list_fields() {
-            if self.search_field(field, text) {
-                return true;
-            }
-        }
+pub trait FieldSearchDyn {
+    fn search_all_dyn(&self, text: &str) -> bool;
+    fn search_fields_dyn(&self, fields: &[(String, String)]) -> bool;
+}
 
-        false
+impl<T: FieldSearch> FieldSearchDyn for T {
+    fn search_all_dyn(&self, text: &str) -> bool {
+        self.search_all(text)
+    }
+
+    fn search_fields_dyn(&self, fields: &[(String, String)]) -> bool {
+        self.search_fields(fields.to_vec())
     }
 }
 

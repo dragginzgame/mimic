@@ -56,7 +56,7 @@ fn save<'a>(
     // build key / value
     //
 
-    let ck = entity.composite_key_dyn();
+    let ck = entity.composite_key();
     let resolver = Resolver::new(&entity.path_dyn());
     let key = resolver.data_key(&ck).map_err(QueryError::from)?;
 
@@ -64,7 +64,7 @@ fn save<'a>(
     debug.println(&format!("store.{mode}: {key}",));
 
     // serialize
-    let data: Vec<u8> = entity.serialize_dyn()?;
+    let data: Vec<u8> = entity.serialize()?;
 
     //
     // match mode
@@ -73,7 +73,7 @@ fn save<'a>(
 
     let now = crate::utils::time::now_secs();
     let store = db
-        .with(|db| db.try_get_store(&entity.store_dyn()))
+        .with(|db| db.try_get_store(&entity.store()))
         .map_err(QueryError::from)?;
     let result = store.with_borrow(|store| store.get(&key));
 
