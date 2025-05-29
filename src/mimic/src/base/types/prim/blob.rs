@@ -39,8 +39,6 @@ impl Blob {
     }
 }
 
-impl Filterable for Blob {}
-
 impl From<Vec<u8>> for Blob {
     fn from(bytes: Vec<u8>) -> Self {
         Self(ByteBuf::from(bytes))
@@ -70,6 +68,8 @@ impl Inner<Self> for Blob {
 }
 
 impl Orderable for Blob {}
+
+impl Searchable for Blob {}
 
 impl ValidateAuto for Blob {}
 

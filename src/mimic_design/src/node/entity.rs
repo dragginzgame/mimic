@@ -103,8 +103,8 @@ impl TraitNode for Entity {
             Trait::Entity,
             Trait::EntityDyn,
             Trait::EntityFixture,
+            Trait::FieldSearch,
             Trait::FieldSort,
-            Trait::FieldFilter,
         ]);
 
         traits.list()
@@ -115,7 +115,7 @@ impl TraitNode for Entity {
             Trait::Default if self.fields.has_default() => imp::DefaultTrait::tokens(self, t),
             Trait::Entity => imp::EntityTrait::tokens(self, t),
             Trait::EntityDyn => imp::EntityDynTrait::tokens(self, t),
-            Trait::FieldFilter => imp::FieldFilterTrait::tokens(self, t),
+            Trait::FieldSearch => imp::FieldSearchTrait::tokens(self, t),
             Trait::FieldSort => imp::FieldSortTrait::tokens(self, t),
             Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => imp::VisitableTrait::tokens(self, t),

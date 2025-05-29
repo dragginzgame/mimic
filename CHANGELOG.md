@@ -5,6 +5,9 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.4.1]
+- filter renamed search.  Filtering queries is now done using a closure like the rest of the rust ecosystem
+
 ## [0.4.0]
 - breaking changes!  mimic_end is gone, moved a lot of things to ICU
 - no more config.toml

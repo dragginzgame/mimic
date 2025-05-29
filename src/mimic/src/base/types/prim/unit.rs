@@ -13,8 +13,6 @@ use serde::{Deserialize, Serialize};
 )]
 pub struct Unit();
 
-impl Filterable for Unit {}
-
 impl Inner<Self> for Unit {
     fn inner(&self) -> &Self {
         self
@@ -26,6 +24,8 @@ impl Inner<Self> for Unit {
 }
 
 impl Orderable for Unit {}
+
+impl Searchable for Unit {}
 
 impl ValidateAuto for Unit {}
 

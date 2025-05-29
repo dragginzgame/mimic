@@ -6,18 +6,18 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 ///
-/// FieldFilterTrait
+/// FieldSearchTrait
 ///
 
-pub struct FieldFilterTrait {}
+pub struct FieldSearchTrait {}
 
 ///
 /// Entity
 ///
 
-impl Imp<Entity> for FieldFilterTrait {
+impl Imp<Entity> for FieldSearchTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
-        let q = fields_filter(&node.fields);
+        let q = fields_search(&node.fields);
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
@@ -31,9 +31,9 @@ impl Imp<Entity> for FieldFilterTrait {
 /// Record
 ///
 
-impl Imp<Record> for FieldFilterTrait {
+impl Imp<Record> for FieldSearchTrait {
     fn tokens(node: &Record, t: Trait) -> Option<TokenStream> {
-        let q = fields_filter(&node.fields);
+        let q = fields_search(&node.fields);
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
@@ -43,9 +43,9 @@ impl Imp<Record> for FieldFilterTrait {
     }
 }
 
-// fields_filter
+// fields_search
 // check if a node's fields are empty and generate an appropriate logical expression
-pub fn fields_filter(node: &FieldList) -> TokenStream {
+pub fn fields_search(node: &FieldList) -> TokenStream {
     let matches: Vec<_> = node
         .fields
         .iter()
@@ -56,7 +56,7 @@ pub fn fields_filter(node: &FieldList) -> TokenStream {
             match field.value.cardinality() {
                 Cardinality::One => quote! {
                     #name_str => {
-                        if ::mimic::traits::Filterable::contains_text(&self.#name, text) {
+                        if ::mimic::traits::Searchable::contains_text(&self.#name, text) {
                             return true;
                         }
                     }
@@ -64,7 +64,7 @@ pub fn fields_filter(node: &FieldList) -> TokenStream {
                 Cardinality::Opt => quote! {
                     #name_str => {
                         if let Some(value) = &self.#name {
-                            if ::mimic::traits::Filterable::contains_text(value, text) {
+                            if ::mimic::traits::Searchable::contains_text(value, text) {
                                 return true;
                             }
                         }
@@ -90,7 +90,7 @@ pub fn fields_filter(node: &FieldList) -> TokenStream {
             &FIELDS
         }
 
-        fn filter_field(&self, field: &str, text: &str) -> bool {
+        fn search_field(&self, field: &str, text: &str) -> bool {
             match field {
                 #(#matches)*
                 _ => {},
@@ -163,13 +163,8 @@ fn fields_sort(node: &FieldList) -> TokenStream {
     }
 
     // quote
-    let order = &node.order;
     quote! {
-        fn default_order() -> Vec<(String, ::mimic::schema::types::SortDirection)> {
-            vec![#(#order),*]
-        }
-
-        fn generate_sorter(order: &[(String, ::mimic::schema::types::SortDirection)]) -> Box<dyn Fn(&Self, &Self) -> ::std::cmp::Ordering> {
+        fn sort(order: &[(String, ::mimic::schema::types::SortDirection)]) -> Box<dyn Fn(&Self, &Self) -> ::std::cmp::Ordering> {
             let mut funcs: Vec<Box<dyn Fn(&Self, &Self) -> ::std::cmp::Ordering>> = Vec::new();
 
             for (field, direction) in order {

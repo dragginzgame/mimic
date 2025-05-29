@@ -86,7 +86,7 @@ impl TraitNode for Record {
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::Default if self.fields.has_default() => imp::DefaultTrait::tokens(self, t),
-            Trait::FieldFilter => imp::FieldFilterTrait::tokens(self, t),
+            Trait::FieldSearch => imp::FieldSearchTrait::tokens(self, t),
             Trait::FieldSort => imp::FieldSortTrait::tokens(self, t),
             Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => imp::VisitableTrait::tokens(self, t),

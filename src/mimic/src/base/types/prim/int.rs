@@ -1,4 +1,4 @@
-use crate::traits::{Filterable, Inner, Orderable, ValidateAuto, ValidateCustom, Visitable};
+use crate::traits::{Inner, Orderable, Searchable, ValidateAuto, ValidateCustom, Visitable};
 use candid::{CandidType, Int as WrappedInt};
 use derive_more::{Deref, DerefMut};
 use icu::impl_storable_unbounded;
@@ -35,12 +35,6 @@ impl fmt::Display for Int {
     }
 }
 
-impl Filterable for Int {
-    fn as_text(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
-
 impl From<WrappedInt> for Int {
     fn from(i: WrappedInt) -> Self {
         Self(i)
@@ -60,6 +54,12 @@ impl Inner<Self> for Int {
 impl Orderable for Int {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
+    }
+}
+
+impl Searchable for Int {
+    fn as_text(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 

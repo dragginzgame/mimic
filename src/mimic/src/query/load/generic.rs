@@ -6,28 +6,30 @@ use crate::{
     },
     query::{
         DebugContext, QueryError, Resolver,
-        load::{LoadError, LoadFormat, LoadMap, LoadMethod, LoadResponse, Loader},
-        types::{Filter, Order},
+        load::{
+            LoadCollectionDyn, LoadError, LoadFormat, LoadMap, LoadMethod, LoadQuery, LoadResponse,
+            Loader,
+        },
+        traits::{LoadCollectionTrait, LoadQueryBuilderTrait},
+        types::{Order, Search},
     },
     traits::Entity,
 };
-use candid::CandidType;
-use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
 
 ///
-/// LoadBuilder
+/// LoadQueryInit
 ///
 
 #[derive(Debug, Default)]
-pub struct LoadBuilder<E>
+pub struct LoadQueryInit<E>
 where
     E: Entity,
 {
     phantom: PhantomData<E>,
 }
 
-impl<E> LoadBuilder<E>
+impl<E> LoadQueryInit<E>
 where
     E: Entity,
 {
@@ -39,187 +41,160 @@ where
 
     // method
     #[must_use]
-    pub fn method(self, method: LoadMethod) -> LoadQuery {
-        LoadQuery::new(E::PATH, method)
+    pub fn method(self, method: LoadMethod) -> LoadQueryBuilder<E> {
+        LoadQueryBuilder::new(method)
     }
 
     // all
     #[must_use]
-    pub fn all(self) -> LoadQuery {
-        LoadQuery::new(E::PATH, LoadMethod::All)
+    pub fn all(self) -> LoadQueryBuilder<E> {
+        LoadQueryBuilder::new(LoadMethod::All)
     }
 
     // only
     #[must_use]
-    pub fn only(self) -> LoadQuery {
-        LoadQuery::new(E::PATH, LoadMethod::Only)
+    pub fn only(self) -> LoadQueryBuilder<E> {
+        LoadQueryBuilder::new(LoadMethod::Only)
     }
 
     // one
-    pub fn one<T: ToString>(self, ck: &[T]) -> LoadQuery {
+    pub fn one<T: ToString>(self, ck: &[T]) -> LoadQueryBuilder<E> {
         let ck_str: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let method = LoadMethod::One(ck_str);
 
-        LoadQuery::new(E::PATH, method)
+        LoadQueryBuilder::new(method)
     }
 
     // many
     #[must_use]
-    pub fn many(self, cks: &[Vec<String>]) -> LoadQuery {
+    pub fn many(self, cks: &[Vec<String>]) -> LoadQueryBuilder<E> {
         let method = LoadMethod::Many(cks.to_vec());
 
-        LoadQuery::new(E::PATH, method)
+        LoadQueryBuilder::new(method)
     }
 
     // range
-    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> LoadQuery {
+    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> LoadQueryBuilder<E> {
         let start = start.iter().map(ToString::to_string).collect();
         let end = end.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Range(start, end);
 
-        LoadQuery::new(E::PATH, method)
+        LoadQueryBuilder::new(method)
     }
 
     // prefix
-    pub fn prefix<T: ToString>(self, prefix: &[T]) -> LoadQuery {
+    pub fn prefix<T: ToString>(self, prefix: &[T]) -> LoadQueryBuilder<E> {
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Prefix(prefix);
 
-        LoadQuery::new(E::PATH, method)
+        LoadQueryBuilder::new(method)
     }
 }
 
 ///
-/// LoadQuery
+/// LoadQueryBuilder
+/// we don't allow passing a LoadQuery because we already know the path
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub struct LoadQuery {
-    pub path: String,
-    pub method: LoadMethod,
-    pub format: LoadFormat,
-    pub offset: u32,
-    pub limit: Option<u32>,
-    pub filter: Option<Filter>,
-    pub order: Option<Order>,
-    pub debug: DebugContext,
+#[derive(Debug)]
+pub struct LoadQueryBuilder<E>
+where
+    E: Entity,
+{
+    query: LoadQuery,
+    debug: DebugContext,
+    phantom: PhantomData<E>,
 }
 
-impl LoadQuery {
+impl<E: Entity> LoadQueryBuilder<E> {
     // new
     #[must_use]
-    pub fn new(path: &str, method: LoadMethod) -> Self {
+    pub fn new(method: LoadMethod) -> Self {
+        let query = LoadQuery::new(E::PATH, method);
+
         Self {
-            path: path.to_string(),
-            method,
-            format: LoadFormat::default(),
-            offset: 0,
-            limit: None,
-            filter: None,
-            order: None,
+            query,
             debug: DebugContext::default(),
+            phantom: PhantomData,
         }
-    }
-
-    // format
-    #[must_use]
-    pub const fn format(mut self, format: LoadFormat) -> Self {
-        self.format = format;
-        self
-    }
-
-    // debug
-    #[must_use]
-    pub const fn debug(mut self) -> Self {
-        self.debug.enable();
-        self
-    }
-
-    // offset
-    #[must_use]
-    pub const fn offset(mut self, offset: u32) -> Self {
-        self.offset = offset;
-        self
-    }
-
-    // limit
-    #[must_use]
-    pub const fn limit(mut self, limit: u32) -> Self {
-        self.limit = Some(limit);
-        self
-    }
-
-    // limit_option
-    #[must_use]
-    pub const fn limit_option(mut self, limit: Option<u32>) -> Self {
-        self.limit = limit;
-        self
-    }
-
-    // filter
-    #[must_use]
-    pub fn filter<T: Into<Filter>>(mut self, filter: T) -> Self {
-        self.filter = Some(filter.into());
-        self
-    }
-
-    // filter_option
-    #[must_use]
-    pub fn filter_option(mut self, filter: Option<Filter>) -> Self {
-        self.filter = filter;
-        self
-    }
-
-    // filter_all
-    #[must_use]
-    pub fn filter_all(mut self, text: &str) -> Self {
-        self.filter = Some(Filter::all(text.to_string()));
-        self
-    }
-
-    // filter_fields
-    #[must_use]
-    pub fn filter_fields<I, K, V>(mut self, fields: I) -> Self
-    where
-        I: IntoIterator<Item = (K, V)>,
-        K: Into<String>,
-        V: Into<String>,
-    {
-        self.filter = Some(Filter::fields(fields));
-        self
-    }
-
-    // order
-    #[must_use]
-    pub fn order<T: Into<Order>>(mut self, order: T) -> Self {
-        self.order = Some(order.into());
-        self
-    }
-
-    // order_option
-    #[must_use]
-    pub fn order_option<T: Into<Order>>(mut self, order: Option<T>) -> Self {
-        self.order = order.map(Into::into);
-        self
     }
 
     // execute
     // excutes the query and returns a collection
-    pub fn execute<E>(self, db: DbLocal) -> Result<LoadCollection<E>, Error>
-    where
-        E: Entity,
-    {
+    pub fn execute(self, db: DbLocal) -> Result<LoadCollection<E>, Error> {
         let executor = LoadExecutor::<E>::new(self);
         executor.execute(db)
     }
 
     // response
-    pub fn response<E>(self, db: DbLocal) -> Result<LoadResponse, Error>
-    where
-        E: Entity,
-    {
+    pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
         let executor = LoadExecutor::<E>::new(self);
         executor.response(db)
+    }
+}
+
+impl<E> LoadQueryBuilderTrait for LoadQueryBuilder<E>
+where
+    E: Entity,
+{
+    fn debug(mut self) -> Self {
+        self.debug.enable();
+        self
+    }
+
+    fn format(mut self, format: LoadFormat) -> Self {
+        self.query.format = format;
+        self
+    }
+
+    fn offset(mut self, offset: u32) -> Self {
+        self.query.offset = offset;
+        self
+    }
+
+    fn limit(mut self, limit: u32) -> Self {
+        self.query.limit = Some(limit);
+        self
+    }
+
+    fn limit_option(mut self, limit: Option<u32>) -> Self {
+        self.query.limit = limit;
+        self
+    }
+
+    fn search<T: Into<Search>>(mut self, search: T) -> Self {
+        self.query.search = Some(search.into());
+        self
+    }
+
+    fn search_option(mut self, search: Option<Search>) -> Self {
+        self.query.search = search;
+        self
+    }
+
+    fn search_all(mut self, text: &str) -> Self {
+        self.query.search = Some(Search::all(text.to_string()));
+        self
+    }
+
+    fn search_fields<I, K, V>(mut self, fields: I) -> Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+        K: Into<String>,
+        V: Into<String>,
+    {
+        self.query.search = Some(Search::fields(fields));
+        self
+    }
+
+    fn order<T: Into<Order>>(mut self, order: T) -> Self {
+        self.query.order = Some(order.into());
+        self
+    }
+
+    fn order_option<T: Into<Order>>(mut self, order: Option<T>) -> Self {
+        self.query.order = order.map(Into::into);
+        self
     }
 }
 
@@ -231,8 +206,7 @@ pub struct LoadExecutor<E>
 where
     E: Entity,
 {
-    query: LoadQuery,
-    phantom: PhantomData<E>,
+    builder: LoadQueryBuilder<E>,
 }
 
 impl<E> LoadExecutor<E>
@@ -241,19 +215,18 @@ where
 {
     // new
     #[must_use]
-    pub const fn new(query: LoadQuery) -> Self {
-        Self {
-            query,
-            phantom: PhantomData,
-        }
+    pub const fn new(builder: LoadQueryBuilder<E>) -> Self {
+        Self { builder }
     }
 
     // execute
     pub fn execute(self, db: DbLocal) -> Result<LoadCollection<E>, Error> {
+        let query = &self.builder.query;
+
         // loader
-        let resolver = Resolver::new(&self.query.path);
+        let resolver = Resolver::new(&query.path);
         let loader = Loader::new(db, resolver);
-        let res = loader.load(&self.query.method)?;
+        let res = loader.load(&query.method)?;
 
         // convert
         let rows = res
@@ -263,19 +236,19 @@ where
             .collect::<Result<Vec<EntityRow<E>>, _>>()
             .map_err(QueryError::SerializeError)?;
 
-        // filter
+        // search
         let rows = rows
             .into_iter()
-            .filter(|row| match &self.query.filter {
-                Some(Filter::All(text)) => row.value.entity.filter_all(text),
-                Some(Filter::Fields(fields)) => row.value.entity.filter_fields(fields.clone()),
+            .filter(|row| match &query.search {
+                Some(Search::All(text)) => row.value.entity.search_all(text),
+                Some(Search::Fields(fields)) => row.value.entity.search_fields(fields.clone()),
                 None => true,
             })
             .collect::<Vec<_>>();
 
         // sort
         let mut rows = rows;
-        if let Some(order) = &self.query.order {
+        if let Some(order) = &query.order {
             let sorter = E::sort(order);
             rows.sort_by(|a, b| sorter(&a.value.entity, &b.value.entity));
         }
@@ -283,8 +256,8 @@ where
         // offset and limit
         let rows = rows
             .into_iter()
-            .skip(self.query.offset as usize)
-            .take(self.query.limit.unwrap_or(u32::MAX) as usize)
+            .skip(query.offset as usize)
+            .take(query.limit.unwrap_or(u32::MAX) as usize)
             .collect();
 
         Ok(LoadCollection(rows))
@@ -292,11 +265,11 @@ where
 
     // response
     pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
-        let format = self.query.format.clone();
+        let format = self.builder.query.format.clone();
         let collection = self.execute(db)?;
 
         let response = match format {
-            LoadFormat::Rows => LoadResponse::Rows(collection.data_rows()?),
+            LoadFormat::Rows => LoadResponse::Rows(collection.data_rows()),
             LoadFormat::Keys => LoadResponse::Keys(collection.keys()),
             LoadFormat::Count => LoadResponse::Count(collection.count()),
         };
@@ -316,10 +289,16 @@ impl<E> LoadCollection<E>
 where
     E: Entity,
 {
-    // count
+    // as_dyn
     #[must_use]
-    pub fn count(self) -> usize {
-        self.0.len()
+    pub fn as_dyn(self) -> LoadCollectionDyn {
+        let data_rows: Vec<DataRow> = self
+            .0
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect();
+
+        LoadCollectionDyn(data_rows)
     }
 
     // map
@@ -332,33 +311,6 @@ where
             .collect::<Vec<_>>();
 
         LoadMap::from_pairs(pairs)
-    }
-
-    // key
-    #[must_use]
-    pub fn key(self) -> Option<SortKey> {
-        self.0.first().map(|row| row.key.clone())
-    }
-
-    // try_key
-    pub fn try_key(self) -> Result<SortKey, QueryError> {
-        let row = self.0.first().ok_or(LoadError::NoResultsFound)?;
-
-        Ok(row.key.clone())
-    }
-
-    // keys
-    #[must_use]
-    pub fn keys(self) -> Vec<SortKey> {
-        self.0.into_iter().map(|row| row.key).collect()
-    }
-
-    // data_rows
-    pub fn data_rows(self) -> Result<Vec<DataRow>, QueryError> {
-        self.0
-            .into_iter()
-            .map(|row| row.try_into().map_err(QueryError::SerializeError))
-            .collect()
     }
 
     // entity
@@ -406,5 +358,52 @@ where
     #[must_use]
     pub fn entity_rows(self) -> Vec<EntityRow<E>> {
         self.0
+    }
+}
+
+impl<E> LoadCollectionTrait for LoadCollection<E>
+where
+    E: Entity,
+{
+    fn count(self) -> usize {
+        self.0.len()
+    }
+
+    fn key(self) -> Option<SortKey> {
+        self.0.first().map(|row| row.key.clone())
+    }
+
+    fn try_key(self) -> Result<SortKey, QueryError> {
+        let row = self.0.first().ok_or(LoadError::NoResultsFound)?;
+
+        Ok(row.key.clone())
+    }
+
+    fn keys(self) -> Vec<SortKey> {
+        self.0.into_iter().map(|row| row.key).collect()
+    }
+
+    fn data_row(self) -> Option<DataRow> {
+        self.as_dyn().data_row()
+    }
+
+    fn try_data_row(self) -> Result<DataRow, QueryError> {
+        self.as_dyn().try_data_row()
+    }
+
+    fn data_rows(self) -> Vec<DataRow> {
+        self.as_dyn().data_rows()
+    }
+
+    fn blob(self) -> Option<Vec<u8>> {
+        self.as_dyn().blob()
+    }
+
+    fn try_blob(self) -> Result<Vec<u8>, QueryError> {
+        self.as_dyn().try_blob()
+    }
+
+    fn blobs(self) -> Vec<Vec<u8>> {
+        self.as_dyn().blobs()
     }
 }

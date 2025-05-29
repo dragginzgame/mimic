@@ -22,9 +22,8 @@ pub enum QueryError {
 }
 
 // query_load
-// has to return the dynamic response as the generic one is E
 pub async fn query_load(canister_pid: Principal, query: LoadQuery) -> Result<LoadResponse, Error> {
-    let result = Call::unbounded_wait(canister_pid, "query_load")
+    let result = Call::unbounded_wait(canister_pid, "mimic_query_load")
         .with_arg(&query)
         .await
         .map_err(|e| QueryError::CallError(e.to_string()))
@@ -43,7 +42,7 @@ pub async fn query_delete(
     canister_pid: Principal,
     query: DeleteQuery,
 ) -> Result<DeleteResponse, Error> {
-    let result = Call::unbounded_wait(canister_pid, "query_delete")
+    let result = Call::unbounded_wait(canister_pid, "mimic_query_delete")
         .with_arg(&query)
         .await
         .map_err(|e| QueryError::CallError(e.to_string()))
@@ -59,7 +58,7 @@ pub async fn query_delete(
 
 // query_save
 pub async fn query_save(canister_pid: Principal, query: SaveQuery) -> Result<SaveResponse, Error> {
-    let result = Call::unbounded_wait(canister_pid, "query_save")
+    let result = Call::unbounded_wait(canister_pid, "mimic_query_save")
         .with_arg(&query)
         .await
         .map_err(|e| QueryError::CallError(e.to_string()))

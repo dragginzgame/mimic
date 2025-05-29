@@ -17,9 +17,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FieldList {
     pub fields: Vec<Field>,
-
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub order: Vec<FieldOrder>,
 }
 
 impl FieldList {
@@ -30,27 +27,11 @@ impl FieldList {
     }
 }
 
-impl ValidateNode for FieldList {
-    fn validate(&self) -> Result<(), ErrorTree> {
-        let mut errs = ErrorTree::new();
-
-        // order
-        for rule in &self.order {
-            if self.get_field(&rule.field).is_none() {
-                errs.add(format!("field '{}' not found", rule.field));
-            }
-        }
-
-        errs.result()
-    }
-}
+impl ValidateNode for FieldList {}
 
 impl VisitableNode for FieldList {
     fn drive<V: Visitor>(&self, v: &mut V) {
         for node in &self.fields {
-            node.accept(v);
-        }
-        for node in &self.order {
             node.accept(v);
         }
     }

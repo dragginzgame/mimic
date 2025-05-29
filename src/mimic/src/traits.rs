@@ -166,49 +166,6 @@ pub trait TypeDyn: NodeDyn + Debug {}
 impl<T> TypeDyn for T where T: NodeDyn + Debug {}
 
 ///
-/// Filterable
-///
-/// a trait that allows you to optionally allow a type to
-/// be filtered based on the string representation
-///
-
-pub trait Filterable {
-    // as_text
-    // implement this if you want a type to be filtered as text
-    fn as_text(&self) -> Option<String> {
-        None
-    }
-
-    // contains_text
-    fn contains_text(&self, text: &str) -> bool {
-        self.as_text()
-            .is_some_and(|s| s.to_lowercase().contains(&text.to_lowercase()))
-    }
-}
-
-impl<T: Filterable> Filterable for Box<T> {}
-
-impl Filterable for String {
-    fn as_text(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
-
-// impl_primitive_filter
-#[macro_export]
-macro_rules! impl_primitive_filterable {
-    ($($type:ty),*) => {
-        $(
-            impl Filterable for $type {}
-        )*
-    };
-}
-
-impl_primitive_filterable!(
-    i8, i16, i32, i64, i128, u8, u16, u32, u64, u128, f32, f64, bool
-);
-
-///
 /// Inner
 /// a trait for Newtypes to recurse downwards to find the innermost value
 ///
@@ -289,6 +246,49 @@ impl<T: Orderable> Orderable for Option<T> {
         }
     }
 }
+
+///
+/// Searchable
+///
+/// a trait that allows you to optionally allow a type to
+/// be searched based on the string representation
+///
+
+pub trait Searchable {
+    // as_text
+    // implement this if you want a type to be searched as text
+    fn as_text(&self) -> Option<String> {
+        None
+    }
+
+    // contains_text
+    fn contains_text(&self, text: &str) -> bool {
+        self.as_text()
+            .is_some_and(|s| s.to_lowercase().contains(&text.to_lowercase()))
+    }
+}
+
+impl<T: Searchable> Searchable for Box<T> {}
+
+impl Searchable for String {
+    fn as_text(&self) -> Option<String> {
+        Some(self.to_string())
+    }
+}
+
+// impl_primitive_searchable
+#[macro_export]
+macro_rules! impl_primitive_searchable {
+    ($($type:ty),*) => {
+        $(
+            impl Searchable for $type {}
+        )*
+    };
+}
+
+impl_primitive_searchable!(
+    i8, i16, i32, i64, i128, u8, u16, u32, u64, u128, f32, f64, bool
+);
 
 ///
 /// Validate
@@ -378,7 +378,7 @@ impl_primitive!(Visitable);
 /// Entity
 ///
 
-pub trait Entity: Type + EntityFixture + EntityDyn + FieldSort + FieldFilter {
+pub trait Entity: Type + EntityFixture + EntityDyn + FieldSearch + FieldSort {
     const STORE: &'static str;
 
     // id
@@ -441,21 +441,21 @@ pub trait EntityId: NodeDyn + Display {
 }
 
 ///
-/// FieldFilter
+/// FieldSearch
 ///
 /// allows anything with a collection of fields to be filtered
 /// None means search all fields
 ///
 
-pub trait FieldFilter {
+pub trait FieldSearch {
     fn list_fields(&self) -> &'static [&'static str];
-    fn filter_field(&self, field: &str, text: &str) -> bool;
+    fn search_field(&self, field: &str, text: &str) -> bool;
 
-    // filter_fields
+    // search_fields
     // AND so we want to return if any specified field doesn't match
-    fn filter_fields(&self, fields: Vec<(String, String)>) -> bool {
+    fn search_fields(&self, fields: Vec<(String, String)>) -> bool {
         for (field, text) in fields {
-            if !self.filter_field(&field, &text) {
+            if !self.search_field(&field, &text) {
                 return false;
             }
         }
@@ -463,11 +463,11 @@ pub trait FieldFilter {
         true
     }
 
-    // filter_all
+    // search_all
     // true if any field matches
-    fn filter_all(&self, text: &str) -> bool {
+    fn search_all(&self, text: &str) -> bool {
         for field in self.list_fields() {
-            if self.filter_field(field, text) {
+            if self.search_field(field, text) {
                 return true;
             }
         }
@@ -485,22 +485,7 @@ pub trait FieldFilter {
 type FieldSortFn<E> = dyn Fn(&E, &E) -> ::std::cmp::Ordering;
 
 pub trait FieldSort {
-    fn default_order() -> Vec<(String, SortDirection)>;
-
-    // sort
-    // pass in a blank slice to sort by the default
-    #[must_use]
-    fn sort(order: &[(String, SortDirection)]) -> Box<FieldSortFn<Self>> {
-        let order = if order.is_empty() {
-            &Self::default_order()
-        } else {
-            order
-        };
-
-        Self::generate_sorter(order)
-    }
-
-    fn generate_sorter(order: &[(String, SortDirection)]) -> Box<FieldSortFn<Self>>;
+    fn sort(order: &[(String, SortDirection)]) -> Box<FieldSortFn<Self>>;
 }
 
 ///

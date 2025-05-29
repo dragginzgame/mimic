@@ -4,16 +4,17 @@ use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
 
 ///
-/// Filter
+/// Search
+/// text-based searching for UI filters
 ///
 
 #[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub enum Filter {
+pub enum Search {
     All(String),
     Fields(Vec<(String, String)>),
 }
 
-impl Filter {
+impl Search {
     #[must_use]
     pub fn all<T: Into<String>>(text: T) -> Self {
         Self::All(text.into())

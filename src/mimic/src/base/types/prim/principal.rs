@@ -1,7 +1,7 @@
 use crate::{
     ThisError,
     prelude::*,
-    traits::{Filterable, Inner, Orderable, SortKeyValue, ValidateAuto, ValidateCustom, Visitable},
+    traits::{Inner, Orderable, Searchable, SortKeyValue, ValidateAuto, ValidateCustom, Visitable},
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut};
@@ -71,12 +71,6 @@ impl fmt::Display for Principal {
     }
 }
 
-impl Filterable for Principal {
-    fn as_text(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
-
 impl From<WrappedPrincipal> for Principal {
     fn from(principal: WrappedPrincipal) -> Self {
         Self(principal)
@@ -114,6 +108,12 @@ impl Inner<Self> for Principal {
 impl Orderable for Principal {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
+    }
+}
+
+impl Searchable for Principal {
+    fn as_text(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 

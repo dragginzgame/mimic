@@ -4,7 +4,7 @@ pub mod generator;
 use crate::{
     ThisError,
     prelude::*,
-    traits::{Filterable, Inner, Orderable, SortKeyValue, ValidateAuto, ValidateCustom},
+    traits::{Inner, Orderable, Searchable, SortKeyValue, ValidateAuto, ValidateCustom},
     types::ErrorTree,
 };
 use derive_more::{Deref, DerefMut, FromStr};
@@ -105,12 +105,6 @@ impl fmt::Display for Ulid {
     }
 }
 
-impl Filterable for Ulid {
-    fn as_text(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
-
 impl Inner<Self> for Ulid {
     fn inner(&self) -> &Self {
         self
@@ -130,6 +124,12 @@ impl<T: Into<WrappedUlid>> From<T> for Ulid {
 impl Orderable for Ulid {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
+    }
+}
+
+impl Searchable for Ulid {
+    fn as_text(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 

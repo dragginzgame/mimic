@@ -12,19 +12,19 @@ use mimic::{base::types, prelude::*};
 pub struct CreateBasic {}
 
 ///
-/// Filterable
+/// Searchable
 ///
 
 #[entity(
     store = "crate::Store",
-    sk(entity = "Filterable", field = "id"),
+    sk(entity = "Searchable", field = "id"),
     fields(
         field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
         field(name = "name", value(item(is = "types::Text"))),
         field(name = "description", value(item(is = "types::Text"))),
     )
 )]
-pub struct Filterable {}
+pub struct Searchable {}
 
 ///
 /// Limit

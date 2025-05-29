@@ -18,9 +18,6 @@ use syn::Ident;
 pub struct FieldList {
     #[darling(multiple, rename = "field")]
     pub fields: Vec<Field>,
-
-    #[darling(multiple)]
-    pub order: Vec<FieldOrder>,
 }
 
 impl FieldList {
@@ -32,12 +29,10 @@ impl FieldList {
 impl Schemable for FieldList {
     fn schema(&self) -> TokenStream {
         let fields = quote_vec(&self.fields, Field::schema);
-        let order = quote_vec(&self.order, FieldOrder::schema);
 
         quote! {
             ::mimic::schema::node::FieldList {
                 fields: #fields,
-                order: #order,
             }
         }
     }

@@ -1,4 +1,4 @@
-use crate::traits::{Filterable, Inner, Orderable, ValidateAuto, ValidateCustom, Visitable};
+use crate::traits::{Inner, Orderable, Searchable, ValidateAuto, ValidateCustom, Visitable};
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
 use num_traits::{FromPrimitive, NumCast, ToPrimitive};
@@ -72,12 +72,6 @@ impl CandidType for Decimal {
 impl fmt::Display for Decimal {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.0.fmt(f)
-    }
-}
-
-impl Filterable for Decimal {
-    fn as_text(&self) -> Option<String> {
-        Some(self.to_string())
     }
 }
 
@@ -162,6 +156,12 @@ impl NumCast for Decimal {
 impl Orderable for Decimal {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
+    }
+}
+
+impl Searchable for Decimal {
+    fn as_text(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 

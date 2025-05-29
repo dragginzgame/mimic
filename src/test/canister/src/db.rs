@@ -23,7 +23,7 @@ impl DbTester {
             ("create", Self::create),
             ("create_lots", Self::create_lots),
             ("data_key_order", Self::data_key_order),
-            ("filter_query", Self::filter_query),
+            ("search_query", Self::search_query),
             ("limit_query", Self::limit_query),
             ("missing_field", Self::missing_field),
         ];
@@ -59,7 +59,7 @@ impl DbTester {
         let keys = query::load::<ContainsBlob>()
             .all()
             .order(Order::from(vec!["id"]))
-            .execute::<ContainsBlob>(&DB)
+            .execute(&DB)
             .unwrap()
             .keys();
 
@@ -81,8 +81,8 @@ impl DbTester {
 
         // count keys
         assert_eq!(
-            query::load_dyn::<CreateBasic>()
-                .all()
+            query::load_dyn()
+                .all(CreateBasic::PATH)
                 .debug()
                 .execute(&DB)
                 .unwrap()
@@ -96,8 +96,8 @@ impl DbTester {
 
         // count keys
         assert_eq!(
-            query::load_dyn::<CreateBasic>()
-                .all()
+            query::load_dyn()
+                .all(CreateBasic::PATH)
                 .execute(&DB)
                 .unwrap()
                 .count(),
@@ -117,8 +117,8 @@ impl DbTester {
         }
 
         // Retrieve the count from the store
-        let count = query::load_dyn::<CreateBasic>()
-            .all()
+        let count = query::load_dyn()
+            .all(CreateBasic::PATH)
             .execute(&DB)
             .unwrap()
             .count();
@@ -143,7 +143,7 @@ impl DbTester {
         let keys = query::load::<SortKeyOrder>()
             .all()
             .order(Order::from(vec!["id"]))
-            .execute::<SortKeyOrder>(&DB)
+            .execute(&DB)
             .unwrap()
             .keys();
 
@@ -156,9 +156,9 @@ impl DbTester {
         }
     }
 
-    // filter_query
-    fn filter_query() {
-        use test_schema::db::Filterable;
+    // search_query
+    fn search_query() {
+        use test_schema::db::Searchable;
 
         // Test data
         let test_entities = vec![
@@ -179,7 +179,7 @@ impl DbTester {
         // replace
         // so that the IDs are left unchanged
         for (id, name, description) in test_entities {
-            let e = Filterable {
+            let e = Searchable {
                 id: Ulid::from_str(id).unwrap(),
                 name: name.into(),
                 description: description.into(),
@@ -207,10 +207,10 @@ impl DbTester {
         ];
 
         for (search, expected_count) in tests {
-            let count = query::load::<Filterable>()
+            let count = query::load::<Searchable>()
                 .all()
-                .filter_all(search)
-                .execute::<Filterable>(&DB)
+                .search_all(search)
+                .execute(&DB)
                 .unwrap()
                 .count();
 
@@ -235,8 +235,8 @@ impl DbTester {
         // Test various limits and offsets
         for limit in [10, 20, 50] {
             for offset in [0, 5, 10] {
-                let count = query::load_dyn::<Limit>()
-                    .all()
+                let count = query::load_dyn()
+                    .all(Limit::PATH)
                     .offset(offset)
                     .limit(limit)
                     .execute(&DB)

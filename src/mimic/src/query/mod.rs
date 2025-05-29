@@ -2,18 +2,20 @@ pub mod delete;
 pub mod load;
 pub mod resolver;
 pub mod save;
+pub mod traits;
 pub mod types;
 
 pub use delete::{DeleteBuilder, DeleteExecutor, DeleteQuery, DeleteResponse};
 pub use load::{
-    LoadBuilder, LoadBuilderDyn, LoadError, LoadExecutor, LoadExecutorDyn, LoadMap, LoadQuery,
-    LoadQueryDyn, LoadResponse,
+    LoadError, LoadMap, LoadQuery, LoadQueryBuilder, LoadQueryDynBuilder, LoadQueryDynExecutor,
+    LoadQueryDynInit, LoadQueryInit, LoadResponse,
 };
 pub use resolver::{Resolver, ResolverError};
 pub use save::{
     SaveBuilder, SaveBuilderDyn, SaveError, SaveExecutor, SaveExecutorDyn, SaveMode, SaveQuery,
     SaveQueryDyn, SaveResponse, SaveResponseDyn,
 };
+pub use traits::*;
 pub use types::*;
 
 use crate::{SerializeError, ThisError, db::DbError, traits::Entity};
@@ -44,14 +46,14 @@ pub enum QueryError {
 
 // load
 #[must_use]
-pub fn load<E: Entity>() -> LoadBuilder<E> {
-    LoadBuilder::<E>::new()
+pub fn load<E: Entity>() -> LoadQueryInit<E> {
+    LoadQueryInit::<E>::new()
 }
 
 // load_dyn
 #[must_use]
-pub fn load_dyn<E: Entity>() -> LoadBuilderDyn<E> {
-    LoadBuilderDyn::<E>::new()
+pub fn load_dyn() -> LoadQueryDynInit {
+    LoadQueryDynInit::new()
 }
 
 // delete

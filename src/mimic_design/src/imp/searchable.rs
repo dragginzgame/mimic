@@ -6,16 +6,16 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 ///
-/// FilterableTrait
+/// SearchableTrait
 ///
 
-pub struct FilterableTrait {}
+pub struct SearchableTrait {}
 
 ///
 /// Newtype
 ///
 
-impl Imp<Newtype> for FilterableTrait {
+impl Imp<Newtype> for SearchableTrait {
     fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
         let inner = if matches!(
             node.primitive.group(),

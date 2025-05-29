@@ -1,7 +1,7 @@
 use crate::{
     base::types::Ulid,
     db::types::SortKey,
-    traits::{Filterable, Orderable, SortKeyValue, ValidateAuto, ValidateCustom, Visitable},
+    traits::{Orderable, Searchable, SortKeyValue, ValidateAuto, ValidateCustom, Visitable},
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, IntoIterator};
@@ -73,8 +73,6 @@ impl fmt::Display for Relation {
     }
 }
 
-impl Filterable for Relation {}
-
 impl From<Ulid> for Relation {
     fn from(ulid: Ulid) -> Self {
         Self(vec![ulid.to_string()])
@@ -107,6 +105,8 @@ impl FromStr for Relation {
 }
 
 impl Orderable for Relation {}
+
+impl Searchable for Relation {}
 
 impl SortKeyValue for Relation {}
 

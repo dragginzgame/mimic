@@ -1,4 +1,4 @@
-use crate::traits::{Filterable, Inner, Orderable, ValidateAuto, ValidateCustom, Visitable};
+use crate::traits::{Inner, Orderable, Searchable, ValidateAuto, ValidateCustom, Visitable};
 use candid::{CandidType, Nat as WrappedNat};
 use derive_more::{Deref, DerefMut};
 use icu::impl_storable_unbounded;
@@ -32,12 +32,6 @@ impl fmt::Display for Nat {
     }
 }
 
-impl Filterable for Nat {
-    fn as_text(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
-
 impl From<WrappedNat> for Nat {
     fn from(n: WrappedNat) -> Self {
         Self(n)
@@ -57,6 +51,12 @@ impl Inner<Self> for Nat {
 impl Orderable for Nat {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
+    }
+}
+
+impl Searchable for Nat {
+    fn as_text(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 
