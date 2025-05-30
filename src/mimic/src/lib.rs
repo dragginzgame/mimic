@@ -33,7 +33,11 @@ extern crate self as mimic;
 ///
 
 pub mod prelude_actor {
-    pub use crate::{base::types::Ulid, mimic_start};
+    pub use crate::{
+        base::types::Ulid,
+        mimic_start,
+        query::traits::{LoadCollectionTrait as _, LoadQueryBuilderTrait as _},
+    };
 }
 
 pub mod prelude {
@@ -42,7 +46,6 @@ pub mod prelude {
             Blob, Bool, Decimal, Float32, Float64, Int, Int8, Int16, Int32, Int64, Int128, Nat,
             Nat8, Nat16, Nat32, Nat64, Nat128, Principal, Relation, RelationSet, Text, Ulid,
         },
-        query::traits::{LoadCollectionTrait as _, LoadQueryBuilderTrait as _},
         traits::{
             EntityDyn, EntityFixture, EntityId as _, Inner as _, NumCast, Orderable, Ordering,
             Path, Searchable, Selector as _, SortKeyValue as _, Validate as _, ValidateCustom,
