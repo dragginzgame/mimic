@@ -1,5 +1,5 @@
-pub mod dynamic;
-pub mod generic;
+mod dynamic;
+mod generic;
 
 pub use dynamic::*;
 pub use generic::*;

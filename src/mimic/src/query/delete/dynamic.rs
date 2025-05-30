@@ -1,87 +1,75 @@
 use crate::{
     Error,
-    db::{DbLocal, types::SortKey},
-    query::{DebugContext, QueryError, Resolver},
-    traits::Entity,
+    db::DbLocal,
+    query::{
+        DebugContext, QueryError, Resolver,
+        delete::{DeleteError, DeleteMethod, DeleteQuery, DeleteResponse},
+    },
 };
-use candid::CandidType;
-use derive_more::{Deref, DerefMut};
-use serde::{Deserialize, Serialize};
-use std::{fmt::Display, marker::PhantomData};
 
 ///
-/// DeleteMethod
-///
-/// One  : one key
-/// Many : many keys
-///
-
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub enum DeleteMethod {
-    One(Vec<String>),
-    Many(Vec<Vec<String>>),
-}
-
-///
-/// DeleteBuilder
+/// DeleteQueryDynInit
 ///
 
 #[derive(Debug, Default)]
-pub struct DeleteBuilder<E>
-where
-    E: Entity,
-{
-    phantom: PhantomData<E>,
-}
+pub struct DeleteQueryDynInit {}
 
-impl<E> DeleteBuilder<E>
-where
-    E: Entity,
-{
+impl DeleteQueryDynInit {
     // new
     #[must_use]
     pub fn new() -> Self {
-        Self::default()
+        Self {}
     }
 
     // one
-    pub fn one<T: Display>(self, ck: &[T]) -> DeleteQuery {
+    pub fn one<S: ToString>(self, path: &str, ck: &[S]) -> DeleteQueryDynBuilder {
         let key = ck.iter().map(ToString::to_string).collect();
+        let method = DeleteMethod::One(key);
 
-        DeleteQuery::new(E::PATH, DeleteMethod::One(key))
+        DeleteQueryDynBuilder::new_with(path, method)
     }
 
     // many
     #[must_use]
-    pub fn many<T: Display>(self, ck: &[Vec<T>]) -> DeleteQuery {
+    pub fn many<S: ToString>(self, path: &str, ck: &[Vec<S>]) -> DeleteQueryDynBuilder {
         let keys: Vec<Vec<String>> = ck
             .iter()
             .map(|inner_vec| inner_vec.iter().map(ToString::to_string).collect())
             .collect();
+        let method = DeleteMethod::Many(keys);
 
-        DeleteQuery::new(E::PATH, DeleteMethod::Many(keys))
+        DeleteQueryDynBuilder::new_with(path, method)
     }
 }
 
 ///
-/// DeleteQuery
+/// DeleteQueryDynBuilder
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub struct DeleteQuery {
-    path: String,
-    method: DeleteMethod,
+#[derive(Default)]
+pub struct DeleteQueryDynBuilder {
+    query: DeleteQuery,
     debug: DebugContext,
 }
 
-impl DeleteQuery {
+impl DeleteQueryDynBuilder {
     // new
     #[must_use]
-    pub fn new(path: &str, method: DeleteMethod) -> Self {
+    pub fn new(query: DeleteQuery) -> Self {
         Self {
-            path: path.to_string(),
-            method,
-            debug: DebugContext::default(),
+            query,
+            ..Default::default()
+        }
+    }
+
+    // new_with
+    #[must_use]
+    pub fn new_with(path: &str, method: DeleteMethod) -> Self {
+        let query = DeleteQuery::new(path, method);
+
+        Self {
+            query,
+            ..Default::default()
         }
     }
 
@@ -94,39 +82,45 @@ impl DeleteQuery {
 
     // execute
     pub fn execute(self, db: DbLocal) -> Result<DeleteResponse, Error> {
-        let executor = DeleteExecutor::new(self);
-
+        let executor = DeleteQueryDynExecutor::new(self);
         executor.execute(db)
     }
 }
 
 ///
-/// DeleteExecutor
+/// DeleteQueryExecutor
 ///
 
-pub struct DeleteExecutor {
-    query: DeleteQuery,
+pub struct DeleteQueryDynExecutor {
+    builder: DeleteQueryDynBuilder,
     resolver: Resolver,
 }
 
-impl DeleteExecutor {
+impl DeleteQueryDynExecutor {
     // new
     #[must_use]
-    pub fn new(query: DeleteQuery) -> Self {
-        let resolver = Resolver::new(&query.path);
+    pub fn new(builder: DeleteQueryDynBuilder) -> Self {
+        let resolver = Resolver::new(&builder.query.path);
 
-        Self { query, resolver }
+        Self { builder, resolver }
     }
 
     // execute
     pub fn execute(&self, db: DbLocal) -> Result<DeleteResponse, Error> {
-        let keys = match &self.query.method {
+        let query = &self.builder.query;
+
+        let keys = match &query.method {
+            DeleteMethod::Undefined => {
+                return Err(QueryError::DeleteError(DeleteError::Undefined))?;
+            }
             DeleteMethod::One(key) => vec![key],
             DeleteMethod::Many(keys) => keys.iter().collect(),
         };
 
         // debug
-        self.query.debug.println(&format!("delete: keys {keys:?}"));
+        self.builder
+            .debug
+            .println(&format!("delete: keys {keys:?}"));
 
         // get store
         let store_path = &self.resolver.store().map_err(QueryError::ResolverError)?;
@@ -153,17 +147,10 @@ impl DeleteExecutor {
         }
 
         // debug
-        self.query
+        self.builder
             .debug
             .println(&format!("keys deleted: {deleted_keys:?}"));
 
         Ok(DeleteResponse(deleted_keys))
     }
 }
-
-///
-/// DeleteResponse
-///
-
-#[derive(CandidType, Debug, Deref, DerefMut, Serialize, Deserialize)]
-pub struct DeleteResponse(Vec<SortKey>);

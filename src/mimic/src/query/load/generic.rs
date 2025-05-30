@@ -97,6 +97,7 @@ where
 ///
 
 #[allow(clippy::type_complexity)]
+#[derive(Default)]
 pub struct LoadQueryBuilder<E>
 where
     E: Entity,
@@ -115,7 +116,7 @@ impl<E: Entity> LoadQueryBuilder<E> {
         Self {
             query,
             filters: vec![],
-            debug: DebugContext::default(),
+            ..Default::default()
         }
     }
 

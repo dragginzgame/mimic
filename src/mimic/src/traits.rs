@@ -387,7 +387,7 @@ pub trait Entity: Type + EntityFixture + EntityDyn + FieldSearch + FieldSort {
 /// object-safe methods for entities
 ///
 
-pub trait EntityDyn: TypeDyn + FieldSearchDyn + Visitable {
+pub trait EntityDyn: TypeDyn + SerializeDyn + FieldSearchDyn + Visitable {
     // id
     // returns the id of the entity (as there can be 0 or 1 fields in
     // the entity's sort key)
@@ -397,13 +397,26 @@ pub trait EntityDyn: TypeDyn + FieldSearchDyn + Visitable {
     // returns the record's sort key values as a Vec<String>
     fn composite_key(&self) -> Vec<String>;
 
-    // serialize
-    // entities need dynamic serialization when saving different types
-    fn serialize(&self) -> Result<Vec<u8>, SerializeError>;
-
     // store
     // returns the path of the store
     fn store(&self) -> String;
+}
+
+///
+/// SerializeDyn
+///
+
+pub trait SerializeDyn {
+    fn serialize(&self) -> Result<Vec<u8>, SerializeError>;
+}
+
+impl<T> SerializeDyn for T
+where
+    T: Entity,
+{
+    fn serialize(&self) -> Result<Vec<u8>, SerializeError> {
+        mimic::serialize(self)
+    }
 }
 
 ///
@@ -471,6 +484,10 @@ pub trait FieldSearch {
         true
     }
 }
+
+///
+/// FieldSearchDyn
+///
 
 pub trait FieldSearchDyn {
     fn search_all_dyn(&self, text: &str) -> bool;

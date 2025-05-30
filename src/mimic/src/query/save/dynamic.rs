@@ -67,7 +67,7 @@ impl SaveBuilderDyn {
 /// SaveQueryDyn
 ///
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct SaveQueryDyn {
     mode: SaveMode,
     entities: Vec<Box<dyn EntityDyn>>,
@@ -81,7 +81,7 @@ impl SaveQueryDyn {
         Self {
             mode,
             entities,
-            debug: DebugContext::default(),
+            ..Default::default()
         }
     }
 

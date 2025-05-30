@@ -90,7 +90,7 @@ impl LoadQueryDynInit {
 /// LoadQueryDynBuilder
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+#[derive(Default)]
 pub struct LoadQueryDynBuilder {
     query: LoadQuery,
     debug: DebugContext,
@@ -102,7 +102,7 @@ impl LoadQueryDynBuilder {
     pub fn new(query: LoadQuery) -> Self {
         Self {
             query,
-            debug: DebugContext::default(),
+            ..Default::default()
         }
     }
 
@@ -113,7 +113,7 @@ impl LoadQueryDynBuilder {
 
         Self {
             query,
-            debug: DebugContext::default(),
+            ..Default::default()
         }
     }
 

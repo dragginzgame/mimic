@@ -46,10 +46,10 @@ where
 }
 
 ///
-/// SaveQuery
+/// SaveQueryBuilder
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
 pub struct SaveQuery {
     pub path: String,
     pub mode: SaveMode,
@@ -65,7 +65,7 @@ impl SaveQuery {
             path: path.to_string(),
             mode,
             bytes,
-            debug: DebugContext::default(),
+            ..Default::default()
         }
     }
 

@@ -1,5 +1,5 @@
-pub mod dynamic;
-pub mod generic;
+mod dynamic;
+mod generic;
 
 pub use dynamic::{SaveBuilderDyn, SaveExecutorDyn, SaveQueryDyn, SaveResponseDyn};
 pub use generic::{SaveBuilder, SaveExecutor, SaveQuery, SaveResponse};
@@ -38,8 +38,9 @@ pub enum SaveError {
 /// Update  : will only change an existing row
 ///
 
-#[derive(CandidType, Clone, Copy, Debug, Display, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Copy, Debug, Default, Display, Serialize, Deserialize)]
 pub enum SaveMode {
+    #[default]
     Create,
     Replace,
     Update,

@@ -47,7 +47,6 @@ impl Imp<Entity> for EntityDynTrait {
 
         q.extend(id(node));
         q.extend(composite_key(node));
-        q.extend(serialize(node));
         q.extend(store(node));
 
         let tokens = Implementor::new(&node.def, t)
@@ -86,15 +85,6 @@ fn composite_key(node: &Entity) -> TokenStream {
     quote! {
         fn composite_key(&self) -> Vec<::std::string::String> {
             vec![#(#parts),*]
-        }
-    }
-}
-
-// serialize
-fn serialize(_: &Entity) -> TokenStream {
-    quote! {
-        fn serialize(&self) -> Result<Vec<u8>, ::mimic::SerializeError> {
-            ::mimic::serialize(&self)
         }
     }
 }

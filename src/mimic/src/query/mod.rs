@@ -5,16 +5,10 @@ pub mod save;
 pub mod traits;
 pub mod types;
 
-pub use delete::{DeleteBuilder, DeleteExecutor, DeleteQuery, DeleteResponse};
-pub use load::{
-    LoadError, LoadMap, LoadQuery, LoadQueryBuilder, LoadQueryDynBuilder, LoadQueryDynExecutor,
-    LoadQueryDynInit, LoadQueryInit, LoadResponse,
-};
-pub use resolver::{Resolver, ResolverError};
-pub use save::{
-    SaveBuilder, SaveBuilderDyn, SaveError, SaveExecutor, SaveExecutorDyn, SaveMode, SaveQuery,
-    SaveQueryDyn, SaveResponse, SaveResponseDyn,
-};
+pub use delete::*;
+pub use load::*;
+pub use resolver::*;
+pub use save::*;
 pub use traits::*;
 pub use types::*;
 
@@ -38,6 +32,9 @@ pub enum QueryError {
     SaveError(#[from] SaveError),
 
     #[error(transparent)]
+    DeleteError(#[from] DeleteError),
+
+    #[error(transparent)]
     ResolverError(#[from] ResolverError),
 
     #[error(transparent)]
@@ -57,9 +54,16 @@ pub fn load_dyn() -> LoadQueryDynInit {
 }
 
 // delete
+// NYI
+//#[must_use]
+//pub fn delete<E: Entity>() -> DeleteQueryInit<E> {
+//    DeleteQueryInit::<E>::new()
+//}
+
+// delete_dyn
 #[must_use]
-pub fn delete<E: Entity>() -> DeleteBuilder<E> {
-    DeleteBuilder::<E>::new()
+pub fn delete_dyn() -> DeleteQueryDynInit {
+    DeleteQueryDynInit::new()
 }
 
 // save
