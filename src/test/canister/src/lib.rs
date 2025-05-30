@@ -3,7 +3,8 @@ mod default;
 mod validate;
 
 use icu::{ic::export_candid, prelude::*};
-use mimic::prelude::*;
+use mimic::{Error as MimicError, prelude::*, query};
+use test_schema::rarity::Rarity;
 
 //
 // INIT
@@ -24,6 +25,20 @@ pub fn test() {
     validate::ValidateTester::test();
 
     log!(Log::Ok, "test: all tests passed successfully");
+}
+
+// rarity
+#[update]
+pub fn rarity() -> Result<Vec<Rarity>, MimicError> {
+    perf!();
+
+    let query = query::load::<Rarity>()
+        .all()
+        .filter(|r| r.name.len() == 4)
+        .debug();
+    let es = query.execute(&DB)?.entities();
+
+    Ok(es)
 }
 
 export_candid!();

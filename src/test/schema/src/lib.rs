@@ -4,6 +4,7 @@ pub mod constant;
 pub mod db;
 pub mod default;
 pub mod index;
+pub mod rarity;
 pub mod validate;
 
 use mimic::{base::types, prelude::*};
