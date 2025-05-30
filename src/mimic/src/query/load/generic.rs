@@ -126,6 +126,24 @@ impl<E: Entity> LoadQueryBuilder<E> {
         self
     }
 
+    // filter_eq
+    pub fn filter_eq<F, T>(self, f: F, expected: T) -> Self
+    where
+        F: Fn(&E) -> T + 'static,
+        T: PartialEq + 'static,
+    {
+        self.filter(move |e| f(e) == expected)
+    }
+
+    // filter_some_eq
+    pub fn filter_some_eq<F, T>(self, f: F, value: T) -> Self
+    where
+        F: Fn(&E) -> Option<T> + 'static,
+        T: PartialEq + 'static,
+    {
+        self.filter(move |e| f(e).as_ref() == Some(&value))
+    }
+
     // execute
     // excutes the query and returns a collection
     pub fn execute(self, db: DbLocal) -> Result<LoadCollection<E>, Error> {
