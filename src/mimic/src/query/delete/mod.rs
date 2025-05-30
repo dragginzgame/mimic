@@ -34,16 +34,16 @@ pub enum DeleteMethod {
 }
 
 ///
-/// DeleteQuery
+/// DeleteQueryDyn
 ///
 
 #[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
-pub struct DeleteQuery {
+pub struct DeleteQueryDyn {
     path: String,
     method: DeleteMethod,
 }
 
-impl DeleteQuery {
+impl DeleteQueryDyn {
     // new
     #[must_use]
     pub fn new(path: &str, method: DeleteMethod) -> Self {

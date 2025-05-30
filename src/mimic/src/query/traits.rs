@@ -1,6 +1,6 @@
 use crate::{
     db::types::{DataRow, SortKey},
-    query::{QueryError, load::LoadFormat, types::Order},
+    query::{QueryError, load::LoadFormat},
 };
 
 ///
@@ -14,9 +14,6 @@ pub trait LoadQueryBuilderTrait {
     fn offset(self, offset: u32) -> Self;
     fn limit(self, limit: u32) -> Self;
     fn limit_option(self, limit: Option<u32>) -> Self;
-    fn search(self, search: &[(String, String)]) -> Self;
-    fn order<T: Into<Order>>(self, order: T) -> Self;
-    fn order_option<T: Into<Order>>(self, order: Option<T>) -> Self;
 }
 
 ///

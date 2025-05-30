@@ -34,7 +34,7 @@ pub fn rarity() -> Result<Vec<Rarity>, MimicError> {
 
     let query = query::load::<Rarity>()
         .all()
-        .filter(|r| r.name.len() == 4)
+        .search(&[("name".to_string(), "ep".to_string())])
         .debug();
     let es = query.execute(&DB)?.entities();
 

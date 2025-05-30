@@ -7,15 +7,40 @@ use crate::{
     query::{
         DebugContext, QueryError, Resolver,
         load::{
-            LoadCollectionDyn, LoadError, LoadFormat, LoadMap, LoadMethod, LoadQuery, LoadResponse,
-            Loader,
+            LoadCollectionDyn, LoadError, LoadFormat, LoadMap, LoadMethod, LoadResponse, Loader,
         },
         traits::{LoadCollectionTrait, LoadQueryBuilderTrait},
         types::Order,
     },
     traits::Entity,
 };
+use candid::CandidType;
+use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
+
+///
+/// LoadQuery
+///
+
+#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
+pub struct LoadQuery {
+    pub method: LoadMethod,
+    pub format: LoadFormat,
+    pub offset: u32,
+    pub limit: Option<u32>,
+    pub search: Vec<(String, String)>,
+    pub order: Option<Order>,
+}
+
+impl LoadQuery {
+    #[must_use]
+    pub fn new(method: LoadMethod) -> Self {
+        Self {
+            method,
+            ..Default::default()
+        }
+    }
+}
 
 ///
 /// LoadQueryInit
@@ -42,19 +67,19 @@ where
     // method
     #[must_use]
     pub fn method(self, method: LoadMethod) -> LoadQueryBuilder<E> {
-        LoadQueryBuilder::new(method)
+        LoadQueryBuilder::from_method(method)
     }
 
     // all
     #[must_use]
     pub fn all(self) -> LoadQueryBuilder<E> {
-        LoadQueryBuilder::new(LoadMethod::All)
+        LoadQueryBuilder::from_method(LoadMethod::All)
     }
 
     // only
     #[must_use]
     pub fn only(self) -> LoadQueryBuilder<E> {
-        LoadQueryBuilder::new(LoadMethod::Only)
+        LoadQueryBuilder::from_method(LoadMethod::Only)
     }
 
     // one
@@ -62,7 +87,7 @@ where
         let ck_str: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let method = LoadMethod::One(ck_str);
 
-        LoadQueryBuilder::new(method)
+        LoadQueryBuilder::from_method(method)
     }
 
     // many
@@ -70,7 +95,7 @@ where
     pub fn many(self, cks: &[Vec<String>]) -> LoadQueryBuilder<E> {
         let method = LoadMethod::Many(cks.to_vec());
 
-        LoadQueryBuilder::new(method)
+        LoadQueryBuilder::from_method(method)
     }
 
     // range
@@ -79,7 +104,7 @@ where
         let end = end.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Range(start, end);
 
-        LoadQueryBuilder::new(method)
+        LoadQueryBuilder::from_method(method)
     }
 
     // prefix
@@ -87,13 +112,12 @@ where
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
         let method = LoadMethod::Prefix(prefix);
 
-        LoadQueryBuilder::new(method)
+        LoadQueryBuilder::from_method(method)
     }
 }
 
 ///
 /// LoadQueryBuilder
-/// we don't allow passing a LoadQuery because we already know the path
 ///
 
 #[allow(clippy::type_complexity)]
@@ -110,14 +134,43 @@ where
 impl<E: Entity> LoadQueryBuilder<E> {
     // new
     #[must_use]
-    pub fn new(method: LoadMethod) -> Self {
-        let query = LoadQuery::new(E::PATH, method);
+    pub fn new(query: LoadQuery) -> Self {
+        Self {
+            query,
+            filters: vec![],
+            ..Default::default()
+        }
+    }
+
+    // from_method
+    #[must_use]
+    pub fn from_method(method: LoadMethod) -> Self {
+        let query = LoadQuery::new(method);
 
         Self {
             query,
             filters: vec![],
             ..Default::default()
         }
+    }
+
+    // search
+    #[must_use]
+    pub fn search(mut self, search: &[(String, String)]) -> Self {
+        self.query.search = search.to_vec();
+        self
+    }
+
+    // order
+    pub fn order<T: Into<Order>>(mut self, order: T) -> Self {
+        self.query.order = Some(order.into());
+        self
+    }
+
+    // order_option
+    pub fn order_option<T: Into<Order>>(mut self, order: Option<T>) -> Self {
+        self.query.order = order.map(Into::into);
+        self
     }
 
     // filter
@@ -186,21 +239,6 @@ where
         self.query.limit = limit;
         self
     }
-
-    fn search(mut self, search: &[(String, String)]) -> Self {
-        self.query.search = search.to_vec();
-        self
-    }
-
-    fn order<T: Into<Order>>(mut self, order: T) -> Self {
-        self.query.order = Some(order.into());
-        self
-    }
-
-    fn order_option<T: Into<Order>>(mut self, order: Option<T>) -> Self {
-        self.query.order = order.map(Into::into);
-        self
-    }
 }
 
 ///
@@ -233,7 +271,7 @@ where
             .println(&format!("query.load: {query:?}"));
 
         // loader
-        let resolver = Resolver::new(&query.path);
+        let resolver = Resolver::new(E::PATH);
         let loader = Loader::new(db, resolver);
         let res = loader.load(&query.method)?;
 

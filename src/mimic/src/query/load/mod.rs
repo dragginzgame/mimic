@@ -11,7 +11,7 @@ use crate::{
         DbLocal, StoreLocal,
         types::{DataRow, EntityRow, SortKey},
     },
-    query::{QueryError, resolver::Resolver, types::Order},
+    query::{QueryError, resolver::Resolver},
     traits::Entity,
 };
 use candid::CandidType;
@@ -36,32 +36,6 @@ pub enum LoadError {
 
     #[error("response has no entity data")]
     ResponseHasNoEntityData,
-}
-
-///
-/// LoadQuery
-///
-
-#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
-pub struct LoadQuery {
-    pub path: String,
-    pub method: LoadMethod,
-    pub format: LoadFormat,
-    pub offset: u32,
-    pub limit: Option<u32>,
-    pub search: Vec<(String, String)>,
-    pub order: Option<Order>,
-}
-
-impl LoadQuery {
-    #[must_use]
-    pub fn new(path: &str, method: LoadMethod) -> Self {
-        Self {
-            path: path.to_string(),
-            method,
-            ..Default::default()
-        }
-    }
 }
 
 ///

@@ -387,7 +387,7 @@ pub trait Entity: Type + EntityFixture + EntityDyn + EntitySearch + EntitySort {
 /// object-safe methods for entities
 ///
 
-pub trait EntityDyn: TypeDyn + SerializeDyn + EntitySearchDyn + EntitySortDyn + Visitable {
+pub trait EntityDyn: TypeDyn + SerializeDyn + Visitable {
     // id
     // returns the id of the entity (as there can be 0 or 1 fields in
     // the entity's sort key)
@@ -471,20 +471,6 @@ pub trait EntitySearch {
 }
 
 ///
-/// EntitySearchDyn
-///
-
-pub trait EntitySearchDyn {
-    fn search_fields_dyn(&self, fields: &[(String, String)]) -> bool;
-}
-
-impl<T: EntitySearch> EntitySearchDyn for T {
-    fn search_fields_dyn(&self, fields: &[(String, String)]) -> bool {
-        self.search_fields(fields)
-    }
-}
-
-///
 /// EntitySort
 ///
 /// allows anything with a collection of fields to be sorted
@@ -495,14 +481,6 @@ type EntitySortFn<E> = dyn Fn(&E, &E) -> ::std::cmp::Ordering;
 pub trait EntitySort {
     fn sort(order: &[(String, SortDirection)]) -> Box<EntitySortFn<Self>>;
 }
-
-///
-/// EntitySortDyn
-///
-
-pub trait EntitySortDyn {}
-
-impl<T: EntitySort> EntitySortDyn for T {}
 
 ///
 /// SortKeyValue

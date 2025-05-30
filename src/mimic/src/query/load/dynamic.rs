@@ -6,13 +6,36 @@ use crate::{
     },
     query::{
         DebugContext, QueryError, Resolver,
-        load::{LoadError, LoadFormat, LoadMethod, LoadQuery, LoadResponse, Loader},
+        load::{LoadError, LoadFormat, LoadMethod, LoadResponse, Loader},
         traits::{LoadCollectionTrait, LoadQueryBuilderTrait},
-        types::Order,
     },
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
+
+///
+/// LoadQueryDyn
+///
+
+#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
+pub struct LoadQueryDyn {
+    pub path: String,
+    pub method: LoadMethod,
+    pub format: LoadFormat,
+    pub offset: u32,
+    pub limit: Option<u32>,
+}
+
+impl LoadQueryDyn {
+    #[must_use]
+    pub fn new(path: &str, method: LoadMethod) -> Self {
+        Self {
+            path: path.to_string(),
+            method,
+            ..Default::default()
+        }
+    }
+}
 
 ///
 /// LoadQueryDynInit
@@ -30,7 +53,7 @@ impl LoadQueryDynInit {
 
     // query
     #[must_use]
-    pub fn query(self, query: LoadQuery) -> LoadQueryDynBuilder {
+    pub fn query(self, query: LoadQueryDyn) -> LoadQueryDynBuilder {
         LoadQueryDynBuilder::new(query)
     }
 
@@ -92,14 +115,14 @@ impl LoadQueryDynInit {
 
 #[derive(Default)]
 pub struct LoadQueryDynBuilder {
-    query: LoadQuery,
+    query: LoadQueryDyn,
     debug: DebugContext,
 }
 
 impl LoadQueryDynBuilder {
     // new
     #[must_use]
-    pub fn new(query: LoadQuery) -> Self {
+    pub fn new(query: LoadQueryDyn) -> Self {
         Self {
             query,
             ..Default::default()
@@ -109,7 +132,7 @@ impl LoadQueryDynBuilder {
     // new_with
     #[must_use]
     pub fn new_with(path: &str, method: LoadMethod) -> Self {
-        let query = LoadQuery::new(path, method);
+        let query = LoadQueryDyn::new(path, method);
 
         Self {
             query,
@@ -153,21 +176,6 @@ impl LoadQueryBuilderTrait for LoadQueryDynBuilder {
 
     fn limit_option(mut self, limit: Option<u32>) -> Self {
         self.query.limit = limit;
-        self
-    }
-
-    fn search(mut self, search: &[(String, String)]) -> Self {
-        self.query.search = search.to_vec();
-        self
-    }
-
-    fn order<T: Into<Order>>(mut self, order: T) -> Self {
-        self.query.order = Some(order.into());
-        self
-    }
-
-    fn order_option<T: Into<Order>>(mut self, order: Option<T>) -> Self {
-        self.query.order = order.map(Into::into);
         self
     }
 }

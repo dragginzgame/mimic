@@ -2,7 +2,7 @@ use crate::{
     Error,
     ic::call::Call,
     interface::InterfaceError,
-    query::{DeleteQuery, DeleteResponse, LoadQuery, LoadResponse, SaveQuery, SaveResponse},
+    query::{DeleteQueryDyn, DeleteResponse, LoadQuery, LoadResponse, SaveQuery, SaveResponse},
 };
 use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};
@@ -40,7 +40,7 @@ pub async fn query_load(canister_pid: Principal, query: LoadQuery) -> Result<Loa
 // query_delete
 pub async fn query_delete(
     canister_pid: Principal,
-    query: DeleteQuery,
+    query: DeleteQueryDyn,
 ) -> Result<DeleteResponse, Error> {
     let result = Call::unbounded_wait(canister_pid, "mimic_query_delete")
         .with_arg(&query)

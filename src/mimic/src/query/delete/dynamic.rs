@@ -3,7 +3,7 @@ use crate::{
     db::DbLocal,
     query::{
         DebugContext, QueryError, Resolver,
-        delete::{DeleteError, DeleteMethod, DeleteQuery, DeleteResponse},
+        delete::{DeleteError, DeleteMethod, DeleteQueryDyn, DeleteResponse},
     },
 };
 
@@ -19,6 +19,12 @@ impl DeleteQueryDynInit {
     #[must_use]
     pub fn new() -> Self {
         Self {}
+    }
+
+    // query
+    #[must_use]
+    pub fn query(self, query: DeleteQueryDyn) -> DeleteQueryDynBuilder {
+        DeleteQueryDynBuilder::new(query)
     }
 
     // one
@@ -48,14 +54,14 @@ impl DeleteQueryDynInit {
 
 #[derive(Default)]
 pub struct DeleteQueryDynBuilder {
-    query: DeleteQuery,
+    query: DeleteQueryDyn,
     debug: DebugContext,
 }
 
 impl DeleteQueryDynBuilder {
     // new
     #[must_use]
-    pub fn new(query: DeleteQuery) -> Self {
+    pub fn new(query: DeleteQueryDyn) -> Self {
         Self {
             query,
             ..Default::default()
@@ -65,7 +71,7 @@ impl DeleteQueryDynBuilder {
     // new_with
     #[must_use]
     pub fn new_with(path: &str, method: DeleteMethod) -> Self {
-        let query = DeleteQuery::new(path, method);
+        let query = DeleteQueryDyn::new(path, method);
 
         Self {
             query,
