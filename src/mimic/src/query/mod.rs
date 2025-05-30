@@ -3,14 +3,12 @@ pub mod load;
 pub mod resolver;
 pub mod save;
 pub mod traits;
-pub mod types;
 
 pub use delete::*;
 pub use load::*;
 pub use resolver::*;
 pub use save::*;
 pub use traits::*;
-pub use types::*;
 
 use crate::{SerializeError, ThisError, db::DbError, traits::Entity};
 use candid::CandidType;

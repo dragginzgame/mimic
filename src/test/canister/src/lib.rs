@@ -34,8 +34,10 @@ pub fn rarity() -> Result<Vec<Rarity>, MimicError> {
 
     let query = query::load::<Rarity>()
         .all()
-        .search(&[("name".to_string(), "ep".to_string())])
+        .search_field("name", "co")
+        .sort([("level", SortDirection::Desc)])
         .debug();
+
     let es = query.execute(&DB)?.entities();
 
     Ok(es)

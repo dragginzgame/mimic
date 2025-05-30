@@ -10,9 +10,9 @@ use crate::{
             LoadCollectionDyn, LoadError, LoadFormat, LoadMap, LoadMethod, LoadResponse, Loader,
         },
         traits::{LoadCollectionTrait, LoadQueryBuilderTrait},
-        types::Order,
     },
     traits::Entity,
+    types::SortDirection,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -29,7 +29,7 @@ pub struct LoadQuery {
     pub offset: u32,
     pub limit: Option<u32>,
     pub search: Vec<(String, String)>,
-    pub order: Option<Order>,
+    pub sort: Vec<(String, SortDirection)>,
 }
 
 impl LoadQuery {
@@ -155,22 +155,37 @@ impl<E: Entity> LoadQueryBuilder<E> {
     }
 
     // search
-    #[must_use]
-    pub fn search(mut self, search: &[(String, String)]) -> Self {
-        self.query.search = search.to_vec();
+    pub fn search<K, V, I>(mut self, search: I) -> Self
+    where
+        K: Into<String>,
+        V: Into<String>,
+        I: IntoIterator<Item = (K, V)>,
+    {
+        self.query.search = search
+            .into_iter()
+            .map(|(k, v)| (k.into(), v.into()))
+            .collect();
         self
     }
 
-    // order
-    pub fn order<T: Into<Order>>(mut self, order: T) -> Self {
-        self.query.order = Some(order.into());
+    // search_field
+    pub fn search_field<K: Into<String>, V: Into<String>>(self, field: K, value: V) -> Self {
+        self.search(std::iter::once((field, value)))
+    }
+
+    // sort
+    pub fn sort<T, I>(mut self, sort: I) -> Self
+    where
+        T: Into<String>,
+        I: IntoIterator<Item = (T, SortDirection)>,
+    {
+        self.query.sort = sort.into_iter().map(|(f, d)| (f.into(), d)).collect();
         self
     }
 
-    // order_option
-    pub fn order_option<T: Into<Order>>(mut self, order: Option<T>) -> Self {
-        self.query.order = order.map(Into::into);
-        self
+    // sort_field
+    pub fn sort_field<K: Into<String>>(self, field: K, dir: SortDirection) -> Self {
+        self.sort(std::iter::once((field, dir)))
     }
 
     // filter
@@ -309,8 +324,8 @@ where
 
         // sort
         let mut rows = rows;
-        if let Some(order) = &query.order {
-            let sorter = E::sort(order);
+        if !query.sort.is_empty() {
+            let sorter = E::sort(&query.sort);
             rows.sort_by(|a, b| sorter(&a.value.entity, &b.value.entity));
         }
 

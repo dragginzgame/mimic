@@ -2,10 +2,9 @@ use crate::{
     schema::{
         build::validate::validate_ident,
         node::{Arg, ValidateNode, Value, VisitableNode},
-        types::{Cardinality, SortDirection},
         visit::Visitor,
     },
-    types::ErrorTree,
+    types::{Cardinality, ErrorTree, SortDirection},
     utils::case::{Case, Casing},
 };
 use serde::{Deserialize, Serialize};

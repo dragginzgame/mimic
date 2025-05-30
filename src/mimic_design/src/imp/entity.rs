@@ -3,7 +3,7 @@ use crate::{
     node::{Cardinality, Entity, MacroNode, Trait},
 };
 use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
+use quote::{ToTokens, format_ident, quote};
 
 ///
 /// EntityTrait
@@ -160,7 +160,11 @@ pub struct EntitySortTrait {}
 
 impl Imp<Entity> for EntitySortTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
-        let mut inner = quote!();
+        let node_ident = &node.def.ident;
+
+        let mut asc_fns = quote!();
+        let mut desc_fns = quote!();
+        let mut match_arms = quote!();
 
         for field in &node.fields {
             if field.value.cardinality() == Cardinality::Many {
@@ -169,39 +173,50 @@ impl Imp<Entity> for EntitySortTrait {
 
             let field_ident = &field.name;
             let field_str = field_ident.to_string();
+            let asc_fn = format_ident!("asc_{field_ident}");
+            let desc_fn = format_ident!("desc_{field_ident}");
 
-            inner.extend(quote! {
-                #field_str => {
-                    if matches!(direction, ::mimic::schema::types::SortDirection::Asc) {
-                        funcs.push(Box::new(|a, b| ::mimic::traits::Orderable::cmp(&a.#field_ident, &b.#field_ident)));
-                    } else {
-                        funcs.push(Box::new(|a, b| ::mimic::traits::Orderable::cmp(&b.#field_ident, &a.#field_ident)));
-                    }
-                },
+            asc_fns.extend(quote! {
+                fn #asc_fn(a: &#node_ident, b: &#node_ident) -> ::std::cmp::Ordering {
+                    ::mimic::traits::Orderable::cmp(&a.#field_ident, &b.#field_ident)
+                }
+            });
+
+            desc_fns.extend(quote! {
+                fn #desc_fn(a: &#node_ident, b: &#node_ident) -> ::std::cmp::Ordering {
+                    ::mimic::traits::Orderable::cmp(&b.#field_ident, &a.#field_ident)
+                }
+            });
+
+            match_arms.extend(quote! {
+                (#field_str, ::mimic::types::SortDirection::Asc) => comps.push(#asc_fn),
+                (#field_str, ::mimic::types::SortDirection::Desc) => comps.push(#desc_fn),
             });
         }
 
-        // quote
         let q = quote! {
-            fn sort(order: &[(String, ::mimic::schema::types::SortDirection)]) -> Box<dyn Fn(&Self, &Self) -> ::std::cmp::Ordering> {
-                let mut funcs: Vec<Box<dyn Fn(&Self, &Self) -> ::std::cmp::Ordering>> = Vec::new();
+            fn sort(order: &[(String, ::mimic::types::SortDirection)])
+                -> Box<dyn Fn(&#node_ident, &#node_ident) -> ::std::cmp::Ordering>
+            {
+                #asc_fns
+                #desc_fns
 
-                for (field, direction) in order {
-                    match field.as_str() {
-                        #inner
-                        _ => (),
+                let mut comps: Vec<fn(&#node_ident, &#node_ident) -> ::std::cmp::Ordering> = Vec::new();
+
+                for (field, dir) in order {
+                    match (field.as_str(), dir) {
+                        #match_arms
+                        _ => {}
                     }
                 }
 
                 Box::new(move |a, b| {
-                    for func in &funcs {
-                        let result = func(a, b);
-
-                        if result != ::std::cmp::Ordering::Equal {
-                            return result;
+                    for cmp in &comps {
+                        let ord = cmp(a, b);
+                        if ord != ::std::cmp::Ordering::Equal {
+                            return ord;
                         }
                     }
-
                     ::std::cmp::Ordering::Equal
                 })
             }

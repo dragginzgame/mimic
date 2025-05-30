@@ -19,8 +19,7 @@ pub use std::{
 use crate::{
     SerializeError,
     base::types::{Relation, Ulid},
-    schema::types::SortDirection,
-    types::{ErrorTree, FixtureList},
+    types::{ErrorTree, FixtureList, SortDirection},
     visit::Visitor,
 };
 

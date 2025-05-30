@@ -1,11 +1,5 @@
 use crate::DB;
-use mimic::{
-    deserialize,
-    prelude::*,
-    query::{self, types::Order},
-    serialize,
-    traits::Path,
-};
+use mimic::{deserialize, prelude::*, query, serialize, traits::Path, types::SortDirection};
 use test_schema::Store;
 
 ///
@@ -58,7 +52,7 @@ impl DbTester {
         // Retrieve rows in B-Tree order
         let keys = query::load::<ContainsBlob>()
             .all()
-            .order(Order::from(vec!["id"]))
+            .sort_field("id", SortDirection::Asc)
             .execute(&DB)
             .unwrap()
             .keys();
@@ -142,7 +136,7 @@ impl DbTester {
         // Retrieve rows in B-Tree order
         let keys = query::load::<SortKeyOrder>()
             .all()
-            .order(Order::from(vec!["id"]))
+            .sort([("id", SortDirection::Asc)])
             .execute(&DB)
             .unwrap()
             .keys();
@@ -236,7 +230,7 @@ impl DbTester {
 
             let count = query::load::<Searchable>()
                 .all()
-                .search(&search)
+                .search(search.clone())
                 .execute(&DB)
                 .unwrap()
                 .count();

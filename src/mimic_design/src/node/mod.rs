@@ -160,9 +160,9 @@ pub enum Cardinality {
 impl Schemable for Cardinality {
     fn schema(&self) -> TokenStream {
         match &self {
-            Self::One => quote!(::mimic::schema::types::Cardinality::One),
-            Self::Opt => quote!(::mimic::schema::types::Cardinality::Opt),
-            Self::Many => quote!(::mimic::schema::types::Cardinality::Many),
+            Self::One => quote!(::mimic::types::Cardinality::One),
+            Self::Opt => quote!(::mimic::types::Cardinality::Opt),
+            Self::Many => quote!(::mimic::types::Cardinality::Many),
         }
     }
 }
@@ -202,7 +202,7 @@ impl Schemable for ConstantType {
     fn schema(&self) -> TokenStream {
         let ident = format_ident!("{}", self.to_string());
 
-        quote!(::mimic::schema::types::ConstantType::#ident)
+        quote!(::mimic::types::ConstantType::#ident)
     }
 }
 
@@ -402,7 +402,7 @@ impl Schemable for PrimitiveType {
     fn schema(&self) -> TokenStream {
         let ident = format_ident!("{}", self.to_string());
 
-        quote!(::mimic::schema::types::PrimitiveType::#ident)
+        quote!(::mimic::types::PrimitiveType::#ident)
     }
 }
 
@@ -467,7 +467,7 @@ impl Schemable for PrimitiveGroup {
     fn schema(&self) -> TokenStream {
         let ident = format_ident!("{}", self.to_string());
 
-        quote!(::mimic::schema::types::PrimitiveGroup::#ident)
+        quote!(::mimic::types::PrimitiveGroup::#ident)
     }
 }
 
@@ -487,8 +487,8 @@ pub enum SortDirection {
 impl Schemable for SortDirection {
     fn schema(&self) -> TokenStream {
         match &self {
-            Self::Asc => quote!(::mimic::schema::types::SortDirection::Asc),
-            Self::Desc => quote!(::mimic::schema::types::SortDirection::Desc),
+            Self::Asc => quote!(::mimic::types::SortDirection::Asc),
+            Self::Desc => quote!(::mimic::types::SortDirection::Desc),
         }
     }
 }
@@ -496,8 +496,8 @@ impl Schemable for SortDirection {
 impl ToTokens for SortDirection {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let ts = match self {
-            Self::Asc => quote!(::mimic::schema::types::SortDirection::Asc),
-            Self::Desc => quote!(::mimic::schema::types::SortDirection::Desc),
+            Self::Asc => quote!(::mimic::types::SortDirection::Asc),
+            Self::Desc => quote!(::mimic::types::SortDirection::Desc),
         };
         tokens.extend(ts);
     }
