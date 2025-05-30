@@ -1,3 +1,4 @@
+#![allow(clippy::type_complexity)]
 use crate::{
     Error,
     db::{
@@ -64,6 +65,12 @@ where
         Self::default()
     }
 
+    // query
+    #[must_use]
+    pub fn query(self, query: LoadQuery) -> LoadQueryBuilder<E> {
+        LoadQueryBuilder::new(query)
+    }
+
     // method
     #[must_use]
     pub fn method(self, method: LoadMethod) -> LoadQueryBuilder<E> {
@@ -120,8 +127,6 @@ where
 /// LoadQueryBuilder
 ///
 
-#[allow(clippy::type_complexity)]
-#[derive(Default)]
 pub struct LoadQueryBuilder<E>
 where
     E: Entity,
@@ -138,7 +143,7 @@ impl<E: Entity> LoadQueryBuilder<E> {
         Self {
             query,
             filters: vec![],
-            ..Default::default()
+            debug: DebugContext::default(),
         }
     }
 
@@ -150,7 +155,7 @@ impl<E: Entity> LoadQueryBuilder<E> {
         Self {
             query,
             filters: vec![],
-            ..Default::default()
+            debug: DebugContext::default(),
         }
     }
 
@@ -215,13 +220,13 @@ impl<E: Entity> LoadQueryBuilder<E> {
     // execute
     // excutes the query and returns a collection
     pub fn execute(self, db: DbLocal) -> Result<LoadCollection<E>, Error> {
-        let executor = LoadQueryExecutor::<E>::new(self);
+        let executor = LoadQueryExecutor::<E>::new(self.query, self.filters, self.debug);
         executor.execute(db)
     }
 
     // response
     pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
-        let executor = LoadQueryExecutor::<E>::new(self);
+        let executor = LoadQueryExecutor::<E>::new(self.query, self.filters, self.debug);
         executor.response(db)
     }
 }
@@ -264,7 +269,9 @@ pub struct LoadQueryExecutor<E>
 where
     E: Entity,
 {
-    builder: LoadQueryBuilder<E>,
+    query: LoadQuery,
+    filters: Vec<Box<dyn Fn(&E) -> bool>>,
+    debug: DebugContext,
 }
 
 impl<E> LoadQueryExecutor<E>
@@ -273,17 +280,23 @@ where
 {
     // new
     #[must_use]
-    pub const fn new(builder: LoadQueryBuilder<E>) -> Self {
-        Self { builder }
+    pub fn new(
+        query: LoadQuery,
+        filters: Vec<Box<dyn Fn(&E) -> bool>>,
+        debug: DebugContext,
+    ) -> Self {
+        Self {
+            query,
+            filters,
+            debug,
+        }
     }
 
     // execute
     pub fn execute(self, db: DbLocal) -> Result<LoadCollection<E>, Error> {
-        let query = &self.builder.query;
+        let query = &self.query;
 
-        self.builder
-            .debug
-            .println(&format!("query.load: {query:?}"));
+        self.debug.println(&format!("query.load: {query:?}"));
 
         // loader
         let resolver = Resolver::new(E::PATH);
@@ -312,11 +325,7 @@ where
                 };
 
                 // run additional filters
-                let matches_all_closures = self
-                    .builder
-                    .filters
-                    .iter()
-                    .all(|filter_fn| filter_fn(entity));
+                let matches_all_closures = self.filters.iter().all(|filter_fn| filter_fn(entity));
 
                 matches_search && matches_all_closures
             })
@@ -341,7 +350,7 @@ where
 
     // response
     pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
-        let format = self.builder.query.format.clone();
+        let format = self.query.format.clone();
         let collection = self.execute(db)?;
 
         let response = match format {

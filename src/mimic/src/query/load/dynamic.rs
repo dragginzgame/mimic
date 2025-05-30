@@ -113,7 +113,6 @@ impl LoadQueryDynInit {
 /// LoadQueryDynBuilder
 ///
 
-#[derive(Default)]
 pub struct LoadQueryDynBuilder {
     query: LoadQueryDyn,
     debug: DebugContext,
@@ -125,30 +124,34 @@ impl LoadQueryDynBuilder {
     pub fn new(query: LoadQueryDyn) -> Self {
         Self {
             query,
-            ..Default::default()
+            debug: DebugContext::default(),
         }
     }
 
     // new_with
     #[must_use]
     pub fn new_with(path: &str, method: LoadMethod) -> Self {
-        let query = LoadQueryDyn::new(path, method);
-
         Self {
-            query,
-            ..Default::default()
+            query: LoadQueryDyn::new(path, method),
+            debug: DebugContext::default(),
         }
+    }
+
+    // query
+    #[must_use]
+    pub fn query(self) -> LoadQueryDyn {
+        self.query
     }
 
     // execute
     pub fn execute(self, db: DbLocal) -> Result<LoadCollectionDyn, Error> {
-        let executor = LoadQueryDynExecutor::new(self);
+        let executor = LoadQueryDynExecutor::new(self.query, self.debug);
         executor.execute(db)
     }
 
     // response
     pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
-        let executor = LoadQueryDynExecutor::new(self);
+        let executor = LoadQueryDynExecutor::new(self.query, self.debug);
         executor.response(db)
     }
 }
@@ -185,22 +188,29 @@ impl LoadQueryBuilderTrait for LoadQueryDynBuilder {
 ///
 
 pub struct LoadQueryDynExecutor {
-    builder: LoadQueryDynBuilder,
+    query: LoadQueryDyn,
+    debug: DebugContext,
     resolver: Resolver,
 }
 
 impl LoadQueryDynExecutor {
     // new
     #[must_use]
-    pub fn new(builder: LoadQueryDynBuilder) -> Self {
-        let resolver = Resolver::new(&builder.query.path);
+    pub fn new(query: LoadQueryDyn, debug: DebugContext) -> Self {
+        let resolver = Resolver::new(&query.path);
 
-        Self { builder, resolver }
+        Self {
+            query,
+            debug,
+            resolver,
+        }
     }
 
     // execute
     pub fn execute(self, db: DbLocal) -> Result<LoadCollectionDyn, Error> {
-        let query = &self.builder.query;
+        let query = &self.query;
+
+        self.debug.println(&format!("query.load_dyn: {query:?}"));
 
         // loader
         let loader = Loader::new(db, self.resolver);
@@ -217,7 +227,7 @@ impl LoadQueryDynExecutor {
 
     // response
     pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
-        let format = self.builder.query.format.clone();
+        let format = self.query.format.clone();
         let collection = self.execute(db)?;
 
         let response = match format {

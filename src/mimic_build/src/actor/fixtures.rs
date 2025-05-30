@@ -26,8 +26,8 @@ fn fixtures(builder: &ActorBuilder) -> TokenStream {
             fixtures: ::mimic::types::FixtureList,
         ) -> Result<(), ::mimic::Error> {
             for entity in fixtures {
-                ::mimic::query::replace_dyn()
-                    .from_entity_dyn(entity)
+                ::mimic::query::replace()
+                    .entity_dyn(entity)
                   //  .debug()
                     .execute(&DB)?;
             }

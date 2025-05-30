@@ -52,64 +52,33 @@ pub fn load_dyn() -> LoadQueryDynInit {
 }
 
 // delete
-// NYI
-//#[must_use]
-//pub fn delete<E: Entity>() -> DeleteQueryInit<E> {
-//    DeleteQueryInit::<E>::new()
-//}
-
-// delete_dyn
 #[must_use]
-pub fn delete_dyn() -> DeleteQueryDynInit {
-    DeleteQueryDynInit::new()
+pub fn delete() -> DeleteQueryInit {
+    DeleteQueryInit::new()
 }
 
 // save
 #[must_use]
-pub const fn save<E: Entity>(mode: SaveMode) -> SaveBuilder<E> {
-    SaveBuilder::<E>::new(mode)
-}
-
-// save_dyn
-#[must_use]
-pub const fn save_dyn(mode: SaveMode) -> SaveBuilderDyn {
-    SaveBuilderDyn::new(mode)
+pub const fn save() -> SaveQueryInit {
+    SaveQueryInit::new()
 }
 
 // create
 #[must_use]
-pub const fn create<E: Entity>() -> SaveBuilder<E> {
-    SaveBuilder::<E>::new(SaveMode::Create)
-}
-
-// create_dyn
-#[must_use]
-pub const fn create_dyn() -> SaveBuilderDyn {
-    SaveBuilderDyn::new(SaveMode::Create)
-}
-
-// replace
-#[must_use]
-pub const fn replace<E: Entity>() -> SaveBuilder<E> {
-    SaveBuilder::<E>::new(SaveMode::Replace)
-}
-
-// replace_dyn
-#[must_use]
-pub const fn replace_dyn() -> SaveBuilderDyn {
-    SaveBuilderDyn::new(SaveMode::Replace)
+pub const fn create() -> SaveQueryModeInit {
+    SaveQueryModeInit::new(SaveMode::Create)
 }
 
 // update
 #[must_use]
-pub const fn update<E: Entity>() -> SaveBuilder<E> {
-    SaveBuilder::<E>::new(SaveMode::Update)
+pub const fn update() -> SaveQueryModeInit {
+    SaveQueryModeInit::new(SaveMode::Update)
 }
 
-// update_dyn
+// replace
 #[must_use]
-pub const fn update_dyn() -> SaveBuilderDyn {
-    SaveBuilderDyn::new(SaveMode::Update)
+pub const fn replace() -> SaveQueryModeInit {
+    SaveQueryModeInit::new(SaveMode::Replace)
 }
 
 ///

@@ -33,8 +33,9 @@ fn mimic_query_load(builder: &ActorBuilder) -> TokenStream {
 
             load_entities.extend(quote! {
                 #entity_path => {
-                    let builder = ::mimic::query::LoadQueryBuilder::<#generic>::new(query.clone());
-                    builder.response(&DB)
+                    let query = ::mimic::query::load::<#generic>().query(query);
+
+                    query.response(&DB)
                 }
             });
         }
@@ -70,7 +71,7 @@ fn mimic_query_save(builder: &ActorBuilder) -> TokenStream {
     let inner = if entities.is_empty() {
         // if there are no entities return an error
         quote! {
-            Err(::mimic::interface::query::QueryError::EntityNotFound(query.path.to_string()))
+            Err(::mimic::interface::query::QueryError::EntityNotFound(path))
                 .map_err(::mimic::interface::InterfaceError::from)?
         }
     } else {
@@ -80,17 +81,19 @@ fn mimic_query_save(builder: &ActorBuilder) -> TokenStream {
             let generic: Path = parse_str(&entity_path).unwrap();
 
             save_entities.extend(quote! {
-                #entity_path => executor.execute::<#generic>(&DB),
+                #entity_path => {
+                    let query = ::mimic::query::save().query::<#generic>(query)?;
+
+                    query.execute(&DB)
+                }
             });
         }
 
         quote! {
-            let executor = ::mimic::query::SaveExecutor::new(query.clone());
-            let path = &query.path;
             let res = match path.as_str() {
                 #save_entities
 
-                _ => return Err(::mimic::interface::query::QueryError::EntityNotFound(query.path.to_string()))
+                _ => return Err(::mimic::interface::query::QueryError::EntityNotFound(path))
                     .map_err(::mimic::interface::InterfaceError::from)?
             }?;
 
@@ -102,6 +105,7 @@ fn mimic_query_save(builder: &ActorBuilder) -> TokenStream {
         #[::mimic::ic::update]
         #[allow(unused_variables)]
         pub fn mimic_query_save(
+            path: String,
             query: ::mimic::query::SaveQuery
         ) -> Result<::mimic::query::SaveResponse, ::mimic::Error> {
             #inner
@@ -115,9 +119,9 @@ fn mimic_query_delete(_builder: &ActorBuilder) -> TokenStream {
         #[::mimic::ic::update]
         #[allow(unused_variables)]
         pub fn mimic_query_delete(
-            query: ::mimic::query::DeleteQueryDyn,
+            query: ::mimic::query::DeleteQuery,
         ) -> Result<::mimic::query::DeleteResponse, ::mimic::Error> {
-            let query = ::mimic::query::delete_dyn().query(query);
+            let query = ::mimic::query::delete().query(query);
 
             query.execute(&DB)
         }

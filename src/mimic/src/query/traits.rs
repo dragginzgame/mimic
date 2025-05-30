@@ -9,7 +9,6 @@ use crate::{
 
 pub trait LoadQueryBuilderTrait {
     fn debug(self) -> Self;
-
     fn format(self, format: LoadFormat) -> Self;
     fn offset(self, offset: u32) -> Self;
     fn limit(self, limit: u32) -> Self;

@@ -46,7 +46,7 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = ContainsBlob::default();
-            query::create_dyn().from_entity(e).execute(&DB).unwrap();
+            query::create().entity(e).execute(&DB).unwrap();
         }
 
         // Retrieve rows in B-Tree order
@@ -71,7 +71,7 @@ impl DbTester {
         use test_schema::db::CreateBasic;
 
         let e = CreateBasic::default();
-        query::create_dyn().from_entity(e).execute(&DB).unwrap();
+        query::create().entity(e).execute(&DB).unwrap();
 
         // count keys
         assert_eq!(
@@ -86,7 +86,7 @@ impl DbTester {
 
         // insert another
         let e = CreateBasic::default();
-        query::create_dyn().from_entity(e).execute(&DB).unwrap();
+        query::create().entity(e).execute(&DB).unwrap();
 
         // count keys
         assert_eq!(
@@ -107,7 +107,7 @@ impl DbTester {
         // insert rows
         for _ in 0..ROWS {
             let e = CreateBasic::default();
-            query::create_dyn().from_entity(e).execute(&DB).unwrap();
+            query::create().entity(e).execute(&DB).unwrap();
         }
 
         // Retrieve the count from the store
@@ -130,7 +130,7 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = SortKeyOrder::default();
-            query::create_dyn().from_entity(e).execute(&DB).unwrap();
+            query::create().entity(e).execute(&DB).unwrap();
         }
 
         // Retrieve rows in B-Tree order
@@ -177,11 +177,7 @@ impl DbTester {
                 description: description.into(),
             };
 
-            query::replace_dyn()
-                .from_entity(e)
-                .debug()
-                .execute(&DB)
-                .unwrap();
+            query::replace().entity(e).debug().execute(&DB).unwrap();
         }
 
         // Each test is: field filters -> expected match count
@@ -251,7 +247,7 @@ impl DbTester {
         // overwrite the ulid with replace()
         for value in 1..100 {
             let e = Limit { value };
-            query::replace_dyn().from_entity(e).execute(&DB).unwrap();
+            query::replace().entity(e).execute(&DB).unwrap();
         }
 
         // Test various limits and offsets
