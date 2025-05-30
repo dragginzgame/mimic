@@ -1,7 +1,7 @@
 use crate::DB;
 use mimic::{
     deserialize,
-    prelude_actor::*,
+    prelude::*,
     query::{self, types::Order},
     serialize,
     traits::Path,

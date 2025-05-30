@@ -3,7 +3,7 @@ mod default;
 mod validate;
 
 use icu::{ic::export_candid, prelude::*};
-use mimic::prelude_actor::*;
+use mimic::prelude::*;
 
 //
 // INIT
