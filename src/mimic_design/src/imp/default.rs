@@ -1,6 +1,6 @@
 use crate::{
     imp::{Imp, Implementor},
-    node::{Arg, Entity, FieldList, Newtype, Record, Trait},
+    node::{Arg, Entity, Field, Newtype, Record, Trait},
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -42,10 +42,10 @@ impl Imp<Record> for DefaultTrait {
 }
 
 // field_list
-fn field_list(node: &FieldList) -> TokenStream {
+fn field_list(fields: &[Field]) -> TokenStream {
     // inner
     let mut inner = quote!();
-    for field in &node.fields {
+    for field in fields {
         let name = &field.name;
 
         if let Some(default) = &field.default {

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.4.1]
 - filter renamed search.  Filtering queries is now done using a closure like the rest of the rust ecosystem
+- added search for Cardinality::Many, performance improvements
+- EntityDyn now supports EntitySearchDyn
+- removed FieldList as it wasn't adding anything
+- renamed the existing delete query to DeleteQueryDyn, and made it work like Load
 
 ## [0.4.0]
 - breaking changes!  mimic_end is gone, moved a lot of things to ICU

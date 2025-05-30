@@ -1,7 +1,7 @@
 use crate::{
     schema::{
         node::{
-            Def, FieldList, Index, MacroNode, SortKey, Type, TypeNode, ValidateNode, VisitableNode,
+            Def, Field, Index, MacroNode, SortKey, Type, TypeNode, ValidateNode, VisitableNode,
         },
         visit::Visitor,
     },
@@ -24,10 +24,18 @@ pub struct Entity {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub indexes: Vec<Index>,
 
-    pub fields: FieldList,
+    pub fields: Vec<Field>,
 
     #[serde(default, skip_serializing_if = "Type::skip_serializing")]
     pub ty: Type,
+}
+
+impl Entity {
+    // get_field
+    #[must_use]
+    pub fn get_field(&self, name: &str) -> Option<&Field> {
+        self.fields.iter().find(|f| f.name == name)
+    }
 }
 
 impl MacroNode for Entity {
@@ -66,7 +74,7 @@ impl ValidateNode for Entity {
 
             match &sk.field {
                 Some(field_name) => {
-                    match self.fields.get_field(field_name) {
+                    match self.get_field(field_name) {
                         Some(field) => {
                             // no relations
                             if field.value.item.is_relation() {
@@ -81,7 +89,7 @@ impl ValidateNode for Entity {
                     }
                 }
                 None => {
-                    if self.fields.get_field("id").is_some() {
+                    if self.get_field("id").is_some() {
                         errs.add("sort key is missing a field, but entity has an 'id' field — you must specify it explicitly");
                     }
                 }
@@ -91,7 +99,7 @@ impl ValidateNode for Entity {
         // indexes
         for index in &self.indexes {
             for field in &index.fields {
-                if self.fields.get_field(field).is_none() {
+                if self.get_field(field).is_none() {
                     errs.add(format!("index field '{field}' does not exist"));
                 }
             }
@@ -114,7 +122,9 @@ impl VisitableNode for Entity {
         for node in &self.indexes {
             node.accept(v);
         }
-        self.fields.accept(v);
+        for node in &self.fields {
+            node.accept(v);
+        }
         self.ty.accept(v);
     }
 }

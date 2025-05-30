@@ -11,33 +11,6 @@ use crate::{
 use serde::{Deserialize, Serialize};
 
 ///
-/// FieldList
-///
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct FieldList {
-    pub fields: Vec<Field>,
-}
-
-impl FieldList {
-    // get_field
-    #[must_use]
-    pub fn get_field(&self, name: &str) -> Option<&Field> {
-        self.fields.iter().find(|f| f.name == name)
-    }
-}
-
-impl ValidateNode for FieldList {}
-
-impl VisitableNode for FieldList {
-    fn drive<V: Visitor>(&self, v: &mut V) {
-        for node in &self.fields {
-            node.accept(v);
-        }
-    }
-}
-
-///
 /// Field
 ///
 

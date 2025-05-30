@@ -7,7 +7,7 @@ use mimic::{base::types, prelude::*};
 #[entity(
     store = "crate::Store",
     sk(entity = "CreateBasic", field = "id"),
-    fields(field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"))
+    field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate")
 )]
 pub struct CreateBasic {}
 
@@ -18,11 +18,9 @@ pub struct CreateBasic {}
 #[entity(
     store = "crate::Store",
     sk(entity = "Searchable", field = "id"),
-    fields(
-        field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
-        field(name = "name", value(item(is = "types::Text"))),
-        field(name = "description", value(item(is = "types::Text"))),
-    )
+    field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
+    field(name = "name", value(item(is = "types::Text"))),
+    field(name = "description", value(item(is = "types::Text")))
 )]
 pub struct Searchable {}
 
@@ -33,7 +31,7 @@ pub struct Searchable {}
 #[entity(
     store = "crate::Store",
     sk(entity = "Limit", field = "value"),
-    fields(field(name = "value", value(item(is = "types::Nat32"))))
+    field(name = "value", value(item(is = "types::Nat32")))
 )]
 pub struct Limit {}
 
@@ -44,7 +42,7 @@ pub struct Limit {}
 #[entity(
     store = "crate::Store",
     sk(entity = "SortKeyOrder", field = "id"),
-    fields(field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"))
+    field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate")
 )]
 pub struct SortKeyOrder {}
 
@@ -55,7 +53,7 @@ pub struct SortKeyOrder {}
 #[entity(
     store = "crate::Store",
     sk(entity = "SortKeyA", field = "a_id"),
-    fields(field(name = "a_id", value(item(is = "Ulid")), default = "Ulid::generate"))
+    field(name = "a_id", value(item(is = "Ulid")), default = "Ulid::generate")
 )]
 pub struct SortKeyA {}
 
@@ -67,10 +65,8 @@ pub struct SortKeyA {}
     store = "crate::Store",
     sk(entity = "SortKeyA", field = "a_id"),
     sk(entity = "SortKeyB", field = "b_id"),
-    fields(
-        field(name = "a_id", value(item(is = "Ulid"))),
-        field(name = "b_id", value(item(is = "Ulid")), default = "Ulid::generate"),
-    )
+    field(name = "a_id", value(item(is = "Ulid"))),
+    field(name = "b_id", value(item(is = "Ulid")), default = "Ulid::generate")
 )]
 pub struct SortKeyB {}
 
@@ -83,11 +79,9 @@ pub struct SortKeyB {}
     sk(entity = "SortKeyA", field = "a_id"),
     sk(entity = "SortKeyB", field = "b_id"),
     sk(entity = "SortKeyC", field = "c_id"),
-    fields(
-        field(name = "a_id", value(item(is = "Ulid"))),
-        field(name = "b_id", value(item(is = "Ulid"))),
-        field(name = "c_id", value(item(is = "Ulid")), default = "Ulid::generate"),
-    )
+    field(name = "a_id", value(item(is = "Ulid"))),
+    field(name = "b_id", value(item(is = "Ulid"))),
+    field(name = "c_id", value(item(is = "Ulid")), default = "Ulid::generate")
 )]
 pub struct SortKeyC {}
 
@@ -96,10 +90,8 @@ pub struct SortKeyC {}
 ///
 
 #[record(
-    fields(
-        field(name = "a_id", value(item(is = "types::Ulid"))),
-        field(name = "b_id", value(item(is = "types::Ulid"))),
-    ),
+    field(name = "a_id", value(item(is = "types::Ulid"))),
+    field(name = "b_id", value(item(is = "types::Ulid"))),
     traits(add(Default))
 )]
 pub struct MissingFieldSmall {}
@@ -109,11 +101,9 @@ pub struct MissingFieldSmall {}
 ///
 
 #[record(
-    fields(
-        field(name = "a_id", value(item(is = "types::Ulid"))),
-        field(name = "b_id", value(item(is = "types::Ulid"))),
-        field(name = "c_id", value(item(is = "types::Ulid"))),
-    ),
+    field(name = "a_id", value(item(is = "types::Ulid"))),
+    field(name = "b_id", value(item(is = "types::Ulid"))),
+    field(name = "c_id", value(item(is = "types::Ulid"))),
     traits(add(Default))
 )]
 pub struct MissingFieldLarge {}
@@ -125,9 +115,7 @@ pub struct MissingFieldLarge {}
 #[entity(
     store = "crate::Store",
     sk(entity = "ContainsBlob", field = "id"),
-    fields(
-        field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
-        field(name = "bytes", value(item(is = "types::Blob"))),
-    )
+    field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
+    field(name = "bytes", value(item(is = "types::Blob")))
 )]
 pub struct ContainsBlob {}

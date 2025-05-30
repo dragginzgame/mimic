@@ -1,7 +1,7 @@
 use crate::{
     imp::{Imp, Implementor},
     node::{
-        Cardinality, Entity, Enum, EnumVariant, FieldList, List, Map, Newtype, Record, Set, Trait,
+        Cardinality, Entity, Enum, EnumVariant, Field, List, Map, Newtype, Record, Set, Trait,
         Tuple, Value,
     },
 };
@@ -187,9 +187,9 @@ impl Imp<Tuple> for VisitableTrait {
 //
 
 // field_list
-pub fn field_list(node: &FieldList) -> TokenStream {
+pub fn field_list(fields: &[Field]) -> TokenStream {
     let mut inner = quote!();
-    for f in &node.fields {
+    for f in fields {
         let var = format!("self.{}", f.name);
         let key = f.name.to_string();
         let var_expr: Expr = syn::parse_str(&var).expect("can parse");

@@ -1,6 +1,7 @@
 use crate::{
+    helper::quote_vec,
     imp::{self, Imp},
-    node::{Def, FieldList, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type},
+    node::{Def, Field, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -16,14 +17,21 @@ pub struct Record {
     #[darling(default, skip)]
     pub def: Def,
 
-    #[darling(default)]
-    pub fields: FieldList,
+    #[darling(multiple, rename = "field")]
+    pub fields: Vec<Field>,
 
     #[darling(default)]
     pub traits: Traits,
 
     #[darling(default)]
     pub ty: Type,
+}
+
+impl Record {
+    // has_default
+    pub fn has_default(&self) -> bool {
+        self.fields.iter().any(|f| f.default.is_some())
+    }
 }
 
 impl Node for Record {
@@ -38,7 +46,7 @@ impl Node for Record {
             #schema
             #derive
             pub struct #ident {
-                #fields
+                #(#fields,)*
             }
             #impls
         };
@@ -62,7 +70,7 @@ impl MacroNode for Record {
 impl Schemable for Record {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
-        let fields = self.fields.schema();
+        let fields = quote_vec(&self.fields, Field::schema);
         let ty = self.ty.schema();
 
         quote! {
@@ -85,9 +93,7 @@ impl TraitNode for Record {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::Default if self.fields.has_default() => imp::DefaultTrait::tokens(self, t),
-            Trait::FieldSearch => imp::FieldSearchTrait::tokens(self, t),
-            Trait::FieldSort => imp::FieldSortTrait::tokens(self, t),
+            Trait::Default if self.has_default() => imp::DefaultTrait::tokens(self, t),
             Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => imp::VisitableTrait::tokens(self, t),
 

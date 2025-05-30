@@ -8,11 +8,9 @@ use crate::{
 ///
 
 #[record(
-    fields(
-        field(name = "r", value(item(is = "types::Nat8"))),
-        field(name = "g", value(item(is = "types::Nat8"))),
-        field(name = "b", value(item(is = "types::Nat8")))
-    ),
+    field(name = "r", value(item(is = "types::Nat8"))),
+    field(name = "g", value(item(is = "types::Nat8"))),
+    field(name = "b", value(item(is = "types::Nat8"))),
     traits(add(Default))
 )]
 pub struct Rgb {}
@@ -56,12 +54,10 @@ impl TryFrom<&str> for Rgb {
 ///
 
 #[record(
-    fields(
-        field(name = "r", value(item(is = "types::Nat8"))),
-        field(name = "g", value(item(is = "types::Nat8"))),
-        field(name = "b", value(item(is = "types::Nat8"))),
-        field(name = "a", value(item(is = "types::Nat8")))
-    ),
+    field(name = "r", value(item(is = "types::Nat8"))),
+    field(name = "g", value(item(is = "types::Nat8"))),
+    field(name = "b", value(item(is = "types::Nat8"))),
+    field(name = "a", value(item(is = "types::Nat8"))),
     traits(add(Default))
 )]
 pub struct Rgba {}

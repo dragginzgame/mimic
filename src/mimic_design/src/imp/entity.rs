@@ -1,20 +1,15 @@
 use crate::{
     imp::{Imp, Implementor},
-    node::{Entity, Trait},
+    node::{Cardinality, Entity, MacroNode, Trait},
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::Ident;
 
 ///
 /// EntityTrait
 ///
 
 pub struct EntityTrait {}
-
-///
-/// Entity
-///
 
 impl Imp<Entity> for EntityTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
@@ -36,10 +31,6 @@ impl Imp<Entity> for EntityTrait {
 ///
 
 pub struct EntityDynTrait {}
-
-///
-/// Entity
-///
 
 impl Imp<Entity> for EntityDynTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
@@ -77,8 +68,10 @@ fn id(node: &Entity) -> TokenStream {
 
 // composite_key
 fn composite_key(node: &Entity) -> TokenStream {
-    let parts = entity_get_fields(node)
-        .into_iter()
+    let parts = node
+        .sort_keys
+        .iter()
+        .filter_map(|sk| sk.field.clone())
         .map(|field| quote!(::mimic::traits::SortKeyValue::format(&self.#field)));
 
     // quote
@@ -101,12 +94,123 @@ fn store(node: &Entity) -> TokenStream {
 }
 
 ///
-/// Helper
+/// EntitySearchTrait
 ///
 
-fn entity_get_fields(node: &Entity) -> Vec<Ident> {
-    node.sort_keys
-        .iter()
-        .filter_map(|sk| sk.field.clone())
-        .collect::<Vec<_>>()
+pub struct EntitySearchTrait {}
+
+impl Imp<Entity> for EntitySearchTrait {
+    fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
+        let ident = &node.def.ident;
+
+        let field_fns: Vec<_> = node
+            .fields
+            .iter()
+            .map(|field| {
+                let name = &field.name;
+                let name_str = name.to_string();
+
+              match field.value.cardinality() {
+                    Cardinality::One => quote! {
+                        ( #name_str, |s: &#ident, text|
+                            ::mimic::traits::Searchable::contains_text(&s.#name, text)
+                        )
+                    },
+                    Cardinality::Opt => quote! {
+                        ( #name_str, |s: &#ident, text|
+                            s.#name.as_ref().map_or(false, |v| ::mimic::traits::Searchable::contains_text(v, text))
+                        )
+                    },
+                    Cardinality::Many => quote! {
+                        ( #name_str, |s: &#ident, text|
+                             s.#name.iter().any(|v| ::mimic::traits::Searchable::contains_text(v, text))
+                        )
+                    },
+                }
+            })
+            .collect();
+
+        let q = quote! {
+            fn search_field(&self, field: &str, text: &str) -> bool {
+                static SEARCH_FIELDS: &[(&str, fn(&#ident, &str) -> bool)] = &[
+                    #(#field_fns),*
+                ];
+
+                SEARCH_FIELDS
+                    .iter()
+                    .find(|(name, _)| *name == field)
+                    .map(|(_, f)| f(self, text))
+                    .unwrap_or(false)
+            }
+        };
+
+        let tokens = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(tokens)
+    }
+}
+
+///
+/// EntitySortTrait
+///
+
+pub struct EntitySortTrait {}
+
+impl Imp<Entity> for EntitySortTrait {
+    fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
+        let mut inner = quote!();
+
+        for field in &node.fields {
+            if field.value.cardinality() == Cardinality::Many {
+                continue;
+            }
+
+            let field_ident = &field.name;
+            let field_str = field_ident.to_string();
+
+            inner.extend(quote! {
+                #field_str => {
+                    if matches!(direction, ::mimic::schema::types::SortDirection::Asc) {
+                        funcs.push(Box::new(|a, b| ::mimic::traits::Orderable::cmp(&a.#field_ident, &b.#field_ident)));
+                    } else {
+                        funcs.push(Box::new(|a, b| ::mimic::traits::Orderable::cmp(&b.#field_ident, &a.#field_ident)));
+                    }
+                },
+            });
+        }
+
+        // quote
+        let q = quote! {
+            fn sort(order: &[(String, ::mimic::schema::types::SortDirection)]) -> Box<dyn Fn(&Self, &Self) -> ::std::cmp::Ordering> {
+                let mut funcs: Vec<Box<dyn Fn(&Self, &Self) -> ::std::cmp::Ordering>> = Vec::new();
+
+                for (field, direction) in order {
+                    match field.as_str() {
+                        #inner
+                        _ => (),
+                    }
+                }
+
+                Box::new(move |a, b| {
+                    for func in &funcs {
+                        let result = func(a, b);
+
+                        if result != ::std::cmp::Ordering::Equal {
+                            return result;
+                        }
+                    }
+
+                    ::std::cmp::Ordering::Equal
+                })
+            }
+        };
+
+        let tokens = Implementor::new(node.def(), t)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(tokens)
+    }
 }

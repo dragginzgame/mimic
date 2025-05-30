@@ -62,7 +62,7 @@ fn save<'a>(
     let key = resolver.data_key(&ck).map_err(QueryError::from)?;
 
     // debug
-    debug.println(&format!("store.{mode}: {key}",));
+    debug.println(&format!("query.{mode}: {key}",));
 
     // serialize
     let data: Vec<u8> = entity.serialize()?;

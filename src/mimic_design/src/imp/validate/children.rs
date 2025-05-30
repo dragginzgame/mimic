@@ -1,6 +1,6 @@
 use crate::{
     imp::ImpFn,
-    node::{Cardinality, Entity, FieldList, List, Map, Newtype, Record, Set, TypeValidator, Value},
+    node::{Cardinality, Entity, Field, List, Map, Newtype, Record, Set, TypeValidator, Value},
 };
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -119,9 +119,8 @@ impl ImpFn<Set> for ValidateChildrenFunction {
 /// Helper Functions
 ///
 
-fn field_list(fields: &FieldList) -> Option<TokenStream> {
+fn field_list(fields: &[Field]) -> Option<TokenStream> {
     let field_validations: Vec<TokenStream> = fields
-        .fields
         .iter()
         .filter_map(|field| {
             let field_ident = &field.name;

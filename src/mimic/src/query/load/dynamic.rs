@@ -8,7 +8,7 @@ use crate::{
         DebugContext, QueryError, Resolver,
         load::{LoadError, LoadFormat, LoadMethod, LoadQuery, LoadResponse, Loader},
         traits::{LoadCollectionTrait, LoadQueryBuilderTrait},
-        types::{Order, Search},
+        types::Order,
     },
 };
 use candid::CandidType;
@@ -156,28 +156,8 @@ impl LoadQueryBuilderTrait for LoadQueryDynBuilder {
         self
     }
 
-    fn search<S: Into<Search>>(mut self, search: S) -> Self {
-        self.query.search = Some(search.into());
-        self
-    }
-
-    fn search_option(mut self, search: Option<Search>) -> Self {
-        self.query.search = search;
-        self
-    }
-
-    fn search_all(mut self, text: &str) -> Self {
-        self.query.search = Some(Search::all(text.to_string()));
-        self
-    }
-
-    fn search_fields<I, K, V>(mut self, fields: I) -> Self
-    where
-        I: IntoIterator<Item = (K, V)>,
-        K: Into<String>,
-        V: Into<String>,
-    {
-        self.query.search = Some(Search::fields(fields));
+    fn search(mut self, search: &[(String, String)]) -> Self {
+        self.query.search = search.to_vec();
         self
     }
 

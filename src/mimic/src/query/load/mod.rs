@@ -11,11 +11,7 @@ use crate::{
         DbLocal, StoreLocal,
         types::{DataRow, EntityRow, SortKey},
     },
-    query::{
-        QueryError,
-        resolver::Resolver,
-        types::{Order, Search},
-    },
+    query::{QueryError, resolver::Resolver, types::Order},
     traits::Entity,
 };
 use candid::CandidType;
@@ -53,7 +49,7 @@ pub struct LoadQuery {
     pub format: LoadFormat,
     pub offset: u32,
     pub limit: Option<u32>,
-    pub search: Option<Search>,
+    pub search: Vec<(String, String)>,
     pub order: Option<Order>,
 }
 

@@ -11,7 +11,7 @@ use crate::{
             Loader,
         },
         traits::{LoadCollectionTrait, LoadQueryBuilderTrait},
-        types::{Order, Search},
+        types::Order,
     },
     traits::Entity,
 };
@@ -169,28 +169,8 @@ where
         self
     }
 
-    fn search<T: Into<Search>>(mut self, search: T) -> Self {
-        self.query.search = Some(search.into());
-        self
-    }
-
-    fn search_option(mut self, search: Option<Search>) -> Self {
-        self.query.search = search;
-        self
-    }
-
-    fn search_all(mut self, text: &str) -> Self {
-        self.query.search = Some(Search::all(text.to_string()));
-        self
-    }
-
-    fn search_fields<I, K, V>(mut self, fields: I) -> Self
-    where
-        I: IntoIterator<Item = (K, V)>,
-        K: Into<String>,
-        V: Into<String>,
-    {
-        self.query.search = Some(Search::fields(fields));
+    fn search(mut self, search: &[(String, String)]) -> Self {
+        self.query.search = search.to_vec();
         self
     }
 
@@ -230,6 +210,10 @@ where
     pub fn execute(self, db: DbLocal) -> Result<LoadCollection<E>, Error> {
         let query = &self.builder.query;
 
+        self.builder
+            .debug
+            .println(&format!("query.load: {query:?}"));
+
         // loader
         let resolver = Resolver::new(&query.path);
         let loader = Loader::new(db, resolver);
@@ -250,10 +234,10 @@ where
                 let entity = &row.value.entity;
 
                 // run query.search
-                let matches_search = match &query.search {
-                    Some(Search::All(text)) => entity.search_all(text),
-                    Some(Search::Fields(fields)) => entity.search_fields(fields.clone()),
-                    None => true,
+                let matches_search = if query.search.is_empty() {
+                    true
+                } else {
+                    entity.search_fields(&query.search)
                 };
 
                 // run additional filters

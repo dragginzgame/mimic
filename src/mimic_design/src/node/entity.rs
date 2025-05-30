@@ -2,8 +2,7 @@ use crate::{
     helper::{quote_one, quote_vec, to_path},
     imp::{self, Imp},
     node::{
-        Def, FieldList, Index, MacroNode, Node, SortKey, Trait, TraitNode, TraitTokens, Traits,
-        Type,
+        Def, Field, Index, MacroNode, Node, SortKey, Trait, TraitNode, TraitTokens, Traits, Type,
     },
     traits::Schemable,
 };
@@ -29,14 +28,21 @@ pub struct Entity {
     #[darling(multiple, rename = "index")]
     pub indexes: Vec<Index>,
 
-    #[darling(default)]
-    pub fields: FieldList,
+    #[darling(multiple, rename = "field")]
+    pub fields: Vec<Field>,
 
     #[darling(default)]
     pub ty: Type,
 
     #[darling(default)]
     pub traits: Traits,
+}
+
+impl Entity {
+    // has_default
+    pub fn has_default(&self) -> bool {
+        self.fields.iter().any(|f| f.default.is_some())
+    }
 }
 
 impl Node for Entity {
@@ -51,7 +57,7 @@ impl Node for Entity {
             #schema
             #derive
             pub struct #ident {
-                #fields
+                #(#fields,)*
             }
             #impls
         };
@@ -78,7 +84,7 @@ impl Schemable for Entity {
         let store = quote_one(&self.store, to_path);
         let sort_keys = quote_vec(&self.sort_keys, SortKey::schema);
         let indexes = quote_vec(&self.indexes, Index::schema);
-        let fields = &self.fields.schema();
+        let fields = quote_vec(&self.fields, Field::schema);
         let ty = &self.ty.schema();
 
         quote! {
@@ -103,8 +109,8 @@ impl TraitNode for Entity {
             Trait::Entity,
             Trait::EntityDyn,
             Trait::EntityFixture,
-            Trait::FieldSearch,
-            Trait::FieldSort,
+            Trait::EntitySearch,
+            Trait::EntitySort,
         ]);
 
         traits.list()
@@ -112,11 +118,11 @@ impl TraitNode for Entity {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::Default if self.fields.has_default() => imp::DefaultTrait::tokens(self, t),
+            Trait::Default if self.has_default() => imp::DefaultTrait::tokens(self, t),
             Trait::Entity => imp::EntityTrait::tokens(self, t),
             Trait::EntityDyn => imp::EntityDynTrait::tokens(self, t),
-            Trait::FieldSearch => imp::FieldSearchTrait::tokens(self, t),
-            Trait::FieldSort => imp::FieldSortTrait::tokens(self, t),
+            Trait::EntitySearch => imp::EntitySearchTrait::tokens(self, t),
+            Trait::EntitySort => imp::EntitySortTrait::tokens(self, t),
             Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => imp::VisitableTrait::tokens(self, t),
 

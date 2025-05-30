@@ -5,13 +5,11 @@ use mimic::{base::types, prelude::*};
 ///
 
 #[record(
-    fields(
-        field(name = "nat8_value", value(item(is = "types::Nat8")), default = 1u8),
-        field(
-            name = "nat8_static_fn",
-            value(item(is = "types::Nat8")),
-            default = "crate::default::Record::nat8_static_fn"
-        ),
+    field(name = "nat8_value", value(item(is = "types::Nat8")), default = 1u8),
+    field(
+        name = "nat8_static_fn",
+        value(item(is = "types::Nat8")),
+        default = "crate::default::Record::nat8_static_fn"
     ),
     traits(add(Default))
 )]
@@ -29,11 +27,11 @@ impl Record {
 ///
 
 #[record(
-    fields(field(
+    field(
         name = "static_fn",
         value(item(is = "types::Principal")),
         default = "crate::default::WithPrincipal::static_fn"
-    ),),
+    ),
     traits(add(Default))
 )]
 pub struct WithPrincipal {}

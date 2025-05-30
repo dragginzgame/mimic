@@ -7,10 +7,10 @@ use crate::{base::types, prelude::*};
 /// Account
 ///
 
-#[record(fields(
+#[record(
     field(name = "owner", value(item(is = "types::Principal"))),
-    field(name = "subaccount", value(opt, item(is = "Subaccount"))),
-))]
+    field(name = "subaccount", value(opt, item(is = "Subaccount")))
+)]
 pub struct Account {}
 
 ///
@@ -31,10 +31,10 @@ pub struct Memo {}
 /// Payment
 ///
 
-#[record(fields(
+#[record(
     field(name = "recipient", value(item(is = "Principal"))),
-    field(name = "tokens", value(item(is = "Tokens"))),
-))]
+    field(name = "tokens", value(item(is = "Tokens")))
+)]
 pub struct Payment {}
 
 ///

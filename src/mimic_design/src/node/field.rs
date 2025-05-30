@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_one, quote_option, quote_vec, to_string},
+    helper::{quote_one, quote_option, to_string},
     node::{Arg, SortDirection, Value},
     traits::Schemable,
 };
@@ -7,46 +7,6 @@ use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use syn::Ident;
-
-///
-/// FieldList
-///
-/// display is fine until we have to go and redo it for the whole caching system
-///
-
-#[derive(Clone, Debug, Default, FromMeta)]
-pub struct FieldList {
-    #[darling(multiple, rename = "field")]
-    pub fields: Vec<Field>,
-}
-
-impl FieldList {
-    pub fn has_default(&self) -> bool {
-        self.fields.iter().any(|f| f.default.is_some())
-    }
-}
-
-impl Schemable for FieldList {
-    fn schema(&self) -> TokenStream {
-        let fields = quote_vec(&self.fields, Field::schema);
-
-        quote! {
-            ::mimic::schema::node::FieldList {
-                fields: #fields,
-            }
-        }
-    }
-}
-
-impl ToTokens for FieldList {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let fields = &self.fields;
-
-        tokens.extend(quote! {
-            #(#fields)*
-        });
-    }
-}
 
 ///
 /// Field
@@ -84,7 +44,7 @@ impl ToTokens for Field {
 
         // build struct field
         tokens.extend(quote! {
-            pub #name : #value,
+            pub #name : #value
         });
     }
 }

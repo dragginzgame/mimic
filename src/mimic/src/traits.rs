@@ -378,7 +378,7 @@ impl_primitive!(Visitable);
 /// Entity
 ///
 
-pub trait Entity: Type + EntityFixture + EntityDyn + FieldSearch + FieldSort {
+pub trait Entity: Type + EntityFixture + EntityDyn + EntitySearch + EntitySort {
     const STORE: &'static str;
 }
 
@@ -387,7 +387,7 @@ pub trait Entity: Type + EntityFixture + EntityDyn + FieldSearch + FieldSort {
 /// object-safe methods for entities
 ///
 
-pub trait EntityDyn: TypeDyn + SerializeDyn + FieldSearchDyn + Visitable {
+pub trait EntityDyn: TypeDyn + SerializeDyn + EntitySearchDyn + EntitySortDyn + Visitable {
     // id
     // returns the id of the entity (as there can be 0 or 1 fields in
     // the entity's sort key)
@@ -451,32 +451,17 @@ pub trait EntityId: NodeDyn + Display {
 }
 
 ///
-/// FieldSearch
-///
-/// allows anything with a collection of fields to be filtered
+/// EntitySearch
 ///
 
-pub trait FieldSearch {
-    fn list_fields(&self) -> &'static [&'static str];
+pub trait EntitySearch {
     fn search_field(&self, field: &str, text: &str) -> bool;
-
-    // search_all
-    // true if any field matches
-    fn search_all(&self, text: &str) -> bool {
-        for field in self.list_fields() {
-            if self.search_field(field, text) {
-                return true;
-            }
-        }
-
-        false
-    }
 
     // search_fields
     // AND so we want to return if any specified field doesn't match
-    fn search_fields(&self, fields: Vec<(String, String)>) -> bool {
+    fn search_fields(&self, fields: &[(String, String)]) -> bool {
         for (field, text) in fields {
-            if !self.search_field(&field, &text) {
+            if !self.search_field(field, text) {
                 return false;
             }
         }
@@ -486,35 +471,38 @@ pub trait FieldSearch {
 }
 
 ///
-/// FieldSearchDyn
+/// EntitySearchDyn
 ///
 
-pub trait FieldSearchDyn {
-    fn search_all_dyn(&self, text: &str) -> bool;
+pub trait EntitySearchDyn {
     fn search_fields_dyn(&self, fields: &[(String, String)]) -> bool;
 }
 
-impl<T: FieldSearch> FieldSearchDyn for T {
-    fn search_all_dyn(&self, text: &str) -> bool {
-        self.search_all(text)
-    }
-
+impl<T: EntitySearch> EntitySearchDyn for T {
     fn search_fields_dyn(&self, fields: &[(String, String)]) -> bool {
-        self.search_fields(fields.to_vec())
+        self.search_fields(fields)
     }
 }
 
 ///
-/// FieldSort
+/// EntitySort
 ///
 /// allows anything with a collection of fields to be sorted
 ///
 
-type FieldSortFn<E> = dyn Fn(&E, &E) -> ::std::cmp::Ordering;
+type EntitySortFn<E> = dyn Fn(&E, &E) -> ::std::cmp::Ordering;
 
-pub trait FieldSort {
-    fn sort(order: &[(String, SortDirection)]) -> Box<FieldSortFn<Self>>;
+pub trait EntitySort {
+    fn sort(order: &[(String, SortDirection)]) -> Box<EntitySortFn<Self>>;
 }
+
+///
+/// EntitySortDyn
+///
+
+pub trait EntitySortDyn {}
+
+impl<T: EntitySort> EntitySortDyn for T {}
 
 ///
 /// SortKeyValue
