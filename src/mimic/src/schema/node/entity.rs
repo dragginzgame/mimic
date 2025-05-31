@@ -1,13 +1,16 @@
 use crate::{
+    common::types::StoreType,
     schema::{
+        build::schema_read,
         node::{
-            Def, Field, Index, MacroNode, SortKey, Type, TypeNode, ValidateNode, VisitableNode,
+            Def, Field, MacroNode, SortKey, Store, Type, TypeNode, ValidateNode, VisitableNode,
         },
         visit::Visitor,
     },
     types::ErrorTree,
 };
 use serde::{Deserialize, Serialize};
+use std::ops::Not;
 
 ///
 /// Entity
@@ -22,7 +25,7 @@ pub struct Entity {
     pub sort_keys: Vec<SortKey>,
 
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub indexes: Vec<Index>,
+    pub indexes: Vec<EntityIndex>,
 
     pub fields: Vec<Field>,
 
@@ -53,6 +56,12 @@ impl TypeNode for Entity {
 impl ValidateNode for Entity {
     fn validate(&self) -> Result<(), ErrorTree> {
         let mut errs = ErrorTree::new();
+        let schema = schema_read();
+
+        // store
+        if let Err(e) = schema.try_get_node_as::<Store>(&self.store) {
+            errs.add(e);
+        }
 
         // ensure there are sort keys
         if self.sort_keys.is_empty() {
@@ -126,5 +135,43 @@ impl VisitableNode for Entity {
             node.accept(v);
         }
         self.ty.accept(v);
+    }
+}
+
+///
+/// EntityIndex
+///
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+pub struct EntityIndex {
+    pub fields: Vec<String>,
+
+    #[serde(default, skip_serializing_if = "Not::not")]
+    pub unique: bool,
+
+    pub store: String,
+}
+
+impl ValidateNode for EntityIndex {
+    fn validate(&self) -> Result<(), ErrorTree> {
+        let mut errs = ErrorTree::new();
+        let schema = schema_read();
+
+        // store
+        match schema.try_get_node_as::<Store>(&self.store) {
+            Ok(store) if !matches!(store.ty, StoreType::Index) => {
+                errs.add("linked store is not type Index")
+            }
+            Ok(_) => {}
+            Err(e) => errs.add(e),
+        }
+
+        errs.result()
+    }
+}
+
+impl VisitableNode for EntityIndex {
+    fn route_key(&self) -> String {
+        self.fields.join(", ")
     }
 }

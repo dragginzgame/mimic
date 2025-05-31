@@ -19,9 +19,10 @@ pub use std::{
 use crate::{
     SerializeError,
     base::types::{Relation, Ulid},
-    types::{ErrorTree, FixtureList, SortDirection},
+    types::{ErrorTree, FixtureList},
     visit::Visitor,
 };
+use mimic_common::types::SortDirection;
 
 ///
 /// MACROS

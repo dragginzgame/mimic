@@ -1,8 +1,9 @@
 use crate::{
-    node::{Arg, ConstantType, Def, MacroNode, Node},
+    node::{Arg, Def, MacroNode, Node},
     traits::Schemable,
 };
 use darling::FromMeta;
+use mimic_common::types::ConstantType;
 use proc_macro2::TokenStream;
 use quote::quote;
 
@@ -25,7 +26,7 @@ impl Node for Constant {
 
         // quote
         let schema = self.ctor_schema();
-        let ty = &self.ty;
+        let ty = &self.ty.as_type();
         let value = &self.value;
         let q = quote! {
             #schema
@@ -51,7 +52,7 @@ impl MacroNode for Constant {
 impl Schemable for Constant {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
-        let ty = &self.ty.schema();
+        let ty = &self.ty;
         let value = &self.value.schema();
 
         quote! {

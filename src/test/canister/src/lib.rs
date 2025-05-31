@@ -34,6 +34,7 @@ pub fn rarity() -> Result<Vec<Rarity>, MimicError> {
 
     let query = query::load::<Rarity>()
         .all()
+        .filter(|r| r.name.len() != 6)
         .search_field("name", "co")
         .sort([("level", SortDirection::Desc)]);
 

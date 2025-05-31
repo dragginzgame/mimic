@@ -1,8 +1,6 @@
-use crate::{
-    node::{Cardinality, Item},
-    traits::Schemable,
-};
+use crate::{node::Item, traits::Schemable};
 use darling::FromMeta;
+use mimic_common::types::Cardinality;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
@@ -35,7 +33,7 @@ impl Value {
 
 impl Schemable for Value {
     fn schema(&self) -> TokenStream {
-        let cardinality = &self.cardinality().schema();
+        let cardinality = &self.cardinality();
         let item = &self.item.schema();
 
         quote!(

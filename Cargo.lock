@@ -766,6 +766,7 @@ dependencies = [
  "ic-cdk 0.18.0-alpha.2",
  "ic-stable-structures",
  "icu",
+ "mimic_common",
  "mimic_design",
  "num-traits",
  "remain",
@@ -794,11 +795,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "mimic_common"
+version = "0.4.1"
+dependencies = [
+ "candid",
+ "darling",
+ "derive_more",
+ "proc-macro2",
+ "quote",
+ "remain",
+ "serde",
+ "syn 2.0.101",
+]
+
+[[package]]
 name = "mimic_design"
 version = "0.4.1"
 dependencies = [
  "darling",
  "derive_more",
+ "mimic_common",
  "proc-macro2",
  "quote",
  "remain",

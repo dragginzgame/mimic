@@ -1,11 +1,11 @@
 use crate::{
-    helper::quote_one,
-    node::{Def, MacroNode, Node, PrimitiveType, Type},
+    node::{Def, MacroNode, Node, Type},
     traits::Schemable,
 };
 use darling::FromMeta;
+use mimic_common::types::PrimitiveType;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::{ToTokens, quote};
 use syn::Path;
 
 ///
@@ -52,7 +52,7 @@ impl MacroNode for Primitive {
 impl Schemable for Primitive {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
-        let variant = quote_one(&self.variant, PrimitiveType::schema);
+        let variant = self.variant;
         let ty = self.ty.schema();
 
         quote! {

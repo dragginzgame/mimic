@@ -13,9 +13,9 @@ use crate::{
         traits::{LoadCollectionTrait, LoadQueryBuilderTrait},
     },
     traits::Entity,
-    types::SortDirection,
 };
 use candid::CandidType;
+use mimic_common::types::SortDirection;
 use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
 

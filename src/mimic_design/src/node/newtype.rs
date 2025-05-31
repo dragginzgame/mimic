@@ -1,13 +1,11 @@
 use crate::{
-    helper::{quote_one, quote_option},
+    helper::quote_option,
     imp::{self, Imp},
-    node::{
-        Arg, Def, Item, MacroNode, Node, PrimitiveGroup, PrimitiveType, Trait, TraitNode,
-        TraitTokens, Traits, Type,
-    },
+    node::{Arg, Def, Item, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type},
     traits::Schemable,
 };
 use darling::FromMeta;
+use mimic_common::types::{PrimitiveGroup, PrimitiveType};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
@@ -130,7 +128,7 @@ impl Schemable for Newtype {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let item = self.item.schema();
-        let primitive = quote_one(&self.primitive, PrimitiveType::schema);
+        let primitive = &self.primitive;
         let default = quote_option(self.default.as_ref(), Arg::schema);
         let ty = self.ty.schema();
 

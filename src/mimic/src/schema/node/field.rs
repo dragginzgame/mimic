@@ -4,9 +4,10 @@ use crate::{
         node::{Arg, ValidateNode, Value, VisitableNode},
         visit::Visitor,
     },
-    types::{Cardinality, ErrorTree, SortDirection},
+    types::ErrorTree,
     utils::case::{Case, Casing},
 };
+use mimic_common::types::{Cardinality, SortDirection};
 use serde::{Deserialize, Serialize};
 
 ///

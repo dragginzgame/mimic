@@ -1,10 +1,8 @@
-use crate::{
-    schema::{
-        node::{Arg, Def, MacroNode, ValidateNode, VisitableNode},
-        visit::Visitor,
-    },
-    types::ConstantType,
+use crate::schema::{
+    node::{Arg, Def, MacroNode, ValidateNode, VisitableNode},
+    visit::Visitor,
 };
+use mimic_common::types::ConstantType;
 use serde::{Deserialize, Serialize};
 
 ///

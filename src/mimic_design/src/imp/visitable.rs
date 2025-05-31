@@ -1,10 +1,10 @@
 use crate::{
     imp::{Imp, Implementor},
     node::{
-        Cardinality, Entity, Enum, EnumVariant, Field, List, Map, Newtype, Record, Set, Trait,
-        Tuple, Value,
+        Entity, Enum, EnumVariant, Field, List, Map, Newtype, Record, Set, Trait, Tuple, Value,
     },
 };
+use mimic_common::types::Cardinality;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use syn::{Expr, Ident};

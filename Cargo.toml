@@ -4,6 +4,7 @@ members = [
     "benches",
     "src/mimic",
     "src/mimic_build",
+    "src/mimic_common",
     "src/mimic_design",
     "src/test/canister",
     "src/test/schema",
@@ -43,7 +44,10 @@ icu = { git = "https://github.com/dragginzgame/icu" }
 # mimic
 mimic = { path = "src/mimic" }
 mimic_build = { path = "src/mimic_build" }
+mimic_common = { path = "src/mimic_common" }
 mimic_design = { path = "src/mimic_design" }
+
+# third party
 num-traits = { version = "0.2", default-features = false, features = ["libm"] }
 proc-macro2 = "1.0"
 quote = "1.0"

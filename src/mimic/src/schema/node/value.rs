@@ -1,10 +1,8 @@
-use crate::{
-    schema::{
-        node::{Item, ValidateNode, VisitableNode},
-        visit::Visitor,
-    },
-    types::Cardinality,
+use crate::schema::{
+    node::{Item, ValidateNode, VisitableNode},
+    visit::Visitor,
 };
+use mimic_common::types::Cardinality;
 use serde::{Deserialize, Serialize};
 
 ///

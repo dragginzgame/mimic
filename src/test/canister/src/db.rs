@@ -1,5 +1,7 @@
 use crate::DB;
-use mimic::{deserialize, prelude::*, query, serialize, traits::Path, types::SortDirection};
+use mimic::{
+    common::types::SortDirection, deserialize, prelude::*, query, serialize, traits::Path,
+};
 use test_schema::Store;
 
 ///

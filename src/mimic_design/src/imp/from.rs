@@ -77,7 +77,7 @@ impl Imp<Map> for FromTrait {
 impl Imp<Newtype> for FromTrait {
     fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
         let item = &node.item;
-        let primitive = &node.primitive;
+        let primitive = &node.primitive.as_type();
 
         let q = quote! {
             fn from(t: T) -> Self {

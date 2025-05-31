@@ -1,9 +1,10 @@
 use crate::{
     helper::{quote_one, quote_option, to_string},
-    node::{Arg, SortDirection, Value},
+    node::{Arg, Value},
     traits::Schemable,
 };
 use darling::FromMeta;
+use mimic_common::types::SortDirection;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use syn::Ident;
@@ -64,7 +65,7 @@ pub struct FieldOrder {
 impl Schemable for FieldOrder {
     fn schema(&self) -> TokenStream {
         let field = quote_one(&self.field, to_string);
-        let direction = self.direction.schema();
+        let direction = &self.direction;
 
         quote! {
             ::mimic::schema::node::FieldOrder {

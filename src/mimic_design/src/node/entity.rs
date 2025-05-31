@@ -1,15 +1,13 @@
 use crate::{
-    helper::{quote_one, quote_vec, to_path},
+    helper::{quote_one, quote_vec, split_idents, to_path, to_string},
     imp::{self, Imp},
-    node::{
-        Def, Field, Index, MacroNode, Node, SortKey, Trait, TraitNode, TraitTokens, Traits, Type,
-    },
+    node::{Def, Field, MacroNode, Node, SortKey, Trait, TraitNode, TraitTokens, Traits, Type},
     traits::Schemable,
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::Path;
+use syn::{Ident, Path};
 
 ///
 /// Entity
@@ -26,7 +24,7 @@ pub struct Entity {
     pub sort_keys: Vec<SortKey>,
 
     #[darling(multiple, rename = "index")]
-    pub indexes: Vec<Index>,
+    pub indexes: Vec<EntityIndex>,
 
     #[darling(multiple, rename = "field")]
     pub fields: Vec<Field>,
@@ -83,7 +81,7 @@ impl Schemable for Entity {
         let def = &self.def.schema();
         let store = quote_one(&self.store, to_path);
         let sort_keys = quote_vec(&self.sort_keys, SortKey::schema);
-        let indexes = quote_vec(&self.indexes, Index::schema);
+        let indexes = quote_vec(&self.indexes, EntityIndex::schema);
         let fields = quote_vec(&self.fields, Field::schema);
         let ty = &self.ty.schema();
 
@@ -134,5 +132,36 @@ impl TraitNode for Entity {
         self.traits()
             .contains(&Trait::Default)
             .then(|| quote! { #[serde(default)] })
+    }
+}
+
+///
+/// EntityIndex
+///
+
+#[derive(Debug, FromMeta)]
+pub struct EntityIndex {
+    #[darling(default, map = "split_idents")]
+    pub fields: Vec<Ident>,
+
+    #[darling(default)]
+    pub unique: bool,
+
+    pub store: Path,
+}
+
+impl Schemable for EntityIndex {
+    fn schema(&self) -> TokenStream {
+        let fields = quote_vec(&self.fields, to_string);
+        let unique = &self.unique;
+        let store = quote_one(&self.store, to_path);
+
+        quote! {
+            ::mimic::schema::node::EntityIndex {
+                fields: #fields,
+                unique: #unique,
+                store: #store,
+            }
+        }
     }
 }

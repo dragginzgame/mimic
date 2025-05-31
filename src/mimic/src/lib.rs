@@ -26,6 +26,7 @@ pub mod export {
 }
 
 extern crate self as mimic;
+pub use ::mimic_common as common;
 
 ///
 /// MIMIC PRELUDE
@@ -45,9 +46,10 @@ pub mod prelude {
             Path, Searchable, Selector as _, SortKeyValue as _, Validate as _, ValidateCustom,
             ValidatorBytes, ValidatorNumber, ValidatorString, Visitable,
         },
-        types::{ErrorTree, FixtureList, SortDirection},
+        types::{ErrorTree, FixtureList},
     };
     pub use ::candid::CandidType;
+    pub use ::mimic_common::types::SortDirection;
     pub use ::mimic_design::*;
 }
 

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - removed FieldList as it wasn't adding anything
 - rewrote EntitySort and EntitySearch to be way more performant
 - removed the two different SaveQueries to simplify it in preparation for indexes
+- moved all shared types between mimic and mimic_design into mimic_common, and re-exported it from mimic
 
 ## [0.4.0]
 - breaking changes!  mimic_end is gone, moved a lot of things to ICU

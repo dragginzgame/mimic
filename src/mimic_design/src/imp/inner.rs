@@ -17,7 +17,7 @@ pub struct InnerTrait {}
 
 impl Imp<Newtype> for InnerTrait {
     fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
-        let primitive = &node.primitive;
+        let primitive = &node.primitive.as_type();
 
         // quote
         let q = quote! {

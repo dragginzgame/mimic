@@ -1,7 +1,8 @@
 use crate::{
     imp::{Imp, Implementor},
-    node::{Cardinality, Entity, MacroNode, Trait},
+    node::{Entity, MacroNode, Trait},
 };
+use mimic_common::types::Cardinality;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 
@@ -189,13 +190,13 @@ impl Imp<Entity> for EntitySortTrait {
             });
 
             match_arms.extend(quote! {
-                (#field_str, ::mimic::types::SortDirection::Asc) => comps.push(#asc_fn),
-                (#field_str, ::mimic::types::SortDirection::Desc) => comps.push(#desc_fn),
+                (#field_str, ::mimic::common::types::SortDirection::Asc) => comps.push(#asc_fn),
+                (#field_str, ::mimic::common::types::SortDirection::Desc) => comps.push(#desc_fn),
             });
         }
 
         let q = quote! {
-            fn sort(order: &[(String, ::mimic::types::SortDirection)])
+            fn sort(order: &[(String, ::mimic::common::types::SortDirection)])
                 -> Box<dyn Fn(&#node_ident, &#node_ident) -> ::std::cmp::Ordering>
             {
                 #asc_fns

@@ -20,8 +20,15 @@ pub struct Canister {}
 /// Store
 ///
 
-#[store(ident = "STORE", canister = "Canister", memory_id = 20)]
+#[store(ident = "STORE", ty = "Data", canister = "Canister", memory_id = 20)]
 pub struct Store {}
+
+///
+/// Index
+///
+
+#[store(ident = "INDEX", ty = "Index", canister = "Canister", memory_id = 21)]
+pub struct Index {}
 
 ///
 /// EntityIdTest
