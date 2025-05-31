@@ -59,8 +59,10 @@ impl ValidateNode for Entity {
         let schema = schema_read();
 
         // store
-        if let Err(e) = schema.try_get_node_as::<Store>(&self.store) {
-            errs.add(e);
+        match schema.try_get_node_as::<Store>(&self.store) {
+            Ok(store) if !matches!(store.ty, StoreType::Data) => errs.add("store is not type Data"),
+            Ok(_) => {}
+            Err(e) => errs.add(e),
         }
 
         // ensure there are sort keys
@@ -160,7 +162,7 @@ impl ValidateNode for EntityIndex {
         // store
         match schema.try_get_node_as::<Store>(&self.store) {
             Ok(store) if !matches!(store.ty, StoreType::Index) => {
-                errs.add("linked store is not type Index")
+                errs.add("store is not type Index")
             }
             Ok(_) => {}
             Err(e) => errs.add(e),
