@@ -41,7 +41,10 @@ pub mod prelude {
             Path, Searchable, Selector as _, SortKeyValue as _, Validate as _, ValidateCustom,
             ValidatorBytes, ValidatorNumber, ValidatorString, Visitable,
         },
-        types::{ErrorTree, FixtureList},
+        types::{
+            ErrorTree, FixtureList,
+            prim::{Relation, Ulid},
+        },
     };
     pub use ::candid::CandidType;
 }
