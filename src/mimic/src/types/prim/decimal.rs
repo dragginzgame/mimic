@@ -1,4 +1,7 @@
-use crate::traits::{Inner, Orderable, Path, Searchable, ValidateAuto, ValidateCustom, Visitable};
+use crate::{
+    prelude::*,
+    traits::{Inner, ValidateAuto},
+};
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
 use num_traits::{FromPrimitive, NumCast, ToPrimitive};

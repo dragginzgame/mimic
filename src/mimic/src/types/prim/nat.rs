@@ -1,4 +1,7 @@
-use crate::traits::{Inner, Orderable, Searchable, ValidateAuto, ValidateCustom, Visitable};
+use crate::{
+    prelude::*,
+    traits::{Inner, ValidateAuto},
+};
 use candid::{CandidType, Nat as WrappedNat};
 use derive_more::{Deref, DerefMut};
 use icu::impl_storable_unbounded;
@@ -52,6 +55,11 @@ impl Orderable for Nat {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
     }
+}
+
+impl Path for Nat {
+    const IDENT: &'static str = "Nat";
+    const PATH: &'static str = "mimic::types::prim::Nat";
 }
 
 impl Searchable for Nat {

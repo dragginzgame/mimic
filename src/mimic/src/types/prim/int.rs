@@ -1,4 +1,7 @@
-use crate::traits::{Inner, Orderable, Searchable, ValidateAuto, ValidateCustom, Visitable};
+use crate::{
+    prelude::*,
+    traits::{Inner, ValidateAuto},
+};
 use candid::{CandidType, Int as WrappedInt};
 use derive_more::{Deref, DerefMut};
 use icu::impl_storable_unbounded;
@@ -55,6 +58,11 @@ impl Orderable for Int {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
     }
+}
+
+impl Path for Int {
+    const IDENT: &'static str = "Int";
+    const PATH: &'static str = "mimic::types::prim::Int";
 }
 
 impl Searchable for Int {
