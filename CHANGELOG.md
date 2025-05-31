@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.4.2]
+- made Db into StoreRegistry and made it generic.  Now you can define multiple registries (one for DataStores, one
+for IndexStores)
+
 ## [0.4.1]
 - filter renamed search.  Filtering queries is now done using a closure like the rest of the rust ecosystem
 - added search for Cardinality::Many, performance improvements

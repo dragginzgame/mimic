@@ -1,7 +1,7 @@
 use crate::{
     Error,
     db::{
-        DbLocal,
+        DataStoreRegistryLocal,
         types::{DataRow, SortKey},
     },
     query::{
@@ -144,13 +144,13 @@ impl LoadQueryDynBuilder {
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<LoadCollectionDyn, Error> {
+    pub fn execute(self, db: DataStoreRegistryLocal) -> Result<LoadCollectionDyn, Error> {
         let executor = LoadQueryDynExecutor::new(self.query, self.debug);
         executor.execute(db)
     }
 
     // response
-    pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
+    pub fn response(self, db: DataStoreRegistryLocal) -> Result<LoadResponse, Error> {
         let executor = LoadQueryDynExecutor::new(self.query, self.debug);
         executor.response(db)
     }
@@ -207,7 +207,7 @@ impl LoadQueryDynExecutor {
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<LoadCollectionDyn, Error> {
+    pub fn execute(self, db: DataStoreRegistryLocal) -> Result<LoadCollectionDyn, Error> {
         let query = &self.query;
 
         self.debug.println(&format!("query.load_dyn: {query:?}"));
@@ -226,7 +226,7 @@ impl LoadQueryDynExecutor {
     }
 
     // response
-    pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
+    pub fn response(self, db: DataStoreRegistryLocal) -> Result<LoadResponse, Error> {
         let format = self.query.format.clone();
         let collection = self.execute(db)?;
 

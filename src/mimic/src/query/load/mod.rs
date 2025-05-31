@@ -8,7 +8,7 @@ use crate::{
     Error, ThisError,
     base::types::Relation,
     db::{
-        DbLocal, StoreLocal,
+        DataStoreLocal, DataStoreRegistryLocal,
         types::{DataRow, EntityRow, SortKey},
     },
     query::{QueryError, resolver::Resolver},
@@ -175,14 +175,14 @@ impl<T> LoadMap<T> {
 ///
 
 pub struct Loader {
-    db: DbLocal,
+    db: DataStoreRegistryLocal,
     resolver: Resolver,
 }
 
 impl Loader {
     // new
     #[must_use]
-    pub const fn new(db: DbLocal, resolver: Resolver) -> Self {
+    pub const fn new(db: DataStoreRegistryLocal, resolver: Resolver) -> Self {
         Self { db, resolver }
     }
 
@@ -254,7 +254,7 @@ impl Loader {
 }
 
 // query_data_key
-fn query_data_key(store: StoreLocal, key: SortKey) -> Result<DataRow, QueryError> {
+fn query_data_key(store: DataStoreLocal, key: SortKey) -> Result<DataRow, QueryError> {
     store.with_borrow(|this| {
         this.get(&key)
             .map(|value| DataRow {
@@ -266,7 +266,7 @@ fn query_data_key(store: StoreLocal, key: SortKey) -> Result<DataRow, QueryError
 }
 
 // query_range
-fn query_range(store: StoreLocal, start: SortKey, end: SortKey) -> Vec<DataRow> {
+fn query_range(store: DataStoreLocal, start: SortKey, end: SortKey) -> Vec<DataRow> {
     store.with_borrow(|this| {
         this.range(start..=end)
             .map(|(key, value)| DataRow { key, value })

@@ -1,4 +1,5 @@
 use crate::actor::ActorBuilder;
+use mimic::common::types::StoreType;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
@@ -10,47 +11,88 @@ pub fn generate(builder: &ActorBuilder) -> TokenStream {
 
 // stores
 fn stores(builder: &ActorBuilder) -> TokenStream {
-    let mut store_defs = quote!();
-    let mut db_inserts = quote!();
+    let mut data_store_defs = quote!();
+    let mut index_store_defs = quote!();
+
+    let mut data_store_inserts = quote!();
+    let mut index_store_inserts = quote!();
 
     for (store_path, store) in builder.get_stores() {
         let cell_ident = format_ident!("{}", &store.ident);
         let memory_id = store.memory_id;
+        let store_path_lit = store_path;
 
-        // define each store statically within the thread_local! macro
-        store_defs.extend(quote! {
-            static #cell_ident: ::std::cell::RefCell<::mimic::db::Store> =
-                ::std::cell::RefCell::new(::icu::icu_register_memory!(::mimic::db::Store, #memory_id, ::mimic::db::Store::init));
-        });
+        if matches!(store.ty, StoreType::Index) {
+            // Index store
+            index_store_defs.extend(quote! {
+                static #cell_ident: ::std::cell::RefCell<::mimic::db::IndexStore> =
+                    ::std::cell::RefCell::new(::icu::icu_register_memory!(
+                        ::mimic::db::IndexStore,
+                        #memory_id,
+                        ::mimic::db::IndexStore::init
+                    ));
+            });
 
-        // Prepare insertions into the Db
-        db_inserts.extend(quote! {
-            db.insert_store(#store_path, &#cell_ident);
-        });
+            index_store_inserts.extend(quote! {
+                index_registry.register(#store_path_lit, &#cell_ident);
+            });
+        } else {
+            // Data store
+            data_store_defs.extend(quote! {
+                static #cell_ident: ::std::cell::RefCell<::mimic::db::DataStore> =
+                    ::std::cell::RefCell::new(::icu::icu_register_memory!(
+                        ::mimic::db::DataStore,
+                        #memory_id,
+                        ::mimic::db::DataStore::init
+                    ));
+            });
+
+            data_store_inserts.extend(quote! {
+                data_registry.register(#store_path_lit, &#cell_ident);
+            });
+        }
     }
 
-    // format stores variable
-    let db = if db_inserts.is_empty() {
+    let data_registry = if data_store_inserts.is_empty() {
         quote! {
-            ::mimic::db::Db::new()
+            ::mimic::db::StoreRegistry::new()
         }
     } else {
         quote! {
             {
-                let mut db = ::mimic::db::Db::new();
-                #db_inserts
+                let mut data_registry = ::mimic::db::StoreRegistry::new();
+                #data_store_inserts
 
-                db
+                data_registry
             }
         }
     };
 
-    // combine everything into a thread_local! macro and additional functions
+    let index_registry = if index_store_inserts.is_empty() {
+        quote! {
+            ::mimic::db::StoreRegistry::new()
+        }
+    } else {
+        quote! {
+            {
+                let mut index_registry = ::mimic::db::StoreRegistry::new();
+                #index_store_inserts
+
+                index_registry
+            }
+        }
+    };
+
     quote! {
         thread_local! {
-            #store_defs
+            #data_store_defs
+            #index_store_defs
 
-            static DB: ::std::rc::Rc<::mimic::db::Db> = ::std::rc::Rc::new(#db);
+            static DB: ::std::rc::Rc<::mimic::db::StoreRegistry<::mimic::db::DataStore>> =
+                ::std::rc::Rc::new(#data_registry);
+
+            static INDEXES: ::std::rc::Rc<::mimic::db::StoreRegistry<::mimic::db::IndexStore>> =
+                ::std::rc::Rc::new(#index_registry);
         }
     }
 }

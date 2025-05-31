@@ -1,6 +1,6 @@
 use crate::{
     Error,
-    db::{DbLocal, types::SortKey},
+    db::{DataStoreRegistryLocal, types::SortKey},
     query::{DebugContext, QueryError, Resolver},
 };
 use candid::CandidType;
@@ -128,7 +128,7 @@ impl DeleteQueryBuilder {
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<DeleteResponse, Error> {
+    pub fn execute(self, db: DataStoreRegistryLocal) -> Result<DeleteResponse, Error> {
         let executor = DeleteQueryExecutor::new(self.query, self.debug);
         executor.execute(db)
     }
@@ -165,7 +165,7 @@ impl DeleteQueryExecutor {
     }
 
     // execute
-    pub fn execute(&self, db: DbLocal) -> Result<DeleteResponse, Error> {
+    pub fn execute(&self, db: DataStoreRegistryLocal) -> Result<DeleteResponse, Error> {
         let query = &self.query;
 
         let keys = match &query.method {

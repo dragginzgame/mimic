@@ -2,7 +2,7 @@
 use crate::{
     Error,
     db::{
-        DbLocal,
+        DataStoreRegistryLocal,
         types::{DataRow, EntityRow, EntityValue, SortKey},
     },
     query::{
@@ -219,13 +219,13 @@ impl<E: Entity> LoadQueryBuilder<E> {
 
     // execute
     // excutes the query and returns a collection
-    pub fn execute(self, db: DbLocal) -> Result<LoadCollection<E>, Error> {
+    pub fn execute(self, db: DataStoreRegistryLocal) -> Result<LoadCollection<E>, Error> {
         let executor = LoadQueryExecutor::<E>::new(self.query, self.filters, self.debug);
         executor.execute(db)
     }
 
     // response
-    pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
+    pub fn response(self, db: DataStoreRegistryLocal) -> Result<LoadResponse, Error> {
         let executor = LoadQueryExecutor::<E>::new(self.query, self.filters, self.debug);
         executor.response(db)
     }
@@ -293,7 +293,7 @@ where
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<LoadCollection<E>, Error> {
+    pub fn execute(self, db: DataStoreRegistryLocal) -> Result<LoadCollection<E>, Error> {
         let query = &self.query;
 
         self.debug.println(&format!("query.load: {query:?}"));
@@ -349,7 +349,7 @@ where
     }
 
     // response
-    pub fn response(self, db: DbLocal) -> Result<LoadResponse, Error> {
+    pub fn response(self, db: DataStoreRegistryLocal) -> Result<LoadResponse, Error> {
         let format = self.query.format.clone();
         let collection = self.execute(db)?;
 

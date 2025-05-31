@@ -24,6 +24,10 @@ pub fn test() {
     db::DbTester::test();
     validate::ValidateTester::test();
 
+    INDEXES
+        .with(|reg| reg.with_store("test_schema::Index", |_| {}))
+        .unwrap();
+
     log!(Log::Ok, "test: all tests passed successfully");
 }
 

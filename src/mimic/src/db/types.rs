@@ -9,36 +9,22 @@ use std::fmt;
 ///
 
 ///
-/// DataRow
-/// the data B-tree key and value pair
+/// CompositeKey
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub struct DataRow {
-    pub key: SortKey,
-    pub value: DataValue,
-}
+#[derive(
+    CandidType, Clone, Debug, Default, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize,
+)]
+pub struct CompositeKey(pub Vec<String>);
 
-impl DataRow {
+impl CompositeKey {
     #[must_use]
-    pub const fn new(key: SortKey, value: DataValue) -> Self {
-        Self { key, value }
+    pub fn new(parts: &[String]) -> Self {
+        Self(parts.to_vec())
     }
 }
 
-impl<E> TryFrom<EntityRow<E>> for DataRow
-where
-    E: Path + Serialize + DeserializeOwned,
-{
-    type Error = SerializeError;
-
-    fn try_from(row: EntityRow<E>) -> Result<Self, Self::Error> {
-        Ok(Self {
-            key: row.key,
-            value: row.value.try_into()?,
-        })
-    }
-}
+impl_storable_bounded!(CompositeKey, 256, false);
 
 ///
 /// SortKey
@@ -86,7 +72,39 @@ impl fmt::Display for SortKey {
     }
 }
 
-impl_storable_bounded!(SortKey, 255, false);
+impl_storable_bounded!(SortKey, 256, false);
+
+///
+/// DataRow
+/// the data B-tree key and value pair
+///
+
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+pub struct DataRow {
+    pub key: SortKey,
+    pub value: DataValue,
+}
+
+impl DataRow {
+    #[must_use]
+    pub const fn new(key: SortKey, value: DataValue) -> Self {
+        Self { key, value }
+    }
+}
+
+impl<E> TryFrom<EntityRow<E>> for DataRow
+where
+    E: Path + Serialize + DeserializeOwned,
+{
+    type Error = SerializeError;
+
+    fn try_from(row: EntityRow<E>) -> Result<Self, Self::Error> {
+        Ok(Self {
+            key: row.key,
+            value: row.value.try_into()?,
+        })
+    }
+}
 
 ///
 /// DataValue

@@ -1,7 +1,7 @@
 use crate::{
     Error, ThisError,
     db::{
-        DbLocal,
+        DataStoreRegistryLocal,
         types::{DataValue, Metadata, SortKey},
     },
     deserialize,
@@ -167,7 +167,7 @@ impl SaveQueryBuilder {
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<SaveResponse, Error> {
+    pub fn execute(self, db: DataStoreRegistryLocal) -> Result<SaveResponse, Error> {
         let executor = SaveQueryExecutor::new(self.mode, self.entity, self.debug);
 
         executor.execute(db)
@@ -196,7 +196,7 @@ impl SaveQueryExecutor {
     }
 
     // execute
-    pub fn execute(self, db: DbLocal) -> Result<SaveResponse, Error> {
+    pub fn execute(self, db: DataStoreRegistryLocal) -> Result<SaveResponse, Error> {
         // Validate all entities first
         let adapter = crate::visit::EntityAdapter(&*self.entity);
         crate::validate(&adapter)?;
@@ -217,7 +217,7 @@ pub struct SaveResponse();
 
 // save
 fn save<'a>(
-    db: DbLocal,
+    db: DataStoreRegistryLocal,
     mode: SaveMode,
     debug: &DebugContext,
     entity: Box<dyn EntityDyn + 'a>,
