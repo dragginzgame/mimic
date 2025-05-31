@@ -7,7 +7,20 @@ pub mod index;
 pub mod rarity;
 pub mod validate;
 
-use mimic::{base::types, prelude::*};
+///
+/// Prelude
+///
+
+pub mod prelude {
+    pub use mimic::prelude::*;
+    pub use mimic_base::{
+        self,
+        types::{self, *},
+        validator,
+    };
+    pub use mimic_design::*;
+}
+pub use prelude::*;
 
 ///
 /// Canister

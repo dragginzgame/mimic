@@ -12,10 +12,10 @@ use crate::{
         },
         traits::{LoadCollectionTrait, LoadQueryBuilderTrait},
     },
+    schema::types::SortDirection,
     traits::Entity,
 };
 use candid::CandidType;
-use mimic_common::types::SortDirection;
 use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
 
@@ -160,6 +160,7 @@ impl<E: Entity> LoadQueryBuilder<E> {
     }
 
     // search
+    #[must_use]
     pub fn search<K, V, I>(mut self, search: I) -> Self
     where
         K: Into<String>,
@@ -170,15 +171,18 @@ impl<E: Entity> LoadQueryBuilder<E> {
             .into_iter()
             .map(|(k, v)| (k.into(), v.into()))
             .collect();
+
         self
     }
 
     // search_field
+    #[must_use]
     pub fn search_field<K: Into<String>, V: Into<String>>(self, field: K, value: V) -> Self {
         self.search(std::iter::once((field, value)))
     }
 
     // sort
+    #[must_use]
     pub fn sort<T, I>(mut self, sort: I) -> Self
     where
         T: Into<String>,
@@ -189,17 +193,20 @@ impl<E: Entity> LoadQueryBuilder<E> {
     }
 
     // sort_field
+    #[must_use]
     pub fn sort_field<K: Into<String>>(self, field: K, dir: SortDirection) -> Self {
         self.sort(std::iter::once((field, dir)))
     }
 
     // filter
+    #[must_use]
     pub fn filter<F: Fn(&E) -> bool + 'static>(mut self, f: F) -> Self {
         self.filters.push(Box::new(f));
         self
     }
 
     // filter_eq
+    #[must_use]
     pub fn filter_eq<F, T>(self, f: F, expected: T) -> Self
     where
         F: Fn(&E) -> T + 'static,
@@ -209,6 +216,7 @@ impl<E: Entity> LoadQueryBuilder<E> {
     }
 
     // filter_some_eq
+    #[must_use]
     pub fn filter_some_eq<F, T>(self, f: F, value: T) -> Self
     where
         F: Fn(&E) -> Option<T> + 'static,

@@ -68,7 +68,7 @@ pub struct DeleteQueryInit {}
 impl DeleteQueryInit {
     // new
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {}
     }
 

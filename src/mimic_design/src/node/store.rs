@@ -5,7 +5,7 @@ use crate::{
     traits::Schemable,
 };
 use darling::FromMeta;
-use mimic_common::types::StoreType;
+use mimic::schema::types::StoreType;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Ident, Path};

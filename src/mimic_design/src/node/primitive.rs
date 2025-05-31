@@ -3,7 +3,7 @@ use crate::{
     traits::Schemable,
 };
 use darling::FromMeta;
-use mimic_common::types::PrimitiveType;
+use mimic::schema::types::PrimitiveType;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use syn::Path;

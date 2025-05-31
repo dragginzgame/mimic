@@ -2,7 +2,7 @@ use crate::{
     imp::{Imp, Implementor},
     node::{Newtype, Trait},
 };
-use mimic_common::types::PrimitiveGroup;
+use mimic::schema::types::PrimitiveGroup;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 

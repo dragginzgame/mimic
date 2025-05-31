@@ -1,11 +1,9 @@
 use crate::{
-    base::types::Ulid,
     schema::{
         build::schema_read,
         node::{Entity, Selector, TypeValidator, ValidateNode, VisitableNode},
         visit::Visitor,
     },
-    traits::Path,
     types::ErrorTree,
 };
 use serde::{Deserialize, Serialize};
@@ -37,11 +35,6 @@ pub struct Item {
 }
 
 impl Item {
-    #[must_use]
-    pub fn is_ulid(&self) -> bool {
-        self.path == Ulid::path()
-    }
-
     #[must_use]
     pub const fn is_relation(&self) -> bool {
         self.relation.is_some()

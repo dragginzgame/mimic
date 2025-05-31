@@ -1,10 +1,10 @@
 use crate::{
-    common::types::StoreType,
     schema::{
         build::schema_read,
         node::{
             Def, Field, MacroNode, SortKey, Store, Type, TypeNode, ValidateNode, VisitableNode,
         },
+        types::StoreType,
         visit::Visitor,
     },
     types::ErrorTree,
@@ -162,7 +162,7 @@ impl ValidateNode for EntityIndex {
         // store
         match schema.try_get_node_as::<Store>(&self.store) {
             Ok(store) if !matches!(store.ty, StoreType::Index) => {
-                errs.add("store is not type Index")
+                errs.add("store is not type Index");
             }
             Ok(_) => {}
             Err(e) => errs.add(e),

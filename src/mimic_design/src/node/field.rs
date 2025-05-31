@@ -4,7 +4,7 @@ use crate::{
     traits::Schemable,
 };
 use darling::FromMeta;
-use mimic_common::types::SortDirection;
+use mimic::schema::types::SortDirection;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use syn::Ident;

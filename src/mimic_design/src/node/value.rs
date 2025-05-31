@@ -1,6 +1,6 @@
 use crate::{node::Item, traits::Schemable};
 use darling::FromMeta;
-use mimic_common::types::Cardinality;
+use mimic::schema::types::Cardinality;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
@@ -54,7 +54,7 @@ impl ToTokens for Value {
             Cardinality::Opt => quote!(Option<#item>),
             Cardinality::Many => {
                 if item.is_relation() {
-                    quote!(::mimic::base::types::RelationSet)
+                    quote!(::mimic_base::types::RelationSet)
                 } else {
                     quote!(Vec<#item>)
                 }

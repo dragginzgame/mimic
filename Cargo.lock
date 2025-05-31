@@ -40,7 +40,7 @@ checksum = "7dfdb4953a096c551ce9ace855a604d702e6e62d77fac690575ae347571717f5"
 
 [[package]]
 name = "benches"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "bencher",
 ]
@@ -756,22 +756,22 @@ checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 
 [[package]]
 name = "mimic"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "candid",
  "convert_case 0.8.0",
  "ctor",
+ "darling",
  "derive_more",
  "hex",
  "ic-cdk 0.18.0-alpha.2",
  "ic-stable-structures",
  "icu",
- "mimic_common",
- "mimic_design",
  "num-traits",
+ "proc-macro2",
+ "quote",
  "remain",
  "rust_decimal",
- "semver",
  "serde",
  "serde_bytes",
  "serde_json",
@@ -782,8 +782,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "mimic_base"
+version = "0.4.2"
+dependencies = [
+ "candid",
+ "ctor",
+ "derive_more",
+ "mimic",
+ "mimic_design",
+ "num-traits",
+ "semver",
+ "serde",
+]
+
+[[package]]
 name = "mimic_build"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "mimic",
  "proc-macro2",
@@ -795,26 +809,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "mimic_common"
-version = "0.4.1"
-dependencies = [
- "candid",
- "darling",
- "derive_more",
- "proc-macro2",
- "quote",
- "remain",
- "serde",
- "syn 2.0.101",
-]
-
-[[package]]
 name = "mimic_design"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "darling",
  "derive_more",
- "mimic_common",
+ "mimic",
  "proc-macro2",
  "quote",
  "remain",
@@ -1149,7 +1149,7 @@ dependencies = [
 
 [[package]]
 name = "test_canister"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "candid",
  "ic-cdk 0.18.0-alpha.2",
@@ -1161,18 +1161,20 @@ dependencies = [
 
 [[package]]
 name = "test_schema"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "candid",
  "ctor",
  "derive_more",
  "mimic",
+ "mimic_base",
+ "mimic_design",
  "serde",
 ]
 
 [[package]]
 name = "tests"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "mimic",
  "test_schema",

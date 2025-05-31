@@ -23,7 +23,7 @@ pub struct Type {
 
 impl Type {
     #[must_use]
-    pub fn skip_serializing(&self) -> bool {
+    pub const fn skip_serializing(&self) -> bool {
         self.validators.is_empty() && !self.todo
     }
 }

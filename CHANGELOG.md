@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+
+## [0.4.3]
+- moved base out of mimic and added mimic_base.  mimic_common can now go back into mimic
+
 ## [0.4.2]
 - made Db into StoreRegistry and made it generic.  Now you can define multiple registries (one for DataStores, one
 for IndexStores)

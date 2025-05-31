@@ -1,7 +1,7 @@
 #![allow(clippy::wildcard_imports)]
 // darling(default) generates these errors
 #![allow(clippy::option_if_let_else)]
-//#![allow(clippy::manual_unwrap_or_default)]
+#![allow(clippy::manual_unwrap_or_default)]
 
 mod helper;
 mod imp;

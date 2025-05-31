@@ -1,7 +1,4 @@
-use mimic::{
-    base::{types, validator},
-    prelude::*,
-};
+use crate::prelude::*;
 
 ///
 /// ValidateTest
@@ -21,10 +18,7 @@ use mimic::{
     ),
     field(
         name = "gt_fifty",
-        value(item(
-            is = "types::Nat8",
-            validator(path = "validator::number::Gt", args(50))
-        )),
+        value(item(is = "Nat8", validator(path = "validator::number::Gt", args(50)))),
     )
 )]
 pub struct ValidateTest {}

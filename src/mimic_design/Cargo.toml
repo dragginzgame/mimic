@@ -10,10 +10,10 @@ proc-macro = true
 [dependencies]
 darling = { workspace = true }
 derive_more = { workspace = true }
+mimic = { workspace = true }
 proc-macro2 = { workspace = true }
 quote = { workspace = true }
 remain = { workspace = true }
-mimic_common = { workspace = true }
 serde = { workspace = true }
 syn = { workspace = true }
 tinyrand = { workspace = true }

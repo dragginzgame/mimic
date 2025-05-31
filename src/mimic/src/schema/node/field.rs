@@ -2,12 +2,12 @@ use crate::{
     schema::{
         build::validate::validate_ident,
         node::{Arg, ValidateNode, Value, VisitableNode},
+        types::{Cardinality, SortDirection},
         visit::Visitor,
     },
     types::ErrorTree,
     utils::case::{Case, Casing},
 };
-use mimic_common::types::{Cardinality, SortDirection};
 use serde::{Deserialize, Serialize};
 
 ///
@@ -34,21 +34,6 @@ impl ValidateNode for Field {
         // snake case
         if !self.name.is_case(Case::Snake) {
             errs.add(format!("field name '{}' must be in snake_case", self.name));
-        }
-
-        // check for ulids with confusing idents
-        if self.value.item.is_ulid() {
-            match self.value.cardinality {
-                Cardinality::One | Cardinality::Opt if !ident.ends_with("id") => {
-                    errs.add(format!(
-                        "one or optional Ulid field '{ident}' should end with 'id'"
-                    ));
-                }
-                Cardinality::Many if !ident.ends_with("ids") => {
-                    errs.add(format!("many Ulid field '{ident}' should end with 'ids'"));
-                }
-                _ => {}
-            }
         }
 
         // relation naming

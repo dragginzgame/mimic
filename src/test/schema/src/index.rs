@@ -1,4 +1,4 @@
-use mimic::{base::types, prelude::*};
+use crate::prelude::*;
 
 ///
 /// Index
@@ -9,7 +9,11 @@ use mimic::{base::types, prelude::*};
     sk(entity = "Index", field = "id"),
     index(fields = "x", store = "crate::Index"),
     index(fields = "y", store = "crate::Index", unique),
-    field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
+    field(
+        name = "id",
+        value(item(is = "types::Ulid")),
+        default = "types::Ulid::generate"
+    ),
     field(name = "x", value(item(is = "types::Nat32"))),
     field(name = "y", value(item(is = "types::Nat32")))
 )]

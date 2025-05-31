@@ -24,7 +24,7 @@ impl Imp<EntityId> for IntoTrait {
         //
 
         let q = quote! {
-            fn into(self) -> mimic::base::types::Ulid {
+            fn into(self) -> mimic::types::prim::Ulid {
                 self.ulid()
             }
         };
@@ -32,7 +32,7 @@ impl Imp<EntityId> for IntoTrait {
         tokens.extend(
             Implementor::new(&node.def, t)
                 .set_tokens(q)
-                .add_trait_generic(quote!(mimic::base::types::Ulid))
+                .add_trait_generic(quote!(mimic::types::prim::Ulid))
                 .to_token_stream(),
         );
 
@@ -41,7 +41,7 @@ impl Imp<EntityId> for IntoTrait {
         //
 
         let q = quote! {
-            fn into(self) -> mimic::base::types::Relation {
+            fn into(self) -> mimic::types::prim::Relation {
                 self.relation()
             }
         };
@@ -49,7 +49,7 @@ impl Imp<EntityId> for IntoTrait {
         tokens.extend(
             Implementor::new(&node.def, t)
                 .set_tokens(q)
-                .add_trait_generic(quote!(mimic::base::types::Relation))
+                .add_trait_generic(quote!(mimic::types::prim::Relation))
                 .to_token_stream(),
         );
 

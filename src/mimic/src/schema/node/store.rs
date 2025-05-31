@@ -1,8 +1,8 @@
 use crate::{
-    common::types::StoreType,
     schema::{
         build::schema_read,
         node::{Canister, Def, MacroNode, ValidateNode, VisitableNode},
+        types::StoreType,
         visit::Visitor,
     },
     types::ErrorTree,

@@ -2,7 +2,6 @@
 /// mimic
 /// [for external use only, keep out of reach of children]
 ///
-pub mod base;
 pub mod db;
 pub mod interface;
 pub mod macros;
@@ -26,7 +25,6 @@ pub mod export {
 }
 
 extern crate self as mimic;
-pub use ::mimic_common as common;
 
 ///
 /// MIMIC PRELUDE
@@ -35,12 +33,9 @@ pub use ::mimic_common as common;
 
 pub mod prelude {
     pub use crate::{
-        base::types::{
-            Blob, Bool, Decimal, Float32, Float64, Int, Int8, Int16, Int32, Int64, Int128, Nat,
-            Nat8, Nat16, Nat32, Nat64, Nat128, Principal, Relation, RelationSet, Text, Ulid,
-        },
         mimic_start,
         query::traits::{LoadCollectionTrait as _, LoadQueryBuilderTrait as _},
+        schema::types::SortDirection,
         traits::{
             EntityDyn, EntityFixture, EntityId as _, Inner as _, NumCast, Orderable, Ordering,
             Path, Searchable, Selector as _, SortKeyValue as _, Validate as _, ValidateCustom,
@@ -49,8 +44,6 @@ pub mod prelude {
         types::{ErrorTree, FixtureList},
     };
     pub use ::candid::CandidType;
-    pub use ::mimic_common::types::SortDirection;
-    pub use ::mimic_design::*;
 }
 
 use crate::types::ErrorTree;

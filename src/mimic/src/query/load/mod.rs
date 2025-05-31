@@ -6,13 +6,13 @@ pub use generic::*;
 
 use crate::{
     Error, ThisError,
-    base::types::Relation,
     db::{
         DataStoreLocal, DataStoreRegistryLocal,
         types::{DataRow, EntityRow, SortKey},
     },
     query::{QueryError, resolver::Resolver},
     traits::Entity,
+    types::prim::Relation,
 };
 use candid::CandidType;
 use derive_more::Deref;
@@ -120,7 +120,8 @@ impl<T> LoadMap<T> {
         I: IntoIterator<Item = (Relation, T)>,
     {
         let map: HashMap<Relation, T> = pairs.into_iter().collect();
-        LoadMap(map)
+
+        Self(map)
     }
 
     // get
@@ -134,7 +135,7 @@ impl<T> LoadMap<T> {
 
         self.0.get(r).ok_or_else(|| {
             Error::QueryError(QueryError::LoadError(LoadError::RelationNotFound(
-                Relation::from(r.clone()),
+                r.clone(),
             )))
         })
     }

@@ -47,13 +47,13 @@ pub fn load<E: Entity>() -> LoadQueryInit<E> {
 
 // load_dyn
 #[must_use]
-pub fn load_dyn() -> LoadQueryDynInit {
+pub const fn load_dyn() -> LoadQueryDynInit {
     LoadQueryDynInit::new()
 }
 
 // delete
 #[must_use]
-pub fn delete() -> DeleteQueryInit {
+pub const fn delete() -> DeleteQueryInit {
     DeleteQueryInit::new()
 }
 

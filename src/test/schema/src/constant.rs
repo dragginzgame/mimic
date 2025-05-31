@@ -1,4 +1,4 @@
-use mimic::prelude::*;
+use crate::prelude::*;
 
 ///
 /// Stringy

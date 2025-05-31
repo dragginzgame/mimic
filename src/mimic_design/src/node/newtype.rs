@@ -5,7 +5,7 @@ use crate::{
     traits::Schemable,
 };
 use darling::FromMeta;
-use mimic_common::types::{PrimitiveGroup, PrimitiveType};
+use mimic::schema::types::{PrimitiveGroup, PrimitiveType};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 

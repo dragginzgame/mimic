@@ -1,8 +1,8 @@
 use crate::schema::{
     node::{Arg, Def, Item, MacroNode, Type, TypeNode, ValidateNode, VisitableNode},
+    types::PrimitiveType,
     visit::Visitor,
 };
-use mimic_common::types::PrimitiveType;
 use serde::{Deserialize, Serialize};
 
 ///

@@ -9,6 +9,8 @@ candid = { workspace = true }
 ctor = { workspace = true }
 derive_more = { workspace = true }
 mimic = { workspace = true }
+mimic_base = { workspace = true }
+mimic_design = { workspace = true }
 serde = { workspace = true }
 
 [lints]

@@ -8,10 +8,15 @@ use crate::{
 ///
 
 pub trait LoadQueryBuilderTrait {
+    #[must_use]
     fn debug(self) -> Self;
+    #[must_use]
     fn format(self, format: LoadFormat) -> Self;
+    #[must_use]
     fn offset(self, offset: u32) -> Self;
+    #[must_use]
     fn limit(self, limit: u32) -> Self;
+    #[must_use]
     fn limit_option(self, limit: Option<u32>) -> Self;
 }
 

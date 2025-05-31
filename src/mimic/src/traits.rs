@@ -18,11 +18,13 @@ pub use std::{
 
 use crate::{
     SerializeError,
-    base::types::{Relation, Ulid},
-    types::{ErrorTree, FixtureList},
+    schema::types::SortDirection,
+    types::{
+        ErrorTree, FixtureList,
+        prim::{Relation, Ulid},
+    },
     visit::Visitor,
 };
-use mimic_common::types::SortDirection;
 
 ///
 /// MACROS
@@ -100,7 +102,7 @@ macro_rules! impl_primitive_list {
         $(
             impl Path for $t {
                 const IDENT: &'static str = $name;
-                const PATH: &'static str = concat!("mimic::base::types::", $name);
+                const PATH: &'static str = concat!("mimic_base::types::", $name);
             }
         )*
     };

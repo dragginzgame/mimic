@@ -1,6 +1,7 @@
 use crate::DB;
 use mimic::{
-    common::types::SortDirection, deserialize, prelude::*, query, serialize, traits::Path,
+    deserialize, prelude::*, query, schema::types::SortDirection, serialize, traits::Path,
+    types::prim::Ulid,
 };
 use test_schema::Store;
 
@@ -19,9 +20,9 @@ impl DbTester {
             ("create", Self::create),
             ("create_lots", Self::create_lots),
             ("data_key_order", Self::data_key_order),
-            ("search_query", Self::search_query),
             ("limit_query", Self::limit_query),
             ("missing_field", Self::missing_field),
+            ("search_query", Self::search_query),
         ];
 
         for (name, test_fn) in tests {
@@ -152,6 +153,54 @@ impl DbTester {
         }
     }
 
+    // limit_query
+    fn limit_query() {
+        use test_schema::db::Limit;
+
+        // Insert 100 rows
+        // overwrite the ulid with replace()
+        for value in 1..100 {
+            let e = Limit { value };
+            query::replace().entity(e).execute(&DB).unwrap();
+        }
+
+        // Test various limits and offsets
+        for limit in [10, 20, 50] {
+            for offset in [0, 5, 10] {
+                let count = query::load_dyn()
+                    .all(Limit::PATH)
+                    .offset(offset)
+                    .limit(limit)
+                    .execute(&DB)
+                    .unwrap()
+                    .count();
+
+                assert_eq!(count, limit as usize, "{limit} not equal to {count}");
+                //    if !results.is_empty() {
+                //        assert_eq!(results[0].value, offset + 1);
+                //    }
+            }
+        }
+    }
+
+    // missing_field
+    fn missing_field() {
+        use test_schema::db::{MissingFieldLarge, MissingFieldSmall};
+
+        let small = MissingFieldSmall {
+            a_id: Ulid::generate(),
+            b_id: Ulid::generate(),
+        };
+
+        // move from small to large
+        let bytes = serialize(&small).unwrap();
+        let large = deserialize::<MissingFieldLarge>(&bytes).unwrap();
+
+        assert!(!large.a_id.is_nil());
+        assert!(!large.b_id.is_nil());
+        assert!(large.c_id.is_nil());
+    }
+
     // search_query
     fn search_query() {
         use test_schema::db::Searchable;
@@ -235,57 +284,8 @@ impl DbTester {
 
             assert_eq!(
                 count, expected,
-                "search_fields test failed with criteria: {:?}",
-                search
+                "search_fields test failed with criteria: {search:?}",
             );
         }
-    }
-
-    // limit_query
-    fn limit_query() {
-        use test_schema::db::Limit;
-
-        // Insert 100 rows
-        // overwrite the ulid with replace()
-        for value in 1..100 {
-            let e = Limit { value };
-            query::replace().entity(e).execute(&DB).unwrap();
-        }
-
-        // Test various limits and offsets
-        for limit in [10, 20, 50] {
-            for offset in [0, 5, 10] {
-                let count = query::load_dyn()
-                    .all(Limit::PATH)
-                    .offset(offset)
-                    .limit(limit)
-                    .execute(&DB)
-                    .unwrap()
-                    .count();
-
-                assert_eq!(count, limit as usize, "{limit} not equal to {count}");
-                //    if !results.is_empty() {
-                //        assert_eq!(results[0].value, offset + 1);
-                //    }
-            }
-        }
-    }
-
-    // missing_field
-    fn missing_field() {
-        use test_schema::db::{MissingFieldLarge, MissingFieldSmall};
-
-        let small = MissingFieldSmall {
-            a_id: Ulid::generate(),
-            b_id: Ulid::generate(),
-        };
-
-        // move from small to large
-        let bytes = serialize(&small).unwrap();
-        let large = deserialize::<MissingFieldLarge>(&bytes).unwrap();
-
-        assert!(!large.a_id.is_nil());
-        assert!(!large.b_id.is_nil());
-        assert!(large.c_id.is_nil());
     }
 }

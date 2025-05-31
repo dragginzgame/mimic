@@ -1,5 +1,5 @@
 use crate::actor::ActorBuilder;
-use mimic::common::types::StoreType;
+use mimic::schema::types::StoreType;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
