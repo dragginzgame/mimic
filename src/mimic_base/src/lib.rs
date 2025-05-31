@@ -10,9 +10,8 @@ pub mod validator;
 /// Prelude
 ///
 
-pub mod prelude {
-    pub use crate::types;
-    pub use crate::validator;
+pub(crate) mod prelude {
+    pub use crate::{types, validator};
     pub use mimic::prelude::*;
     pub use mimic_design::*;
 }

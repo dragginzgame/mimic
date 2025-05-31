@@ -11,10 +11,7 @@ use crate::prelude::*;
     field(name = "multiple_ten", value(item(is = "MultipleTenType"))),
     field(
         name = "ltoe_ten",
-        value(item(
-            is = "types::Nat8",
-            validator(path = "validator::number::Ltoe", args(10))
-        )),
+        value(item(is = "Nat8", validator(path = "validator::number::Ltoe", args(10)))),
     ),
     field(
         name = "gt_fifty",

@@ -11,11 +11,10 @@ pub mod validate;
 /// Prelude
 ///
 
-pub mod prelude {
+pub(crate) mod prelude {
     pub use mimic::prelude::*;
     pub use mimic_base::{
-        self,
-        types::{self, *},
+        types::{self, Bool, Nat8, Text, Ulid},
         validator,
     };
     pub use mimic_design::*;
@@ -68,5 +67,5 @@ pub struct TodoTarget {}
 /// Todo
 ///
 
-#[newtype(ty(todo), item(is = "types::Nat8"), primitive = "Nat8")]
+#[newtype(ty(todo), item(is = "Nat8"), primitive = "Nat8")]
 pub struct Todo {}
