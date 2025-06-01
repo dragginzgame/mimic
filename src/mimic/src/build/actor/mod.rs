@@ -2,26 +2,14 @@ pub mod db;
 pub mod fixtures;
 pub mod query;
 
-use crate::Error;
+use crate::{Error, build::BuildError};
 use mimic::schema::{
     get_schema,
     node::{Canister, Entity, Schema, Store},
 };
 use proc_macro2::TokenStream;
 use quote::quote;
-use serde::Serialize;
 use std::sync::Arc;
-use thiserror::Error as ThisError;
-
-///
-/// ActorError
-///
-
-#[derive(Debug, Serialize, ThisError)]
-pub enum ActorError {
-    #[error("canister path not found: {0}")]
-    CanisterNotFound(String),
-}
 
 // generate
 pub fn generate(canister_path: &str) -> Result<String, Error> {
@@ -31,7 +19,7 @@ pub fn generate(canister_path: &str) -> Result<String, Error> {
     // filter by name
     let canister = schema
         .try_get_node_as::<Canister>(canister_path)
-        .map_err(|_| ActorError::CanisterNotFound(canister_path.to_string()))?;
+        .map_err(|_| BuildError::CanisterNotFound(canister_path.to_string()))?;
 
     // create the ActorBuilder and generate the code
     let code = ActorBuilder::new(Arc::new(schema.clone()), canister.clone());

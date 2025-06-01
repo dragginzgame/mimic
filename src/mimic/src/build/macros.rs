@@ -23,7 +23,7 @@ macro_rules! mimic_build {
         //
 
         // build
-        let output = ::mimic_build::schema::get_schema_json().unwrap();
+        let output = ::mimic::build::get_schema_json().unwrap();
 
         // write
         let schema_file = PathBuf::from(&out_dir).join("schema.rs");
@@ -34,7 +34,7 @@ macro_rules! mimic_build {
         // ACTOR
         //
 
-        let output = match ::mimic_build::actor::generate($actor) {
+        let output = match ::mimic::build::actor::generate($actor) {
             Ok(res) => res,
             Err(err) => {
                 eprintln!("Error building actor: {err}");

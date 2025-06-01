@@ -776,6 +776,7 @@ dependencies = [
  "serde_bytes",
  "serde_json",
  "sha2",
+ "syn 2.0.101",
  "thiserror 2.0.12",
  "tinyrand",
  "ulid",
@@ -793,19 +794,6 @@ dependencies = [
  "num-traits",
  "semver",
  "serde",
-]
-
-[[package]]
-name = "mimic_build"
-version = "0.4.2"
-dependencies = [
- "mimic",
- "proc-macro2",
- "quote",
- "serde",
- "serde_json",
- "syn 2.0.101",
- "thiserror 2.0.12",
 ]
 
 [[package]]
@@ -1155,7 +1143,6 @@ dependencies = [
  "ic-cdk 0.18.0-alpha.2",
  "icu",
  "mimic",
- "mimic_build",
  "test_schema",
 ]
 

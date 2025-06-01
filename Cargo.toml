@@ -4,7 +4,6 @@ members = [
     "benches",
     "src/mimic",
     "src/mimic_base",
-    "src/mimic_build",
     "src/mimic_design",
     "src/test/canister",
     "src/test/schema",
@@ -34,7 +33,6 @@ ic-stable-structures = "0.6.8"
 icu = { git = "https://github.com/dragginzgame/icu" }
 mimic = { path = "src/mimic" }
 mimic_base = { path = "src/mimic_base" }
-mimic_build = { path = "src/mimic_build" }
 mimic_design = { path = "src/mimic_design" }
 num-traits = { version = "0.2", default-features = false, features = ["libm"] }
 proc-macro2 = "1.0"

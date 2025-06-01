@@ -1,3 +1,4 @@
+pub mod build;
 ///
 /// mimic
 /// [for external use only, keep out of reach of children]
@@ -62,6 +63,9 @@ use visit::{ValidateVisitor, perform_visit};
 
 #[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum Error {
+    #[error(transparent)]
+    BuildError(#[from] build::BuildError),
+
     #[error(transparent)]
     DbError(#[from] db::DbError),
 
