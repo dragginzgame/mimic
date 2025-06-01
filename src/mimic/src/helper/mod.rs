@@ -28,12 +28,6 @@ impl FixtureBuilder {
     pub fn extend(&mut self, other: Self) {
         self.0.extend(other.0);
     }
-
-    /// Finalize and return the list
-    #[must_use]
-    pub fn build(self) -> FixtureList {
-        self.0
-    }
 }
 
 #[allow(clippy::from_over_into)]

@@ -40,7 +40,7 @@ impl EntityFixture for Rarity {
             });
         }
 
-        fixtures.build()
+        fixtures.into()
     }
 }
 
