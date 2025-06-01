@@ -3,8 +3,6 @@ pub mod types;
 
 pub use store::*;
 
-use candid::CandidType;
-use serde::{Deserialize, Serialize};
 use std::{cell::RefCell, collections::HashMap, rc::Rc, thread::LocalKey};
 use thiserror::Error as ThisError;
 
@@ -12,7 +10,7 @@ use thiserror::Error as ThisError;
 /// DbError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, ThisError)]
 pub enum DbError {
     #[error("store not found: {0}")]
     StoreNotFound(String),

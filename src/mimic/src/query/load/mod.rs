@@ -23,7 +23,7 @@ use std::{borrow::Borrow, collections::HashMap};
 /// LoadError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, ThisError)]
 pub enum LoadError {
     #[error("key not found: {0}")]
     KeyNotFound(SortKey),
@@ -93,11 +93,12 @@ impl LoadResponse {
                 .into_iter()
                 .map(|row| {
                     row.try_into()
-                        .map_err(|e| Error::QueryError(QueryError::SerializeError(e)))
+                        .map_err(QueryError::SerializeError)
+                        .map_err(Error::from)
                 })
                 .collect(),
 
-            _ => Err(Error::QueryError(QueryError::LoadError(
+            _ => Err(Error::from(QueryError::from(
                 LoadError::ResponseHasNoEntityData,
             ))),
         }
@@ -133,11 +134,10 @@ impl<T> LoadMap<T> {
     pub fn try_get<R: Borrow<Relation>>(&self, r: R) -> Result<&T, Error> {
         let r = r.borrow();
 
-        self.0.get(r).ok_or_else(|| {
-            Error::QueryError(QueryError::LoadError(LoadError::RelationNotFound(
-                r.clone(),
-            )))
-        })
+        self.0
+            .get(r)
+            .ok_or_else(|| LoadError::RelationNotFound(r.clone()))
+            .map_err(|e| Error::from(QueryError::LoadError(e)))
     }
 
     // get_many
@@ -160,11 +160,11 @@ impl<T> LoadMap<T> {
         keys.into_iter()
             .map(|k| {
                 let rel = k.borrow();
-                self.0.get(rel).ok_or_else(|| {
-                    Error::QueryError(QueryError::LoadError(LoadError::RelationNotFound(
-                        rel.clone(),
-                    )))
-                })
+                self.0
+                    .get(rel)
+                    .ok_or_else(|| LoadError::RelationNotFound(rel.clone()))
+                    .map_err(QueryError::LoadError)
+                    .map_err(Error::from)
             })
             .collect()
     }

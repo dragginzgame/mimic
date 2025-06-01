@@ -10,14 +10,12 @@ use crate::{
     ThisError,
     schema::{build::BuildError, node::NodeError, state::StateError},
 };
-use candid::CandidType;
-use serde::{Deserialize, Serialize};
 
 ///
 /// SchemaError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, ThisError)]
 pub enum SchemaError {
     #[error(transparent)]
     BuildError(#[from] BuildError),

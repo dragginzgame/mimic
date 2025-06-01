@@ -50,8 +50,6 @@ use crate::{
     schema::visit::{Event, Visitor},
     types::ErrorTree,
 };
-use candid::CandidType;
-use serde::{Deserialize, Serialize};
 use std::any::Any;
 use thiserror::Error as ThisError;
 
@@ -59,7 +57,7 @@ use thiserror::Error as ThisError;
 /// NodeError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, ThisError)]
 pub enum NodeError {
     #[error("error downcasting schema node: {0}")]
     DowncastFail(String),

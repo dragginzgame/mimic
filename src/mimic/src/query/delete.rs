@@ -12,7 +12,7 @@ use thiserror::Error as ThisError;
 /// DeleteError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, ThisError)]
 pub enum DeleteError {
     #[error("undefined delete query")]
     Undefined,

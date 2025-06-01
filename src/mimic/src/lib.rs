@@ -60,36 +60,57 @@ use visit::{ValidateVisitor, perform_visit};
 ///
 /// Error
 ///
+/// top level error should handle all sub-errors, but not expose the candid types
+/// as that would be a lot for any project that uses mimic
+///
 
 #[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
 pub enum Error {
-    #[error(transparent)]
-    BuildError(#[from] build::BuildError),
+    #[error("{0}")]
+    BuildError(String),
 
-    #[error(transparent)]
-    DbError(#[from] db::DbError),
+    #[error("{0}")]
+    DbError(String),
 
-    #[error(transparent)]
-    InterfaceError(#[from] interface::InterfaceError),
+    #[error("{0}")]
+    InterfaceError(String),
 
-    #[error(transparent)]
-    QueryError(#[from] query::QueryError),
+    #[error("{0}")]
+    QueryError(String),
 
-    #[error(transparent)]
-    SchemaError(#[from] schema::SchemaError),
+    #[error("{0}")]
+    SchemaError(String),
 
-    #[error(transparent)]
-    SerializeError(#[from] SerializeError),
+    #[error("{0}")]
+    SerializeError(String),
 
-    #[error(transparent)]
-    ValidationError(#[from] ValidationError),
+    #[error("{0}")]
+    ValidationError(String),
 }
 
+macro_rules! from_to_string {
+    ($from:ty, $variant:ident) => {
+        impl From<$from> for Error {
+            fn from(e: $from) -> Self {
+                Error::$variant(e.to_string())
+            }
+        }
+    };
+}
+
+from_to_string!(build::BuildError, BuildError);
+from_to_string!(db::DbError, DbError);
+from_to_string!(interface::InterfaceError, InterfaceError);
+from_to_string!(query::QueryError, QueryError);
+from_to_string!(schema::SchemaError, SchemaError);
+from_to_string!(SerializeError, SerializeError);
+from_to_string!(ValidationError, ValidationError);
+
 ///
-/// ValidationError
+/// Validation
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, ThisError)]
 pub enum ValidationError {
     #[error("validation failed: {0}")]
     Validation(ErrorTree),
@@ -109,10 +130,10 @@ pub fn validate(node: &dyn Visitable) -> Result<(), ValidationError> {
 }
 
 ///
-/// SerializeError
+/// Serialize
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, ThisError)]
 pub enum SerializeError {
     #[error(transparent)]
     SerializeError(#[from] icu::serialize::SerializeError),

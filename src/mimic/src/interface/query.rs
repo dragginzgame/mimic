@@ -4,15 +4,14 @@ use crate::{
     interface::InterfaceError,
     query::{DeleteQuery, DeleteResponse, LoadQuery, LoadResponse, SaveQuery, SaveResponse},
 };
-use candid::{CandidType, Principal};
-use serde::{Deserialize, Serialize};
+use candid::Principal;
 use thiserror::Error as ThisError;
 
 ///
 /// QueryError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, ThisError)]
 pub enum QueryError {
     #[error("call error: {0}")]
     CallError(String),

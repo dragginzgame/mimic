@@ -17,7 +17,7 @@ use std::{
 /// PrincipalError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, ThisError)]
 pub enum PrincipalError {
     #[error("principal is empty")]
     EmptyPrincipal,

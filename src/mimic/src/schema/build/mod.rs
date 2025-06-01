@@ -10,15 +10,13 @@ use crate::{
     },
     types::ErrorTree,
 };
-use candid::CandidType;
-use serde::{Deserialize, Serialize};
 use std::sync::{LazyLock, OnceLock, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 ///
 /// BuildError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, ThisError)]
 pub enum BuildError {
     #[error("validation failed: {0:?}")]
     Validation(ErrorTree),

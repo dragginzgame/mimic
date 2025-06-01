@@ -2,16 +2,14 @@ use crate::{
     Error, ThisError,
     schema::{SchemaError, node::Schema},
 };
-use candid::CandidType;
 use icu::{Log, log};
-use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 
 ///
 /// StateError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, ThisError)]
 pub enum StateError {
     #[error("schema has already been initialized")]
     AlreadyInitialized,

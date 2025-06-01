@@ -2,15 +2,13 @@ pub mod actor;
 pub mod macros;
 
 use crate::{Error, schema::build::get_schema};
-use candid::CandidType;
-use serde::{Deserialize, Serialize};
 use thiserror::Error as ThisError;
 
 ///
 /// BuildError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, ThisError)]
 pub enum BuildError {
     #[error("canister path not found: {0}")]
     CanisterNotFound(String),

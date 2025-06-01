@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 /// SaveError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, ThisError)]
 pub enum SaveError {
     #[error("key exists: {0}")]
     KeyExists(SortKey),

@@ -17,7 +17,7 @@ use std::{cmp::Ordering, fmt};
 /// Error
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, ThisError)]
 pub enum UlidError {
     #[error("ulid is nil")]
     Nil,

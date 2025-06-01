@@ -6,14 +6,12 @@ use crate::{
         state::{StateError as SchemaStateError, get_schema},
     },
 };
-use candid::CandidType;
-use serde::{Deserialize, Serialize};
 
 ///
 /// ResolverError
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(Debug, ThisError)]
 pub enum ResolverError {
     #[error("entity not found: {0}")]
     EntityNotFound(String),
