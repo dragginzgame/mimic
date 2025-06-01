@@ -1,6 +1,6 @@
 use crate::{
     imp::{self, Imp},
-    node::{Def, MacroNode, Node, Sorted, Trait, TraitNode, TraitTokens, Traits},
+    node::{Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -16,16 +16,15 @@ pub struct EntityId {
     #[darling(default, skip)]
     pub def: Def,
 
-    #[darling(default)]
-    pub sorted: Sorted,
-
     #[darling(multiple, rename = "key")]
     pub keys: Vec<Ident>,
+
+    #[darling(default)]
+    pub traits: Traits,
 }
 
 impl Node for EntityId {
     fn expand(&self) -> TokenStream {
-        let Self { sorted, .. } = self;
         let Def { ident, .. } = &self.def;
         let TraitTokens { derive, impls } = self.trait_tokens();
 
@@ -33,7 +32,6 @@ impl Node for EntityId {
         let keys = self.keys.iter().map(quote::ToTokens::to_token_stream);
         let q = quote! {
             #derive
-            #sorted
             pub enum #ident {
                 #(#keys,)*
             }
@@ -58,7 +56,7 @@ impl MacroNode for EntityId {
 
 impl TraitNode for EntityId {
     fn traits(&self) -> Vec<Trait> {
-        let mut traits = Traits::default();
+        let mut traits = self.traits.clone();
         traits.extend(vec![
             Trait::Copy,
             Trait::Display,
@@ -74,6 +72,13 @@ impl TraitNode for EntityId {
             Trait::Into => imp::IntoTrait::tokens(self, t),
 
             _ => imp::any(self, t),
+        }
+    }
+
+    fn map_attribute(&self, t: Trait) -> Option<TokenStream> {
+        match t {
+            Trait::Sorted => Trait::Sorted.derive_attribute(),
+            _ => None,
         }
     }
 }

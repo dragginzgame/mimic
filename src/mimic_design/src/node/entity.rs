@@ -128,10 +128,11 @@ impl TraitNode for Entity {
         }
     }
 
-    fn derive_attributes(&self) -> Option<TokenStream> {
-        self.traits()
-            .contains(&Trait::Default)
-            .then(|| quote! { #[serde(default)] })
+    fn map_attribute(&self, t: Trait) -> Option<TokenStream> {
+        match t {
+            Trait::Default => Trait::Default.derive_attribute(),
+            _ => None,
+        }
     }
 }
 

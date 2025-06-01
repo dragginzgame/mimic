@@ -5,6 +5,7 @@ pub mod db;
 pub mod default;
 pub mod index;
 pub mod rarity;
+pub mod sorted;
 pub mod validate;
 
 ///

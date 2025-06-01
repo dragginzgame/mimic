@@ -49,9 +49,8 @@ pub use self::r#type::*;
 pub use self::validator::*;
 pub use self::value::*;
 
-use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
+use quote::quote;
 
 ///
 /// NODE TRAITS
@@ -89,18 +88,31 @@ pub trait TraitNode: MacroNode {
 
     // trait_tokens
     fn trait_tokens(&self) -> TraitTokens {
+        let mut derived_traits = Vec::new();
+        let mut attrs = Vec::new();
         let mut impls = quote!();
-        let traits = self.traits();
 
         // we only derive traits that have no map_imp tokens
-        let mut derived_traits = Vec::new();
-        for t in traits {
-            match self.map_trait(t) {
-                Some(tokens) => impls.extend(tokens),
-                None => derived_traits.push(
-                    t.derive_path()
-                        .unwrap_or_else(|| panic!("trait '{t}' cannot be derived")),
-                ),
+        for tr in self.traits() {
+            match (self.map_trait(tr), self.map_attribute(tr)) {
+                (Some(t), Some(a)) => {
+                    impls.extend(t);
+                    attrs.push(a);
+                }
+                (Some(t), None) => {
+                    impls.extend(t);
+                }
+                (None, Some(a)) => {
+                    if let Some(derive) = tr.derive_path() {
+                        derived_traits.push(derive);
+                    }
+                    attrs.push(a);
+                }
+                (None, None) => {
+                    derived_traits.push(tr.derive_path().unwrap_or_else(|| {
+                        panic!("trait '{tr}' has no derive, impl or attributes")
+                    }))
+                }
             }
         }
 
@@ -112,11 +124,7 @@ pub trait TraitNode: MacroNode {
                 #[derive(#(#derived_traits),*)]
             }
         };
-
-        // derive attributes
-        if let Some(attrs) = self.derive_attributes() {
-            derive.extend(attrs);
-        }
+        derive.extend(attrs);
 
         TraitTokens { derive, impls }
     }
@@ -126,28 +134,9 @@ pub trait TraitNode: MacroNode {
     // otherwise it's the code for the implementation
     fn map_trait(&self, t: Trait) -> Option<TokenStream>;
 
-    // derive_attributes
+    // map_attribute
     // extra attributes for the derive
-    fn derive_attributes(&self) -> Option<TokenStream> {
+    fn map_attribute(&self, _: Trait) -> Option<TokenStream> {
         None
-    }
-}
-
-///
-/// NODE HELPERS
-///
-
-///
-/// Sorted
-///
-
-#[derive(Clone, Debug, Default, FromMeta)]
-pub struct Sorted(bool);
-
-impl ToTokens for Sorted {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        if self.0 {
-            tokens.extend(quote!(#[::mimic::export::remain::sorted]));
-        }
     }
 }

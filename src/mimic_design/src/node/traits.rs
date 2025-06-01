@@ -69,6 +69,7 @@ pub enum Trait {
     Orderable,
     Path,
     Searchable,
+    Sorted,
     SortKeyValue,
     ValidateAuto,
     ValidateCustom,
@@ -146,6 +147,14 @@ impl Trait {
             Self::Sub => Some(quote!(::mimic::export::derive_more::Sub)),
             Self::SubAssign => Some(quote!(::mimic::export::derive_more::SubAssign)),
 
+            _ => None,
+        }
+    }
+
+    pub fn derive_attribute(&self) -> Option<TokenStream> {
+        match self {
+            Trait::Sorted => Some(quote!(#[::mimic::export::remain::sorted])),
+            Trait::Default => Some(quote!(#[serde(default)])),
             _ => None,
         }
     }

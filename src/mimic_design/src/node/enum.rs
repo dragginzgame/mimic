@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_option, quote_vec, to_string},
     imp::{self, Imp},
-    node::{Def, MacroNode, Node, Sorted, Trait, TraitNode, TraitTokens, Traits, Type, Value},
+    node::{Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type, Value},
     traits::Schemable,
 };
 use darling::FromMeta;
@@ -17,9 +17,6 @@ use syn::Ident;
 pub struct Enum {
     #[darling(default, skip)]
     pub def: Def,
-
-    #[darling(default)]
-    pub sorted: Sorted,
 
     #[darling(multiple, rename = "variant")]
     pub variants: Vec<EnumVariant>,
@@ -47,7 +44,6 @@ impl Enum {
 
 impl Node for Enum {
     fn expand(&self) -> TokenStream {
-        let Self { sorted, .. } = self;
         let Def { ident, .. } = &self.def;
         let TraitTokens { derive, impls } = self.trait_tokens();
 
@@ -57,7 +53,6 @@ impl Node for Enum {
         let q = quote! {
             #schema
             #derive
-            #sorted
             pub enum #ident {
                 #(#variants,)*
             }
@@ -106,6 +101,13 @@ impl TraitNode for Enum {
             Trait::Visitable => imp::VisitableTrait::tokens(self, t),
 
             _ => imp::any(self, t),
+        }
+    }
+
+    fn map_attribute(&self, t: Trait) -> Option<TokenStream> {
+        match t {
+            Trait::Sorted => Trait::Sorted.derive_attribute(),
+            _ => None,
         }
     }
 }
