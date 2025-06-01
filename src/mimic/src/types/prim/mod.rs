@@ -1,11 +1,11 @@
-pub mod blob;
-pub mod decimal;
-pub mod int;
-pub mod nat;
-pub mod principal;
-pub mod relation;
-pub mod ulid;
-pub mod unit;
+mod blob;
+mod decimal;
+mod int;
+mod nat;
+mod principal;
+mod relation;
+mod ulid;
+mod unit;
 
 pub use blob::Blob;
 pub use decimal::Decimal;

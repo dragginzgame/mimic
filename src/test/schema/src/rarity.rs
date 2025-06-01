@@ -30,7 +30,7 @@ impl EntityFixture for Rarity {
             (Id::Inconceivable, "Inconceivable", 7),
         ];
 
-        let mut fixtures = FixtureList::new();
+        let mut fixtures = FixtureBuilder::new();
         for (id, name, level) in data {
             fixtures.push(Self {
                 id: id.into(),
@@ -40,7 +40,7 @@ impl EntityFixture for Rarity {
             });
         }
 
-        fixtures
+        fixtures.build()
     }
 }
 

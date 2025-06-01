@@ -20,7 +20,7 @@ use crate::{
     SerializeError,
     schema::types::SortDirection,
     types::{
-        ErrorTree, FixtureList,
+        ErrorTree,
         prim::{Relation, Ulid},
     },
     visit::Visitor,
@@ -430,8 +430,8 @@ pub trait EntityFixture: Sized {
     // fixtures
     // returns a vec of entities that are inserted on canister init
     #[must_use]
-    fn fixtures() -> FixtureList {
-        FixtureList::new()
+    fn fixtures() -> Vec<Box<dyn EntityDyn>> {
+        Vec::new()
     }
 }
 

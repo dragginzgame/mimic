@@ -23,7 +23,7 @@ fn fixtures(builder: &ActorBuilder) -> TokenStream {
         // fixtures_replace_helper
         #[allow(dead_code)]
         fn mimic_fixtures_replace_helper(
-            fixtures: ::mimic::types::FixtureList,
+            fixtures: Vec<Box<dyn EntityDyn>>,
         ) -> Result<(), ::mimic::Error> {
             for entity in fixtures {
                 ::mimic::query::replace()

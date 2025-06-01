@@ -4,6 +4,7 @@ pub mod build;
 /// [for external use only, keep out of reach of children]
 ///
 pub mod db;
+pub mod helper;
 pub mod interface;
 pub mod macros;
 pub mod query;
@@ -34,6 +35,7 @@ extern crate self as mimic;
 
 pub mod prelude {
     pub use crate::{
+        helper::{FixtureBuilder, FixtureList},
         mimic_start,
         query::traits::{LoadCollectionTrait as _, LoadQueryBuilderTrait as _},
         schema::types::SortDirection,
@@ -43,7 +45,7 @@ pub mod prelude {
             ValidatorBytes, ValidatorNumber, ValidatorString, Visitable,
         },
         types::{
-            ErrorTree, FixtureList,
+            ErrorTree,
             prim::{Relation, Ulid},
         },
     };
