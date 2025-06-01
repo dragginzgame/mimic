@@ -1,5 +1,5 @@
 use crate::{
-    db::types::CompositeKey,
+    db::types::IndexKey,
     ic::structures::{BTreeMap, DefaultMemory},
 };
 use derive_more::{Deref, DerefMut};
@@ -11,7 +11,7 @@ use std::{cell::RefCell, thread::LocalKey};
 
 #[derive(Deref, DerefMut)]
 pub struct IndexStore {
-    pub data: BTreeMap<CompositeKey, String>,
+    pub data: BTreeMap<IndexKey, String>,
 }
 
 impl IndexStore {

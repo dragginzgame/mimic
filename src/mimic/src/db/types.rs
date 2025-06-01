@@ -9,22 +9,42 @@ use std::fmt;
 ///
 
 ///
-/// CompositeKey
+/// IndexKey
 ///
 
 #[derive(
     CandidType, Clone, Debug, Default, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize,
 )]
-pub struct CompositeKey(pub Vec<String>);
+pub struct IndexKey {
+    entity: String,
+    fields: Vec<String>,
+    values: Vec<String>,
+}
 
-impl CompositeKey {
+impl IndexKey {
     #[must_use]
-    pub fn new(parts: &[String]) -> Self {
-        Self(parts.to_vec())
+    pub fn new(entity: &str, fields: &[&str], values: &[&str]) -> Self {
+        Self {
+            entity: entity.to_string(),
+            fields: fields.iter().map(|s| s.to_string()).collect(),
+            values: values.iter().map(|s| s.to_string()).collect(),
+        }
     }
 }
 
-impl_storable_bounded!(CompositeKey, 256, false);
+impl std::fmt::Display for IndexKey {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "{}[{}] -> [{}]",
+            self.entity,
+            self.fields.join(", "),
+            self.values.join(", ")
+        )
+    }
+}
+
+impl_storable_bounded!(IndexKey, 256, false);
 
 ///
 /// SortKey
