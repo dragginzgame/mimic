@@ -24,7 +24,7 @@ pub fn test() {
     db::DbTester::test();
     validate::ValidateTester::test();
 
-    INDEXES
+    INDEX_REGISTRY
         .with(|reg| reg.with_store("test_schema::Index", |_| {}))
         .unwrap();
 
@@ -36,15 +36,16 @@ pub fn test() {
 pub fn rarity() -> Result<Vec<Rarity>, MimicError> {
     perf!();
 
-    let query = query::load::<Rarity>()
-        .all()
-        .filter(|r| r.name.len() != 6)
-        .search_field("name", "co")
-        .sort([("level", SortDirection::Desc)]);
+    let res = query_load!(
+        query::load::<Rarity>()
+            .all()
+            .filter(|r| r.name.len() != 6)
+            .search_field("name", "co")
+            .sort([("level", SortDirection::Desc)])
+    )?
+    .entities();
 
-    let es = query.debug().execute(&DB)?.entities();
-
-    Ok(es)
+    Ok(res)
 }
 
 export_candid!();

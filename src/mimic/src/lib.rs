@@ -1,14 +1,15 @@
-pub mod build;
 ///
 /// mimic
 /// [for external use only, keep out of reach of children]
 ///
+pub mod build;
 pub mod db;
 pub mod helper;
 pub mod interface;
 pub mod macros;
 pub mod query;
 pub mod schema;
+pub mod service;
 pub mod traits;
 pub mod types;
 pub mod utils;
@@ -36,8 +37,8 @@ extern crate self as mimic;
 pub mod prelude {
     pub use crate::{
         helper::{FixtureBuilder, FixtureList},
-        mimic_start,
-        query::traits::{LoadCollectionTrait as _, LoadQueryBuilderTrait as _},
+        mimic_start, query_delete, query_executor_delete, query_executor_load,
+        query_executor_load_dyn, query_executor_save, query_load, query_load_dyn, query_save,
         schema::types::SortDirection,
         traits::{
             EntityDyn, EntityFixture, EntityId as _, Inner as _, NumCast, Orderable, Ordering,
@@ -78,13 +79,13 @@ pub enum Error {
     InterfaceError(String),
 
     #[error("{0}")]
-    QueryError(String),
-
-    #[error("{0}")]
     SchemaError(String),
 
     #[error("{0}")]
     SerializeError(String),
+
+    #[error("{0}")]
+    ServiceError(String),
 
     #[error("{0}")]
     ValidationError(String),
@@ -103,9 +104,9 @@ macro_rules! from_to_string {
 from_to_string!(build::BuildError, BuildError);
 from_to_string!(db::DbError, DbError);
 from_to_string!(interface::InterfaceError, InterfaceError);
-from_to_string!(query::QueryError, QueryError);
 from_to_string!(schema::SchemaError, SchemaError);
 from_to_string!(SerializeError, SerializeError);
+from_to_string!(service::ServiceError, ServiceError);
 from_to_string!(ValidationError, ValidationError);
 
 ///

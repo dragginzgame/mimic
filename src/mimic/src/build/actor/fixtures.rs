@@ -26,10 +26,7 @@ fn fixtures(builder: &ActorBuilder) -> TokenStream {
             fixtures: Vec<Box<dyn EntityDyn>>,
         ) -> Result<(), ::mimic::Error> {
             for entity in fixtures {
-                ::mimic::query::replace()
-                    .entity_dyn(entity)
-                  //  .debug()
-                    .execute(&DB)?;
+               query_save!(::mimic::query::replace().entity_dyn(entity)).unwrap();
             }
 
             Ok(())

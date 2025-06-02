@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Sorted moved to a trait, which altered the logic so that traits can have attributes but no impl or derive
 - moved build back into mimic
 - changed the Errors so only the top level MimicError derives CandidType/Serialize/Deserialize
+- removed Errors from Query as when we moved the executors out it made less sense
 
 ## [0.4.2]
 - made Db into StoreRegistry and made it generic.  Now you can define multiple registries (one for DataStores, one

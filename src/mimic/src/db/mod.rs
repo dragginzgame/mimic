@@ -68,6 +68,6 @@ impl<T: 'static> StoreRegistry<T> {
 /// Local Variables
 ///
 
-pub type DataStoreRegistryLocal = &'static LocalKey<Rc<StoreRegistry<DataStore>>>;
+pub type DataStoreRegistry = &'static LocalKey<Rc<StoreRegistry<DataStore>>>;
 
-pub type IndexStoreRegistryLocal = &'static LocalKey<Rc<StoreRegistry<IndexStore>>>;
+pub type IndexStoreRegistry = &'static LocalKey<Rc<StoreRegistry<IndexStore>>>;

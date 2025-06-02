@@ -1,103 +1,54 @@
-pub mod delete;
-pub mod load;
-pub mod resolver;
-pub mod save;
-pub mod traits;
+mod delete;
+mod load;
+mod save;
+mod types;
 
 pub use delete::*;
 pub use load::*;
-pub use resolver::*;
 pub use save::*;
-pub use traits::*;
+pub use types::*;
 
-use crate::{SerializeError, ThisError, db::DbError, traits::Entity};
-use candid::CandidType;
-use serde::{Deserialize, Serialize};
-
-///
-/// QueryError
-///
-
-#[derive(Debug, ThisError)]
-pub enum QueryError {
-    #[error(transparent)]
-    DbError(#[from] DbError),
-
-    #[error(transparent)]
-    LoadError(#[from] LoadError),
-
-    #[error(transparent)]
-    SaveError(#[from] SaveError),
-
-    #[error(transparent)]
-    DeleteError(#[from] DeleteError),
-
-    #[error(transparent)]
-    ResolverError(#[from] ResolverError),
-
-    #[error(transparent)]
-    SerializeError(#[from] SerializeError),
-}
+use crate::{Error, deserialize, traits::Entity};
 
 // load
 #[must_use]
-pub fn load<E: Entity>() -> LoadQueryInit<E> {
-    LoadQueryInit::<E>::new()
+pub fn load<E: Entity>() -> LoadQueryBuilder<E> {
+    LoadQueryBuilder::<E>::new()
 }
 
 // load_dyn
 #[must_use]
-pub const fn load_dyn() -> LoadQueryDynInit {
-    LoadQueryDynInit::new()
+pub const fn load_dyn() -> LoadQueryDynBuilder {
+    LoadQueryDynBuilder::new()
 }
 
 // delete
 #[must_use]
-pub const fn delete() -> DeleteQueryInit {
-    DeleteQueryInit::new()
+pub const fn delete() -> DeleteQueryBuilder {
+    DeleteQueryBuilder::new()
 }
 
 // save
-#[must_use]
-pub const fn save() -> SaveQueryInit {
-    SaveQueryInit::new()
+pub fn save<E: Entity + 'static>(query: SaveQuery) -> Result<SaveQueryPrepared, Error> {
+    let entity = deserialize::<E>(&query.bytes)?;
+
+    Ok(SaveQueryPrepared::new(query.mode, Box::new(entity)))
 }
 
 // create
 #[must_use]
-pub const fn create() -> SaveQueryModeInit {
-    SaveQueryModeInit::new(SaveMode::Create)
+pub fn create() -> SaveQueryBuilder {
+    SaveQueryBuilder::new(SaveMode::Create)
 }
 
 // update
 #[must_use]
-pub const fn update() -> SaveQueryModeInit {
-    SaveQueryModeInit::new(SaveMode::Update)
+pub fn update() -> SaveQueryBuilder {
+    SaveQueryBuilder::new(SaveMode::Update)
 }
 
 // replace
 #[must_use]
-pub const fn replace() -> SaveQueryModeInit {
-    SaveQueryModeInit::new(SaveMode::Replace)
-}
-
-///
-/// DebugContext
-///
-
-#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
-pub struct DebugContext {
-    enabled: bool,
-}
-
-impl DebugContext {
-    pub const fn enable(&mut self) {
-        self.enabled = true;
-    }
-
-    pub fn println(&self, s: &str) {
-        if self.enabled {
-            icu::ic::println!("{s}");
-        }
-    }
+pub fn replace() -> SaveQueryBuilder {
+    SaveQueryBuilder::new(SaveMode::Replace)
 }

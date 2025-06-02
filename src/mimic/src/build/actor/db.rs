@@ -88,11 +88,12 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
             #data_store_defs
             #index_store_defs
 
-            static DB: ::std::rc::Rc<::mimic::db::StoreRegistry<::mimic::db::DataStore>> =
+            static DATA_REGISTRY: ::std::rc::Rc<::mimic::db::StoreRegistry<::mimic::db::DataStore>> =
                 ::std::rc::Rc::new(#data_registry);
 
-            static INDEXES: ::std::rc::Rc<::mimic::db::StoreRegistry<::mimic::db::IndexStore>> =
+            static INDEX_REGISTRY: ::std::rc::Rc<::mimic::db::StoreRegistry<::mimic::db::IndexStore>> =
                 ::std::rc::Rc::new(#index_registry);
+
         }
     }
 }
