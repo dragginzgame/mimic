@@ -6,6 +6,7 @@ use crate::{
         ServiceError,
         storage::{DebugContext, Loader, StorageError, with_resolver},
     },
+    traits::Entity,
 };
 
 ///
@@ -37,30 +38,37 @@ impl LoadExecutorDyn {
     }
 
     // execute
-    pub fn execute(self, query: LoadQueryDyn) -> Result<LoadCollectionDyn, Error> {
-        let res = self.execute_internal(query).map_err(ServiceError::from)?;
+    pub fn execute<E: Entity>(self, query: LoadQueryDyn) -> Result<LoadCollectionDyn, Error> {
+        let res = self
+            .execute_internal::<E>(query)
+            .map_err(ServiceError::from)?;
 
         Ok(res)
     }
 
     // response
-    pub fn response(self, query: LoadQueryDyn) -> Result<LoadResponse, Error> {
+    pub fn response<E: Entity>(self, query: LoadQueryDyn) -> Result<LoadResponse, Error> {
         let format = query.format;
-        let cll = self.execute_internal(query).map_err(ServiceError::from)?;
+        let cll = self
+            .execute_internal::<E>(query)
+            .map_err(ServiceError::from)?;
 
         Ok(cll.response(format))
     }
 
     // execute_internal
-    fn execute_internal(self, query: LoadQueryDyn) -> Result<LoadCollectionDyn, StorageError> {
+    fn execute_internal<E: Entity>(
+        self,
+        query: LoadQueryDyn,
+    ) -> Result<LoadCollectionDyn, StorageError> {
         self.debug.println(&format!("query.load_dyn: {query:?}"));
 
         // store
-        let store_path = with_resolver(|r| r.resolve_store(&query.path))?;
+        let store_path = with_resolver(|r| r.resolve_store(E::PATH))?;
         let store = self.data.with(|db| db.try_get_store(&store_path))?;
 
         // selector
-        let selector = with_resolver(|r| r.resolve_selector(&query.path, &query.selector))?;
+        let selector = with_resolver(|r| r.resolve_selector(E::PATH, &query.selector))?;
 
         // loader
         let loader = Loader::new(store);
@@ -69,7 +77,10 @@ impl LoadExecutorDyn {
         // paginate and filter incorrect paths
         let rows = res
             .into_iter()
-            .filter(|row| row.value.path == query.path)
+            .filter(|row| {
+                query.include_children && row.value.path.starts_with(E::PATH)
+                    || row.value.path == E::PATH
+            })
             .skip(query.offset as usize)
             .take(query.limit.unwrap_or(u32::MAX) as usize)
             .collect();

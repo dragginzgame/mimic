@@ -67,19 +67,19 @@ where
     // selector
     #[must_use]
     pub fn selector(self, selector: Selector) -> LoadQueryInternal<E> {
-        LoadQueryInternal::from_selector(selector)
+        LoadQueryInternal::new(LoadQuery::new(selector))
     }
 
     // all
     #[must_use]
     pub fn all(self) -> LoadQueryInternal<E> {
-        LoadQueryInternal::from_selector(Selector::All)
+        LoadQueryInternal::new(LoadQuery::new(Selector::All))
     }
 
     // only
     #[must_use]
     pub fn only(self) -> LoadQueryInternal<E> {
-        LoadQueryInternal::from_selector(Selector::Only)
+        LoadQueryInternal::new(LoadQuery::new(Selector::Only))
     }
 
     // one
@@ -87,7 +87,7 @@ where
         let ck_str: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let selector = Selector::One(ck_str);
 
-        LoadQueryInternal::from_selector(selector)
+        LoadQueryInternal::new(LoadQuery::new(selector))
     }
 
     // many
@@ -95,7 +95,7 @@ where
     pub fn many(self, cks: &[Vec<String>]) -> LoadQueryInternal<E> {
         let selector = Selector::Many(cks.to_vec());
 
-        LoadQueryInternal::from_selector(selector)
+        LoadQueryInternal::new(LoadQuery::new(selector))
     }
 
     // range
@@ -104,7 +104,7 @@ where
         let end = end.iter().map(ToString::to_string).collect();
         let selector = Selector::Range(start, end);
 
-        LoadQueryInternal::from_selector(selector)
+        LoadQueryInternal::new(LoadQuery::new(selector))
     }
 
     // prefix
@@ -112,7 +112,7 @@ where
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
         let selector = Selector::Prefix(prefix);
 
-        LoadQueryInternal::from_selector(selector)
+        LoadQueryInternal::new(LoadQuery::new(selector))
     }
 }
 
@@ -132,17 +132,6 @@ impl<E: Entity> LoadQueryInternal<E> {
     // new
     #[must_use]
     pub fn new(inner: LoadQuery) -> Self {
-        Self {
-            inner,
-            filters: vec![],
-        }
-    }
-
-    // from_selector
-    #[must_use]
-    pub fn from_selector(selector: Selector) -> Self {
-        let inner = LoadQuery::new(selector);
-
         Self {
             inner,
             filters: vec![],

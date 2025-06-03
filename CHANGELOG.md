@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [0.4.3]
+- LoadQueryDyn is now generic, dropped the path variable, and include_children is available
 - moved base out of mimic and added mimic_base.  mimic_common can now go back into mimic
 - Sorted moved to a trait, which altered the logic so that traits can have attributes but no impl or derive
 - moved build back into mimic

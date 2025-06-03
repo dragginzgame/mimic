@@ -78,7 +78,7 @@ impl DbTester {
         query_save!(query::create().entity(e)).unwrap();
 
         // count keys
-        let num_keys = query_load_dyn!(query::load_dyn().all(CreateBasic::PATH))
+        let num_keys = query_load!(query::load::<CreateBasic>().all())
             .unwrap()
             .count();
         assert_eq!(num_keys, 1);
@@ -90,7 +90,7 @@ impl DbTester {
         // count keys
 
         assert_eq!(
-            query_load_dyn!(query::load_dyn().all(CreateBasic::PATH))
+            query_load!(query::load::<CreateBasic>().all())
                 .unwrap()
                 .count(),
             2
@@ -109,7 +109,7 @@ impl DbTester {
         }
 
         // Retrieve the count from the store
-        let count = query_load_dyn!(query::load_dyn().all(CreateBasic::PATH))
+        let count = query_load!(query::load::<CreateBasic>().all())
             .unwrap()
             .count();
 
@@ -161,14 +161,9 @@ impl DbTester {
         // Test various limits and offsets
         for limit in [10, 20, 50] {
             for offset in [0, 5, 10] {
-                let count = query_load_dyn!(
-                    query::load_dyn()
-                        .all(Limit::PATH)
-                        .offset(offset)
-                        .limit(limit)
-                )
-                .unwrap()
-                .count();
+                let count = query_load!(query::load::<Limit>().all().offset(offset).limit(limit))
+                    .unwrap()
+                    .count();
 
                 assert_eq!(count, limit as usize, "{limit} not equal to {count}");
                 //    if !results.is_empty() {

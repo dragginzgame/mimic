@@ -18,7 +18,7 @@ pub fn load<E: Entity>() -> LoadQueryBuilder<E> {
 
 // load_dyn
 #[must_use]
-pub const fn load_dyn() -> LoadQueryDynBuilder {
+pub fn load_dyn<E: Entity>() -> LoadQueryDynBuilder<E> {
     LoadQueryDynBuilder::new()
 }
 
