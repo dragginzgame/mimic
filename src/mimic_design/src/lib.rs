@@ -72,7 +72,6 @@ macro_node!(enum_value, node::EnumValue);
 macro_node!(list, node::List);
 macro_node!(map, node::Map);
 macro_node!(newtype, node::Newtype);
-macro_node!(primitive, node::Primitive);
 macro_node!(record, node::Record);
 macro_node!(selector, node::Selector);
 macro_node!(set, node::Set);

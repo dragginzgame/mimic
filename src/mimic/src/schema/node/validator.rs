@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 /// Validator
 ///
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Validator {
     pub def: Def,
 }

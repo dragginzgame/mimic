@@ -4,7 +4,7 @@ use crate::prelude::*;
 /// DecimalFormat
 ///
 
-#[newtype(primitive = "Decimal", item(is = "types::Decimal"))]
+#[newtype(primitive = "Decimal", item(prim = "Decimal"))]
 pub struct DecimalFormat {}
 
 ///
@@ -13,7 +13,7 @@ pub struct DecimalFormat {}
 
 #[newtype(
     primitive = "Nat16",
-    item(is = "types::Nat16"),
+    item(prim = "Nat16"),
     ty(validator(path = "validator::number::Range", args(0_u16, 360_u16)))
 )]
 pub struct Degrees {}
@@ -26,7 +26,7 @@ pub struct Degrees {}
 
 #[newtype(
     primitive = "Nat8",
-    item(is = "types::Nat8"),
+    item(prim = "Nat8"),
     ty(validator(path = "validator::number::Range", args(0, 100)))
 )]
 pub struct Percent {}
@@ -37,7 +37,7 @@ pub struct Percent {}
 
 #[newtype(
     primitive = "Nat16",
-    item(is = "types::Nat16"),
+    item(prim = "Nat16"),
     ty(validator(path = "validator::number::Range", args(0_u16, 10_000_u16)))
 )]
 pub struct PercentModifier {}

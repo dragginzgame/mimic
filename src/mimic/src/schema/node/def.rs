@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 /// Def
 ///
 
-#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
 pub struct Def {
     pub module_path: String,
     pub ident: String,

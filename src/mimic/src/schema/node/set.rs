@@ -12,8 +12,6 @@ use serde::{Deserialize, Serialize};
 pub struct Set {
     pub def: Def,
     pub item: Item,
-
-    #[serde(default, skip_serializing_if = "Type::skip_serializing")]
     pub ty: Type,
 }
 

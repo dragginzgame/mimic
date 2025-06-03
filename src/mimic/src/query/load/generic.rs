@@ -6,7 +6,7 @@ use crate::{
         load::{LoadCollectionDyn, LoadFormat, LoadMap, LoadResponse},
     },
     schema::types::SortDirection,
-    traits::Entity,
+    traits::EntityKind,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -43,14 +43,14 @@ impl LoadQuery {
 #[derive(Debug, Default)]
 pub struct LoadQueryBuilder<E>
 where
-    E: Entity,
+    E: EntityKind,
 {
     phantom: PhantomData<E>,
 }
 
 impl<E> LoadQueryBuilder<E>
 where
-    E: Entity,
+    E: EntityKind,
 {
     // new
     #[must_use]
@@ -122,13 +122,13 @@ where
 
 pub struct LoadQueryInternal<E>
 where
-    E: Entity,
+    E: EntityKind,
 {
     pub inner: LoadQuery,
     pub filters: Vec<Box<dyn Fn(&E) -> bool>>,
 }
 
-impl<E: Entity> LoadQueryInternal<E> {
+impl<E: EntityKind> LoadQueryInternal<E> {
     // new
     #[must_use]
     pub fn new(inner: LoadQuery) -> Self {
@@ -256,11 +256,11 @@ impl<E: Entity> LoadQueryInternal<E> {
 ///
 
 #[derive(Debug)]
-pub struct LoadCollection<E: Entity>(pub Vec<EntityRow<E>>);
+pub struct LoadCollection<E: EntityKind>(pub Vec<EntityRow<E>>);
 
 impl<E> LoadCollection<E>
 where
-    E: Entity,
+    E: EntityKind,
 {
     // response
     #[must_use]

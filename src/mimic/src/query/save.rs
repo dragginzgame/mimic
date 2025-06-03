@@ -2,7 +2,7 @@ use crate::{
     Error,
     db::types::SortKey,
     deserialize,
-    traits::{Entity, EntityDyn},
+    traits::{EntityKind, EntityKindDyn},
 };
 use candid::CandidType;
 use derive_more::Display;
@@ -49,13 +49,13 @@ impl SaveQuery {
 
 pub struct SaveQueryPrepared {
     pub mode: SaveMode,
-    pub entity: Box<dyn EntityDyn>,
+    pub entity: Box<dyn EntityKindDyn>,
 }
 
 impl SaveQueryPrepared {
     // new
     #[must_use]
-    pub fn new(mode: SaveMode, entity: Box<dyn EntityDyn>) -> Self {
+    pub fn new(mode: SaveMode, entity: Box<dyn EntityKindDyn>) -> Self {
         Self { mode, entity }
     }
 }
@@ -87,20 +87,20 @@ impl SaveQueryBuilder {
     }
 
     // bytes
-    pub fn bytes<E: Entity + 'static>(self, bytes: &[u8]) -> Result<SaveQueryPrepared, Error> {
+    pub fn bytes<E: EntityKind + 'static>(self, bytes: &[u8]) -> Result<SaveQueryPrepared, Error> {
         let entity = deserialize::<E>(bytes)?;
 
         Ok(SaveQueryPrepared::new(self.mode, Box::new(entity)))
     }
 
     // entity
-    pub fn entity<E: Entity + 'static>(self, entity: E) -> SaveQueryPrepared {
+    pub fn entity<E: EntityKind + 'static>(self, entity: E) -> SaveQueryPrepared {
         SaveQueryPrepared::new(self.mode, Box::new(entity))
     }
 
     // entity_dyn
     #[must_use]
-    pub fn entity_dyn(self, entity: Box<dyn EntityDyn>) -> SaveQueryPrepared {
+    pub fn entity_dyn(self, entity: Box<dyn EntityKindDyn>) -> SaveQueryPrepared {
         SaveQueryPrepared::new(self.mode, entity)
     }
 }

@@ -104,8 +104,7 @@ impl TraitNode for Entity {
         traits.add_type_traits();
         traits.extend(vec![
             Trait::Default,
-            Trait::Entity,
-            Trait::EntityDyn,
+            Trait::EntityKindDyn,
             Trait::EntityFixture,
             Trait::EntitySearch,
             Trait::EntitySort,
@@ -117,8 +116,7 @@ impl TraitNode for Entity {
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::Default if self.has_default() => imp::DefaultTrait::tokens(self, t),
-            Trait::Entity => imp::EntityTrait::tokens(self, t),
-            Trait::EntityDyn => imp::EntityDynTrait::tokens(self, t),
+            Trait::EntityKindDyn => imp::EntityKindDynTrait::tokens(self, t),
             Trait::EntitySearch => imp::EntitySearchTrait::tokens(self, t),
             Trait::EntitySort => imp::EntitySortTrait::tokens(self, t),
             Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),

@@ -1,6 +1,5 @@
 use crate::schema::{
     node::{Arg, Def, Item, MacroNode, Type, TypeNode, ValidateNode, VisitableNode},
-    types::PrimitiveType,
     visit::Visitor,
 };
 use serde::{Deserialize, Serialize};
@@ -13,12 +12,10 @@ use serde::{Deserialize, Serialize};
 pub struct Newtype {
     pub def: Def,
     pub item: Item,
-    pub primitive: PrimitiveType,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub default: Option<Arg>,
 
-    #[serde(default, skip_serializing_if = "Type::skip_serializing")]
     pub ty: Type,
 }
 

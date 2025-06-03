@@ -6,7 +6,7 @@ use crate::{
         ServiceError,
         storage::{DebugContext, Loader, StorageError, with_resolver},
     },
-    traits::Entity,
+    traits::EntityKind,
 };
 
 ///
@@ -39,7 +39,7 @@ impl LoadExecutor {
     }
 
     // execute
-    pub fn execute<E: Entity>(
+    pub fn execute<E: EntityKind>(
         self,
         query: LoadQueryInternal<E>,
     ) -> Result<LoadCollection<E>, Error> {
@@ -49,7 +49,10 @@ impl LoadExecutor {
     }
 
     // response
-    pub fn response<E: Entity>(self, query: LoadQueryInternal<E>) -> Result<LoadResponse, Error> {
+    pub fn response<E: EntityKind>(
+        self,
+        query: LoadQueryInternal<E>,
+    ) -> Result<LoadResponse, Error> {
         let format = query.inner.format;
         let cll = self.execute_internal(query).map_err(ServiceError::from)?;
 
@@ -57,16 +60,16 @@ impl LoadExecutor {
     }
 
     // execute_internal
-    fn execute_internal<E: Entity>(
+    fn execute_internal<E: EntityKind>(
         self,
         query: LoadQueryInternal<E>,
     ) -> Result<LoadCollection<E>, StorageError> {
-        let store_path = with_resolver(|r| r.resolve_store(E::PATH))?;
-        let store = self.data.with(|db| db.try_get_store(&store_path))?;
-
-        // selector
-        let resolved_selector =
-            with_resolver(|r| r.resolve_selector(E::PATH, &query.inner.selector))?;
+        // resolver
+        let resolved_entity = with_resolver(|r| r.entity(E::PATH))?;
+        let store = self
+            .data
+            .with(|db| db.try_get_store(resolved_entity.store_path()))?;
+        let resolved_selector = resolved_entity.selector(&query.inner.selector)?;
 
         // loader
         let loader = Loader::new(store);
@@ -86,7 +89,7 @@ impl LoadExecutor {
     }
 
     // apply_filters
-    fn apply_filters<E: Entity>(
+    fn apply_filters<E: EntityKind>(
         &self,
         rows: Vec<EntityRow<E>>,
         query: &LoadQueryInternal<E>,
@@ -105,7 +108,7 @@ impl LoadExecutor {
     }
 
     // apply_sort
-    fn apply_sort<E: Entity>(
+    fn apply_sort<E: EntityKind>(
         &self,
         mut rows: Vec<EntityRow<E>>,
         query: &LoadQueryInternal<E>,
@@ -118,7 +121,7 @@ impl LoadExecutor {
     }
 
     // apply_pagination
-    fn apply_pagination<E: Entity>(
+    fn apply_pagination<E: EntityKind>(
         &self,
         rows: Vec<EntityRow<E>>,
         query: &LoadQueryInternal<E>,

@@ -7,11 +7,11 @@ use crate::prelude::*;
 
 #[enum_(
     variant(name = "Array", value(many, item(is = "Value"))),
-    variant(name = "Blob", value(item(is = "types::Blob"))),
-    variant(name = "Int", value(item(is = "types::Int64"))),
+    variant(name = "Blob", value(item(prim = "Blob"))),
+    variant(name = "Int", value(item(prim = "Int64"))),
     variant(name = "Map", value(item(is = "value::Map"))),
-    variant(name = "Nat", value(item(is = "types::Nat64"))),
-    variant(name = "Text", value(item(is = "types::Text")))
+    variant(name = "Nat", value(item(prim = "Nat64"))),
+    variant(name = "Text", value(item(prim = "Text")))
 )]
 pub struct Value {}
 
@@ -29,6 +29,6 @@ pub mod value {
     /// Icrc3 Value Map
     ///
 
-    #[map(key(is = "types::Text"), value(item(is = "Value")))]
+    #[map(key(prim = "Text"), value(item(is = "Value")))]
     pub struct Map {}
 }

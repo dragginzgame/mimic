@@ -13,9 +13,11 @@ use serde::{Deserialize, Serialize};
 )]
 pub struct Unit();
 
-impl Inner<Self> for Unit {
-    fn inner(&self) -> &Self {
-        self
+impl Inner for Unit {
+    type Primitive = Self;
+
+    fn inner(&self) -> Self {
+        Self()
     }
 
     fn into_inner(self) -> Self {

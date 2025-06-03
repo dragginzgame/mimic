@@ -45,9 +45,14 @@ impl DeleteExecutor {
 
     // execute_internal
     fn execute_internal(&self, query: DeleteQuery) -> Result<DeleteResponse, StorageError> {
+        // resolved_entity
+        let resolved_entity = with_resolver(|r| r.entity(&query.path))?;
+
         // selector
-        let selector = with_resolver(|r| r.resolve_selector(&query.path, &query.selector))
+        let selector = resolved_entity
+            .selector(&query.selector)
             .map_err(StorageError::from)?;
+
         let sort_keys: Vec<SortKey> = match selector {
             ResolvedSelector::One(key) => vec![key],
             ResolvedSelector::Many(keys) => keys,
@@ -58,11 +63,9 @@ impl DeleteExecutor {
         self.debug.println(&format!("delete: keys {sort_keys:?}"));
 
         // get store
-        let store_path =
-            with_resolver(|r| r.resolve_store(&query.path)).map_err(StorageError::ResolverError)?;
         let store = self
             .data
-            .with(|db| db.try_get_store(&store_path))
+            .with(|db| db.try_get_store(resolved_entity.store_path()))
             .map_err(StorageError::DbError)?;
 
         // execute for every different key

@@ -36,7 +36,7 @@ impl VisitableNode for Arg {
 /// Args
 ///
 
-#[derive(Clone, Debug, Default, Deref, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deref, Serialize, Deserialize)]
 pub struct Args(pub Vec<Arg>);
 
 impl Args {

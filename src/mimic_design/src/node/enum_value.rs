@@ -92,12 +92,11 @@ impl TraitNode for EnumValue {
         traits.extend(vec![
             Trait::Copy,
             Trait::Display,
-            Trait::EnumValue,
+            Trait::EnumValueKind,
             Trait::Hash,
         ]);
 
         // extra traits
-        // unit enum needs both Hash and Display for hash keys
         if self.has_default() {
             traits.add(Trait::Default);
         }
@@ -107,7 +106,7 @@ impl TraitNode for EnumValue {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::EnumValue => imp::EnumValueTrait::tokens(self, t),
+            Trait::EnumValueKind => imp::EnumValueTrait::tokens(self, t),
 
             _ => imp::any(self, t),
         }

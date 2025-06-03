@@ -8,7 +8,7 @@ use crate::prelude::*;
 
 #[newtype(
     primitive = "Text",
-    item(is = "types::Text"),
+    item(prim = "Text"),
     ty(
         validator(path = "validator::text::len::Range", args(3, 30)),
         validator(path = "validator::text::case::Snake"),

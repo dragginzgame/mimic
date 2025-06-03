@@ -6,7 +6,7 @@ use crate::prelude::*;
 
 #[newtype(
     primitive = "Text",
-    item(is = "types::Text"),
+    item(prim = "Text"),
     ty(validator(path = "validator::hash::Sha256"))
 )]
 pub struct Sha256 {}

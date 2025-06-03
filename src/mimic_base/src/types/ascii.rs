@@ -7,7 +7,7 @@ use crate::prelude::*;
 
 #[newtype(
     primitive = "Text",
-    item(is = "types::Text"),
+    item(prim = "Text"),
     traits(add(Hash), remove(ValidateCustom))
 )]
 pub struct Text {}

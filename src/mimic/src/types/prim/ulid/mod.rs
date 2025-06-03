@@ -4,7 +4,9 @@ pub mod generator;
 use crate::{
     ThisError,
     prelude::*,
-    traits::{Inner, Orderable, Searchable, SortKeyValue, ValidateAuto, ValidateCustom},
+    traits::{
+        FormatSortKey, FormatString, Inner, Orderable, Searchable, ValidateAuto, ValidateCustom,
+    },
     types::ErrorTree,
 };
 use ::ulid::Ulid as WrappedUlid;
@@ -105,12 +107,22 @@ impl fmt::Display for Ulid {
     }
 }
 
-impl Inner<Self> for Ulid {
-    fn inner(&self) -> &Self {
-        self
+impl FormatString for Ulid {
+    fn format_string(&self) -> Option<String> {
+        Some(self.to_string())
+    }
+}
+
+impl FormatSortKey for Ulid {}
+
+impl Inner for Ulid {
+    type Primitive = Self;
+
+    fn inner(&self) -> Self::Primitive {
+        *self
     }
 
-    fn into_inner(self) -> Self {
+    fn into_inner(self) -> Self::Primitive {
         self
     }
 }
@@ -161,8 +173,6 @@ impl<'de> Deserialize<'de> for Ulid {
         Ok(Self(ulid))
     }
 }
-
-impl SortKeyValue for Ulid {}
 
 impl_storable_bounded!(Ulid, 16, true);
 

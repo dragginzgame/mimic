@@ -8,7 +8,7 @@ use crate::prelude::*;
 ///
 
 #[record(
-    field(name = "owner", value(item(is = "types::Principal"))),
+    field(name = "owner", value(item(prim = "Principal"))),
     field(name = "subaccount", value(opt, item(is = "Subaccount")))
 )]
 pub struct Account {}
@@ -17,14 +17,14 @@ pub struct Account {}
 /// Subaccount
 ///
 
-#[newtype(primitive = "Blob", item(is = "types::Blob"))]
+#[newtype(primitive = "Blob", item(prim = "Blob"))]
 pub struct Subaccount {}
 
 ///
 /// Memo
 ///
 
-#[newtype(primitive = "Blob", item(is = "types::Blob"))]
+#[newtype(primitive = "Blob", item(prim = "Blob"))]
 pub struct Memo {}
 
 ///
@@ -32,7 +32,7 @@ pub struct Memo {}
 ///
 
 #[record(
-    field(name = "recipient", value(item(is = "types::Principal"))),
+    field(name = "recipient", value(item(prim = "Principal"))),
     field(name = "tokens", value(item(is = "Tokens")))
 )]
 pub struct Payment {}
@@ -42,5 +42,5 @@ pub struct Payment {}
 /// always denominated in e8s
 ///
 
-#[newtype(primitive = "Nat64", item(is = "types::Nat64"))]
+#[newtype(primitive = "Nat64", item(prim = "Nat64"))]
 pub struct Tokens {}

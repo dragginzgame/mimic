@@ -4,28 +4,28 @@ use crate::prelude::*;
 /// Milliseconds
 ///
 
-#[newtype(primitive = "Nat64", item(is = "types::Nat64"))]
+#[newtype(primitive = "Nat64", item(prim = "Nat64"))]
 pub struct Milliseconds {}
 
 ///
 /// Seconds
 ///
 
-#[newtype(primitive = "Nat64", item(is = "types::Nat64"))]
+#[newtype(primitive = "Nat64", item(prim = "Nat64"))]
 pub struct Seconds {}
 
 ///
 /// Minutes
 ///
 
-#[newtype(primitive = "Nat64", item(is = "types::Nat64"))]
+#[newtype(primitive = "Nat64", item(prim = "Nat64"))]
 pub struct Minutes {}
 
 ///
 /// Timestamp
 ///
 
-#[newtype(primitive = "Nat64", item(is = "types::Nat64"))]
+#[newtype(primitive = "Nat64", item(prim = "Nat64"))]
 pub struct Timestamp {}
 
 impl Timestamp {
@@ -55,7 +55,7 @@ pub struct Created {}
 /// seconds for now, maybe we need ms?
 ///
 
-#[newtype(primitive = "Nat64", item(is = "types::Nat64"))]
+#[newtype(primitive = "Nat64", item(prim = "Nat64"))]
 pub struct Duration {}
 
 impl Duration {

@@ -7,39 +7,16 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 
 ///
-/// EntityTrait
+/// EntityKindDynTrait
 ///
 
-pub struct EntityTrait {}
+pub struct EntityKindDynTrait {}
 
-impl Imp<Entity> for EntityTrait {
-    fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
-        let store = &node.store;
-        let q = quote! {
-            const STORE: &'static str = <#store as ::mimic::traits::Path>::PATH;
-        };
-
-        let tokens = Implementor::new(&node.def, t)
-            .set_tokens(q)
-            .to_token_stream();
-
-        Some(tokens)
-    }
-}
-
-///
-/// EntityDynTrait
-///
-
-pub struct EntityDynTrait {}
-
-impl Imp<Entity> for EntityDynTrait {
+impl Imp<Entity> for EntityKindDynTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
         let mut q = quote!();
 
-        q.extend(id(node));
-        q.extend(composite_key(node));
-        q.extend(store(node));
+        q.extend(values_string(node));
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
@@ -49,49 +26,30 @@ impl Imp<Entity> for EntityDynTrait {
     }
 }
 
-// id
-fn id(node: &Entity) -> TokenStream {
-    let last_sk = node.sort_keys.last().expect("no sort keys!");
-    let inner = if let Some(field) = last_sk.field.as_ref() {
-        quote! {
-            Some(::mimic::traits::SortKeyValue::format(&self.#field))
+fn values_string(node: &Entity) -> TokenStream {
+    quote!()
+    /*
+    let parts = node.fields.iter().filter_map(|field| {
+        if field.value.is_stringable() {
+            let ident = &field.ident;
+            let name = field.name.to_string();
+
+            Some(quote! {
+                map.insert(#name.to_string(), ::mimic::traits::StringValue::to_string_value(&self.#ident));
+            })
+        } else {
+            None
         }
-    } else {
-        quote!(None)
-    };
+    });
 
     quote! {
-        fn id(&self) -> Option<String> {
-            #inner
+        fn values_string(&self) -> ::std::collections::HashMap<String, String> {
+            let mut map = ::std::collections::HashMap::new();
+            #(#parts)*
+
+            map
         }
-    }
-}
-
-// composite_key
-fn composite_key(node: &Entity) -> TokenStream {
-    let parts = node
-        .sort_keys
-        .iter()
-        .filter_map(|sk| sk.field.clone())
-        .map(|field| quote!(::mimic::traits::SortKeyValue::format(&self.#field)));
-
-    // quote
-    quote! {
-        fn composite_key(&self) -> Vec<::std::string::String> {
-            vec![#(#parts),*]
-        }
-    }
-}
-
-// store
-fn store(node: &Entity) -> TokenStream {
-    let store = &node.store;
-
-    quote! {
-        fn store(&self) -> String {
-            <#store as ::mimic::traits::Path>::PATH.to_string()
-        }
-    }
+    }*/
 }
 
 ///

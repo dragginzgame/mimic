@@ -15,3 +15,18 @@ pub use principal::Principal;
 pub use relation::{Relation, RelationSet};
 pub use ulid::Ulid;
 pub use unit::Unit;
+
+pub type Bool = bool;
+pub type Float32 = f32;
+pub type Float64 = f64;
+pub type Int8 = i8;
+pub type Int16 = i16;
+pub type Int32 = i32;
+pub type Int64 = i64;
+pub type Int128 = i128;
+pub type Nat8 = u8;
+pub type Nat16 = u16;
+pub type Nat32 = u32;
+pub type Nat64 = u64;
+pub type Nat128 = u128;
+pub type Text = String;

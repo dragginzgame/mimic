@@ -14,10 +14,8 @@ pub mod validate;
 
 pub(crate) mod prelude {
     pub use mimic::prelude::*;
-    pub use mimic_base::{
-        types::{self, Bool, Nat8, Text, Ulid},
-        validator,
-    };
+    pub use mimic::types::prim::*;
+    pub use mimic_base as base;
     pub use mimic_design::*;
 }
 pub use prelude::*;

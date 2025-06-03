@@ -1,7 +1,7 @@
 use crate::{
     db::types::{DataRow, SortKey},
     query::{LoadFormat, LoadResponse, Selector},
-    traits::Entity,
+    traits::EntityKind,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -72,14 +72,14 @@ impl LoadQueryDyn {
 #[derive(Debug, Default)]
 pub struct LoadQueryDynBuilder<E>
 where
-    E: Entity,
+    E: EntityKind,
 {
     phantom: PhantomData<E>,
 }
 
 impl<E> LoadQueryDynBuilder<E>
 where
-    E: Entity,
+    E: EntityKind,
 {
     // new
     #[must_use]

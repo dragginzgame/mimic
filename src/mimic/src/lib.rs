@@ -41,8 +41,8 @@ pub mod prelude {
         query_executor_load_dyn, query_executor_save, query_load, query_load_dyn, query_save,
         schema::types::SortDirection,
         traits::{
-            EntityDyn, EntityFixture, EntityId as _, Inner as _, NumCast, Orderable, Ordering,
-            Path, Searchable, Selector as _, SortKeyValue as _, Validate as _, ValidateCustom,
+            EntityFixture, EntityKindDyn, FormatSortKey as _, FormatString as _, Inner as _,
+            NumCast, Orderable, Ordering, Path, Searchable, Validate as _, ValidateCustom,
             ValidatorBytes, ValidatorNumber, ValidatorString, Visitable,
         },
         types::{

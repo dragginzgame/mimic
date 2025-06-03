@@ -2,6 +2,7 @@ use crate::{
     schema::{
         build::schema_read,
         node::{Entity, Selector, TypeValidator, ValidateNode, VisitableNode},
+        types::PrimitiveType,
         visit::Visitor,
     },
     types::ErrorTree,
@@ -15,11 +16,7 @@ use std::ops::Not;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Item {
-    #[serde(default)]
-    pub path: String,
-
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub relation: Option<String>,
+    pub target: ItemTarget,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub selector: Option<String>,
@@ -37,7 +34,7 @@ pub struct Item {
 impl Item {
     #[must_use]
     pub const fn is_relation(&self) -> bool {
-        self.relation.is_some()
+        matches!(self.target, ItemTarget::Relation(_))
     }
 }
 
@@ -46,34 +43,38 @@ impl ValidateNode for Item {
         let mut errs = ErrorTree::new();
         let schema = schema_read();
 
-        // relation
-        if let Some(rel) = &self.relation {
-            if self.indirect {
-                errs.add("relations cannot be set to indirect");
+        match &self.target {
+            ItemTarget::Relation(rel) => {
+                if self.indirect {
+                    errs.add("relations cannot be set to indirect");
+                }
+
+                // has to be an entity
+                errs.add_result(schema.check_node_as::<Entity>(rel));
             }
 
-            // has to be an entity
-            errs.add_result(schema.check_node_as::<Entity>(rel));
-        } else {
-            // cannot be an entity
-            if schema.check_node_as::<Entity>(&self.path).is_ok() {
-                errs.add("a non-relation Item cannot reference an Entity");
-            }
-        }
+            ItemTarget::Is(path) => {
+                // cannot be an entity
+                if schema.check_node_as::<Entity>(path).is_ok() {
+                    errs.add("a non-relation Item cannot reference an Entity");
+                };
 
-        // type node (both is and relation)
-        if let Some(node) = schema.get_node(&self.path) {
-            match node.get_type() {
-                Some(tnode) => {
-                    if !self.todo && tnode.ty().todo {
-                        errs.add(format!(
-                            "you must specify todo if {} targeting a todo flagged item",
-                            &self.path
-                        ));
+                // todo
+                if let Some(node) = schema.get_node(path) {
+                    match node.get_type() {
+                        Some(tnode) => {
+                            if !self.todo && tnode.ty().todo {
+                                errs.add(format!(
+                                    "you must specify todo if targeting a todo flagged item ({path})",
+                                ));
+                            }
+                        }
+                        None => errs.add("node is not a valid type"),
                     }
                 }
-                None => errs.add("node is not a valid type"),
             }
+
+            _ => {}
         }
 
         // selector
@@ -93,4 +94,15 @@ impl VisitableNode for Item {
             node.accept(v);
         }
     }
+}
+
+///
+/// ItemTarget
+///
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum ItemTarget {
+    Is(String),
+    Relation(String),
+    Prim(PrimitiveType),
 }

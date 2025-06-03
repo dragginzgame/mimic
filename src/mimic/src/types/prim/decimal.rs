@@ -140,12 +140,14 @@ impl FromPrimitive for Decimal {
     }
 }
 
-impl Inner<Self> for Decimal {
-    fn inner(&self) -> &Self {
-        self
+impl Inner for Decimal {
+    type Primitive = Self;
+
+    fn inner(&self) -> Self::Primitive {
+        *self
     }
 
-    fn into_inner(self) -> Self {
+    fn into_inner(self) -> Self::Primitive {
         self
     }
 }

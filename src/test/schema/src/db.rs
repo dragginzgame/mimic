@@ -7,7 +7,7 @@ use crate::prelude::*;
 #[entity(
     store = "crate::Store",
     sk(entity = "CreateBasic", field = "id"),
-    field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate")
+    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate")
 )]
 pub struct CreateBasic {}
 
@@ -18,9 +18,9 @@ pub struct CreateBasic {}
 #[entity(
     store = "crate::Store",
     sk(entity = "Searchable", field = "id"),
-    field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
-    field(name = "name", value(item(is = "types::Text"))),
-    field(name = "description", value(item(is = "types::Text")))
+    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+    field(name = "name", value(item(prim = "Text"))),
+    field(name = "description", value(item(prim = "Text")))
 )]
 pub struct Searchable {}
 
@@ -31,7 +31,7 @@ pub struct Searchable {}
 #[entity(
     store = "crate::Store",
     sk(entity = "Limit", field = "value"),
-    field(name = "value", value(item(is = "types::Nat32")))
+    field(name = "value", value(item(prim = "Nat32")))
 )]
 pub struct Limit {}
 
@@ -42,7 +42,7 @@ pub struct Limit {}
 #[entity(
     store = "crate::Store",
     sk(entity = "SortKeyOrder", field = "id"),
-    field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate")
+    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate")
 )]
 pub struct SortKeyOrder {}
 
@@ -53,7 +53,7 @@ pub struct SortKeyOrder {}
 #[entity(
     store = "crate::Store",
     sk(entity = "SortKeyA", field = "a_id"),
-    field(name = "a_id", value(item(is = "Ulid")), default = "Ulid::generate")
+    field(name = "a_id", value(item(prim = "Ulid")), default = "Ulid::generate")
 )]
 pub struct SortKeyA {}
 
@@ -65,8 +65,8 @@ pub struct SortKeyA {}
     store = "crate::Store",
     sk(entity = "SortKeyA", field = "a_id"),
     sk(entity = "SortKeyB", field = "b_id"),
-    field(name = "a_id", value(item(is = "Ulid"))),
-    field(name = "b_id", value(item(is = "Ulid")), default = "Ulid::generate")
+    field(name = "a_id", value(item(prim = "Ulid"))),
+    field(name = "b_id", value(item(prim = "Ulid")), default = "Ulid::generate")
 )]
 pub struct SortKeyB {}
 
@@ -79,9 +79,9 @@ pub struct SortKeyB {}
     sk(entity = "SortKeyA", field = "a_id"),
     sk(entity = "SortKeyB", field = "b_id"),
     sk(entity = "SortKeyC", field = "c_id"),
-    field(name = "a_id", value(item(is = "Ulid"))),
-    field(name = "b_id", value(item(is = "Ulid"))),
-    field(name = "c_id", value(item(is = "Ulid")), default = "Ulid::generate")
+    field(name = "a_id", value(item(prim = "Ulid"))),
+    field(name = "b_id", value(item(prim = "Ulid"))),
+    field(name = "c_id", value(item(prim = "Ulid")), default = "Ulid::generate")
 )]
 pub struct SortKeyC {}
 
@@ -90,8 +90,8 @@ pub struct SortKeyC {}
 ///
 
 #[record(
-    field(name = "a_id", value(item(is = "types::Ulid"))),
-    field(name = "b_id", value(item(is = "types::Ulid"))),
+    field(name = "a_id", value(item(prim = "Ulid"))),
+    field(name = "b_id", value(item(prim = "Ulid"))),
     traits(add(Default))
 )]
 pub struct MissingFieldSmall {}
@@ -101,9 +101,9 @@ pub struct MissingFieldSmall {}
 ///
 
 #[record(
-    field(name = "a_id", value(item(is = "types::Ulid"))),
-    field(name = "b_id", value(item(is = "types::Ulid"))),
-    field(name = "c_id", value(item(is = "types::Ulid"))),
+    field(name = "a_id", value(item(prim = "Ulid"))),
+    field(name = "b_id", value(item(prim = "Ulid"))),
+    field(name = "c_id", value(item(prim = "Ulid"))),
     traits(add(Default))
 )]
 pub struct MissingFieldLarge {}
@@ -115,7 +115,7 @@ pub struct MissingFieldLarge {}
 #[entity(
     store = "crate::Store",
     sk(entity = "ContainsBlob", field = "id"),
-    field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
-    field(name = "bytes", value(item(is = "types::Blob")))
+    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+    field(name = "bytes", value(item(prim = "Blob")))
 )]
 pub struct ContainsBlob {}

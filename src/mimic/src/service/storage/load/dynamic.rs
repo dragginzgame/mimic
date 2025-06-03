@@ -6,7 +6,7 @@ use crate::{
         ServiceError,
         storage::{DebugContext, Loader, StorageError, with_resolver},
     },
-    traits::Entity,
+    traits::EntityKind,
 };
 
 ///
@@ -38,7 +38,7 @@ impl LoadExecutorDyn {
     }
 
     // execute
-    pub fn execute<E: Entity>(self, query: LoadQueryDyn) -> Result<LoadCollectionDyn, Error> {
+    pub fn execute<E: EntityKind>(self, query: LoadQueryDyn) -> Result<LoadCollectionDyn, Error> {
         let res = self
             .execute_internal::<E>(query)
             .map_err(ServiceError::from)?;
@@ -47,7 +47,7 @@ impl LoadExecutorDyn {
     }
 
     // response
-    pub fn response<E: Entity>(self, query: LoadQueryDyn) -> Result<LoadResponse, Error> {
+    pub fn response<E: EntityKind>(self, query: LoadQueryDyn) -> Result<LoadResponse, Error> {
         let format = query.format;
         let cll = self
             .execute_internal::<E>(query)
@@ -57,18 +57,22 @@ impl LoadExecutorDyn {
     }
 
     // execute_internal
-    fn execute_internal<E: Entity>(
+    fn execute_internal<E: EntityKind>(
         self,
         query: LoadQueryDyn,
     ) -> Result<LoadCollectionDyn, StorageError> {
         self.debug.println(&format!("query.load_dyn: {query:?}"));
 
+        // resolver
+        let resolved_entity = with_resolver(|r| r.entity(E::PATH))?;
+
         // store
-        let store_path = with_resolver(|r| r.resolve_store(E::PATH))?;
-        let store = self.data.with(|db| db.try_get_store(&store_path))?;
+        let store = self
+            .data
+            .with(|db| db.try_get_store(resolved_entity.store_path()))?;
 
         // selector
-        let selector = with_resolver(|r| r.resolve_selector(E::PATH, &query.selector))?;
+        let selector = resolved_entity.selector(&query.selector)?;
 
         // loader
         let loader = Loader::new(store);

@@ -36,10 +36,6 @@ impl Enum {
     pub fn is_unit_enum(&self) -> bool {
         self.variants.iter().all(|v| v.value.is_none())
     }
-
-    pub fn is_orderable(&self) -> bool {
-        self.is_unit_enum()
-    }
 }
 
 impl Node for Enum {
@@ -82,10 +78,13 @@ impl TraitNode for Enum {
 
         // extra traits
         if self.is_unit_enum() {
-            traits.extend(vec![Trait::Copy, Trait::FromStr, Trait::Hash]);
-        }
-        if self.is_orderable() {
-            traits.extend(vec![Trait::Ord, Trait::PartialOrd]);
+            traits.extend(vec![
+                Trait::Copy,
+                Trait::FromStr,
+                Trait::Hash,
+                Trait::Ord,
+                Trait::PartialOrd,
+            ]);
         }
         if self.has_default() {
             traits.add(Trait::Default);
@@ -96,7 +95,6 @@ impl TraitNode for Enum {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::Orderable => imp::OrderableTrait::tokens(self, t),
             Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => imp::VisitableTrait::tokens(self, t),
 

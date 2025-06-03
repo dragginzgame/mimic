@@ -1,7 +1,10 @@
 use crate::{
     ThisError,
     prelude::*,
-    traits::{Inner, Orderable, Searchable, SortKeyValue, ValidateAuto, ValidateCustom, Visitable},
+    traits::{
+        FormatSortKey, FormatString, Inner, Orderable, Searchable, ValidateAuto, ValidateCustom,
+        Visitable,
+    },
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut};
@@ -71,6 +74,14 @@ impl fmt::Display for Principal {
     }
 }
 
+impl FormatString for Principal {
+    fn format_string(&self) -> Option<String> {
+        Some(self.to_string())
+    }
+}
+
+impl FormatSortKey for Principal {}
+
 impl From<WrappedPrincipal> for Principal {
     fn from(principal: WrappedPrincipal) -> Self {
         Self(principal)
@@ -95,12 +106,14 @@ impl FromStr for Principal {
     }
 }
 
-impl Inner<Self> for Principal {
-    fn inner(&self) -> &Self {
-        self
+impl Inner for Principal {
+    type Primitive = Self;
+
+    fn inner(&self) -> Self::Primitive {
+        *self
     }
 
-    fn into_inner(self) -> Self {
+    fn into_inner(self) -> Self::Primitive {
         self
     }
 }
@@ -121,8 +134,6 @@ impl Searchable for Principal {
         Some(self.to_string())
     }
 }
-
-impl SortKeyValue for Principal {}
 
 impl_storable_bounded!(Principal, 30, true);
 

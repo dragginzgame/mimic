@@ -57,12 +57,14 @@ impl<const N: usize> From<&[u8; N]> for Blob {
     }
 }
 
-impl Inner<Self> for Blob {
-    fn inner(&self) -> &Self {
-        self
+impl Inner for Blob {
+    type Primitive = Self;
+
+    fn inner(&self) -> Self::Primitive {
+        self.clone()
     }
 
-    fn into_inner(self) -> Self {
+    fn into_inner(self) -> Self::Primitive {
         self
     }
 }

@@ -1,11 +1,11 @@
-use crate::traits::EntityDyn;
+use crate::traits::EntityKindDyn;
 use derive_more::{Deref, DerefMut, IntoIterator};
 
 ///
 /// FixtureList
 ///
 
-pub type FixtureList = Vec<Box<dyn EntityDyn + 'static>>;
+pub type FixtureList = Vec<Box<dyn EntityKindDyn + 'static>>;
 
 ///
 /// FixtureBuilder
@@ -20,7 +20,7 @@ impl FixtureBuilder {
         Self::default()
     }
 
-    pub fn push<T: EntityDyn + 'static>(&mut self, entity: T) {
+    pub fn push<T: EntityKindDyn + 'static>(&mut self, entity: T) {
         self.0.push(Box::new(entity));
     }
 
@@ -32,7 +32,7 @@ impl FixtureBuilder {
 
 #[allow(clippy::from_over_into)]
 impl Into<FixtureList> for FixtureBuilder {
-    fn into(self) -> Vec<Box<dyn EntityDyn>> {
+    fn into(self) -> Vec<Box<dyn EntityKindDyn>> {
         self.0
     }
 }

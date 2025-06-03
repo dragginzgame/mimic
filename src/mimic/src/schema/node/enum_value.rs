@@ -19,7 +19,6 @@ pub struct EnumValue {
     #[serde(default)]
     pub variants: Vec<EnumValueVariant>,
 
-    #[serde(default, skip_serializing_if = "Type::skip_serializing")]
     pub ty: Type,
 }
 

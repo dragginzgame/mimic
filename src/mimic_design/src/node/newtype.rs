@@ -18,8 +18,8 @@ pub struct Newtype {
     #[darling(default, skip)]
     pub def: Def,
 
-    pub item: Item,
     pub primitive: PrimitiveType,
+    pub item: Item,
 
     #[darling(default)]
     pub default: Option<Arg>,
@@ -96,7 +96,7 @@ impl TraitNode for Newtype {
                 ]);
             }
             PrimitiveGroup::Text | PrimitiveGroup::Ulid | PrimitiveGroup::Relation => {
-                traits.extend(vec![Trait::AsRef, Trait::Display, Trait::FromStr]);
+                traits.extend(vec![Trait::Display, Trait::FromStr]);
             }
             _ => {}
         }
@@ -106,16 +106,15 @@ impl TraitNode for Newtype {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::AsRef => imp::AsRefTrait::tokens(self, t),
             Trait::Default if self.default.is_some() => imp::DefaultTrait::tokens(self, t),
+            Trait::FormatSortKey => imp::FormatSortKeyTrait::tokens(self, t),
+            Trait::FormatString => imp::FormatStringTrait::tokens(self, t),
             Trait::From => imp::FromTrait::tokens(self, t),
             Trait::Inner => imp::InnerTrait::tokens(self, t),
             Trait::NumCast => imp::NumCastTrait::tokens(self, t),
             Trait::NumToPrimitive => imp::NumToPrimitiveTrait::tokens(self, t),
             Trait::NumFromPrimitive => imp::NumFromPrimitiveTrait::tokens(self, t),
-            Trait::Orderable => imp::OrderableTrait::tokens(self, t),
             Trait::Searchable => imp::SearchableTrait::tokens(self, t),
-            Trait::SortKeyValue => imp::SortKeyValueTrait::tokens(self, t),
             Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => imp::VisitableTrait::tokens(self, t),
 
@@ -128,7 +127,6 @@ impl Schemable for Newtype {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let item = self.item.schema();
-        let primitive = &self.primitive;
         let default = quote_option(self.default.as_ref(), Arg::schema);
         let ty = self.ty.schema();
 
@@ -136,7 +134,6 @@ impl Schemable for Newtype {
             ::mimic::schema::node::SchemaNode::Newtype(::mimic::schema::node::Newtype {
                 def: #def,
                 item: #item,
-                primitive: #primitive,
                 default: #default,
                 ty: #ty,
             })

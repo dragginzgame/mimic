@@ -6,7 +6,7 @@ use crate::prelude::*;
 
 #[newtype(
     primitive = "Text",
-    item(is = "types::Text"),
+    item(prim = "Text"),
     ty(validator(path = "validator::web::MimeType"))
 )]
 pub struct MimeType {}
@@ -17,7 +17,7 @@ pub struct MimeType {}
 
 #[newtype(
     primitive = "Text",
-    item(is = "types::Text"),
+    item(prim = "Text"),
     ty(validator(path = "validator::web::Url"))
 )]
 pub struct Url {}

@@ -28,7 +28,7 @@ pub enum Trait {
     // rust + third party
     Add,
     AddAssign,
-    AsRef,
+    CandidType,
     Clone,
     Copy,
     Debug,
@@ -53,24 +53,25 @@ pub enum Trait {
     Sub,
     SubAssign,
 
+    // kind
+    // traits for the implementation of specific Schema Nodes
+    KindDyn,
+    EntityKindDyn,
+    EnumValueKind,
+    PrimitiveKind,
+
     // orm
-    CandidType,
-    Entity,
-    EntityDyn,
     EntityFixture,
-    EntityId,
     EntitySearch,
     EntitySort,
-    EnumValue,
+    FormatSortKey,
+    FormatString,
     Inner,
-    NodeDyn,
     NumFromPrimitive,
     NumToPrimitive,
-    Orderable,
     Path,
     Searchable,
     Sorted,
-    SortKeyValue,
     ValidateAuto,
     ValidateCustom,
     Visitable,
@@ -85,7 +86,7 @@ static DEFAULT_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
     vec![
         Trait::Clone,
         Trait::Debug,
-        Trait::NodeDyn,
+        Trait::KindDyn,
         Trait::Path,
     ]
 });
@@ -95,7 +96,6 @@ static TYPE_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
         Trait::CandidType,
         Trait::Eq,
         Trait::Deserialize,
-        Trait::Orderable,
         Trait::PartialEq,
         Trait::Searchable,
         Trait::Serialize,

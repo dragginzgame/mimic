@@ -5,9 +5,9 @@ use crate::prelude::*;
 ///
 
 #[record(
-    field(name = "r", value(item(is = "types::Nat8"))),
-    field(name = "g", value(item(is = "types::Nat8"))),
-    field(name = "b", value(item(is = "types::Nat8"))),
+    field(name = "r", value(item(prim = "Nat8"))),
+    field(name = "g", value(item(prim = "Nat8"))),
+    field(name = "b", value(item(prim = "Nat8"))),
     traits(add(Default))
 )]
 pub struct Rgb {}
@@ -51,10 +51,10 @@ impl TryFrom<&str> for Rgb {
 ///
 
 #[record(
-    field(name = "r", value(item(is = "types::Nat8"))),
-    field(name = "g", value(item(is = "types::Nat8"))),
-    field(name = "b", value(item(is = "types::Nat8"))),
-    field(name = "a", value(item(is = "types::Nat8"))),
+    field(name = "r", value(item(prim = "Nat8"))),
+    field(name = "g", value(item(prim = "Nat8"))),
+    field(name = "b", value(item(prim = "Nat8"))),
+    field(name = "a", value(item(prim = "Nat8"))),
     traits(add(Default))
 )]
 pub struct Rgba {}
@@ -103,7 +103,7 @@ impl TryFrom<&str> for Rgba {
 
 #[newtype(
     primitive = "Text",
-    item(is = "types::Text"),
+    item(prim = "Text"),
     default = "FFFFFF",
     ty(validator(path = "validator::text::color::RgbHex")),
     traits(remove(From))
@@ -128,7 +128,7 @@ impl From<Rgb> for RgbHex {
 
 #[newtype(
     primitive = "Text",
-    item(is = "types::Text"),
+    item(prim = "Text"),
     default = "FFFFFFFF",
     ty(validator(path = "validator::text::color::RgbaHex")),
     traits(remove(From))

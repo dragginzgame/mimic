@@ -7,29 +7,29 @@ use crate::prelude::*;
 #[entity(
     store = "crate::Store",
     sk(entity = "ComplexEntity", field = "id"),
-    field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
-    field(name = "string_test", value(item(is = "types::Text"))),
-    field(name = "principal_test", value(item(is = "types::Principal"))),
-    field(name = "blob_test", value(item(is = "types::Blob"))),
-    field(name = "int_8", value(item(is = "types::Int8"))),
-    field(name = "int_16", value(item(is = "types::Int16"))),
-    field(name = "int_32", value(item(is = "types::Int32"))),
-    field(name = "int_64", value(item(is = "types::Int64"))),
-    field(name = "int_128", value(item(is = "types::Int128"))),
-    field(name = "nat_8", value(item(is = "types::Nat8"))),
-    field(name = "nat_16", value(item(is = "types::Nat16"))),
-    field(name = "nat_32", value(item(is = "types::Nat32"))),
-    field(name = "nat_64", value(item(is = "types::Nat64"))),
-    field(name = "nat_128", value(item(is = "types::Nat128"))),
-    field(name = "float_32", value(item(is = "types::Float32"))),
-    field(name = "float_64", value(item(is = "types::Float64"))),
-    field(name = "bool_test", value(item(is = "types::Bool"))),
-    field(name = "decimal_test", value(item(is = "types::Decimal"))),
+    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+    field(name = "string_test", value(item(prim = "Text"))),
+    field(name = "principal_test", value(item(prim = "Principal"))),
+    field(name = "blob_test", value(item(prim = "Blob"))),
+    field(name = "int_8", value(item(prim = "Int8"))),
+    field(name = "int_16", value(item(prim = "Int16"))),
+    field(name = "int_32", value(item(prim = "Int32"))),
+    field(name = "int_64", value(item(prim = "Int64"))),
+    field(name = "int_128", value(item(prim = "Int128"))),
+    field(name = "nat_8", value(item(prim = "Nat8"))),
+    field(name = "nat_16", value(item(prim = "Nat16"))),
+    field(name = "nat_32", value(item(prim = "Nat32"))),
+    field(name = "nat_64", value(item(prim = "Nat64"))),
+    field(name = "nat_128", value(item(prim = "Nat128"))),
+    field(name = "float_32", value(item(prim = "Float32"))),
+    field(name = "float_64", value(item(prim = "Float64"))),
+    field(name = "bool_test", value(item(prim = "Bool"))),
+    field(name = "decimal_test", value(item(prim = "Decimal"))),
     field(name = "utf8_test", value(item(is = "types::bytes::Utf8"))),
     field(name = "timestamp", value(item(is = "types::time::Timestamp"))),
     field(name = "tuple_test", value(item(is = "Tuple"))),
-    field(name = "name_many", value(many, item(is = "types::Text"))),
-    field(name = "name_opt", value(opt, item(is = "types::Text"))),
+    field(name = "name_many", value(many, item(prim = "Text"))),
+    field(name = "name_opt", value(opt, item(prim = "Text"))),
     field(name = "record_a", value(item(is = "RecordA"))),
     field(name = "record_opt", value(opt, item(is = "RecordB"))),
     field(name = "record_many", value(many, item(is = "RecordB"))),
@@ -50,12 +50,12 @@ pub struct ComplexEntity {}
 #[entity(
     store = "crate::Store",
     sk(entity = "AdminEntity", field = "id"),
-    field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
-    field(name = "simple_text", value(item(is = "types::Text"))),
+    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+    field(name = "simple_text", value(item(prim = "Text"))),
     field(name = "tuple_test", value(item(is = "Tuple"))),
-    field(name = "text_many", value(many, item(is = "types::Text"))),
-    field(name = "text_opt", value(opt, item(is = "types::Text"))),
-    field(name = "nat_32", value(item(is = "types::Nat32"))),
+    field(name = "text_many", value(many, item(prim = "Text"))),
+    field(name = "text_opt", value(opt, item(prim = "Text"))),
+    field(name = "nat_32", value(item(prim = "Nat32"))),
     field(name = "record_a", value(item(is = "RecordA"))),
     field(name = "record_opt", value(opt, item(is = "RecordB"))),
     field(name = "record_many", value(many, item(is = "RecordB"))),
@@ -75,7 +75,7 @@ pub struct AdminEntity {}
 #[entity(
     store = "crate::Store",
     sk(entity = "RelatedEntity", field = "id"),
-    field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
+    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "simple_rel", value(item(rel = "SimpleEntity"))),
     field(name = "opt_simple_rel", value(opt, item(rel = "SimpleEntity"))),
     field(name = "simple_rels", value(many, item(rel = "SimpleEntity")))
@@ -89,8 +89,8 @@ pub struct RelatedEntity {}
 #[entity(
     store = "crate::Store",
     sk(entity = "SimpleEntity", field = "id"),
-    field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
-    field(name = "name", value(item(is = "types::Text")))
+    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+    field(name = "name", value(item(prim = "prim::Text")))
 )]
 pub struct SimpleEntity {}
 
@@ -101,7 +101,7 @@ pub struct SimpleEntity {}
 #[record(
     field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
     field(name = "variant_a", value(item(is = "EnumA"))),
-    field(name = "description", value(item(is = "types::Text"))),
+    field(name = "description", value(item(prim = "Text"))),
     traits(add(Default))
 )]
 pub struct RecordA {}
@@ -111,8 +111,8 @@ pub struct RecordA {}
 ///
 
 #[record(
-    field(name = "name", value(item(is = "types::Text"))),
-    field(name = "name_opt", value(opt, item(is = "types::Text")))
+    field(name = "name", value(item(prim = "Text"))),
+    field(name = "name_opt", value(opt, item(prim = "Text")))
 )]
 pub struct RecordB {}
 
@@ -120,7 +120,7 @@ pub struct RecordB {}
 /// RecordC
 ///
 
-#[record(field(name = "prim", value(item(is = "types::Text"))))]
+#[record(field(name = "prim", value(item(prim = "Text"))))]
 pub struct RecordC {}
 
 ///
@@ -129,7 +129,7 @@ pub struct RecordC {}
 
 #[enum_(
     variant(name = "A", default),
-    variant(name = "B", value(item(is = "types::Text"))),
+    variant(name = "B", value(item(prim = "Text"))),
     variant(name = "C", value(item(is = "RecordB"))),
     variant(name = "D", value(item(is = "RecordC")))
 )]
@@ -147,7 +147,7 @@ pub struct EnumB {}
 ///
 
 #[enum_(
-    variant(name = "F", value(item(is = "types::Text"))),
+    variant(name = "F", value(item(prim = "Text"))),
     variant(name = "I", value(item(is = "RecordB")))
 )]
 pub struct EnumC {}
@@ -156,7 +156,7 @@ pub struct EnumC {}
 /// Newtype
 ///
 
-#[newtype(primitive = "Text", item(is = "types::Text"))]
+#[newtype(primitive = "Text", item(prim = "Text"))]
 pub struct Newtype {}
 
 ///
@@ -164,8 +164,8 @@ pub struct Newtype {}
 ///
 
 #[tuple(
-    value(item(is = "types::Text")),
-    value(item(is = "types::Text")),
+    value(item(prim = "Text")),
+    value(item(prim = "Text")),
     traits(add(Default))
 )]
 pub struct Tuple {}

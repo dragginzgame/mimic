@@ -1,30 +1,26 @@
-mod as_ref;
 mod default;
 mod entity;
 mod enum_value;
+mod format;
 mod from;
 mod inner;
 mod into;
 mod num;
-mod orderable;
 mod searchable;
-mod sort_key_value;
 mod validate;
 mod visitable;
 
 pub mod implementor;
 
-pub use as_ref::*;
 pub use default::*;
 pub use entity::*;
 pub use enum_value::*;
+pub use format::*;
 pub use from::*;
 pub use inner::*;
 pub use into::*;
 pub use num::*;
-pub use orderable::*;
 pub use searchable::*;
-pub use sort_key_value::*;
 pub use validate::*;
 pub use visitable::*;
 
@@ -61,7 +57,7 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
     let def = node.def();
 
     match t {
-        Trait::NodeDyn => {
+        Trait::KindDyn => {
             let q = quote! {
                 fn path_dyn(&self) -> String {
                     <Self as ::mimic::traits::Path>::path()
@@ -83,8 +79,6 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
 
         // empty implementations are generated for these traits
         Trait::EntityFixture
-        | Trait::EntityId
-        | Trait::Orderable
         | Trait::Searchable
         | Trait::ValidateAuto
         | Trait::ValidateCustom

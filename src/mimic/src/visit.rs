@@ -1,5 +1,5 @@
 use crate::{
-    traits::{EntityDyn, ValidateAuto, ValidateCustom, Visitable},
+    traits::{EntityKindDyn, ValidateAuto, ValidateCustom, Visitable},
     types::ErrorTree,
 };
 
@@ -102,7 +102,7 @@ impl Visitor for ValidateVisitor {
 /// `<https://github.com/rust-lang/rust/issues/65991>`
 ///
 
-pub struct EntityAdapter<'a>(pub &'a dyn EntityDyn);
+pub struct EntityAdapter<'a>(pub &'a dyn EntityKindDyn);
 
 impl Visitable for EntityAdapter<'_> {
     fn drive(&self, visitor: &mut dyn Visitor) {

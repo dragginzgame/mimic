@@ -28,8 +28,6 @@ pub struct Entity {
     pub indexes: Vec<EntityIndex>,
 
     pub fields: Vec<Field>,
-
-    #[serde(default, skip_serializing_if = "Type::skip_serializing")]
     pub ty: Type,
 }
 
@@ -144,7 +142,7 @@ impl VisitableNode for Entity {
 /// EntityIndex
 ///
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EntityIndex {
     pub fields: Vec<String>,
 

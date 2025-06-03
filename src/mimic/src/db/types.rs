@@ -23,7 +23,7 @@ pub struct IndexKey {
 
 impl IndexKey {
     #[must_use]
-    pub fn new(entity: &str, fields: &[&str], values: &[&str]) -> Self {
+    pub fn new<S: ToString>(entity: S, fields: &[S], values: &[S]) -> Self {
         Self {
             entity: entity.to_string(),
             fields: fields.iter().map(|s| s.to_string()).collect(),

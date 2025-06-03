@@ -13,8 +13,6 @@ pub struct Map {
     pub def: Def,
     pub key: Item,
     pub value: Value,
-
-    #[serde(default, skip_serializing_if = "Type::skip_serializing")]
     pub ty: Type,
 }
 

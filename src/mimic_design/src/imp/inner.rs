@@ -17,21 +17,22 @@ pub struct InnerTrait {}
 
 impl Imp<Newtype> for InnerTrait {
     fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
-        let primitive = &node.primitive.as_type();
+        let primitive = node.primitive.as_type();
 
         // quote
         let q = quote! {
-            fn inner(&self) -> &#primitive {
+            type Primitive = #primitive;
+
+            fn inner(&self) -> Self::Primitive {
                 self.0.inner()
             }
 
-            fn into_inner(self) -> #primitive {
+            fn into_inner(self) ->  Self::Primitive {
                 self.0.into_inner()
             }
         };
 
         let tokens = Implementor::new(&node.def, t)
-            .add_trait_generic(quote!(#primitive))
             .set_tokens(q)
             .to_token_stream();
 

@@ -8,17 +8,17 @@ pub use load::*;
 pub use save::*;
 pub use types::*;
 
-use crate::{Error, deserialize, traits::Entity};
+use crate::{Error, deserialize, traits::EntityKind};
 
 // load
 #[must_use]
-pub fn load<E: Entity>() -> LoadQueryBuilder<E> {
+pub fn load<E: EntityKind>() -> LoadQueryBuilder<E> {
     LoadQueryBuilder::<E>::new()
 }
 
 // load_dyn
 #[must_use]
-pub fn load_dyn<E: Entity>() -> LoadQueryDynBuilder<E> {
+pub fn load_dyn<E: EntityKind>() -> LoadQueryDynBuilder<E> {
     LoadQueryDynBuilder::new()
 }
 
@@ -29,7 +29,7 @@ pub const fn delete() -> DeleteQueryBuilder {
 }
 
 // save
-pub fn save<E: Entity + 'static>(query: SaveQuery) -> Result<SaveQueryPrepared, Error> {
+pub fn save<E: EntityKind + 'static>(query: SaveQuery) -> Result<SaveQueryPrepared, Error> {
     let entity = deserialize::<E>(&query.bytes)?;
 
     Ok(SaveQueryPrepared::new(query.mode, Box::new(entity)))

@@ -12,20 +12,13 @@ use std::ops::Not;
 /// Type
 ///
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Type {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub validators: Vec<TypeValidator>,
 
     #[serde(default, skip_serializing_if = "Not::not")]
     pub todo: bool,
-}
-
-impl Type {
-    #[must_use]
-    pub const fn skip_serializing(&self) -> bool {
-        self.validators.is_empty() && !self.todo
-    }
 }
 
 impl ValidateNode for Type {}
@@ -42,11 +35,11 @@ impl VisitableNode for Type {
 /// TypeValidator
 ///
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TypeValidator {
     pub path: String,
 
-    #[serde(default, skip_serializing_if = "Args::is_empty")]
+    #[serde(skip_serializing_if = "Args::is_empty")]
     pub args: Args,
 }
 

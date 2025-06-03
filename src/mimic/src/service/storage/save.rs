@@ -2,7 +2,7 @@ use crate::{
     Error,
     db::{
         DataStoreRegistry, IndexStoreRegistry,
-        types::{DataValue, Metadata, SortKey},
+        types::{DataValue, IndexKey, Metadata, SortKey},
     },
     query::{SaveMode, SaveQueryPrepared, SaveResponse},
     service::{
@@ -27,6 +27,9 @@ pub enum SaveError {
 
     #[error("key not found: {0}")]
     KeyNotFound(SortKey),
+
+    #[error("index constraint violation for index: {0:?}")]
+    IndexViolation(IndexKey),
 }
 
 ///
@@ -73,9 +76,13 @@ impl SaveExecutor {
         // build key / value
         //
 
-        let ck = entity.composite_key();
-        let sk = with_resolver(|r| r.resolve_sort_key(&entity.path_dyn(), &ck))
-            .map_err(StorageError::from)?;
+        // values
+        let values = &entity.values_string();
+
+        // resolver
+        let resolved_entity = with_resolver(|r| r.entity(&entity.path_dyn()))?;
+        let ck = resolved_entity.composite_key();
+        let sk = resolved_entity.sort_key(&[]).map_err(StorageError::from)?; // @todo
 
         // debug
         self.debug.println(&format!("query.{mode}: {sk}"));
@@ -87,15 +94,18 @@ impl SaveExecutor {
         // serialize
         let data: Vec<u8> = entity.serialize()?;
 
+        // get old result
+        let store = self
+            .data
+            .with(|data| data.try_get_store(resolved_entity.store_path()))?;
+        let result = store.with_borrow(|store| store.get(&sk));
+
         //
         // match mode
         // on Update and Replace compare old and new data
         //
 
         let now = time::now_secs();
-        let store = self.data.with(|data| data.try_get_store(&entity.store()))?;
-        let result = store.with_borrow(|store| store.get(&sk));
-
         let (created, modified) = match mode {
             SaveMode::Create => {
                 if result.is_some() {
@@ -131,6 +141,34 @@ impl SaveExecutor {
                 None => (now, now),
             },
         };
+
+        // indexes
+        /*
+        let indexes = resolved_entity.indexes();
+        for index in indexes {
+            let values = index
+                .fields
+                .iter()
+                .map(|f| entity.get_index_value(f).unwrap_or_default())
+                .collect();
+
+            let index_key = IndexKey::new(entity.path_dyn(), &index.fields, values);
+            let index_store = self.indexes.with(|map| map.try_get_store(&index.store))?;
+
+            index_store.with_borrow_mut(|store| {
+                if index.unique {
+                    if let Some(existing) = store.data.get(&index_key) {
+                        if existing != sk.to_string() {
+                            Err(StorageError::from(SaveError::IndexViolation(
+                                index_key.clone(),
+                            )))?
+                        }
+                    }
+                }
+                store.data.insert(index_key, sk.to_string());
+            });
+        }
+        */
 
         // prepare data value
         let path = entity.path_dyn();

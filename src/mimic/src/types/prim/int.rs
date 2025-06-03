@@ -1,9 +1,9 @@
 use crate::{
     prelude::*,
-    traits::{Inner, ValidateAuto},
+    traits::{FormatSortKey, FormatString, Inner, ValidateAuto},
 };
 use candid::{CandidType, Int as WrappedInt};
-use derive_more::{Deref, DerefMut};
+use derive_more::{Deref, DerefMut, FromStr};
 use icu::impl_storable_unbounded;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -24,6 +24,7 @@ use std::{
     DerefMut,
     Eq,
     PartialEq,
+    FromStr,
     Hash,
     Ord,
     PartialOrd,
@@ -38,18 +39,28 @@ impl fmt::Display for Int {
     }
 }
 
+impl FormatString for Int {
+    fn format_string(&self) -> Option<String> {
+        Some(self.to_string())
+    }
+}
+
+impl FormatSortKey for Int {}
+
 impl From<WrappedInt> for Int {
     fn from(i: WrappedInt) -> Self {
         Self(i)
     }
 }
 
-impl Inner<Self> for Int {
-    fn inner(&self) -> &Self {
-        self
+impl Inner for Int {
+    type Primitive = Self;
+
+    fn inner(&self) -> Self::Primitive {
+        self.clone()
     }
 
-    fn into_inner(self) -> Self {
+    fn into_inner(self) -> Self::Primitive {
         self
     }
 }

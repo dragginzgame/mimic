@@ -6,7 +6,7 @@ pub use num_traits::{FromPrimitive as NumFromPrimitive, NumCast, ToPrimitive as 
 pub use serde::{Deserialize, Serialize, de::DeserializeOwned};
 pub use std::{
     cmp::Ordering,
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     convert::{AsRef, From, Into},
     default::Default,
     fmt::{Debug, Display},
@@ -16,15 +16,7 @@ pub use std::{
     str::FromStr,
 };
 
-use crate::{
-    SerializeError,
-    schema::types::SortDirection,
-    types::{
-        ErrorTree,
-        prim::{Relation, Ulid},
-    },
-    visit::Visitor,
-};
+use crate::{SerializeError, schema::types::SortDirection, types::ErrorTree, visit::Visitor};
 
 ///
 /// MACROS
@@ -52,25 +44,120 @@ macro_rules! impl_primitive {
 }
 
 ///
-/// ANY NODE TRAITS
+/// KIND TRAITS
+/// the Schema has Nodes
 ///
 
 ///
-/// Node
+/// Kind
 ///
 
-pub trait Node: Path {}
+pub trait Kind: Path {}
 
-impl<T> Node for T where T: Path {}
+impl<T> Kind for T where T: Path {}
 
 ///
-/// NodeDyn
+/// KindDyn
 ///
 
-pub trait NodeDyn {
+pub trait KindDyn {
     // path_dyn
-    // as every node needs path, this makes creating dynamic traits easier
+    // as every type needs path, this makes creating dynamic traits easier
     fn path_dyn(&self) -> String;
+}
+
+///
+/// TypeKind
+/// a Meta that can act as a data type
+///
+
+pub trait TypeKind: Kind + CandidType + Clone + Default + Serialize + DeserializeOwned {}
+
+impl<T> TypeKind for T where T: Kind + CandidType + Clone + Default + Serialize + DeserializeOwned {}
+
+///
+/// TypeKindDyn
+/// just to keep things symmetrical, not actually used yet other than
+/// making sure all types have Debug
+///
+
+pub trait TypeKindDyn: KindDyn + Debug {}
+
+impl<T> TypeKindDyn for T where T: KindDyn + Debug {}
+
+///
+/// EntityKind
+///
+
+pub trait EntityKind: TypeKind + EntityKindDyn + EntityFixture + EntitySearch + EntitySort {}
+
+///
+/// EntityKindDyn
+/// object-safe methods for entities
+///
+
+pub trait EntityKindDyn: TypeKindDyn + SerializeDyn + Visitable {
+    // values_string
+    // returns a map of field to any value that can be a string, useful
+    // for keys and indexes
+    fn values_string(&self) -> HashMap<String, String>;
+}
+
+///
+/// EnumValueKind
+///
+
+pub trait EnumValueKind {
+    fn value(&self) -> i32;
+}
+
+///
+/// TRAITS
+///
+
+///
+/// EntityFixture
+/// an enum that can generate fixture data for an Entity
+///
+
+pub trait EntityFixture: Sized {
+    // fixtures
+    // returns a vec of entities that are inserted on canister init
+    #[must_use]
+    fn fixtures() -> Vec<Box<dyn EntityKindDyn>> {
+        Vec::new()
+    }
+}
+
+///
+/// EntitySearch
+///
+
+pub trait EntitySearch {
+    fn search_field(&self, field: &str, text: &str) -> bool;
+
+    // search_fields
+    // AND so we want to return if any specified field doesn't match
+    fn search_fields(&self, fields: &[(String, String)]) -> bool {
+        for (field, text) in fields {
+            if !self.search_field(field, text) {
+                return false;
+            }
+        }
+
+        true
+    }
+}
+
+///
+/// EntitySort
+/// allows anything with a collection of fields to be sorted
+///
+
+type EntitySortFn<E> = dyn Fn(&E, &E) -> ::std::cmp::Ordering;
+
+pub trait EntitySort {
+    fn sort(order: &[(String, SortDirection)]) -> Box<EntitySortFn<Self>>;
 }
 
 ///
@@ -145,36 +232,102 @@ pub trait ValidatorString {
 
 ///
 /// TYPE TRAITS
-/// (for any trait that works on a Type)
 ///
 
 ///
-/// Type
-/// a Node that can act as a data type
+/// FormatString
 ///
 
-pub trait Type: Node + CandidType + Clone + Default + Serialize + DeserializeOwned {}
-
-impl<T> Type for T where T: Node + CandidType + Clone + Default + Serialize + DeserializeOwned {}
+pub trait FormatString {
+    fn format_string(&self) -> Option<String>;
+}
 
 ///
-/// TypeDyn
-/// just to keep things symmetrical, not actually used yet other than
-/// making sure all types have Debug
+/// FormatSortKey
+/// a type that can be formatted as a Sort Key
 ///
 
-pub trait TypeDyn: NodeDyn + Debug {}
+pub trait FormatSortKey: FromStr + ToString {
+    // format_sort_key
+    // how is this type formatted within a sort key string, we may want
+    // to overwrite for fixed-width values
+    fn format_sort_key(&self) -> String {
+        self.to_string()
+    }
+}
 
-impl<T> TypeDyn for T where T: NodeDyn + Debug {}
+impl FormatSortKey for String {}
+
+macro_rules! impl_format_sort_key_ints {
+    ($($t:ty, $ut:ty, $len:expr),* $(,)?) => {
+        $(
+            impl FormatSortKey for $t {
+                #[allow(clippy::cast_sign_loss)]
+                fn format_sort_key(&self) -> String {
+                    if *self < 0 {
+                        let inverted = <$ut>::MAX - self.wrapping_abs() as $ut;
+                        format!("-{:0>width$}", inverted, width = $len - 1)
+                    } else {
+                        format!("{:0>width$}", *self as $ut, width = $len)
+                    }
+                }
+            }
+        )*
+    };
+}
+
+macro_rules! impl_format_sort_key_uints {
+    ($($t:ty, $len:expr),* $(,)?) => {
+        $(
+            impl FormatSortKey for $t {
+                fn format_sort_key(&self) -> String {
+                    format!("{:0>width$}", self, width = $len)
+                }
+            }
+        )*
+    };
+}
+
+#[rustfmt::skip]
+impl_format_sort_key_ints!(
+    i8, u8, 4,
+    i16, u16, 6,
+    i32, u32, 11,
+    i64, u64, 21,
+    i128, u128, 41
+);
+
+#[rustfmt::skip]
+impl_format_sort_key_uints!(
+    u8, 3,
+    u16, 5,
+    u32, 10,
+    u64, 20,
+    u128, 40
+);
 
 ///
 /// Inner
 /// a trait for Newtypes to recurse downwards to find the innermost value
 ///
 
-pub trait Inner<T> {
-    fn inner(&self) -> &T;
-    fn into_inner(self) -> T;
+pub trait Inner {
+    type Primitive;
+
+    fn inner(&self) -> Self::Primitive;
+    fn into_inner(self) -> Self::Primitive;
+}
+
+impl Inner for String {
+    type Primitive = String;
+
+    fn inner(&self) -> Self::Primitive {
+        self.clone()
+    }
+
+    fn into_inner(self) -> Self::Primitive {
+        self
+    }
 }
 
 // impl_primitive_inner
@@ -182,11 +335,13 @@ pub trait Inner<T> {
 macro_rules! impl_primitive_inner {
     ($($type:ty),*) => {
         $(
-            impl Inner<$type> for $type {
-                fn inner(&self) -> &$type {
-                    &self
+            impl Inner for $type {
+                type Primitive = Self;
+
+                fn inner(&self) -> Self::Primitive {
+                    *self
                 }
-                fn into_inner(self) -> $type {
+                fn into_inner(self) -> Self::Primitive {
                     self
                 }
             }
@@ -195,7 +350,7 @@ macro_rules! impl_primitive_inner {
 }
 
 impl_primitive_inner!(
-    bool, f32, f64, i8, i16, i32, i64, i128, String, u8, u16, u32, u64, u128
+    bool, f32, f64, i8, i16, i32, i64, i128, u8, u16, u32, u64, u128
 );
 
 ///
@@ -293,6 +448,23 @@ impl_primitive_searchable!(
 );
 
 ///
+/// SerializeDyn
+///
+
+pub trait SerializeDyn: Debug {
+    fn serialize(&self) -> Result<Vec<u8>, SerializeError>;
+}
+
+impl<T> SerializeDyn for T
+where
+    T: EntityKind,
+{
+    fn serialize(&self) -> Result<Vec<u8>, SerializeError> {
+        mimic::serialize(self)
+    }
+}
+
+///
 /// Validate
 ///
 
@@ -371,199 +543,3 @@ impl<T: Visitable> Visitable for Box<T> {
 }
 
 impl_primitive!(Visitable);
-
-///
-/// ENTITY TRAITS
-///
-
-///
-/// Entity
-///
-
-pub trait Entity: Type + EntityFixture + EntityDyn + EntitySearch + EntitySort {
-    const STORE: &'static str;
-}
-
-///
-/// EntityDyn
-/// object-safe methods for entities
-///
-
-pub trait EntityDyn: TypeDyn + SerializeDyn + Visitable {
-    // id
-    // returns the id of the entity (as there can be 0 or 1 fields in
-    // the entity's sort key)
-    fn id(&self) -> Option<String>;
-
-    // composite_key
-    // returns the record's sort key values as a Vec<String>
-    fn composite_key(&self) -> Vec<String>;
-
-    // store
-    // returns the path of the store
-    fn store(&self) -> String;
-}
-
-///
-/// SerializeDyn
-///
-
-pub trait SerializeDyn {
-    fn serialize(&self) -> Result<Vec<u8>, SerializeError>;
-}
-
-impl<T> SerializeDyn for T
-where
-    T: Entity,
-{
-    fn serialize(&self) -> Result<Vec<u8>, SerializeError> {
-        mimic::serialize(self)
-    }
-}
-
-///
-/// EntityFixture
-/// an enum that can generate fixture data for an Entity
-///
-
-pub trait EntityFixture: Sized {
-    // fixtures
-    // returns a vec of entities that are inserted on canister init
-    #[must_use]
-    fn fixtures() -> Vec<Box<dyn EntityDyn>> {
-        Vec::new()
-    }
-}
-
-///
-/// EntityId
-///
-
-pub trait EntityId: NodeDyn + Display {
-    #[must_use]
-    fn ulid(&self) -> Ulid {
-        let digest = format!("{}-{}", self.path_dyn(), self);
-        Ulid::from_string_digest(&digest)
-    }
-
-    #[must_use]
-    fn relation(&self) -> Relation {
-        Relation::from(vec![self.ulid()])
-    }
-}
-
-///
-/// EntitySearch
-///
-
-pub trait EntitySearch {
-    fn search_field(&self, field: &str, text: &str) -> bool;
-
-    // search_fields
-    // AND so we want to return if any specified field doesn't match
-    fn search_fields(&self, fields: &[(String, String)]) -> bool {
-        for (field, text) in fields {
-            if !self.search_field(field, text) {
-                return false;
-            }
-        }
-
-        true
-    }
-}
-
-///
-/// EntitySort
-///
-/// allows anything with a collection of fields to be sorted
-///
-
-type EntitySortFn<E> = dyn Fn(&E, &E) -> ::std::cmp::Ordering;
-
-pub trait EntitySort {
-    fn sort(order: &[(String, SortDirection)]) -> Box<EntitySortFn<Self>>;
-}
-
-///
-/// SortKeyValue
-/// a type that can be used inside a SortKey's value
-///
-
-pub trait SortKeyValue: FromStr + ToString {
-    // format
-    // how is this type formatted within a sort key string, we may want
-    // to overwrite for fixed-width values
-    fn format(&self) -> String {
-        self.to_string()
-    }
-}
-
-impl SortKeyValue for String {}
-
-macro_rules! impl_sort_key_for_ints {
-    ($($t:ty, $ut:ty, $len:expr),* $(,)?) => {
-        $(
-            impl SortKeyValue for $t {
-                #[allow(clippy::cast_sign_loss)]
-                fn format(&self) -> String {
-                    if *self < 0 {
-                        let inverted = <$ut>::MAX - self.wrapping_abs() as $ut;
-                        format!("-{:0>width$}", inverted, width = $len - 1)
-                    } else {
-                        format!("{:0>width$}", *self as $ut, width = $len)
-                    }
-                }
-            }
-        )*
-    };
-}
-
-macro_rules! impl_sort_key_for_uints {
-    ($($t:ty, $len:expr),* $(,)?) => {
-        $(
-            impl SortKeyValue for $t {
-                fn format(&self) -> String {
-                    format!("{:0>width$}", self, width = $len)
-                }
-            }
-        )*
-    };
-}
-
-#[rustfmt::skip]
-impl_sort_key_for_ints!(
-    i8, u8, 4,
-    i16, u16, 6,
-    i32, u32, 11,
-    i64, u64, 21,
-    i128, u128, 41
-);
-
-#[rustfmt::skip]
-impl_sort_key_for_uints!(
-    u8, 3,
-    u16, 5,
-    u32, 10,
-    u64, 20,
-    u128, 40
-);
-
-///
-/// OTHER NODE TRAITS
-///
-
-///
-/// EnumValue
-///
-
-pub trait EnumValue {
-    fn value(&self) -> i32;
-}
-
-///
-/// Selector
-///
-
-pub trait Selector {
-    fn value(&self) -> isize;
-}

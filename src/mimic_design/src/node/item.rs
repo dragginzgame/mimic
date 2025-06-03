@@ -4,6 +4,7 @@ use crate::{
     traits::Schemable,
 };
 use darling::FromMeta;
+use mimic::schema::types::PrimitiveType;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use syn::Path;
@@ -16,6 +17,9 @@ use syn::Path;
 pub struct Item {
     #[darling(default)]
     pub is: Option<Path>,
+
+    #[darling(default, rename = "prim")]
+    pub primitive: Option<PrimitiveType>,
 
     #[darling(default, rename = "rel")]
     pub relation: Option<Path>,
@@ -34,24 +38,23 @@ pub struct Item {
 }
 
 impl Item {
-    pub const fn is_relation(&self) -> bool {
-        self.relation.is_some()
+    pub fn target(&self) -> ItemTarget {
+        match (&self.is, &self.primitive, &self.relation) {
+            (Some(path), None, None) => ItemTarget::Is(path.clone()),
+            (None, Some(prim), None) => ItemTarget::Prim(*prim),
+            (None, None, Some(path)) => ItemTarget::Relation(path.clone()),
+            _ => panic!("Item must have exactly one of: is, prim or relation"),
+        }
     }
 
-    pub fn quoted_path(&self) -> TokenStream {
-        match (&self.is, &self.relation) {
-            (Some(is), None) => quote!(#is),
-            (None, Some(_)) => quote!(::mimic::types::prim::Relation),
-            (None, None) => quote!(::mimic::types::prim::Unit),
-            _ => panic!("cannot set both is and relation"),
-        }
+    pub fn is_relation(&self) -> bool {
+        self.relation.is_some()
     }
 }
 
 impl Schemable for Item {
     fn schema(&self) -> TokenStream {
-        let path = quote_one(&self.quoted_path(), to_path);
-        let relation = quote_option(self.relation.as_ref(), to_path);
+        let target = self.target().schema();
         let selector = quote_option(self.selector.as_ref(), to_path);
         let validators = quote_vec(&self.validators, TypeValidator::schema);
         let indirect = self.indirect;
@@ -59,8 +62,7 @@ impl Schemable for Item {
 
         quote! {
             ::mimic::schema::node::Item{
-                path: #path,
-                relation: #relation,
+                target: #target,
                 selector: #selector,
                 validators: #validators,
                 indirect: #indirect,
@@ -72,7 +74,8 @@ impl Schemable for Item {
 
 impl ToTokens for Item {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let path = self.quoted_path();
+        let path = self.target().quoted_path();
+
         let q = if self.indirect {
             quote!(Box<#path>)
         } else {
@@ -80,5 +83,52 @@ impl ToTokens for Item {
         };
 
         tokens.extend(q);
+    }
+}
+
+///
+/// ItemTarget
+///
+
+pub enum ItemTarget {
+    Is(Path),
+    Relation(Path),
+    Prim(PrimitiveType),
+}
+
+impl ItemTarget {
+    pub fn quoted_path(&self) -> TokenStream {
+        match self {
+            ItemTarget::Is(path) => quote!(#path),
+            ItemTarget::Prim(prim) => {
+                let ty = prim.as_type();
+                quote!(#ty)
+            }
+            ItemTarget::Relation(_) => quote!(::mimic::types::prim::Relation),
+        }
+    }
+}
+
+impl Schemable for ItemTarget {
+    fn schema(&self) -> TokenStream {
+        match self {
+            ItemTarget::Is(path) => {
+                let path = quote_one(path, to_path);
+                quote! {
+                    ::mimic::schema::node::ItemTarget::Is(#path)
+                }
+            }
+            ItemTarget::Prim(prim) => {
+                quote! {
+                    ::mimic::schema::node::ItemTarget::Prim(#prim)
+                }
+            }
+            ItemTarget::Relation(path) => {
+                let path = quote_one(path, to_path);
+                quote! {
+                    ::mimic::schema::node::ItemTarget::Relation(#path)
+                }
+            }
+        }
     }
 }
