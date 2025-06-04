@@ -220,23 +220,6 @@ pub trait Path {
     }
 }
 
-macro_rules! impl_primitive_list {
-    ($($t:ty => $name:expr),* $(,)?) => {
-        $(
-            impl Path for $t {
-                const IDENT: &'static str = $name;
-                const PATH: &'static str = concat!("mimic_base::types::", $name);
-            }
-        )*
-    };
-}
-
-impl_primitive_list!(
-    i8 => "Int8", i16 => "Int16", i32 => "Int32", i64 => "Int64", i128 => "Int128",
-    u8 => "Nat8", u16 => "Nat16", u32 => "Nat32", u64 => "Nat64", u128 => "Nat128",
-    f32 => "Float32", f64 => "Float64", bool => "Bool", String => "Text"
-);
-
 ///
 /// Validator
 /// allows a node to validate different types of primitives
