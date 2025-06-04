@@ -16,7 +16,7 @@ impl Imp<Entity> for EntityKindDynTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
         let mut q = quote!();
 
-        q.extend(format_sort_keys(node));
+        q.extend(key_values(node));
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
@@ -26,7 +26,7 @@ impl Imp<Entity> for EntityKindDynTrait {
     }
 }
 
-fn format_sort_keys(node: &Entity) -> TokenStream {
+fn key_values(node: &Entity) -> TokenStream {
     let parts = node.fields.iter().map(|field| {
         let field_ident = &field.name;
         let field_name = field.name.to_string();
@@ -53,7 +53,7 @@ fn format_sort_keys(node: &Entity) -> TokenStream {
     });
 
     quote! {
-        fn values_string(&self) -> ::std::collections::HashMap<String, String> {
+        fn key_values(&self) -> ::std::collections::HashMap<String, String> {
             let mut map = ::std::collections::HashMap::new();
             #(#parts)*
 

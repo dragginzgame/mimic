@@ -1,9 +1,27 @@
+use mimic::prelude::*;
+
 //
 // just a place to mess around with tests while developing
 //
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_sort_keys() {
+        use test_schema::index::Index;
+
+        let e = Index {
+            x: 12,
+            y: -200,
+            ..Default::default()
+        };
+        println!("{e:?}");
+
+        let sort_keys = e.key_values();
+        println!("{sort_keys:?}");
+    }
 
     #[test]
     fn test_id_generates() {
@@ -26,20 +44,12 @@ mod tests {
 
     #[test]
     fn test_default_validates() {
-        use test_schema::validate::{MultipleTenType, ValidateTest};
+        use test_schema::validate::ValidateTest;
 
         let e = ValidateTest {
             multiple_ten: 5.into(),
             ..Default::default()
         };
-        println!("{e:?}");
-
-        let errs = mimic::validate(&e);
-        println!("{errs:?}");
-
-        //
-
-        let e = MultipleTenType::from(5);
         println!("{e:?}");
 
         let errs = mimic::validate(&e);

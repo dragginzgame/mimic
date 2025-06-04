@@ -37,8 +37,7 @@ extern crate self as mimic;
 pub mod prelude {
     pub use crate::{
         helper::{FixtureBuilder, FixtureList},
-        mimic_start, query_delete, query_executor_delete, query_executor_load,
-        query_executor_load_dyn, query_executor_save, query_load, query_load_dyn, query_save,
+        mimic_start, query_delete, query_load, query_load_dyn, query_save,
         schema::types::SortDirection,
         traits::{
             EntityFixture, EntityIdKind as _, EntityKindDyn, FormatSortKey as _, Inner as _,

@@ -40,7 +40,7 @@ checksum = "7dfdb4953a096c551ce9ace855a604d702e6e62d77fac690575ae347571717f5"
 
 [[package]]
 name = "benches"
-version = "0.4.2"
+version = "0.4.4"
 dependencies = [
  "bencher",
 ]
@@ -756,7 +756,7 @@ checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 
 [[package]]
 name = "mimic"
-version = "0.4.2"
+version = "0.4.4"
 dependencies = [
  "candid",
  "convert_case 0.8.0",
@@ -784,7 +784,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_base"
-version = "0.4.2"
+version = "0.4.4"
 dependencies = [
  "candid",
  "ctor",
@@ -798,7 +798,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_design"
-version = "0.4.2"
+version = "0.4.4"
 dependencies = [
  "darling",
  "derive_more",
@@ -1137,7 +1137,7 @@ dependencies = [
 
 [[package]]
 name = "test_canister"
-version = "0.4.2"
+version = "0.4.4"
 dependencies = [
  "candid",
  "ic-cdk 0.18.0-alpha.2",
@@ -1148,7 +1148,7 @@ dependencies = [
 
 [[package]]
 name = "test_schema"
-version = "0.4.2"
+version = "0.4.4"
 dependencies = [
  "candid",
  "ctor",
@@ -1161,7 +1161,7 @@ dependencies = [
 
 [[package]]
 name = "tests"
-version = "0.4.2"
+version = "0.4.4"
 dependencies = [
  "mimic",
  "test_schema",

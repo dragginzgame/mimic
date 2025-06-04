@@ -49,17 +49,18 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = ContainsBlob::default();
-            query_save!(query::create().entity(e)).unwrap();
+            query_save!().execute(query::create().entity(e)).unwrap();
         }
 
         // Retrieve rows in B-Tree order
-        let keys = query_load!(
-            query::load::<ContainsBlob>()
-                .all()
-                .sort_field("id", SortDirection::Asc)
-        )
-        .unwrap()
-        .keys();
+        let keys = query_load!()
+            .execute(
+                query::load::<ContainsBlob>()
+                    .all()
+                    .sort_field("id", SortDirection::Asc),
+            )
+            .unwrap()
+            .keys();
 
         // Verify the order
         for i in 0..(keys.len() - 1) {
@@ -75,22 +76,24 @@ impl DbTester {
         use test_schema::db::CreateBasic;
 
         let e = CreateBasic::default();
-        query_save!(query::create().entity(e)).unwrap();
+        query_save!().execute(query::create().entity(e)).unwrap();
 
         // count keys
-        let num_keys = query_load!(query::load::<CreateBasic>().all())
+        let num_keys = query_load!()
+            .execute(query::load::<CreateBasic>().all())
             .unwrap()
             .count();
         assert_eq!(num_keys, 1);
 
         // insert another
         let e = CreateBasic::default();
-        query_save!(query::create().entity(e)).unwrap();
+        query_save!().execute(query::create().entity(e)).unwrap();
 
         // count keys
 
         assert_eq!(
-            query_load!(query::load::<CreateBasic>().all())
+            query_load!()
+                .execute(query::load::<CreateBasic>().all())
                 .unwrap()
                 .count(),
             2
@@ -105,11 +108,12 @@ impl DbTester {
         // insert rows
         for _ in 0..ROWS {
             let e = CreateBasic::default();
-            query_save!(query::create().entity(e)).unwrap();
+            query_save!().execute(query::create().entity(e)).unwrap();
         }
 
         // Retrieve the count from the store
-        let count = query_load!(query::load::<CreateBasic>().all())
+        let count = query_load!()
+            .execute(query::load::<CreateBasic>().all())
             .unwrap()
             .count();
 
@@ -126,17 +130,18 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = SortKeyOrder::default();
-            query_save!(query::create().entity(e)).unwrap();
+            query_save!().execute(query::create().entity(e)).unwrap();
         }
 
         // Retrieve rows in B-Tree order
-        let keys = query_load!(
-            query::load::<SortKeyOrder>()
-                .all()
-                .sort([("id", SortDirection::Asc)])
-        )
-        .unwrap()
-        .keys();
+        let keys = query_load!()
+            .execute(
+                query::load::<SortKeyOrder>()
+                    .all()
+                    .sort([("id", SortDirection::Asc)]),
+            )
+            .unwrap()
+            .keys();
 
         // Verify the order
         for i in 0..(keys.len() - 1) {
@@ -155,13 +160,14 @@ impl DbTester {
         // overwrite the ulid with replace()
         for value in 1..100 {
             let e = Limit { value };
-            query_save!(query::replace().entity(e)).unwrap();
+            query_save!().execute(query::replace().entity(e)).unwrap();
         }
 
         // Test various limits and offsets
         for limit in [10, 20, 50] {
             for offset in [0, 5, 10] {
-                let count = query_load!(query::load::<Limit>().all().offset(offset).limit(limit))
+                let count = query_load!()
+                    .execute(query::load::<Limit>().all().offset(offset).limit(limit))
                     .unwrap()
                     .count();
 
@@ -218,7 +224,7 @@ impl DbTester {
                 description: description.into(),
             };
 
-            query_save!(query::replace().entity(e)).unwrap();
+            query_save!().execute(query::replace().entity(e)).unwrap();
         }
 
         // Each test is: field filters -> expected match count
@@ -265,7 +271,8 @@ impl DbTester {
                 .map(|(k, v)| (k.to_string(), v.to_string()))
                 .collect::<Vec<_>>();
 
-            let count = query_load!(query::load::<Searchable>().all().search(search.clone()))
+            let count = query_load!()
+                .execute(query::load::<Searchable>().all().search(search.clone()))
                 .unwrap()
                 .count();
 

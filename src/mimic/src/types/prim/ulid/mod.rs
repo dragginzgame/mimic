@@ -107,7 +107,7 @@ impl fmt::Display for Ulid {
 
 impl FormatSortKey for Ulid {
     fn format_sort_key(&self) -> Option<String> {
-        None
+        Some(self.to_string())
     }
 }
 

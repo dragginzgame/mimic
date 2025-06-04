@@ -37,18 +37,18 @@ pub fn save<E: EntityKind + 'static>(query: SaveQuery) -> Result<SaveQueryPrepar
 
 // create
 #[must_use]
-pub fn create() -> SaveQueryBuilder {
+pub const fn create() -> SaveQueryBuilder {
     SaveQueryBuilder::new(SaveMode::Create)
 }
 
 // update
 #[must_use]
-pub fn update() -> SaveQueryBuilder {
+pub const fn update() -> SaveQueryBuilder {
     SaveQueryBuilder::new(SaveMode::Update)
 }
 
 // replace
 #[must_use]
-pub fn replace() -> SaveQueryBuilder {
+pub const fn replace() -> SaveQueryBuilder {
     SaveQueryBuilder::new(SaveMode::Replace)
 }

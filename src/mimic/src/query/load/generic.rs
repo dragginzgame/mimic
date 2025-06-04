@@ -10,7 +10,7 @@ use crate::{
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
-use std::marker::PhantomData;
+use std::{fmt, marker::PhantomData};
 
 ///
 /// LoadQuery
@@ -146,7 +146,7 @@ impl<E: EntityKind> LoadQueryInternal<E> {
 
     // query
     #[must_use]
-    pub fn query(&self) -> &LoadQuery {
+    pub const fn query(&self) -> &LoadQuery {
         &self.inner
     }
 
@@ -158,28 +158,28 @@ impl<E: EntityKind> LoadQueryInternal<E> {
 
     // format
     #[must_use]
-    pub fn format(mut self, format: LoadFormat) -> Self {
+    pub const fn format(mut self, format: LoadFormat) -> Self {
         self.inner.format = format;
         self
     }
 
     // offset
     #[must_use]
-    pub fn offset(mut self, offset: u32) -> Self {
+    pub const fn offset(mut self, offset: u32) -> Self {
         self.inner.offset = offset;
         self
     }
 
     // limit
     #[must_use]
-    pub fn limit(mut self, limit: u32) -> Self {
+    pub const fn limit(mut self, limit: u32) -> Self {
         self.inner.limit = Some(limit);
         self
     }
 
     // limit_option
     #[must_use]
-    pub fn limit_option(mut self, limit: Option<u32>) -> Self {
+    pub const fn limit_option(mut self, limit: Option<u32>) -> Self {
         self.inner.limit = limit;
         self
     }
@@ -248,6 +248,18 @@ impl<E: EntityKind> LoadQueryInternal<E> {
         T: PartialEq + 'static,
     {
         self.filter(move |e| f(e).as_ref() == Some(&value))
+    }
+}
+
+impl<E> fmt::Debug for LoadQueryInternal<E>
+where
+    E: EntityKind,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("LoadQueryInternal")
+            .field("inner", &self.inner)
+            .field("filters", &format_args!("{} filters", self.filters.len()))
+            .finish()
     }
 }
 

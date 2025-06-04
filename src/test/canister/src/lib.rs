@@ -36,14 +36,15 @@ pub fn test() {
 pub fn rarity() -> Result<Vec<Rarity>, MimicError> {
     perf!();
 
-    let res = query_load!(
-        query::load::<Rarity>()
-            .all()
-            .filter(|r| r.name.len() != 6)
-            .search_field("name", "co")
-            .sort([("level", SortDirection::Desc)])
-    )?
-    .entities();
+    let res = query_load!()
+        .execute(
+            query::load::<Rarity>()
+                .all()
+                .filter(|r| r.name.len() != 6)
+                .search_field("name", "co")
+                .sort([("level", SortDirection::Desc)]),
+        )?
+        .entities();
 
     Ok(res)
 }

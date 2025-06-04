@@ -33,7 +33,7 @@ fn mimic_query_load(builder: &ActorBuilder) -> TokenStream {
 
             load_entities.extend(quote! {
                 #entity_path => {
-                    query_executor_load!().response(::mimic::query::load::<#generic>().query(query))
+                    query_load!().response(::mimic::query::load::<#generic>().query(query))
                 }
             });
         }
@@ -80,9 +80,9 @@ fn mimic_query_save(builder: &ActorBuilder) -> TokenStream {
 
             save_entities.extend(quote! {
                 #entity_path => {
-                    let pq = ::mimic::query::save::<#generic>(query)?;
+                    let query = ::mimic::query::save::<#generic>(query)?;
 
-                    query_save!(pq)
+                    query_save!().execute(query)
                 }
             });
         }
@@ -119,7 +119,7 @@ fn mimic_query_delete(_builder: &ActorBuilder) -> TokenStream {
         pub fn mimic_query_delete(
             query: ::mimic::query::DeleteQuery,
         ) -> Result<::mimic::query::DeleteResponse, ::mimic::Error> {
-            query_delete!(query)
+            query_delete!().execute(query)
         }
     }
 }

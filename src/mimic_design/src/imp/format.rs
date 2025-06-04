@@ -102,6 +102,7 @@ impl Imp<Tuple> for FormatSortKeyTrait {
 }
 
 // format_sort_key_none
+#[allow(clippy::unnecessary_wraps)]
 fn format_sort_key_none(def: &Def, t: Trait) -> Option<TokenStream> {
     let q = quote! {
         fn format_sort_key(&self) -> Option<String> {

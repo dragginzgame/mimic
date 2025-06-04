@@ -39,13 +39,6 @@ impl VisitableNode for Arg {
 #[derive(Clone, Debug, Deref, Serialize, Deserialize)]
 pub struct Args(pub Vec<Arg>);
 
-impl Args {
-    #[must_use]
-    pub const fn is_empty(&self) -> bool {
-        self.0.is_empty()
-    }
-}
-
 impl ValidateNode for Args {}
 
 ///

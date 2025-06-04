@@ -9,6 +9,6 @@ use thiserror::Error as ThisError;
 
 #[derive(Debug, ThisError)]
 pub enum ServiceError {
-    #[error("key not found: {0}")]
+    #[error(transparent)]
     StorageError(#[from] StorageError),
 }

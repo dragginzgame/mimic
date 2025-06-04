@@ -5,6 +5,13 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.4.4]
+- massive refactor!
+- Primitive types now gone, they're just an item(prim = "PrimitiveType"), and all moved to the mimic crate
+- removed id() and composite_key() and instead the logic will be inside the Resolver
+- FormatSortKey now derived for all types, so we can get the indexed values alongside the keys
+- Node traits (code generation) are now separate from Kind traits (schema types)
+- removed lots of legacy code, like traits we weren't using
 
 ## [0.4.3]
 - LoadQueryDyn is now generic, dropped the path variable, and include_children is available

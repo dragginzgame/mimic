@@ -72,17 +72,10 @@ impl SaveExecutor {
         let mode = query.mode;
         let entity = &*query.entity;
 
-        //
-        // build key / value
-        //
-
-        // values
-        let values = &entity.values_string();
-
         // resolver
-        let resolved_entity = with_resolver(|r| r.entity(&entity.path_dyn()))?;
-        let ck = resolved_entity.composite_key();
-        let sk = resolved_entity.sort_key(&[]).map_err(StorageError::from)?; // @todo
+        let key_values = &entity.key_values();
+        let resolved = with_resolver(|r| r.entity(&entity.path_dyn()))?;
+        let sk = resolved.sort_key(key_values);
 
         // debug
         self.debug.println(&format!("query.{mode}: {sk}"));
@@ -97,7 +90,7 @@ impl SaveExecutor {
         // get old result
         let store = self
             .data
-            .with(|data| data.try_get_store(resolved_entity.store_path()))?;
+            .with(|data| data.try_get_store(resolved.store_path()))?;
         let result = store.with_borrow(|store| store.get(&sk));
 
         //

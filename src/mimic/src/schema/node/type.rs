@@ -38,8 +38,6 @@ impl VisitableNode for Type {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TypeValidator {
     pub path: String,
-
-    #[serde(skip_serializing_if = "Args::is_empty")]
     pub args: Args,
 }
 
