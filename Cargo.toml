@@ -28,7 +28,7 @@ ctor = "0.4"
 darling = "0.20"
 derive_more = { version = "2.0", default-features = false, features = ["full"] }
 hex = "0.4"
-ic-cdk = "0.18.0-alpha.2"
+ic-cdk = "0.18.3"
 ic-stable-structures = "0.6.8"
 icu = { git = "https://github.com/dragginzgame/icu" }
 mimic = { path = "src/mimic" }
