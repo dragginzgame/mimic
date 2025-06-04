@@ -47,6 +47,7 @@ impl SaveQuery {
 /// SaveQueryPrepared
 ///
 
+#[derive(Debug)]
 pub struct SaveQueryPrepared {
     pub mode: SaveMode,
     pub entity: Box<dyn EntityKindDyn>,
@@ -75,6 +76,7 @@ pub struct SaveResponse {
 /// SaveQueryBuilder
 ///
 
+#[derive(Debug)]
 pub struct SaveQueryBuilder {
     mode: SaveMode,
 }

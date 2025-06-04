@@ -306,7 +306,7 @@ where
     // key
     #[must_use]
     pub fn key(self) -> Option<SortKey> {
-        self.0.first().map(|row| row.key.clone())
+        self.0.into_iter().next().map(|row| row.key)
     }
 
     // keys
@@ -354,19 +354,19 @@ where
     // entity
     #[must_use]
     pub fn entity(self) -> Option<E> {
-        self.0.first().map(|row| row.value.entity.clone())
+        self.0.into_iter().next().map(|row| row.value.entity)
     }
 
     // entities
     #[must_use]
     pub fn entities(self) -> Vec<E> {
-        self.0.iter().map(|row| row.value.entity.clone()).collect()
+        self.0.into_iter().map(|row| row.value.entity).collect()
     }
 
     // entity_row
     #[must_use]
     pub fn entity_row(self) -> Option<EntityRow<E>> {
-        self.0.first().cloned()
+        self.0.into_iter().next()
     }
 
     // entity_rows

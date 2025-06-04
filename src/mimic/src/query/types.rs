@@ -4,8 +4,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// Selector
 ///
-/// All    : no sort key prefix, only works with top-level Sort Keys,
-///          will probably not work if used on nested entities
+/// All    : no sort key prefix, only works with top-level Sort Keys
 /// Only   : for entities that have no keys
 /// One    : returns one row by composite key
 /// Many   : returns many rows (from many composite keys)

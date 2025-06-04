@@ -106,7 +106,7 @@ where
     }
 
     // one
-    pub fn one<T: ToString>(self, ck: &[T]) -> LoadQueryDyn {
+    pub fn one<S: ToString>(self, ck: &[S]) -> LoadQueryDyn {
         let ck_str: Vec<String> = ck.iter().map(ToString::to_string).collect();
         let selector = Selector::One(ck_str);
 
@@ -115,14 +115,23 @@ where
 
     // many
     #[must_use]
-    pub fn many(self, cks: &[Vec<String>]) -> LoadQueryDyn {
-        let selector = Selector::Many(cks.to_vec());
+    pub fn many<I, S>(self, cks: I) -> LoadQueryDyn
+    where
+        I: IntoIterator,
+        I::Item: IntoIterator<Item = S>,
+        S: ToString,
+    {
+        let keys: Vec<Vec<String>> = cks
+            .into_iter()
+            .map(|key| key.into_iter().map(|s| s.to_string()).collect())
+            .collect();
+        let selector = Selector::Many(keys);
 
         LoadQueryDyn::new(selector)
     }
 
     // range
-    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> LoadQueryDyn {
+    pub fn range<S: ToString>(self, start: &[S], end: &[S]) -> LoadQueryDyn {
         let start = start.iter().map(ToString::to_string).collect();
         let end = end.iter().map(ToString::to_string).collect();
         let selector = Selector::Range(start, end);
@@ -131,7 +140,7 @@ where
     }
 
     // prefix
-    pub fn prefix<T: ToString>(self, prefix: &[T]) -> LoadQueryDyn {
+    pub fn prefix<S: ToString>(self, prefix: &[S]) -> LoadQueryDyn {
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
         let selector = Selector::Prefix(prefix);
 
@@ -166,7 +175,7 @@ impl LoadCollectionDyn {
     // key
     #[must_use]
     pub fn key(self) -> Option<SortKey> {
-        self.0.first().map(|row| row.key.clone())
+        self.0.into_iter().next().map(|row| row.key)
     }
 
     // keys
@@ -178,7 +187,7 @@ impl LoadCollectionDyn {
     // data_row
     #[must_use]
     pub fn data_row(self) -> Option<DataRow> {
-        self.0.first().cloned()
+        self.0.into_iter().next()
     }
 
     // data_rows
@@ -190,12 +199,18 @@ impl LoadCollectionDyn {
     // blob
     #[must_use]
     pub fn blob(self) -> Option<Vec<u8>> {
-        self.0.first().map(|row| row.value.data.clone())
+        self.0.into_iter().next().map(|row| row.value.data)
     }
 
     // blobs
     #[must_use]
     pub fn blobs(self) -> Vec<Vec<u8>> {
         self.0.into_iter().map(|row| row.value.data).collect()
+    }
+}
+
+impl From<Vec<DataRow>> for LoadCollectionDyn {
+    fn from(rows: Vec<DataRow>) -> Self {
+        Self(rows)
     }
 }

@@ -24,8 +24,8 @@ pub fn load_dyn<E: EntityKind>() -> LoadQueryDynBuilder<E> {
 
 // delete
 #[must_use]
-pub fn delete<E: EntityKind>() -> DeleteQueryBuilder<E> {
-    DeleteQueryBuilder::<E>::new()
+pub fn delete() -> DeleteQueryBuilder {
+    DeleteQueryBuilder::new()
 }
 
 // save

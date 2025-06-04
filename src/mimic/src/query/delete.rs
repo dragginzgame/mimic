@@ -1,8 +1,7 @@
-use crate::{db::types::SortKey, query::Selector, traits::EntityKind};
+use crate::{db::types::SortKey, query::Selector};
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
-use std::marker::PhantomData;
 
 ///
 /// DeleteQuery
@@ -33,17 +32,9 @@ pub struct DeleteResponse(pub Vec<SortKey>);
 ///
 
 #[derive(Debug, Default)]
-pub struct DeleteQueryBuilder<E>
-where
-    E: EntityKind,
-{
-    phantom: PhantomData<E>,
-}
+pub struct DeleteQueryBuilder {}
 
-impl<E> DeleteQueryBuilder<E>
-where
-    E: EntityKind,
-{
+impl DeleteQueryBuilder {
     // new
     #[must_use]
     pub fn new() -> Self {
@@ -60,13 +51,17 @@ where
 
     // many
     #[must_use]
-    pub fn many<S: ToString>(self, ck: &[Vec<S>]) -> DeleteQuery {
-        let keys: Vec<Vec<String>> = ck
-            .iter()
-            .map(|inner_vec| inner_vec.iter().map(ToString::to_string).collect())
+    pub fn many<I, S>(self, cks: I) -> DeleteQuery
+    where
+        I: IntoIterator,
+        I::Item: IntoIterator<Item = S>,
+        S: ToString,
+    {
+        let keys: Vec<Vec<String>> = cks
+            .into_iter()
+            .map(|inner| inner.into_iter().map(|s| s.to_string()).collect())
             .collect();
-        let selector = Selector::Many(keys);
 
-        DeleteQuery::new(selector)
+        DeleteQuery::new(Selector::Many(keys))
     }
 }
