@@ -154,6 +154,18 @@ pub struct EnumB {}
 pub struct EnumC {}
 
 ///
+/// EnumValue
+///
+
+#[enum_value(
+    variant(name = "M6", value = 1),
+    variant(name = "Y1", value = 5),
+    variant(name = "Y2", value = 10),
+    variant(name = "Y3", value = 10)
+)]
+pub struct EnumValue {}
+
+///
 /// Newtype
 ///
 
