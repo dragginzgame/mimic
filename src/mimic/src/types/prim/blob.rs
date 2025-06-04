@@ -1,6 +1,6 @@
 use crate::{
     prelude::*,
-    traits::{Inner, ValidateAuto},
+    traits::{FormatSortKey, Inner, ValidateAuto},
 };
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
@@ -54,6 +54,12 @@ impl From<&[u8]> for Blob {
 impl<const N: usize> From<&[u8; N]> for Blob {
     fn from(bytes: &[u8; N]) -> Self {
         Self(ByteBuf::from(&bytes[..]))
+    }
+}
+
+impl FormatSortKey for Blob {
+    fn format_sort_key(&self) -> Option<String> {
+        None
     }
 }
 

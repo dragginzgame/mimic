@@ -1,6 +1,6 @@
 use crate::{
     prelude::*,
-    traits::{FormatSortKey, FormatString, Inner, ValidateAuto},
+    traits::{FormatSortKey, Inner, ValidateAuto},
 };
 use candid::{CandidType, Nat as WrappedNat};
 use derive_more::{Deref, DerefMut, FromStr};
@@ -36,17 +36,16 @@ impl fmt::Display for Nat {
     }
 }
 
-impl FormatString for Nat {
-    fn format_string(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
-
-impl FormatSortKey for Nat {}
-
 impl From<WrappedNat> for Nat {
     fn from(n: WrappedNat) -> Self {
         Self(n)
+    }
+}
+
+// Nat shouldn't be used as a SortKey as its unbounded
+impl FormatSortKey for Nat {
+    fn format_sort_key(&self) -> Option<String> {
+        None
     }
 }
 

@@ -52,7 +52,7 @@ pub struct EntityIdTest {}
 /// TodoUnit
 ///
 
-#[newtype(item(todo), primitive = "Unit")]
+#[newtype(item(prim = "Unit", todo), primitive = "Unit")]
 pub struct TodoUnit {}
 
 ///

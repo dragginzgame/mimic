@@ -119,6 +119,7 @@ impl TraitNode for Entity {
             Trait::EntityKindDyn => imp::EntityKindDynTrait::tokens(self, t),
             Trait::EntitySearch => imp::EntitySearchTrait::tokens(self, t),
             Trait::EntitySort => imp::EntitySortTrait::tokens(self, t),
+            Trait::FormatSortKey => imp::FormatSortKeyTrait::tokens(self, t),
             Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => imp::VisitableTrait::tokens(self, t),
 

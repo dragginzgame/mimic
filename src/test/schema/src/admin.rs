@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use base::types;
 
 ///
 /// ComplexEntity
@@ -90,7 +91,7 @@ pub struct RelatedEntity {}
     store = "crate::Store",
     sk(entity = "SimpleEntity", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-    field(name = "name", value(item(prim = "prim::Text")))
+    field(name = "name", value(item(prim = "Text")))
 )]
 pub struct SimpleEntity {}
 

@@ -47,7 +47,7 @@ impl Item {
         }
     }
 
-    pub fn is_relation(&self) -> bool {
+    pub const fn is_relation(&self) -> bool {
         self.relation.is_some()
     }
 }
@@ -99,12 +99,12 @@ pub enum ItemTarget {
 impl ItemTarget {
     pub fn quoted_path(&self) -> TokenStream {
         match self {
-            ItemTarget::Is(path) => quote!(#path),
-            ItemTarget::Prim(prim) => {
+            Self::Is(path) => quote!(#path),
+            Self::Prim(prim) => {
                 let ty = prim.as_type();
                 quote!(#ty)
             }
-            ItemTarget::Relation(_) => quote!(::mimic::types::prim::Relation),
+            Self::Relation(_) => quote!(::mimic::types::prim::Relation),
         }
     }
 }
@@ -112,18 +112,18 @@ impl ItemTarget {
 impl Schemable for ItemTarget {
     fn schema(&self) -> TokenStream {
         match self {
-            ItemTarget::Is(path) => {
+            Self::Is(path) => {
                 let path = quote_one(path, to_path);
                 quote! {
                     ::mimic::schema::node::ItemTarget::Is(#path)
                 }
             }
-            ItemTarget::Prim(prim) => {
+            Self::Prim(prim) => {
                 quote! {
                     ::mimic::schema::node::ItemTarget::Prim(#prim)
                 }
             }
-            ItemTarget::Relation(path) => {
+            Self::Relation(path) => {
                 let path = quote_one(path, to_path);
                 quote! {
                     ::mimic::schema::node::ItemTarget::Relation(#path)

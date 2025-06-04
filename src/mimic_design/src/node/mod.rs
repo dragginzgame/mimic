@@ -109,7 +109,7 @@ pub trait TraitNode: MacroNode {
                 (None, None) => {
                     derived_traits.push(tr.derive_path().unwrap_or_else(|| {
                         panic!("trait '{tr}' has no derive, impl or attributes")
-                    }))
+                    }));
                 }
             }
         }

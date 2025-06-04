@@ -26,8 +26,8 @@ impl IndexKey {
     pub fn new<S: ToString>(entity: S, fields: &[S], values: &[S]) -> Self {
         Self {
             entity: entity.to_string(),
-            fields: fields.iter().map(|s| s.to_string()).collect(),
-            values: values.iter().map(|s| s.to_string()).collect(),
+            fields: fields.iter().map(ToString::to_string).collect(),
+            values: values.iter().map(ToString::to_string).collect(),
         }
     }
 }

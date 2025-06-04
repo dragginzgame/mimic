@@ -16,7 +16,15 @@ pub use std::{
     str::FromStr,
 };
 
-use crate::{SerializeError, schema::types::SortDirection, types::ErrorTree, visit::Visitor};
+use crate::{
+    SerializeError,
+    schema::types::SortDirection,
+    types::{
+        ErrorTree,
+        prim::{Relation, Ulid},
+    },
+    visit::Visitor,
+};
 
 ///
 /// MACROS
@@ -71,9 +79,15 @@ pub trait KindDyn {
 /// a Meta that can act as a data type
 ///
 
-pub trait TypeKind: Kind + CandidType + Clone + Default + Serialize + DeserializeOwned {}
+pub trait TypeKind:
+    Kind + CandidType + Clone + Default + FormatSortKey + Serialize + DeserializeOwned
+{
+}
 
-impl<T> TypeKind for T where T: Kind + CandidType + Clone + Default + Serialize + DeserializeOwned {}
+impl<T> TypeKind for T where
+    T: Kind + CandidType + Clone + Default + FormatSortKey + Serialize + DeserializeOwned
+{
+}
 
 ///
 /// TypeKindDyn
@@ -91,6 +105,11 @@ impl<T> TypeKindDyn for T where T: KindDyn + Debug {}
 
 pub trait EntityKind: TypeKind + EntityKindDyn + EntityFixture + EntitySearch + EntitySort {}
 
+impl<T> EntityKind for T where
+    T: TypeKind + EntityKindDyn + EntityFixture + EntitySearch + EntitySort
+{
+}
+
 ///
 /// EntityKindDyn
 /// object-safe methods for entities
@@ -101,6 +120,24 @@ pub trait EntityKindDyn: TypeKindDyn + SerializeDyn + Visitable {
     // returns a map of field to any value that can be a string, useful
     // for keys and indexes
     fn values_string(&self) -> HashMap<String, String>;
+}
+
+///
+/// EntityIdKind
+///
+
+pub trait EntityIdKind: KindDyn + Display {
+    #[must_use]
+    fn ulid(&self) -> Ulid {
+        let digest = format!("{}-{}", self.path_dyn(), self);
+
+        Ulid::from_string_digest(&digest)
+    }
+
+    #[must_use]
+    fn relation(&self) -> Relation {
+        Relation::from(vec![self.ulid()])
+    }
 }
 
 ///
@@ -235,40 +272,31 @@ pub trait ValidatorString {
 ///
 
 ///
-/// FormatString
-///
-
-pub trait FormatString {
-    fn format_string(&self) -> Option<String>;
-}
-
-///
 /// FormatSortKey
 /// a type that can be formatted as a Sort Key
 ///
 
-pub trait FormatSortKey: FromStr + ToString {
-    // format_sort_key
-    // how is this type formatted within a sort key string, we may want
-    // to overwrite for fixed-width values
-    fn format_sort_key(&self) -> String {
-        self.to_string()
-    }
+pub trait FormatSortKey {
+    fn format_sort_key(&self) -> Option<String>;
 }
 
-impl FormatSortKey for String {}
+impl FormatSortKey for String {
+    fn format_sort_key(&self) -> Option<String> {
+        Some(self.to_string())
+    }
+}
 
 macro_rules! impl_format_sort_key_ints {
     ($($t:ty, $ut:ty, $len:expr),* $(,)?) => {
         $(
             impl FormatSortKey for $t {
                 #[allow(clippy::cast_sign_loss)]
-                fn format_sort_key(&self) -> String {
+                fn format_sort_key(&self) -> Option<String> {
                     if *self < 0 {
                         let inverted = <$ut>::MAX - self.wrapping_abs() as $ut;
-                        format!("-{:0>width$}", inverted, width = $len - 1)
+                        Some(format!("-{:0>width$}", inverted, width = $len - 1))
                     } else {
-                        format!("{:0>width$}", *self as $ut, width = $len)
+                        Some(format!("{:0>width$}", *self as $ut, width = $len))
                     }
                 }
             }
@@ -280,8 +308,20 @@ macro_rules! impl_format_sort_key_uints {
     ($($t:ty, $len:expr),* $(,)?) => {
         $(
             impl FormatSortKey for $t {
-                fn format_sort_key(&self) -> String {
-                    format!("{:0>width$}", self, width = $len)
+                fn format_sort_key(&self) -> Option<String> {
+                    Some(format!("{:0>width$}", self, width = $len))
+                }
+            }
+        )*
+    };
+}
+
+macro_rules! impl_format_sort_key_none {
+    ($($t:ty),* $(,)?) => {
+        $(
+            impl FormatSortKey for $t {
+                fn format_sort_key(&self) -> Option<String> {
+                    None
                 }
             }
         )*
@@ -306,6 +346,8 @@ impl_format_sort_key_uints!(
     u128, 40
 );
 
+impl_format_sort_key_none!(bool, f32, f64);
+
 ///
 /// Inner
 /// a trait for Newtypes to recurse downwards to find the innermost value
@@ -319,7 +361,7 @@ pub trait Inner {
 }
 
 impl Inner for String {
-    type Primitive = String;
+    type Primitive = Self;
 
     fn inner(&self) -> Self::Primitive {
         self.clone()
@@ -457,7 +499,7 @@ pub trait SerializeDyn: Debug {
 
 impl<T> SerializeDyn for T
 where
-    T: EntityKind,
+    T: EntityKindDyn + Serialize,
 {
     fn serialize(&self) -> Result<Vec<u8>, SerializeError> {
         mimic::serialize(self)

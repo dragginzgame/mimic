@@ -71,6 +71,7 @@ impl TraitNode for Set {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
+            Trait::FormatSortKey => imp::FormatSortKeyTrait::tokens(self, t),
             Trait::From => imp::FromTrait::tokens(self, t),
             Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => imp::VisitableTrait::tokens(self, t),

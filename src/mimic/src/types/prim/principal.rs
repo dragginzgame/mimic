@@ -2,8 +2,7 @@ use crate::{
     ThisError,
     prelude::*,
     traits::{
-        FormatSortKey, FormatString, Inner, Orderable, Searchable, ValidateAuto, ValidateCustom,
-        Visitable,
+        FormatSortKey, Inner, Orderable, Searchable, ValidateAuto, ValidateCustom, Visitable,
     },
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
@@ -74,13 +73,11 @@ impl fmt::Display for Principal {
     }
 }
 
-impl FormatString for Principal {
-    fn format_string(&self) -> Option<String> {
+impl FormatSortKey for Principal {
+    fn format_sort_key(&self) -> Option<String> {
         Some(self.to_string())
     }
 }
-
-impl FormatSortKey for Principal {}
 
 impl From<WrappedPrincipal> for Principal {
     fn from(principal: WrappedPrincipal) -> Self {

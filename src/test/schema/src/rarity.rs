@@ -8,7 +8,7 @@ use crate::prelude::*;
 #[entity(
     store = "crate::Store",
     sk(entity = "Rarity", field = "id"),
-    field(name = "id", value(item(iprims = "Ulid")), default = "Ulid::generate"),
+    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "name", value(item(prim = "Text"))),
     field(name = "description", value(item(prim = "Text"))),
     field(name = "level", value(item(prim = "Nat8"))),

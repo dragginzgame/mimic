@@ -16,7 +16,7 @@ impl Imp<Entity> for EntityKindDynTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
         let mut q = quote!();
 
-        q.extend(values_string(node));
+        q.extend(format_sort_keys(node));
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
@@ -26,19 +26,29 @@ impl Imp<Entity> for EntityKindDynTrait {
     }
 }
 
-fn values_string(node: &Entity) -> TokenStream {
-    quote!()
-    /*
-    let parts = node.fields.iter().filter_map(|field| {
-        if field.value.is_stringable() {
-            let ident = &field.ident;
-            let name = field.name.to_string();
+fn format_sort_keys(node: &Entity) -> TokenStream {
+    let parts = node.fields.iter().map(|field| {
+        let field_ident = &field.name;
+        let field_name = field.name.to_string();
+        let item = &field.value.item;
 
-            Some(quote! {
-                map.insert(#name.to_string(), ::mimic::traits::StringValue::to_string_value(&self.#ident));
-            })
-        } else {
-            None
+        match field.value.cardinality() {
+
+            Cardinality::One => quote! {
+                if let Some(s) = <#item as ::mimic::traits::FormatSortKey>::format_sort_key(&self.#field_ident) {
+                    map.insert(#field_name.to_string(), s);
+                }
+            },
+
+            Cardinality::Opt => quote! {
+                if let Some(val) = &self.#field_ident {
+                    if let Some(s) = <#item as ::mimic::traits::FormatSortKey>::format_sort_key(val) {
+                        map.insert(#field_name.to_string(), s);
+                    }
+                }
+            },
+
+            Cardinality::Many => quote!(),
         }
     });
 
@@ -49,7 +59,7 @@ fn values_string(node: &Entity) -> TokenStream {
 
             map
         }
-    }*/
+    }
 }
 
 ///

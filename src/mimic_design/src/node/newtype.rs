@@ -108,7 +108,6 @@ impl TraitNode for Newtype {
         match t {
             Trait::Default if self.default.is_some() => imp::DefaultTrait::tokens(self, t),
             Trait::FormatSortKey => imp::FormatSortKeyTrait::tokens(self, t),
-            Trait::FormatString => imp::FormatStringTrait::tokens(self, t),
             Trait::From => imp::FromTrait::tokens(self, t),
             Trait::Inner => imp::InnerTrait::tokens(self, t),
             Trait::NumCast => imp::NumCastTrait::tokens(self, t),

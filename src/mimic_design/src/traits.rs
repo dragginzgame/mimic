@@ -25,6 +25,7 @@ static RNG: LazyLock<Mutex<StdRand>> = LazyLock::new(|| {
 /// Any data structure requires this trait to be part of the ctor structure
 /// that populates the Schema
 ///
+
 pub trait Schemable {
     // schema
     // generates the structure which is passed to the static Schema data structure

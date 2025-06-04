@@ -31,35 +31,35 @@ impl LoadQueryDyn {
 
     // format
     #[must_use]
-    pub fn format(mut self, format: LoadFormat) -> Self {
+    pub const fn format(mut self, format: LoadFormat) -> Self {
         self.format = format;
         self
     }
 
     // offset
     #[must_use]
-    pub fn offset(mut self, offset: u32) -> Self {
+    pub const fn offset(mut self, offset: u32) -> Self {
         self.offset = offset;
         self
     }
 
     // limit
     #[must_use]
-    pub fn limit(mut self, limit: u32) -> Self {
+    pub const fn limit(mut self, limit: u32) -> Self {
         self.limit = Some(limit);
         self
     }
 
     // limit_option
     #[must_use]
-    pub fn limit_option(mut self, limit: Option<u32>) -> Self {
+    pub const fn limit_option(mut self, limit: Option<u32>) -> Self {
         self.limit = limit;
         self
     }
 
     // children
     #[must_use]
-    pub fn children(mut self) -> Self {
+    pub const fn children(mut self) -> Self {
         self.include_children = true;
         self
     }

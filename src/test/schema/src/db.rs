@@ -116,6 +116,6 @@ pub struct MissingFieldLarge {}
     store = "crate::Store",
     sk(entity = "ContainsBlob", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-    field(name = "bytes", value(item(prim = "Blob")))
+    field(name = "bytes", value(opt, item(prim = "Blob")))
 )]
 pub struct ContainsBlob {}

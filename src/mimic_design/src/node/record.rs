@@ -94,6 +94,7 @@ impl TraitNode for Record {
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::Default if self.has_default() => imp::DefaultTrait::tokens(self, t),
+            Trait::FormatSortKey => imp::FormatSortKeyTrait::tokens(self, t),
             Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => imp::VisitableTrait::tokens(self, t),
 

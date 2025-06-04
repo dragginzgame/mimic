@@ -57,7 +57,7 @@ impl ValidateNode for Item {
                 // cannot be an entity
                 if schema.check_node_as::<Entity>(path).is_ok() {
                     errs.add("a non-relation Item cannot reference an Entity");
-                };
+                }
 
                 // todo
                 if let Some(node) = schema.get_node(path) {
@@ -74,7 +74,7 @@ impl ValidateNode for Item {
                 }
             }
 
-            _ => {}
+            ItemTarget::Prim(_) => {}
         }
 
         // selector

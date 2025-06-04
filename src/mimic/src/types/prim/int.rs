@@ -1,6 +1,6 @@
 use crate::{
     prelude::*,
-    traits::{FormatSortKey, FormatString, Inner, ValidateAuto},
+    traits::{FormatSortKey, Inner, ValidateAuto},
 };
 use candid::{CandidType, Int as WrappedInt};
 use derive_more::{Deref, DerefMut, FromStr};
@@ -39,13 +39,12 @@ impl fmt::Display for Int {
     }
 }
 
-impl FormatString for Int {
-    fn format_string(&self) -> Option<String> {
-        Some(self.to_string())
+// Int shouldn't be used as a SortKey as its unbounded
+impl FormatSortKey for Int {
+    fn format_sort_key(&self) -> Option<String> {
+        None
     }
 }
-
-impl FormatSortKey for Int {}
 
 impl From<WrappedInt> for Int {
     fn from(i: WrappedInt) -> Self {

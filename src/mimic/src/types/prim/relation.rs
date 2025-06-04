@@ -1,9 +1,6 @@
 use crate::{
     db::types::SortKey,
-    traits::{
-        FormatSortKey, FormatString, Orderable, Path, Searchable, ValidateAuto, ValidateCustom,
-        Visitable,
-    },
+    traits::{FormatSortKey, Orderable, Path, Searchable, ValidateAuto, ValidateCustom, Visitable},
     types::prim::Ulid,
 };
 use candid::CandidType;
@@ -76,13 +73,11 @@ impl fmt::Display for Relation {
     }
 }
 
-impl FormatString for Relation {
-    fn format_string(&self) -> Option<String> {
-        Some(self.to_string())
+impl FormatSortKey for Relation {
+    fn format_sort_key(&self) -> Option<String> {
+        None
     }
 }
-
-impl FormatSortKey for Relation {}
 
 impl From<Ulid> for Relation {
     fn from(ulid: Ulid) -> Self {

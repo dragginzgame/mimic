@@ -57,7 +57,12 @@ impl MacroNode for EntityId {
 impl TraitNode for EntityId {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
-        traits.extend(vec![Trait::Copy, Trait::Display, Trait::Into]);
+        traits.extend(vec![
+            Trait::Copy,
+            Trait::Display,
+            Trait::EntityIdKind,
+            Trait::Into,
+        ]);
 
         traits.list()
     }

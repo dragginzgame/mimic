@@ -33,7 +33,7 @@ impl LoadExecutor {
 
     // debug
     #[must_use]
-    pub fn debug(mut self) -> Self {
+    pub const fn debug(mut self) -> Self {
         self.debug.enable();
         self
     }
@@ -81,56 +81,53 @@ impl LoadExecutor {
             .collect::<Result<Vec<EntityRow<E>>, _>>()?;
 
         // do stuff
-        let rows = self.apply_filters(rows, &query);
-        let rows = self.apply_sort(rows, &query);
-        let rows = self.apply_pagination(rows, &query);
+        let rows = apply_filters(rows, &query);
+        let rows = apply_sort(rows, &query);
+        let rows = apply_pagination(rows, &query);
 
         Ok(LoadCollection(rows))
     }
+}
 
-    // apply_filters
-    fn apply_filters<E: EntityKind>(
-        &self,
-        rows: Vec<EntityRow<E>>,
-        query: &LoadQueryInternal<E>,
-    ) -> Vec<EntityRow<E>> {
-        rows.into_iter()
-            .filter(|row| {
-                let entity = &row.value.entity;
+// apply_filters
+fn apply_filters<E: EntityKind>(
+    rows: Vec<EntityRow<E>>,
+    query: &LoadQueryInternal<E>,
+) -> Vec<EntityRow<E>> {
+    rows.into_iter()
+        .filter(|row| {
+            let entity = &row.value.entity;
 
-                let matches_search =
-                    query.inner.search.is_empty() || entity.search_fields(&query.inner.search);
-                let matches_custom_filters = query.filters.iter().all(|f| f(entity));
+            let matches_search =
+                query.inner.search.is_empty() || entity.search_fields(&query.inner.search);
+            let matches_custom_filters = query.filters.iter().all(|f| f(entity));
 
-                matches_search && matches_custom_filters
-            })
-            .collect()
+            matches_search && matches_custom_filters
+        })
+        .collect()
+}
+
+// apply_sort
+fn apply_sort<E: EntityKind>(
+    mut rows: Vec<EntityRow<E>>,
+    query: &LoadQueryInternal<E>,
+) -> Vec<EntityRow<E>> {
+    if !query.inner.sort.is_empty() {
+        let sorter = E::sort(&query.inner.sort);
+        rows.sort_by(|a, b| sorter(&a.value.entity, &b.value.entity));
     }
+    rows
+}
 
-    // apply_sort
-    fn apply_sort<E: EntityKind>(
-        &self,
-        mut rows: Vec<EntityRow<E>>,
-        query: &LoadQueryInternal<E>,
-    ) -> Vec<EntityRow<E>> {
-        if !query.inner.sort.is_empty() {
-            let sorter = E::sort(&query.inner.sort);
-            rows.sort_by(|a, b| sorter(&a.value.entity, &b.value.entity));
-        }
-        rows
-    }
+// apply_pagination
+fn apply_pagination<E: EntityKind>(
+    rows: Vec<EntityRow<E>>,
+    query: &LoadQueryInternal<E>,
+) -> Vec<EntityRow<E>> {
+    let (offset, limit) = (query.inner.offset, query.inner.limit.unwrap_or(u32::MAX));
 
-    // apply_pagination
-    fn apply_pagination<E: EntityKind>(
-        &self,
-        rows: Vec<EntityRow<E>>,
-        query: &LoadQueryInternal<E>,
-    ) -> Vec<EntityRow<E>> {
-        let (offset, limit) = (query.inner.offset, query.inner.limit.unwrap_or(u32::MAX));
-
-        rows.into_iter()
-            .skip(offset as usize)
-            .take(limit as usize)
-            .collect()
-    }
+    rows.into_iter()
+        .skip(offset as usize)
+        .take(limit as usize)
+        .collect()
 }

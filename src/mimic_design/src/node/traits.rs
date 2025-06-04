@@ -56,6 +56,7 @@ pub enum Trait {
     // kind
     // traits for the implementation of specific Schema Nodes
     KindDyn,
+    EntityIdKind,
     EntityKindDyn,
     EnumValueKind,
     PrimitiveKind,
@@ -65,10 +66,10 @@ pub enum Trait {
     EntitySearch,
     EntitySort,
     FormatSortKey,
-    FormatString,
     Inner,
     NumFromPrimitive,
     NumToPrimitive,
+    Orderable,
     Path,
     Searchable,
     Sorted,
@@ -96,6 +97,8 @@ static TYPE_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
         Trait::CandidType,
         Trait::Eq,
         Trait::Deserialize,
+        Trait::FormatSortKey,
+        Trait::Orderable,
         Trait::PartialEq,
         Trait::Searchable,
         Trait::Serialize,
@@ -151,10 +154,10 @@ impl Trait {
         }
     }
 
-    pub fn derive_attribute(&self) -> Option<TokenStream> {
+    pub fn derive_attribute(self) -> Option<TokenStream> {
         match self {
-            Trait::Sorted => Some(quote!(#[::mimic::export::remain::sorted])),
-            Trait::Default => Some(quote!(#[serde(default)])),
+            Self::Sorted => Some(quote!(#[::mimic::export::remain::sorted])),
+            Self::Default => Some(quote!(#[serde(default)])),
             _ => None,
         }
     }
