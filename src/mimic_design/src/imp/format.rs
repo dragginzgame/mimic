@@ -1,6 +1,6 @@
 use crate::{
     imp::{Imp, Implementor},
-    node::{Def, Entity, Enum, List, Map, Newtype, Record, Set, Trait, Tuple},
+    node::{Def, Entity, Enum, EnumValue, List, Map, Newtype, Record, Set, Trait, Tuple},
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -37,6 +37,16 @@ impl Imp<Entity> for FormatSortKeyTrait {
 
 impl Imp<Enum> for FormatSortKeyTrait {
     fn tokens(node: &Enum, t: Trait) -> Option<TokenStream> {
+        format_sort_key_none(&node.def, t)
+    }
+}
+
+///
+/// EnumValue
+///
+
+impl Imp<EnumValue> for FormatSortKeyTrait {
+    fn tokens(node: &EnumValue, t: Trait) -> Option<TokenStream> {
         format_sort_key_none(&node.def, t)
     }
 }

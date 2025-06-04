@@ -107,6 +107,7 @@ impl TraitNode for EnumValue {
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::EnumValueKind => imp::EnumValueTrait::tokens(self, t),
+            Trait::FormatSortKey => imp::FormatSortKeyTrait::tokens(self, t),
 
             _ => imp::any(self, t),
         }
