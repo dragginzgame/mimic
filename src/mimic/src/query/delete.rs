@@ -1,7 +1,8 @@
-use crate::{db::types::SortKey, query::Selector};
+use crate::{db::types::SortKey, query::Selector, traits::EntityKind};
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
+use std::marker::PhantomData;
 
 ///
 /// DeleteQuery
@@ -9,18 +10,14 @@ use serde::{Deserialize, Serialize};
 
 #[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
 pub struct DeleteQuery {
-    pub path: String,
     pub selector: Selector,
 }
 
 impl DeleteQuery {
     // new
     #[must_use]
-    pub fn new(path: &str, selector: Selector) -> Self {
-        Self {
-            path: path.to_string(),
-            selector,
-        }
+    pub const fn new(selector: Selector) -> Self {
+        Self { selector }
     }
 }
 
@@ -36,32 +33,40 @@ pub struct DeleteResponse(pub Vec<SortKey>);
 ///
 
 #[derive(Debug, Default)]
-pub struct DeleteQueryBuilder {}
+pub struct DeleteQueryBuilder<E>
+where
+    E: EntityKind,
+{
+    phantom: PhantomData<E>,
+}
 
-impl DeleteQueryBuilder {
+impl<E> DeleteQueryBuilder<E>
+where
+    E: EntityKind,
+{
     // new
     #[must_use]
-    pub const fn new() -> Self {
-        Self {}
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // one
-    pub fn one<S: ToString>(self, path: &str, ck: &[S]) -> DeleteQuery {
+    pub fn one<S: ToString>(self, ck: &[S]) -> DeleteQuery {
         let key = ck.iter().map(ToString::to_string).collect();
         let selector = Selector::One(key);
 
-        DeleteQuery::new(path, selector)
+        DeleteQuery::new(selector)
     }
 
     // many
     #[must_use]
-    pub fn many<S: ToString>(self, path: &str, ck: &[Vec<S>]) -> DeleteQuery {
+    pub fn many<S: ToString>(self, ck: &[Vec<S>]) -> DeleteQuery {
         let keys: Vec<Vec<String>> = ck
             .iter()
             .map(|inner_vec| inner_vec.iter().map(ToString::to_string).collect())
             .collect();
         let selector = Selector::Many(keys);
 
-        DeleteQuery::new(path, selector)
+        DeleteQuery::new(selector)
     }
 }

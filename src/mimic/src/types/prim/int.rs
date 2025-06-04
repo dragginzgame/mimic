@@ -70,11 +70,6 @@ impl Orderable for Int {
     }
 }
 
-impl Path for Int {
-    const IDENT: &'static str = "Int";
-    const PATH: &'static str = "mimic::types::prim::Int";
-}
-
 impl Searchable for Int {
     fn as_text(&self) -> Option<String> {
         Some(self.to_string())

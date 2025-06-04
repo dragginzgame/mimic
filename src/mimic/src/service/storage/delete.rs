@@ -1,11 +1,15 @@
 use crate::{
     Error,
-    db::{DataStoreRegistry, IndexStoreRegistry, types::SortKey},
+    db::{
+        DataStoreRegistry, IndexStoreRegistry,
+        types::{DataValue, SortKey},
+    },
     query::{DeleteQuery, DeleteResponse},
     service::{
         ServiceError,
         storage::{DebugContext, ResolvedSelector, StorageError, with_resolver},
     },
+    traits::EntityKind,
 };
 
 ///
@@ -37,19 +41,27 @@ impl DeleteExecutor {
     }
 
     // execute
-    pub fn execute(self, query: DeleteQuery) -> Result<DeleteResponse, Error> {
-        let res = self.execute_internal(query).map_err(ServiceError::from)?;
+    pub fn execute<E: EntityKind>(self, query: DeleteQuery) -> Result<DeleteResponse, Error> {
+        let res = self
+            .execute_internal::<E>(query)
+            .map_err(ServiceError::from)?;
 
         Ok(res)
     }
 
     // execute_internal
-    fn execute_internal(&self, query: DeleteQuery) -> Result<DeleteResponse, StorageError> {
-        // resolved_entity
-        let resolved_entity = with_resolver(|r| r.entity(&query.path))?;
+    fn execute_internal<E: EntityKind>(
+        &self,
+        query: DeleteQuery,
+    ) -> Result<DeleteResponse, StorageError> {
+        self.debug.println(&format!("query.delete: {query:?}"));
+
+        // resolver
+        let resolved = with_resolver(|r| r.entity(E::PATH))?;
+        let indexes = resolved.indexes();
 
         // selector
-        let selector = resolved_entity
+        let selector = resolved
             .selector(&query.selector)
             .map_err(StorageError::from)?;
 
@@ -65,15 +77,45 @@ impl DeleteExecutor {
         // get store
         let store = self
             .data
-            .with(|db| db.try_get_store(resolved_entity.store_path()))
+            .with(|db| db.try_get_store(resolved.store_path()))
             .map_err(StorageError::DbError)?;
 
+        //
         // execute for every different key
+        //
         let mut deleted_keys = Vec::new();
+
         for sk in sort_keys {
-            // remove returns DataValue but we ignore it for now
-            // if the key is deleted then add it to the vec
-            if store.with_borrow_mut(|store| store.remove(&sk)).is_some() {
+            let maybe_value: Option<DataValue> =
+                store.with_borrow(|store| store.get(&sk)).map(|v| v.clone());
+
+            if let Some(_data_value) = maybe_value {
+                /*
+                                let e: Option<E> = data_value.try_into();
+
+                                if let Ok(entity) = <E as TryFrom<DataValue>>::try_from(data_value) {
+                                    // Step 2: extract field values from the row
+                                    let field_values = entity.key_values();
+
+                                    // Step 3: compute and delete index keys
+                                    for index_key in resolved.index_keys_from_values(&field_values) {
+                                        let index_store = self
+                                            .indexes
+                                            .with(|ix| ix.try_get_store(&index_key.entity))
+                                            .map_err(StorageError::DbError)?;
+
+                                        self.debug.println(&format!("index delete: {index_key:?}"));
+
+                                        index_store.with_borrow_mut(|store| {
+                                            store.remove(&index_key);
+                                        });
+                                    }
+                */
+                // Step 4: delete the row
+                store.with_borrow_mut(|store| {
+                    store.remove(&sk);
+                });
+
                 deleted_keys.push(sk);
             }
         }

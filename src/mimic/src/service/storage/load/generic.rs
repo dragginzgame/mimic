@@ -1,10 +1,10 @@
 use crate::{
     Error,
-    db::{DataStoreRegistry, IndexStoreRegistry, types::EntityRow},
+    db::{DataStoreRegistry, IndexStoreRegistry},
     query::{LoadCollection, LoadQueryInternal, LoadResponse},
     service::{
         ServiceError,
-        storage::{DebugContext, Loader, StorageError, with_resolver},
+        storage::{DebugContext, Loader, StorageError, types::EntityRow, with_resolver},
     },
     traits::EntityKind,
 };

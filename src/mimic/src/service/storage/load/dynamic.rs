@@ -64,15 +64,11 @@ impl LoadExecutorDyn {
         self.debug.println(&format!("query.load_dyn: {query:?}"));
 
         // resolver
-        let resolved_entity = with_resolver(|r| r.entity(E::PATH))?;
-
-        // store
+        let resolved = with_resolver(|r| r.entity(E::PATH))?;
         let store = self
             .data
-            .with(|db| db.try_get_store(resolved_entity.store_path()))?;
-
-        // selector
-        let selector = resolved_entity.selector(&query.selector)?;
+            .with(|db| db.try_get_store(resolved.store_path()))?;
+        let selector = resolved.selector(&query.selector)?;
 
         // loader
         let loader = Loader::new(store);

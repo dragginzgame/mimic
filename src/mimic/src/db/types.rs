@@ -1,7 +1,6 @@
-use crate::{SerializeError, deserialize, serialize, traits::Path};
 use candid::CandidType;
 use icu::{impl_storable_bounded, impl_storable_unbounded};
-use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 ///
@@ -16,9 +15,9 @@ use std::fmt;
     CandidType, Clone, Debug, Default, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize,
 )]
 pub struct IndexKey {
-    entity: String,
-    fields: Vec<String>,
-    values: Vec<String>,
+    pub entity: String,
+    pub fields: Vec<String>,
+    pub values: Vec<String>,
 }
 
 impl IndexKey {
@@ -112,20 +111,6 @@ impl DataRow {
     }
 }
 
-impl<E> TryFrom<EntityRow<E>> for DataRow
-where
-    E: Path + Serialize + DeserializeOwned,
-{
-    type Error = SerializeError;
-
-    fn try_from(row: EntityRow<E>) -> Result<Self, Self::Error> {
-        Ok(Self {
-            key: row.key,
-            value: row.value.try_into()?,
-        })
-    }
-}
-
 ///
 /// DataValue
 ///
@@ -138,89 +123,6 @@ pub struct DataValue {
 }
 
 impl_storable_unbounded!(DataValue);
-
-impl<E> TryFrom<EntityValue<E>> for DataValue
-where
-    E: Path + Serialize + DeserializeOwned,
-{
-    type Error = SerializeError;
-
-    fn try_from(value: EntityValue<E>) -> Result<Self, Self::Error> {
-        let data = serialize::<E>(&value.entity)?;
-
-        Ok(Self {
-            data,
-            path: E::path(),
-            metadata: value.metadata,
-        })
-    }
-}
-
-///
-/// EntityRow
-/// same as DataRow but with a concrete Entity
-///
-
-#[derive(CandidType, Clone, Debug, Serialize)]
-pub struct EntityRow<E>
-where
-    E: DeserializeOwned,
-{
-    pub key: SortKey,
-    pub value: EntityValue<E>,
-}
-
-impl<E> EntityRow<E>
-where
-    E: DeserializeOwned,
-{
-    pub const fn new(key: SortKey, value: EntityValue<E>) -> Self {
-        Self { key, value }
-    }
-}
-
-impl<E> TryFrom<DataRow> for EntityRow<E>
-where
-    E: DeserializeOwned,
-{
-    type Error = SerializeError;
-
-    fn try_from(row: DataRow) -> Result<Self, Self::Error> {
-        Ok(Self {
-            key: row.key,
-            value: row.value.try_into()?,
-        })
-    }
-}
-
-///
-/// EntityValue
-///
-
-#[derive(CandidType, Clone, Debug, Serialize)]
-pub struct EntityValue<E>
-where
-    E: DeserializeOwned,
-{
-    pub entity: E,
-    pub metadata: Metadata,
-}
-
-impl<E> TryFrom<DataValue> for EntityValue<E>
-where
-    E: DeserializeOwned,
-{
-    type Error = SerializeError;
-
-    fn try_from(value: DataValue) -> Result<Self, Self::Error> {
-        let entity = deserialize::<E>(&value.data)?;
-
-        Ok(Self {
-            entity,
-            metadata: value.metadata,
-        })
-    }
-}
 
 ///
 /// Metadata

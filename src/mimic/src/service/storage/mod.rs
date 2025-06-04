@@ -1,8 +1,10 @@
 mod delete;
 mod load;
-mod macros;
 mod resolver;
 mod save;
+
+pub mod macros;
+pub mod types;
 
 pub use delete::*;
 pub use load::*;
@@ -18,6 +20,9 @@ use thiserror::Error as ThisError;
 
 #[derive(Debug, ThisError)]
 pub enum StorageError {
+    #[error("index key error")]
+    IndexKeyError,
+
     #[error("selector not suppoorted")]
     SelectorNotSupported,
 

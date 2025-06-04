@@ -1,6 +1,6 @@
 use crate::{
     ThisError,
-    db::types::SortKey,
+    db::types::{IndexKey, SortKey},
     query::Selector,
     schema::{
         node::{Entity, EntityIndex, Schema},
@@ -15,7 +15,8 @@ thread_local! {
     );
 }
 
-// Public helper
+// with_resolver
+// public helper
 pub fn with_resolver<R>(f: impl FnOnce(&Resolver) -> R) -> R {
     RESOLVER.with_borrow(|r| f(r))
 }
@@ -199,6 +200,28 @@ impl ResolvedEntity {
     #[must_use]
     pub fn indexes(&self) -> &[EntityIndex] {
         &self.entity.indexes
+    }
+
+    // index_keys_from_values
+    #[must_use]
+    pub fn index_keys_from_values(&self, field_values: &HashMap<String, String>) -> Vec<IndexKey> {
+        self.entity
+            .indexes
+            .iter()
+            .map(|index| {
+                let values = index
+                    .fields
+                    .iter()
+                    .map(|f| field_values.get(f).cloned().unwrap_or_default())
+                    .collect();
+
+                IndexKey {
+                    entity: self.entity.def.path(),
+                    fields: index.fields.clone(),
+                    values,
+                }
+            })
+            .collect()
     }
 
     // store_path

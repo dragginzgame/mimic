@@ -1,11 +1,12 @@
 #![allow(clippy::type_complexity)]
 use crate::{
-    db::types::{DataRow, EntityRow, EntityValue, SortKey},
+    db::types::{DataRow, SortKey},
     query::{
         Selector,
         load::{LoadCollectionDyn, LoadFormat, LoadMap, LoadResponse},
     },
     schema::types::SortDirection,
+    service::storage::types::{EntityRow, EntityValue},
     traits::EntityKind,
 };
 use candid::CandidType;

@@ -87,9 +87,9 @@ where
         Self::default()
     }
 
-    // method
+    // selector
     #[must_use]
-    pub fn method(self, selector: Selector) -> LoadQueryDyn {
+    pub fn selector(self, selector: Selector) -> LoadQueryDyn {
         LoadQueryDyn::new(selector)
     }
 
@@ -108,34 +108,34 @@ where
     // one
     pub fn one<T: ToString>(self, ck: &[T]) -> LoadQueryDyn {
         let ck_str: Vec<String> = ck.iter().map(ToString::to_string).collect();
-        let method = Selector::One(ck_str);
+        let selector = Selector::One(ck_str);
 
-        LoadQueryDyn::new(method)
+        LoadQueryDyn::new(selector)
     }
 
     // many
     #[must_use]
     pub fn many(self, cks: &[Vec<String>]) -> LoadQueryDyn {
-        let method = Selector::Many(cks.to_vec());
+        let selector = Selector::Many(cks.to_vec());
 
-        LoadQueryDyn::new(method)
+        LoadQueryDyn::new(selector)
     }
 
     // range
     pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> LoadQueryDyn {
         let start = start.iter().map(ToString::to_string).collect();
         let end = end.iter().map(ToString::to_string).collect();
-        let method = Selector::Range(start, end);
+        let selector = Selector::Range(start, end);
 
-        LoadQueryDyn::new(method)
+        LoadQueryDyn::new(selector)
     }
 
     // prefix
     pub fn prefix<T: ToString>(self, prefix: &[T]) -> LoadQueryDyn {
         let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
-        let method = Selector::Prefix(prefix);
+        let selector = Selector::Prefix(prefix);
 
-        LoadQueryDyn::new(method)
+        LoadQueryDyn::new(selector)
     }
 }
 
