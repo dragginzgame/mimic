@@ -135,11 +135,6 @@ impl Orderable for Ulid {
     }
 }
 
-impl Path for Ulid {
-    const IDENT: &'static str = "Ulid";
-    const PATH: &'static str = "mimic::types::prim::Ulid";
-}
-
 impl Searchable for Ulid {
     fn as_text(&self) -> Option<String> {
         Some(self.to_string())

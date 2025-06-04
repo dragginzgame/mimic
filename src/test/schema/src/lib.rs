@@ -14,7 +14,7 @@ pub mod validate;
 
 pub(crate) mod prelude {
     pub use mimic::prelude::*;
-    pub use mimic::types::prim::*;
+    pub use mimic::types::prim::Principal;
     pub use mimic_base as base;
     pub use mimic_design::*;
 }
@@ -66,5 +66,5 @@ pub struct TodoTarget {}
 /// Todo
 ///
 
-#[newtype(ty(todo), item(is = "Nat8"), primitive = "Nat8")]
+#[newtype(ty(todo), item(prim = "Nat8"), primitive = "Nat8")]
 pub struct Todo {}

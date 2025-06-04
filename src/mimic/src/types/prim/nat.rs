@@ -67,11 +67,6 @@ impl Orderable for Nat {
     }
 }
 
-impl Path for Nat {
-    const IDENT: &'static str = "Nat";
-    const PATH: &'static str = "mimic::types::prim::Nat";
-}
-
 impl Searchable for Nat {
     fn as_text(&self) -> Option<String> {
         Some(self.to_string())

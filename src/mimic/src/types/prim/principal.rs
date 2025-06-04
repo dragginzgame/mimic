@@ -121,11 +121,6 @@ impl Orderable for Principal {
     }
 }
 
-impl Path for Principal {
-    const IDENT: &'static str = "Principal";
-    const PATH: &'static str = "mimic::types::prim::Principal";
-}
-
 impl Searchable for Principal {
     fn as_text(&self) -> Option<String> {
         Some(self.to_string())

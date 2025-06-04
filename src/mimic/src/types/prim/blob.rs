@@ -77,11 +77,6 @@ impl Inner for Blob {
 
 impl Orderable for Blob {}
 
-impl Path for Blob {
-    const IDENT: &'static str = "Blob";
-    const PATH: &'static str = "mimic::types::prim::Blob";
-}
-
 impl Searchable for Blob {}
 
 impl ValidateAuto for Blob {}

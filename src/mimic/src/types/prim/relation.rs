@@ -1,6 +1,6 @@
 use crate::{
     db::types::SortKey,
-    traits::{FormatSortKey, Orderable, Path, Searchable, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FormatSortKey, Orderable, Searchable, ValidateAuto, ValidateCustom, Visitable},
     types::prim::Ulid,
 };
 use candid::CandidType;
@@ -111,11 +111,6 @@ impl FromStr for Relation {
 }
 
 impl Orderable for Relation {}
-
-impl Path for Relation {
-    const IDENT: &'static str = "Relation";
-    const PATH: &'static str = "mimic::types::prim::Relation";
-}
 
 impl Searchable for Relation {}
 

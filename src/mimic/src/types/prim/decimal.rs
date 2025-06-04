@@ -170,11 +170,6 @@ impl Orderable for Decimal {
     }
 }
 
-impl Path for Decimal {
-    const IDENT: &'static str = "Decimal";
-    const PATH: &'static str = "mimic::types::prim::Decimal";
-}
-
 impl Searchable for Decimal {
     fn as_text(&self) -> Option<String> {
         Some(self.to_string())

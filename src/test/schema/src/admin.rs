@@ -100,7 +100,7 @@ pub struct SimpleEntity {}
 ///
 
 #[record(
-    field(name = "id", value(item(is = "Ulid")), default = "Ulid::generate"),
+    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "variant_a", value(item(is = "EnumA"))),
     field(name = "description", value(item(prim = "Text"))),
     traits(add(Default))

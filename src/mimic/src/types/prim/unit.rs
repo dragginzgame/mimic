@@ -33,11 +33,6 @@ impl Inner for Unit {
 
 impl Orderable for Unit {}
 
-impl Path for Unit {
-    const IDENT: &'static str = "Unit";
-    const PATH: &'static str = "mimic::types::prim::Unit";
-}
-
 impl Searchable for Unit {}
 
 impl ValidateAuto for Unit {}
