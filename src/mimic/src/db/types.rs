@@ -35,7 +35,7 @@ impl std::fmt::Display for IndexKey {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(
             f,
-            "{}[{}] -> [{}]",
+            "({} [{}] [{}])",
             self.entity,
             self.fields.join(", "),
             self.values.join(", ")

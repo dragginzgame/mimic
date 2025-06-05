@@ -107,6 +107,7 @@ pub struct SortKeyField {
 
 ///
 /// ResolvedEntity
+/// A runtime-resolved entity with structural metadata needed for key generation
 ///
 
 #[derive(Debug)]
@@ -116,7 +117,8 @@ pub struct ResolvedEntity {
 }
 
 impl ResolvedEntity {
-    // new
+    /// new
+    /// create a new ResolvedEntity from a schema Entity and its resolved sort key fields
     #[must_use]
     pub const fn new(entity: Entity, sk_fields: Vec<SortKeyField>) -> Self {
         Self { entity, sk_fields }
@@ -126,25 +128,25 @@ impl ResolvedEntity {
     // returns the value of the id field (optional)
     #[must_use]
     pub fn id(&self, field_values: &HashMap<String, String>) -> Option<String> {
-        self.sk_fields
+        self.sort_key(field_values)
+            .0
             .last()
-            .and_then(|sk| sk.field.as_ref())
-            .and_then(|field| field_values.get(field))
-            .cloned()
+            .and_then(|(_, val)| val.clone())
     }
 
     // composite_key
     // returns the composite key ie. ["1", "25", "0xb4af..."]
     #[must_use]
     pub fn composite_key(&self, field_values: &HashMap<String, String>) -> Vec<String> {
-        self.sk_fields
+        self.sort_key(field_values)
+            .0
             .iter()
-            .filter_map(|sk| sk.field.as_ref().and_then(|f| field_values.get(f)).cloned())
+            .filter_map(|(_, v)| v.clone())
             .collect()
     }
 
     // sort_key
-    // returns the full sort key with labels
+    // returns a sort key based on field values
     #[must_use]
     pub fn sort_key(&self, field_values: &HashMap<String, String>) -> SortKey {
         let key_parts = self
@@ -159,8 +161,10 @@ impl ResolvedEntity {
         SortKey::new(key_parts)
     }
 
-    // sort_key_from_composite
-    pub fn sort_key_from_composite(&self, values: &[String]) -> Result<SortKey, ResolverError> {
+    // build_sort_key
+    // builds a sort key based on a specific composite key
+    #[must_use]
+    pub fn build_sort_key(&self, values: &[String]) -> SortKey {
         let key_parts = self
             .sk_fields
             .iter()
@@ -174,39 +178,57 @@ impl ResolvedEntity {
             })
             .collect();
 
-        Ok(SortKey::new(key_parts))
+        SortKey::new(key_parts)
+    }
+
+    // build_index_key
+    #[must_use]
+    pub fn build_index_key(
+        &self,
+        index: &EntityIndex,
+        field_values: &HashMap<String, String>,
+    ) -> IndexKey {
+        let values = index
+            .fields
+            .iter()
+            .map(|f| field_values.get(f).cloned().unwrap_or_default())
+            .collect();
+
+        IndexKey {
+            entity: self.entity.def.path(),
+            fields: index.fields.clone(),
+            values,
+        }
     }
 
     // selector
-    pub fn selector(&self, selector: &Selector) -> Result<ResolvedSelector, ResolverError> {
+    #[must_use]
+    pub fn selector(&self, selector: &Selector) -> ResolvedSelector {
         match selector {
-            Selector::Only => Ok(ResolvedSelector::One(self.sort_key_from_composite(&[])?)),
-            Selector::One(ck) => Ok(ResolvedSelector::One(self.sort_key_from_composite(ck)?)),
-            Selector::Many(cks) => {
-                let keys = cks
-                    .iter()
-                    .map(|ck| self.sort_key_from_composite(ck))
-                    .collect::<Result<Vec<_>, _>>()?;
+            Selector::All => {
+                let start = self.build_sort_key(&[]);
+                let end = start.create_upper_bound();
 
-                Ok(ResolvedSelector::Many(keys))
+                ResolvedSelector::Range(start, end)
+            }
+            Selector::Only => ResolvedSelector::One(self.build_sort_key(&[])),
+            Selector::One(ck) => ResolvedSelector::One(self.build_sort_key(ck)),
+            Selector::Many(cks) => {
+                let keys = cks.iter().map(|ck| self.build_sort_key(ck)).collect();
+
+                ResolvedSelector::Many(keys)
             }
             Selector::Prefix(prefix) => {
-                let start = self.sort_key_from_composite(prefix)?;
+                let start = self.build_sort_key(prefix);
                 let end = start.create_upper_bound();
 
-                Ok(ResolvedSelector::Range(start, end))
+                ResolvedSelector::Range(start, end)
             }
             Selector::Range(start_ck, end_ck) => {
-                let start = self.sort_key_from_composite(start_ck)?;
-                let end = self.sort_key_from_composite(end_ck)?;
+                let start = self.build_sort_key(start_ck);
+                let end = self.build_sort_key(end_ck);
 
-                Ok(ResolvedSelector::Range(start, end))
-            }
-            Selector::All => {
-                let start = self.sort_key_from_composite(&[])?;
-                let end = start.create_upper_bound();
-
-                Ok(ResolvedSelector::Range(start, end))
+                ResolvedSelector::Range(start, end)
             }
         }
     }
@@ -215,28 +237,6 @@ impl ResolvedEntity {
     #[must_use]
     pub fn indexes(&self) -> &[EntityIndex] {
         &self.entity.indexes
-    }
-
-    // index_keys_from_values
-    #[must_use]
-    pub fn index_keys_from_values(&self, field_values: &HashMap<String, String>) -> Vec<IndexKey> {
-        self.entity
-            .indexes
-            .iter()
-            .map(|index| {
-                let values = index
-                    .fields
-                    .iter()
-                    .map(|f| field_values.get(f).cloned().unwrap_or_default())
-                    .collect();
-
-                IndexKey {
-                    entity: self.entity.def.path(),
-                    fields: index.fields.clone(),
-                    values,
-                }
-            })
-            .collect()
     }
 
     // store_path

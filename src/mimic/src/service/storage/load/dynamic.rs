@@ -68,7 +68,7 @@ impl LoadExecutorDyn {
         let store = self
             .data
             .with(|db| db.try_get_store(resolved.store_path()))?;
-        let selector = resolved.selector(&query.selector)?;
+        let selector = resolved.selector(&query.selector);
 
         // loader
         let loader = Loader::new(store, self.debug);

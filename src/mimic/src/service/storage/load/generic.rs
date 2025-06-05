@@ -64,23 +64,20 @@ impl LoadExecutor {
         self,
         query: LoadQueryInternal<E>,
     ) -> Result<LoadCollection<E>, StorageError> {
-        // debug
-        self.debug.println(&format!("query.load: {query:?}"));
-
         // resolver
+        self.debug.println(&format!("query.load: {query:?}"));
         let resolved = with_resolver(|r| r.entity(E::PATH))?;
         let store = self
             .data
             .with(|db| db.try_get_store(resolved.store_path()))?;
 
-        // resolved_selector
-        let resolved_selector = resolved.selector(&query.inner.selector)?;
-        self.debug.println(&format!(
-            "query.load resolved_selector: {resolved_selector:?}"
-        ));
+        // selector
+        let selector = resolved.selector(&query.inner.selector);
+        self.debug
+            .println(&format!("query.load selector: {selector:?}"));
 
         // loader
-        let res = Loader::new(store, self.debug).load(&resolved_selector);
+        let res = Loader::new(store, self.debug).load(&selector);
         let rows = res
             .into_iter()
             .filter(|row| row.value.path == E::PATH)

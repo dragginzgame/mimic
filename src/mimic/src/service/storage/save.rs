@@ -101,6 +101,7 @@ impl SaveExecutor {
         let now = time::now_secs();
         let (created, modified) = match mode {
             SaveMode::Create => {
+                #[allow(clippy::redundant_clone)]
                 if result.is_some() {
                     Err(StorageError::from(SaveError::KeyExists(sk.clone())))?;
                 }
@@ -136,32 +137,29 @@ impl SaveExecutor {
         };
 
         // indexes
-        /*
-        let indexes = resolved_entity.indexes();
-        for index in indexes {
-            let values = index
-                .fields
-                .iter()
-                .map(|f| entity.get_index_value(f).unwrap_or_default())
-                .collect();
-
-            let index_key = IndexKey::new(entity.path_dyn(), &index.fields, values);
+        for index in resolved.indexes() {
+            let index_key = resolved.build_index_key(index, key_values);
             let index_store = self.indexes.with(|map| map.try_get_store(&index.store))?;
 
             index_store.with_borrow_mut(|store| {
                 if index.unique {
                     if let Some(existing) = store.data.get(&index_key) {
                         if existing != sk.to_string() {
-                            Err(StorageError::from(SaveError::IndexViolation(
-                                index_key.clone(),
-                            )))?
+                            return Err(SaveError::IndexViolation(index_key.clone()));
                         }
                     }
                 }
-                store.data.insert(index_key, sk.to_string());
-            });
+
+                // save id
+                if let Some(id) = resolved.id(key_values) {
+                    self.debug
+                        .println(&format!("query.{mode}: add index {index_key} - {id}"));
+                    store.data.insert(index_key, sk.to_string());
+                }
+
+                Ok(())
+            })?;
         }
-        */
 
         // prepare data value
         let path = entity.path_dyn();

@@ -19,6 +19,7 @@ impl DbTester {
             ("blob", Self::blob),
             ("create", Self::create),
             ("create_lots", Self::create_lots),
+            ("create_and_delete_index", Self::create_and_delete_index),
             ("data_key_order", Self::data_key_order),
             ("limit_query", Self::limit_query),
             ("missing_field", Self::missing_field),
@@ -99,6 +100,53 @@ impl DbTester {
                 .count(),
             2
         );
+    }
+
+    // create_and_delete_index
+    fn create_and_delete_index() {
+        use test_design::index::Index;
+
+        // Step 1: Insert entity e1 with x=1, y=10
+        let e1 = Index::new(1, 10);
+        query_save!()
+            .debug()
+            .execute(query::create().entity(e1.clone()))
+            .unwrap();
+
+        // Step 2: Insert entity e2 with x=1 (non-unique), y=20 (unique)
+        let e2 = Index::new(1, 20);
+        query_save!()
+            .debug()
+            .execute(query::create().entity(e2))
+            .unwrap();
+
+        // Step 3: Attempt to insert another with duplicate y=10 (should fail)
+        let e3 = Index::new(2, 10);
+        let result = query_save!()
+            .debug()
+            .execute(query::create().entity(e3.clone()));
+        assert!(result.is_err(), "Expected unique index violation on y=10");
+
+        // Step 4: Delete e1 (y=10)
+        query_delete!()
+            .debug()
+            .execute::<Index>(query::delete().one(&[e1.id]))
+            .unwrap();
+
+        // Step 5: Try inserting e3 again (y=10 should now be free)
+        let result = query_save!().debug().execute(query::create().entity(e3));
+        assert!(
+            result.is_ok(),
+            "Expected insert to succeed after y=10 was freed by delete"
+        );
+
+        // Step 6: Confirm only 2 entities remain
+        let all = query_load!()
+            .debug()
+            .execute(query::load::<Index>().all())
+            .unwrap();
+
+        assert_eq!(all.count(), 2);
     }
 
     // create_lots
