@@ -168,7 +168,7 @@ impl LoadCollectionDyn {
 
     // count
     #[must_use]
-    pub fn count(self) -> usize {
+    pub const fn count(&self) -> usize {
         self.0.len()
     }
 

@@ -80,7 +80,7 @@ impl LoadExecutor {
         ));
 
         // loader
-        let res = Loader::new(store).load(&resolved_selector);
+        let res = Loader::new(store, self.debug).load(&resolved_selector);
         let rows = res
             .into_iter()
             .filter(|row| row.value.path == E::PATH)

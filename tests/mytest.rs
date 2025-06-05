@@ -10,7 +10,7 @@ mod tests {
 
     #[test]
     fn test_get_sort_keys() {
-        use test_schema::index::Index;
+        use test_design::index::Index;
 
         let e = Index {
             x: 12,
@@ -25,7 +25,7 @@ mod tests {
 
     #[test]
     fn test_id_generates() {
-        use test_schema::validate::ValidateTest;
+        use test_design::validate::ValidateTest;
 
         let e = ValidateTest {
             multiple_ten: 8.into(),
@@ -44,7 +44,7 @@ mod tests {
 
     #[test]
     fn test_default_validates() {
-        use test_schema::validate::ValidateTest;
+        use test_design::validate::ValidateTest;
 
         let e = ValidateTest {
             multiple_ten: 5.into(),

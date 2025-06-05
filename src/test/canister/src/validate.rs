@@ -1,4 +1,4 @@
-use test_schema::validate::ValidateTest;
+use test_design::validate::ValidateTest;
 
 ///
 /// ValidateTester
@@ -20,7 +20,7 @@ impl ValidateTester {
     // test_collections
     // all of these use Lt(10) as the validator
     fn test_collections() {
-        use test_schema::collections::{ListValidated, MapValidated, SetValidated};
+        use test_design::collections::{ListValidated, MapValidated, SetValidated};
 
         //
         // PASS

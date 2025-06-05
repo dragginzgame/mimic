@@ -1,4 +1,4 @@
-use test_schema::default::Record;
+use test_design::default::Record;
 
 ///
 /// DefaultTester

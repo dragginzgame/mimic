@@ -1106,11 +1106,11 @@ dependencies = [
  "ic-cdk",
  "icu",
  "mimic",
- "test_schema",
+ "test_design",
 ]
 
 [[package]]
-name = "test_schema"
+name = "test_design"
 version = "0.4.4"
 dependencies = [
  "candid",
@@ -1127,7 +1127,7 @@ name = "tests"
 version = "0.4.4"
 dependencies = [
  "mimic",
- "test_schema",
+ "test_design",
 ]
 
 [[package]]

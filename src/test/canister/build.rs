@@ -1,7 +1,7 @@
-use test_schema as _;
+use test_design as _;
 
 fn main() -> std::io::Result<()> {
-    mimic::mimic_build!("test_schema::Canister");
+    mimic::mimic_build!("test_design::schema::Canister");
 
     Ok(())
 }

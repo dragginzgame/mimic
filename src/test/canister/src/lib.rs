@@ -4,7 +4,7 @@ mod validate;
 
 use icu::{ic::export_candid, prelude::*};
 use mimic::{Error as MimicError, prelude::*, query};
-use test_schema::rarity::Rarity;
+use test_design::fixtures::Rarity;
 
 //
 // INIT
@@ -25,18 +25,19 @@ pub fn test() {
     validate::ValidateTester::test();
 
     INDEX_REGISTRY
-        .with(|reg| reg.with_store("test_schema::Index", |_| {}))
+        .with(|reg| reg.with_store("test_design::schema::TestIndex", |_| {}))
         .unwrap();
 
     log!(Log::Ok, "test: all tests passed successfully");
 }
 
 // rarity
-#[update]
+#[query]
 pub fn rarity() -> Result<Vec<Rarity>, MimicError> {
     perf!();
 
     let res = query_load!()
+        .debug()
         .execute(
             query::load::<Rarity>()
                 .all()

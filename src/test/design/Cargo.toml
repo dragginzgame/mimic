@@ -1,5 +1,5 @@
 [package]
-name = "test_schema"
+name = "test_design"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }

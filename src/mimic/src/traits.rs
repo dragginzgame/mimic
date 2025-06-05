@@ -156,7 +156,7 @@ pub trait EnumValueKind {
 /// an enum that can generate fixture data for an Entity
 ///
 
-pub trait EntityFixture: Sized {
+pub trait EntityFixture {
     // fixtures
     // returns a vec of entities that are inserted on canister init
     #[must_use]

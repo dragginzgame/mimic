@@ -6,7 +6,7 @@ pub use generic::*;
 
 use crate::{
     db::{DataStoreLocal, types::DataRow, types::SortKey},
-    service::storage::ResolvedSelector,
+    service::storage::{DebugContext, ResolvedSelector},
 };
 
 ///
@@ -14,30 +14,43 @@ use crate::{
 ///
 
 pub struct Loader {
-    pub store: DataStoreLocal,
+    store: DataStoreLocal,
+    debug: DebugContext,
 }
 
 impl Loader {
     // new
     #[must_use]
-    pub const fn new(store: DataStoreLocal) -> Self {
-        Self { store }
+    pub const fn new(store: DataStoreLocal, debug: DebugContext) -> Self {
+        Self { store, debug }
     }
 
     // load
     pub(crate) fn load(&self, selector: &ResolvedSelector) -> Vec<DataRow> {
         match selector {
-            ResolvedSelector::One(key) => self
-                .query_key(key.clone())
-                .map(|row| vec![row])
-                .unwrap_or_default(),
+            ResolvedSelector::One(key) => {
+                self.debug.println(&format!("Loading selector: One({key})"));
 
-            ResolvedSelector::Many(keys) => keys
-                .iter()
-                .filter_map(|key| self.query_key(key.clone()))
-                .collect(),
+                self.query_key(key.clone())
+                    .map(|row| vec![row])
+                    .unwrap_or_default()
+            }
 
-            ResolvedSelector::Range(start, end) => self.query_range(start.clone(), end.clone()),
+            ResolvedSelector::Many(keys) => {
+                self.debug
+                    .println(&format!("Loading selector: Many({keys:?})"));
+
+                keys.iter()
+                    .filter_map(|key| self.query_key(key.clone()))
+                    .collect()
+            }
+
+            ResolvedSelector::Range(start, end) => {
+                self.debug
+                    .println(&format!("Loading selector: Range({start}, {end})"));
+
+                self.query_range(start.clone(), end.clone())
+            }
         }
     }
 

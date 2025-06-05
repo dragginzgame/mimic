@@ -6,7 +6,7 @@ publish = false
 
 [dependencies]
 mimic = { workspace = true }
-test_schema = { workspace = true }
+test_design = { workspace = true }
 
 [[test]]
 name = "mytest"

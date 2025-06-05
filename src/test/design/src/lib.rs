@@ -3,8 +3,9 @@ pub mod collections;
 pub mod constant;
 pub mod db;
 pub mod default;
+pub mod fixtures;
 pub mod index;
-pub mod rarity;
+pub mod schema;
 pub mod sorted;
 pub mod validate;
 
@@ -19,27 +20,6 @@ pub(crate) mod prelude {
     pub use mimic_design::*;
 }
 pub use prelude::*;
-
-///
-/// Canister
-///
-
-#[canister]
-pub struct Canister {}
-
-///
-/// Store
-///
-
-#[store(ident = "STORE", ty = "Data", canister = "Canister", memory_id = 20)]
-pub struct Store {}
-
-///
-/// Index
-///
-
-#[store(ident = "INDEX", ty = "Index", canister = "Canister", memory_id = 21)]
-pub struct Index {}
 
 ///
 /// EntityIdTest

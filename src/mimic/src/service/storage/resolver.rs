@@ -72,19 +72,24 @@ impl Resolver {
             .sort_keys
             .iter()
             .enumerate()
-            .filter_map(|(i, sk)| {
-                let field = sk.field.clone()?;
+            .map(|(i, sk)| {
+                let field = sk.field.clone();
                 let label = {
-                    let sk_entity = self.schema.get_node_as::<Entity>(&sk.entity)?;
+                    let sk_entity = self
+                        .schema
+                        .get_node_as::<Entity>(&sk.entity)
+                        .ok_or_else(|| ResolverError::EntityNotFound(sk.entity.clone()))?;
+
                     if i == 0 {
                         sk_entity.def.path()
                     } else {
                         sk_entity.def.ident.to_string()
                     }
                 };
-                Some(SortKeyField { label, field })
+
+                Ok(SortKeyField { label, field })
             })
-            .collect();
+            .collect::<Result<Vec<_>, ResolverError>>()?;
 
         Ok(ResolvedEntity::new(entity.clone(), sk_fields))
     }
@@ -96,8 +101,8 @@ impl Resolver {
 
 #[derive(Debug)]
 pub struct SortKeyField {
-    label: String, // visible label used in SortKey
-    field: String, // actual field name to fetch value from
+    label: String,         // visible label used in SortKey
+    field: Option<String>, // actual field name to fetch value from
 }
 
 ///
@@ -123,7 +128,8 @@ impl ResolvedEntity {
     pub fn id(&self, field_values: &HashMap<String, String>) -> Option<String> {
         self.sk_fields
             .last()
-            .and_then(|sk| field_values.get(&sk.field))
+            .and_then(|sk| sk.field.as_ref())
+            .and_then(|field| field_values.get(field))
             .cloned()
     }
 
@@ -133,7 +139,7 @@ impl ResolvedEntity {
     pub fn composite_key(&self, field_values: &HashMap<String, String>) -> Vec<String> {
         self.sk_fields
             .iter()
-            .filter_map(|sk| field_values.get(&sk.field).cloned())
+            .filter_map(|sk| sk.field.as_ref().and_then(|f| field_values.get(f)).cloned())
             .collect()
     }
 
@@ -144,7 +150,10 @@ impl ResolvedEntity {
         let key_parts = self
             .sk_fields
             .iter()
-            .map(|sk| (sk.label.clone(), field_values.get(&sk.field).cloned()))
+            .map(|sk| {
+                let value = sk.field.as_ref().and_then(|f| field_values.get(f).cloned());
+                (sk.label.clone(), value)
+            })
             .collect();
 
         SortKey::new(key_parts)
@@ -156,7 +165,13 @@ impl ResolvedEntity {
             .sk_fields
             .iter()
             .enumerate()
-            .map(|(i, sk)| (sk.label.clone(), values.get(i).cloned()))
+            .map(|(i, sk)| {
+                let value = match sk.field {
+                    Some(_) => values.get(i).cloned(),
+                    None => None,
+                };
+                (sk.label.clone(), value)
+            })
             .collect();
 
         Ok(SortKey::new(key_parts))

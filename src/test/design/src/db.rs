@@ -5,7 +5,7 @@ use crate::prelude::*;
 ///
 
 #[entity(
-    store = "crate::Store",
+    store = "crate::schema::TestStore",
     sk(entity = "CreateBasic", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate")
 )]
@@ -16,7 +16,7 @@ pub struct CreateBasic {}
 ///
 
 #[entity(
-    store = "crate::Store",
+    store = "crate::schema::TestStore",
     sk(entity = "Searchable", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "name", value(item(prim = "Text"))),
@@ -29,7 +29,7 @@ pub struct Searchable {}
 ///
 
 #[entity(
-    store = "crate::Store",
+    store = "crate::schema::TestStore",
     sk(entity = "Limit", field = "value"),
     field(name = "value", value(item(prim = "Nat32")))
 )]
@@ -40,7 +40,7 @@ pub struct Limit {}
 ///
 
 #[entity(
-    store = "crate::Store",
+    store = "crate::schema::TestStore",
     sk(entity = "SortKeyOrder", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate")
 )]
@@ -51,7 +51,7 @@ pub struct SortKeyOrder {}
 ///
 
 #[entity(
-    store = "crate::Store",
+    store = "crate::schema::TestStore",
     sk(entity = "SortKeyA", field = "a_id"),
     field(name = "a_id", value(item(prim = "Ulid")), default = "Ulid::generate")
 )]
@@ -62,7 +62,7 @@ pub struct SortKeyA {}
 ///
 
 #[entity(
-    store = "crate::Store",
+    store = "crate::schema::TestStore",
     sk(entity = "SortKeyA", field = "a_id"),
     sk(entity = "SortKeyB", field = "b_id"),
     field(name = "a_id", value(item(prim = "Ulid"))),
@@ -75,7 +75,7 @@ pub struct SortKeyB {}
 ///
 
 #[entity(
-    store = "crate::Store",
+    store = "crate::schema::TestStore",
     sk(entity = "SortKeyA", field = "a_id"),
     sk(entity = "SortKeyB", field = "b_id"),
     sk(entity = "SortKeyC", field = "c_id"),
@@ -113,7 +113,7 @@ pub struct MissingFieldLarge {}
 ///
 
 #[entity(
-    store = "crate::Store",
+    store = "crate::schema::TestStore",
     sk(entity = "ContainsBlob", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "bytes", value(opt, item(prim = "Blob")))

@@ -63,16 +63,16 @@ impl SortKey {
     /// creates an upper bound for the key by appending `~` to the last part's key.
     #[must_use]
     pub fn create_upper_bound(&self) -> Self {
-        let mut new_parts = self.0.clone();
+        let mut parts = self.0.clone();
 
-        if let Some((_, last_key)) = new_parts.last_mut() {
-            match last_key {
-                Some(key) => key.push('~'),
-                None => *last_key = Some("~".to_string()),
-            }
+        if let Some((_, val)) = parts.last_mut() {
+            *val = Some(match val {
+                Some(s) => format!("{s}~"),
+                None => "~".to_string(),
+            });
         }
 
-        Self(new_parts)
+        Self(parts)
     }
 }
 

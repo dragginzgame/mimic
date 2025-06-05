@@ -6,7 +6,7 @@ use crate::prelude::*;
 ///
 
 #[entity(
-    store = "crate::Store",
+    store = "crate::schema::FixtureStore",
     sk(entity = "Rarity", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "name", value(item(prim = "Text"))),

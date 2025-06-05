@@ -3,7 +3,7 @@ use mimic::{
     deserialize, prelude::*, query, schema::types::SortDirection, serialize, traits::Path,
     types::prim::Ulid,
 };
-use test_schema::Store;
+use test_design::schema::TestStore;
 
 ///
 /// DbTester
@@ -28,7 +28,8 @@ impl DbTester {
         for (name, test_fn) in tests {
             println!("clearing db");
             DATA_REGISTRY.with(|reg| {
-                reg.with_store_mut(Store::PATH, |store| store.clear()).ok();
+                reg.with_store_mut(TestStore::PATH, |store| store.clear())
+                    .ok();
             });
 
             println!("Running test: {name}");
@@ -42,7 +43,7 @@ impl DbTester {
 
     // blob
     fn blob() {
-        use test_schema::db::ContainsBlob;
+        use test_design::db::ContainsBlob;
 
         const ROWS: u16 = 100;
 
@@ -73,7 +74,7 @@ impl DbTester {
 
     // create
     fn create() {
-        use test_schema::db::CreateBasic;
+        use test_design::db::CreateBasic;
 
         let e = CreateBasic::default();
         query_save!().execute(query::create().entity(e)).unwrap();
@@ -102,7 +103,7 @@ impl DbTester {
 
     // create_lots
     fn create_lots() {
-        use test_schema::db::CreateBasic;
+        use test_design::db::CreateBasic;
         const ROWS: usize = 1_000;
 
         // insert rows
@@ -123,7 +124,7 @@ impl DbTester {
 
     // data_key_order
     fn data_key_order() {
-        use test_schema::db::SortKeyOrder;
+        use test_design::db::SortKeyOrder;
 
         const ROWS: u16 = 1_000;
 
@@ -154,7 +155,7 @@ impl DbTester {
 
     // limit_query
     fn limit_query() {
-        use test_schema::db::Limit;
+        use test_design::db::Limit;
 
         // Insert 100 rows
         // overwrite the ulid with replace()
@@ -181,7 +182,7 @@ impl DbTester {
 
     // missing_field
     fn missing_field() {
-        use test_schema::db::{MissingFieldLarge, MissingFieldSmall};
+        use test_design::db::{MissingFieldLarge, MissingFieldSmall};
 
         let small = MissingFieldSmall {
             a_id: Ulid::generate(),
@@ -199,7 +200,7 @@ impl DbTester {
 
     // search_query
     fn search_query() {
-        use test_schema::db::Searchable;
+        use test_design::db::Searchable;
 
         // Seed test data
         let test_entities = vec![

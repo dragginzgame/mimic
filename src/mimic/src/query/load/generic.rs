@@ -299,7 +299,7 @@ where
 
     // count
     #[must_use]
-    pub fn count(self) -> usize {
+    pub const fn count(&self) -> usize {
         self.0.len()
     }
 
@@ -342,13 +342,7 @@ where
     // map
     #[must_use]
     pub fn map(self) -> LoadMap<EntityValue<E>> {
-        let pairs = self
-            .0
-            .into_iter()
-            .map(|row| (row.key.into(), row.value))
-            .collect::<Vec<_>>();
-
-        LoadMap::from_pairs(pairs)
+        LoadMap::from_pairs(self.0.into_iter().map(|row| (row.key.into(), row.value)))
     }
 
     // entity

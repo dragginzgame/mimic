@@ -71,7 +71,7 @@ impl LoadExecutorDyn {
         let selector = resolved.selector(&query.selector)?;
 
         // loader
-        let loader = Loader::new(store);
+        let loader = Loader::new(store, self.debug);
         let res = loader.load(&selector);
 
         // paginate and filter incorrect paths
