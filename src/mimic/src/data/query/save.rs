@@ -1,7 +1,5 @@
 use crate::{
-    Error,
-    db::types::SortKey,
-    deserialize,
+    Error, deserialize,
     traits::{EntityKind, EntityKindDyn},
 };
 use candid::CandidType;
@@ -59,17 +57,6 @@ impl SaveQueryPrepared {
     pub fn new(mode: SaveMode, entity: Box<dyn EntityKindDyn>) -> Self {
         Self { mode, entity }
     }
-}
-
-///
-/// SaveResponse
-///
-
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub struct SaveResponse {
-    pub key: SortKey,
-    pub created: u64,
-    pub modified: u64,
 }
 
 ///

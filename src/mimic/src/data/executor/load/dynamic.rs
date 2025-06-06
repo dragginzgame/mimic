@@ -1,8 +1,12 @@
 use crate::{
     Error,
-    db::{DataStoreRegistry, IndexStoreRegistry},
-    query::{LoadCollectionDyn, LoadQueryDyn, LoadResponse},
-    storage::{DebugContext, Loader, StorageError, with_resolver},
+    data::{
+        DataError,
+        executor::{DebugContext, Loader, with_resolver},
+        query::LoadQueryDyn,
+        response::{LoadCollectionDyn, LoadResponse},
+        store::{DataStoreRegistry, IndexStoreRegistry},
+    },
     traits::EntityKind,
 };
 
@@ -53,7 +57,7 @@ impl LoadExecutorDyn {
     fn execute_internal<E: EntityKind>(
         self,
         query: LoadQueryDyn,
-    ) -> Result<LoadCollectionDyn, StorageError> {
+    ) -> Result<LoadCollectionDyn, DataError> {
         self.debug.println(&format!("query.load_dyn: {query:?}"));
 
         // resolver

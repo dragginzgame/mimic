@@ -1,8 +1,12 @@
 use crate::{
     Error,
-    db::{DataStoreRegistry, IndexStoreRegistry},
-    query::{LoadCollection, LoadQueryInternal, LoadResponse},
-    storage::{DebugContext, Loader, StorageError, types::EntityRow, with_resolver},
+    data::{
+        DataError,
+        executor::{DebugContext, Loader, types::EntityRow, with_resolver},
+        query::LoadQueryInternal,
+        response::{LoadCollection, LoadResponse},
+        store::{DataStoreRegistry, IndexStoreRegistry},
+    },
     traits::EntityKind,
 };
 
@@ -60,7 +64,7 @@ impl LoadExecutor {
     fn execute_internal<E: EntityKind>(
         self,
         query: LoadQueryInternal<E>,
-    ) -> Result<LoadCollection<E>, StorageError> {
+    ) -> Result<LoadCollection<E>, DataError> {
         // resolver
         self.debug.println(&format!("query.load: {query:?}"));
         let resolved = with_resolver(|r| r.entity(E::PATH))?;

@@ -1,7 +1,9 @@
 use crate::{
     ThisError,
-    db::types::{IndexKey, SortKey},
-    query::Selector,
+    data::{
+        query::Selector,
+        store::{IndexKey, SortKey},
+    },
     schema::{
         node::{Entity, EntityIndex, Schema},
         state::{StateError as SchemaStateError, get_schema},

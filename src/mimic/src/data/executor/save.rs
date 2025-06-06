@@ -1,33 +1,14 @@
 use crate::{
     Error,
-    db::{
-        DataStoreRegistry, IndexStoreRegistry,
-        types::{DataValue, IndexKey, Metadata, SortKey},
+    data::{
+        DataError,
+        executor::{DebugContext, ExecutorError, with_resolver},
+        query::{SaveMode, SaveQueryPrepared},
+        response::SaveResponse,
+        store::{DataStoreRegistry, DataValue, IndexStoreRegistry, Metadata},
     },
-    query::{SaveMode, SaveQueryPrepared, SaveResponse},
-    storage::{DebugContext, ResolverError, StorageError, with_resolver},
     utils::time,
 };
-use thiserror::Error as ThisError;
-
-///
-/// SaveError
-///
-
-#[derive(Debug, ThisError)]
-pub enum SaveError {
-    #[error(transparent)]
-    ResolverError(#[from] ResolverError),
-
-    #[error("key exists: {0}")]
-    KeyExists(SortKey),
-
-    #[error("key not found: {0}")]
-    KeyNotFound(SortKey),
-
-    #[error("index constraint violation for index: {0:?}")]
-    IndexViolation(IndexKey),
-}
 
 ///
 /// SaveExecutor
@@ -65,7 +46,7 @@ impl SaveExecutor {
     }
 
     // execute_internal
-    fn execute_internal(&self, query: SaveQueryPrepared) -> Result<SaveResponse, StorageError> {
+    fn execute_internal(&self, query: SaveQueryPrepared) -> Result<SaveResponse, DataError> {
         let mode = query.mode;
         let entity = &*query.entity;
 
@@ -100,7 +81,7 @@ impl SaveExecutor {
             SaveMode::Create => {
                 #[allow(clippy::redundant_clone)]
                 if result.is_some() {
-                    Err(StorageError::from(SaveError::KeyExists(sk.clone())))?;
+                    Err(ExecutorError::KeyExists(sk.clone()))?;
                 }
 
                 (now, now)
@@ -116,7 +97,7 @@ impl SaveExecutor {
 
                     (old.metadata.created, modified)
                 }
-                None => Err(StorageError::from(SaveError::KeyNotFound(sk.clone())))?,
+                None => Err(ExecutorError::KeyNotFound(sk.clone()))?,
             },
 
             SaveMode::Replace => match result {
@@ -142,7 +123,7 @@ impl SaveExecutor {
                 if index.unique {
                     if let Some(existing) = store.data.get(&index_key) {
                         if existing != sk.to_string() {
-                            return Err(SaveError::IndexViolation(index_key.clone()));
+                            return Err(ExecutorError::IndexViolation(index_key.clone()));
                         }
                     }
                 }

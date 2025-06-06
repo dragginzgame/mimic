@@ -41,11 +41,11 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
 
             match kind {
                 QueryKind::Load => quote! {
-                    #entity_path => query_load!().response(::mimic::query::load::<#ty>().query(query))
+                    #entity_path => query_load!().response(::mimic::data::query::load::<#ty>().query(query))
                 },
                 QueryKind::Save => quote! {
                     #entity_path => {
-                        let query = ::mimic::query::save::<#ty>(query)?;
+                        let query = ::mimic::data::query::save::<#ty>(query)?;
                         query_save!().execute(query)
                     }
                 },
@@ -73,24 +73,24 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
             #[::mimic::ic::query]
             pub fn #fn_name(
                 path: String,
-                query: ::mimic::query::LoadQuery,
-            ) -> Result<::mimic::query::LoadResponse, ::mimic::Error>
+                query: ::mimic::data::query::LoadQuery,
+            ) -> Result<::mimic::data::response::LoadResponse, ::mimic::Error>
         },
 
         QueryKind::Save => quote! {
             #[::mimic::ic::update]
             pub fn #fn_name(
                 path: String,
-                query: ::mimic::query::SaveQuery,
-            ) -> Result<::mimic::query::SaveResponse, ::mimic::Error>
+                query: ::mimic::data::query::SaveQuery,
+            ) -> Result<::mimic::data::response::SaveResponse, ::mimic::Error>
         },
 
         QueryKind::Delete => quote! {
             #[::mimic::ic::update]
             pub fn #fn_name(
                 path: String,
-                query: ::mimic::query::DeleteQuery,
-            ) -> Result<::mimic::query::DeleteResponse, ::mimic::Error>
+                query: ::mimic::data::query::DeleteQuery,
+            ) -> Result<::mimic::data::response::DeleteResponse, ::mimic::Error>
         },
     };
 

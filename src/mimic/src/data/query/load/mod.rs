@@ -4,10 +4,7 @@ mod generic;
 pub use dynamic::*;
 pub use generic::*;
 
-use crate::{
-    db::types::{DataRow, SortKey},
-    types::prim::Relation,
-};
+use crate::types::prim::Relation;
 use candid::CandidType;
 use derive_more::Deref;
 use serde::{Deserialize, Serialize};
@@ -23,17 +20,6 @@ pub enum LoadFormat {
     Rows,
     Keys,
     Count,
-}
-
-///
-/// LoadResponse
-///
-
-#[derive(CandidType, Debug, Serialize, Deserialize)]
-pub enum LoadResponse {
-    Rows(Vec<DataRow>),
-    Keys(Vec<SortKey>),
-    Count(usize),
 }
 
 ///

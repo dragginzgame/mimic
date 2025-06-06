@@ -1,20 +1,20 @@
 use crate::{
-    db::types::{DataValue, SortKey},
+    data::store::types::IndexKey,
     ic::structures::{BTreeMap, DefaultMemory},
 };
 use derive_more::{Deref, DerefMut};
 use std::{cell::RefCell, thread::LocalKey};
 
 ///
-/// DataStore
+/// IndexStore
 ///
 
 #[derive(Deref, DerefMut)]
-pub struct DataStore {
-    pub data: BTreeMap<SortKey, DataValue>,
+pub struct IndexStore {
+    pub data: BTreeMap<IndexKey, String>,
 }
 
-impl DataStore {
+impl IndexStore {
     #[must_use]
     pub fn init(memory: DefaultMemory) -> Self {
         Self {
@@ -24,7 +24,7 @@ impl DataStore {
 }
 
 ///
-/// DataStoreLocal
+/// IndexStoreLocal
 ///
 
-pub type DataStoreLocal = &'static LocalKey<RefCell<DataStore>>;
+pub type IndexStoreLocal = &'static LocalKey<RefCell<IndexStore>>;

@@ -1,9 +1,13 @@
 use crate::{
     Error,
-    db::{DataStoreRegistry, IndexStoreRegistry, types::SortKey},
+    data::{
+        DataError,
+        executor::{DebugContext, ResolvedSelector, with_resolver},
+        query::{DeleteQuery, QueryError},
+        response::DeleteResponse,
+        store::{DataStoreRegistry, IndexStoreRegistry, SortKey},
+    },
     deserialize,
-    query::{DeleteQuery, DeleteResponse},
-    storage::{DebugContext, ResolvedSelector, StorageError, with_resolver},
     traits::EntityKind,
 };
 
@@ -46,7 +50,7 @@ impl DeleteExecutor {
     fn execute_internal<E: EntityKind>(
         &self,
         query: DeleteQuery,
-    ) -> Result<DeleteResponse, StorageError> {
+    ) -> Result<DeleteResponse, DataError> {
         self.debug
             .println(&format!("query.delete: query is {query:?}"));
 
@@ -56,7 +60,9 @@ impl DeleteExecutor {
         let sort_keys: Vec<SortKey> = match selector {
             ResolvedSelector::One(key) => vec![key],
             ResolvedSelector::Many(keys) => keys,
-            ResolvedSelector::Range(..) => return Err(StorageError::SelectorNotSupported),
+            ResolvedSelector::Range(..) => {
+                return Err(QueryError::SelectorNotSupported)?;
+            }
         };
 
         // debug
@@ -66,8 +72,7 @@ impl DeleteExecutor {
         // get store
         let store = self
             .data
-            .with(|db| db.try_get_store(resolved.store_path()))
-            .map_err(StorageError::DbError)?;
+            .with(|db| db.try_get_store(resolved.store_path()))?;
 
         //
         // execute for every different key
@@ -87,10 +92,7 @@ impl DeleteExecutor {
                 // Step 3: Compute and delete index keys
                 for index in indexes {
                     let index_key = resolved.build_index_key(index, &field_values);
-                    let index_store = self
-                        .indexes
-                        .with(|ix| ix.try_get_store(&index.store))
-                        .map_err(StorageError::DbError)?;
+                    let index_store = self.indexes.with(|ix| ix.try_get_store(&index.store))?;
 
                     self.debug
                         .println(&format!("query.delete: delete index {index_key:?}"));

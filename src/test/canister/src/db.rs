@@ -1,6 +1,6 @@
 use crate::{DATA_REGISTRY, INDEX_REGISTRY};
 use mimic::{
-    deserialize, prelude::*, query, schema::types::SortDirection, serialize, traits::Path,
+    data::query, deserialize, prelude::*, schema::types::SortDirection, serialize, traits::Path,
     types::prim::Ulid,
 };
 use test_design::schema::TestStore;

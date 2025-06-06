@@ -4,9 +4,9 @@ mod generic;
 pub use dynamic::*;
 pub use generic::*;
 
-use crate::{
-    db::{DataStoreLocal, types::DataRow, types::SortKey},
-    storage::{DebugContext, ResolvedSelector},
+use crate::data::{
+    executor::{DebugContext, ResolvedSelector},
+    store::{DataRow, DataStoreLocal, SortKey},
 };
 
 ///

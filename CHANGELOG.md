@@ -5,6 +5,9 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.4.5]
+- grouped data, store, response and executor under data/
+
 ## [0.4.4]
 - massive refactor!
 - Primitive types now gone, they're just an item(prim = "PrimitiveType"), and all moved to the mimic crate

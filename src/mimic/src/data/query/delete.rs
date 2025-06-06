@@ -1,6 +1,5 @@
-use crate::{db::types::SortKey, query::Selector};
+use crate::data::query::Selector;
 use candid::CandidType;
-use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
 
 ///
@@ -19,13 +18,6 @@ impl DeleteQuery {
         Self { selector }
     }
 }
-
-///
-/// DeleteResponse
-///
-
-#[derive(CandidType, Debug, Deref, DerefMut, Serialize, Deserialize)]
-pub struct DeleteResponse(pub Vec<SortKey>);
 
 ///
 /// DeleteQueryBuilder

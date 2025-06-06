@@ -3,13 +3,11 @@
 /// [for external use only, keep out of reach of children]
 ///
 pub mod build;
-pub mod db;
+pub mod data;
 pub mod helper;
 pub mod interface;
 pub mod macros;
-pub mod query;
 pub mod schema;
-pub mod storage;
 pub mod traits;
 pub mod types;
 pub mod utils;
@@ -72,7 +70,7 @@ pub enum Error {
     BuildError(String),
 
     #[error("{0}")]
-    DbError(String),
+    DataError(String),
 
     #[error("{0}")]
     InterfaceError(String),
@@ -101,11 +99,10 @@ macro_rules! from_to_string {
 }
 
 from_to_string!(build::BuildError, BuildError);
-from_to_string!(db::DbError, DbError);
+from_to_string!(data::DataError, DataError);
 from_to_string!(interface::InterfaceError, InterfaceError);
 from_to_string!(schema::SchemaError, SchemaError);
 from_to_string!(SerializeError, SerializeError);
-from_to_string!(storage::StorageError, StorageError);
 from_to_string!(ValidationError, ValidationError);
 
 ///

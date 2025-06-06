@@ -1,8 +1,11 @@
 use crate::{
     Error,
+    data::{
+        query::{DeleteQuery, LoadQuery, SaveQuery},
+        response::{DeleteResponse, LoadResponse, SaveResponse},
+    },
     ic::call::Call,
     interface::InterfaceError,
-    query::{DeleteQuery, DeleteResponse, LoadQuery, LoadResponse, SaveQuery, SaveResponse},
 };
 use candid::Principal;
 use thiserror::Error as ThisError;

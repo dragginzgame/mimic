@@ -1,17 +1,20 @@
-pub mod store;
-pub mod types;
+mod data;
+mod index;
+mod types;
 
-pub use store::*;
+pub use data::*;
+pub use index::*;
+pub use types::*;
 
 use std::{cell::RefCell, collections::HashMap, rc::Rc, thread::LocalKey};
 use thiserror::Error as ThisError;
 
 ///
-/// DbError
+/// StoreError
 ///
 
 #[derive(Debug, ThisError)]
-pub enum DbError {
+pub enum StoreError {
     #[error("store not found: {0}")]
     StoreNotFound(String),
 }
@@ -31,11 +34,11 @@ impl<T: 'static> StoreRegistry<T> {
     }
 
     // try_get_store
-    pub fn try_get_store(&self, name: &str) -> Result<&'static LocalKey<RefCell<T>>, DbError> {
+    pub fn try_get_store(&self, name: &str) -> Result<&'static LocalKey<RefCell<T>>, StoreError> {
         self.0
             .get(name)
             .copied()
-            .ok_or_else(|| DbError::StoreNotFound(name.to_string()))
+            .ok_or_else(|| StoreError::StoreNotFound(name.to_string()))
     }
 
     // register
@@ -44,7 +47,7 @@ impl<T: 'static> StoreRegistry<T> {
     }
 
     // with_store
-    pub fn with_store<F, R>(&self, name: &str, f: F) -> Result<R, DbError>
+    pub fn with_store<F, R>(&self, name: &str, f: F) -> Result<R, StoreError>
     where
         F: FnOnce(&T) -> R,
     {
@@ -54,7 +57,7 @@ impl<T: 'static> StoreRegistry<T> {
     }
 
     // with_store_mut
-    pub fn with_store_mut<F, R>(&self, name: &str, f: F) -> Result<R, DbError>
+    pub fn with_store_mut<F, R>(&self, name: &str, f: F) -> Result<R, StoreError>
     where
         F: FnOnce(&mut T) -> R,
     {

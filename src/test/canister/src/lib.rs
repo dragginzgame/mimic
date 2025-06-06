@@ -3,7 +3,7 @@ mod default;
 mod validate;
 
 use icu::{ic::export_candid, prelude::*};
-use mimic::{Error as MimicError, prelude::*, query};
+use mimic::{Error as MimicError, data::query, prelude::*};
 use test_design::fixtures::Rarity;
 
 //
