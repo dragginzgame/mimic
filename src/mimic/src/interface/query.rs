@@ -21,50 +21,35 @@ pub enum QueryError {
 }
 
 // query_load
-pub async fn query_load(canister_pid: Principal, query: LoadQuery) -> Result<LoadResponse, Error> {
-    let result = Call::unbounded_wait(canister_pid, "mimic_query_load")
-        .with_arg(&query)
-        .await
-        .map_err(|e| QueryError::CallError(e.to_string()))
-        .map_err(InterfaceError::QueryError)?;
-
-    let response = result
-        .candid::<LoadResponse>()
-        .map_err(|e| QueryError::CallError(e.to_string()))
-        .map_err(InterfaceError::QueryError)?;
-
-    Ok(response)
-}
-
-// query_delete
-pub async fn query_delete(
-    canister_pid: Principal,
-    query: DeleteQuery,
-) -> Result<DeleteResponse, Error> {
-    let result = Call::unbounded_wait(canister_pid, "mimic_query_delete")
-        .with_arg(&query)
-        .await
-        .map_err(|e| QueryError::CallError(e.to_string()))
-        .map_err(InterfaceError::QueryError)?;
-
-    let response = result
-        .candid::<DeleteResponse>()
-        .map_err(|e| QueryError::CallError(e.to_string()))
-        .map_err(InterfaceError::QueryError)?;
-
-    Ok(response)
+pub async fn query_load(pid: Principal, query: LoadQuery) -> Result<LoadResponse, Error> {
+    query_call(pid, "mimic_query_load", &query).await
 }
 
 // query_save
-pub async fn query_save(canister_pid: Principal, query: SaveQuery) -> Result<SaveResponse, Error> {
-    let result = Call::unbounded_wait(canister_pid, "mimic_query_save")
-        .with_arg(&query)
+pub async fn query_save(pid: Principal, query: SaveQuery) -> Result<SaveResponse, Error> {
+    query_call(pid, "mimic_query_save", &query).await
+}
+
+// query_delete
+pub async fn query_delete(pid: Principal, query: DeleteQuery) -> Result<DeleteResponse, Error> {
+    query_call(pid, "mimic_query_delete", &query).await
+}
+
+// query_call
+// private helper method
+async fn query_call<T: candid::CandidType + for<'de> candid::Deserialize<'de>>(
+    pid: Principal,
+    method: &str,
+    arg: impl candid::CandidType,
+) -> Result<T, Error> {
+    let result = Call::unbounded_wait(pid, method)
+        .with_arg(arg)
         .await
         .map_err(|e| QueryError::CallError(e.to_string()))
         .map_err(InterfaceError::QueryError)?;
 
     let response = result
-        .candid::<SaveResponse>()
+        .candid::<T>()
         .map_err(|e| QueryError::CallError(e.to_string()))
         .map_err(InterfaceError::QueryError)?;
 

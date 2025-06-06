@@ -20,9 +20,6 @@ use thiserror::Error as ThisError;
 
 #[derive(Debug, ThisError)]
 pub enum StorageError {
-    #[error("index key error")]
-    IndexKeyError,
-
     #[error("selector not suppoorted")]
     SelectorNotSupported,
 

@@ -15,7 +15,6 @@ pub struct DataStore {
 }
 
 impl DataStore {
-    // init
     #[must_use]
     pub fn init(memory: DefaultMemory) -> Self {
         Self {

@@ -8,140 +8,96 @@ use syn::{Path, parse_str};
 pub fn generate(builder: &ActorBuilder) -> TokenStream {
     let mut tokens = quote!();
 
-    tokens.extend(mimic_query_load(builder));
-    tokens.extend(mimic_query_save(builder));
-    tokens.extend(mimic_query_delete(builder));
+    tokens.extend(generate_query("mimic_query_load", builder, QueryKind::Load));
+    tokens.extend(generate_query("mimic_query_save", builder, QueryKind::Save));
+    tokens.extend(generate_query(
+        "mimic_query_delete",
+        builder,
+        QueryKind::Delete,
+    ));
 
     tokens
 }
 
-// mimic_query_load
-fn mimic_query_load(builder: &ActorBuilder) -> TokenStream {
-    let entities = builder.get_entities();
-
-    let inner = if entities.is_empty() {
-        quote! {
-            Err(::mimic::interface::query::QueryError::EntityNotFound(path))
-                .map_err(::mimic::interface::InterfaceError::from)?
-        }
-    } else {
-        let mut load_entities = quote!();
-        for (entity_path, _) in entities {
-            let generic: Path = parse_str(&entity_path).unwrap();
-
-            load_entities.extend(quote! {
-                #entity_path => {
-                    query_load!().response(::mimic::query::load::<#generic>().query(query))
-                }
-            });
-        }
-
-        quote! {
-            let res = match path.as_str() {
-                #load_entities
-                _ => return Err(::mimic::interface::query::QueryError::EntityNotFound(path))
-                    .map_err(::mimic::interface::InterfaceError::from)?
-            }?;
-
-            Ok(res)
-        }
-    };
-
-    quote! {
-        #[::mimic::ic::query]
-        #[allow(unused_variables)]
-        pub fn mimic_query_load(
-            path: String,
-            query: ::mimic::query::LoadQuery,
-        ) -> Result<::mimic::query::LoadResponse, ::mimic::Error> {
-            #inner
-        }
-    }
+enum QueryKind {
+    Load,
+    Save,
+    Delete,
 }
 
-// mimic_query_save
-fn mimic_query_save(builder: &ActorBuilder) -> TokenStream {
+// generate_query
+fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenStream {
     let entities = builder.get_entities();
 
-    let inner = if entities.is_empty() {
+    let match_arms = if entities.is_empty() {
         quote! {
             Err(::mimic::interface::query::QueryError::EntityNotFound(path))
                 .map_err(::mimic::interface::InterfaceError::from)?
         }
     } else {
-        let mut save_entities = quote!();
-        for (entity_path, _) in entities {
-            let generic: Path = parse_str(&entity_path).unwrap();
+        let arms = entities.iter().map(|(entity_path, _)| {
+            let ty: Path = parse_str(entity_path)
+                .unwrap_or_else(|_| panic!("Invalid path: {entity_path}"));
 
-            save_entities.extend(quote! {
-                #entity_path => {
-                    let query = ::mimic::query::save::<#generic>(query)?;
-                    query_save!().execute(query)
-                }
-            });
-        }
+            match kind {
+                QueryKind::Load => quote! {
+                    #entity_path => query_load!().response(::mimic::query::load::<#ty>().query(query))
+                },
+                QueryKind::Save => quote! {
+                    #entity_path => {
+                        let query = ::mimic::query::save::<#ty>(query)?;
+                        query_save!().execute(query)
+                    }
+                },
+                QueryKind::Delete => quote! {
+                    #entity_path => query_delete!().execute::<#ty>(query)
+                },
+            }
+        });
 
         quote! {
             let res = match path.as_str() {
-                #save_entities
-                _ => return Err(::mimic::interface::query::QueryError::EntityNotFound(path))
-                    .map_err(::mimic::interface::InterfaceError::from)?
+                #(#arms,)*
+                _ => Err(::mimic::interface::query::QueryError::EntityNotFound(path))
+                    .map_err(::mimic::interface::InterfaceError::from)?,
             }?;
 
             Ok(res)
         }
     };
 
-    quote! {
-        #[::mimic::ic::update]
-        #[allow(unused_variables)]
-        pub fn mimic_query_save(
-            path: String,
-            query: ::mimic::query::SaveQuery
-        ) -> Result<::mimic::query::SaveResponse, ::mimic::Error> {
-            #inner
-        }
-    }
-}
+    // generate the fn
+    let fn_name = quote::format_ident!("{name}");
+    let fn_sig = match kind {
+        QueryKind::Load => quote! {
+            #[::mimic::ic::query]
+            pub fn #fn_name(
+                path: String,
+                query: ::mimic::query::LoadQuery,
+            ) -> Result<::mimic::query::LoadResponse, ::mimic::Error>
+        },
 
-// mimic_query_delete
-fn mimic_query_delete(builder: &ActorBuilder) -> TokenStream {
-    let entities = builder.get_entities();
+        QueryKind::Save => quote! {
+            #[::mimic::ic::update]
+            pub fn #fn_name(
+                path: String,
+                query: ::mimic::query::SaveQuery,
+            ) -> Result<::mimic::query::SaveResponse, ::mimic::Error>
+        },
 
-    let inner = if entities.is_empty() {
-        quote! {
-            Err(::mimic::interface::query::QueryError::EntityNotFound(path))
-                .map_err(::mimic::interface::InterfaceError::from)?
-        }
-    } else {
-        let mut delete_entities = quote!();
-        for (entity_path, _) in entities {
-            let generic: Path = parse_str(&entity_path).unwrap();
-
-            delete_entities.extend(quote! {
-                #entity_path => query_delete!().execute::<#generic>(query),
-            });
-        }
-
-        quote! {
-            let res = match path.as_str() {
-                #delete_entities
-                _ => return Err(::mimic::interface::query::QueryError::EntityNotFound(path))
-                    .map_err(::mimic::interface::InterfaceError::from)?
-            }?;
-
-            Ok(res)
-        }
+        QueryKind::Delete => quote! {
+            #[::mimic::ic::update]
+            pub fn #fn_name(
+                path: String,
+                query: ::mimic::query::DeleteQuery,
+            ) -> Result<::mimic::query::DeleteResponse, ::mimic::Error>
+        },
     };
 
     quote! {
-        #[::mimic::ic::update]
         #[allow(unused_variables)]
-        pub fn mimic_query_delete(
-            path: String,
-            query: ::mimic::query::DeleteQuery,
-        ) -> Result<::mimic::query::DeleteResponse, ::mimic::Error> {
-            #inner
+        #fn_sig {
+            #match_arms
         }
     }
 }

@@ -15,7 +15,6 @@ pub struct IndexStore {
 }
 
 impl IndexStore {
-    // init
     #[must_use]
     pub fn init(memory: DefaultMemory) -> Self {
         Self {

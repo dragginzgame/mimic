@@ -54,7 +54,6 @@ impl ActorBuilder {
         tokens.extend(fixtures::generate(&self));
         tokens.extend(query::generate(&self));
 
-        // quote
         quote! {
             #tokens
         }

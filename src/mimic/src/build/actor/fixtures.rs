@@ -6,23 +6,17 @@ use syn::{Path, parse_str};
 // generate
 #[must_use]
 pub fn generate(builder: &ActorBuilder) -> TokenStream {
-    fixtures(builder)
-}
-
-// fixtures
-fn fixtures(builder: &ActorBuilder) -> TokenStream {
-    let fixtures_replace_all = fixtures_replace_all(builder);
+    let body = generate_replace_all(builder);
 
     quote! {
-
-        // mimic_init_fixtures
+        /// Initializes all registered fixtures by replacing data in storage.
         pub fn mimic_init_fixtures() -> Result<(), ::mimic::Error> {
             mimic_fixtures_replace_all()
         }
 
-        // fixtures_replace_helper
+        /// Helper to replace all fixture data in storage.
         #[allow(dead_code)]
-        fn mimic_fixtures_replace_helper(
+        fn fixtures_replace_helper(
             fixtures: Vec<Box<dyn EntityKindDyn>>,
         ) -> Result<(), ::mimic::Error> {
             for entity in fixtures {
@@ -32,26 +26,30 @@ fn fixtures(builder: &ActorBuilder) -> TokenStream {
             Ok(())
         }
 
-        // fixtures_replace_all
-        #fixtures_replace_all
+        /// Replaces fixtures for all registered entities.
+        #[allow(clippy::too_many_lines)]
+        #[allow(clippy::missing_const_for_fn)]
+        pub fn mimic_fixtures_replace_all() -> Result<(), ::mimic::Error> {
+            #body
+        }
     }
 }
 
-// fixtures_replace_all
+// generate_replace_all
 // replaces every single fixture with the latest version
-fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
+fn generate_replace_all(builder: &ActorBuilder) -> TokenStream {
     let mut inner = Vec::new();
 
     // stores
     for (entity_path, _) in builder.get_entities() {
         let entity_ident: Path = parse_str(&entity_path).unwrap();
         inner.push(quote! {
-            mimic_fixtures_replace_helper(<#entity_ident as ::mimic::traits::EntityFixture>::fixtures())?;
+            fixtures_replace_helper(<#entity_ident as ::mimic::traits::EntityFixture>::fixtures())?;
         });
     }
 
     // quote
-    let inner = if inner.is_empty() {
+    if inner.is_empty() {
         quote!(Ok(()))
     } else {
         let num_entities = inner.len();
@@ -60,14 +58,6 @@ fn fixtures_replace_all(builder: &ActorBuilder) -> TokenStream {
             log!(Log::Info, "added fixtures ({} entities)", #num_entities);
 
             Ok(())
-        }
-    };
-
-    quote! {
-        #[allow(clippy::too_many_lines)]
-        #[allow(clippy::missing_const_for_fn)]
-        pub fn mimic_fixtures_replace_all() -> Result<(), ::mimic::Error> {
-            #inner
         }
     }
 }

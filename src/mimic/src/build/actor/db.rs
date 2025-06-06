@@ -11,11 +11,10 @@ pub fn generate(builder: &ActorBuilder) -> TokenStream {
 
 // stores
 fn stores(builder: &ActorBuilder) -> TokenStream {
-    let mut data_store_defs = quote!();
-    let mut index_store_defs = quote!();
-
-    let mut data_store_inserts = quote!();
-    let mut index_store_inserts = quote!();
+    let mut data_defs = quote!();
+    let mut index_defs = quote!();
+    let mut data_inits = quote!();
+    let mut index_inits = quote!();
 
     for (store_path, store) in builder.get_stores() {
         let cell_ident = format_ident!("{}", &store.ident);
@@ -24,7 +23,7 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
 
         if matches!(store.ty, StoreType::Index) {
             // Index store
-            index_store_defs.extend(quote! {
+            index_defs.extend(quote! {
                 static #cell_ident: ::std::cell::RefCell<::mimic::db::IndexStore> =
                     ::std::cell::RefCell::new(::icu::icu_register_memory!(
                         ::mimic::db::IndexStore,
@@ -33,12 +32,12 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
                     ));
             });
 
-            index_store_inserts.extend(quote! {
+            index_inits.extend(quote! {
                 index_registry.register(#store_path_lit, &#cell_ident);
             });
         } else {
             // Data store
-            data_store_defs.extend(quote! {
+            data_defs.extend(quote! {
                 static #cell_ident: ::std::cell::RefCell<::mimic::db::DataStore> =
                     ::std::cell::RefCell::new(::icu::icu_register_memory!(
                         ::mimic::db::DataStore,
@@ -47,46 +46,19 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
                     ));
             });
 
-            data_store_inserts.extend(quote! {
+            data_inits.extend(quote! {
                 data_registry.register(#store_path_lit, &#cell_ident);
             });
         }
     }
 
-    let data_registry = if data_store_inserts.is_empty() {
-        quote! {
-            ::mimic::db::StoreRegistry::new()
-        }
-    } else {
-        quote! {
-            {
-                let mut data_registry = ::mimic::db::StoreRegistry::new();
-                #data_store_inserts
-
-                data_registry
-            }
-        }
-    };
-
-    let index_registry = if index_store_inserts.is_empty() {
-        quote! {
-            ::mimic::db::StoreRegistry::new()
-        }
-    } else {
-        quote! {
-            {
-                let mut index_registry = ::mimic::db::StoreRegistry::new();
-                #index_store_inserts
-
-                index_registry
-            }
-        }
-    };
+    let data_registry = wrap_registry_init("data_registry", data_inits);
+    let index_registry = wrap_registry_init("index_registry", index_inits);
 
     quote! {
         thread_local! {
-            #data_store_defs
-            #index_store_defs
+            #data_defs
+            #index_defs
 
             static DATA_REGISTRY: ::std::rc::Rc<::mimic::db::StoreRegistry<::mimic::db::DataStore>> =
                 ::std::rc::Rc::new(#data_registry);
@@ -94,6 +66,24 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
             static INDEX_REGISTRY: ::std::rc::Rc<::mimic::db::StoreRegistry<::mimic::db::IndexStore>> =
                 ::std::rc::Rc::new(#index_registry);
 
+        }
+    }
+}
+
+// wrap_registry_init
+fn wrap_registry_init(name: &str, inits: TokenStream) -> TokenStream {
+    if inits.is_empty() {
+        quote! {
+            ::mimic::db::StoreRegistry::new()
+        }
+    } else {
+        let name_ident = format_ident!("{}", name);
+        quote! {
+            {
+                let mut #name_ident = ::mimic::db::StoreRegistry::new();
+                #inits
+                #name_ident
+            }
         }
     }
 }

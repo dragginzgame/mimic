@@ -128,7 +128,7 @@ impl_storable_unbounded!(DataValue);
 /// Metadata
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
 pub struct Metadata {
     pub created: u64,
     pub modified: u64,

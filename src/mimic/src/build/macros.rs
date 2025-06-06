@@ -7,6 +7,8 @@ macro_rules! mimic_build {
 
         //
         // CARGO
+        // should include the build flags we need to get
+        // different targets working
         //
 
         // Retrieve the target triple from the environment

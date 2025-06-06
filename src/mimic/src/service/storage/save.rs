@@ -154,7 +154,7 @@ impl SaveExecutor {
                 if let Some(id) = resolved.id(key_values) {
                     self.debug
                         .println(&format!("query.{mode}: add index {index_key} - {id}"));
-                    store.data.insert(index_key, sk.to_string());
+                    store.data.insert(index_key, id);
                 }
 
                 Ok(())
@@ -171,7 +171,7 @@ impl SaveExecutor {
 
         // insert data row
         store.with_borrow_mut(|store| {
-            store.data.insert(sk.clone(), value.clone());
+            store.data.insert(sk.clone(), value);
         });
 
         Ok(SaveResponse {
