@@ -3,10 +3,7 @@ use crate::{
     db::{DataStoreRegistry, IndexStoreRegistry, types::SortKey},
     deserialize,
     query::{DeleteQuery, DeleteResponse},
-    service::{
-        ServiceError,
-        storage::{DebugContext, ResolvedSelector, StorageError, with_resolver},
-    },
+    storage::{DebugContext, ResolvedSelector, StorageError, with_resolver},
     traits::EntityKind,
 };
 
@@ -40,9 +37,7 @@ impl DeleteExecutor {
 
     // execute
     pub fn execute<E: EntityKind>(self, query: DeleteQuery) -> Result<DeleteResponse, Error> {
-        let res = self
-            .execute_internal::<E>(query)
-            .map_err(ServiceError::from)?;
+        let res = self.execute_internal::<E>(query)?;
 
         Ok(res)
     }

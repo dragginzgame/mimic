@@ -5,10 +5,7 @@ use crate::{
         types::{DataValue, IndexKey, Metadata, SortKey},
     },
     query::{SaveMode, SaveQueryPrepared, SaveResponse},
-    service::{
-        ServiceError,
-        storage::{DebugContext, ResolverError, StorageError, with_resolver},
-    },
+    storage::{DebugContext, ResolverError, StorageError, with_resolver},
     utils::time,
 };
 use thiserror::Error as ThisError;
@@ -62,7 +59,7 @@ impl SaveExecutor {
 
     // execute
     pub fn execute(&self, query: SaveQueryPrepared) -> Result<SaveResponse, Error> {
-        let res = self.execute_internal(query).map_err(ServiceError::from)?;
+        let res = self.execute_internal(query)?;
 
         Ok(res)
     }

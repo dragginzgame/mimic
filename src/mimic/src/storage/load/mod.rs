@@ -6,7 +6,7 @@ pub use generic::*;
 
 use crate::{
     db::{DataStoreLocal, types::DataRow, types::SortKey},
-    service::storage::{DebugContext, ResolvedSelector},
+    storage::{DebugContext, ResolvedSelector},
 };
 
 ///

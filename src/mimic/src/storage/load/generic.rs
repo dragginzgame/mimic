@@ -2,10 +2,7 @@ use crate::{
     Error,
     db::{DataStoreRegistry, IndexStoreRegistry},
     query::{LoadCollection, LoadQueryInternal, LoadResponse},
-    service::{
-        ServiceError,
-        storage::{DebugContext, Loader, StorageError, types::EntityRow, with_resolver},
-    },
+    storage::{DebugContext, Loader, StorageError, types::EntityRow, with_resolver},
     traits::EntityKind,
 };
 
@@ -43,7 +40,7 @@ impl LoadExecutor {
         self,
         query: LoadQueryInternal<E>,
     ) -> Result<LoadCollection<E>, Error> {
-        let cll = self.execute_internal(query).map_err(ServiceError::from)?;
+        let cll = self.execute_internal(query)?;
 
         Ok(cll)
     }
@@ -54,7 +51,7 @@ impl LoadExecutor {
         query: LoadQueryInternal<E>,
     ) -> Result<LoadResponse, Error> {
         let format = query.inner.format;
-        let cll = self.execute_internal(query).map_err(ServiceError::from)?;
+        let cll = self.execute_internal(query)?;
 
         Ok(cll.response(format))
     }

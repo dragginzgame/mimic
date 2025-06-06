@@ -6,7 +6,7 @@ use crate::{
         load::{LoadCollectionDyn, LoadFormat, LoadMap, LoadResponse},
     },
     schema::types::SortDirection,
-    service::storage::types::{EntityRow, EntityValue},
+    storage::types::{EntityRow, EntityValue},
     traits::EntityKind,
 };
 use candid::CandidType;

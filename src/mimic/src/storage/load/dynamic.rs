@@ -2,10 +2,7 @@ use crate::{
     Error,
     db::{DataStoreRegistry, IndexStoreRegistry},
     query::{LoadCollectionDyn, LoadQueryDyn, LoadResponse},
-    service::{
-        ServiceError,
-        storage::{DebugContext, Loader, StorageError, with_resolver},
-    },
+    storage::{DebugContext, Loader, StorageError, with_resolver},
     traits::EntityKind,
 };
 
@@ -39,9 +36,7 @@ impl LoadExecutorDyn {
 
     // execute
     pub fn execute<E: EntityKind>(self, query: LoadQueryDyn) -> Result<LoadCollectionDyn, Error> {
-        let res = self
-            .execute_internal::<E>(query)
-            .map_err(ServiceError::from)?;
+        let res = self.execute_internal::<E>(query)?;
 
         Ok(res)
     }
@@ -49,9 +44,7 @@ impl LoadExecutorDyn {
     // response
     pub fn response<E: EntityKind>(self, query: LoadQueryDyn) -> Result<LoadResponse, Error> {
         let format = query.format;
-        let cll = self
-            .execute_internal::<E>(query)
-            .map_err(ServiceError::from)?;
+        let cll = self.execute_internal::<E>(query)?;
 
         Ok(cll.response(format))
     }

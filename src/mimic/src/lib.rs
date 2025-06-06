@@ -9,7 +9,7 @@ pub mod interface;
 pub mod macros;
 pub mod query;
 pub mod schema;
-pub mod service;
+pub mod storage;
 pub mod traits;
 pub mod types;
 pub mod utils;
@@ -84,7 +84,7 @@ pub enum Error {
     SerializeError(String),
 
     #[error("{0}")]
-    ServiceError(String),
+    StorageError(String),
 
     #[error("{0}")]
     ValidationError(String),
@@ -105,7 +105,7 @@ from_to_string!(db::DbError, DbError);
 from_to_string!(interface::InterfaceError, InterfaceError);
 from_to_string!(schema::SchemaError, SchemaError);
 from_to_string!(SerializeError, SerializeError);
-from_to_string!(service::ServiceError, ServiceError);
+from_to_string!(storage::StorageError, StorageError);
 from_to_string!(ValidationError, ValidationError);
 
 ///
