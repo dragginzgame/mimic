@@ -118,7 +118,7 @@ impl<T> EntityKind for T where
 pub trait EntityKindDyn: TypeKindDyn + SerializeDyn + Visitable {
     // returns all the entity keys that can be formatted as keys
     // within a SortKey
-    fn key_values(&self) -> HashMap<String, String>;
+    fn key_values(&self) -> HashMap<String, Option<String>>;
 }
 
 ///

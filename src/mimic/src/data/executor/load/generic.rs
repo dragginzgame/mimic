@@ -98,10 +98,11 @@ fn apply_filters<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> V
             let key_values = entity.key_values();
 
             let where_ok = query.r#where.as_ref().is_none_or(|w| {
-                w.matches
-                    .iter()
-                    .all(|(field, value)| key_values.get(field) == Some(value))
+                w.matches.iter().all(|(field, value)| {
+                    key_values.get(field).and_then(|v| v.as_ref()) == Some(value)
+                })
             });
+
             let search_ok = !use_search || entity.search_fields(&query.search);
 
             where_ok && search_ok

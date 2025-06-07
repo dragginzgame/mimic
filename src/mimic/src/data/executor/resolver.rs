@@ -129,7 +129,7 @@ impl ResolvedEntity {
     // id
     // returns the value of the id field (optional)
     #[must_use]
-    pub fn id(&self, field_values: &HashMap<String, String>) -> Option<String> {
+    pub fn id(&self, field_values: &HashMap<String, Option<String>>) -> Option<String> {
         self.sort_key(field_values)
             .0
             .last()
@@ -139,7 +139,7 @@ impl ResolvedEntity {
     // composite_key
     // returns the composite key ie. ["1", "25", "0xb4af..."]
     #[must_use]
-    pub fn composite_key(&self, field_values: &HashMap<String, String>) -> Vec<String> {
+    pub fn composite_key(&self, field_values: &HashMap<String, Option<String>>) -> Vec<String> {
         self.sort_key(field_values)
             .0
             .iter()
@@ -150,12 +150,18 @@ impl ResolvedEntity {
     // sort_key
     // returns a sort key based on field values
     #[must_use]
-    pub fn sort_key(&self, field_values: &HashMap<String, String>) -> SortKey {
+    pub fn sort_key(&self, field_values: &HashMap<String, Option<String>>) -> SortKey {
         let key_parts = self
             .sk_fields
             .iter()
             .map(|sk| {
-                let value = sk.field.as_ref().and_then(|f| field_values.get(f).cloned());
+                let value = sk
+                    .field
+                    .as_ref()
+                    .and_then(|f| field_values.get(f))
+                    .cloned()
+                    .flatten(); // unwraps Option<Option<String>> into Option<String>
+
                 (sk.label.clone(), value)
             })
             .collect();
@@ -184,23 +190,27 @@ impl ResolvedEntity {
     }
 
     // build_index_key
+    // returning None means 'do not index'
     #[must_use]
     pub fn build_index_key(
         &self,
         index: &EntityIndex,
-        field_values: &HashMap<String, String>,
-    ) -> IndexKey {
-        let values = index
-            .fields
-            .iter()
-            .map(|f| field_values.get(f).cloned().unwrap_or_default())
-            .collect();
+        field_values: &HashMap<String, Option<String>>,
+    ) -> Option<IndexKey> {
+        let mut values = Vec::with_capacity(index.fields.len());
 
-        IndexKey {
+        for field in &index.fields {
+            match field_values.get(field) {
+                Some(Some(value)) if !value.is_empty() => values.push(value.clone()),
+                _ => return None,
+            }
+        }
+
+        Some(IndexKey {
             entity: self.entity.def.path(),
             fields: index.fields.clone(),
             values,
-        }
+        })
     }
 
     // selector

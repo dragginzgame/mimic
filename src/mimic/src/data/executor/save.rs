@@ -116,7 +116,16 @@ impl SaveExecutor {
 
         // indexes
         for index in resolved.indexes() {
-            let index_key = resolved.build_index_key(index, key_values);
+            // Try to build index key from key_values (handles missing/null gracefully)
+            let Some(index_key) = resolved.build_index_key(index, key_values) else {
+                // Optionally log debug skip reason
+                self.debug.println(&format!(
+                    "query.{mode}: skipping index {:?} due to missing/null field",
+                    index.fields
+                ));
+                continue;
+            };
+
             let index_store = self.indexes.with(|map| map.try_get_store(&index.store))?;
 
             index_store.with_borrow_mut(|store| {

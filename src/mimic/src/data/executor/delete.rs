@@ -91,7 +91,14 @@ impl DeleteExecutor {
 
                 // Step 3: Compute and delete index keys
                 for index in indexes {
-                    let index_key = resolved.build_index_key(index, &field_values);
+                    let Some(index_key) = resolved.build_index_key(index, &field_values) else {
+                        self.debug.println(&format!(
+                            "query.delete: skipping index {:?} due to missing/null field",
+                            index.fields
+                        ));
+                        continue;
+                    };
+
                     let index_store = self.indexes.with(|ix| ix.try_get_store(&index.store))?;
 
                     self.debug
