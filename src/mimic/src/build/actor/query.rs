@@ -36,12 +36,12 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
         }
     } else {
         let arms = entities.iter().map(|(entity_path, _)| {
-            let ty: Path = parse_str(entity_path)
-                .unwrap_or_else(|_| panic!("Invalid path: {entity_path}"));
+            let ty: Path =
+                parse_str(entity_path).unwrap_or_else(|_| panic!("Invalid path: {entity_path}"));
 
             match kind {
                 QueryKind::Load => quote! {
-                    #entity_path => query_load!().response(::mimic::data::query::load::<#ty>().query(query))
+                    #entity_path => query_load!().response::<#ty>(query)
                 },
                 QueryKind::Save => quote! {
                     #entity_path => {

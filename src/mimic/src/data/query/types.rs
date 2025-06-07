@@ -23,3 +23,23 @@ pub enum Selector {
     Prefix(Vec<String>),
     Range(Vec<String>, Vec<String>),
 }
+
+///
+/// Where
+///
+
+#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+pub struct Where {
+    pub matches: Vec<(String, String)>,
+}
+
+impl<S: ToString> From<Vec<(S, S)>> for Where {
+    fn from(pairs: Vec<(S, S)>) -> Self {
+        Self {
+            matches: pairs
+                .into_iter()
+                .map(|(k, v)| (k.to_string(), v.to_string()))
+                .collect(),
+        }
+    }
+}

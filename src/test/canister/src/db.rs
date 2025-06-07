@@ -56,11 +56,7 @@ impl DbTester {
 
         // Retrieve rows in B-Tree order
         let keys = query_load!()
-            .execute(
-                query::load::<ContainsBlob>()
-                    .all()
-                    .sort_field("id", SortDirection::Asc),
-            )
+            .execute::<ContainsBlob>(query::load().all().sort_field("id", SortDirection::Asc))
             .unwrap()
             .keys();
 
@@ -82,7 +78,7 @@ impl DbTester {
 
         // count keys
         let num_keys = query_load!()
-            .execute(query::load::<CreateBasic>().all())
+            .execute::<CreateBasic>(query::load().all())
             .unwrap()
             .count();
         assert_eq!(num_keys, 1);
@@ -95,7 +91,7 @@ impl DbTester {
 
         assert_eq!(
             query_load!()
-                .execute(query::load::<CreateBasic>().all())
+                .execute::<CreateBasic>(query::load().all())
                 .unwrap()
                 .count(),
             2
@@ -143,7 +139,7 @@ impl DbTester {
         // Step 6: Confirm only 2 entities remain
         let all = query_load!()
             .debug()
-            .execute(query::load::<Index>().all())
+            .execute::<Index>(query::load().all())
             .unwrap();
 
         assert_eq!(all.count(), 2);
@@ -162,7 +158,7 @@ impl DbTester {
 
         // Retrieve the count from the store
         let count = query_load!()
-            .execute(query::load::<CreateBasic>().all())
+            .execute::<CreateBasic>(query::load().all())
             .unwrap()
             .count();
 
@@ -184,11 +180,7 @@ impl DbTester {
 
         // Retrieve rows in B-Tree order
         let keys = query_load!()
-            .execute(
-                query::load::<SortKeyOrder>()
-                    .all()
-                    .sort([("id", SortDirection::Asc)]),
-            )
+            .execute::<SortKeyOrder>(query::load().all().sort([("id", SortDirection::Asc)]))
             .unwrap()
             .keys();
 
@@ -216,7 +208,7 @@ impl DbTester {
         for limit in [10, 20, 50] {
             for offset in [0, 5, 10] {
                 let count = query_load!()
-                    .execute(query::load::<Limit>().all().offset(offset).limit(limit))
+                    .execute::<Limit>(query::load().all().offset(offset).limit(limit))
                     .unwrap()
                     .count();
 
@@ -321,7 +313,7 @@ impl DbTester {
                 .collect::<Vec<_>>();
 
             let count = query_load!()
-                .execute(query::load::<Searchable>().all().search(search.clone()))
+                .execute::<Searchable>(query::load().all().search(search.clone()))
                 .unwrap()
                 .count();
 

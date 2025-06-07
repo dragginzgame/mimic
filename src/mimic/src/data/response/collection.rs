@@ -14,6 +14,16 @@ use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
 ///
+/// CollectionError
+///
+
+#[derive(Debug, thiserror::Error)]
+pub enum CollectionError {
+    #[error("no data found in collection")]
+    Empty,
+}
+
+///
 /// LoadCollection
 ///
 
@@ -100,14 +110,15 @@ where
         self.0.into_iter().next().map(|row| row.value.entity)
     }
 
-    /// Returns the first entity, or an error if none exist
+    // try_entity
     pub fn try_entity(self) -> Result<E, Error> {
         let res = self
             .0
             .into_iter()
             .next()
             .map(|row| row.value.entity)
-            .ok_or(ResponseError::EntityNotFound)
+            .ok_or(CollectionError::Empty)
+            .map_err(ResponseError::from)
             .map_err(DataError::from)?;
 
         Ok(res)
@@ -117,6 +128,11 @@ where
     #[must_use]
     pub fn entities(self) -> Vec<E> {
         self.0.into_iter().map(|row| row.value.entity).collect()
+    }
+
+    // entities_iter
+    pub fn entities_iter(self) -> impl Iterator<Item = E> {
+        self.0.into_iter().map(|row| row.value.entity)
     }
 
     // entity_row
@@ -129,6 +145,15 @@ where
     #[must_use]
     pub fn entity_rows(self) -> Vec<EntityRow<E>> {
         self.0
+    }
+}
+
+impl<E: EntityKind> IntoIterator for LoadCollection<E> {
+    type Item = EntityRow<E>;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
     }
 }
 
@@ -172,6 +197,19 @@ impl LoadCollectionDyn {
     #[must_use]
     pub fn data_row(self) -> Option<DataRow> {
         self.0.into_iter().next()
+    }
+
+    // try_data_row
+    pub fn try_data_row(self) -> Result<DataRow, Error> {
+        let res = self
+            .0
+            .into_iter()
+            .next()
+            .ok_or(CollectionError::Empty)
+            .map_err(ResponseError::from)
+            .map_err(DataError::from)?;
+
+        Ok(res)
     }
 
     // data_rows

@@ -3,7 +3,7 @@ use crate::{
     data::{
         DataError,
         executor::{DebugContext, Loader, types::EntityRow, with_resolver},
-        query::LoadQueryInternal,
+        query::LoadQuery,
         response::{LoadCollection, LoadResponse},
         store::{DataStoreRegistry, IndexStoreRegistry},
     },
@@ -40,22 +40,16 @@ impl LoadExecutor {
     }
 
     // execute
-    pub fn execute<E: EntityKind>(
-        self,
-        query: LoadQueryInternal<E>,
-    ) -> Result<LoadCollection<E>, Error> {
+    pub fn execute<E: EntityKind>(self, query: LoadQuery) -> Result<LoadCollection<E>, Error> {
         let cll = self.execute_internal(query)?;
 
         Ok(cll)
     }
 
     // response
-    pub fn response<E: EntityKind>(
-        self,
-        query: LoadQueryInternal<E>,
-    ) -> Result<LoadResponse, Error> {
-        let format = query.inner.format;
-        let cll = self.execute_internal(query)?;
+    pub fn response<E: EntityKind>(self, query: LoadQuery) -> Result<LoadResponse, Error> {
+        let format = query.format;
+        let cll = self.execute_internal::<E>(query)?;
 
         Ok(cll.response(format))
     }
@@ -63,7 +57,7 @@ impl LoadExecutor {
     // execute_internal
     fn execute_internal<E: EntityKind>(
         self,
-        query: LoadQueryInternal<E>,
+        query: LoadQuery,
     ) -> Result<LoadCollection<E>, DataError> {
         // resolver
         self.debug.println(&format!("query.load: {query:?}"));
@@ -73,7 +67,7 @@ impl LoadExecutor {
             .with(|db| db.try_get_store(resolved.store_path()))?;
 
         // selector
-        let selector = resolved.selector(&query.inner.selector);
+        let selector = resolved.selector(&query.selector);
         self.debug
             .println(&format!("query.load selector: {selector:?}"));
 
@@ -95,41 +89,42 @@ impl LoadExecutor {
 }
 
 // apply_filters
-fn apply_filters<E: EntityKind>(
-    rows: Vec<EntityRow<E>>,
-    query: &LoadQueryInternal<E>,
-) -> Vec<EntityRow<E>> {
+fn apply_filters<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec<EntityRow<E>> {
+    let use_search = !query.search.is_empty();
+
     rows.into_iter()
         .filter(|row| {
             let entity = &row.value.entity;
+            let key_values = entity.key_values();
 
-            let matches_search =
-                query.inner.search.is_empty() || entity.search_fields(&query.inner.search);
-            let matches_custom_filters = query.filters.iter().all(|f| f(entity));
+            let where_ok = query.r#where.as_ref().is_none_or(|w| {
+                w.matches
+                    .iter()
+                    .all(|(field, value)| key_values.get(field) == Some(value))
+            });
+            let search_ok = !use_search || entity.search_fields(&query.search);
 
-            matches_search && matches_custom_filters
+            where_ok && search_ok
         })
         .collect()
 }
 
 // apply_sort
-fn apply_sort<E: EntityKind>(
-    mut rows: Vec<EntityRow<E>>,
-    query: &LoadQueryInternal<E>,
-) -> Vec<EntityRow<E>> {
-    if !query.inner.sort.is_empty() {
-        let sorter = E::sort(&query.inner.sort);
+fn apply_sort<E: EntityKind>(mut rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec<EntityRow<E>> {
+    if !query.sort.is_empty() {
+        let sorter = E::sort(&query.sort);
         rows.sort_by(|a, b| sorter(&a.value.entity, &b.value.entity));
     }
+
     rows
 }
 
 // apply_pagination
 fn apply_pagination<E: EntityKind>(
     rows: Vec<EntityRow<E>>,
-    query: &LoadQueryInternal<E>,
+    query: &LoadQuery,
 ) -> Vec<EntityRow<E>> {
-    let (offset, limit) = (query.inner.offset, query.inner.limit.unwrap_or(u32::MAX));
+    let (offset, limit) = (query.offset, query.limit.unwrap_or(u32::MAX));
 
     rows.into_iter()
         .skip(offset as usize)

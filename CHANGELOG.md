@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.4.5]
 - grouped data, store, response and executor under data/
+- removed generics from queries, and put them onto the executor instead
 
 ## [0.4.4]
 - massive refactor!

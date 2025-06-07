@@ -13,8 +13,8 @@ use thiserror::Error as ThisError;
 
 #[derive(Debug, ThisError)]
 pub enum ResponseError {
-    #[error("entity not found")]
-    EntityNotFound,
+    #[error(transparent)]
+    CollectionError(#[from] collection::CollectionError),
 }
 
 ///

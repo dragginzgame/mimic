@@ -23,13 +23,13 @@ pub enum QueryError {
 
 // load
 #[must_use]
-pub fn load<E: EntityKind>() -> LoadQueryBuilder<E> {
-    LoadQueryBuilder::<E>::new()
+pub fn load() -> LoadQueryBuilder {
+    LoadQueryBuilder::new()
 }
 
 // load_dyn
 #[must_use]
-pub fn load_dyn<E: EntityKind>() -> LoadQueryDynBuilder<E> {
+pub fn load_dyn() -> LoadQueryDynBuilder {
     LoadQueryDynBuilder::new()
 }
 
