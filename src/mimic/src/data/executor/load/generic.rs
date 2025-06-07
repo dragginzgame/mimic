@@ -2,13 +2,14 @@ use crate::{
     Error,
     data::{
         DataError,
-        executor::{DebugContext, Loader, types::EntityRow, with_resolver},
-        query::LoadQuery,
+        executor::{DebugContext, Loader, ResolvedEntity, types::EntityRow, with_resolver},
+        query::{LoadQuery, Where},
         response::{LoadCollection, LoadResponse},
-        store::{DataStoreRegistry, IndexStoreRegistry},
+        store::{DataStoreRegistry, IndexStoreRegistry, IndexValue},
     },
     traits::EntityKind,
 };
+use std::collections::HashMap;
 
 ///
 /// LoadExecutor
@@ -85,6 +86,40 @@ impl LoadExecutor {
         let rows = apply_pagination(rows, &query);
 
         Ok(LoadCollection(rows))
+    }
+
+    // try_index_lookup
+    fn try_index_lookup(
+        &self,
+        resolved: &ResolvedEntity,
+        where_clause: &Where,
+    ) -> Result<Option<IndexValue>, DataError> {
+        // Build a map from field → Some(value) directly (for build_index_key)
+        let field_values: HashMap<_, _> = where_clause
+            .matches
+            .iter()
+            .map(|(k, v)| (k.clone(), Some(v.clone())))
+            .collect();
+
+        for index in resolved.indexes() {
+            // Ensure all index fields are present in the where clause
+            if index.fields.iter().all(|f| field_values.contains_key(f)) {
+                // Try to build the index key from ordered fields and optional values
+                let Some(index_key) = resolved.build_index_key(index, &field_values) else {
+                    self.debug.println(&format!(
+                        "query.load: skipping index {:?} due to null/empty value",
+                        index.fields
+                    ));
+                    continue;
+                };
+
+                let store = self.indexes.with(|map| map.try_get_store(&index.store))?;
+
+                return Ok(store.with_borrow(|s| s.get(&index_key)));
+            }
+        }
+
+        Ok(None)
     }
 }
 

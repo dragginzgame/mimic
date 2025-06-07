@@ -65,10 +65,6 @@ impl DeleteExecutor {
             }
         };
 
-        // debug
-        self.debug
-            .println(&format!("query.delete: delete keys {sort_keys:?}"));
-
         // get store
         let store = self
             .data
@@ -99,19 +95,18 @@ impl DeleteExecutor {
                         continue;
                     };
 
+                    // delete index
                     let index_store = self.indexes.with(|ix| ix.try_get_store(&index.store))?;
-
+                    index_store.with_borrow_mut(|store| {
+                        store.remove(&index_key);
+                    });
                     self.debug
                         .println(&format!("query.delete: delete index {index_key:?}"));
-
-                    index_store.with_borrow_mut(|store| {
-                        store.data.remove(&index_key);
-                    });
                 }
 
                 // Step 4: Delete the data row itself
                 store.with_borrow_mut(|store| {
-                    store.data.remove(&sk);
+                    store.remove(&sk);
                 });
 
                 deleted_keys.push(sk);

@@ -5,7 +5,7 @@ use crate::{
         executor::{DebugContext, ExecutorError, with_resolver},
         query::{SaveMode, SaveQueryPrepared},
         response::SaveResponse,
-        store::{DataStoreRegistry, DataValue, IndexStoreRegistry, Metadata},
+        store::{DataStoreRegistry, DataValue, IndexStoreRegistry, IndexValue, Metadata},
     },
     utils::time,
 };
@@ -72,7 +72,7 @@ impl SaveExecutor {
         let result = store.with_borrow(|store| store.get(&sk));
 
         //
-        // match mode
+        // match save mode
         // on Update and Replace compare old and new data
         //
 
@@ -118,7 +118,6 @@ impl SaveExecutor {
         for index in resolved.indexes() {
             // Try to build index key from key_values (handles missing/null gracefully)
             let Some(index_key) = resolved.build_index_key(index, key_values) else {
-                // Optionally log debug skip reason
                 self.debug.println(&format!(
                     "query.{mode}: skipping index {:?} due to missing/null field",
                     index.fields
@@ -126,22 +125,37 @@ impl SaveExecutor {
                 continue;
             };
 
+            // update store
             let index_store = self.indexes.with(|map| map.try_get_store(&index.store))?;
 
             index_store.with_borrow_mut(|store| {
-                if index.unique {
-                    if let Some(existing) = store.data.get(&index_key) {
-                        if existing != sk.to_string() {
-                            return Err(ExecutorError::IndexViolation(index_key.clone()));
-                        }
-                    }
-                }
-
-                // save id
                 if let Some(id) = resolved.id(key_values) {
-                    self.debug
-                        .println(&format!("query.{mode}: add index {index_key} - {id}"));
-                    store.data.insert(index_key, id);
+                    let existing = store.get(&index_key);
+
+                    let index_value = match (existing, index.unique) {
+                        (Some(ids), true) => {
+                            if !ids.is_empty() && !ids.contains(&id) {
+                                return Err(ExecutorError::IndexViolation(index_key.clone()));
+                            }
+
+                            IndexValue::from(vec![id])
+                        }
+
+                        (Some(ids), false) => {
+                            let mut new_ids = ids.clone();
+                            new_ids.insert(id.clone());
+
+                            new_ids
+                        }
+
+                        (None, _) => IndexValue::from(vec![id]),
+                    };
+
+                    store.insert(index_key.clone(), index_value.clone());
+
+                    self.debug.println(&format!(
+                        "query.{mode}: add index {index_key} - {index_value:?}"
+                    ));
                 }
 
                 Ok(())
@@ -158,7 +172,7 @@ impl SaveExecutor {
 
         // insert data row
         store.with_borrow_mut(|store| {
-            store.data.insert(sk.clone(), value);
+            store.insert(sk.clone(), value);
         });
 
         Ok(SaveResponse {

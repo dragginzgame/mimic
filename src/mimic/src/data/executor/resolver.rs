@@ -190,6 +190,8 @@ impl ResolvedEntity {
     }
 
     // build_index_key
+    //
+    // field_values are UNORDERED, it's the index.fields that is ORDERED
     // returning None means 'do not index'
     #[must_use]
     pub fn build_index_key(

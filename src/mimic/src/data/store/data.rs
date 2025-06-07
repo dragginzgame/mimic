@@ -1,5 +1,5 @@
 use crate::{
-    data::store::types::{DataValue, SortKey},
+    data::store::{DataValue, SortKey},
     ic::structures::{BTreeMap, DefaultMemory},
 };
 use derive_more::{Deref, DerefMut};
@@ -10,16 +10,12 @@ use std::{cell::RefCell, thread::LocalKey};
 ///
 
 #[derive(Deref, DerefMut)]
-pub struct DataStore {
-    pub data: BTreeMap<SortKey, DataValue>,
-}
+pub struct DataStore(BTreeMap<SortKey, DataValue>);
 
 impl DataStore {
     #[must_use]
     pub fn init(memory: DefaultMemory) -> Self {
-        Self {
-            data: BTreeMap::init(memory),
-        }
+        Self(BTreeMap::init(memory))
     }
 }
 
