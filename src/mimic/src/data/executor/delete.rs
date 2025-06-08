@@ -16,18 +16,18 @@ use crate::{
 ///
 
 pub struct DeleteExecutor {
-    data: DataStoreRegistry,
-    indexes: IndexStoreRegistry,
+    data_reg: DataStoreRegistry,
+    index_reg: IndexStoreRegistry,
     debug: DebugContext,
 }
 
 impl DeleteExecutor {
     // new
     #[must_use]
-    pub fn new(data: DataStoreRegistry, indexes: IndexStoreRegistry) -> Self {
+    pub fn new(data_reg: DataStoreRegistry, index_reg: IndexStoreRegistry) -> Self {
         Self {
-            data,
-            indexes,
+            data_reg,
+            index_reg,
             debug: DebugContext::default(),
         }
     }
@@ -67,7 +67,7 @@ impl DeleteExecutor {
 
         // get store
         let store = self
-            .data
+            .data_reg
             .with(|db| db.try_get_store(resolved.store_path()))?;
 
         //
@@ -96,7 +96,7 @@ impl DeleteExecutor {
                     };
 
                     // delete index
-                    let index_store = self.indexes.with(|ix| ix.try_get_store(&index.store))?;
+                    let index_store = self.index_reg.with(|ix| ix.try_get_store(&index.store))?;
                     index_store.with_borrow_mut(|store| {
                         store.remove(&index_key);
                     });

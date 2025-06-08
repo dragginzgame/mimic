@@ -5,7 +5,7 @@ use crate::{
         executor::{DebugContext, Loader, with_resolver},
         query::LoadQueryDyn,
         response::{LoadCollectionDyn, LoadResponse},
-        store::{DataStoreRegistry, IndexStoreRegistry},
+        store::{DataRow, DataStoreRegistry, IndexStoreRegistry},
     },
     traits::EntityKind,
 };
@@ -15,18 +15,18 @@ use crate::{
 ///
 
 pub struct LoadExecutorDyn {
-    data: DataStoreRegistry,
-    indexes: IndexStoreRegistry,
+    data_reg: DataStoreRegistry,
+    index_reg: IndexStoreRegistry,
     debug: DebugContext,
 }
 
 impl LoadExecutorDyn {
     // new
     #[must_use]
-    pub fn new(data: DataStoreRegistry, indexes: IndexStoreRegistry) -> Self {
+    pub fn new(data_reg: DataStoreRegistry, index_reg: IndexStoreRegistry) -> Self {
         Self {
-            data,
-            indexes,
+            data_reg,
+            index_reg,
             debug: DebugContext::default(),
         }
     }
@@ -60,6 +60,30 @@ impl LoadExecutorDyn {
     ) -> Result<LoadCollectionDyn, DataError> {
         self.debug.println(&format!("query.load_dyn: {query:?}"));
 
-        Ok(LoadCollectionDyn(vec![]))
+        // resolver
+        let resolved_entity = with_resolver(|r| r.entity(E::PATH))?;
+
+        // do we include a row?
+        fn include_row(row: &DataRow, query: &LoadQueryDyn, path: &str) -> bool {
+            if query.include_children {
+                row.value.path.starts_with(path)
+            } else {
+                row.value.path == path
+            }
+        }
+
+        // loader
+        // no where, search, sort
+        // but we have to filter by the fn above and paginate
+        let loader = Loader::new(self.data_reg, self.index_reg, self.debug);
+        let rows = loader
+            .load(&resolved_entity, &query.selector, None)?
+            .into_iter()
+            .filter(|row| include_row(row, &query, E::PATH))
+            .skip(query.offset as usize)
+            .take(query.limit.unwrap_or(u32::MAX) as usize)
+            .collect();
+
+        Ok(LoadCollectionDyn(rows))
     }
 }
