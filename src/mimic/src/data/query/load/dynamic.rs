@@ -1,4 +1,7 @@
-use crate::data::query::{LoadFormat, Selector, Where};
+use crate::data::{
+    query::LoadFormat,
+    types::{CompositeKey, Selector, Where},
+};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
@@ -35,43 +38,34 @@ impl LoadQueryDynBuilder {
     }
 
     // one
-    pub fn one<S: ToString>(self, ck: &[S]) -> LoadQueryDyn {
-        let ck_str: Vec<String> = ck.iter().map(ToString::to_string).collect();
-        let selector = Selector::One(ck_str);
+    pub fn one<K: Into<CompositeKey>>(self, ck: K) -> LoadQueryDyn {
+        let selector = Selector::One(ck.into());
 
         LoadQueryDyn::new(selector)
     }
 
     // many
     #[must_use]
-    pub fn many<I, S>(self, cks: I) -> LoadQueryDyn
+    pub fn many<K>(self, cks: &[K]) -> LoadQueryDyn
     where
-        I: IntoIterator,
-        I::Item: IntoIterator<Item = S>,
-        S: ToString,
+        K: Clone + Into<CompositeKey>,
     {
-        let keys: Vec<Vec<String>> = cks
-            .into_iter()
-            .map(|key| key.into_iter().map(|s| s.to_string()).collect())
-            .collect();
-        let selector = Selector::Many(keys);
+        let cks = cks.iter().cloned().map(Into::into).collect();
+        let selector = Selector::Many(cks);
 
         LoadQueryDyn::new(selector)
     }
 
     // range
-    pub fn range<S: ToString>(self, start: &[S], end: &[S]) -> LoadQueryDyn {
-        let start = start.iter().map(ToString::to_string).collect();
-        let end = end.iter().map(ToString::to_string).collect();
-        let selector = Selector::Range(start, end);
+    pub fn range<K: Into<CompositeKey>>(self, start: K, end: K) -> LoadQueryDyn {
+        let selector = Selector::Range(start.into(), end.into());
 
         LoadQueryDyn::new(selector)
     }
 
     // prefix
-    pub fn prefix<S: ToString>(self, prefix: &[S]) -> LoadQueryDyn {
-        let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
-        let selector = Selector::Prefix(prefix);
+    pub fn prefix<K: Into<CompositeKey>>(self, prefix: K) -> LoadQueryDyn {
+        let selector = Selector::Prefix(prefix.into());
 
         LoadQueryDyn::new(selector)
     }

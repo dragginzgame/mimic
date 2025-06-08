@@ -1,7 +1,7 @@
 use crate::{
     ThisError,
     data::{
-        query::Selector,
+        CompositeKey, Selector,
         store::{IndexKey, SortKey},
     },
     schema::{
@@ -114,8 +114,8 @@ pub struct SortKeyField {
 
 #[derive(Debug)]
 pub struct ResolvedEntity {
-    entity: Entity,
-    sk_fields: Vec<SortKeyField>,
+    pub entity: Entity,
+    pub sk_fields: Vec<SortKeyField>,
 }
 
 impl ResolvedEntity {
@@ -126,45 +126,63 @@ impl ResolvedEntity {
         Self { entity, sk_fields }
     }
 
+    // indexes
+    #[must_use]
+    pub fn indexes(&self) -> &[EntityIndex] {
+        &self.entity.indexes
+    }
+
+    // store_path
+    // returns the store path
+    #[must_use]
+    pub fn store_path(&self) -> &str {
+        &self.entity.store
+    }
+
     // id
     // returns the value of the id field (optional)
     #[must_use]
     pub fn id(&self, field_values: &HashMap<String, Option<String>>) -> Option<String> {
-        self.sort_key(field_values)
-            .0
+        self.sk_fields
             .last()
-            .and_then(|(_, val)| val.clone())
+            .and_then(|sk| sk.field.as_ref())
+            .and_then(|field_name| field_values.get(field_name))
+            .and_then(|v| v.clone())
     }
 
     // composite_key
     // returns the composite key ie. ["1", "25", "0xb4af..."]
     #[must_use]
-    pub fn composite_key(&self, field_values: &HashMap<String, Option<String>>) -> Vec<String> {
-        self.sort_key(field_values)
-            .0
-            .iter()
-            .filter_map(|(_, v)| v.clone())
-            .collect()
+    pub fn composite_key(&self, field_values: &HashMap<String, Option<String>>) -> CompositeKey {
+        let mut key = Vec::with_capacity(self.sk_fields.len());
+
+        for sk in &self.sk_fields {
+            if let Some(field_name) = &sk.field {
+                if let Some(Some(value)) = field_values.get(field_name) {
+                    key.push(value.clone());
+                }
+            }
+        }
+
+        key.into()
     }
 
     // sort_key
     // returns a sort key based on field values
     #[must_use]
     pub fn sort_key(&self, field_values: &HashMap<String, Option<String>>) -> SortKey {
-        let key_parts = self
-            .sk_fields
-            .iter()
-            .map(|sk| {
-                let value = sk
-                    .field
-                    .as_ref()
-                    .and_then(|f| field_values.get(f))
-                    .cloned()
-                    .flatten(); // unwraps Option<Option<String>> into Option<String>
+        let mut key_parts = Vec::with_capacity(self.sk_fields.len());
 
-                (sk.label.clone(), value)
-            })
-            .collect();
+        for sk in &self.sk_fields {
+            let value = sk
+                .field
+                .as_ref()
+                .and_then(|f| field_values.get(f))
+                .cloned()
+                .flatten();
+
+            key_parts.push((sk.label.clone(), value));
+        }
 
         SortKey::new(key_parts)
     }
@@ -245,18 +263,5 @@ impl ResolvedEntity {
                 ResolvedSelector::Range(start, end)
             }
         }
-    }
-
-    // indexes
-    #[must_use]
-    pub fn indexes(&self) -> &[EntityIndex] {
-        &self.entity.indexes
-    }
-
-    // store_path
-    // returns the store path
-    #[must_use]
-    pub fn store_path(&self) -> &str {
-        &self.entity.store
     }
 }

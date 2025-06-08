@@ -1,3 +1,4 @@
+use crate::data::types::CompositeKey;
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use icu::{impl_storable_bounded, impl_storable_unbounded};
@@ -51,15 +52,15 @@ impl_storable_bounded!(IndexKey, 256, false);
 ///
 
 #[derive(CandidType, Clone, Debug, Default, Deref, DerefMut, Serialize, Deserialize)]
-pub struct IndexValue(pub HashSet<String>);
+pub struct IndexValue(pub HashSet<CompositeKey>);
 
-impl_storable_unbounded!(IndexValue);
-
-impl<S: ToString> From<Vec<S>> for IndexValue {
+impl<S: Into<CompositeKey>> From<Vec<S>> for IndexValue {
     fn from(v: Vec<S>) -> Self {
-        Self(v.into_iter().map(|x| x.to_string()).collect())
+        Self(v.into_iter().map(|x| x.into()).collect())
     }
 }
+
+impl_storable_unbounded!(IndexValue);
 
 ///
 /// SortKey

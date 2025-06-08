@@ -1,6 +1,9 @@
 #![allow(clippy::type_complexity)]
 use crate::{
-    data::query::{LoadFormat, Selector, Where},
+    data::{
+        query::LoadFormat,
+        types::{CompositeKey, Selector, Where},
+    },
     schema::types::SortDirection,
 };
 use candid::CandidType;
@@ -39,34 +42,34 @@ impl LoadQueryBuilder {
     }
 
     // one
-    pub fn one<T: ToString>(self, ck: &[T]) -> LoadQuery {
-        let ck_str: Vec<String> = ck.iter().map(ToString::to_string).collect();
-        let selector = Selector::One(ck_str);
+    pub fn one<K: Into<CompositeKey>>(self, ck: K) -> LoadQuery {
+        let selector = Selector::One(ck.into());
 
         LoadQuery::new(selector)
     }
 
     // many
     #[must_use]
-    pub fn many(self, cks: &[Vec<String>]) -> LoadQuery {
-        let selector = Selector::Many(cks.to_vec());
+    pub fn many<K>(self, cks: &[K]) -> LoadQuery
+    where
+        K: Clone + Into<CompositeKey>,
+    {
+        let cks = cks.iter().cloned().map(Into::into).collect();
+        let selector = Selector::Many(cks);
 
         LoadQuery::new(selector)
     }
 
     // range
-    pub fn range<T: ToString>(self, start: &[T], end: &[T]) -> LoadQuery {
-        let start = start.iter().map(ToString::to_string).collect();
-        let end = end.iter().map(ToString::to_string).collect();
-        let selector = Selector::Range(start, end);
+    pub fn range<K: Into<CompositeKey>>(self, start: K, end: K) -> LoadQuery {
+        let selector = Selector::Range(start.into(), end.into());
 
         LoadQuery::new(selector)
     }
 
     // prefix
-    pub fn prefix<T: ToString>(self, prefix: &[T]) -> LoadQuery {
-        let prefix: Vec<String> = prefix.iter().map(ToString::to_string).collect();
-        let selector = Selector::Prefix(prefix);
+    pub fn prefix<K: Into<CompositeKey>>(self, prefix: K) -> LoadQuery {
+        let selector = Selector::Prefix(prefix.into());
 
         LoadQuery::new(selector)
     }

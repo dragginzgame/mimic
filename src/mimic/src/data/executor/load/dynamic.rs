@@ -60,28 +60,6 @@ impl LoadExecutorDyn {
     ) -> Result<LoadCollectionDyn, DataError> {
         self.debug.println(&format!("query.load_dyn: {query:?}"));
 
-        // resolver
-        let resolved = with_resolver(|r| r.entity(E::PATH))?;
-        let store = self
-            .data
-            .with(|db| db.try_get_store(resolved.store_path()))?;
-        let selector = resolved.selector(&query.selector);
-
-        // loader
-        let loader = Loader::new(store, self.debug);
-        let res = loader.load(&selector);
-
-        // paginate and filter incorrect paths
-        let rows = res
-            .into_iter()
-            .filter(|row| {
-                query.include_children && row.value.path.starts_with(E::PATH)
-                    || row.value.path == E::PATH
-            })
-            .skip(query.offset as usize)
-            .take(query.limit.unwrap_or(u32::MAX) as usize)
-            .collect();
-
-        Ok(LoadCollectionDyn(rows))
+        Ok(LoadCollectionDyn(vec![]))
     }
 }

@@ -126,7 +126,7 @@ impl DbTester {
         // Step 4: Delete e1 (y=10)
         query_delete!()
             .debug()
-            .execute::<Index>(query::delete().one(&[e1.id]))
+            .execute::<Index>(query::delete().one(vec![e1.id]))
             .unwrap();
 
         // Step 5: Try inserting e3 again (y=10 should now be free)

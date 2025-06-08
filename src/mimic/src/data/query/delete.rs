@@ -1,4 +1,4 @@
-use crate::data::query::Selector;
+use crate::data::types::{CompositeKey, Selector};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
@@ -34,25 +34,20 @@ impl DeleteQueryBuilder {
     }
 
     // one
-    pub fn one<S: ToString>(self, ck: &[S]) -> DeleteQuery {
-        let key = ck.iter().map(ToString::to_string).collect();
-        let selector = Selector::One(key);
+    pub fn one<K: Into<CompositeKey>>(self, ck: K) -> DeleteQuery {
+        let selector = Selector::One(ck.into());
 
         DeleteQuery::new(selector)
     }
 
     // many
     #[must_use]
-    pub fn many<I, S>(self, cks: I) -> DeleteQuery
+    pub fn many<K, I>(self, cks: I) -> DeleteQuery
     where
-        I: IntoIterator,
-        I::Item: IntoIterator<Item = S>,
-        S: ToString,
+        K: Into<CompositeKey>,
+        I: IntoIterator<Item = K>,
     {
-        let keys: Vec<Vec<String>> = cks
-            .into_iter()
-            .map(|inner| inner.into_iter().map(|s| s.to_string()).collect())
-            .collect();
+        let keys = cks.into_iter().map(|ck| ck.into()).collect();
 
         DeleteQuery::new(Selector::Many(keys))
     }

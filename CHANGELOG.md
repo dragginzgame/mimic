@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.4.5]
 - grouped data, store, response and executor under data/
 - removed generics from queries, and put them onto the executor instead
+- made IndexStore and DataStore newtypes
+- added IndexValue that is a HashMap<String> to store index values
 
 ## [0.4.4]
 - massive refactor!

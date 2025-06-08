@@ -2,14 +2,13 @@ use crate::{
     Error,
     data::{
         DataError,
-        executor::{DebugContext, Loader, ResolvedEntity, types::EntityRow, with_resolver},
-        query::{LoadQuery, Where},
+        executor::{DebugContext, Loader, types::EntityRow, with_resolver},
+        query::LoadQuery,
         response::{LoadCollection, LoadResponse},
-        store::{DataStoreRegistry, IndexStoreRegistry, IndexValue},
+        store::{DataStoreRegistry, IndexStoreRegistry},
     },
     traits::EntityKind,
 };
-use std::collections::HashMap;
 
 ///
 /// LoadExecutor
@@ -17,18 +16,18 @@ use std::collections::HashMap;
 
 #[allow(clippy::type_complexity)]
 pub struct LoadExecutor {
-    data: DataStoreRegistry,
-    indexes: IndexStoreRegistry,
+    data_reg: DataStoreRegistry,
+    index_reg: IndexStoreRegistry,
     debug: DebugContext,
 }
 
 impl LoadExecutor {
     // new
     #[must_use]
-    pub fn new(data: DataStoreRegistry, indexes: IndexStoreRegistry) -> Self {
+    pub fn new(data_reg: DataStoreRegistry, index_reg: IndexStoreRegistry) -> Self {
         Self {
-            data,
-            indexes,
+            data_reg,
+            index_reg,
             debug: DebugContext::default(),
         }
     }
@@ -60,21 +59,15 @@ impl LoadExecutor {
         self,
         query: LoadQuery,
     ) -> Result<LoadCollection<E>, DataError> {
-        // resolver
         self.debug.println(&format!("query.load: {query:?}"));
-        let resolved = with_resolver(|r| r.entity(E::PATH))?;
-        let store = self
-            .data
-            .with(|db| db.try_get_store(resolved.store_path()))?;
 
-        // selector
-        let selector = resolved.selector(&query.selector);
-        self.debug
-            .println(&format!("query.load selector: {selector:?}"));
+        // resolver
+        let resolved_entity = with_resolver(|r| r.entity(E::PATH))?;
 
         // loader
-        let res = Loader::new(store, self.debug).load(&selector);
-        let rows = res
+        let loader = Loader::new(self.data_reg, self.index_reg, self.debug);
+        let rows = loader
+            .load(&resolved_entity, &query.selector, query.r#where.as_ref())?
             .into_iter()
             .filter(|row| row.value.path == E::PATH)
             .map(TryFrom::try_from)
@@ -86,40 +79,6 @@ impl LoadExecutor {
         let rows = apply_pagination(rows, &query);
 
         Ok(LoadCollection(rows))
-    }
-
-    // try_index_lookup
-    fn try_index_lookup(
-        &self,
-        resolved: &ResolvedEntity,
-        where_clause: &Where,
-    ) -> Result<Option<IndexValue>, DataError> {
-        // Build a map from field → Some(value) directly (for build_index_key)
-        let field_values: HashMap<_, _> = where_clause
-            .matches
-            .iter()
-            .map(|(k, v)| (k.clone(), Some(v.clone())))
-            .collect();
-
-        for index in resolved.indexes() {
-            // Ensure all index fields are present in the where clause
-            if index.fields.iter().all(|f| field_values.contains_key(f)) {
-                // Try to build the index key from ordered fields and optional values
-                let Some(index_key) = resolved.build_index_key(index, &field_values) else {
-                    self.debug.println(&format!(
-                        "query.load: skipping index {:?} due to null/empty value",
-                        index.fields
-                    ));
-                    continue;
-                };
-
-                let store = self.indexes.with(|map| map.try_get_store(&index.store))?;
-
-                return Ok(store.with_borrow(|s| s.get(&index_key)));
-            }
-        }
-
-        Ok(None)
     }
 }
 

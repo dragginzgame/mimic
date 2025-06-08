@@ -114,6 +114,10 @@ impl SaveExecutor {
             },
         };
 
+        //
+        // START INDEX
+        //
+
         // indexes
         for index in resolved.indexes() {
             // Try to build index key from key_values (handles missing/null gracefully)
@@ -129,38 +133,41 @@ impl SaveExecutor {
             let index_store = self.indexes.with(|map| map.try_get_store(&index.store))?;
 
             index_store.with_borrow_mut(|store| {
-                if let Some(id) = resolved.id(key_values) {
-                    let existing = store.get(&index_key);
+                let ck = resolved.composite_key(key_values);
+                let existing = store.get(&index_key);
 
-                    let index_value = match (existing, index.unique) {
-                        (Some(ids), true) => {
-                            if !ids.is_empty() && !ids.contains(&id) {
-                                return Err(ExecutorError::IndexViolation(index_key.clone()));
-                            }
-
-                            IndexValue::from(vec![id])
+                let index_value = match (existing, index.unique) {
+                    (Some(cks), true) => {
+                        if !cks.is_empty() && !cks.contains(&ck) {
+                            return Err(ExecutorError::IndexViolation(index_key.clone()));
                         }
 
-                        (Some(ids), false) => {
-                            let mut new_ids = ids.clone();
-                            new_ids.insert(id.clone());
+                        IndexValue::from(vec![ck])
+                    }
 
-                            new_ids
-                        }
+                    (Some(cks), false) => {
+                        let mut new_cks = cks.clone();
+                        new_cks.insert(ck.clone());
 
-                        (None, _) => IndexValue::from(vec![id]),
-                    };
+                        new_cks
+                    }
 
-                    store.insert(index_key.clone(), index_value.clone());
+                    (None, _) => IndexValue::from(vec![ck]),
+                };
 
-                    self.debug.println(&format!(
-                        "query.{mode}: add index {index_key} - {index_value:?}"
-                    ));
-                }
+                store.insert(index_key.clone(), index_value.clone());
+
+                self.debug.println(&format!(
+                    "query.{mode}: add index {index_key} - {index_value:?}"
+                ));
 
                 Ok(())
             })?;
         }
+
+        //
+        // END INDEX
+        //
 
         // prepare data value
         let path = entity.path_dyn();
