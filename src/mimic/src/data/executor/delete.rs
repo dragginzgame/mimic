@@ -4,7 +4,7 @@ use crate::{
         DataError,
         executor::{DebugContext, ResolvedSelector, with_resolver},
         query::{DeleteQuery, QueryError},
-        response::DeleteResponse,
+        response::{DeleteCollection, DeleteResponse, DeleteRow},
         store::{DataStoreRegistry, IndexStoreRegistry, SortKey},
     },
     deserialize,
@@ -40,17 +40,28 @@ impl DeleteExecutor {
     }
 
     // execute
-    pub fn execute<E: EntityKind>(self, query: DeleteQuery) -> Result<DeleteResponse, Error> {
+    pub fn execute<E: EntityKind>(self, query: DeleteQuery) -> Result<DeleteCollection, Error> {
         let res = self.execute_internal::<E>(query)?;
 
         Ok(res)
+    }
+
+    // execute_response
+    // for when we have to return to the front end
+    pub fn execute_response<E: EntityKind>(
+        self,
+        query: DeleteQuery,
+    ) -> Result<DeleteResponse, Error> {
+        let res = self.execute_internal::<E>(query)?;
+
+        Ok(DeleteResponse(res.0))
     }
 
     // execute_internal
     fn execute_internal<E: EntityKind>(
         &self,
         query: DeleteQuery,
-    ) -> Result<DeleteResponse, DataError> {
+    ) -> Result<DeleteCollection, DataError> {
         self.debug
             .println(&format!("query.delete: query is {query:?}"));
 
@@ -73,7 +84,7 @@ impl DeleteExecutor {
         //
         // execute for every different key
         //
-        let mut deleted_keys = Vec::new();
+        let mut deleted_rows = Vec::new();
 
         for sk in sort_keys {
             if let Some(data_value) = store.with_borrow(|store| store.get(&sk)) {
@@ -109,14 +120,14 @@ impl DeleteExecutor {
                     store.remove(&sk);
                 });
 
-                deleted_keys.push(sk);
+                deleted_rows.push(DeleteRow::new(sk));
             }
         }
 
         // debug
         self.debug
-            .println(&format!("query.delete: deleted keys {deleted_keys:?}"));
+            .println(&format!("query.delete: deleted keys {deleted_rows:?}"));
 
-        Ok(DeleteResponse(deleted_keys))
+        Ok(DeleteCollection(deleted_rows))
     }
 }

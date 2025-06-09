@@ -3,7 +3,7 @@ use crate::{
     data::{
         DataError,
         executor::{DebugContext, Loader, types::EntityRow, with_resolver},
-        query::LoadQuery,
+        query::{LoadFormat, LoadQuery},
         response::{LoadCollection, LoadResponse},
         store::{DataStoreRegistry, IndexStoreRegistry},
     },
@@ -42,17 +42,23 @@ impl LoadExecutor {
 
     // execute
     pub fn execute<E: EntityKind>(self, query: LoadQuery) -> Result<LoadCollection<E>, Error> {
-        let cll = self.execute_internal(query)?;
+        let cl = self.execute_internal(query)?;
 
-        Ok(cll)
+        Ok(cl)
     }
 
-    // response
-    pub fn response<E: EntityKind>(self, query: LoadQuery) -> Result<LoadResponse, Error> {
+    // execute_response
+    pub fn execute_response<E: EntityKind>(self, query: LoadQuery) -> Result<LoadResponse, Error> {
         let format = query.format;
-        let cll = self.execute_internal::<E>(query)?;
+        let cl = self.execute_internal::<E>(query)?;
 
-        Ok(cll.response(format))
+        let resp = match format {
+            LoadFormat::Rows => LoadResponse::Rows(cl.data_rows()),
+            LoadFormat::Keys => LoadResponse::Keys(cl.keys()),
+            LoadFormat::Count => LoadResponse::Count(cl.count()),
+        };
+
+        Ok(resp)
     }
 
     // execute_internal
@@ -98,8 +104,9 @@ fn apply_where<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec
     let Some(r#where) = query.r#where.as_ref() else {
         return rows;
     };
-    let original_len = rows.len();
+    let olen = rows.len();
 
+    // filter
     let filtered =
         rows.into_iter()
             .filter(|row| {
@@ -110,14 +117,10 @@ fn apply_where<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec
                 })
             })
             .collect::<Vec<_>>();
+    let flen = filtered.len();
 
-    if filtered.len() < original_len {
-        log!(
-            Log::Info,
-            "apply_where: filtered {} → {} rows",
-            original_len,
-            filtered.len()
-        );
+    if flen < olen {
+        log!(Log::Info, "apply_where: filtered {olen} → {flen} rows",);
     }
 
     filtered
@@ -128,10 +131,20 @@ fn apply_search<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Ve
     if query.search.is_empty() {
         return rows;
     }
+    let olen = rows.len();
 
-    rows.into_iter()
+    // filter
+    let filtered = rows
+        .into_iter()
         .filter(|row| row.value.entity.search_fields(&query.search))
-        .collect()
+        .collect::<Vec<_>>();
+    let flen = filtered.len();
+
+    if flen < olen {
+        log!(Log::Info, "apply_search: filtered {olen} → {flen} rows",);
+    }
+
+    filtered
 }
 
 // apply_sort

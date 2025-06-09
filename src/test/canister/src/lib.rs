@@ -3,7 +3,12 @@ mod default;
 mod validate;
 
 use icu::{ic::export_candid, prelude::*};
-use mimic::{Error as MimicError, data::query, prelude::*};
+use mimic::{
+    Error as MimicError,
+    data::query,
+    data::store::{IndexKey, IndexValue},
+    prelude::*,
+};
 use test_design::fixtures::Rarity;
 
 //
@@ -31,6 +36,17 @@ pub fn test() {
     log!(Log::Ok, "test: all tests passed successfully");
 }
 
+// indexes
+#[must_use]
+#[query]
+pub fn indexes() -> Vec<(IndexKey, IndexValue)> {
+    perf!();
+
+    let res: Vec<(IndexKey, IndexValue)> = TEST_INDEX.with_borrow(|i| i.iter().collect());
+
+    res
+}
+
 // rarity
 #[query]
 pub fn rarity() -> Result<Vec<Rarity>, MimicError> {
@@ -42,11 +58,9 @@ pub fn rarity() -> Result<Vec<Rarity>, MimicError> {
             query::load()
                 .all()
                 .search_field("name", "co")
-                .sort([("level", SortDirection::Desc)]),
+                .sort([("level", SortDirection::Asc)]),
         )?
-        .entities_iter()
-        .filter(|e| e.name.len() != 6)
-        .collect();
+        .entities();
 
     Ok(res)
 }

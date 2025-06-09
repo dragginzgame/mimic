@@ -3,7 +3,7 @@ use crate::{
     data::{
         DataError,
         executor::{DebugContext, Loader, with_resolver},
-        query::LoadQueryDyn,
+        query::{LoadFormat, LoadQueryDyn},
         response::{LoadCollectionDyn, LoadResponse},
         store::{DataRow, DataStoreRegistry, IndexStoreRegistry},
     },
@@ -40,17 +40,26 @@ impl LoadExecutorDyn {
 
     // execute
     pub fn execute<E: EntityKind>(self, query: LoadQueryDyn) -> Result<LoadCollectionDyn, Error> {
-        let res = self.execute_internal::<E>(query)?;
+        let cl = self.execute_internal::<E>(query)?;
 
-        Ok(res)
+        Ok(cl)
     }
 
-    // response
-    pub fn response<E: EntityKind>(self, query: LoadQueryDyn) -> Result<LoadResponse, Error> {
+    // execute_response
+    pub fn execute_response<E: EntityKind>(
+        self,
+        query: LoadQueryDyn,
+    ) -> Result<LoadResponse, Error> {
         let format = query.format;
-        let cll = self.execute_internal::<E>(query)?;
+        let cl = self.execute_internal::<E>(query)?;
 
-        Ok(cll.response(format))
+        let resp = match format {
+            LoadFormat::Rows => LoadResponse::Rows(cl.data_rows()),
+            LoadFormat::Keys => LoadResponse::Keys(cl.keys()),
+            LoadFormat::Count => LoadResponse::Count(cl.count()),
+        };
+
+        Ok(resp)
     }
 
     // execute_internal

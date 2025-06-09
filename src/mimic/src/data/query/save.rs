@@ -1,7 +1,4 @@
-use crate::{
-    Error, deserialize,
-    traits::{EntityKind, EntityKindDyn},
-};
+use crate::{Error, traits::EntityKind};
 use candid::CandidType;
 use derive_more::Display;
 use serde::{Deserialize, Serialize};
@@ -19,6 +16,36 @@ pub enum SaveMode {
     Create,
     Replace,
     Update,
+}
+
+///
+/// SaveQueryBuilder
+///
+
+#[derive(Debug)]
+pub struct SaveQueryBuilder {
+    mode: SaveMode,
+}
+
+impl SaveQueryBuilder {
+    // new
+    #[must_use]
+    pub const fn new(mode: SaveMode) -> Self {
+        Self { mode }
+    }
+
+    // bytes
+    #[must_use]
+    pub fn bytes(self, bytes: &[u8]) -> SaveQuery {
+        SaveQuery::new(self.mode, bytes)
+    }
+
+    // entity
+    pub fn entity<E: EntityKind>(self, entity: E) -> Result<SaveQuery, Error> {
+        let bytes = crate::serialize(&entity)?;
+
+        Ok(SaveQuery::new(self.mode, &bytes))
+    }
 }
 
 ///
@@ -42,54 +69,43 @@ impl SaveQuery {
 }
 
 ///
-/// SaveQueryPrepared
+/// SaveQueryTypedBuilder
 ///
 
 #[derive(Debug)]
-pub struct SaveQueryPrepared {
-    pub mode: SaveMode,
-    pub entity: Box<dyn EntityKindDyn>,
-}
-
-impl SaveQueryPrepared {
-    // new
-    #[must_use]
-    pub fn new(mode: SaveMode, entity: Box<dyn EntityKindDyn>) -> Self {
-        Self { mode, entity }
-    }
-}
-
-///
-/// SaveQueryBuilder
-///
-
-#[derive(Debug)]
-pub struct SaveQueryBuilder {
+pub struct SaveQueryTypedBuilder {
     mode: SaveMode,
 }
 
-impl SaveQueryBuilder {
+impl SaveQueryTypedBuilder {
     // new
     #[must_use]
     pub const fn new(mode: SaveMode) -> Self {
         Self { mode }
     }
 
-    // bytes
-    pub fn bytes<E: EntityKind + 'static>(self, bytes: &[u8]) -> Result<SaveQueryPrepared, Error> {
-        let entity = deserialize::<E>(bytes)?;
-
-        Ok(SaveQueryPrepared::new(self.mode, Box::new(entity)))
-    }
-
     // entity
-    pub fn entity<E: EntityKind + 'static>(self, entity: E) -> SaveQueryPrepared {
-        SaveQueryPrepared::new(self.mode, Box::new(entity))
+    pub fn entity<E: EntityKind>(self, entity: E) -> SaveQueryTyped<E> {
+        SaveQueryTyped::new(self.mode, entity)
     }
+}
 
-    // entity_dyn
+///
+/// SaveQueryTyped
+///
+
+#[derive(CandidType, Clone, Debug)]
+pub struct SaveQueryTyped<E: EntityKind> {
+    pub mode: SaveMode,
+    pub entity: E,
+}
+
+impl<E> SaveQueryTyped<E>
+where
+    E: EntityKind,
+{
     #[must_use]
-    pub fn entity_dyn(self, entity: Box<dyn EntityKindDyn>) -> SaveQueryPrepared {
-        SaveQueryPrepared::new(self.mode, entity)
+    pub fn new(mode: SaveMode, entity: E) -> Self {
+        Self { mode, entity }
     }
 }

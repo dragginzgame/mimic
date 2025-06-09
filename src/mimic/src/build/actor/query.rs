@@ -41,16 +41,13 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
 
             match kind {
                 QueryKind::Load => quote! {
-                    #entity_path => query_load!().response::<#ty>(query)
+                    #entity_path => query_load!().execute::<#ty>(query)?.response(query.format)
                 },
                 QueryKind::Save => quote! {
-                    #entity_path => {
-                        let query = ::mimic::data::query::save::<#ty>(query)?;
-                        query_save!().execute(query)
-                    }
+                    #entity_path => query_save!().execute_dyn::<#ty>(query)?
                 },
                 QueryKind::Delete => quote! {
-                    #entity_path => query_delete!().execute::<#ty>(query)
+                    #entity_path => query_delete!().execute::<#ty>(query)?
                 },
             }
         });
@@ -60,7 +57,7 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
                 #(#arms,)*
                 _ => Err(::mimic::interface::query::QueryError::EntityNotFound(path))
                     .map_err(::mimic::interface::InterfaceError::from)?,
-            }?;
+            };
 
             Ok(res)
         }

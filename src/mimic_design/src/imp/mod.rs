@@ -57,16 +57,6 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
     let def = node.def();
 
     match t {
-        Trait::KindDyn => {
-            let q = quote! {
-                fn path_dyn(&self) -> String {
-                    <Self as ::mimic::traits::Path>::path()
-                }
-            };
-
-            Some(Implementor::new(def, t).set_tokens(q).to_token_stream())
-        }
-
         Trait::Path => {
             let ident_str = format!("{}", def.ident);
             let q = quote! {

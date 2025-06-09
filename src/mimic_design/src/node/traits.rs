@@ -55,9 +55,8 @@ pub enum Trait {
 
     // kind
     // traits for the implementation of specific Schema Nodes
-    KindDyn,
+    EntityKind,
     EntityIdKind,
-    EntityKindDyn,
     EnumValueKind,
     PrimitiveKind,
 
@@ -87,7 +86,6 @@ static DEFAULT_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
     vec![
         Trait::Clone,
         Trait::Debug,
-        Trait::KindDyn,
         Trait::Path,
     ]
 });

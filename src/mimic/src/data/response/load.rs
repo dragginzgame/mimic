@@ -4,8 +4,8 @@ use crate::{
     data::{
         DataError,
         executor::{EntityRow, EntityValue},
-        query::{LoadFormat, LoadMap},
-        response::{LoadResponse, ResponseError},
+        query::LoadMap,
+        response::ResponseError,
         store::{DataRow, SortKey},
     },
     traits::EntityKind,
@@ -14,13 +14,14 @@ use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
 ///
-/// CollectionError
+/// LoadResponse
 ///
 
-#[derive(Debug, thiserror::Error)]
-pub enum CollectionError {
-    #[error("no data found in collection")]
-    Empty,
+#[derive(CandidType, Debug, Serialize, Deserialize)]
+pub enum LoadResponse {
+    Rows(Vec<DataRow>),
+    Keys(Vec<SortKey>),
+    Count(usize),
 }
 
 ///
@@ -34,16 +35,6 @@ impl<E> LoadCollection<E>
 where
     E: EntityKind,
 {
-    // response
-    #[must_use]
-    pub fn response(self, format: LoadFormat) -> LoadResponse {
-        match format {
-            LoadFormat::Rows => LoadResponse::Rows(self.data_rows()),
-            LoadFormat::Keys => LoadResponse::Keys(self.keys()),
-            LoadFormat::Count => LoadResponse::Count(self.count()),
-        }
-    }
-
     // as_dyn
     #[must_use]
     pub fn as_dyn(self) -> LoadCollectionDyn {
@@ -117,8 +108,7 @@ where
             .into_iter()
             .next()
             .map(|row| row.value.entity)
-            .ok_or(CollectionError::Empty)
-            .map_err(ResponseError::from)
+            .ok_or(ResponseError::EmptyCollection)
             .map_err(DataError::from)?;
 
         Ok(res)
@@ -165,16 +155,6 @@ impl<E: EntityKind> IntoIterator for LoadCollection<E> {
 pub struct LoadCollectionDyn(pub Vec<DataRow>);
 
 impl LoadCollectionDyn {
-    // response
-    #[must_use]
-    pub fn response(self, format: LoadFormat) -> LoadResponse {
-        match format {
-            LoadFormat::Rows => LoadResponse::Rows(self.data_rows()),
-            LoadFormat::Keys => LoadResponse::Keys(self.keys()),
-            LoadFormat::Count => LoadResponse::Count(self.count()),
-        }
-    }
-
     // count
     #[must_use]
     pub const fn count(&self) -> usize {
@@ -205,8 +185,7 @@ impl LoadCollectionDyn {
             .0
             .into_iter()
             .next()
-            .ok_or(CollectionError::Empty)
-            .map_err(ResponseError::from)
+            .ok_or(ResponseError::EmptyCollection)
             .map_err(DataError::from)?;
 
         Ok(res)

@@ -1,7 +1,4 @@
-use crate::{
-    traits::{EntityKindDyn, ValidateAuto, ValidateCustom, Visitable},
-    types::ErrorTree,
-};
+use crate::{traits::Visitable, types::ErrorTree};
 
 ///
 /// Event
@@ -94,21 +91,3 @@ impl Visitor for ValidateVisitor {
         self.path.pop();
     }
 }
-
-///
-/// EntityAdapter
-///
-/// because no dynamic trait upscaling
-/// `<https://github.com/rust-lang/rust/issues/65991>`
-///
-
-pub struct EntityAdapter<'a>(pub &'a dyn EntityKindDyn);
-
-impl Visitable for EntityAdapter<'_> {
-    fn drive(&self, visitor: &mut dyn Visitor) {
-        self.0.drive(visitor);
-    }
-}
-
-impl ValidateAuto for EntityAdapter<'_> {}
-impl ValidateCustom for EntityAdapter<'_> {}
