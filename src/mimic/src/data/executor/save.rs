@@ -125,7 +125,7 @@ impl SaveExecutor {
 
         // prepare data value
         let value = DataValue {
-            data: bytes,
+            bytes,
             path: E::path(),
             metadata: Metadata { created, modified },
         };

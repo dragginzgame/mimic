@@ -90,14 +90,13 @@ impl DeleteExecutor {
         for sk in sort_keys {
             if let Some(data_value) = store.with_borrow(|store| store.get(&sk)) {
                 // Step 1: Deserialize the entity
-                let data = &data_value.data;
-                let entity: E = deserialize(data)?;
+                let entity: E = deserialize(&data_value.bytes)?;
 
                 // Step 2: Extract field values
                 let field_values = entity.key_values();
 
-                // Step 3: Compute and delete index keys
-                self.remove_indexes(&resolved, &field_values, "delete")?;
+                // Step 3: Remove indexes
+                self.remove_indexes(&resolved, &field_values)?;
 
                 // Step 4: Delete the data row itself
                 store.with_borrow_mut(|store| {
@@ -120,9 +119,9 @@ impl DeleteExecutor {
         &self,
         resolved: &ResolvedEntity,
         field_values: &HashMap<String, Option<String>>,
-        mode: &str, // for logging
     ) -> Result<(), DataError> {
         for index in resolved.indexes() {
+            // skip invalid index keys
             let Some(index_key) = resolved.build_index_key(index, field_values) else {
                 continue;
             };
@@ -133,6 +132,7 @@ impl DeleteExecutor {
             index_store.with_borrow_mut(|store| {
                 if let Some(mut existing) = store.get(&index_key) {
                     existing.remove(&composite_key);
+
                     if existing.is_empty() {
                         store.remove(&index_key);
                     } else {
@@ -140,7 +140,7 @@ impl DeleteExecutor {
                     }
 
                     self.debug.println(&format!(
-                        "query.{mode}: removed index {index_key:?} - {composite_key:?}"
+                        "query.delete: removed index {index_key:?} - {composite_key:?}"
                     ));
                 }
 

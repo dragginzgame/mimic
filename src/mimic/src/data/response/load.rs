@@ -200,13 +200,13 @@ impl LoadCollectionDyn {
     // blob
     #[must_use]
     pub fn blob(self) -> Option<Vec<u8>> {
-        self.0.into_iter().next().map(|row| row.value.data)
+        self.0.into_iter().next().map(|row| row.value.bytes)
     }
 
     // blobs
     #[must_use]
     pub fn blobs(self) -> Vec<Vec<u8>> {
-        self.0.into_iter().map(|row| row.value.data).collect()
+        self.0.into_iter().map(|row| row.value.bytes).collect()
     }
 }
 
