@@ -3,7 +3,7 @@ use crate::{
     data::{
         DataError,
         executor::{DebugContext, EntityValue, ExecutorError, ResolvedEntity, with_resolver},
-        query::{SaveMode, SaveQuery, SaveQueryTyped},
+        query::{SaveMode, SaveQueryTyped},
         response::{SaveCollection, SaveResponse, SaveRow},
         store::{DataStoreRegistry, DataValue, IndexStoreRegistry, IndexValue, Metadata},
     },
@@ -42,10 +42,10 @@ impl SaveExecutor {
     }
 
     // execute
-    pub fn execute<E: EntityKind>(
-        &self,
-        query: SaveQueryTyped<E>,
-    ) -> Result<SaveCollection, Error> {
+    pub fn execute<E>(&self, query: SaveQueryTyped<E>) -> Result<SaveCollection, Error>
+    where
+        E: EntityKind,
+    {
         let res = self.execute_internal::<E>(query)?;
 
         Ok(res)
@@ -59,13 +59,6 @@ impl SaveExecutor {
         let res = self.execute_internal::<E>(query)?;
 
         Ok(SaveResponse(res.0))
-    }
-
-    // execute_dyn
-    pub fn execute_dyn<E: EntityKind>(&self, query: SaveQuery) -> Result<SaveCollection, Error> {
-        let typed = SaveQueryTyped::new(query.mode, crate::deserialize::<E>(&query.bytes)?);
-
-        self.execute(typed)
     }
 
     // execute_internal

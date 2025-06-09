@@ -68,6 +68,15 @@ impl SaveQuery {
     }
 }
 
+impl<E: EntityKind> TryInto<SaveQueryTyped<E>> for SaveQuery {
+    type Error = crate::Error;
+
+    fn try_into(self) -> Result<SaveQueryTyped<E>, Self::Error> {
+        let entity = crate::deserialize::<E>(&self.bytes)?;
+        Ok(SaveQueryTyped::new(self.mode, entity))
+    }
+}
+
 ///
 /// SaveQueryTypedBuilder
 ///

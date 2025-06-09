@@ -16,7 +16,6 @@ pub fn generate(builder: &ActorBuilder) -> TokenStream {
 
         /// Replaces fixtures for all registered entities.
         #[allow(clippy::too_many_lines)]
-        #[allow(clippy::missing_const_for_fn)]
         pub fn mimic_fixtures_replace_all() -> Result<(), ::mimic::Error> {
             #body
         }
@@ -33,8 +32,6 @@ fn generate_replace_all(builder: &ActorBuilder) -> TokenStream {
         let entity_ident: Path = parse_str(&entity_path).unwrap();
         inner.push(quote! {
             #entity_ident::insert_fixtures(&mut exec);
-
-            Ok(())
         });
     }
 
