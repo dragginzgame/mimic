@@ -96,9 +96,9 @@ impl From<SortKey> for Key {
     }
 }
 
-impl<S: ToString> From<&[S]> for Key {
-    fn from(ss: &[S]) -> Self {
-        Self(ss.iter().map(|s| s.to_string()).collect())
+impl<T: Clone + ToString> From<&[T]> for Key {
+    fn from(ss: &[T]) -> Self {
+        Self(ss.iter().cloned().map(|s| s.to_string()).collect())
     }
 }
 
