@@ -96,9 +96,15 @@ impl From<SortKey> for Key {
     }
 }
 
+impl<S: ToString> From<&[S]> for Key {
+    fn from(ss: &[S]) -> Self {
+        Self(ss.iter().map(|s| s.to_string()).collect())
+    }
+}
+
 impl<S: ToString> From<Vec<S>> for Key {
-    fn from(vec: Vec<S>) -> Self {
-        Self(vec.into_iter().map(|s| s.to_string()).collect())
+    fn from(ss: Vec<S>) -> Self {
+        Self(ss.into_iter().map(|s| s.to_string()).collect())
     }
 }
 
