@@ -30,6 +30,12 @@ impl<S: ToString> From<Vec<S>> for CompositeKey {
     }
 }
 
+impl<S: ToString> From<&[S]> for CompositeKey {
+    fn from(v: &[S]) -> Self {
+        Self(v.iter().map(|x| x.to_string()).collect())
+    }
+}
+
 impl_storable_unbounded!(CompositeKey);
 
 ///
