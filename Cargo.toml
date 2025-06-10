@@ -1,11 +1,11 @@
 [workspace]
 members = [
     "benches",
-    "src/mimic",
-    "src/mimic_base",
-    "src/mimic_design",
-    "src/test/canister",
-    "src/test/design",
+    "crates/mimic",
+    "crates/mimic_base",
+    "crates/mimic_design",
+    "crates/test/canister",
+    "crates/test/design",
     "tests",
 ]
 resolver = "2"
@@ -30,9 +30,9 @@ hex = "0.4"
 ic-cdk = "0.18.3"
 ic-stable-structures = "0.6.8"
 icu = { git = "https://github.com/dragginzgame/icu" }
-mimic = { path = "src/mimic" }
-mimic_base = { path = "src/mimic_base" }
-mimic_design = { path = "src/mimic_design" }
+mimic = { path = "crates/mimic" }
+mimic_base = { path = "crates/mimic_base" }
+mimic_design = { path = "crates/mimic_design" }
 num-traits = { version = "0.2", default-features = false, features = ["libm"] }
 proc-macro2 = "1.0"
 quote = "1.0"
@@ -47,8 +47,8 @@ serde_bytes = "0.11"
 serde_json = "1.0"
 sha2 = "0.10"
 syn = "2.0"
-test_canister = { path = "src/test/canister" }
-test_design = { path = "src/test/design" }
+test_canister = { path = "crates/test/canister" }
+test_design = { path = "crates/test/design" }
 thiserror = "2.0"
 tinyrand = "0.5"
 # removed std because it imports rand.  serde feature doesn't compile without it
