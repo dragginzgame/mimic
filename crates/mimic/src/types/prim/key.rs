@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use std::{borrow::Borrow, collections::HashSet, fmt, str::FromStr};
 
 ///
-/// Relation
+/// Key
 ///
 
 #[derive(
@@ -26,9 +26,9 @@ use std::{borrow::Borrow, collections::HashSet, fmt, str::FromStr};
     Serialize,
     Deserialize,
 )]
-pub struct Relation(pub Vec<String>);
+pub struct Key(pub Vec<String>);
 
-impl Relation {
+impl Key {
     #[must_use]
     pub fn contains(&self, s: &str) -> bool {
         self.0.contains(&s.to_string())
@@ -54,38 +54,38 @@ impl Relation {
     }
 }
 
-impl Borrow<[String]> for Relation {
+impl AsRef<[String]> for Key {
+    fn as_ref(&self) -> &[String] {
+        &self.0
+    }
+}
+
+impl Borrow<[String]> for Key {
     fn borrow(&self) -> &[String] {
         &self.0
     }
 }
 
-impl Borrow<Vec<String>> for Relation {
-    fn borrow(&self) -> &Vec<String> {
-        &self.0
-    }
-}
-
-impl fmt::Display for Relation {
+impl fmt::Display for Key {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let formatted = self.0.join(", ");
         write!(f, "[{formatted}]")
     }
 }
 
-impl FormatSortKey for Relation {
+impl FormatSortKey for Key {
     fn format_sort_key(&self) -> Option<String> {
         None
     }
 }
 
-impl From<Ulid> for Relation {
+impl From<Ulid> for Key {
     fn from(ulid: Ulid) -> Self {
         Self(vec![ulid.to_string()])
     }
 }
 
-impl From<SortKey> for Relation {
+impl From<SortKey> for Key {
     fn from(key: SortKey) -> Self {
         Self(
             key.0
@@ -96,13 +96,13 @@ impl From<SortKey> for Relation {
     }
 }
 
-impl<S: ToString> From<Vec<S>> for Relation {
+impl<S: ToString> From<Vec<S>> for Key {
     fn from(vec: Vec<S>) -> Self {
         Self(vec.into_iter().map(|s| s.to_string()).collect())
     }
 }
 
-impl FromStr for Relation {
+impl FromStr for Key {
     type Err = std::convert::Infallible;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -110,18 +110,18 @@ impl FromStr for Relation {
     }
 }
 
-impl Orderable for Relation {}
+impl Orderable for Key {}
 
-impl Searchable for Relation {}
+impl Searchable for Key {}
 
-impl ValidateCustom for Relation {}
+impl ValidateCustom for Key {}
 
-impl ValidateAuto for Relation {}
+impl ValidateAuto for Key {}
 
-impl Visitable for Relation {}
+impl Visitable for Key {}
 
 ///
-/// RelationSet
+/// KeySet
 ///
 
 #[derive(
@@ -137,35 +137,30 @@ impl Visitable for Relation {}
     Serialize,
     Deserialize,
 )]
-pub struct RelationSet(HashSet<Relation>);
+pub struct KeySet(HashSet<Key>);
 
-impl RelationSet {
-    pub fn add(&mut self, relation: Relation) {
-        self.0.insert(relation);
+impl KeySet {
+    pub fn add(&mut self, key: Key) {
+        self.0.insert(key);
     }
 
     #[must_use]
-    pub fn contains_str(&self, s: &str) -> bool {
-        self.0.iter().any(|r| r.contains(s))
+    pub fn contains_key(&self, key: &Key) -> bool {
+        self.0.contains(key)
     }
 
     #[must_use]
-    pub fn contains_relation(&self, relation: &Relation) -> bool {
-        self.0.contains(relation)
-    }
-
-    #[must_use]
-    pub fn find_by_prefix(&self, prefix: &[&str]) -> Vec<&Relation> {
+    pub fn find_by_prefix(&self, prefix: &[&str]) -> Vec<&Key> {
         self.0.iter().filter(|r| r.starts_with(prefix)).collect()
     }
 }
 
-impl fmt::Display for RelationSet {
+impl fmt::Display for KeySet {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let formatted = self
             .0
             .iter()
-            .map(Relation::to_string)
+            .map(Key::to_string)
             .collect::<Vec<_>>()
             .join(", ");
 
@@ -173,20 +168,17 @@ impl fmt::Display for RelationSet {
     }
 }
 
-impl<S: ToString> From<Vec<S>> for RelationSet {
+impl<S: ToString> From<Vec<S>> for KeySet {
     fn from(vec: Vec<S>) -> Self {
-        let rels = vec
-            .into_iter()
-            .map(|s| Relation(vec![s.to_string()]))
-            .collect();
+        let keys = vec.into_iter().map(|s| Key(vec![s.to_string()])).collect();
 
-        Self(rels)
+        Self(keys)
     }
 }
 
-impl<'a> IntoIterator for &'a RelationSet {
-    type Item = &'a Relation;
-    type IntoIter = std::collections::hash_set::Iter<'a, Relation>;
+impl<'a> IntoIterator for &'a KeySet {
+    type Item = &'a Key;
+    type IntoIter = std::collections::hash_set::Iter<'a, Key>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.0.iter()

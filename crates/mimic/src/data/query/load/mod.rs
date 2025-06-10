@@ -4,7 +4,7 @@ mod generic;
 pub use dynamic::*;
 pub use generic::*;
 
-use crate::types::prim::Relation;
+use crate::types::prim::Key;
 use candid::CandidType;
 use derive_more::Deref;
 use serde::{Deserialize, Serialize};
@@ -29,28 +29,28 @@ pub enum LoadFormat {
 ///
 
 #[derive(Debug, Deref)]
-pub struct LoadMap<T>(HashMap<Relation, T>);
+pub struct LoadMap<T>(HashMap<Key, T>);
 
 impl<T> LoadMap<T> {
     // from_pairs
     pub fn from_pairs<I>(pairs: I) -> Self
     where
-        I: IntoIterator<Item = (Relation, T)>,
+        I: IntoIterator<Item = (Key, T)>,
     {
-        let map: HashMap<Relation, T> = pairs.into_iter().collect();
+        let map: HashMap<Key, T> = pairs.into_iter().collect();
 
         Self(map)
     }
 
     // get
-    pub fn get<R: Borrow<Relation>>(&self, r: R) -> Option<&T> {
+    pub fn get<R: Borrow<Key>>(&self, r: R) -> Option<&T> {
         self.0.get(r.borrow())
     }
 
     // get_many
     pub fn get_many<Q, I>(&self, keys: I) -> Vec<&T>
     where
-        Q: Borrow<Relation>,
+        Q: Borrow<Key>,
         I: IntoIterator<Item = Q>,
     {
         keys.into_iter()

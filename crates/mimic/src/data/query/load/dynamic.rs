@@ -1,6 +1,9 @@
-use crate::data::{
-    query::LoadFormat,
-    types::{CompositeKey, Selector, Where},
+use crate::{
+    data::{
+        query::LoadFormat,
+        types::{Selector, Where},
+    },
+    types::prim::Key,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -38,33 +41,33 @@ impl LoadQueryDynBuilder {
     }
 
     // one
-    pub fn one<K: Into<CompositeKey>>(self, ck: K) -> LoadQueryDyn {
-        let selector = Selector::One(ck.into());
+    pub fn one<K: Into<Key>>(self, key: K) -> LoadQueryDyn {
+        let selector = Selector::One(key.into());
 
         LoadQueryDyn::new(selector)
     }
 
     // many
     #[must_use]
-    pub fn many<K>(self, cks: &[K]) -> LoadQueryDyn
+    pub fn many<K>(self, keys: &[K]) -> LoadQueryDyn
     where
-        K: Clone + Into<CompositeKey>,
+        K: Clone + Into<Key>,
     {
-        let cks = cks.iter().cloned().map(Into::into).collect();
-        let selector = Selector::Many(cks);
+        let keys = keys.iter().cloned().map(Into::into).collect();
+        let selector = Selector::Many(keys);
 
         LoadQueryDyn::new(selector)
     }
 
     // range
-    pub fn range<K: Into<CompositeKey>>(self, start: K, end: K) -> LoadQueryDyn {
+    pub fn range<K: Into<Key>>(self, start: K, end: K) -> LoadQueryDyn {
         let selector = Selector::Range(start.into(), end.into());
 
         LoadQueryDyn::new(selector)
     }
 
     // prefix
-    pub fn prefix<K: Into<CompositeKey>>(self, prefix: K) -> LoadQueryDyn {
+    pub fn prefix<K: Into<Key>>(self, prefix: K) -> LoadQueryDyn {
         let selector = Selector::Prefix(prefix.into());
 
         LoadQueryDyn::new(selector)

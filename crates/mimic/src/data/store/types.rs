@@ -1,4 +1,4 @@
-use crate::data::types::CompositeKey;
+use crate::types::prim::Key;
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use icu::{impl_storable_bounded, impl_storable_unbounded};
@@ -52,9 +52,16 @@ impl_storable_bounded!(IndexKey, 256, false);
 ///
 
 #[derive(CandidType, Clone, Debug, Default, Deref, DerefMut, Serialize, Deserialize)]
-pub struct IndexValue(pub HashSet<CompositeKey>);
+pub struct IndexValue(pub HashSet<Key>);
 
-impl<S: Into<CompositeKey>> From<Vec<S>> for IndexValue {
+impl IndexValue {
+    #[must_use]
+    pub fn from_key(key: Key) -> Self {
+        IndexValue::from(vec![key])
+    }
+}
+
+impl<S: Into<Key>> From<Vec<S>> for IndexValue {
     fn from(v: Vec<S>) -> Self {
         Self(v.into_iter().map(|x| x.into()).collect())
     }

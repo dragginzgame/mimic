@@ -4,11 +4,14 @@ mod generic;
 pub use dynamic::*;
 pub use generic::*;
 
-use crate::data::{
-    DataError,
-    executor::{DebugContext, ResolvedEntity, ResolvedSelector},
-    store::{DataRow, DataStoreLocal, DataStoreRegistry, IndexStoreRegistry, SortKey},
-    types::{CompositeKey, Selector, Where},
+use crate::{
+    data::{
+        DataError,
+        executor::{DebugContext, ResolvedEntity, ResolvedSelector},
+        store::{DataRow, DataStoreLocal, DataStoreRegistry, IndexStoreRegistry, SortKey},
+        types::{Selector, Where},
+    },
+    types::prim::Key,
 };
 use std::collections::HashMap;
 
@@ -117,7 +120,7 @@ impl Loader {
                 let index_store = self.index_reg.with(|map| map.try_get_store(&index.store))?;
 
                 if let Some(index_value) = index_store.with_borrow(|s| s.get(&index_key)) {
-                    let keys: Vec<CompositeKey> = index_value.iter().cloned().collect();
+                    let keys: Vec<Key> = index_value.iter().cloned().collect();
 
                     self.debug.println(&format!(
                         "query.load: index hit for {:?} → {} key(s)",

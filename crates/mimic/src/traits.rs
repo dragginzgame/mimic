@@ -24,7 +24,7 @@ use crate::{
     schema::types::SortDirection,
     types::{
         ErrorTree,
-        prim::{Relation, Ulid},
+        prim::{Key, Ulid},
     },
     visit::Visitor,
 };
@@ -105,8 +105,8 @@ pub trait EntityIdKind: Kind + Display {
     }
 
     #[must_use]
-    fn relation(&self) -> Relation {
-        Relation::from(vec![self.ulid()])
+    fn key(&self) -> Key {
+        Key::from(vec![self.ulid()])
     }
 }
 

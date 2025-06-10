@@ -126,12 +126,12 @@ impl DeleteExecutor {
                 continue;
             };
 
-            let composite_key = resolved.composite_key(field_values);
+            let entity_key = resolved.key(field_values);
             let index_store = self.index_reg.with(|ix| ix.try_get_store(&index.store))?;
 
             index_store.with_borrow_mut(|store| {
                 if let Some(mut existing) = store.get(&index_key) {
-                    existing.remove(&composite_key);
+                    existing.remove(&entity_key);
 
                     if existing.is_empty() {
                         store.remove(&index_key);
@@ -140,7 +140,7 @@ impl DeleteExecutor {
                     }
 
                     self.debug.println(&format!(
-                        "query.delete: removed index {index_key:?} - {composite_key:?}"
+                        "query.delete: removed value {entity_key} from index {index_key:?}"
                     ));
                 }
 

@@ -2,9 +2,10 @@
 use crate::{
     data::{
         query::LoadFormat,
-        types::{CompositeKey, Selector, Where},
+        types::{Selector, Where},
     },
     schema::types::SortDirection,
+    types::prim::Key,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -42,33 +43,33 @@ impl LoadQueryBuilder {
     }
 
     // one
-    pub fn one<K: Into<CompositeKey>>(self, ck: K) -> LoadQuery {
-        let selector = Selector::One(ck.into());
+    pub fn one<K: Into<Key>>(self, key: K) -> LoadQuery {
+        let selector = Selector::One(key.into());
 
         LoadQuery::new(selector)
     }
 
     // many
     #[must_use]
-    pub fn many<K>(self, cks: &[K]) -> LoadQuery
+    pub fn many<K>(self, keys: &[K]) -> LoadQuery
     where
-        K: Clone + Into<CompositeKey>,
+        K: Clone + Into<Key>,
     {
-        let cks = cks.iter().cloned().map(Into::into).collect();
-        let selector = Selector::Many(cks);
+        let keys = keys.iter().cloned().map(Into::into).collect();
+        let selector = Selector::Many(keys);
 
         LoadQuery::new(selector)
     }
 
     // range
-    pub fn range<K: Into<CompositeKey>>(self, start: K, end: K) -> LoadQuery {
+    pub fn range<K: Into<Key>>(self, start: K, end: K) -> LoadQuery {
         let selector = Selector::Range(start.into(), end.into());
 
         LoadQuery::new(selector)
     }
 
     // prefix
-    pub fn prefix<K: Into<CompositeKey>>(self, prefix: K) -> LoadQuery {
+    pub fn prefix<K: Into<Key>>(self, prefix: K) -> LoadQuery {
         let selector = Selector::Prefix(prefix.into());
 
         LoadQuery::new(selector)

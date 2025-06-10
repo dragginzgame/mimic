@@ -156,21 +156,21 @@ impl SaveExecutor {
 
             // 🔁 Remove old index entry if applicable
             if let Some(old) = old_values {
-                if let Some(old_key) = resolved.build_index_key(index, old) {
-                    let old_ck = resolved.composite_key(old);
+                if let Some(old_index_key) = resolved.build_index_key(index, old) {
+                    let old_key = resolved.key(old);
 
                     index_store.with_borrow_mut(|istore| {
-                        if let Some(mut existing) = istore.get(&old_key) {
-                            existing.remove(&old_ck);
+                        if let Some(mut existing) = istore.get(&old_index_key) {
+                            existing.remove(&old_key);
 
                             if existing.is_empty() {
-                                istore.remove(&old_key);
+                                istore.remove(&old_index_key);
                             } else {
-                                istore.insert(old_key.clone(), existing);
+                                istore.insert(old_index_key.clone(), existing);
                             }
 
                             self.debug.println(&format!(
-                                "query.{mode:?}: removed index {old_key:?} - {old_ck:?}"
+                                "query.{mode:?}: removed key {old_key:?} from index {old_index_key:?}"
                             ));
                         }
 
@@ -180,28 +180,34 @@ impl SaveExecutor {
             }
 
             // ✅ Insert new index entry
-            if let Some(new_key) = resolved.build_index_key(index, new_values) {
-                let new_ck = resolved.composite_key(new_values);
+            if let Some(new_index_key) = resolved.build_index_key(index, new_values) {
+                let new_key = resolved.key(new_values);
 
                 index_store.with_borrow_mut(|istore| {
-                    let index_value = match istore.get(&new_key) {
-                        Some(existing) if index.unique => {
-                            if !existing.contains(&new_ck) && !existing.is_empty() {
-                                return Err(ExecutorError::IndexViolation(new_key.clone()));
+                    let index_value = match istore.get(&new_index_key) {
+                        Some(existing) => {
+                            if index.unique {
+                                if !existing.contains(&new_key) && !existing.is_empty() {
+                                    return Err(ExecutorError::IndexViolation(
+                                        new_index_key.clone(),
+                                    ));
+                                }
+
+                                IndexValue::from_key(new_key.clone())
+                            } else {
+                                let mut updated = existing.clone();
+                                updated.insert(new_key.clone());
+
+                                updated
                             }
-                            IndexValue::from(vec![new_ck])
                         }
-                        Some(mut existing) => {
-                            existing.insert(new_ck.clone());
-                            existing
-                        }
-                        None => IndexValue::from(vec![new_ck]),
+                        None => IndexValue::from_key(new_key.clone()),
                     };
 
-                    istore.insert(new_key.clone(), index_value.clone());
+                    istore.insert(new_index_key.clone(), index_value.clone());
 
                     self.debug.println(&format!(
-                        "query.{mode:?}: added index {new_key:?} - {index_value:?}"
+                        "query.{mode:?}: added key {new_key:?} to {index_value:?}"
                     ));
 
                     Ok(())

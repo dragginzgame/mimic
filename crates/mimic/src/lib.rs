@@ -43,7 +43,7 @@ pub mod prelude {
         },
         types::{
             ErrorTree,
-            prim::{Relation, RelationSet, Ulid},
+            prim::{Key, KeySet, Ulid},
         },
     };
     pub use ::candid::CandidType;

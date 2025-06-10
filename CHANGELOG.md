@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - removed generics from queries, and put them onto the executor instead
 - made IndexStore and DataStore newtypes
 - added IndexValue that is a HashMap<String> to store index values
+- Relation and CompositeKey have been merged to just Key
 
 ## [0.4.4]
 - massive refactor!

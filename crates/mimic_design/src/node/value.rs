@@ -54,7 +54,7 @@ impl ToTokens for Value {
             Cardinality::Opt => quote!(Option<#item>),
             Cardinality::Many => {
                 if item.is_relation() {
-                    quote!(::mimic::types::prim::RelationSet)
+                    quote!(::mimic::types::prim::KeySet)
                 } else {
                     quote!(Vec<#item>)
                 }

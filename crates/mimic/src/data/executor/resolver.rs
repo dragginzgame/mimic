@@ -1,13 +1,14 @@
 use crate::{
     ThisError,
     data::{
-        CompositeKey, Selector,
+        Selector,
         store::{IndexKey, SortKey},
     },
     schema::{
         node::{Entity, EntityIndex, Schema},
         state::{StateError as SchemaStateError, get_schema},
     },
+    types::prim::Key,
 };
 use std::{cell::RefCell, collections::HashMap};
 
@@ -150,10 +151,10 @@ impl ResolvedEntity {
             .and_then(|v| v.clone())
     }
 
-    // composite_key
-    // returns the composite key ie. ["1", "25", "0xb4af..."]
+    // key
+    // returns the key ie. ["1", "25", "0xb4af..."]
     #[must_use]
-    pub fn composite_key(&self, field_values: &HashMap<String, Option<String>>) -> CompositeKey {
+    pub fn key(&self, field_values: &HashMap<String, Option<String>>) -> Key {
         let mut key = Vec::with_capacity(self.sk_fields.len());
 
         for sk in &self.sk_fields {
@@ -188,7 +189,7 @@ impl ResolvedEntity {
     }
 
     // build_sort_key
-    // builds a sort key based on a specific composite key
+    // builds a sort key based on a specific key
     #[must_use]
     pub fn build_sort_key(&self, values: &[String]) -> SortKey {
         let key_parts = self
@@ -244,9 +245,9 @@ impl ResolvedEntity {
                 ResolvedSelector::Range(start, end)
             }
             Selector::Only => ResolvedSelector::One(self.build_sort_key(&[])),
-            Selector::One(ck) => ResolvedSelector::One(self.build_sort_key(ck)),
-            Selector::Many(cks) => {
-                let keys = cks.iter().map(|ck| self.build_sort_key(ck)).collect();
+            Selector::One(key) => ResolvedSelector::One(self.build_sort_key(key)),
+            Selector::Many(keys) => {
+                let keys = keys.iter().map(|k| self.build_sort_key(k)).collect();
 
                 ResolvedSelector::Many(keys)
             }
@@ -256,9 +257,9 @@ impl ResolvedEntity {
 
                 ResolvedSelector::Range(start, end)
             }
-            Selector::Range(start_ck, end_ck) => {
-                let start = self.build_sort_key(start_ck);
-                let end = self.build_sort_key(end_ck);
+            Selector::Range(start, end) => {
+                let start = self.build_sort_key(start);
+                let end = self.build_sort_key(end);
 
                 ResolvedSelector::Range(start, end)
             }
