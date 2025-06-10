@@ -110,7 +110,7 @@ impl LoadQuery {
 
     // where
     #[must_use]
-    pub fn r#where<W: Into<Where>>(mut self, r#where: W) -> Self {
+    pub fn where_<W: Into<Where>>(mut self, r#where: W) -> Self {
         self.r#where = Some(r#where.into());
         self
     }
