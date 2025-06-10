@@ -34,8 +34,8 @@ pub struct Where {
     pub matches: Vec<(String, String)>,
 }
 
-impl<S: ToString> From<Vec<(S, S)>> for Where {
-    fn from(pairs: Vec<(S, S)>) -> Self {
+impl<K: ToString, V: ToString> From<Vec<(K, V)>> for Where {
+    fn from(pairs: Vec<(K, V)>) -> Self {
         Self {
             matches: pairs
                 .into_iter()
