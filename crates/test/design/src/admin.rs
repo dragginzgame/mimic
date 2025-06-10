@@ -77,9 +77,9 @@ pub struct AdminEntity {}
     store = "crate::schema::TestStore",
     sk(entity = "RelatedEntity", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-    field(name = "simple_rel", value(item(rel = "SimpleEntity"))),
-    field(name = "opt_simple_rel", value(opt, item(rel = "SimpleEntity"))),
-    field(name = "simple_rels", value(many, item(rel = "SimpleEntity")))
+    field(name = "simple_key", value(item(rel = "SimpleEntity"))),
+    field(name = "opt_simple_key", value(opt, item(rel = "SimpleEntity"))),
+    field(name = "simple_keys", value(many, item(rel = "SimpleEntity")))
 )]
 pub struct RelatedEntity {}
 

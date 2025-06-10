@@ -8,8 +8,8 @@ use serde::{Deserialize, Serialize};
 /// All    : no sort key prefix, only works with top-level Sort Keys
 /// Only   : for entities that have no keys
 /// One    : returns one row by composite key
-/// Many   : returns many rows (from many composite keys)
-/// Prefix : like all but we're asking for the composite key prefix
+/// Many   : returns many rows (from many keys)
+/// Prefix : like all but we're asking for the key prefix
 ///          so Pet (Character=1) will return the Pets from Character 1
 /// Range  : user-defined range, ie. Item=1000 Item=1500
 ///
