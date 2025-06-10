@@ -2,14 +2,14 @@ use crate::{
     Error,
     data::{
         DataError,
-        executor::{DebugContext, Loader, ResolvedEntity, types::EntityRow, with_resolver},
-        query::{LoadQuery, Where},
+        executor::{DebugContext, Loader, types::EntityRow, with_resolver},
+        query::{LoadFormat, LoadQuery},
         response::{LoadCollection, LoadResponse},
-        store::{DataStoreRegistry, IndexStoreRegistry, IndexValue},
+        store::{DataStoreRegistry, IndexStoreRegistry},
     },
     traits::EntityKind,
 };
-use std::collections::HashMap;
+use icu::{Log, log};
 
 ///
 /// LoadExecutor
@@ -17,18 +17,18 @@ use std::collections::HashMap;
 
 #[allow(clippy::type_complexity)]
 pub struct LoadExecutor {
-    data: DataStoreRegistry,
-    indexes: IndexStoreRegistry,
+    data_reg: DataStoreRegistry,
+    index_reg: IndexStoreRegistry,
     debug: DebugContext,
 }
 
 impl LoadExecutor {
     // new
     #[must_use]
-    pub fn new(data: DataStoreRegistry, indexes: IndexStoreRegistry) -> Self {
+    pub fn new(data_reg: DataStoreRegistry, index_reg: IndexStoreRegistry) -> Self {
         Self {
-            data,
-            indexes,
+            data_reg,
+            index_reg,
             debug: DebugContext::default(),
         }
     }
@@ -42,17 +42,23 @@ impl LoadExecutor {
 
     // execute
     pub fn execute<E: EntityKind>(self, query: LoadQuery) -> Result<LoadCollection<E>, Error> {
-        let cll = self.execute_internal(query)?;
+        let cl = self.execute_internal(query)?;
 
-        Ok(cll)
+        Ok(cl)
     }
 
-    // response
-    pub fn response<E: EntityKind>(self, query: LoadQuery) -> Result<LoadResponse, Error> {
+    // execute_response
+    pub fn execute_response<E: EntityKind>(self, query: LoadQuery) -> Result<LoadResponse, Error> {
         let format = query.format;
-        let cll = self.execute_internal::<E>(query)?;
+        let cl = self.execute_internal::<E>(query)?;
 
-        Ok(cll.response(format))
+        let resp = match format {
+            LoadFormat::Rows => LoadResponse::Rows(cl.data_rows()),
+            LoadFormat::Keys => LoadResponse::Keys(cl.keys()),
+            LoadFormat::Count => LoadResponse::Count(cl.count()),
+        };
+
+        Ok(resp)
     }
 
     // execute_internal
@@ -60,110 +66,91 @@ impl LoadExecutor {
         self,
         query: LoadQuery,
     ) -> Result<LoadCollection<E>, DataError> {
-        // resolver
         self.debug.println(&format!("query.load: {query:?}"));
-        let resolved = with_resolver(|r| r.entity(E::PATH))?;
-        let store = self
-            .data
-            .with(|db| db.try_get_store(resolved.store_path()))?;
 
-        // selector
-        let selector = resolved.selector(&query.selector);
-        self.debug
-            .println(&format!("query.load selector: {selector:?}"));
+        let resolved_entity = with_resolver(|r| r.entity(E::PATH))?;
+        let loader = Loader::new(self.data_reg, self.index_reg, self.debug);
 
-        // loader
-        let res = Loader::new(store, self.debug).load(&selector);
-        let rows = res
+        let rows = loader
+            .load(&resolved_entity, &query.selector, query.r#where.as_ref())?
             .into_iter()
             .filter(|row| row.value.path == E::PATH)
             .map(TryFrom::try_from)
             .collect::<Result<Vec<EntityRow<E>>, _>>()?;
 
-        // do stuff
-        let rows = apply_filters(rows, &query);
-        let rows = apply_sort(rows, &query);
-        let rows = apply_pagination(rows, &query);
+        // apply post filters and paginate
+        let rows = apply_all_post(rows, &query)
+            .into_iter()
+            .skip(query.offset as usize)
+            .take(query.limit.unwrap_or(u32::MAX) as usize)
+            .collect();
 
         Ok(LoadCollection(rows))
     }
-
-    // try_index_lookup
-    fn try_index_lookup(
-        &self,
-        resolved: &ResolvedEntity,
-        where_clause: &Where,
-    ) -> Result<Option<IndexValue>, DataError> {
-        // Build a map from field → Some(value) directly (for build_index_key)
-        let field_values: HashMap<_, _> = where_clause
-            .matches
-            .iter()
-            .map(|(k, v)| (k.clone(), Some(v.clone())))
-            .collect();
-
-        for index in resolved.indexes() {
-            // Ensure all index fields are present in the where clause
-            if index.fields.iter().all(|f| field_values.contains_key(f)) {
-                // Try to build the index key from ordered fields and optional values
-                let Some(index_key) = resolved.build_index_key(index, &field_values) else {
-                    self.debug.println(&format!(
-                        "query.load: skipping index {:?} due to null/empty value",
-                        index.fields
-                    ));
-                    continue;
-                };
-
-                let store = self.indexes.with(|map| map.try_get_store(&index.store))?;
-
-                return Ok(store.with_borrow(|s| s.get(&index_key)));
-            }
-        }
-
-        Ok(None)
-    }
 }
 
-// apply_filters
-fn apply_filters<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec<EntityRow<E>> {
-    let use_search = !query.search.is_empty();
-
-    rows.into_iter()
-        .filter(|row| {
-            let entity = &row.value.entity;
-            let key_values = entity.key_values();
-
-            let where_ok = query.r#where.as_ref().is_none_or(|w| {
-                w.matches.iter().all(|(field, value)| {
-                    key_values.get(field).and_then(|v| v.as_ref()) == Some(value)
-                })
-            });
-
-            let search_ok = !use_search || entity.search_fields(&query.search);
-
-            where_ok && search_ok
-        })
-        .collect()
-}
-
-// apply_sort
-fn apply_sort<E: EntityKind>(mut rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec<EntityRow<E>> {
-    if !query.sort.is_empty() {
-        let sorter = E::sort(&query.sort);
-        rows.sort_by(|a, b| sorter(&a.value.entity, &b.value.entity));
-    }
+// apply_all_post
+// noisy but more efficient, so keeping it in its own method
+fn apply_all_post<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec<EntityRow<E>> {
+    let rows = apply_where(rows, query);
+    let mut rows = apply_search(rows, query);
+    apply_sort(&mut rows, query);
 
     rows
 }
 
-// apply_pagination
-fn apply_pagination<E: EntityKind>(
-    rows: Vec<EntityRow<E>>,
-    query: &LoadQuery,
-) -> Vec<EntityRow<E>> {
-    let (offset, limit) = (query.offset, query.limit.unwrap_or(u32::MAX));
+// apply_where
+fn apply_where<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec<EntityRow<E>> {
+    let Some(r#where) = query.r#where.as_ref() else {
+        return rows;
+    };
+    let olen = rows.len();
 
-    rows.into_iter()
-        .skip(offset as usize)
-        .take(limit as usize)
-        .collect()
+    // filter
+    let filtered =
+        rows.into_iter()
+            .filter(|row| {
+                let key_values = row.value.entity.key_values();
+
+                r#where.matches.iter().all(|(field, value)| {
+                    key_values.get(field).and_then(|v| v.as_ref()) == Some(value)
+                })
+            })
+            .collect::<Vec<_>>();
+    let flen = filtered.len();
+
+    if flen < olen {
+        log!(Log::Info, "apply_where: filtered {olen} → {flen} rows",);
+    }
+
+    filtered
+}
+
+// apply_search
+fn apply_search<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec<EntityRow<E>> {
+    if query.search.is_empty() {
+        return rows;
+    }
+    let olen = rows.len();
+
+    // filter
+    let filtered = rows
+        .into_iter()
+        .filter(|row| row.value.entity.search_fields(&query.search))
+        .collect::<Vec<_>>();
+    let flen = filtered.len();
+
+    if flen < olen {
+        log!(Log::Info, "apply_search: filtered {olen} → {flen} rows",);
+    }
+
+    filtered
+}
+
+// apply_sort
+fn apply_sort<E: EntityKind>(rows: &mut [EntityRow<E>], query: &LoadQuery) {
+    if !query.sort.is_empty() {
+        let sorter = E::sort(&query.sort);
+        rows.sort_by(|a, b| sorter(&a.value.entity, &b.value.entity));
+    }
 }

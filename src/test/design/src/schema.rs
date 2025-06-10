@@ -23,7 +23,12 @@ pub struct TestStore {}
 /// TestIndex
 ///
 
-#[store(ident = "INDEX", ty = "Index", canister = "Canister", memory_id = 21)]
+#[store(
+    ident = "TEST_INDEX",
+    ty = "Index",
+    canister = "Canister",
+    memory_id = 21
+)]
 pub struct TestIndex {}
 
 ///

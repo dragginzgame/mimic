@@ -4,7 +4,6 @@
 ///
 pub mod build;
 pub mod data;
-pub mod helper;
 pub mod interface;
 pub mod macros;
 pub mod schema;
@@ -34,11 +33,11 @@ extern crate self as mimic;
 
 pub mod prelude {
     pub use crate::{
-        helper::{FixtureBuilder, FixtureList},
+        data::executor::SaveExecutor,
         mimic_start, query_delete, query_load, query_load_dyn, query_save,
         schema::types::SortDirection,
         traits::{
-            EntityFixture, EntityIdKind as _, EntityKindDyn, FormatSortKey as _, Inner as _,
+            EntityFixture, EntityIdKind as _, EntityKind as _, FormatSortKey as _, Inner as _,
             NumCast, Orderable, Ordering, Path, Searchable, Validate as _, ValidateCustom,
             ValidatorBytes, ValidatorNumber, ValidatorString, Visitable,
         },

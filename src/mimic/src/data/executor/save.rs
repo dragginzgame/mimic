@@ -2,13 +2,16 @@ use crate::{
     Error,
     data::{
         DataError,
-        executor::{DebugContext, ExecutorError, with_resolver},
-        query::{SaveMode, SaveQueryPrepared},
-        response::SaveResponse,
+        executor::{DebugContext, EntityValue, ExecutorError, ResolvedEntity, with_resolver},
+        query::{SaveMode, SaveQueryTyped},
+        response::{SaveCollection, SaveResponse, SaveRow},
         store::{DataStoreRegistry, DataValue, IndexStoreRegistry, IndexValue, Metadata},
     },
+    serialize,
+    traits::EntityKind,
     utils::time,
 };
+use std::collections::HashMap;
 
 ///
 /// SaveExecutor
@@ -39,37 +42,47 @@ impl SaveExecutor {
     }
 
     // execute
-    pub fn execute(&self, query: SaveQueryPrepared) -> Result<SaveResponse, Error> {
-        let res = self.execute_internal(query)?;
+    pub fn execute<E>(&self, query: SaveQueryTyped<E>) -> Result<SaveCollection, Error>
+    where
+        E: EntityKind,
+    {
+        let res = self.execute_internal::<E>(query)?;
 
         Ok(res)
     }
 
+    // for when we have to return to the front end
+    pub fn execute_response<E: EntityKind>(
+        self,
+        query: SaveQueryTyped<E>,
+    ) -> Result<SaveResponse, Error> {
+        let res = self.execute_internal::<E>(query)?;
+
+        Ok(SaveResponse(res.0))
+    }
+
     // execute_internal
-    fn execute_internal(&self, query: SaveQueryPrepared) -> Result<SaveResponse, DataError> {
+    fn execute_internal<E: EntityKind>(
+        &self,
+        query: SaveQueryTyped<E>,
+    ) -> Result<SaveCollection, DataError> {
         let mode = query.mode;
-        let entity = &*query.entity;
-
-        // resolver
-        let key_values = &entity.key_values();
-        let resolved = with_resolver(|r| r.entity(&entity.path_dyn()))?;
-        let sk = resolved.sort_key(key_values);
-
-        // debug
-        self.debug.println(&format!("query.{mode}: {sk}"));
+        let entity = query.entity;
+        let bytes = serialize(&entity)?;
 
         // validate
-        let adapter = crate::visit::EntityAdapter(entity);
-        crate::validate(&adapter)?;
+        crate::validate(&entity)?;
 
-        // serialize
-        let data: Vec<u8> = entity.serialize()?;
-
-        // get old result
+        // resolve - get schema data
+        let resolved = with_resolver(|r| r.entity(E::PATH))?;
+        let key_values = &entity.key_values();
+        let sk = resolved.sort_key(key_values);
         let store = self
             .data
             .with(|data| data.try_get_store(resolved.store_path()))?;
-        let result = store.with_borrow(|store| store.get(&sk));
+
+        // debug
+        self.debug.println(&format!("query.{mode}: {sk}"));
 
         //
         // match save mode
@@ -77,96 +90,43 @@ impl SaveExecutor {
         //
 
         let now = time::now_secs();
-        let (created, modified) = match mode {
-            SaveMode::Create => {
-                #[allow(clippy::redundant_clone)]
-                if result.is_some() {
-                    Err(ExecutorError::KeyExists(sk.clone()))?;
+        let old_result = store.with_borrow(|store| store.get(&sk));
+
+        // did anything change?
+
+        let (created, modified, old_ev) = match (mode, old_result) {
+            (SaveMode::Create, Some(_)) => return Err(ExecutorError::KeyExists(sk.clone()))?,
+            (SaveMode::Create, None) => (now, now, None),
+            (SaveMode::Update, None) => return Err(ExecutorError::KeyNotFound(sk.clone()))?,
+            (SaveMode::Replace, None) => (now, now, None),
+
+            (SaveMode::Update, Some(old_dv)) | (SaveMode::Replace, Some(old_dv)) => {
+                let old_ev: EntityValue<E> = old_dv.try_into()?;
+
+                // no changes
+                if entity == old_ev.entity {
+                    self.debug
+                        .println(&format!("query.{mode}: no changes for {sk}, skipping save"));
+
+                    return Ok(SaveCollection(vec![SaveRow {
+                        key: sk,
+                        created: old_ev.metadata.created,
+                        modified: old_ev.metadata.modified,
+                    }]));
                 }
 
-                (now, now)
+                (old_ev.metadata.created, now, Some(old_ev))
             }
-
-            SaveMode::Update => match result {
-                Some(old) => {
-                    let modified = if data == old.data {
-                        old.metadata.modified
-                    } else {
-                        now
-                    };
-
-                    (old.metadata.created, modified)
-                }
-                None => Err(ExecutorError::KeyNotFound(sk.clone()))?,
-            },
-
-            SaveMode::Replace => match result {
-                Some(old) => {
-                    let modified = if data == old.data {
-                        old.metadata.modified
-                    } else {
-                        now
-                    };
-
-                    (old.metadata.created, modified)
-                }
-                None => (now, now),
-            },
         };
 
-        // indexes
-        for index in resolved.indexes() {
-            // Try to build index key from key_values (handles missing/null gracefully)
-            let Some(index_key) = resolved.build_index_key(index, key_values) else {
-                self.debug.println(&format!(
-                    "query.{mode}: skipping index {:?} due to missing/null field",
-                    index.fields
-                ));
-                continue;
-            };
-
-            // update store
-            let index_store = self.indexes.with(|map| map.try_get_store(&index.store))?;
-
-            index_store.with_borrow_mut(|store| {
-                if let Some(id) = resolved.id(key_values) {
-                    let existing = store.get(&index_key);
-
-                    let index_value = match (existing, index.unique) {
-                        (Some(ids), true) => {
-                            if !ids.is_empty() && !ids.contains(&id) {
-                                return Err(ExecutorError::IndexViolation(index_key.clone()));
-                            }
-
-                            IndexValue::from(vec![id])
-                        }
-
-                        (Some(ids), false) => {
-                            let mut new_ids = ids.clone();
-                            new_ids.insert(id.clone());
-
-                            new_ids
-                        }
-
-                        (None, _) => IndexValue::from(vec![id]),
-                    };
-
-                    store.insert(index_key.clone(), index_value.clone());
-
-                    self.debug.println(&format!(
-                        "query.{mode}: add index {index_key} - {index_value:?}"
-                    ));
-                }
-
-                Ok(())
-            })?;
-        }
+        // update indexes
+        let old_key_values = old_ev.as_ref().map(|ev| ev.entity.key_values());
+        self.update_indexes(&resolved, old_key_values.as_ref(), key_values, mode)?;
 
         // prepare data value
-        let path = entity.path_dyn();
         let value = DataValue {
-            data,
-            path,
+            bytes,
+            path: E::path(),
             metadata: Metadata { created, modified },
         };
 
@@ -175,10 +135,80 @@ impl SaveExecutor {
             store.insert(sk.clone(), value);
         });
 
-        Ok(SaveResponse {
+        // return a collection
+        Ok(SaveCollection(vec![SaveRow {
             key: sk,
             created,
             modified,
-        })
+        }]))
+    }
+
+    // update_indexes
+    fn update_indexes(
+        &self,
+        resolved: &ResolvedEntity,
+        old_values: Option<&HashMap<String, Option<String>>>,
+        new_values: &HashMap<String, Option<String>>,
+        mode: SaveMode,
+    ) -> Result<(), DataError> {
+        for index in resolved.indexes() {
+            let index_store = self.indexes.with(|map| map.try_get_store(&index.store))?;
+
+            // 🔁 Remove old index entry if applicable
+            if let Some(old) = old_values {
+                if let Some(old_key) = resolved.build_index_key(index, old) {
+                    let old_ck = resolved.composite_key(old);
+
+                    index_store.with_borrow_mut(|istore| {
+                        if let Some(mut existing) = istore.get(&old_key) {
+                            existing.remove(&old_ck);
+
+                            if existing.is_empty() {
+                                istore.remove(&old_key);
+                            } else {
+                                istore.insert(old_key.clone(), existing);
+                            }
+
+                            self.debug.println(&format!(
+                                "query.{mode:?}: removed index {old_key:?} - {old_ck:?}"
+                            ));
+                        }
+
+                        Ok::<(), DataError>(())
+                    })?;
+                }
+            }
+
+            // ✅ Insert new index entry
+            if let Some(new_key) = resolved.build_index_key(index, new_values) {
+                let new_ck = resolved.composite_key(new_values);
+
+                index_store.with_borrow_mut(|istore| {
+                    let index_value = match istore.get(&new_key) {
+                        Some(existing) if index.unique => {
+                            if !existing.contains(&new_ck) && !existing.is_empty() {
+                                return Err(ExecutorError::IndexViolation(new_key.clone()));
+                            }
+                            IndexValue::from(vec![new_ck])
+                        }
+                        Some(mut existing) => {
+                            existing.insert(new_ck.clone());
+                            existing
+                        }
+                        None => IndexValue::from(vec![new_ck]),
+                    };
+
+                    istore.insert(new_key.clone(), index_value.clone());
+
+                    self.debug.println(&format!(
+                        "query.{mode:?}: added index {new_key:?} - {index_value:?}"
+                    ));
+
+                    Ok(())
+                })?;
+            }
+        }
+
+        Ok(())
     }
 }

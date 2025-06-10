@@ -2,32 +2,33 @@ use crate::{
     Error,
     data::{
         DataError,
-        executor::{DebugContext, ResolvedSelector, with_resolver},
+        executor::{DebugContext, ResolvedEntity, ResolvedSelector, with_resolver},
         query::{DeleteQuery, QueryError},
-        response::DeleteResponse,
+        response::{DeleteCollection, DeleteResponse, DeleteRow},
         store::{DataStoreRegistry, IndexStoreRegistry, SortKey},
     },
     deserialize,
     traits::EntityKind,
 };
+use std::collections::HashMap;
 
 ///
 /// DeleteExecutor
 ///
 
 pub struct DeleteExecutor {
-    data: DataStoreRegistry,
-    indexes: IndexStoreRegistry,
+    data_reg: DataStoreRegistry,
+    index_reg: IndexStoreRegistry,
     debug: DebugContext,
 }
 
 impl DeleteExecutor {
     // new
     #[must_use]
-    pub fn new(data: DataStoreRegistry, indexes: IndexStoreRegistry) -> Self {
+    pub fn new(data_reg: DataStoreRegistry, index_reg: IndexStoreRegistry) -> Self {
         Self {
-            data,
-            indexes,
+            data_reg,
+            index_reg,
             debug: DebugContext::default(),
         }
     }
@@ -40,17 +41,28 @@ impl DeleteExecutor {
     }
 
     // execute
-    pub fn execute<E: EntityKind>(self, query: DeleteQuery) -> Result<DeleteResponse, Error> {
+    pub fn execute<E: EntityKind>(self, query: DeleteQuery) -> Result<DeleteCollection, Error> {
         let res = self.execute_internal::<E>(query)?;
 
         Ok(res)
+    }
+
+    // execute_response
+    // for when we have to return to the front end
+    pub fn execute_response<E: EntityKind>(
+        self,
+        query: DeleteQuery,
+    ) -> Result<DeleteResponse, Error> {
+        let res = self.execute_internal::<E>(query)?;
+
+        Ok(DeleteResponse(res.0))
     }
 
     // execute_internal
     fn execute_internal<E: EntityKind>(
         &self,
         query: DeleteQuery,
-    ) -> Result<DeleteResponse, DataError> {
+    ) -> Result<DeleteCollection, DataError> {
         self.debug
             .println(&format!("query.delete: query is {query:?}"));
 
@@ -67,56 +79,75 @@ impl DeleteExecutor {
 
         // get store
         let store = self
-            .data
+            .data_reg
             .with(|db| db.try_get_store(resolved.store_path()))?;
 
         //
         // execute for every different key
         //
-        let mut deleted_keys = Vec::new();
+        let mut deleted_rows = Vec::new();
 
         for sk in sort_keys {
             if let Some(data_value) = store.with_borrow(|store| store.get(&sk)) {
                 // Step 1: Deserialize the entity
-                let data = &data_value.data;
-                let entity: E = deserialize(data)?;
-                let indexes = resolved.indexes();
+                let entity: E = deserialize(&data_value.bytes)?;
 
                 // Step 2: Extract field values
                 let field_values = entity.key_values();
 
-                // Step 3: Compute and delete index keys
-                for index in indexes {
-                    let Some(index_key) = resolved.build_index_key(index, &field_values) else {
-                        self.debug.println(&format!(
-                            "query.delete: skipping index {:?} due to missing/null field",
-                            index.fields
-                        ));
-                        continue;
-                    };
-
-                    // delete index
-                    let index_store = self.indexes.with(|ix| ix.try_get_store(&index.store))?;
-                    index_store.with_borrow_mut(|store| {
-                        store.remove(&index_key);
-                    });
-                    self.debug
-                        .println(&format!("query.delete: delete index {index_key:?}"));
-                }
+                // Step 3: Remove indexes
+                self.remove_indexes(&resolved, &field_values)?;
 
                 // Step 4: Delete the data row itself
                 store.with_borrow_mut(|store| {
                     store.remove(&sk);
                 });
 
-                deleted_keys.push(sk);
+                deleted_rows.push(DeleteRow::new(sk));
             }
         }
 
         // debug
         self.debug
-            .println(&format!("query.delete: deleted keys {deleted_keys:?}"));
+            .println(&format!("query.delete: deleted keys {deleted_rows:?}"));
 
-        Ok(DeleteResponse(deleted_keys))
+        Ok(DeleteCollection(deleted_rows))
+    }
+
+    // remove_indexes
+    fn remove_indexes(
+        &self,
+        resolved: &ResolvedEntity,
+        field_values: &HashMap<String, Option<String>>,
+    ) -> Result<(), DataError> {
+        for index in resolved.indexes() {
+            // skip invalid index keys
+            let Some(index_key) = resolved.build_index_key(index, field_values) else {
+                continue;
+            };
+
+            let composite_key = resolved.composite_key(field_values);
+            let index_store = self.index_reg.with(|ix| ix.try_get_store(&index.store))?;
+
+            index_store.with_borrow_mut(|store| {
+                if let Some(mut existing) = store.get(&index_key) {
+                    existing.remove(&composite_key);
+
+                    if existing.is_empty() {
+                        store.remove(&index_key);
+                    } else {
+                        store.insert(index_key.clone(), existing);
+                    }
+
+                    self.debug.println(&format!(
+                        "query.delete: removed index {index_key:?} - {composite_key:?}"
+                    ));
+                }
+
+                Ok::<(), DataError>(())
+            })?;
+        }
+
+        Ok(())
     }
 }

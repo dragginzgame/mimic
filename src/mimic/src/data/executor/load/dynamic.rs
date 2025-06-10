@@ -3,9 +3,9 @@ use crate::{
     data::{
         DataError,
         executor::{DebugContext, Loader, with_resolver},
-        query::LoadQueryDyn,
+        query::{LoadFormat, LoadQueryDyn},
         response::{LoadCollectionDyn, LoadResponse},
-        store::{DataStoreRegistry, IndexStoreRegistry},
+        store::{DataRow, DataStoreRegistry, IndexStoreRegistry},
     },
     traits::EntityKind,
 };
@@ -15,18 +15,18 @@ use crate::{
 ///
 
 pub struct LoadExecutorDyn {
-    data: DataStoreRegistry,
-    indexes: IndexStoreRegistry,
+    data_reg: DataStoreRegistry,
+    index_reg: IndexStoreRegistry,
     debug: DebugContext,
 }
 
 impl LoadExecutorDyn {
     // new
     #[must_use]
-    pub fn new(data: DataStoreRegistry, indexes: IndexStoreRegistry) -> Self {
+    pub fn new(data_reg: DataStoreRegistry, index_reg: IndexStoreRegistry) -> Self {
         Self {
-            data,
-            indexes,
+            data_reg,
+            index_reg,
             debug: DebugContext::default(),
         }
     }
@@ -40,17 +40,26 @@ impl LoadExecutorDyn {
 
     // execute
     pub fn execute<E: EntityKind>(self, query: LoadQueryDyn) -> Result<LoadCollectionDyn, Error> {
-        let res = self.execute_internal::<E>(query)?;
+        let cl = self.execute_internal::<E>(query)?;
 
-        Ok(res)
+        Ok(cl)
     }
 
-    // response
-    pub fn response<E: EntityKind>(self, query: LoadQueryDyn) -> Result<LoadResponse, Error> {
+    // execute_response
+    pub fn execute_response<E: EntityKind>(
+        self,
+        query: LoadQueryDyn,
+    ) -> Result<LoadResponse, Error> {
         let format = query.format;
-        let cll = self.execute_internal::<E>(query)?;
+        let cl = self.execute_internal::<E>(query)?;
 
-        Ok(cll.response(format))
+        let resp = match format {
+            LoadFormat::Rows => LoadResponse::Rows(cl.data_rows()),
+            LoadFormat::Keys => LoadResponse::Keys(cl.keys()),
+            LoadFormat::Count => LoadResponse::Count(cl.count()),
+        };
+
+        Ok(resp)
     }
 
     // execute_internal
@@ -61,23 +70,25 @@ impl LoadExecutorDyn {
         self.debug.println(&format!("query.load_dyn: {query:?}"));
 
         // resolver
-        let resolved = with_resolver(|r| r.entity(E::PATH))?;
-        let store = self
-            .data
-            .with(|db| db.try_get_store(resolved.store_path()))?;
-        let selector = resolved.selector(&query.selector);
+        let resolved_entity = with_resolver(|r| r.entity(E::PATH))?;
+
+        // do we include a row?
+        fn include_row(row: &DataRow, query: &LoadQueryDyn, path: &str) -> bool {
+            if query.include_children {
+                row.value.path.starts_with(path)
+            } else {
+                row.value.path == path
+            }
+        }
 
         // loader
-        let loader = Loader::new(store, self.debug);
-        let res = loader.load(&selector);
-
-        // paginate and filter incorrect paths
-        let rows = res
+        // no where, search, sort
+        // but we have to filter by the fn above and paginate
+        let loader = Loader::new(self.data_reg, self.index_reg, self.debug);
+        let rows = loader
+            .load(&resolved_entity, &query.selector, None)?
             .into_iter()
-            .filter(|row| {
-                query.include_children && row.value.path.starts_with(E::PATH)
-                    || row.value.path == E::PATH
-            })
+            .filter(|row| include_row(row, &query, E::PATH))
             .skip(query.offset as usize)
             .take(query.limit.unwrap_or(u32::MAX) as usize)
             .collect();

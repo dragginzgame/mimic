@@ -17,7 +17,10 @@ pub use std::{
 };
 
 use crate::{
-    SerializeError,
+    data::{
+        executor::SaveExecutor,
+        query::{SaveMode, SaveQueryTyped},
+    },
     schema::types::SortDirection,
     types::{
         ErrorTree,
@@ -53,7 +56,7 @@ macro_rules! impl_primitive {
 
 ///
 /// KIND TRAITS
-/// the Schema has Nodes
+/// the Schema uses the term "Node" but when they're built it's "Kind"
 ///
 
 ///
@@ -63,16 +66,6 @@ macro_rules! impl_primitive {
 pub trait Kind: Path {}
 
 impl<T> Kind for T where T: Path {}
-
-///
-/// KindDyn
-///
-
-pub trait KindDyn {
-    // path_dyn
-    // as every type needs path, this makes creating dynamic traits easier
-    fn path_dyn(&self) -> String;
-}
 
 ///
 /// TypeKind
@@ -90,34 +83,12 @@ impl<T> TypeKind for T where
 }
 
 ///
-/// TypeKindDyn
-/// just to keep things symmetrical, not actually used yet other than
-/// making sure all types have Debug
-///
-
-pub trait TypeKindDyn: KindDyn + Debug {}
-
-impl<T> TypeKindDyn for T where T: KindDyn + Debug {}
-
-///
 /// EntityKind
 ///
 
-pub trait EntityKind: TypeKind + EntityKindDyn + EntityFixture + EntitySearch + EntitySort {}
-
-impl<T> EntityKind for T where
-    T: TypeKind + EntityKindDyn + EntityFixture + EntitySearch + EntitySort
+pub trait EntityKind:
+    TypeKind + EntityFixture + EntitySearch + EntitySort + PartialEq + Visitable
 {
-}
-
-///
-/// EntityKindDyn
-/// object-safe methods for entities
-///
-
-pub trait EntityKindDyn: TypeKindDyn + SerializeDyn + Visitable {
-    // returns all the entity keys that can be formatted as keys
-    // within a SortKey
     fn key_values(&self) -> HashMap<String, Option<String>>;
 }
 
@@ -125,10 +96,10 @@ pub trait EntityKindDyn: TypeKindDyn + SerializeDyn + Visitable {
 /// EntityIdKind
 ///
 
-pub trait EntityIdKind: KindDyn + Display {
+pub trait EntityIdKind: Kind + Display {
     #[must_use]
     fn ulid(&self) -> Ulid {
-        let digest = format!("{}-{}", self.path_dyn(), self);
+        let digest = format!("{}-{}", Self::path(), self);
 
         Ulid::from_string_digest(&digest)
     }
@@ -158,10 +129,15 @@ pub trait EnumValueKind {
 
 pub trait EntityFixture {
     // fixtures
-    // returns a vec of entities that are inserted on canister init
-    #[must_use]
-    fn fixtures() -> Vec<Box<dyn EntityKindDyn>> {
-        Vec::new()
+    // inserts the fixtures to the bd via the SaveExecutor
+    fn insert_fixtures(_exec: &mut SaveExecutor) {}
+
+    // add
+    // helper function to execute query
+    fn add<E: EntityKind>(exec: &mut SaveExecutor, entity: E) {
+        let q = SaveQueryTyped::new(SaveMode::Replace, entity);
+
+        exec.execute::<E>(q).unwrap();
     }
 }
 
@@ -470,23 +446,6 @@ macro_rules! impl_primitive_searchable {
 impl_primitive_searchable!(
     i8, i16, i32, i64, i128, u8, u16, u32, u64, u128, f32, f64, bool
 );
-
-///
-/// SerializeDyn
-///
-
-pub trait SerializeDyn: Debug {
-    fn serialize(&self) -> Result<Vec<u8>, SerializeError>;
-}
-
-impl<T> SerializeDyn for T
-where
-    T: EntityKindDyn + Serialize,
-{
-    fn serialize(&self) -> Result<Vec<u8>, SerializeError> {
-        mimic::serialize(self)
-    }
-}
 
 ///
 /// Validate

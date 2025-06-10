@@ -1,14 +1,11 @@
 mod delete;
 mod load;
 mod save;
-mod types;
 
 pub use delete::*;
 pub use load::*;
 pub use save::*;
-pub use types::*;
 
-use crate::{Error, deserialize, traits::EntityKind};
 use thiserror::Error as ThisError;
 
 ///
@@ -39,27 +36,20 @@ pub fn delete() -> DeleteQueryBuilder {
     DeleteQueryBuilder::new()
 }
 
-// save
-pub fn save<E: EntityKind + 'static>(query: SaveQuery) -> Result<SaveQueryPrepared, Error> {
-    let entity = deserialize::<E>(&query.bytes)?;
-
-    Ok(SaveQueryPrepared::new(query.mode, Box::new(entity)))
-}
-
 // create
 #[must_use]
-pub const fn create() -> SaveQueryBuilder {
-    SaveQueryBuilder::new(SaveMode::Create)
+pub const fn create() -> SaveQueryTypedBuilder {
+    SaveQueryTypedBuilder::new(SaveMode::Create)
 }
 
 // update
 #[must_use]
-pub const fn update() -> SaveQueryBuilder {
-    SaveQueryBuilder::new(SaveMode::Update)
+pub const fn update() -> SaveQueryTypedBuilder {
+    SaveQueryTypedBuilder::new(SaveMode::Update)
 }
 
 // replace
 #[must_use]
-pub const fn replace() -> SaveQueryBuilder {
-    SaveQueryBuilder::new(SaveMode::Replace)
+pub const fn replace() -> SaveQueryTypedBuilder {
+    SaveQueryTypedBuilder::new(SaveMode::Replace)
 }

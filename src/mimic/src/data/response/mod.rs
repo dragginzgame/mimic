@@ -1,11 +1,17 @@
-mod collection;
+mod delete;
+mod load;
+mod save;
 
-pub use collection::*;
+pub use delete::*;
+pub use load::*;
+pub use save::*;
 
-use crate::data::store::{DataRow, SortKey};
-use candid::CandidType;
-use serde::{Deserialize, Serialize};
 use thiserror::Error as ThisError;
+
+//
+// Collections are for internal data
+// Response is external
+//
 
 ///
 /// ResponseError
@@ -13,35 +19,6 @@ use thiserror::Error as ThisError;
 
 #[derive(Debug, ThisError)]
 pub enum ResponseError {
-    #[error(transparent)]
-    CollectionError(#[from] collection::CollectionError),
+    #[error("no data found in collection")]
+    EmptyCollection,
 }
-
-///
-/// LoadResponse
-///
-
-#[derive(CandidType, Debug, Serialize, Deserialize)]
-pub enum LoadResponse {
-    Rows(Vec<DataRow>),
-    Keys(Vec<SortKey>),
-    Count(usize),
-}
-
-///
-/// SaveResponse
-///
-
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
-pub struct SaveResponse {
-    pub key: SortKey,
-    pub created: u64,
-    pub modified: u64,
-}
-
-///
-/// DeleteResponse
-///
-
-#[derive(CandidType, Debug, Serialize, Deserialize)]
-pub struct DeleteResponse(pub Vec<SortKey>);

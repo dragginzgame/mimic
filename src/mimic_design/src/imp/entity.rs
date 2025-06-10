@@ -7,12 +7,12 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 
 ///
-/// EntityKindDynTrait
+/// EntityKindTrait
 ///
 
-pub struct EntityKindDynTrait {}
+pub struct EntityKindTrait {}
 
-impl Imp<Entity> for EntityKindDynTrait {
+impl Imp<Entity> for EntityKindTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
         let mut q = quote!();
 

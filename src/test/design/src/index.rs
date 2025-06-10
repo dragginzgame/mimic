@@ -25,3 +25,65 @@ impl Index {
         }
     }
 }
+
+///
+/// IndexWithFixtures
+///
+
+///
+/// IndexWithFixtures
+///
+
+#[entity(
+    store = "crate::schema::TestStore",
+    sk(entity = "IndexWithFixtures", field = "id"),
+    index(store = "crate::schema::TestIndex", fields = "x", unique),             // unique
+    index(store = "crate::schema::TestIndex", fields = "y"),                     // compound unique
+    index(store = "crate::schema::TestIndex", fields = "x,z"),                   // compound with opt
+    index(store = "crate::schema::TestIndex", fields = "y,z", unique),           // compound unique with opt
+    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+    field(name = "x", value(item(prim = "Int32"))),
+    field(name = "y", value(item(prim = "Int32"))),
+    field(name = "z", value(opt, item(prim = "Int32"))),
+    traits(remove(EntityFixture)),
+)]
+pub struct IndexWithFixtures {}
+
+impl EntityFixture for IndexWithFixtures {
+    fn insert_fixtures(exec: &mut SaveExecutor) {
+        for i in 0..40 {
+            Self::add(
+                exec,
+                IndexWithFixtures {
+                    id: Ulid::generate(),
+                    x: i,
+                    y: i % 10,
+                    z: None,
+                },
+            );
+        }
+
+        for i in 40..80 {
+            Self::add(
+                exec,
+                IndexWithFixtures {
+                    id: Ulid::generate(),
+                    x: i,           // unique x
+                    y: i,           // repeat y (non-unique index)
+                    z: Some(i + 1), // y+z is a unique
+                },
+            );
+        }
+
+        // Edge cases
+        Self::add(
+            exec,
+            IndexWithFixtures {
+                id: Ulid::generate(),
+                x: i32::MAX,
+                y: i32::MIN,
+                z: Some(0),
+            },
+        );
+    }
+}

@@ -1,5 +1,36 @@
 use candid::CandidType;
+use derive_more::{Deref, DerefMut};
+use icu::impl_storable_unbounded;
 use serde::{Deserialize, Serialize};
+
+///
+/// CompositeKey
+///
+
+#[derive(
+    CandidType,
+    Clone,
+    Debug,
+    Default,
+    Deref,
+    DerefMut,
+    Eq,
+    PartialEq,
+    Hash,
+    Ord,
+    PartialOrd,
+    Serialize,
+    Deserialize,
+)]
+pub struct CompositeKey(pub Vec<String>);
+
+impl<S: ToString> From<Vec<S>> for CompositeKey {
+    fn from(v: Vec<S>) -> Self {
+        Self(v.into_iter().map(|x| x.to_string()).collect())
+    }
+}
+
+impl_storable_unbounded!(CompositeKey);
 
 ///
 /// Selector
@@ -18,10 +49,10 @@ pub enum Selector {
     #[default]
     All,
     Only,
-    One(Vec<String>),
-    Many(Vec<Vec<String>>),
-    Prefix(Vec<String>),
-    Range(Vec<String>, Vec<String>),
+    One(CompositeKey),
+    Many(Vec<CompositeKey>),
+    Prefix(CompositeKey),
+    Range(CompositeKey, CompositeKey),
 }
 
 ///

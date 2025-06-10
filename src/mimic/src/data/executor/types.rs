@@ -78,7 +78,7 @@ where
     type Error = SerializeError;
 
     fn try_from(value: DataValue) -> Result<Self, Self::Error> {
-        let entity = deserialize::<E>(&value.data)?;
+        let entity = deserialize::<E>(&value.bytes)?;
 
         Ok(Self {
             entity,
@@ -94,10 +94,10 @@ where
     type Error = SerializeError;
 
     fn try_from(value: EntityValue<E>) -> Result<Self, Self::Error> {
-        let data = serialize::<E>(&value.entity)?;
+        let bytes = serialize::<E>(&value.entity)?;
 
         Ok(Self {
-            data,
+            bytes,
             path: E::path(),
             metadata: value.metadata,
         })

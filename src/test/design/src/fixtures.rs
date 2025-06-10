@@ -17,7 +17,7 @@ use crate::prelude::*;
 pub struct Rarity {}
 
 impl EntityFixture for Rarity {
-    fn fixtures() -> FixtureList {
+    fn insert_fixtures(exec: &mut SaveExecutor) {
         use RarityId as Id;
 
         let data = [
@@ -30,17 +30,17 @@ impl EntityFixture for Rarity {
             (Id::Inconceivable, "Inconceivable", 7),
         ];
 
-        let mut fixtures = FixtureBuilder::new();
         for (id, name, level) in data {
-            fixtures.push(Self {
-                id: id.into(),
-                name: name.into(),
-                level,
-                ..Default::default()
-            });
+            Self::add(
+                exec,
+                Rarity {
+                    id: id.into(),
+                    name: name.into(),
+                    level,
+                    ..Default::default()
+                },
+            );
         }
-
-        fixtures.into()
     }
 }
 
