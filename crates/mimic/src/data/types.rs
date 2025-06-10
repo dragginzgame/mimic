@@ -34,23 +34,12 @@ pub struct Where {
     pub matches: Vec<(String, String)>,
 }
 
-impl<K: Into<String> + Clone, V: Into<String> + Clone> From<&[(K, V)]> for Where {
-    fn from(pairs: &[(K, V)]) -> Self {
-        Self {
-            matches: pairs
-                .iter()
-                .map(|(k, v)| (k.clone().into(), v.clone().into()))
-                .collect(),
-        }
-    }
-}
-
-impl<K: Into<String>, V: Into<String>> From<Vec<(K, V)>> for Where {
+impl<K: ToString, V: ToString> From<Vec<(K, V)>> for Where {
     fn from(pairs: Vec<(K, V)>) -> Self {
         Self {
             matches: pairs
                 .into_iter()
-                .map(|(k, v)| (k.into(), v.into()))
+                .map(|(k, v)| (k.to_string(), v.to_string()))
                 .collect(),
         }
     }
