@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.4.6]
 - Searchable trait now a blanket implementation for Display and uses Cow
 - removed PrimitiveGroup in favour of is_numeric, is_displayable
+- flattened the types::prim directory, so its types::ErrorTree, types::Ulid etc.
 
 ## [0.4.5]
 - grouped data, store, response and executor under data/

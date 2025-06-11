@@ -8,7 +8,7 @@ use crate::{
         node::{Entity, EntityIndex, Schema},
         state::{StateError as SchemaStateError, get_schema},
     },
-    types::prim::Key,
+    types::Key,
 };
 use std::{cell::RefCell, collections::HashMap};
 

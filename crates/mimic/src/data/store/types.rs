@@ -1,4 +1,4 @@
-use crate::types::prim::Key;
+use crate::types::Key;
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use icu::{impl_storable_bounded, impl_storable_unbounded};

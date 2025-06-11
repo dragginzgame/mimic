@@ -1,4 +1,4 @@
-use crate::types::prim::Key;
+use crate::types::Key;
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 

@@ -1,4 +1,5 @@
 mod error;
-pub mod prim;
+mod prim;
 
 pub use error::ErrorTree;
+pub use prim::*;

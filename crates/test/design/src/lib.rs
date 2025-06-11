@@ -15,7 +15,7 @@ pub mod validate;
 
 pub(crate) mod prelude {
     pub use mimic::prelude::*;
-    pub use mimic::types::prim::Principal;
+    pub use mimic::types::Principal;
     pub use mimic_base as base;
     pub use mimic_design::*;
 }

@@ -1,4 +1,5 @@
-use crate::types::prim::ulid::{Ulid, WrappedUlid};
+use crate::types::Ulid;
+use ::ulid::Ulid as WrappedUlid;
 use sha2::{Digest, Sha256};
 
 ///

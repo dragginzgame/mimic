@@ -4,7 +4,7 @@ mod generic;
 pub use dynamic::*;
 pub use generic::*;
 
-use crate::types::prim::Key;
+use crate::types::Key;
 use candid::CandidType;
 use derive_more::Deref;
 use serde::{Deserialize, Serialize};

@@ -41,10 +41,7 @@ pub mod prelude {
             NumCast, Orderable, Ordering, Path, Searchable, Validate as _, ValidateCustom,
             ValidatorBytes, ValidatorNumber, ValidatorString, Visitable,
         },
-        types::{
-            ErrorTree,
-            prim::{Key, KeySet, Ulid},
-        },
+        types::{ErrorTree, Key, KeySet, Ulid},
     };
     pub use ::candid::CandidType;
 }

@@ -22,10 +22,7 @@ use crate::{
         query::{SaveMode, SaveQueryTyped},
     },
     schema::types::SortDirection,
-    types::{
-        ErrorTree,
-        prim::{Key, Ulid},
-    },
+    types::{ErrorTree, Key, Ulid},
     visit::Visitor,
 };
 use std::borrow::Cow;

@@ -11,7 +11,7 @@ use crate::{
         store::{DataRow, DataStoreLocal, DataStoreRegistry, IndexStoreRegistry, SortKey},
         types::{Selector, Where},
     },
-    types::prim::Key,
+    types::Key,
 };
 use std::collections::HashMap;
 

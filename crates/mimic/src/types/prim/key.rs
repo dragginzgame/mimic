@@ -1,7 +1,7 @@
 use crate::{
     data::store::SortKey,
     traits::{FormatSortKey, Orderable, ValidateAuto, ValidateCustom, Visitable},
-    types::prim::Ulid,
+    types::Ulid,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, IntoIterator};

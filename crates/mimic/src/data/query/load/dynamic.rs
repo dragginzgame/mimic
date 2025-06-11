@@ -3,7 +3,7 @@ use crate::{
         query::LoadFormat,
         types::{Selector, Where},
     },
-    types::prim::Key,
+    types::Key,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};

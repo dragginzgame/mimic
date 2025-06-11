@@ -5,7 +5,7 @@ use crate::{
         types::{Selector, Where},
     },
     schema::types::SortDirection,
-    types::prim::Key,
+    types::Key,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
