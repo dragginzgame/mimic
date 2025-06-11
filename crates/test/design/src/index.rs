@@ -30,10 +30,6 @@ impl Index {
 /// IndexWithFixtures
 ///
 
-///
-/// IndexWithFixtures
-///
-
 #[entity(
     store = "crate::schema::TestStore",
     sk(entity = "IndexWithFixtures", field = "id"),
