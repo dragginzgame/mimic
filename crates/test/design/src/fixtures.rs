@@ -31,7 +31,7 @@ impl EntityFixture for Rarity {
         ];
 
         for (id, name, level) in data {
-            Self::add(
+            EntityService::save_fixture(
                 exec,
                 Self {
                     id: id.into(),

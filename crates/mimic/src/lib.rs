@@ -7,6 +7,7 @@ pub mod data;
 pub mod interface;
 pub mod macros;
 pub mod schema;
+pub mod service;
 pub mod traits;
 pub mod types;
 pub mod utils;
@@ -36,6 +37,7 @@ pub mod prelude {
         data::executor::SaveExecutor,
         mimic_start, query_delete, query_load, query_load_dyn, query_save,
         schema::types::SortDirection,
+        service::EntityService,
         traits::{
             EntityFixture, EntityIdKind as _, EntityKind as _, FormatSortKey as _, Inner as _,
             NumCast, Orderable, Ordering, Path, Searchable, Validate as _, ValidateCustom,

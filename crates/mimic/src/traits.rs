@@ -17,10 +17,7 @@ pub use std::{
 };
 
 use crate::{
-    data::{
-        executor::SaveExecutor,
-        query::{SaveMode, SaveQueryTyped},
-    },
+    data::executor::SaveExecutor,
     schema::types::SortDirection,
     types::{ErrorTree, Key, Ulid},
     visit::Visitor,
@@ -128,14 +125,6 @@ pub trait EntityFixture {
     // fixtures
     // inserts the fixtures to the bd via the SaveExecutor
     fn insert_fixtures(_exec: &mut SaveExecutor) {}
-
-    // add
-    // helper function to execute query
-    fn add<E: EntityKind>(exec: &mut SaveExecutor, entity: E) {
-        let q = SaveQueryTyped::new(SaveMode::Replace, entity);
-
-        exec.execute::<E>(q).unwrap();
-    }
 }
 
 ///

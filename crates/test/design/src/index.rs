@@ -48,7 +48,7 @@ pub struct IndexWithFixtures {}
 impl EntityFixture for IndexWithFixtures {
     fn insert_fixtures(exec: &mut SaveExecutor) {
         for i in 0..40 {
-            Self::add(
+            EntityService::save_fixture(
                 exec,
                 Self {
                     id: Ulid::generate(),
@@ -60,7 +60,7 @@ impl EntityFixture for IndexWithFixtures {
         }
 
         for i in 40..80 {
-            Self::add(
+            EntityService::save_fixture(
                 exec,
                 Self {
                     id: Ulid::generate(),
@@ -72,7 +72,7 @@ impl EntityFixture for IndexWithFixtures {
         }
 
         // Edge cases
-        Self::add(
+        EntityService::save_fixture(
             exec,
             Self {
                 id: Ulid::generate(),
