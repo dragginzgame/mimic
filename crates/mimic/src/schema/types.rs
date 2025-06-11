@@ -136,6 +136,40 @@ impl PrimitiveType {
     }
 
     #[must_use]
+    pub const fn is_displayable(self) -> bool {
+        !matches!(self, Self::Blob | Self::KeySet | Self::Unit)
+    }
+
+    #[must_use]
+    pub fn is_float(&self) -> bool {
+        matches!(self, Self::Float32 | Self::Float64)
+    }
+
+    // is_numeric
+    // no floats, this is the check for all the arithmetic traits
+    #[must_use]
+    pub fn is_numeric(&self) -> bool {
+        matches!(
+            self,
+            Self::Int
+                | Self::Int8
+                | Self::Int16
+                | Self::Int32
+                | Self::Int64
+                | Self::Int128
+                | Self::Nat
+                | Self::Nat8
+                | Self::Nat16
+                | Self::Nat32
+                | Self::Nat64
+                | Self::Nat128
+                | Self::Float32
+                | Self::Float64
+                | Self::Decimal
+        )
+    }
+
+    #[must_use]
     pub fn as_type(&self) -> TokenStream {
         match self {
             Self::Bool => quote!(::mimic::types::prim::Bool),
@@ -161,33 +195,6 @@ impl PrimitiveType {
             Self::Text => quote!(::mimic::types::prim::Text),
             Self::Unit => quote!(::mimic::types::prim::Unit),
             Self::Ulid => quote!(::mimic::types::prim::Ulid),
-        }
-    }
-
-    #[must_use]
-    pub const fn group(self) -> PrimitiveGroup {
-        match self {
-            Self::Blob => PrimitiveGroup::Blob,
-            Self::Bool => PrimitiveGroup::Bool,
-            Self::Decimal => PrimitiveGroup::Decimal,
-            Self::Float32 | Self::Float64 => PrimitiveGroup::Float,
-            Self::Int
-            | Self::Int8
-            | Self::Int16
-            | Self::Int32
-            | Self::Int64
-            | Self::Int128
-            | Self::Nat
-            | Self::Nat8
-            | Self::Nat16
-            | Self::Nat32
-            | Self::Nat64
-            | Self::Nat128 => PrimitiveGroup::Integer,
-            Self::Key => PrimitiveGroup::Key,
-            Self::KeySet => PrimitiveGroup::KeySet,
-            Self::Text | Self::Principal => PrimitiveGroup::Text,
-            Self::Ulid => PrimitiveGroup::Ulid,
-            Self::Unit => PrimitiveGroup::Unit,
         }
     }
 
@@ -223,39 +230,6 @@ impl ToTokens for PrimitiveType {
         let ident = format_ident!("{}", self.to_string());
 
         tokens.extend(quote!(::mimic::schema::types::PrimitiveType::#ident));
-    }
-}
-
-///
-/// PrimitiveGroup
-///
-
-#[derive(CandidType, Debug, Clone, Copy, Deserialize, Display, FromStr, Serialize)]
-#[remain::sorted]
-pub enum PrimitiveGroup {
-    Blob,
-    Bool,
-    Decimal,
-    Float,
-    Integer,
-    Key,
-    KeySet,
-    Text,
-    Ulid,
-    Unit,
-}
-
-impl FromMeta for PrimitiveGroup {
-    fn from_string(s: &str) -> Result<Self, darling::Error> {
-        s.parse().map_err(|_| darling::Error::unknown_value(s))
-    }
-}
-
-impl ToTokens for PrimitiveGroup {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = format_ident!("{}", self.to_string());
-
-        tokens.extend(quote!(::mimic::schema::types::PrimitiveGroup::#ident));
     }
 }
 

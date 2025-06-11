@@ -1,9 +1,7 @@
 use crate::{
     ThisError,
     prelude::*,
-    traits::{
-        FormatSortKey, Inner, Orderable, Searchable, ValidateAuto, ValidateCustom, Visitable,
-    },
+    traits::{FormatSortKey, Inner, Orderable, ValidateAuto, ValidateCustom, Visitable},
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut};
@@ -118,12 +116,6 @@ impl Inner for Principal {
 impl Orderable for Principal {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
-    }
-}
-
-impl Searchable for Principal {
-    fn as_text(&self) -> Option<String> {
-        Some(self.to_string())
     }
 }
 

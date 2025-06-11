@@ -28,6 +28,7 @@ use crate::{
     },
     visit::Visitor,
 };
+use std::borrow::Cow;
 
 ///
 /// MACROS
@@ -412,40 +413,25 @@ impl<T: Orderable> Orderable for Option<T> {
 ///
 
 pub trait Searchable {
-    // as_text
+    // to_search_text
     // implement this if you want a type to be searched as text
-    fn as_text(&self) -> Option<String> {
+    fn to_search_text(&self) -> Option<Cow<'_, str>> {
         None
     }
 
     // contains_text
     fn contains_text(&self, text: &str) -> bool {
-        self.as_text()
+        self.to_search_text()
             .is_some_and(|s| s.to_lowercase().contains(&text.to_lowercase()))
     }
 }
 
-impl<T: Searchable> Searchable for Box<T> {}
-
-impl Searchable for String {
-    fn as_text(&self) -> Option<String> {
-        Some(self.to_string())
+/// Blanket impl for anything that implements `Display`
+impl<T: Display> Searchable for T {
+    fn to_search_text(&self) -> Option<Cow<'_, str>> {
+        Some(Cow::Owned(self.to_string()))
     }
 }
-
-// impl_primitive_searchable
-#[macro_export]
-macro_rules! impl_primitive_searchable {
-    ($($type:ty),*) => {
-        $(
-            impl Searchable for $type {}
-        )*
-    };
-}
-
-impl_primitive_searchable!(
-    i8, i16, i32, i64, i128, u8, u16, u32, u64, u128, f32, f64, bool
-);
 
 ///
 /// Validate

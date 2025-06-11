@@ -40,7 +40,7 @@ checksum = "7dfdb4953a096c551ce9ace855a604d702e6e62d77fac690575ae347571717f5"
 
 [[package]]
 name = "benches"
-version = "0.4.5"
+version = "0.4.6"
 dependencies = [
  "bencher",
 ]
@@ -635,7 +635,7 @@ dependencies = [
 [[package]]
 name = "icu"
 version = "0.1.4"
-source = "git+https://github.com/dragginzgame/icu#4c89f2734ab4a6ae7e768546197f7a3d6744d21f"
+source = "git+https://github.com/dragginzgame/icu#2e6da1a2ddee96b940b126d555290c0973a8b4e1"
 dependencies = [
  "candid",
  "ciborium",
@@ -731,7 +731,7 @@ checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 
 [[package]]
 name = "mimic"
-version = "0.4.5"
+version = "0.4.6"
 dependencies = [
  "candid",
  "convert_case 0.8.0",
@@ -759,7 +759,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_base"
-version = "0.4.5"
+version = "0.4.6"
 dependencies = [
  "candid",
  "ctor",
@@ -773,7 +773,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_design"
-version = "0.4.5"
+version = "0.4.6"
 dependencies = [
  "darling",
  "derive_more",
@@ -1100,7 +1100,7 @@ dependencies = [
 
 [[package]]
 name = "test_canister"
-version = "0.4.5"
+version = "0.4.6"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -1111,7 +1111,7 @@ dependencies = [
 
 [[package]]
 name = "test_design"
-version = "0.4.5"
+version = "0.4.6"
 dependencies = [
  "candid",
  "ctor",
@@ -1124,7 +1124,7 @@ dependencies = [
 
 [[package]]
 name = "tests"
-version = "0.4.5"
+version = "0.4.6"
 dependencies = [
  "mimic",
  "test_design",
@@ -1441,9 +1441,9 @@ checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 
 [[package]]
 name = "winnow"
-version = "0.7.10"
+version = "0.7.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c06928c8748d81b05c9be96aad92e1b6ff01833332f281e8cfca3be4b35fc9ec"
+checksum = "74c7b26e3480b707944fc872477815d29a8e429d2f93a1ce000f5fa84a15cbcd"
 dependencies = [
  "memchr",
 ]

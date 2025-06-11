@@ -28,38 +28,31 @@ impl Imp<Entity> for EntityKindTrait {
 
 // key_values
 fn key_values(node: &Entity) -> TokenStream {
-    let parts = node.fields.iter().map(|field| {
+    let entries = node.fields.iter().filter_map(|field| {
         let field_ident = &field.name;
         let field_name = field.name.to_string();
         let item = &field.value.item;
 
         match field.value.cardinality() {
-            Cardinality::One => quote! {
-                map.insert(
-                    #field_name.to_string(),
-                    <#item as ::mimic::traits::FormatSortKey>::format_sort_key(&self.#field_ident),
-                );
-            },
+            Cardinality::One => Some(quote! {
+                (#field_name.to_string(), <#item as ::mimic::traits::FormatSortKey>::format_sort_key(&self.#field_ident))
+            }),
 
-            Cardinality::Opt => quote! {
-                let value = self.#field_ident
+            Cardinality::Opt => Some(quote! {
+                (#field_name.to_string(), self.#field_ident
                     .as_ref()
-                    .and_then(|val| <#item as ::mimic::traits::FormatSortKey>::format_sort_key(val));
+                    .and_then(<#item as ::mimic::traits::FormatSortKey>::format_sort_key))
+            }),
 
-                map.insert(#field_name.to_string(), value);
-            },
-
-            // many is not indexed (yet)
-            Cardinality::Many => quote!(),
+            Cardinality::Many => None,
         }
     });
 
     quote! {
         fn key_values(&self) -> ::std::collections::HashMap<String, Option<String>> {
-            let mut map = ::std::collections::HashMap::new();
-            #(#parts)*
-
-            map
+            [
+                #(#entries),*
+            ].into_iter().collect()
         }
     }
 }

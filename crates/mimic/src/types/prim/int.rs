@@ -70,12 +70,6 @@ impl Orderable for Int {
     }
 }
 
-impl Searchable for Int {
-    fn as_text(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
-
 impl_storable_unbounded!(Int);
 
 impl ValidateAuto for Int {}

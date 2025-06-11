@@ -75,12 +75,12 @@ impl TraitNode for Enum {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
+        traits.add(Trait::Searchable);
 
         // extra traits
         if self.is_unit_enum() {
             traits.extend(vec![
                 Trait::Copy,
-                Trait::FromStr,
                 Trait::Hash,
                 Trait::Ord,
                 Trait::PartialOrd,

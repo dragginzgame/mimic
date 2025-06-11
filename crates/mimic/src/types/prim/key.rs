@@ -1,6 +1,6 @@
 use crate::{
     data::store::SortKey,
-    traits::{FormatSortKey, Orderable, Searchable, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FormatSortKey, Orderable, ValidateAuto, ValidateCustom, Visitable},
     types::prim::Ulid,
 };
 use candid::CandidType;
@@ -117,8 +117,6 @@ impl FromStr for Key {
 }
 
 impl Orderable for Key {}
-
-impl Searchable for Key {}
 
 impl ValidateCustom for Key {}
 

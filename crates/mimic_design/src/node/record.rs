@@ -87,6 +87,7 @@ impl TraitNode for Record {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
+        traits.add(Trait::Searchable);
 
         traits.list()
     }

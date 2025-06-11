@@ -5,7 +5,7 @@ use crate::{
     traits::Schemable,
 };
 use darling::FromMeta;
-use mimic::schema::types::{PrimitiveGroup, PrimitiveType};
+use mimic::schema::types::PrimitiveType;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
@@ -76,29 +76,24 @@ impl TraitNode for Newtype {
         if self.primitive.is_orderable() {
             traits.extend(vec![Trait::Ord, Trait::PartialOrd]);
         }
-
-        // group traits
-        match self.primitive.group() {
-            PrimitiveGroup::Integer | PrimitiveGroup::Decimal => {
-                traits.extend(vec![
-                    Trait::Add,
-                    Trait::AddAssign,
-                    Trait::Copy,
-                    Trait::Display,
-                    Trait::FromStr,
-                    Trait::Mul,
-                    Trait::MulAssign,
-                    Trait::NumCast,
-                    Trait::NumFromPrimitive,
-                    Trait::NumToPrimitive,
-                    Trait::Sub,
-                    Trait::SubAssign,
-                ]);
-            }
-            PrimitiveGroup::Text | PrimitiveGroup::Ulid | PrimitiveGroup::Key => {
-                traits.extend(vec![Trait::Display, Trait::FromStr]);
-            }
-            _ => {}
+        if self.primitive.is_numeric() {
+            traits.extend(vec![
+                Trait::Add,
+                Trait::AddAssign,
+                Trait::Copy,
+                Trait::Mul,
+                Trait::MulAssign,
+                Trait::NumCast,
+                Trait::NumFromPrimitive,
+                Trait::NumToPrimitive,
+                Trait::Sub,
+                Trait::SubAssign,
+            ]);
+        }
+        if self.primitive.is_displayable() {
+            traits.extend(vec![Trait::Display]);
+        } else {
+            traits.extend(vec![Trait::Searchable]);
         }
 
         traits.list()
@@ -113,7 +108,6 @@ impl TraitNode for Newtype {
             Trait::NumCast => imp::NumCastTrait::tokens(self, t),
             Trait::NumToPrimitive => imp::NumToPrimitiveTrait::tokens(self, t),
             Trait::NumFromPrimitive => imp::NumFromPrimitiveTrait::tokens(self, t),
-            Trait::Searchable => imp::SearchableTrait::tokens(self, t),
             Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => imp::VisitableTrait::tokens(self, t),
 

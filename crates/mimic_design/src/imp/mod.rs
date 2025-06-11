@@ -6,7 +6,6 @@ mod from;
 mod inner;
 mod into;
 mod num;
-mod searchable;
 mod validate;
 mod visitable;
 
@@ -20,7 +19,6 @@ pub use from::*;
 pub use inner::*;
 pub use into::*;
 pub use num::*;
-pub use searchable::*;
 pub use validate::*;
 pub use visitable::*;
 

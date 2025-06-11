@@ -79,7 +79,7 @@ impl TraitNode for Tuple {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
-        traits.extend(vec![Trait::Deref, Trait::DerefMut]);
+        traits.extend(vec![Trait::Deref, Trait::DerefMut, Trait::Searchable]);
 
         traits.list()
     }

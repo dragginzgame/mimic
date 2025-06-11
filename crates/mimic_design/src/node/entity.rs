@@ -108,6 +108,7 @@ impl TraitNode for Entity {
             Trait::EntityFixture,
             Trait::EntitySearch,
             Trait::EntitySort,
+            Trait::Searchable,
         ]);
 
         traits.list()

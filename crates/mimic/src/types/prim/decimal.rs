@@ -170,12 +170,6 @@ impl Orderable for Decimal {
     }
 }
 
-impl Searchable for Decimal {
-    fn as_text(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
-
 impl ToPrimitive for Decimal {
     fn to_i32(&self) -> Option<i32> {
         self.0.to_i32()

@@ -67,12 +67,6 @@ impl Orderable for Nat {
     }
 }
 
-impl Searchable for Nat {
-    fn as_text(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
-
 impl_storable_unbounded!(Nat);
 
 impl ValidateAuto for Nat {}
