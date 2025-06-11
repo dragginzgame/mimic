@@ -43,7 +43,8 @@ impl Item {
             (Some(path), None, None) => ItemTarget::Is(path.clone()),
             (None, Some(prim), None) => ItemTarget::Prim(*prim),
             (None, None, Some(path)) => ItemTarget::Relation(path.clone()),
-            _ => panic!("Item must have exactly one of: is, prim or relation"),
+            (None, None, None) => ItemTarget::Unit,
+            _ => panic!("item should not have more than one target selected (is, prim, relation)"),
         }
     }
 
@@ -91,6 +92,7 @@ impl ToTokens for Item {
 ///
 
 pub enum ItemTarget {
+    Unit,
     Is(Path),
     Relation(Path),
     Prim(PrimitiveType),
@@ -99,6 +101,7 @@ pub enum ItemTarget {
 impl ItemTarget {
     pub fn quoted_path(&self) -> TokenStream {
         match self {
+            Self::Unit => quote!(::mimic::types::Unit),
             Self::Is(path) => quote!(#path),
             Self::Prim(prim) => {
                 let ty = prim.as_type();
@@ -112,6 +115,11 @@ impl ItemTarget {
 impl Schemable for ItemTarget {
     fn schema(&self) -> TokenStream {
         match self {
+            Self::Unit => {
+                quote! {
+                    ::mimic::schema::node::ItemTarget::Unit
+                }
+            }
             Self::Is(path) => {
                 let path = quote_one(path, to_path);
                 quote! {
