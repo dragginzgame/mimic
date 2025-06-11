@@ -25,7 +25,6 @@ use crate::{
     types::{ErrorTree, Key, Ulid},
     visit::Visitor,
 };
-use std::borrow::Cow;
 
 ///
 /// MACROS
@@ -410,23 +409,21 @@ impl<T: Orderable> Orderable for Option<T> {
 ///
 
 pub trait Searchable {
-    // to_search_text
-    // implement this if you want a type to be searched as text
-    fn to_search_text(&self) -> Option<Cow<'_, str>> {
+    /// Returns the text representation for search, if any.
+    fn to_search_text(&self) -> Option<String> {
         None
     }
 
-    // contains_text
+    /// Case-insensitive check if the search text contains the given query.
     fn contains_text(&self, text: &str) -> bool {
         self.to_search_text()
             .is_some_and(|s| s.to_lowercase().contains(&text.to_lowercase()))
     }
 }
 
-/// Blanket impl for anything that implements `Display`
 impl<T: Display> Searchable for T {
-    fn to_search_text(&self) -> Option<Cow<'_, str>> {
-        Some(Cow::Owned(self.to_string()))
+    fn to_search_text(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 
