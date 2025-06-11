@@ -28,6 +28,7 @@ pub enum Trait {
     // rust + third party
     Add,
     AddAssign,
+    AsRef,
     CandidType,
     Clone,
     Copy,
@@ -122,6 +123,7 @@ impl Trait {
         match self {
             Self::Add => Some(quote!(::mimic::export::derive_more::Add)),
             Self::AddAssign => Some(quote!(::mimic::export::derive_more::AddAssign)),
+            Self::AsRef => Some(quote!(::mimic::export::derive_more::AsRef)),
             Self::CandidType => Some(quote!(::candid::CandidType)),
             Self::Clone => Some(quote!(Clone)),
             Self::Copy => Some(quote!(Copy)),
