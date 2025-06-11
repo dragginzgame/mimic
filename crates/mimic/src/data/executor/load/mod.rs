@@ -27,7 +27,7 @@ pub struct Loader {
 
 impl Loader {
     #[must_use]
-    pub fn new(
+    pub const fn new(
         data_reg: DataStoreRegistry,
         index_reg: IndexStoreRegistry,
         debug: DebugContext,
@@ -60,21 +60,21 @@ impl Loader {
 
         // load rows
         let rows = match resolved_selector {
-            ResolvedSelector::One(key) => self.load_key(store, key).into_iter().collect(),
+            ResolvedSelector::One(key) => Self::load_key(store, key).into_iter().collect(),
 
             ResolvedSelector::Many(keys) => keys
                 .into_iter()
-                .filter_map(|key| self.load_key(store, key))
+                .filter_map(|key| Self::load_key(store, key))
                 .collect(),
 
-            ResolvedSelector::Range(start, end) => self.load_range(store, start, end),
+            ResolvedSelector::Range(start, end) => Self::load_range(store, start, end),
         };
 
         Ok(rows)
     }
 
     // load_key
-    fn load_key(&self, store: DataStoreLocal, key: SortKey) -> Option<DataRow> {
+    fn load_key(store: DataStoreLocal, key: SortKey) -> Option<DataRow> {
         store.with_borrow(|this| {
             this.get(&key).map(|value| DataRow {
                 key: key.clone(),
@@ -84,7 +84,7 @@ impl Loader {
     }
 
     // load_range
-    fn load_range(&self, store: DataStoreLocal, start: SortKey, end: SortKey) -> Vec<DataRow> {
+    fn load_range(store: DataStoreLocal, start: SortKey, end: SortKey) -> Vec<DataRow> {
         store.with_borrow(|this| {
             this.range(start..=end)
                 .map(|(key, value)| DataRow { key, value })
@@ -132,7 +132,7 @@ impl Loader {
                         // Just use the first value if the index is guaranteed unique
                         Selector::One(keys.into_iter().next().expect("unique index had no value"))
                     } else {
-                        Selector::Many(keys.to_vec())
+                        Selector::Many(keys)
                     };
 
                     return Ok(selector);

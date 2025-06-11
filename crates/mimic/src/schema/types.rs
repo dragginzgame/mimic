@@ -141,14 +141,14 @@ impl PrimitiveType {
     }
 
     #[must_use]
-    pub fn is_float(&self) -> bool {
+    pub const fn is_float(&self) -> bool {
         matches!(self, Self::Float32 | Self::Float64)
     }
 
     // is_numeric
     // no floats, this is the check for all the arithmetic traits
     #[must_use]
-    pub fn is_numeric(&self) -> bool {
+    pub const fn is_numeric(&self) -> bool {
         matches!(
             self,
             Self::Int

@@ -62,6 +62,7 @@ nursery = { level = "allow", priority = -1 }
 
 # always warn
 must-use-candidate = "warn"
+redundant_clone = "warn"
 
 # always allow
 doc_markdown = "allow"

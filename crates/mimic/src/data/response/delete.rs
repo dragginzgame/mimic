@@ -27,7 +27,7 @@ pub struct DeleteRow {
 
 impl DeleteRow {
     #[must_use]
-    pub fn new(key: SortKey) -> Self {
+    pub const fn new(key: SortKey) -> Self {
         Self { key }
     }
 }

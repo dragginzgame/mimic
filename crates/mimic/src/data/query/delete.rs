@@ -47,7 +47,7 @@ impl DeleteQueryBuilder {
         K: Into<Key>,
         I: IntoIterator<Item = K>,
     {
-        let keys = keys.into_iter().map(|k| k.into()).collect();
+        let keys = keys.into_iter().map(Into::into).collect();
 
         DeleteQuery::new(Selector::Many(keys))
     }

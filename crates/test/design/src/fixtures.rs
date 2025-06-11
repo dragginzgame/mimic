@@ -33,7 +33,7 @@ impl EntityFixture for Rarity {
         for (id, name, level) in data {
             Self::add(
                 exec,
-                Rarity {
+                Self {
                     id: id.into(),
                     name: name.into(),
                     level,

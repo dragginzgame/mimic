@@ -95,12 +95,11 @@ impl SaveExecutor {
         // did anything change?
 
         let (created, modified, old_ev) = match (mode, old_result) {
-            (SaveMode::Create, Some(_)) => return Err(ExecutorError::KeyExists(sk.clone()))?,
-            (SaveMode::Create, None) => (now, now, None),
-            (SaveMode::Update, None) => return Err(ExecutorError::KeyNotFound(sk.clone()))?,
-            (SaveMode::Replace, None) => (now, now, None),
+            (SaveMode::Create, Some(_)) => return Err(ExecutorError::KeyExists(sk))?,
+            (SaveMode::Create | SaveMode::Replace, None) => (now, now, None),
+            (SaveMode::Update, None) => return Err(ExecutorError::KeyNotFound(sk))?,
 
-            (SaveMode::Update, Some(old_dv)) | (SaveMode::Replace, Some(old_dv)) => {
+            (SaveMode::Update | SaveMode::Replace, Some(old_dv)) => {
                 let old_ev: EntityValue<E> = old_dv.try_into()?;
 
                 // no changes
@@ -195,7 +194,7 @@ impl SaveExecutor {
 
                                 IndexValue::from_key(new_key.clone())
                             } else {
-                                let mut updated = existing.clone();
+                                let mut updated = existing;
                                 updated.insert(new_key.clone());
 
                                 updated

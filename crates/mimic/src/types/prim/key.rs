@@ -98,7 +98,7 @@ impl From<SortKey> for Key {
 
 impl From<&[&str]> for Key {
     fn from(ss: &[&str]) -> Self {
-        Self(ss.iter().cloned().map(|s| s.to_string()).collect())
+        Self(ss.iter().copied().map(ToString::to_string).collect())
     }
 }
 

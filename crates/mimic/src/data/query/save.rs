@@ -94,7 +94,7 @@ impl SaveQueryTypedBuilder {
     }
 
     // entity
-    pub fn entity<E: EntityKind>(self, entity: E) -> SaveQueryTyped<E> {
+    pub const fn entity<E: EntityKind>(self, entity: E) -> SaveQueryTyped<E> {
         SaveQueryTyped::new(self.mode, entity)
     }
 }
@@ -114,7 +114,7 @@ where
     E: EntityKind,
 {
     #[must_use]
-    pub fn new(mode: SaveMode, entity: E) -> Self {
+    pub const fn new(mode: SaveMode, entity: E) -> Self {
         Self { mode, entity }
     }
 }

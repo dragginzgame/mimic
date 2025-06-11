@@ -54,7 +54,7 @@ impl EntityFixture for IndexWithFixtures {
         for i in 0..40 {
             Self::add(
                 exec,
-                IndexWithFixtures {
+                Self {
                     id: Ulid::generate(),
                     x: i,
                     y: i % 10,
@@ -66,7 +66,7 @@ impl EntityFixture for IndexWithFixtures {
         for i in 40..80 {
             Self::add(
                 exec,
-                IndexWithFixtures {
+                Self {
                     id: Ulid::generate(),
                     x: i,           // unique x
                     y: i,           // repeat y (non-unique index)
@@ -78,7 +78,7 @@ impl EntityFixture for IndexWithFixtures {
         // Edge cases
         Self::add(
             exec,
-            IndexWithFixtures {
+            Self {
                 id: Ulid::generate(),
                 x: i32::MAX,
                 y: i32::MIN,

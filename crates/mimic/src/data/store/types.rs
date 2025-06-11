@@ -57,13 +57,13 @@ pub struct IndexValue(pub HashSet<Key>);
 impl IndexValue {
     #[must_use]
     pub fn from_key(key: Key) -> Self {
-        IndexValue::from(vec![key])
+        Self::from(vec![key])
     }
 }
 
 impl<S: Into<Key>> From<Vec<S>> for IndexValue {
     fn from(v: Vec<S>) -> Self {
-        Self(v.into_iter().map(|x| x.into()).collect())
+        Self(v.into_iter().map(Into::into).collect())
     }
 }
 
