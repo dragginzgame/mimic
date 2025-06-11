@@ -1,13 +1,6 @@
 use crate::prelude::*;
 
 ///
-/// DecimalFormat
-///
-
-#[newtype(primitive = "Decimal", item(prim = "Decimal"))]
-pub struct DecimalFormat {}
-
-///
 /// Degrees (°)
 ///
 
