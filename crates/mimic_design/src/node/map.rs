@@ -65,6 +65,7 @@ impl TraitNode for Map {
             Trait::DerefMut,
             Trait::From,
             Trait::IntoIterator,
+            Trait::Searchable,
         ]);
 
         traits.list()

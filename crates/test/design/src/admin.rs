@@ -34,6 +34,9 @@ use base::types;
     field(name = "record_a", value(item(is = "RecordA"))),
     field(name = "record_opt", value(opt, item(is = "RecordB"))),
     field(name = "record_many", value(many, item(is = "RecordB"))),
+    field(name = "list", value(item(is = "List"))),
+    field(name = "map", value(item(is = "Map"))),
+    field(name = "set", value(item(is = "Set"))),
     field(name = "variant_complex", value(item(is = "EnumA"))),
     field(name = "variant_complex_opt", value(opt, item(is = "EnumA"))),
     field(name = "variant_complex_many", value(many, item(is = "EnumA"))),
@@ -164,6 +167,27 @@ pub struct EnumC {}
     variant(name = "Y3", value = 10)
 )]
 pub struct EnumValue {}
+
+///
+/// List
+///
+
+#[list(item(prim = "Text"))]
+pub struct List {}
+
+///
+/// Map
+///
+
+#[map(key(prim = "Nat8"), value(item(prim = "Text")))]
+pub struct Map {}
+
+///
+/// Set
+///
+
+#[set(item(prim = "Text"))]
+pub struct Set {}
 
 ///
 /// Newtype
