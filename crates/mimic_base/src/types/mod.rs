@@ -1,4 +1,3 @@
-pub mod ascii;
 pub mod bytes;
 pub mod color;
 pub mod hash;
