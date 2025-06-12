@@ -9,16 +9,10 @@ use crate::prelude::*;
 
 #[record(
     field(name = "owner", value(item(prim = "Principal"))),
-    field(name = "subaccount", value(opt, item(is = "Subaccount")))
+    field(name = "subaccount", value(opt, item(prim = "Subaccount"))),
+    traits(add(Default))
 )]
 pub struct Account {}
-
-///
-/// Subaccount
-///
-
-#[newtype(primitive = "Blob", item(prim = "Blob"))]
-pub struct Subaccount {}
 
 ///
 /// Memo

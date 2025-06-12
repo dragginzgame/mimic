@@ -4,6 +4,7 @@ mod int;
 mod key;
 mod nat;
 mod principal;
+mod subaccount;
 mod ulid;
 mod unit;
 
@@ -13,6 +14,7 @@ pub use int::Int;
 pub use key::{Key, KeySet};
 pub use nat::Nat;
 pub use principal::Principal;
+pub use subaccount::Subaccount;
 pub use ulid::Ulid;
 pub use unit::Unit;
 

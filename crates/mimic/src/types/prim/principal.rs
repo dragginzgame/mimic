@@ -152,3 +152,18 @@ impl ValidateAuto for Principal {
 impl ValidateCustom for Principal {}
 
 impl Visitable for Principal {}
+
+///
+/// TESTS
+///
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::mem;
+
+    #[test]
+    fn principal_is_30_bytes() {
+        assert_eq!(mem::size_of::<Principal>(), 30);
+    }
+}

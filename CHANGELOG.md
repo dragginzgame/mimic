@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Searchable trait now a blanket implementation for Display
 - removed PrimitiveGroup in favour of is_numeric, is_displayable
 - flattened the types::prim directory, so its types::ErrorTree, types::Ulid etc.
+- Principal now handles From and PartialEq with its wrapped type much betterer
+- added Subaccount as a primitive type, so Storable sticks to 32 bytes
 
 ## [0.4.5]
 - grouped data, store, response and executor under data/

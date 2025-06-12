@@ -1127,6 +1127,7 @@ name = "tests"
 version = "0.4.6"
 dependencies = [
  "mimic",
+ "mimic_base",
  "test_design",
 ]
 
