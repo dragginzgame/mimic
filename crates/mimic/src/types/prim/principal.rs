@@ -78,8 +78,14 @@ impl FormatSortKey for Principal {
 }
 
 impl From<WrappedPrincipal> for Principal {
-    fn from(principal: WrappedPrincipal) -> Self {
-        Self(principal)
+    fn from(p: WrappedPrincipal) -> Self {
+        Principal(p)
+    }
+}
+
+impl From<&WrappedPrincipal> for Principal {
+    fn from(p: &WrappedPrincipal) -> Self {
+        Principal(*p)
     }
 }
 
@@ -116,6 +122,18 @@ impl Inner for Principal {
 impl Orderable for Principal {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
+    }
+}
+
+impl PartialEq<WrappedPrincipal> for Principal {
+    fn eq(&self, other: &WrappedPrincipal) -> bool {
+        self.0 == *other
+    }
+}
+
+impl PartialEq<Principal> for WrappedPrincipal {
+    fn eq(&self, other: &Principal) -> bool {
+        *self == other.0
     }
 }
 

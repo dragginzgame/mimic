@@ -34,9 +34,9 @@ impl Index {
     store = "crate::schema::TestStore",
     sk(entity = "IndexWithFixtures", field = "id"),
     index(store = "crate::schema::TestIndex", fields = "x", unique),             // unique
-    index(store = "crate::schema::TestIndex", fields = "y"),                     // compound unique
-    index(store = "crate::schema::TestIndex", fields = "x,z"),                   // compound with opt
-    index(store = "crate::schema::TestIndex", fields = "y,z", unique),           // compound unique with opt
+    index(store = "crate::schema::TestIndex", fields = "y"),                     // normal
+    index(store = "crate::schema::TestIndex", fields = "x, z"),                  // compound with opt
+    index(store = "crate::schema::TestIndex", fields = "y, z", unique),          // compound unique with opt
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "x", value(item(prim = "Int32"))),
     field(name = "y", value(item(prim = "Int32"))),
@@ -71,7 +71,7 @@ impl EntityFixture for IndexWithFixtures {
             );
         }
 
-        // Edge cases
+        // edge cases
         EntityService::save_fixture(
             exec,
             Self {
