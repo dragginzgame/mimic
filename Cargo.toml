@@ -28,7 +28,7 @@ darling = "0.20"
 derive_more = { version = "2.0", default-features = false, features = ["full"] }
 hex = "0.4"
 ic-cdk = "0.18.3"
-ic-stable-structures = "0.6.8"
+ic-stable-structures = "0.6.9"
 icu = { git = "https://github.com/dragginzgame/icu" }
 mimic = { path = "crates/mimic" }
 mimic_base = { path = "crates/mimic_base" }

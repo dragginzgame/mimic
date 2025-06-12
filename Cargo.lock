@@ -564,9 +564,9 @@ dependencies = [
 
 [[package]]
 name = "ic-stable-structures"
-version = "0.6.8"
+version = "0.6.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0f5684f577e0146738cd11afed789109c4f51ba963c75823c48c1501dc53278"
+checksum = "4d30d4cf17aff1024e13133897048bcba580e063c9000571ab766ca37e2996f4"
 dependencies = [
  "ic_principal",
 ]
@@ -635,7 +635,7 @@ dependencies = [
 [[package]]
 name = "icu"
 version = "0.1.4"
-source = "git+https://github.com/dragginzgame/icu#4a8c701e3cec6c1c2c850e6a6bfbef4f5d9f3389"
+source = "git+https://github.com/dragginzgame/icu#4a3917d2a3acd92b2584e9338a07ca921f7e9562"
 dependencies = [
  "candid",
  "ciborium",
@@ -725,9 +725,9 @@ checksum = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94"
 
 [[package]]
 name = "memchr"
-version = "2.7.4"
+version = "2.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
+checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
 name = "mimic"
