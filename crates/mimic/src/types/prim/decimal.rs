@@ -1,6 +1,6 @@
 use crate::{
     prelude::*,
-    traits::{FormatSortKey, Inner, Orderable, ValidateAuto, Visitable},
+    traits::{Inner, Orderable, ValidateAuto, Visitable},
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
@@ -75,12 +75,6 @@ impl CandidType for Decimal {
 impl fmt::Display for Decimal {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.0.fmt(f)
-    }
-}
-
-impl FormatSortKey for Decimal {
-    fn format_sort_key(&self) -> Option<String> {
-        None
     }
 }
 

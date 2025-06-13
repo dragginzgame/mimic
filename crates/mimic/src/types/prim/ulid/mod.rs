@@ -4,7 +4,7 @@ pub mod generator;
 use crate::{
     ThisError,
     prelude::*,
-    traits::{FormatSortKey, Inner, Orderable, ValidateAuto, ValidateCustom, Visitable},
+    traits::{Inner, Orderable, SortKeyPart, ValidateAuto, ValidateCustom, Visitable},
     types::ErrorTree,
 };
 use ::ulid::Ulid as WrappedUlid;
@@ -105,12 +105,6 @@ impl fmt::Display for Ulid {
     }
 }
 
-impl FormatSortKey for Ulid {
-    fn format_sort_key(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
-
 impl Inner for Ulid {
     type Primitive = Self;
 
@@ -156,6 +150,12 @@ impl<'de> Deserialize<'de> for Ulid {
         let ulid = WrappedUlid::from_string(&deserialized_str).unwrap_or_default();
 
         Ok(Self(ulid))
+    }
+}
+
+impl SortKeyPart for Ulid {
+    fn to_sort_key_part(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 

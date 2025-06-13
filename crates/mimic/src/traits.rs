@@ -16,7 +16,7 @@ pub use std::{
 };
 
 use crate::{
-    data::{SortDirection, executor::SaveExecutor},
+    data::{SortDirection, executor::SaveExecutor, store::SortKey},
     types::{ErrorTree, Key, Ulid},
     visit::Visitor,
 };
@@ -65,12 +65,28 @@ impl<T> Kind for T where T: Path {}
 ///
 
 pub trait TypeKind:
-    Kind + CandidType + Clone + Default + FormatSortKey + Serialize + DeserializeOwned
+    Kind
+    + CandidType
+    + Clone
+    + Default
+    + QueryValue
+    + SortKeyPart
+    + Serialize
+    + DeserializeOwned
+    + Visitable
 {
 }
 
 impl<T> TypeKind for T where
-    T: Kind + CandidType + Clone + Default + FormatSortKey + Serialize + DeserializeOwned
+    T: Kind
+        + CandidType
+        + Clone
+        + Default
+        + QueryValue
+        + SortKeyPart
+        + Serialize
+        + DeserializeOwned
+        + Visitable
 {
 }
 
@@ -78,20 +94,27 @@ impl<T> TypeKind for T where
 /// EntityKind
 ///
 
-pub trait EntityKind:
-    TypeKind + EntityFixture + EntitySearch + EntitySort + PartialEq + Visitable
-{
-    fn key_values(&self) -> HashMap<String, Option<String>>;
+pub trait EntityKind: TypeKind + EntityFixture + EntitySearch + EntitySort {
+    // query_values
+    fn query_values(&self) -> HashMap<String, Option<String>>;
+
+    // sort_key
+    // takes in a set of string values, returns a formatted sort key
+    fn sort_key(&self) -> SortKey;
+
+    // build_sort_key
+    // takes in a set of string values, returns a formatted sort key
+    fn build_sort_key(&self, values: &[String]) -> SortKey;
 }
 
 ///
 /// EntityIdKind
 ///
 
-pub trait EntityIdKind: Kind + Display {
+pub trait EntityIdKind: Kind + std::fmt::Debug {
     #[must_use]
     fn ulid(&self) -> Ulid {
-        let digest = format!("{}-{}", Self::path(), self);
+        let digest = format!("{}-{:?}", Self::path(), self);
 
         Ulid::from_string_digest(&digest)
     }
@@ -214,83 +237,6 @@ pub trait ValidatorString {
 ///
 
 ///
-/// FormatSortKey
-/// a type that can be formatted as a Sort Key
-///
-
-pub trait FormatSortKey {
-    fn format_sort_key(&self) -> Option<String>;
-}
-
-impl FormatSortKey for String {
-    fn format_sort_key(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
-
-macro_rules! impl_format_sort_key_ints {
-    ($($t:ty, $ut:ty, $len:expr),* $(,)?) => {
-        $(
-            impl FormatSortKey for $t {
-                #[allow(clippy::cast_sign_loss)]
-                fn format_sort_key(&self) -> Option<String> {
-                    if *self < 0 {
-                        let inverted = <$ut>::MAX - self.wrapping_abs() as $ut;
-                        Some(format!("-{:0>width$}", inverted, width = $len - 1))
-                    } else {
-                        Some(format!("{:0>width$}", *self as $ut, width = $len))
-                    }
-                }
-            }
-        )*
-    };
-}
-
-macro_rules! impl_format_sort_key_uints {
-    ($($t:ty, $len:expr),* $(,)?) => {
-        $(
-            impl FormatSortKey for $t {
-                fn format_sort_key(&self) -> Option<String> {
-                    Some(format!("{:0>width$}", self, width = $len))
-                }
-            }
-        )*
-    };
-}
-
-macro_rules! impl_format_sort_key_none {
-    ($($t:ty),* $(,)?) => {
-        $(
-            impl FormatSortKey for $t {
-                fn format_sort_key(&self) -> Option<String> {
-                    None
-                }
-            }
-        )*
-    };
-}
-
-#[rustfmt::skip]
-impl_format_sort_key_ints!(
-    i8, u8, 4,
-    i16, u16, 6,
-    i32, u32, 11,
-    i64, u64, 21,
-    i128, u128, 41
-);
-
-#[rustfmt::skip]
-impl_format_sort_key_uints!(
-    u8, 3,
-    u16, 5,
-    u32, 10,
-    u64, 20,
-    u128, 40
-);
-
-impl_format_sort_key_none!(bool, f32, f64);
-
-///
 /// Inner
 /// a trait for Newtypes to recurse downwards to find the innermost value
 ///
@@ -389,30 +335,107 @@ impl<T: Orderable> Orderable for Option<T> {
 }
 
 ///
-/// Searchable
+/// QueryValue
 ///
-/// a trait that allows you to optionally allow a type to
-/// be searched based on the string representation
+/// A trait that defines how a value is converted to a string representation
+/// suitable for WHERE queries, filtering, or comparison.
 ///
 
-pub trait Searchable {
-    /// Returns the text representation for search, if any.
-    fn to_search_text(&self) -> Option<String> {
+pub trait QueryValue {
+    /// Returns a canonical string form of the value, if available
+    /// if None is returned it means that the type is just not suitable for searching
+    fn to_query_value(&self) -> Option<String> {
         None
     }
 
-    /// Case-insensitive check if the search text contains the given query.
-    fn contains_text(&self, text: &str) -> bool {
-        self.to_search_text()
-            .is_some_and(|s| s.to_lowercase().contains(&text.to_lowercase()))
+    /// Case-insensitive containment check using the query value.
+    fn contains_text(&self, query: &str) -> bool {
+        self.to_query_value()
+            .is_some_and(|val| val.to_lowercase().contains(&query.to_lowercase()))
     }
 }
 
-impl<T: Display> Searchable for T {
-    fn to_search_text(&self) -> Option<String> {
+impl<T: Display> QueryValue for T {
+    fn to_query_value(&self) -> Option<String> {
         Some(self.to_string())
     }
 }
+
+///
+/// SortKeyPart
+///
+/// a type that can be formatted to be used as part of a sort key (lexicographic)
+///
+
+pub trait SortKeyPart {
+    // to_sort_key_part
+    // if None, the type CANNOT be formatted as a Sort Key and an error is returned
+    fn to_sort_key_part(&self) -> Option<String> {
+        None
+    }
+}
+
+macro_rules! impl_sort_key_part_ints {
+    ($($t:ty, $ut:ty, $len:expr),* $(,)?) => {
+        $(
+            impl SortKeyPart for $t {
+                #[allow(clippy::cast_sign_loss)]
+                fn to_sort_key_part(&self) -> Option<String> {
+                    if *self < 0 {
+                        let inverted = <$ut>::MAX - self.wrapping_abs() as $ut;
+                        Some(format!("-{:0>width$}", inverted, width = $len - 1))
+                    } else {
+                        Some(format!("{:0>width$}", *self as $ut, width = $len))
+                    }
+                }
+            }
+        )*
+    };
+}
+
+macro_rules! impl_sort_key_part_uints {
+    ($($t:ty, $len:expr),* $(,)?) => {
+        $(
+            impl SortKeyPart for $t {
+                fn to_sort_key_part(&self) -> Option<String> {
+                    Some(format!("{:0>width$}", self, width = $len))
+                }
+            }
+        )*
+    };
+}
+
+macro_rules! impl_sort_key_part_none {
+    ($($t:ty),* $(,)?) => {
+        $(
+            impl SortKeyPart for $t {
+                fn to_sort_key_part(&self) -> Option<String> {
+                    None
+                }
+            }
+        )*
+    };
+}
+
+#[rustfmt::skip]
+impl_sort_key_part_ints!(
+    i8, u8, 4,
+    i16, u16, 6,
+    i32, u32, 11,
+    i64, u64, 21,
+    i128, u128, 41
+);
+
+#[rustfmt::skip]
+impl_sort_key_part_uints!(
+    u8, 3,
+    u16, 5,
+    u32, 10,
+    u64, 20,
+    u128, 40
+);
+
+impl_sort_key_part_none!(bool, f32, f64);
 
 ///
 /// Validate

@@ -118,11 +118,11 @@ impl DeleteExecutor {
     fn remove_indexes(
         &self,
         resolved: &ResolvedEntity,
-        field_values: &HashMap<String, Option<String>>,
+        sort_values: &HashMap<String, Option<String>>,
     ) -> Result<(), DataError> {
         for index in resolved.indexes() {
             // skip invalid index keys
-            let Some(index_key) = resolved.build_index_key(index, field_values) else {
+            let Some(index_key) = resolved.index_key(index, sort_values) else {
                 continue;
             };
 

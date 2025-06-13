@@ -1,8 +1,6 @@
 use crate::{
     prelude::*,
-    traits::{
-        FormatSortKey, Inner, Orderable, Searchable, ValidateAuto, ValidateCustom, Visitable,
-    },
+    traits::{Inner, Orderable, QueryValue, SortKeyPart, ValidateAuto, ValidateCustom, Visitable},
 };
 use serde::{Deserialize, Serialize};
 
@@ -14,12 +12,6 @@ use serde::{Deserialize, Serialize};
     CandidType, Clone, Debug, Default, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize,
 )]
 pub struct Unit();
-
-impl FormatSortKey for Unit {
-    fn format_sort_key(&self) -> Option<String> {
-        None
-    }
-}
 
 impl Inner for Unit {
     type Primitive = Self;
@@ -35,7 +27,9 @@ impl Inner for Unit {
 
 impl Orderable for Unit {}
 
-impl Searchable for Unit {}
+impl QueryValue for Unit {}
+
+impl SortKeyPart for Unit {}
 
 impl ValidateAuto for Unit {}
 

@@ -40,7 +40,7 @@ checksum = "7dfdb4953a096c551ce9ace855a604d702e6e62d77fac690575ae347571717f5"
 
 [[package]]
 name = "benches"
-version = "0.4.6"
+version = "0.4.7"
 dependencies = [
  "bencher",
 ]
@@ -650,7 +650,7 @@ dependencies = [
 [[package]]
 name = "icu"
 version = "0.1.5"
-source = "git+https://github.com/dragginzgame/icu#46e50e5c1be3bd5b3327deeb5713f3b520898723"
+source = "git+https://github.com/dragginzgame/icu#7e3abbdb8f2b5574ee24d7dae794c443b1ca2d88"
 dependencies = [
  "candid",
  "ciborium",
@@ -659,6 +659,7 @@ dependencies = [
  "ic-cdk",
  "ic-cdk-timers",
  "ic-ledger-types",
+ "ic-management-canister-types",
  "ic-stable-structures",
  "ic_principal",
  "icrc-ledger-types",
@@ -748,7 +749,7 @@ checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
 name = "mimic"
-version = "0.4.6"
+version = "0.4.7"
 dependencies = [
  "candid",
  "convert_case 0.8.0",
@@ -775,7 +776,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_base"
-version = "0.4.6"
+version = "0.4.7"
 dependencies = [
  "candid",
  "ctor",
@@ -789,7 +790,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_design"
-version = "0.4.6"
+version = "0.4.7"
 dependencies = [
  "darling",
  "derive_more",
@@ -1116,7 +1117,7 @@ dependencies = [
 
 [[package]]
 name = "test_canister"
-version = "0.4.6"
+version = "0.4.7"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -1127,7 +1128,7 @@ dependencies = [
 
 [[package]]
 name = "test_design"
-version = "0.4.6"
+version = "0.4.7"
 dependencies = [
  "candid",
  "ctor",
@@ -1140,7 +1141,7 @@ dependencies = [
 
 [[package]]
 name = "tests"
-version = "0.4.6"
+version = "0.4.7"
 dependencies = [
  "mimic",
  "mimic_base",

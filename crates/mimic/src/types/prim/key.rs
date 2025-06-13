@@ -1,6 +1,6 @@
 use crate::{
     data::store::SortKey,
-    traits::{FormatSortKey, Orderable, ValidateAuto, ValidateCustom, Visitable},
+    traits::{Orderable, SortKeyPart, ValidateAuto, ValidateCustom, Visitable},
     types::Ulid,
 };
 use candid::CandidType;
@@ -73,12 +73,6 @@ impl fmt::Display for Key {
     }
 }
 
-impl FormatSortKey for Key {
-    fn format_sort_key(&self) -> Option<String> {
-        None
-    }
-}
-
 impl From<Ulid> for Key {
     fn from(ulid: Ulid) -> Self {
         Self(vec![ulid.to_string()])
@@ -117,6 +111,8 @@ impl FromStr for Key {
 }
 
 impl Orderable for Key {}
+
+impl SortKeyPart for Key {}
 
 impl ValidateCustom for Key {}
 

@@ -168,52 +168,12 @@ impl ResolvedEntity {
         key.into()
     }
 
-    // sort_key
-    // returns a sort key based on field values
-    #[must_use]
-    pub fn sort_key(&self, field_values: &HashMap<String, Option<String>>) -> SortKey {
-        let mut key_parts = Vec::with_capacity(self.sk_fields.len());
-
-        for sk in &self.sk_fields {
-            let value = sk
-                .field
-                .as_ref()
-                .and_then(|f| field_values.get(f))
-                .cloned()
-                .flatten();
-
-            key_parts.push((sk.label.clone(), value));
-        }
-
-        SortKey::new(key_parts)
-    }
-
-    // build_sort_key
-    // builds a sort key based on a specific key
-    #[must_use]
-    pub fn build_sort_key(&self, values: &[String]) -> SortKey {
-        let key_parts = self
-            .sk_fields
-            .iter()
-            .enumerate()
-            .map(|(i, sk)| {
-                let value = match sk.field {
-                    Some(_) => values.get(i).cloned(),
-                    None => None,
-                };
-                (sk.label.clone(), value)
-            })
-            .collect();
-
-        SortKey::new(key_parts)
-    }
-
-    // build_index_key
+    // index_key
     //
     // field_values are UNORDERED, it's the index.fields that is ORDERED
     // returning None means 'do not index'
     #[must_use]
-    pub fn build_index_key(
+    pub fn index_key(
         &self,
         index: &EntityIndex,
         field_values: &HashMap<String, Option<String>>,
@@ -239,27 +199,27 @@ impl ResolvedEntity {
     pub fn selector(&self, selector: &Selector) -> ResolvedSelector {
         match selector {
             Selector::All => {
-                let start = self.build_sort_key(&[]);
+                let start = self.sort_key(&[]);
                 let end = start.create_upper_bound();
 
                 ResolvedSelector::Range(start, end)
             }
-            Selector::Only => ResolvedSelector::One(self.build_sort_key(&[])),
-            Selector::One(key) => ResolvedSelector::One(self.build_sort_key(key)),
+            Selector::Only => ResolvedSelector::One(self.sort_key(&[])),
+            Selector::One(key) => ResolvedSelector::One(self.sort_key(key)),
             Selector::Many(keys) => {
-                let keys = keys.iter().map(|k| self.build_sort_key(k)).collect();
+                let keys = keys.iter().map(|k| self.sort_key(k)).collect();
 
                 ResolvedSelector::Many(keys)
             }
             Selector::Prefix(prefix) => {
-                let start = self.build_sort_key(prefix);
+                let start = self.sort_key(prefix);
                 let end = start.create_upper_bound();
 
                 ResolvedSelector::Range(start, end)
             }
             Selector::Range(start, end) => {
-                let start = self.build_sort_key(start);
-                let end = self.build_sort_key(end);
+                let start = self.sort_key(start);
+                let end = self.sort_key(end);
 
                 ResolvedSelector::Range(start, end)
             }

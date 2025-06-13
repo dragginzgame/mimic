@@ -1,6 +1,6 @@
 use crate::{
     prelude::*,
-    traits::{FormatSortKey, Inner, Orderable, Searchable, ValidateAuto, Visitable},
+    traits::{Inner, Orderable, QueryValue, SortKeyPart, ValidateAuto, Visitable},
 };
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
@@ -57,12 +57,6 @@ impl<const N: usize> From<&[u8; N]> for Blob {
     }
 }
 
-impl FormatSortKey for Blob {
-    fn format_sort_key(&self) -> Option<String> {
-        None
-    }
-}
-
 impl Inner for Blob {
     type Primitive = Self;
 
@@ -77,7 +71,9 @@ impl Inner for Blob {
 
 impl Orderable for Blob {}
 
-impl Searchable for Blob {}
+impl QueryValue for Blob {}
+
+impl SortKeyPart for Blob {}
 
 impl ValidateAuto for Blob {}
 

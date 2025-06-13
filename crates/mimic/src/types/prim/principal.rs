@@ -1,7 +1,7 @@
 use crate::{
     ThisError,
     prelude::*,
-    traits::{FormatSortKey, Inner, Orderable, ValidateAuto, ValidateCustom, Visitable},
+    traits::{Inner, Orderable, SortKeyPart, ValidateAuto, ValidateCustom, Visitable},
 };
 
 use derive_more::{Deref, DerefMut};
@@ -74,12 +74,6 @@ impl fmt::Display for Principal {
     }
 }
 
-impl FormatSortKey for Principal {
-    fn format_sort_key(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
-
 impl From<WrappedPrincipal> for Principal {
     fn from(p: WrappedPrincipal) -> Self {
         Principal(p)
@@ -137,6 +131,12 @@ impl PartialEq<WrappedPrincipal> for Principal {
 impl PartialEq<Principal> for WrappedPrincipal {
     fn eq(&self, other: &Principal) -> bool {
         *self == other.0
+    }
+}
+
+impl SortKeyPart for Principal {
+    fn to_sort_key_part(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 

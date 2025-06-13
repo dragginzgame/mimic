@@ -1,11 +1,12 @@
 mod default;
 mod entity;
 mod enum_value;
-mod format;
 mod from;
 mod inner;
 mod into;
 mod num;
+mod query_value;
+mod sort_key_part;
 mod validate;
 mod visitable;
 
@@ -14,11 +15,12 @@ pub mod implementor;
 pub use default::*;
 pub use entity::*;
 pub use enum_value::*;
-pub use format::*;
 pub use from::*;
 pub use inner::*;
 pub use into::*;
 pub use num::*;
+pub use query_value::*;
+pub use sort_key_part::*;
 pub use validate::*;
 pub use visitable::*;
 
@@ -68,8 +70,9 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
         // empty implementations are generated for these traits
         Trait::EntityFixture
         | Trait::EntityIdKind
+        | Trait::FormatQueryValue
+        | Trait::FormatSortKey
         | Trait::Orderable
-        | Trait::Searchable
         | Trait::ValidateAuto
         | Trait::ValidateCustom
         | Trait::Visitable => Some(Implementor::new(def, t).to_token_stream()),

@@ -108,7 +108,6 @@ impl TraitNode for Entity {
             Trait::EntityFixture,
             Trait::EntitySearch,
             Trait::EntitySort,
-            Trait::Searchable,
         ]);
 
         traits.list()
@@ -120,7 +119,6 @@ impl TraitNode for Entity {
             Trait::EntityKind => imp::EntityKindTrait::tokens(self, t),
             Trait::EntitySearch => imp::EntitySearchTrait::tokens(self, t),
             Trait::EntitySort => imp::EntitySortTrait::tokens(self, t),
-            Trait::FormatSortKey => imp::FormatSortKeyTrait::tokens(self, t),
             Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => imp::VisitableTrait::tokens(self, t),
 

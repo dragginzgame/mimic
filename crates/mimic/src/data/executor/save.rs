@@ -75,8 +75,7 @@ impl SaveExecutor {
 
         // resolve - get schema data
         let resolved = with_resolver(|r| r.entity(E::PATH))?;
-        let key_values = &entity.key_values();
-        let sk = resolved.sort_key(key_values);
+        let sk = &entity.sort_key();
         let store = self
             .data
             .with(|data| data.try_get_store(resolved.store_path()))?;
@@ -119,7 +118,7 @@ impl SaveExecutor {
         };
 
         // update indexes
-        let old_key_values = old_ev.as_ref().map(|ev| ev.entity.key_values());
+        let old_sort_values = old_ev.as_ref().map(|ev| ev.entity.sort_values());
         self.update_indexes(&resolved, old_key_values.as_ref(), key_values, mode)?;
 
         // prepare data value
@@ -155,7 +154,7 @@ impl SaveExecutor {
 
             // 🔁 Remove old index entry if applicable
             if let Some(old) = old_values {
-                if let Some(old_index_key) = resolved.build_index_key(index, old) {
+                if let Some(old_index_key) = resolved.index_key(index, old) {
                     let old_key = resolved.key(old);
 
                     index_store.with_borrow_mut(|istore| {
@@ -179,7 +178,7 @@ impl SaveExecutor {
             }
 
             // ✅ Insert new index entry
-            if let Some(new_index_key) = resolved.build_index_key(index, new_values) {
+            if let Some(new_index_key) = resolved.index_key(index, new_values) {
                 let new_key = resolved.key(new_values);
 
                 index_store.with_borrow_mut(|istore| {

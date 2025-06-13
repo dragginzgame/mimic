@@ -6,12 +6,13 @@ use crate::prelude::*;
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "Index", field = "id"),
+    sk(entity = "Index", field = "a"),
     index(store = "crate::schema::TestIndex", fields = "x"),
     index(store = "crate::schema::TestIndex", fields = "y", unique),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "x", value(item(prim = "Int32"))),
-    field(name = "y", value(item(prim = "Int32")))
+    field(name = "y", value(item(prim = "Int32"))),
+    field(name = "a", value(item(is = "crate::admin::EnumA")))
 )]
 pub struct Index {}
 

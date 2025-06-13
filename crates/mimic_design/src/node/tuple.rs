@@ -79,14 +79,13 @@ impl TraitNode for Tuple {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
-        traits.extend(vec![Trait::Deref, Trait::DerefMut, Trait::Searchable]);
+        traits.extend(vec![Trait::Deref, Trait::DerefMut]);
 
         traits.list()
     }
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::FormatSortKey => imp::FormatSortKeyTrait::tokens(self, t),
             Trait::Visitable => imp::VisitableTrait::tokens(self, t),
 
             _ => imp::any(self, t),

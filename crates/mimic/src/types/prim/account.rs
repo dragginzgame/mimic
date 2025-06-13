@@ -1,5 +1,5 @@
 use crate::{
-    traits::{FormatSortKey, Inner, Orderable, ValidateAuto, ValidateCustom, Visitable},
+    traits::{Inner, Orderable, SortKeyPart, ValidateAuto, ValidateCustom, Visitable},
     types::{Principal, Subaccount},
 };
 use derive_more::{Deref, DerefMut};
@@ -67,12 +67,6 @@ impl From<WrappedAccount> for Account {
     }
 }
 
-impl FormatSortKey for Account {
-    fn format_sort_key(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
-
 impl Inner for Account {
     type Primitive = Self;
 
@@ -100,6 +94,12 @@ impl PartialEq<Account> for WrappedAccount {
 impl PartialEq<WrappedAccount> for Account {
     fn eq(&self, other: &WrappedAccount) -> bool {
         &self.0 == other
+    }
+}
+
+impl SortKeyPart for Account {
+    fn to_sort_key_part(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 
