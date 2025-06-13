@@ -4,17 +4,6 @@ pub mod icrc3;
 use crate::prelude::*;
 
 ///
-/// Account
-///
-
-#[record(
-    field(name = "owner", value(item(prim = "Principal"))),
-    field(name = "subaccount", value(opt, item(prim = "Subaccount"))),
-    traits(add(Default))
-)]
-pub struct Account {}
-
-///
 /// Memo
 ///
 

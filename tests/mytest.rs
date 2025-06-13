@@ -9,22 +9,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_ic_account() {
-        use mimic::types::{Principal, Subaccount};
-        use mimic_base::types::ic::Account;
-
-        let e = Account {
-            owner: Principal::anonymous(),
-            subaccount: Some(Subaccount::from_u128s(0, 1000000)),
-        };
-
-        println!("{:?} {}", e, e.owner);
-        if let Some(subaccount) = e.subaccount {
-            println!("subaccount: {subaccount}");
-        }
-    }
-
-    #[test]
     fn test_get_sort_keys() {
         use test_design::index::Index;
 
