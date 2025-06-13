@@ -107,11 +107,29 @@ impl LoadQuery {
         self
     }
 
-    // where
+    // where_
     #[must_use]
-    pub fn where_<W: Into<Where>>(mut self, r#where: W) -> Self {
-        self.r#where = Some(r#where.into());
+    pub fn where_<K, V, I>(mut self, matches: I) -> Self
+    where
+        K: Into<String>,
+        V: Into<String>,
+        I: IntoIterator<Item = (K, V)>,
+    {
+        let where_clause = Where {
+            matches: matches
+                .into_iter()
+                .map(|(k, v)| (k.into(), v.into()))
+                .collect(),
+        };
+
+        self.r#where = Some(where_clause);
         self
+    }
+
+    // where_field
+    #[must_use]
+    pub fn where_field<K: Into<String>, V: Into<String>>(self, field: K, value: V) -> Self {
+        self.where_(vec![(field.into(), value.into())])
     }
 
     // offset
