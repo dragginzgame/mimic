@@ -1,7 +1,13 @@
-use crate::traits::{FormatSortKey, Inner, Orderable, ValidateAuto, ValidateCustom, Visitable};
+use crate::{
+    traits::{FormatSortKey, Inner, Orderable, ValidateAuto, ValidateCustom, Visitable},
+    types::Principal,
+};
 use derive_more::{Deref, DerefMut};
 use icu::{
-    ic::{candid::CandidType, ledger_types::Subaccount as WrappedSubaccount},
+    ic::{
+        candid::CandidType, ledger_types::Subaccount as WrappedSubaccount,
+        principal::Principal as WrappedPrincipal,
+    },
     impl_storable_bounded,
 };
 use serde::{Deserialize, Serialize};
@@ -33,6 +39,11 @@ pub struct Subaccount(WrappedSubaccount);
 
 impl Subaccount {
     #[must_use]
+    pub fn as_bytes(&self) -> &[u8; 32] {
+        &self.0.0
+    }
+
+    #[must_use]
     pub fn from_u128s(a: u128, b: u128) -> Self {
         let mut bytes = [0u8; 32];
         bytes[..16].copy_from_slice(&a.to_be_bytes());
@@ -55,6 +66,18 @@ impl fmt::Display for Subaccount {
         }
 
         Ok(())
+    }
+}
+
+impl From<Principal> for Subaccount {
+    fn from(principal: Principal) -> Self {
+        Self((*principal).into())
+    }
+}
+
+impl From<WrappedPrincipal> for Subaccount {
+    fn from(principal: WrappedPrincipal) -> Self {
+        Self(principal.into())
     }
 }
 
