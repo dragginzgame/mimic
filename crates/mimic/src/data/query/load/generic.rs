@@ -85,7 +85,7 @@ pub struct LoadQuery {
     pub selector: Selector,
     pub format: LoadFormat,
     pub r#where: Option<Where>,
-    pub limit: Option<usize>,
+    pub limit: Option<u32>,
     pub offset: u32,
     pub search: Vec<(String, String)>,
     pub sort: Vec<(String, SortDirection)>,
@@ -141,14 +141,14 @@ impl LoadQuery {
 
     // limit
     #[must_use]
-    pub const fn limit(mut self, limit: usize) -> Self {
+    pub const fn limit(mut self, limit: u32) -> Self {
         self.limit = Some(limit);
         self
     }
 
     // limit_option
     #[must_use]
-    pub const fn limit_option(mut self, limit: Option<usize>) -> Self {
+    pub const fn limit_option(mut self, limit: Option<u32>) -> Self {
         self.limit = limit;
         self
     }

@@ -145,7 +145,7 @@ impl DbTester {
     // create_lots
     fn create_lots() {
         use test_design::db::CreateBasic;
-        const ROWS: usize = 1_000;
+        const ROWS: u32 = 1_000;
 
         // insert rows
         for _ in 0..ROWS {
@@ -209,7 +209,7 @@ impl DbTester {
                     .unwrap()
                     .count();
 
-                assert_eq!(count, limit as usize, "{limit} not equal to {count}");
+                assert_eq!(count, limit, "{limit} not equal to {count}");
                 //    if !results.is_empty() {
                 //        assert_eq!(results[0].value, offset + 1);
                 //    }

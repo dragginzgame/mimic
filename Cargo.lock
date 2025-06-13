@@ -650,7 +650,7 @@ dependencies = [
 [[package]]
 name = "icu"
 version = "0.1.5"
-source = "git+https://github.com/dragginzgame/icu#b3fc24c935e30489a0ea0c00389f4f70d4e6dad9"
+source = "git+https://github.com/dragginzgame/icu#46e50e5c1be3bd5b3327deeb5713f3b520898723"
 dependencies = [
  "candid",
  "ciborium",

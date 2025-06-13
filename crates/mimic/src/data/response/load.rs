@@ -21,7 +21,7 @@ use serde::{Deserialize, Serialize};
 pub enum LoadResponse {
     Rows(Vec<DataRow>),
     Keys(Vec<SortKey>),
-    Count(usize),
+    Count(u32),
 }
 
 ///
@@ -49,8 +49,8 @@ where
 
     // count
     #[must_use]
-    pub const fn count(&self) -> usize {
-        self.0.len()
+    pub const fn count(&self) -> u32 {
+        self.0.len() as u32
     }
 
     // key
@@ -157,8 +157,8 @@ pub struct LoadCollectionDyn(pub Vec<DataRow>);
 impl LoadCollectionDyn {
     // count
     #[must_use]
-    pub const fn count(&self) -> usize {
-        self.0.len()
+    pub const fn count(&self) -> u32 {
+        self.0.len() as u32
     }
 
     // key
