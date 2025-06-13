@@ -89,8 +89,7 @@ impl LoadExecutorDyn {
             .load(&resolved_entity, &query.selector, None)?
             .into_iter()
             .filter(|row| include_row(row, &query, E::PATH))
-            .skip(query.offset as usize)
-            .take(query.limit.unwrap_or(u32::MAX) as usize)
+            .take(query.limit.unwrap_or(usize::MAX))
             .collect();
 
         Ok(LoadCollectionDyn(rows))
