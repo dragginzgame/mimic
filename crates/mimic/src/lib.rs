@@ -34,9 +34,8 @@ extern crate self as mimic;
 
 pub mod prelude {
     pub use crate::{
-        data::executor::SaveExecutor,
+        data::{SortDirection, executor::SaveExecutor},
         mimic_start, query_delete, query_load, query_load_dyn, query_save,
-        schema::types::SortDirection,
         service::EntityService,
         traits::{
             EntityFixture, EntityIdKind as _, EntityKind as _, FormatSortKey as _, Inner as _,

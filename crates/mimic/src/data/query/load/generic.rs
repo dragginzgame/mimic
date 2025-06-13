@@ -2,9 +2,8 @@
 use crate::{
     data::{
         query::LoadFormat,
-        types::{Selector, Where},
+        types::{Selector, SortDirection, Where},
     },
-    schema::types::SortDirection,
     types::Key,
 };
 use candid::CandidType;

@@ -2,7 +2,7 @@ use crate::{
     schema::{
         build::validate::validate_ident,
         node::{Arg, ValidateNode, Value, VisitableNode},
-        types::{Cardinality, SortDirection},
+        types::Cardinality,
         visit::Visitor,
     },
     types::ErrorTree,
@@ -70,17 +70,3 @@ impl VisitableNode for Field {
         }
     }
 }
-
-///
-/// FieldOrder
-///
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct FieldOrder {
-    pub field: String,
-    pub direction: SortDirection,
-}
-
-impl ValidateNode for FieldOrder {}
-
-impl VisitableNode for FieldOrder {}

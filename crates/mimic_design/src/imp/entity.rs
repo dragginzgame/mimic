@@ -153,13 +153,13 @@ impl Imp<Entity> for EntitySortTrait {
             });
 
             match_arms.extend(quote! {
-                (#field_str, ::mimic::schema::types::SortDirection::Asc) => comps.push(#asc_fn),
-                (#field_str, ::mimic::schema::types::SortDirection::Desc) => comps.push(#desc_fn),
+                (#field_str, ::mimic::data::SortDirection::Asc) => comps.push(#asc_fn),
+                (#field_str, ::mimic::data::SortDirection::Desc) => comps.push(#desc_fn),
             });
         }
 
         let q = quote! {
-            fn sort(order: &[(String, ::mimic::schema::types::SortDirection)])
+            fn sort(order: &[(String, ::mimic::data::SortDirection)])
                 -> Box<dyn Fn(&#node_ident, &#node_ident) -> ::std::cmp::Ordering>
             {
                 #asc_fns

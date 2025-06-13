@@ -236,27 +236,6 @@ impl ToTokens for PrimitiveType {
 }
 
 ///
-/// SortDirection
-///
-
-#[derive(
-    CandidType, Clone, Copy, Default, Debug, Deserialize, Display, FromMeta, FromStr, Serialize,
-)]
-pub enum SortDirection {
-    #[default]
-    Asc,
-    Desc,
-}
-
-impl ToTokens for SortDirection {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = format_ident!("{}", self.to_string());
-
-        tokens.extend(quote!(::mimic::schema::types::SortDirection::#ident));
-    }
-}
-
-///
 /// StoreType
 ///
 

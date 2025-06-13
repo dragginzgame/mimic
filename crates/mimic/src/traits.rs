@@ -17,8 +17,7 @@ pub use std::{
 };
 
 use crate::{
-    data::executor::SaveExecutor,
-    schema::types::SortDirection,
+    data::{SortDirection, executor::SaveExecutor},
     types::{ErrorTree, Key, Ulid},
     visit::Visitor,
 };

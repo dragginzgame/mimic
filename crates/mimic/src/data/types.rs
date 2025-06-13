@@ -26,6 +26,17 @@ pub enum Selector {
 }
 
 ///
+/// SortDirection
+///
+
+#[derive(CandidType, Clone, Copy, Default, Debug, Deserialize, Serialize)]
+pub enum SortDirection {
+    #[default]
+    Asc,
+    Desc,
+}
+
+///
 /// Where
 ///
 

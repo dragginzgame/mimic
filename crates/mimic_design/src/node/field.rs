@@ -4,7 +4,6 @@ use crate::{
     traits::Schemable,
 };
 use darling::FromMeta;
-use mimic::schema::types::SortDirection;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use syn::Ident;
@@ -46,44 +45,6 @@ impl ToTokens for Field {
         // build struct field
         tokens.extend(quote! {
             pub #name : #value
-        });
-    }
-}
-
-///
-/// FieldOrder
-///
-
-#[derive(Clone, Debug, FromMeta)]
-pub struct FieldOrder {
-    pub field: Ident,
-
-    #[darling(default)]
-    pub direction: SortDirection,
-}
-
-impl Schemable for FieldOrder {
-    fn schema(&self) -> TokenStream {
-        let field = quote_one(&self.field, to_string);
-        let direction = &self.direction;
-
-        quote! {
-            ::mimic::schema::node::FieldOrder {
-                field: #field,
-                direction: #direction,
-            }
-        }
-    }
-}
-
-impl ToTokens for FieldOrder {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let field = &self.field.to_string();
-        let direction = &self.direction;
-
-        // bulld struct field
-        tokens.extend(quote! {
-            (#field.to_string(), #direction)
         });
     }
 }
