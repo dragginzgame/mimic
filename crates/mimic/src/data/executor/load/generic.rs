@@ -82,7 +82,7 @@ impl LoadExecutor {
         let rows = apply_all_post(rows, &query)
             .into_iter()
             .skip(query.offset as usize)
-            .take(query.limit.unwrap_or(u32::MAX) as usize)
+            .take(query.limit.unwrap_or(usize::MAX))
             .collect();
 
         Ok(LoadCollection(rows))
