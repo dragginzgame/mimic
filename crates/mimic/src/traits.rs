@@ -99,7 +99,7 @@ pub trait EntityKind: TypeKind + EntityFixture + EntitySearch + EntitySort {
     fn query_values(&self) -> HashMap<String, Option<String>>;
 
     // sort_key
-    // takes in a set of string values, returns a formatted sort key
+    // returns the current sort key of the entity by calling build_sort_key
     fn sort_key(&self) -> SortKey;
 
     // build_sort_key
@@ -363,8 +363,6 @@ impl<T: Display> QueryValue for T {
 
 ///
 /// SortKeyPart
-///
-/// a type that can be formatted to be used as part of a sort key (lexicographic)
 ///
 
 pub trait SortKeyPart {

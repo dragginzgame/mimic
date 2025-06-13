@@ -17,7 +17,8 @@ impl Imp<Entity> for EntityKindTrait {
         let mut q = quote!();
 
         q.extend(query_values(node));
-        q.extend(sort_values(node));
+        q.extend(build_sort_key(node));
+        q.extend(sort_key(node));
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
@@ -58,9 +59,48 @@ fn query_values(node: &Entity) -> TokenStream {
     }
 }
 
-// sort_values
-// if none is returned then the field cannot be used as part of the sort key
-fn sort_values(node: &Entity) -> TokenStream {
+// build_sort_key
+fn build_sort_key(node: &Entity) -> TokenStream {
+    let assignments = node
+        .sort_keys
+        .iter()
+        .enumerate()
+        .filter_map(|(i, sk)| {
+            let field_type = &sk.field.value.item;
+            let index = syn::Index::from(i);
+
+            Some(quote! {
+                {
+                    let raw = values.get(#index);
+                    let parsed: #field_type = <#field_type as ::mimic::traits::ParseSortKeyPart>::parse_sort_key_part(raw)
+                        .ok_or_else(|| ::mimic::Error::InvalidSortKeyValue(#index))?;
+                    let formatted = parsed.to_sort_key_part()
+                        .ok_or_else(|| ::mimic::Error::UnsortableField(#index))?;
+
+                    formatted
+                }
+            })
+        });
+
+    quote! {
+        fn build_sort_key(&self, values: &[String]) -> ::mimic::SortKey {
+            let parts = vec![
+                #(#assignments),*
+            ];
+
+            let labels = self.sk_fields()
+                .iter()
+                .map(|sk| sk.label.clone())
+                .collect::<Vec<_>>();
+
+            let key_parts = labels.into_iter().zip(parts.into_iter()).map(|(k, v)| (k, Some(v))).collect();
+            ::mimic::SortKey::new(key_parts)
+        }
+    }
+}
+
+// sort_key
+fn sort_key(node: &Entity) -> TokenStream {
     let entries = node.sort_keys.iter().map(|sk| {
         let field_ident = &sk.field;
 
@@ -74,10 +114,10 @@ fn sort_values(node: &Entity) -> TokenStream {
     });
 
     quote! {
-        fn sort_values(&self) -> Result<Vec<String>, Error> {
-            vec![
+        fn sort_key(&self) -> Result<Vec<String>, Error> {
+            self.build_sort_key(&[
                 #(#entries),*
-            ]
+            ])
         }
     }
 }
