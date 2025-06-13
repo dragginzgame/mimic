@@ -43,8 +43,8 @@ pub mod prelude {
         service::EntityService,
         traits::{
             EntityFixture, EntityIdKind as _, EntityKind as _, FormatSortKey as _, Inner as _,
-            NumCast, Ordering, Path as _, Validate as _, ValidateCustom, ValidatorBytes,
-            ValidatorNumber, ValidatorString, Visitable as _,
+            NumCast as _, Path as _, Validate as _, ValidateCustom, ValidatorBytes as _,
+            ValidatorNumber as _, ValidatorString as _, Visitable as _,
         },
         types::{ErrorTree, Key, KeySet, Ulid},
     };

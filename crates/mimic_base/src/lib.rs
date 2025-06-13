@@ -13,6 +13,9 @@ pub mod validator;
 pub(crate) mod prelude {
     pub use crate::{types, validator};
     pub use mimic::prelude::*;
-    pub use mimic::types::*;
+    pub use mimic::{
+        traits::{ValidatorBytes, ValidatorNumber, ValidatorString},
+        types::*,
+    };
     pub use mimic_design::*;
 }
