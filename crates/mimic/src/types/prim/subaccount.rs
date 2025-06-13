@@ -39,8 +39,8 @@ pub struct Subaccount(WrappedSubaccount);
 
 impl Subaccount {
     #[must_use]
-    pub fn as_bytes(&self) -> &[u8; 32] {
-        &self.0.0
+    pub fn to_bytes(self) -> [u8; 32] {
+        self.0.0
     }
 
     #[must_use]
