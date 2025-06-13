@@ -38,7 +38,13 @@ impl Subaccount {
         bytes[..16].copy_from_slice(&a.to_be_bytes());
         bytes[16..].copy_from_slice(&b.to_be_bytes());
 
-        Subaccount(WrappedSubaccount(bytes))
+        Self(WrappedSubaccount(bytes))
+    }
+}
+
+impl Default for Subaccount {
+    fn default() -> Self {
+        Self(WrappedSubaccount([0u8; 32]))
     }
 }
 
