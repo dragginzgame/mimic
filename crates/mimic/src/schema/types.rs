@@ -104,6 +104,7 @@ impl ToTokens for ConstantType {
 #[derive(CandidType, Debug, Clone, Copy, Display, FromStr, Serialize, Deserialize)]
 #[remain::sorted]
 pub enum PrimitiveType {
+    Account,
     Blob,
     Bool,
     Decimal,
@@ -173,6 +174,7 @@ impl PrimitiveType {
     #[must_use]
     pub fn as_type(&self) -> TokenStream {
         match self {
+            Self::Account => quote!(::mimic::types::Account),
             Self::Bool => quote!(::mimic::types::Bool),
             Self::Blob => quote!(::mimic::types::Blob),
             Self::Decimal => quote!(::mimic::types::Decimal),

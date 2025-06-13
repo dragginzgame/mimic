@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Principal now handles From and PartialEq with its wrapped type much betterer
 - added Subaccount as a primitive type, so Storable sticks to 32 bytes
 - using the wrapped Subaccount and ic_principal from icu
+- added Account to primitives
 
 ## [0.4.5]
 - grouped data, store, response and executor under data/

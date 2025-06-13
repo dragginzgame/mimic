@@ -1,3 +1,4 @@
+mod account;
 mod blob;
 mod decimal;
 mod int;
@@ -8,6 +9,7 @@ mod subaccount;
 mod ulid;
 mod unit;
 
+pub use account::Account;
 pub use blob::Blob;
 pub use decimal::Decimal;
 pub use int::Int;
