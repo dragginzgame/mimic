@@ -1,6 +1,8 @@
 use crate::{
     prelude::*,
-    traits::{FormatSortKey, Inner, ValidateAuto, ValidateCustom},
+    traits::{
+        FormatSortKey, Inner, Orderable, Searchable, ValidateAuto, ValidateCustom, Visitable,
+    },
 };
 use serde::{Deserialize, Serialize};
 

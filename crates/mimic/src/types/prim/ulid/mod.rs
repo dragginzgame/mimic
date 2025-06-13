@@ -4,7 +4,7 @@ pub mod generator;
 use crate::{
     ThisError,
     prelude::*,
-    traits::{FormatSortKey, Inner, Orderable, ValidateAuto, ValidateCustom},
+    traits::{FormatSortKey, Inner, Orderable, ValidateAuto, ValidateCustom, Visitable},
     types::ErrorTree,
 };
 use ::ulid::Ulid as WrappedUlid;

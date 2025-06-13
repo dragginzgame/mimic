@@ -34,13 +34,17 @@ extern crate self as mimic;
 
 pub mod prelude {
     pub use crate::{
-        data::{SortDirection, executor::SaveExecutor},
+        data::{
+            SortDirection,
+            executor::SaveExecutor,
+            response::{LoadCollection, LoadCollectionDyn},
+        },
         mimic_start, query_delete, query_load, query_load_dyn, query_save,
         service::EntityService,
         traits::{
             EntityFixture, EntityIdKind as _, EntityKind as _, FormatSortKey as _, Inner as _,
-            NumCast, Orderable, Ordering, Path, Searchable, Validate as _, ValidateCustom,
-            ValidatorBytes, ValidatorNumber, ValidatorString, Visitable,
+            NumCast, Ordering, Path as _, Validate as _, ValidateCustom, ValidatorBytes,
+            ValidatorNumber, ValidatorString, Visitable as _,
         },
         types::{ErrorTree, Key, KeySet, Ulid},
     };

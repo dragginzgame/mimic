@@ -1,6 +1,6 @@
 use crate::{
     prelude::*,
-    traits::{FormatSortKey, Inner, ValidateAuto},
+    traits::{FormatSortKey, Inner, Orderable, ValidateAuto, Visitable},
 };
 use candid::{CandidType, Nat as WrappedNat};
 use derive_more::{Deref, DerefMut, FromStr};
