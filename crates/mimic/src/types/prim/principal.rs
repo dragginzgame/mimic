@@ -3,9 +3,12 @@ use crate::{
     prelude::*,
     traits::{FormatSortKey, Inner, Orderable, ValidateAuto, ValidateCustom, Visitable},
 };
-use candid::{CandidType, Principal as WrappedPrincipal};
+
 use derive_more::{Deref, DerefMut};
-use icu::{ic::api::msg_caller, impl_storable_bounded};
+use icu::{
+    ic::{api::msg_caller, candid::CandidType, principal::Principal as WrappedPrincipal},
+    impl_storable_bounded,
+};
 use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,

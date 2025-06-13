@@ -126,9 +126,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.26"
+version = "1.2.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "956a5e21988b87f372569b66183b78babf23ebc2e744b733e4350a752c4dafac"
+checksum = "d487aa071b5f64da6f19a3e848e3578944b726ee5a4854b82172f02aa876bfdc"
 dependencies = [
  "shlex",
 ]
@@ -552,6 +552,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "ic-ledger-types"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "feb52826a353b583012628af6da762b52672350686c3275234febfadeca965ea"
+dependencies = [
+ "candid",
+ "crc32fast",
+ "hex",
+ "ic-cdk",
+ "serde",
+ "serde_bytes",
+ "sha2",
+]
+
+[[package]]
 name = "ic-management-canister-types"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -634,8 +649,8 @@ dependencies = [
 
 [[package]]
 name = "icu"
-version = "0.1.4"
-source = "git+https://github.com/dragginzgame/icu#d4a4c0530d54b0e8971db0bc11876a96149c207f"
+version = "0.1.5"
+source = "git+https://github.com/dragginzgame/icu#b3fc24c935e30489a0ea0c00389f4f70d4e6dad9"
 dependencies = [
  "candid",
  "ciborium",
@@ -643,7 +658,9 @@ dependencies = [
  "derive_more",
  "ic-cdk",
  "ic-cdk-timers",
+ "ic-ledger-types",
  "ic-stable-structures",
+ "ic_principal",
  "icrc-ledger-types",
  "remain",
  "serde",
@@ -740,7 +757,6 @@ dependencies = [
  "derive_more",
  "hex",
  "ic-cdk",
- "ic-stable-structures",
  "icu",
  "num-traits",
  "proc-macro2",

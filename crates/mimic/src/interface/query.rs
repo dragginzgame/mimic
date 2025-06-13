@@ -4,10 +4,9 @@ use crate::{
         query::{DeleteQuery, LoadQuery, SaveQuery},
         response::{DeleteResponse, LoadResponse, SaveResponse},
     },
-    ic::call::Call,
     interface::InterfaceError,
 };
-use candid::Principal;
+use icu::ic::{call::Call, principal::Principal};
 use thiserror::Error as ThisError;
 
 ///

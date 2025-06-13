@@ -1,7 +1,9 @@
 use crate::traits::{FormatSortKey, Inner, Orderable, ValidateAuto, ValidateCustom, Visitable};
-use candid::CandidType;
 use derive_more::{Deref, DerefMut};
-use icu::impl_storable_bounded;
+use icu::{
+    ic::{candid::CandidType, ledger_types::Subaccount as WrappedSubaccount},
+    impl_storable_bounded,
+};
 use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,
@@ -17,7 +19,6 @@ use std::{
     Clone,
     Copy,
     Debug,
-    Default,
     Deref,
     DerefMut,
     Eq,
@@ -28,7 +29,7 @@ use std::{
     Serialize,
     Deserialize,
 )]
-pub struct Subaccount([u8; 32]);
+pub struct Subaccount(WrappedSubaccount);
 
 impl Subaccount {
     #[must_use]
@@ -37,34 +38,29 @@ impl Subaccount {
         bytes[..16].copy_from_slice(&a.to_be_bytes());
         bytes[16..].copy_from_slice(&b.to_be_bytes());
 
-        Subaccount(bytes)
-    }
-}
-
-impl AsRef<[u8]> for Subaccount {
-    fn as_ref(&self) -> &[u8] {
-        &self.0
+        Subaccount(WrappedSubaccount(bytes))
     }
 }
 
 impl fmt::Display for Subaccount {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for byte in &self.0 {
+        for byte in &self.0.0 {
             write!(f, "{:02x}", byte)?;
         }
+
         Ok(())
     }
 }
 
-impl From<Subaccount> for [u8; 32] {
+impl From<Subaccount> for WrappedSubaccount {
     fn from(sub: Subaccount) -> Self {
         sub.0
     }
 }
 
-impl From<[u8; 32]> for Subaccount {
-    fn from(bytes: [u8; 32]) -> Self {
-        Subaccount(bytes)
+impl From<WrappedSubaccount> for Subaccount {
+    fn from(wrap: WrappedSubaccount) -> Self {
+        Subaccount(wrap)
     }
 }
 
@@ -92,14 +88,14 @@ impl Orderable for Subaccount {
     }
 }
 
-impl PartialEq<Subaccount> for [u8; 32] {
+impl PartialEq<Subaccount> for WrappedSubaccount {
     fn eq(&self, other: &Subaccount) -> bool {
         self == &other.0
     }
 }
 
-impl PartialEq<[u8; 32]> for Subaccount {
-    fn eq(&self, other: &[u8; 32]) -> bool {
+impl PartialEq<WrappedSubaccount> for Subaccount {
+    fn eq(&self, other: &WrappedSubaccount) -> bool {
         &self.0 == other
     }
 }
