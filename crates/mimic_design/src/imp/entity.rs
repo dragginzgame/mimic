@@ -14,7 +14,11 @@ pub struct EntityKindTrait {}
 
 impl Imp<Entity> for EntityKindTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
-        let mut q = quote!();
+        // store
+        let store = node.store;
+        let mut q = quote! {
+            const STORE: &'static str = #store;
+        };
 
         q.extend(searchable_fields(node));
         q.extend(sort_key(node));

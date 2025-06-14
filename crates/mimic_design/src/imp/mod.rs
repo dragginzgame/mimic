@@ -68,8 +68,8 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
         // empty implementations are generated for these traits
         Trait::EntityFixture
         | Trait::EntityIdKind
-        | Trait::FieldQueryable
         | Trait::FieldOrderable
+        | Trait::FieldQueryable
         | Trait::Orderable
         | Trait::ValidateAuto
         | Trait::ValidateCustom

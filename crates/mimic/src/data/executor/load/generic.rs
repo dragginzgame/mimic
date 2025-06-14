@@ -2,10 +2,11 @@ use crate::{
     Error,
     data::{
         DataError,
-        executor::{DebugContext, Loader, types::EntityRow, with_resolver},
+        executor::{DebugContext, Loader, with_resolver},
         query::{LoadFormat, LoadQuery},
         response::{LoadCollection, LoadResponse},
         store::{DataStoreRegistry, IndexStoreRegistry},
+        types::EntityRow,
     },
     traits::EntityKind,
 };
@@ -72,7 +73,7 @@ impl LoadExecutor {
         let loader = Loader::new(self.data_reg, self.index_reg, self.debug);
 
         let rows = loader
-            .load(&resolved_entity, &query.selector, query.r#where.as_ref())?
+            .load::<E>(&resolved_entity, &query.selector, query.r#where.as_ref())?
             .into_iter()
             .filter(|row| row.value.path == E::PATH)
             .map(TryFrom::try_from)

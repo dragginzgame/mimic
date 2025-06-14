@@ -98,6 +98,8 @@ impl<T> TypeKind for T where
 ///
 
 pub trait EntityKind: TypeKind + EntityFixture + EntitySearch + EntitySort + PartialEq {
+    const STORE: &'static str;
+
     // searchable_fields
     fn searchable_fields(&self) -> HashMap<String, Option<String>>;
 

@@ -11,6 +11,7 @@ use crate::{
         store::{DataStoreLocal, DataStoreRegistry, IndexStoreRegistry},
         types::{DataRow, ResolvedSelector, Selector, SortKey, Where},
     },
+    traits::EntityKind,
     types::Key,
 };
 use std::collections::HashMap;
@@ -40,12 +41,15 @@ impl Loader {
     }
 
     // load
-    pub fn load(
+    pub fn load<E>(
         &self,
         resolved: &ResolvedEntity,
         selector: &Selector,
         where_clause: Option<&Where>,
-    ) -> Result<Vec<DataRow>, DataError> {
+    ) -> Result<Vec<DataRow>, DataError>
+    where
+        E: EntityKind,
+    {
         // does the where clause modify the selector?
         let selector = match where_clause {
             Some(wc) => self.resolve_selector_with_index(resolved, selector, wc)?,
@@ -53,10 +57,8 @@ impl Loader {
         };
 
         // get store
-        let store = self
-            .data_reg
-            .with(|db| db.try_get_store(resolved.store_path()))?;
-        let resolved_selector = resolved.selector(&selector);
+        let store = self.data_reg.with(|db| db.try_get_store(E::STORE))?;
+        let resolved_selector = selector.resolve::<E>();
 
         // load rows
         let rows = match resolved_selector {

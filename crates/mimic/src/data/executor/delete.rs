@@ -2,7 +2,7 @@ use crate::{
     Error,
     data::{
         DataError,
-        executor::{DebugContext, ResolvedEntity, with_resolver},
+        executor::{DebugContext, ResolvedEntity, resolve_entity},
         query::{DeleteQuery, QueryError},
         response::{DeleteCollection, DeleteResponse, DeleteRow},
         store::{DataStoreRegistry, IndexStoreRegistry},
@@ -68,9 +68,9 @@ impl DeleteExecutor {
             .println(&format!("query.delete: query is {query:?}"));
 
         // resolver
-        let resolved = with_resolver(|r| r.entity(E::PATH))?;
-        let selector = resolved.selector(&query.selector);
-        let sort_keys: Vec<SortKey> = match selector {
+        let resolved_entity = resolve_entity::<E>()?;
+        let resolved_selector = query.selector.resolve::<E>();
+        let sort_keys: Vec<SortKey> = match resolved_selector {
             ResolvedSelector::One(key) => vec![key],
             ResolvedSelector::Many(keys) => keys,
             ResolvedSelector::Range(..) => {
@@ -79,9 +79,7 @@ impl DeleteExecutor {
         };
 
         // get store
-        let store = self
-            .data_reg
-            .with(|db| db.try_get_store(resolved.store_path()))?;
+        let store = self.data_reg.with(|db| db.try_get_store(E::STORE))?;
 
         //
         // execute for every different key
@@ -97,7 +95,7 @@ impl DeleteExecutor {
                 let field_values = entity.searchable_fields();
 
                 // Step 3: Remove indexes
-                self.remove_indexes(&resolved, &field_values)?;
+                self.remove_indexes(&resolved_entity, &field_values)?;
 
                 // Step 4: Delete the data row itself
                 store.with_borrow_mut(|store| {

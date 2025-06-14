@@ -2,7 +2,7 @@ use crate::{
     Error,
     data::{
         DataError,
-        executor::{DebugContext, ExecutorError, ResolvedEntity, with_resolver},
+        executor::{DebugContext, ExecutorError, ResolvedEntity},
         query::{SaveMode, SaveQueryTyped},
         response::{SaveCollection, SaveResponse, SaveRow},
         store::{DataStoreRegistry, IndexStoreRegistry},
@@ -75,11 +75,8 @@ impl SaveExecutor {
         crate::validate(&entity)?;
 
         // resolve - get schema data
-        let resolved = with_resolver(|r| r.entity(E::PATH))?;
         let sk = &entity.sort_key();
-        let store = self
-            .data
-            .with(|data| data.try_get_store(resolved.store_path()))?;
+        let store = self.data.with(|data| data.try_get_store(E::STORE))?;
 
         // debug
         self.debug.println(&format!("query.{mode}: {sk}"));
@@ -120,7 +117,7 @@ impl SaveExecutor {
 
         // update indexes
         let old_sort_values = old_ev.as_ref().map(|ev| ev.entity.searchable_fields());
-        self.update_indexes(&resolved, old_key_values.as_ref(), key_values, mode)?;
+        self.update_indexes(&resolved_entity, old_key_values.as_ref(), key_values, mode)?;
 
         // prepare data value
         let value = DataValue {

@@ -1,13 +1,12 @@
 use crate::{
     ThisError,
-    data::types::IndexKey,
     schema::{
         node::{Entity, EntityIndex, Schema},
         state::{StateError as SchemaStateError, get_schema},
     },
-    types::Key,
+    traits::EntityKind,
 };
-use std::{cell::RefCell, collections::HashMap};
+use std::cell::RefCell;
 
 thread_local! {
     pub static RESOLVER: RefCell<Resolver> = RefCell::new(
@@ -16,9 +15,14 @@ thread_local! {
 }
 
 // with_resolver
-// public helper
-pub fn with_resolver<R>(f: impl FnOnce(&Resolver) -> R) -> R {
+fn with_resolver<R>(f: impl FnOnce(&Resolver) -> R) -> R {
     RESOLVER.with_borrow(|r| f(r))
+}
+
+// resolve_entity
+// public helper
+pub fn resolve_entity<E: EntityKind>() -> Result<ResolvedEntity, ResolverError> {
+    with_resolver(|r| r.resolve::<E>())
 }
 
 ///
@@ -50,33 +54,28 @@ impl Resolver {
         Ok(Self { schema })
     }
 
-    // entity
-    pub fn entity(&self, path: &str) -> Result<ResolvedEntity, ResolverError> {
+    // resolve
+    pub fn resolve<E: EntityKind>(&self) -> Result<ResolvedEntity, ResolverError> {
         let entity = self
             .schema
-            .get_node_as::<Entity>(path)
-            .ok_or_else(|| ResolverError::EntityNotFound(path.to_string()))?;
+            .get_node_as::<Entity>(E::PATH)
+            .ok_or_else(|| ResolverError::EntityNotFound(E::PATH.to_string()))?;
 
         let sk_fields = entity
             .sort_keys
             .iter()
-            .enumerate()
-            .map(|(i, sk)| {
+            .map(|sk| {
                 let field = sk.field.clone();
-                let label = {
+                let path = {
                     let sk_entity = self
                         .schema
                         .get_node_as::<Entity>(&sk.entity)
                         .ok_or_else(|| ResolverError::EntityNotFound(sk.entity.clone()))?;
 
-                    if i == 0 {
-                        sk_entity.def.path()
-                    } else {
-                        sk_entity.def.ident.to_string()
-                    }
+                    sk_entity.def.path()
                 };
 
-                Ok(SortKeyField { label, field })
+                Ok(SortKeyField { path, field })
             })
             .collect::<Result<Vec<_>, ResolverError>>()?;
 
@@ -90,13 +89,12 @@ impl Resolver {
 
 #[derive(Debug)]
 pub struct SortKeyField {
-    label: String,         // visible label used in SortKey
+    path: String,          // SortKeyPart path
     field: Option<String>, // actual field name to fetch value from
 }
 
 ///
 /// ResolvedEntity
-/// A runtime-resolved entity with structural metadata needed for key generation
 ///
 
 #[derive(Debug)]
@@ -107,7 +105,6 @@ pub struct ResolvedEntity {
 
 impl ResolvedEntity {
     /// new
-    /// create a new ResolvedEntity from a schema Entity and its resolved sort key fields
     #[must_use]
     pub const fn new(entity: Entity, sk_fields: Vec<SortKeyField>) -> Self {
         Self { entity, sk_fields }
@@ -117,66 +114,5 @@ impl ResolvedEntity {
     #[must_use]
     pub fn indexes(&self) -> &[EntityIndex] {
         &self.entity.indexes
-    }
-
-    // store_path
-    // returns the store path
-    #[must_use]
-    pub fn store_path(&self) -> &str {
-        &self.entity.store
-    }
-
-    // id
-    // returns the value of the id field (optional)
-    #[must_use]
-    pub fn id(&self, field_values: &HashMap<String, Option<String>>) -> Option<String> {
-        self.sk_fields
-            .last()
-            .and_then(|sk| sk.field.as_ref())
-            .and_then(|field_name| field_values.get(field_name))
-            .and_then(|v| v.clone())
-    }
-
-    // key
-    // returns the key ie. ["1", "25", "0xb4af..."]
-    #[must_use]
-    pub fn key(&self, field_values: &HashMap<String, Option<String>>) -> Key {
-        let mut key = Vec::with_capacity(self.sk_fields.len());
-
-        for sk in &self.sk_fields {
-            if let Some(field_name) = &sk.field {
-                if let Some(Some(value)) = field_values.get(field_name) {
-                    key.push(value.clone());
-                }
-            }
-        }
-
-        key.into()
-    }
-
-    // index_key
-    //
-    // field_values are UNORDERED, it's the index.fields that is ORDERED
-    // returning None means 'do not index'
-    #[must_use]
-    pub fn index_key(
-        &self,
-        index: &EntityIndex,
-        field_values: &HashMap<String, Option<String>>,
-    ) -> Option<IndexKey> {
-        let mut values = Vec::with_capacity(index.fields.len());
-
-        for field in &index.fields {
-            match field_values.get(field) {
-                Some(Some(value)) if !value.is_empty() => values.push(value.clone()),
-                _ => return None,
-            }
-        }
-
-        Some(IndexKey {
-            entity: self.entity.def.path(),
-            fields: index.fields.clone(),
-            values,
-        })
     }
 }

@@ -8,6 +8,6 @@ publish = false
 bencher = { workspace = true }
 
 [[bench]]
-name = "example"
-path = "example.rs"
+name = "sort_key"
+path = "sort_key.rs"
 harness = false

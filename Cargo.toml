@@ -1,6 +1,5 @@
 [workspace]
 members = [
-    "benches",
     "crates/mimic",
     "crates/mimic_base",
     "crates/mimic_design",
@@ -20,7 +19,6 @@ license = "MIT"
 
 [workspace.dependencies]
 anyhow = "1.0"
-bencher = "0.1"
 candid = "0.10"
 convert_case = "0.8"
 ctor = "0.4"
