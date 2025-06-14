@@ -2,10 +2,11 @@ use crate::{
     Error,
     data::{
         DataError,
-        executor::{DebugContext, EntityValue, ExecutorError, ResolvedEntity, with_resolver},
+        executor::{DebugContext, ExecutorError, ResolvedEntity, with_resolver},
         query::{SaveMode, SaveQueryTyped},
         response::{SaveCollection, SaveResponse, SaveRow},
-        store::{DataStoreRegistry, DataValue, IndexStoreRegistry, IndexValue, Metadata},
+        store::{DataStoreRegistry, IndexStoreRegistry},
+        types::{DataValue, EntityValue, IndexValue, Metadata},
     },
     serialize,
     traits::EntityKind,
@@ -94,9 +95,9 @@ impl SaveExecutor {
         // did anything change?
 
         let (created, modified, old_ev) = match (mode, old_result) {
-            (SaveMode::Create, Some(_)) => return Err(ExecutorError::KeyExists(sk))?,
+            (SaveMode::Create, Some(_)) => return Err(ExecutorError::KeyExists(sk.clone()))?,
             (SaveMode::Create | SaveMode::Replace, None) => (now, now, None),
-            (SaveMode::Update, None) => return Err(ExecutorError::KeyNotFound(sk))?,
+            (SaveMode::Update, None) => return Err(ExecutorError::KeyNotFound(sk.clone()))?,
 
             (SaveMode::Update | SaveMode::Replace, Some(old_dv)) => {
                 let old_ev: EntityValue<E> = old_dv.try_into()?;
@@ -107,7 +108,7 @@ impl SaveExecutor {
                         .println(&format!("query.{mode}: no changes for {sk}, skipping save"));
 
                     return Ok(SaveCollection(vec![SaveRow {
-                        key: sk,
+                        key: sk.clone(),
                         created: old_ev.metadata.created,
                         modified: old_ev.metadata.modified,
                     }]));
@@ -118,7 +119,7 @@ impl SaveExecutor {
         };
 
         // update indexes
-        let old_sort_values = old_ev.as_ref().map(|ev| ev.entity.sort_values());
+        let old_sort_values = old_ev.as_ref().map(|ev| ev.entity.searchable_fields());
         self.update_indexes(&resolved, old_key_values.as_ref(), key_values, mode)?;
 
         // prepare data value
@@ -135,7 +136,7 @@ impl SaveExecutor {
 
         // return a collection
         Ok(SaveCollection(vec![SaveRow {
-            key: sk,
+            key: sk.clone(),
             created,
             modified,
         }]))

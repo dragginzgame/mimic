@@ -1,4 +1,4 @@
-use crate::data::store::SortKey;
+use crate::data::types::SortKey;
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 

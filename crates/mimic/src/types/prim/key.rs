@@ -1,5 +1,5 @@
 use crate::{
-    data::store::SortKey,
+    data::types::SortKey,
     traits::{FieldOrderable, ValidateAuto, ValidateCustom, Visitable},
     types::Ulid,
 };

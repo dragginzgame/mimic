@@ -1,6 +1,6 @@
 use crate::{
     SerializeError,
-    data::store::{DataRow, DataValue, Metadata, SortKey},
+    data::types::{DataRow, DataValue, Metadata, SortKey},
     deserialize, serialize,
     traits::Path,
 };

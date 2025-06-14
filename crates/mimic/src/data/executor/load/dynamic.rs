@@ -5,7 +5,8 @@ use crate::{
         executor::{DebugContext, Loader, with_resolver},
         query::{LoadFormat, LoadQueryDyn},
         response::{LoadCollectionDyn, LoadResponse},
-        store::{DataRow, DataStoreRegistry, IndexStoreRegistry},
+        store::{DataStoreRegistry, IndexStoreRegistry},
+        types::DataRow,
     },
     traits::EntityKind,
 };

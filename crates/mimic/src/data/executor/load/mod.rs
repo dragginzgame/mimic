@@ -7,9 +7,9 @@ pub use generic::*;
 use crate::{
     data::{
         DataError,
-        executor::{DebugContext, ResolvedEntity, ResolvedSelector},
-        store::{DataRow, DataStoreLocal, DataStoreRegistry, IndexStoreRegistry, SortKey},
-        types::{Selector, Where},
+        executor::{DebugContext, ResolvedEntity},
+        store::{DataStoreLocal, DataStoreRegistry, IndexStoreRegistry},
+        types::{DataRow, ResolvedSelector, Selector, SortKey, Where},
     },
     types::Key,
 };
@@ -112,7 +112,7 @@ impl Loader {
                 && index.fields.iter().all(|f| field_values.contains_key(f))
             {
                 // no index key, no index lookup
-                let Some(index_key) = resolved.build_index_key(index, &field_values) else {
+                let Some(index_key) = resolved.index_key(index, &field_values) else {
                     continue;
                 };
 

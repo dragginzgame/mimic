@@ -16,7 +16,10 @@ pub use std::{
 };
 
 use crate::{
-    data::{SortDirection, executor::SaveExecutor, store::SortKey},
+    data::{
+        executor::SaveExecutor,
+        types::{SortDirection, SortKey},
+    },
     types::{ErrorTree, Key, Ulid},
     visit::Visitor,
 };
@@ -94,17 +97,17 @@ impl<T> TypeKind for T where
 /// EntityKind
 ///
 
-pub trait EntityKind: TypeKind + EntityFixture + EntitySearch + EntitySort {
-    // query_values
-    fn query_values(&self) -> HashMap<String, Option<String>>;
+pub trait EntityKind: TypeKind + EntityFixture + EntitySearch + EntitySort + PartialEq {
+    // searchable_fields
+    fn searchable_fields(&self) -> HashMap<String, Option<String>>;
 
     // sort_key
-    // returns the current sort key of the entity by calling build_sort_key
+    // returns the current sort key of the entity
     fn sort_key(&self) -> SortKey;
 
     // build_sort_key
-    // takes in a set of string values, returns a formatted sort key
-    fn build_sort_key(&self, values: &[String]) -> SortKey;
+    // takes in a set of string values, returns the SortKey
+    fn build_sort_key(values: &[String]) -> SortKey;
 }
 
 ///

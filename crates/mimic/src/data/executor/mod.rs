@@ -2,7 +2,6 @@ mod delete;
 mod load;
 mod resolver;
 mod save;
-mod types;
 
 pub mod macros;
 
@@ -10,9 +9,8 @@ pub use delete::*;
 pub use load::*;
 pub use resolver::*;
 pub use save::*;
-pub use types::*;
 
-use crate::data::store::{IndexKey, SortKey};
+use crate::data::types::{IndexKey, SortKey};
 use thiserror::Error as ThisError;
 
 ///

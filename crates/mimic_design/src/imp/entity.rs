@@ -16,9 +16,9 @@ impl Imp<Entity> for EntityKindTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
         let mut q = quote!();
 
-        q.extend(query_values(node));
-        q.extend(build_sort_key(node));
+        q.extend(searchable_fields(node));
         q.extend(sort_key(node));
+        q.extend(build_sort_key(node));
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
@@ -28,8 +28,8 @@ impl Imp<Entity> for EntityKindTrait {
     }
 }
 
-// query_values
-fn query_values(node: &Entity) -> TokenStream {
+// searchable_fields
+fn searchable_fields(node: &Entity) -> TokenStream {
     let entries = node.fields.iter().filter_map(|field| {
         let field_ident = &field.name;
         let field_name = field.name.to_string();
@@ -51,7 +51,7 @@ fn query_values(node: &Entity) -> TokenStream {
     });
 
     quote! {
-        fn query_values(&self) -> ::std::collections::HashMap<String, Option<String>> {
+        fn searchable_fields(&self) -> ::std::collections::HashMap<String, Option<String>> {
             [
                 #(#entries),*
             ].into_iter().collect()
@@ -59,65 +59,66 @@ fn query_values(node: &Entity) -> TokenStream {
     }
 }
 
-// build_sort_key
-fn build_sort_key(node: &Entity) -> TokenStream {
-    let assignments = node
-        .sort_keys
-        .iter()
-        .enumerate()
-        .filter_map(|(i, sk)| {
-            let field_type = &sk.field.value.item;
-            let index = syn::Index::from(i);
+// sort_key
+fn sort_key(node: &Entity) -> TokenStream {
+    let fields = node.sort_keys.iter().map(|sk| {
+        let field_ident = &sk.field;
 
-            Some(quote! {
-                {
-                    let raw = values.get(#index);
-                    let parsed: #field_type = <#field_type as ::mimic::traits::ParseSortKeyPart>::parse_sort_key_part(raw)
-                        .ok_or_else(|| ::mimic::Error::InvalidSortKeyValue(#index))?;
-                    let formatted = parsed.to_sort_key_part()
-                        .ok_or_else(|| ::mimic::Error::UnsortableField(#index))?;
-
-                    formatted
-                }
-            })
-        });
+        quote!(&self.#field_ident.to_string())
+    });
 
     quote! {
-        fn build_sort_key(&self, values: &[String]) -> ::mimic::SortKey {
-            let parts = vec![
-                #(#assignments),*
-            ];
-
-            let labels = self.sk_fields()
-                .iter()
-                .map(|sk| sk.label.clone())
-                .collect::<Vec<_>>();
-
-            let key_parts = labels.into_iter().zip(parts.into_iter()).map(|(k, v)| (k, Some(v))).collect();
-            ::mimic::SortKey::new(key_parts)
+        fn sort_key(&self) -> Result<::mimic::data::store::SortKey, Error> {
+            Self::build_sort_key(&[
+                #(#fields),*
+            ])
         }
     }
 }
 
-// sort_key
-fn sort_key(node: &Entity) -> TokenStream {
-    let entries = node.sort_keys.iter().map(|sk| {
-        let field_ident = &sk.field;
+// format_sort_key
+fn format_sort_key(node: &Entity) -> TokenStream {
+    let fields = node
+        .sort_keys
+        .iter()
+        .filter_map(|sk| sk.field.clone())
+        .collect::<Vec<_>>();
 
-        match field.value.cardinality() {
-            Cardinality::One => Some(quote! {
-                <#node as ::mimic::traits::FormatSortKey>::format_sort_key(&self.#field_ident)
-            }),
-
-            Cardinality::Opt | Cardinality::Many => None,
+    // Prepare the quote for setting struct fields based on the provided values slice
+    let set_fields = fields.iter().enumerate().map(|(i, ident)| {
+        quote! {
+            if let Some(value) = values.get(#i) {
+                this.#ident = value.parse().unwrap_or_default();
+            }
         }
     });
 
+    // quote for generating the output vector using the ORM trait to
+    // format each field as a sort key
+    let format_keys = fields.iter().map(|ident| {
+        quote! {
+            ::mimic::traits::FieldSortKey::format(&this.#ident)
+        }
+    });
+
+    // create inner
+    let inner = if fields.is_empty() {
+        quote!(Vec::new())
+    } else {
+        quote! {
+            let mut this = Self::default();
+
+            #(#set_fields)*
+
+            // Collect formatted keys and then take only as many as there are input values
+            let format_keys = vec![#(#format_keys),*];
+            format_keys.into_iter().take(values.len()).collect()
+        }
+    };
+
     quote! {
-        fn sort_key(&self) -> Result<Vec<String>, Error> {
-            self.build_sort_key(&[
-                #(#entries),*
-            ])
+        fn build_sort_key(values: &[::std::string::String]) -> ::mimic::data::store::SortKey {
+            #inner
         }
     }
 }

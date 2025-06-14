@@ -2,10 +2,11 @@ use crate::{
     Error,
     data::{
         DataError,
-        executor::{DebugContext, ResolvedEntity, ResolvedSelector, with_resolver},
+        executor::{DebugContext, ResolvedEntity, with_resolver},
         query::{DeleteQuery, QueryError},
         response::{DeleteCollection, DeleteResponse, DeleteRow},
-        store::{DataStoreRegistry, IndexStoreRegistry, SortKey},
+        store::{DataStoreRegistry, IndexStoreRegistry},
+        types::{ResolvedSelector, SortKey},
     },
     deserialize,
     traits::EntityKind,
@@ -93,7 +94,7 @@ impl DeleteExecutor {
                 let entity: E = deserialize(&data_value.bytes)?;
 
                 // Step 2: Extract field values
-                let field_values = entity.key_values();
+                let field_values = entity.searchable_fields();
 
                 // Step 3: Remove indexes
                 self.remove_indexes(&resolved, &field_values)?;
@@ -118,11 +119,11 @@ impl DeleteExecutor {
     fn remove_indexes(
         &self,
         resolved: &ResolvedEntity,
-        sort_values: &HashMap<String, Option<String>>,
+        field_values: &HashMap<String, Option<String>>,
     ) -> Result<(), DataError> {
         for index in resolved.indexes() {
             // skip invalid index keys
-            let Some(index_key) = resolved.index_key(index, sort_values) else {
+            let Some(index_key) = resolved.index_key(index, field_values) else {
                 continue;
             };
 

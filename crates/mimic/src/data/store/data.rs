@@ -1,5 +1,5 @@
 use crate::{
-    data::store::{DataValue, SortKey},
+    data::types::{DataValue, SortKey},
     ic::structures::{BTreeMap, DefaultMemory},
 };
 use derive_more::{Deref, DerefMut};

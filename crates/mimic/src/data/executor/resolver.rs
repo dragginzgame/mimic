@@ -1,9 +1,6 @@
 use crate::{
     ThisError,
-    data::{
-        Selector,
-        store::{IndexKey, SortKey},
-    },
+    data::types::IndexKey,
     schema::{
         node::{Entity, EntityIndex, Schema},
         state::{StateError as SchemaStateError, get_schema},
@@ -35,17 +32,6 @@ pub enum ResolverError {
 
     #[error(transparent)]
     SchemaStateError(#[from] SchemaStateError),
-}
-
-///
-/// ResolvedSelector
-///
-
-#[derive(Debug)]
-pub enum ResolvedSelector {
-    One(SortKey),
-    Many(Vec<SortKey>),
-    Range(SortKey, SortKey),
 }
 
 ///
@@ -192,37 +178,5 @@ impl ResolvedEntity {
             fields: index.fields.clone(),
             values,
         })
-    }
-
-    // selector
-    #[must_use]
-    pub fn selector(&self, selector: &Selector) -> ResolvedSelector {
-        match selector {
-            Selector::All => {
-                let start = self.sort_key(&[]);
-                let end = start.create_upper_bound();
-
-                ResolvedSelector::Range(start, end)
-            }
-            Selector::Only => ResolvedSelector::One(self.sort_key(&[])),
-            Selector::One(key) => ResolvedSelector::One(self.sort_key(key)),
-            Selector::Many(keys) => {
-                let keys = keys.iter().map(|k| self.sort_key(k)).collect();
-
-                ResolvedSelector::Many(keys)
-            }
-            Selector::Prefix(prefix) => {
-                let start = self.sort_key(prefix);
-                let end = start.create_upper_bound();
-
-                ResolvedSelector::Range(start, end)
-            }
-            Selector::Range(start, end) => {
-                let start = self.sort_key(start);
-                let end = self.sort_key(end);
-
-                ResolvedSelector::Range(start, end)
-            }
-        }
     }
 }

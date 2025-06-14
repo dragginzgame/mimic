@@ -1,10 +1,8 @@
 mod data;
 mod index;
-mod types;
 
 pub use data::*;
 pub use index::*;
-pub use types::*;
 
 use std::{cell::RefCell, collections::HashMap, rc::Rc, thread::LocalKey};
 use thiserror::Error as ThisError;

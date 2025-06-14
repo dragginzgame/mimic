@@ -1,10 +1,8 @@
-mod types;
-pub use types::*;
-
 pub mod executor;
 pub mod query;
 pub mod response;
 pub mod store;
+pub mod types;
 
 use crate::{SerializeError, ValidationError};
 use thiserror::Error as ThisError;

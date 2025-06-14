@@ -3,10 +3,9 @@ use crate::{
     Error,
     data::{
         DataError,
-        executor::{EntityRow, EntityValue},
         query::LoadMap,
         response::ResponseError,
-        store::{DataRow, SortKey},
+        types::{DataRow, EntityRow, EntityValue, SortKey},
     },
     traits::EntityKind,
 };

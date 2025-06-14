@@ -107,16 +107,16 @@ fn apply_where<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec
     let olen = rows.len();
 
     // filter
-    let filtered =
-        rows.into_iter()
-            .filter(|row| {
-                let key_values = row.value.entity.key_values();
+    let filtered = rows
+        .into_iter()
+        .filter(|row| {
+            let field_values = row.value.entity.searchable_fields();
 
-                r#where.matches.iter().all(|(field, value)| {
-                    key_values.get(field).and_then(|v| v.as_ref()) == Some(value)
-                })
+            r#where.matches.iter().all(|(field, value)| {
+                field_values.get(field).and_then(|v| v.as_ref()) == Some(value)
             })
-            .collect::<Vec<_>>();
+        })
+        .collect::<Vec<_>>();
     let flen = filtered.len();
 
     if flen < olen {
