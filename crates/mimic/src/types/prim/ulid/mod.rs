@@ -4,14 +4,17 @@ pub mod generator;
 use crate::{
     ThisError,
     prelude::*,
-    traits::{Inner, Orderable, SortKeyPart, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldOrderable, FieldSortKey, Inner, ValidateAuto, ValidateCustom, Visitable},
     types::ErrorTree,
 };
 use ::ulid::Ulid as WrappedUlid;
 use derive_more::{Deref, DerefMut, FromStr};
 use icu::impl_storable_bounded;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::{cmp::Ordering, fmt};
+use std::{
+    cmp::Ordering,
+    fmt::{self, Display},
+};
 
 ///
 /// Error
@@ -99,9 +102,21 @@ impl Default for Ulid {
     }
 }
 
-impl fmt::Display for Ulid {
+impl Display for Ulid {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.0.fmt(f)
+    }
+}
+
+impl FieldOrderable for Ulid {
+    fn cmp(&self, other: &Self) -> Ordering {
+        Ord::cmp(self, other)
+    }
+}
+
+impl FieldSortKey for Ulid {
+    fn to_sort_key_part(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 
@@ -120,12 +135,6 @@ impl Inner for Ulid {
 impl<T: Into<WrappedUlid>> From<T> for Ulid {
     fn from(t: T) -> Self {
         Self(t.into())
-    }
-}
-
-impl Orderable for Ulid {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
     }
 }
 
@@ -150,12 +159,6 @@ impl<'de> Deserialize<'de> for Ulid {
         let ulid = WrappedUlid::from_string(&deserialized_str).unwrap_or_default();
 
         Ok(Self(ulid))
-    }
-}
-
-impl SortKeyPart for Ulid {
-    fn to_sort_key_part(&self) -> Option<String> {
-        Some(self.to_string())
     }
 }
 

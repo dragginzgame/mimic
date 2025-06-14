@@ -1,12 +1,18 @@
 use crate::{
     data::store::SortKey,
-    traits::{Orderable, SortKeyPart, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldOrderable, ValidateAuto, ValidateCustom, Visitable},
     types::Ulid,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, IntoIterator};
 use serde::{Deserialize, Serialize};
-use std::{borrow::Borrow, collections::HashSet, fmt, str::FromStr};
+use std::{
+    borrow::Borrow,
+    cmp::Ordering,
+    collections::HashSet,
+    fmt::{self, Display},
+    str::FromStr,
+};
 
 ///
 /// Key
@@ -23,6 +29,8 @@ use std::{borrow::Borrow, collections::HashSet, fmt, str::FromStr};
     PartialEq,
     Hash,
     IntoIterator,
+    Ord,
+    PartialOrd,
     Serialize,
     Deserialize,
 )]
@@ -66,10 +74,16 @@ impl Borrow<[String]> for Key {
     }
 }
 
-impl fmt::Display for Key {
+impl Display for Key {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let formatted = self.0.join(", ");
         write!(f, "[{formatted}]")
+    }
+}
+
+impl FieldOrderable for Key {
+    fn cmp(&self, other: &Self) -> Ordering {
+        Ord::cmp(self, other)
     }
 }
 
@@ -109,10 +123,6 @@ impl FromStr for Key {
         Ok(Self(vec![s.to_string()]))
     }
 }
-
-impl Orderable for Key {}
-
-impl SortKeyPart for Key {}
 
 impl ValidateCustom for Key {}
 

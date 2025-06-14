@@ -1,5 +1,5 @@
 use crate::{
-    traits::{Inner, Orderable, SortKeyPart, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldOrderable, FieldSortKey, Inner, ValidateAuto, ValidateCustom, Visitable},
     types::{Principal, Subaccount},
 };
 use derive_more::{Deref, DerefMut};
@@ -43,6 +43,18 @@ impl Account {
     }
 }
 
+impl FieldOrderable for Account {
+    fn cmp(&self, other: &Self) -> Ordering {
+        Ord::cmp(self, other)
+    }
+}
+
+impl FieldSortKey for Account {
+    fn to_sort_key_part(&self) -> Option<String> {
+        Some(self.to_string())
+    }
+}
+
 impl From<Principal> for Account {
     fn from(principal: Principal) -> Self {
         Self((*principal).into())
@@ -79,12 +91,6 @@ impl Inner for Account {
     }
 }
 
-impl Orderable for Account {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
-    }
-}
-
 impl PartialEq<Account> for WrappedAccount {
     fn eq(&self, other: &Account) -> bool {
         self == &other.0
@@ -94,12 +100,6 @@ impl PartialEq<Account> for WrappedAccount {
 impl PartialEq<WrappedAccount> for Account {
     fn eq(&self, other: &WrappedAccount) -> bool {
         &self.0 == other
-    }
-}
-
-impl SortKeyPart for Account {
-    fn to_sort_key_part(&self) -> Option<String> {
-        Some(self.to_string())
     }
 }
 

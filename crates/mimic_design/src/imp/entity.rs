@@ -37,13 +37,13 @@ fn query_values(node: &Entity) -> TokenStream {
 
         match field.value.cardinality() {
             Cardinality::One => Some(quote! {
-                (#field_name.to_string(), <#item as ::mimic::traits::FormatQueryValue>::to_query_value(&self.#field_ident))
+                (#field_name.to_string(), <#item as ::mimic::traits::FieldQueryable>::to_query_value(&self.#field_ident))
             }),
 
             Cardinality::Opt => Some(quote! {
                 (#field_name.to_string(), self.#field_ident
                     .as_ref()
-                    .and_then(<#item as ::mimic::traits::FormatQueryValue>::to_query_value))
+                    .and_then(<#item as ::mimic::traits::FieldQueryable>::to_query_value))
             }),
 
             Cardinality::Many => None,

@@ -1,13 +1,16 @@
 use crate::{
     prelude::*,
-    traits::{Inner, Orderable, ValidateAuto, Visitable},
+    traits::{FieldOrderable, Inner, ValidateAuto, Visitable},
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
 use num_traits::{FromPrimitive, NumCast, ToPrimitive};
 use rust_decimal::Decimal as WrappedDecimal;
 use serde::{Deserialize, Serialize, ser::Error};
-use std::{cmp::Ordering, fmt};
+use std::{
+    cmp::Ordering,
+    fmt::{self, Display},
+};
 
 ///
 /// Decimal
@@ -72,9 +75,15 @@ impl CandidType for Decimal {
     }
 }
 
-impl fmt::Display for Decimal {
+impl Display for Decimal {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.0.fmt(f)
+    }
+}
+
+impl FieldOrderable for Decimal {
+    fn cmp(&self, other: &Self) -> Ordering {
+        Ord::cmp(self, other)
     }
 }
 
@@ -155,12 +164,6 @@ impl Inner for Decimal {
 impl NumCast for Decimal {
     fn from<T: ToPrimitive>(n: T) -> Option<Self> {
         WrappedDecimal::from_f64(n.to_f64()?).map(Decimal)
-    }
-}
-
-impl Orderable for Decimal {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
     }
 }
 

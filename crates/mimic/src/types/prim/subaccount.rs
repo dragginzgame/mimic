@@ -1,5 +1,5 @@
 use crate::{
-    traits::{Inner, Orderable, SortKeyPart, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldOrderable, FieldSortKey, Inner, ValidateAuto, ValidateCustom, Visitable},
     types::Principal,
 };
 use derive_more::{Deref, DerefMut};
@@ -13,7 +13,7 @@ use icu::{
 use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,
-    fmt::{self},
+    fmt::{self, Display},
 };
 
 ///
@@ -59,13 +59,25 @@ impl Default for Subaccount {
     }
 }
 
-impl fmt::Display for Subaccount {
+impl Display for Subaccount {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for byte in &self.0.0 {
             write!(f, "{:02x}", byte)?;
         }
 
         Ok(())
+    }
+}
+
+impl FieldOrderable for Subaccount {
+    fn cmp(&self, other: &Self) -> Ordering {
+        Ord::cmp(self, other)
+    }
+}
+
+impl FieldSortKey for Subaccount {
+    fn to_sort_key_part(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 
@@ -105,12 +117,6 @@ impl Inner for Subaccount {
     }
 }
 
-impl Orderable for Subaccount {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
-    }
-}
-
 impl PartialEq<Subaccount> for WrappedSubaccount {
     fn eq(&self, other: &Subaccount) -> bool {
         self == &other.0
@@ -120,12 +126,6 @@ impl PartialEq<Subaccount> for WrappedSubaccount {
 impl PartialEq<WrappedSubaccount> for Subaccount {
     fn eq(&self, other: &WrappedSubaccount) -> bool {
         &self.0 == other
-    }
-}
-
-impl SortKeyPart for Subaccount {
-    fn to_sort_key_part(&self) -> Option<String> {
-        Some(self.to_string())
     }
 }
 

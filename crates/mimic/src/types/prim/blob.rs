@@ -1,6 +1,6 @@
 use crate::{
     prelude::*,
-    traits::{Inner, Orderable, QueryValue, SortKeyPart, ValidateAuto, Visitable},
+    traits::{FieldOrderable, FieldQueryable, Inner, ValidateAuto, Visitable},
 };
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
@@ -39,6 +39,10 @@ impl Blob {
     }
 }
 
+impl FieldOrderable for Blob {}
+
+impl FieldQueryable for Blob {}
+
 impl From<Vec<u8>> for Blob {
     fn from(bytes: Vec<u8>) -> Self {
         Self(ByteBuf::from(bytes))
@@ -68,12 +72,6 @@ impl Inner for Blob {
         self
     }
 }
-
-impl Orderable for Blob {}
-
-impl QueryValue for Blob {}
-
-impl SortKeyPart for Blob {}
 
 impl ValidateAuto for Blob {}
 

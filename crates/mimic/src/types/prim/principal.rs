@@ -1,7 +1,7 @@
 use crate::{
     ThisError,
     prelude::*,
-    traits::{Inner, Orderable, SortKeyPart, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldOrderable, FieldSortKey, Inner, ValidateAuto, ValidateCustom, Visitable},
 };
 
 use derive_more::{Deref, DerefMut};
@@ -12,7 +12,7 @@ use icu::{
 use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,
-    fmt::{self},
+    fmt::{self, Display},
     str::FromStr,
 };
 
@@ -68,9 +68,21 @@ impl Default for Principal {
     }
 }
 
-impl fmt::Display for Principal {
+impl Display for Principal {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.0.fmt(f)
+    }
+}
+
+impl FieldOrderable for Principal {
+    fn cmp(&self, other: &Self) -> Ordering {
+        Ord::cmp(self, other)
+    }
+}
+
+impl FieldSortKey for Principal {
+    fn to_sort_key_part(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 
@@ -116,12 +128,6 @@ impl Inner for Principal {
     }
 }
 
-impl Orderable for Principal {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
-    }
-}
-
 impl PartialEq<WrappedPrincipal> for Principal {
     fn eq(&self, other: &WrappedPrincipal) -> bool {
         self.0 == *other
@@ -131,12 +137,6 @@ impl PartialEq<WrappedPrincipal> for Principal {
 impl PartialEq<Principal> for WrappedPrincipal {
     fn eq(&self, other: &Principal) -> bool {
         *self == other.0
-    }
-}
-
-impl SortKeyPart for Principal {
-    fn to_sort_key_part(&self) -> Option<String> {
-        Some(self.to_string())
     }
 }
 

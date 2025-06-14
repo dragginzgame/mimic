@@ -69,8 +69,8 @@ pub trait TypeKind:
     + CandidType
     + Clone
     + Default
-    + QueryValue
-    + SortKeyPart
+    + FieldOrderable
+    + FieldQueryable
     + Serialize
     + DeserializeOwned
     + Visitable
@@ -82,8 +82,8 @@ impl<T> TypeKind for T where
         + CandidType
         + Clone
         + Default
-        + QueryValue
-        + SortKeyPart
+        + FieldOrderable
+        + FieldQueryable
         + Serialize
         + DeserializeOwned
         + Visitable
@@ -134,7 +134,35 @@ pub trait EnumValueKind {
 }
 
 ///
-/// TRAITS
+/// ANY KIND TRAITS
+///
+
+///
+/// Path
+///
+/// any node created via a macro has a Path
+/// ie. design::game::rarity::Rarity
+///
+/// primitives are used unwrapped so we can't declare the impl anywhere else
+///
+
+pub trait Path {
+    const IDENT: &'static str;
+    const PATH: &'static str;
+
+    #[must_use]
+    fn ident() -> String {
+        Self::IDENT.to_string()
+    }
+
+    #[must_use]
+    fn path() -> String {
+        Self::PATH.to_string()
+    }
+}
+
+///
+/// SINGLE KIND TRAITS
 ///
 
 ///
@@ -180,30 +208,6 @@ pub trait EntitySort {
 }
 
 ///
-/// Path
-///
-/// any node created via a macro has a Path
-/// ie. design::game::rarity::Rarity
-///
-/// primitives are used unwrapped so we can't declare the impl anywhere else
-///
-
-pub trait Path {
-    const IDENT: &'static str;
-    const PATH: &'static str;
-
-    #[must_use]
-    fn ident() -> String {
-        Self::IDENT.to_string()
-    }
-
-    #[must_use]
-    fn path() -> String {
-        Self::PATH.to_string()
-    }
-}
-
-///
 /// Validator
 /// allows a node to validate different types of primitives
 ///
@@ -235,6 +239,144 @@ pub trait ValidatorString {
 ///
 /// TYPE TRAITS
 ///
+
+///
+/// FieldOrderable
+///
+/// wrapper around the Ord/PartialOrd traits so that we can extend it to
+/// more ORM types
+///
+
+pub trait FieldOrderable {
+    fn cmp(&self, _other: &Self) -> std::cmp::Ordering {
+        std::cmp::Ordering::Equal
+    }
+}
+
+impl FieldOrderable for f32 {}
+impl FieldOrderable for f64 {}
+impl<T: FieldOrderable> FieldOrderable for Box<T> {}
+
+// impl_primitive_field_orderable
+#[macro_export]
+macro_rules! impl_primitive_field_orderable {
+    ($($type:ty),*) => {
+        $(
+            impl FieldOrderable for $type {
+                fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+                    std::cmp::Ord::cmp(self, other)
+                }
+            }
+        )*
+    };
+}
+
+impl_primitive_field_orderable!(
+    bool, i8, i16, i32, i64, i128, String, u8, u16, u32, u64, u128
+);
+
+impl<T: FieldOrderable> FieldOrderable for Option<T> {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        match (self, other) {
+            // Both are None, they are equal
+            (None, None) => std::cmp::Ordering::Equal,
+
+            // Any None is less than Some
+            (None, Some(_)) => std::cmp::Ordering::Less,
+            (Some(_), None) => std::cmp::Ordering::Greater,
+
+            // If both are Some, compare the inner values
+            (Some(a), Some(b)) => a.cmp(b),
+        }
+    }
+}
+
+///
+/// FieldQueryable
+///
+/// A trait that defines how a value is converted to a string representation
+/// suitable for WHERE queries, filtering, or comparison.
+///
+
+pub trait FieldQueryable {
+    /// Returns a canonical string form of the value, if available
+    /// if None is returned it means that the type is just not suitable for searching
+    fn to_query_value(&self) -> Option<String> {
+        None
+    }
+
+    /// Case-insensitive containment check using the query value.
+    fn contains_text(&self, query: &str) -> bool {
+        self.to_query_value()
+            .is_some_and(|val| val.to_lowercase().contains(&query.to_lowercase()))
+    }
+}
+
+impl<T: Display> FieldQueryable for T {
+    fn to_query_value(&self) -> Option<String> {
+        Some(self.to_string())
+    }
+}
+
+///
+/// FieldSortKey
+///
+
+pub trait FieldSortKey {
+    // to_sort_key_part
+    // if None, the type CANNOT be formatted as a Sort Key and an error is returned
+    fn to_sort_key_part(&self) -> Option<String> {
+        None
+    }
+}
+
+macro_rules! impl_field_sort_key_ints {
+    ($($t:ty, $ut:ty, $len:expr),* $(,)?) => {
+        $(
+            impl FieldSortKey for $t {
+                #[allow(clippy::cast_sign_loss)]
+                fn to_sort_key_part(&self) -> Option<String> {
+                    if *self < 0 {
+                        let inverted = <$ut>::MAX - self.wrapping_abs() as $ut;
+                        Some(format!("-{:0>width$}", inverted, width = $len - 1))
+                    } else {
+                        Some(format!("{:0>width$}", *self as $ut, width = $len))
+                    }
+                }
+            }
+        )*
+    };
+}
+
+macro_rules! impl_field_sort_key_uints {
+    ($($t:ty, $len:expr),* $(,)?) => {
+        $(
+            impl FieldSortKey for $t {
+                fn to_sort_key_part(&self) -> Option<String> {
+                    Some(format!("{:0>width$}", self, width = $len))
+                }
+            }
+        )*
+    };
+}
+
+#[rustfmt::skip]
+impl_field_sort_key_ints!(
+    i8, u8, 4,
+    i16, u16, 6,
+    i32, u32, 11,
+    i64, u64, 21,
+    i128, u128, 41
+);
+
+#[rustfmt::skip]
+impl_field_sort_key_uints!(
+    u8, 3,
+    u16, 5,
+    u32, 10,
+    u64, 20,
+    u128, 40
+);
 
 ///
 /// Inner
@@ -282,158 +424,6 @@ macro_rules! impl_primitive_inner {
 impl_primitive_inner!(
     bool, f32, f64, i8, i16, i32, i64, i128, u8, u16, u32, u64, u128
 );
-
-///
-/// Orderable
-///
-/// wrapper around the Ord/PartialOrd traits so that we can extend it to
-/// more ORM types
-///
-
-pub trait Orderable {
-    fn cmp(&self, _other: &Self) -> std::cmp::Ordering {
-        std::cmp::Ordering::Equal
-    }
-}
-
-impl Orderable for f32 {}
-impl Orderable for f64 {}
-impl<T: Orderable> Orderable for Box<T> {}
-
-// impl_primitive_order
-#[macro_export]
-macro_rules! impl_primitive_order {
-    ($($type:ty),*) => {
-        $(
-            impl Orderable for $type {
-                fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-                    std::cmp::Ord::cmp(self, other)
-                }
-            }
-        )*
-    };
-}
-
-impl_primitive_order!(
-    bool, i8, i16, i32, i64, i128, String, u8, u16, u32, u64, u128
-);
-
-impl<T: Orderable> Orderable for Option<T> {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        match (self, other) {
-            // Both are None, they are equal
-            (None, None) => std::cmp::Ordering::Equal,
-
-            // Any None is less than Some
-            (None, Some(_)) => std::cmp::Ordering::Less,
-            (Some(_), None) => std::cmp::Ordering::Greater,
-
-            // If both are Some, compare the inner values
-            (Some(a), Some(b)) => a.cmp(b),
-        }
-    }
-}
-
-///
-/// QueryValue
-///
-/// A trait that defines how a value is converted to a string representation
-/// suitable for WHERE queries, filtering, or comparison.
-///
-
-pub trait QueryValue {
-    /// Returns a canonical string form of the value, if available
-    /// if None is returned it means that the type is just not suitable for searching
-    fn to_query_value(&self) -> Option<String> {
-        None
-    }
-
-    /// Case-insensitive containment check using the query value.
-    fn contains_text(&self, query: &str) -> bool {
-        self.to_query_value()
-            .is_some_and(|val| val.to_lowercase().contains(&query.to_lowercase()))
-    }
-}
-
-impl<T: Display> QueryValue for T {
-    fn to_query_value(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
-
-///
-/// SortKeyPart
-///
-
-pub trait SortKeyPart {
-    // to_sort_key_part
-    // if None, the type CANNOT be formatted as a Sort Key and an error is returned
-    fn to_sort_key_part(&self) -> Option<String> {
-        None
-    }
-}
-
-macro_rules! impl_sort_key_part_ints {
-    ($($t:ty, $ut:ty, $len:expr),* $(,)?) => {
-        $(
-            impl SortKeyPart for $t {
-                #[allow(clippy::cast_sign_loss)]
-                fn to_sort_key_part(&self) -> Option<String> {
-                    if *self < 0 {
-                        let inverted = <$ut>::MAX - self.wrapping_abs() as $ut;
-                        Some(format!("-{:0>width$}", inverted, width = $len - 1))
-                    } else {
-                        Some(format!("{:0>width$}", *self as $ut, width = $len))
-                    }
-                }
-            }
-        )*
-    };
-}
-
-macro_rules! impl_sort_key_part_uints {
-    ($($t:ty, $len:expr),* $(,)?) => {
-        $(
-            impl SortKeyPart for $t {
-                fn to_sort_key_part(&self) -> Option<String> {
-                    Some(format!("{:0>width$}", self, width = $len))
-                }
-            }
-        )*
-    };
-}
-
-macro_rules! impl_sort_key_part_none {
-    ($($t:ty),* $(,)?) => {
-        $(
-            impl SortKeyPart for $t {
-                fn to_sort_key_part(&self) -> Option<String> {
-                    None
-                }
-            }
-        )*
-    };
-}
-
-#[rustfmt::skip]
-impl_sort_key_part_ints!(
-    i8, u8, 4,
-    i16, u16, 6,
-    i32, u32, 11,
-    i64, u64, 21,
-    i128, u128, 41
-);
-
-#[rustfmt::skip]
-impl_sort_key_part_uints!(
-    u8, 3,
-    u16, 5,
-    u32, 10,
-    u64, 20,
-    u128, 40
-);
-
-impl_sort_key_part_none!(bool, f32, f64);
 
 ///
 /// Validate

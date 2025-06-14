@@ -1,12 +1,15 @@
 use crate::{
     prelude::*,
-    traits::{Inner, Orderable, SortKeyPart, ValidateAuto, Visitable},
+    traits::{FieldOrderable, Inner, ValidateAuto, Visitable},
 };
 use candid::{CandidType, Nat as WrappedNat};
 use derive_more::{Deref, DerefMut, FromStr};
 use icu::impl_storable_unbounded;
 use serde::{Deserialize, Serialize};
-use std::{cmp::Ordering, fmt};
+use std::{
+    cmp::Ordering,
+    fmt::{self, Display},
+};
 
 ///
 /// Nat
@@ -30,9 +33,15 @@ use std::{cmp::Ordering, fmt};
 )]
 pub struct Nat(WrappedNat);
 
-impl fmt::Display for Nat {
+impl Display for Nat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.0.fmt(f)
+    }
+}
+
+impl FieldOrderable for Nat {
+    fn cmp(&self, other: &Self) -> Ordering {
+        Ord::cmp(self, other)
     }
 }
 
@@ -53,14 +62,6 @@ impl Inner for Nat {
         self
     }
 }
-
-impl Orderable for Nat {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
-    }
-}
-// Nat shouldn't be used as a SortKey as its unbounded
-impl SortKeyPart for Nat {}
 
 impl_storable_unbounded!(Nat);
 

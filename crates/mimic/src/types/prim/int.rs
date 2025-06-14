@@ -1,6 +1,6 @@
 use crate::{
     prelude::*,
-    traits::{Inner, Orderable, ValidateAuto, Visitable},
+    traits::{FieldOrderable, Inner, ValidateAuto, Visitable},
 };
 use candid::{CandidType, Int as WrappedInt};
 use derive_more::{Deref, DerefMut, FromStr};
@@ -8,7 +8,7 @@ use icu::impl_storable_unbounded;
 use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,
-    fmt::{self},
+    fmt::{self, Display},
 };
 
 ///
@@ -33,9 +33,15 @@ use std::{
 )]
 pub struct Int(WrappedInt);
 
-impl fmt::Display for Int {
+impl Display for Int {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.0.fmt(f)
+    }
+}
+
+impl FieldOrderable for Int {
+    fn cmp(&self, other: &Self) -> Ordering {
+        Ord::cmp(self, other)
     }
 }
 
@@ -54,12 +60,6 @@ impl Inner for Int {
 
     fn into_inner(self) -> Self::Primitive {
         self
-    }
-}
-
-impl Orderable for Int {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
     }
 }
 
