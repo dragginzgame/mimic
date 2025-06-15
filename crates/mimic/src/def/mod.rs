@@ -72,6 +72,21 @@ pub struct EntityValues {
 }
 
 impl EntityValues {
+    /// Returns Some(values) if all fields are present, or None if any are missing or None
+    #[must_use]
+    pub fn collect_all(&self, fields: &[&'static str]) -> Option<Vec<String>> {
+        let mut values = Vec::with_capacity(fields.len());
+
+        for &field in fields {
+            match self.map.get(field) {
+                Some(Some(v)) => values.push(v.clone()),
+                _ => return None, // required field missing or None
+            }
+        }
+
+        Some(values)
+    }
+
     /// Checks if all given fields are present
     #[must_use]
     pub fn has_all(&self, fields: &[&'static str]) -> bool {

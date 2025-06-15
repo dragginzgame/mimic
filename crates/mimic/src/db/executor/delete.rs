@@ -111,48 +111,23 @@ impl DeleteExecutor {
 
     // remove_indexes
     fn remove_indexes<E: EntityKind>(&self, entity: E) -> Result<(), DataError> {
-        let field_values = entity.values();
+        let values = entity.values();
         let entity_key = entity.key();
 
         for index in E::INDEXES {
-            // Gather all the field values required by the index
-            let mut key_parts = Vec::new();
-            let mut all_fields_present = true;
-
-            for field in index.fields {
-                match field_values.get(field) {
-                    Some(value) => key_parts.push(value.clone()),
-                    None => {
-                        all_fields_present = false;
-                        break;
-                    }
-                }
-            }
-
-            if !all_fields_present {
+            // skip if missing fields, or optional fields are None
+            let Some(index_values) = values.collect_all(index.fields) else {
                 continue;
-            }
-            /*
-                      let index_store = self.index_reg.with(|ix| ix.try_get_store(&index.store))?;
-                      let index_key = IndexKey::new(E::ID, index.fields, key_parts);
+            };
 
-                      index_store.with_borrow_mut(|store| {
-                          if let Some(mut existing) = store.get(&index_key) {
-                              existing.remove(&entity_key);
+            // store and key
+            let index_key = IndexKey::new(E::PATH, index.fields, index_values);
 
-                              if existing.is_empty() {
-                                  store.remove(&index_key);
-                              } else {
-                                  store.insert(index_key.clone(), existing);
-                              }
-
-                              self.debug.println(&format!(
-                                  "query.delete: removed value {entity_key} from index {index_key:?}"
-                              ));
-                          }
-                          Ok::<(), DataError>(())
-                      })?;
-            */
+            // remove if found
+            let index_store = self.index_reg.with(|ix| ix.try_get_store(index.store))?;
+            index_store.with_borrow_mut(|store| {
+                store.remove_index_value(&index_key, &entity_key);
+            });
         }
 
         Ok(())
