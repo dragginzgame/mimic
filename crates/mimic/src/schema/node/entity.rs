@@ -9,7 +9,7 @@ use crate::{
     },
     types::ErrorTree,
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::ops::Not;
 
 ///
@@ -21,13 +21,13 @@ pub struct Entity {
     pub def: Def,
     pub store: &'static str,
 
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub sort_keys: Vec<SortKey>,
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub sort_keys: &'static [SortKey],
 
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub indexes: Vec<EntityIndex>,
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub indexes: &'static [EntityIndex],
 
-    pub fields: Vec<Field>,
+    pub fields: &'static [Field],
     pub ty: Type,
 }
 
@@ -57,7 +57,7 @@ impl ValidateNode for Entity {
         let schema = schema_read();
 
         // store
-        match schema.try_get_node_as::<Store>(&self.store) {
+        match schema.try_get_node_as::<Store>(self.store) {
             Ok(store) if !matches!(store.ty, StoreType::Data) => errs.add("store is not type Data"),
             Ok(_) => {}
             Err(e) => errs.add(e),
@@ -106,8 +106,8 @@ impl ValidateNode for Entity {
         }
 
         // indexes
-        for index in &self.indexes {
-            for field in &index.fields {
+        for index in self.indexes {
+            for field in index.fields {
                 if self.get_field(field).is_none() {
                     errs.add(format!("index field '{field}' does not exist"));
                 }
@@ -125,13 +125,13 @@ impl VisitableNode for Entity {
 
     fn drive<V: Visitor>(&self, v: &mut V) {
         self.def.accept(v);
-        for node in &self.sort_keys {
+        for node in self.sort_keys {
             node.accept(v);
         }
-        for node in &self.indexes {
+        for node in self.indexes {
             node.accept(v);
         }
-        for node in &self.fields {
+        for node in self.fields {
             node.accept(v);
         }
         self.ty.accept(v);
@@ -144,7 +144,7 @@ impl VisitableNode for Entity {
 
 #[derive(Clone, Debug, Serialize)]
 pub struct EntityIndex {
-    pub fields: Vec<String>,
+    pub fields: &'static [&'static str],
 
     #[serde(default, skip_serializing_if = "Not::not")]
     pub unique: bool,
@@ -158,7 +158,7 @@ impl ValidateNode for EntityIndex {
         let schema = schema_read();
 
         // store
-        match schema.try_get_node_as::<Store>(&self.store) {
+        match schema.try_get_node_as::<Store>(self.store) {
             Ok(store) if !matches!(store.ty, StoreType::Index) => {
                 errs.add("store is not type Index");
             }

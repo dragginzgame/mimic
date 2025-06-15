@@ -3,13 +3,13 @@ use crate::schema::{
     types::Cardinality,
     visit::Visitor,
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 ///
 /// Value
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Value {
     pub cardinality: Cardinality,
     pub item: Item,

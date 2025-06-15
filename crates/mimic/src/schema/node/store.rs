@@ -8,7 +8,7 @@ use crate::{
     types::ErrorTree,
     utils::case::{Case, Casing},
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 ///
 /// Store
@@ -16,12 +16,12 @@ use serde::{Deserialize, Serialize};
 /// A stable IC BTreeMap that stores Entity data
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Store {
     pub def: Def,
-    pub ident: String,
+    pub ident: &'static str,
     pub ty: StoreType,
-    pub canister: String,
+    pub canister: &'static str,
     pub memory_id: u8,
 }
 
@@ -37,7 +37,7 @@ impl ValidateNode for Store {
         let schema = schema_read();
 
         // canister
-        if let Err(e) = schema.try_get_node_as::<Canister>(&self.canister) {
+        if let Err(e) = schema.try_get_node_as::<Canister>(self.canister) {
             errs.add(e);
         }
 

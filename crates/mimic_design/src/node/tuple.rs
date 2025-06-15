@@ -1,5 +1,5 @@
 use crate::{
-    helper::quote_vec,
+    helper::quote_slice,
     imp::{self, Imp},
     node::{Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type, Value},
     traits::Schemable,
@@ -62,7 +62,7 @@ impl MacroNode for Tuple {
 impl Schemable for Tuple {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
-        let values = quote_vec(&self.values, Value::schema);
+        let values = quote_slice(&self.values, Value::schema);
         let ty = &self.ty.schema();
 
         quote! {

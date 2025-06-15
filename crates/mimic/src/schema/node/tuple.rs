@@ -2,16 +2,16 @@ use crate::schema::{
     node::{Def, MacroNode, Type, TypeNode, ValidateNode, Value, VisitableNode},
     visit::Visitor,
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 ///
 /// Tuple
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Tuple {
     pub def: Def,
-    pub values: Vec<Value>,
+    pub values: &'static [Value],
     pub ty: Type,
 }
 
@@ -36,7 +36,7 @@ impl VisitableNode for Tuple {
 
     fn drive<V: Visitor>(&self, v: &mut V) {
         self.def.accept(v);
-        for node in &self.values {
+        for node in self.values {
             node.accept(v);
         }
         self.ty.accept(v);

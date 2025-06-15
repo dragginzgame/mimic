@@ -20,7 +20,8 @@ use crate::{
         executor::SaveExecutor,
         types::{SortDirection, SortKey},
     },
-    types::{EntityIndexDef, ErrorTree, Key, Ulid},
+    schema::node::EntityIndex,
+    types::{ErrorTree, Key, Ulid},
     visit::Visitor,
 };
 
@@ -99,7 +100,7 @@ impl<T> TypeKind for T where
 
 pub trait EntityKind: TypeKind + EntitySearch + EntitySort + PartialEq {
     const STORE: &'static str;
-    //  const INDEXES: &'static [EntityIndexDef];
+    const INDEXES: &'static [EntityIndex];
 
     // key
     // returns the current key, ie ["123123", "234234", "015TaFh54u..."]

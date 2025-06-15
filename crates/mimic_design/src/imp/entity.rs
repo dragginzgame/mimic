@@ -21,7 +21,7 @@ impl Imp<Entity> for EntityKindTrait {
             const STORE: &'static str = stringify!(#store);
         };
 
-        //     q.extend(indexes(node));
+        q.extend(indexes(node));
         q.extend(key(node));
         q.extend(values(node));
         q.extend(build_sort_key(node));
@@ -37,7 +37,7 @@ impl Imp<Entity> for EntityKindTrait {
 
 // indexes
 fn indexes(node: &Entity) -> TokenStream {
-    let defs = node.indexes.iter().map(|ei| ei.schema());
+    let defs = node.indexes.iter().map(|index| index.schema());
 
     quote! {
         const INDEXES: &'static [::mimic::schema::node::EntityIndex] = &[

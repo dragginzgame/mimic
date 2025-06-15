@@ -11,7 +11,7 @@ use crate::{
     },
 };
 use serde::{
-    Deserialize, Serialize,
+    Serialize,
     ser::{SerializeStruct, Serializer},
 };
 use sha2::{Digest, Sha256};
@@ -25,7 +25,7 @@ use std::{
 ///
 
 #[remain::sorted]
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub enum SchemaNode {
     Canister(Canister),
     Constant(Constant),
@@ -130,10 +130,10 @@ impl VisitableNode for SchemaNode {
 /// Schema
 ///
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug)]
 pub struct Schema {
     pub nodes: BTreeMap<String, SchemaNode>,
-    pub hash: String,
+    pub hash: &'static str,
     pub timestamp: u64,
 }
 
@@ -165,7 +165,7 @@ impl Schema {
     pub fn new() -> Self {
         Self {
             nodes: BTreeMap::new(),
-            hash: String::new(),
+            hash: "",
             timestamp: crate::utils::time::now_secs(),
         }
     }

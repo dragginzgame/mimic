@@ -28,8 +28,8 @@ where
     }
 }
 
-// quote_vec
-pub fn quote_vec<T, F>(vec: &[T], transform: F) -> TokenStream
+// quote_slice
+pub fn quote_slice<T, F>(vec: &[T], transform: F) -> TokenStream
 where
     F: Fn(&T) -> TokenStream,
 {
@@ -40,7 +40,7 @@ where
         .collect();
 
     quote! {
-        vec![#(#items),*]
+        &[#(#items),*]
     }
 }
 
@@ -48,28 +48,17 @@ where
 /// TRANSFORM HELPERS
 ///
 
-/// as_quote
-#[expect(dead_code)]
-pub fn as_quote<T: ToTokens>(t: &T) -> TokenStream {
-    quote!(#t)
-}
-
-/// as_string
-pub fn as_string(s: &String) -> TokenStream {
-    quote!(#s.to_string())
-}
-
-/// to_string
-pub fn to_string<T: ToTokens>(t: &T) -> TokenStream {
+/// to_str_lit
+pub fn to_str_lit<T: ToTokens>(t: &T) -> TokenStream {
     let s = quote!(#t).to_string();
 
-    quote!(#s.to_string())
+    quote!(#s)
 }
 
 /// to_path
 pub fn to_path<T: ToTokens>(t: &T) -> TokenStream {
     quote! {
-        <#t as ::mimic::traits::Path>::path().to_string()
+        <#t as ::mimic::traits::Path>::PATH
     }
 }
 

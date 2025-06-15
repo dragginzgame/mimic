@@ -3,13 +3,13 @@ use crate::schema::{
     types::ConstantType,
     visit::Visitor,
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 ///
 /// Constant
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Constant {
     pub def: Def,
     pub ty: ConstantType,

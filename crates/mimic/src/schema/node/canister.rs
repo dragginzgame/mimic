@@ -1,12 +1,12 @@
 use crate::schema::node::{Def, MacroNode, ValidateNode, VisitableNode};
 use candid::CandidType;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 ///
 /// Canister
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Serialize)]
 pub struct Canister {
     pub def: Def,
 }

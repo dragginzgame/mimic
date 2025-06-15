@@ -2,13 +2,13 @@ use crate::schema::{
     node::{Def, MacroNode, ValidateNode, VisitableNode},
     visit::Visitor,
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 ///
 /// Validator
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Validator {
     pub def: Def,
 }

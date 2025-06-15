@@ -2,16 +2,16 @@ use crate::schema::{
     node::{Def, Field, MacroNode, Type, TypeNode, ValidateNode, VisitableNode},
     visit::Visitor,
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 ///
 /// Record
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Record {
     pub def: Def,
-    pub fields: Vec<Field>,
+    pub fields: &'static [Field],
     pub ty: Type,
 }
 
@@ -36,7 +36,7 @@ impl VisitableNode for Record {
 
     fn drive<V: Visitor>(&self, v: &mut V) {
         self.def.accept(v);
-        for node in &self.fields {
+        for node in self.fields {
             node.accept(v);
         }
         self.ty.accept(v);

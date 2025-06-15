@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_one, quote_vec, to_string},
+    helper::{quote_one, quote_slice, to_str_lit},
     imp::{self, Imp},
     node::{ArgNumber, Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type},
     traits::Schemable,
@@ -70,7 +70,7 @@ impl MacroNode for EnumValue {
 impl Schemable for EnumValue {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
-        let variants = quote_vec(&self.variants, EnumValueVariant::schema);
+        let variants = quote_slice(&self.variants, EnumValueVariant::schema);
         let ty = &self.ty.schema();
 
         quote! {
@@ -164,7 +164,7 @@ impl Schemable for EnumValueVariant {
         } = self;
 
         // quote
-        let name = quote_one(&self.name, to_string);
+        let name = quote_one(&self.name, to_str_lit);
         let value = self.value.schema();
 
         quote! {

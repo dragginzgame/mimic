@@ -1,5 +1,5 @@
 use crate::{
-    helper::quote_vec,
+    helper::quote_slice,
     imp::{self, Imp},
     node::{Def, Field, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type},
     traits::Schemable,
@@ -70,7 +70,7 @@ impl MacroNode for Record {
 impl Schemable for Record {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
-        let fields = quote_vec(&self.fields, Field::schema);
+        let fields = quote_slice(&self.fields, Field::schema);
         let ty = self.ty.schema();
 
         quote! {

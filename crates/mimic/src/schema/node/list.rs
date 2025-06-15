@@ -2,13 +2,13 @@ use crate::schema::{
     node::{Def, Item, MacroNode, Type, TypeNode, ValidateNode, VisitableNode},
     visit::Visitor,
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 ///
 /// List
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct List {
     pub def: Def,
     pub item: Item,

@@ -5,19 +5,19 @@ use crate::{
     types::ErrorTree,
     utils::case::{Case, Casing},
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::ops::Not;
 
 ///
 /// EnumValue
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct EnumValue {
     pub def: Def,
 
     #[serde(default)]
-    pub variants: Vec<EnumValueVariant>,
+    pub variants: &'static [EnumValueVariant],
 
     pub ty: Type,
 }
@@ -43,7 +43,7 @@ impl VisitableNode for EnumValue {
 
     fn drive<V: Visitor>(&self, v: &mut V) {
         self.def.accept(v);
-        for node in &self.variants {
+        for node in self.variants {
             node.accept(v);
         }
         self.ty.accept(v);
@@ -54,9 +54,9 @@ impl VisitableNode for EnumValue {
 /// EnumValueVariant
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct EnumValueVariant {
-    pub name: String,
+    pub name: &'static str,
     pub value: ArgNumber,
 
     #[serde(default, skip_serializing_if = "Not::not")]

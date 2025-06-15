@@ -7,22 +7,22 @@ use crate::{
     },
     types::ErrorTree,
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::ops::Not;
 
 ///
 /// Item
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Item {
     pub target: ItemTarget,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub selector: Option<String>,
+    pub selector: Option<&'static str>,
 
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub validators: Vec<TypeValidator>,
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub validators: &'static [TypeValidator],
 
     #[serde(default, skip_serializing_if = "Not::not")]
     pub indirect: bool,
@@ -90,7 +90,7 @@ impl ValidateNode for Item {
 
 impl VisitableNode for Item {
     fn drive<V: Visitor>(&self, v: &mut V) {
-        for node in &self.validators {
+        for node in self.validators {
             node.accept(v);
         }
     }
@@ -100,9 +100,9 @@ impl VisitableNode for Item {
 /// ItemTarget
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub enum ItemTarget {
-    Is(String),
-    Relation(String),
+    Is(&'static str),
+    Relation(&'static str),
     Prim(PrimitiveType),
 }
