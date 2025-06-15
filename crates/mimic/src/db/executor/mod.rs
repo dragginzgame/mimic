@@ -1,10 +1,12 @@
 mod delete;
+mod helper;
 mod load;
 mod save;
 
 pub mod macros;
 
 pub use delete::*;
+pub use helper::*;
 pub use load::*;
 pub use save::*;
 
@@ -25,25 +27,4 @@ pub enum ExecutorError {
 
     #[error("index constraint violation for index: {0:?}")]
     IndexViolation(IndexKey),
-}
-
-///
-/// DebugContext
-///
-
-#[derive(Clone, Debug, Default)]
-pub struct DebugContext {
-    enabled: bool,
-}
-
-impl DebugContext {
-    pub const fn enable(&mut self) {
-        self.enabled = true;
-    }
-
-    pub fn println(&self, s: &str) {
-        if self.enabled {
-            icu::ic::println!("{s}");
-        }
-    }
 }

@@ -2,6 +2,7 @@ use crate::{
     db::types::{IndexKey, IndexValue},
     def::types::Key,
     ic::structures::{BTreeMap, DefaultMemory},
+    schema::node::EntityIndex,
 };
 use derive_more::{Deref, DerefMut};
 use icu::{Log, log};
@@ -21,8 +22,17 @@ impl IndexStore {
     }
 
     // insert_index_value
-    pub fn insert_index_value(&mut self, index_key: IndexKey, entity_key: Key) {
+    pub fn insert_index_value(
+        &mut self,
+        index: &EntityIndex,
+        index_key: IndexKey,
+        entity_key: Key,
+    ) {
         if let Some(mut existing) = self.get(&index_key) {
+            if !existing.contains(&entity_key) && !existing.is_empty() {
+                return Err(ExecutorError::IndexViolation(index_key));
+            }
+
             log!(Log::Info, "adding {entity_key} into index {index_key}");
 
             existing.insert(entity_key);
@@ -37,7 +47,12 @@ impl IndexStore {
     }
 
     // remove_index_value
-    pub fn remove_index_value(&mut self, index_key: &IndexKey, entity_key: &Key) {
+    pub fn remove_index_value(
+        &mut self,
+        index: &EntityIndex,
+        index_key: &IndexKey,
+        entity_key: &Key,
+    ) {
         if let Some(mut existing) = self.get(index_key) {
             log!(Log::Info, "removing {entity_key} from index {index_key}");
             existing.remove(entity_key);

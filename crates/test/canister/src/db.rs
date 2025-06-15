@@ -57,6 +57,7 @@ impl DbTester {
 
         // Retrieve rows in B-Tree order
         let keys = query_load!()
+            .debug()
             .execute::<ContainsBlob>(query::load().all().sort_field("id", SortDirection::Asc))
             .unwrap()
             .keys();

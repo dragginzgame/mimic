@@ -2,12 +2,13 @@ use crate::{
     Error,
     db::{
         DataError,
-        executor::{DebugContext, Loader},
+        executor::Loader,
         query::{LoadFormat, LoadQueryDyn},
         response::{LoadCollectionDyn, LoadResponse},
         store::{DataStoreRegistry, IndexStoreRegistry},
         types::DataRow,
     },
+    debug,
     def::traits::EntityKind,
 };
 
@@ -16,26 +17,26 @@ use crate::{
 ///
 
 pub struct LoadExecutorDyn {
-    data_reg: DataStoreRegistry,
-    index_reg: IndexStoreRegistry,
-    debug: DebugContext,
+    data_registry: DataStoreRegistry,
+    index_registry: IndexStoreRegistry,
+    debug: bool,
 }
 
 impl LoadExecutorDyn {
     // new
     #[must_use]
-    pub fn new(data_reg: DataStoreRegistry, index_reg: IndexStoreRegistry) -> Self {
+    pub fn new(data_registry: DataStoreRegistry, index_registry: IndexStoreRegistry) -> Self {
         Self {
-            data_reg,
-            index_reg,
-            debug: DebugContext::default(),
+            data_registry,
+            index_registry,
+            debug: false,
         }
     }
 
     // debug
     #[must_use]
     pub const fn debug(mut self) -> Self {
-        self.debug.enable();
+        self.debug = false;
         self
     }
 
@@ -68,7 +69,7 @@ impl LoadExecutorDyn {
         self,
         query: LoadQueryDyn,
     ) -> Result<LoadCollectionDyn, DataError> {
-        self.debug.println(&format!("query.load_dyn: {query:?}"));
+        debug!(self.debug, "query.load_dyn: {query:?}");
 
         // resolver
         // let resolved_entity = resolve_entity::<E>()?;
@@ -85,7 +86,7 @@ impl LoadExecutorDyn {
         // loader
         // no where, search, sort
         // but we have to filter by the fn above and paginate
-        let loader = Loader::new(self.data_reg, self.index_reg, self.debug);
+        let loader = Loader::new(self.data_registry, self.index_registry, self.debug);
         let rows = loader
             .load::<E>(&query.selector, None)?
             .into_iter()

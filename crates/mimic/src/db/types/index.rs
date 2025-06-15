@@ -29,9 +29,7 @@ impl IndexKey {
     #[must_use]
     pub fn new(entity_path: &str, fields: &[&str], values: Vec<String>) -> Self {
         // Construct a canonical string like: "my::Entity::field1,field2"
-        let mut full_key = entity_path.to_string();
-        full_key.push_str("::");
-        full_key.push_str(&fields.join(","));
+        let full_key = format!("{entity_path}::{}", fields.join(","));
 
         Self {
             index_id: xx_hash_u64(&full_key),

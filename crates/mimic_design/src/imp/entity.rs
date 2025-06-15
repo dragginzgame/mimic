@@ -18,7 +18,7 @@ impl Imp<Entity> for EntityKindTrait {
         // quote
         let store = &node.store;
         let mut q = quote! {
-            const STORE: &'static str = stringify!(#store);
+            const STORE: &'static str = #store::PATH;
         };
 
         q.extend(indexes(node));
@@ -104,9 +104,28 @@ fn values(node: &Entity) -> TokenStream {
 
 // build_sort_key
 fn build_sort_key(node: &Entity) -> TokenStream {
-    let mut index: usize = 0;
+    // parts
+    let parts = node.sort_keys.iter().map(|sort_key| {
+        let entity = &sort_key.entity;
+
+        match &sort_key.field {
+            Some(field) => quote! {
+                ::mimic::db::types::SortKeyPart::new(
+                    #entity::PATH,
+                    this.#field.to_sort_key_part(),
+                )
+            },
+            None => quote! {
+                ::mimic::db::types::SortKeyPart::new(
+                    #entity::PATH,
+                    None,
+                )
+            },
+        }
+    });
 
     // set_fields
+    let mut index: usize = 0;
     let set_fields = node.sort_keys.iter().filter_map(|sort_key| {
         let field = sort_key.field.as_ref()?;
         let i = index;
@@ -119,38 +138,24 @@ fn build_sort_key(node: &Entity) -> TokenStream {
         })
     });
 
-    // format_keys
-    let format_keys = node.sort_keys.iter().filter_map(|sort_key| {
-        let field = sort_key.field.as_ref()?;
-        let path_str = field.to_string();
+    // inner
+    let inner = quote! {
+        use ::mimic::def::traits::FieldSortKey;
 
-        Some(quote! {
-            ::mimic::db::types::SortKeyPart::new(
-                #path_str,
-                this.#field.to_sort_key_part(),
-            )
-        })
-    });
-
-    let inner = if node.sort_keys.is_empty() {
-        quote!(Vec::new())
-    } else {
-        quote! {
-            use ::mimic::def::traits::FieldSortKey;
-
-            let mut this = Self::default();
-            #(#set_fields)*
-
-            let format_keys = vec![#(#format_keys),*];
-            format_keys.into_iter().take(values.len()).collect()
+        // Ensure at least one part if none were provided
+        if values.is_empty() {
+            return vec![::mimic::db::types::SortKeyPart::new(Self::PATH, None)].into();
         }
+
+        let mut this = Self::default();
+        #(#set_fields)*
+
+        vec![#(#parts),*].into()
     };
 
     quote! {
         fn build_sort_key(values: &[::std::string::String]) -> ::mimic::db::types::SortKey {
-            ::mimic::db::types::SortKey::from_parts({
-                #inner
-            })
+            #inner
         }
     }
 }

@@ -21,11 +21,6 @@ impl SortKey {
             .map(|(path, val)| SortKeyPart::new(path, val.map(|s| s.to_string())))
             .collect();
 
-        SortKey::from_parts(parts)
-    }
-
-    #[must_use]
-    pub fn from_parts(parts: Vec<SortKeyPart>) -> Self {
         Self(parts)
     }
 
@@ -61,6 +56,12 @@ impl Display for SortKey {
             .join(", ");
 
         write!(f, "[{}]", parts)
+    }
+}
+
+impl From<Vec<SortKeyPart>> for SortKey {
+    fn from(parts: Vec<SortKeyPart>) -> Self {
+        SortKey(parts)
     }
 }
 

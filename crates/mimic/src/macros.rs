@@ -12,3 +12,14 @@ macro_rules! mimic_start {
         }
     };
 }
+
+// debug
+// a debugger with a boolean switch
+#[macro_export]
+macro_rules! debug {
+    ($enabled:expr, $($arg:tt)*) => {
+        if $enabled {
+            ::icu::ic::println!($($arg)*);
+        }
+    };
+}

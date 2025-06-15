@@ -2,12 +2,13 @@ use crate::{
     Error,
     db::{
         DataError,
-        executor::DebugContext,
+        executor::resolve_index_key,
         query::{DeleteQuery, QueryError},
         response::{DeleteCollection, DeleteResponse, DeleteRow},
         store::{DataStoreRegistry, IndexStoreRegistry},
-        types::{IndexKey, ResolvedSelector, SortKey},
+        types::{ResolvedSelector, SortKey},
     },
+    debug,
     def::{deserialize, traits::EntityKind},
 };
 
@@ -16,26 +17,26 @@ use crate::{
 ///
 
 pub struct DeleteExecutor {
-    data_reg: DataStoreRegistry,
-    index_reg: IndexStoreRegistry,
-    debug: DebugContext,
+    data_registry: DataStoreRegistry,
+    index_registry: IndexStoreRegistry,
+    debug: bool,
 }
 
 impl DeleteExecutor {
     // new
     #[must_use]
-    pub fn new(data_reg: DataStoreRegistry, index_reg: IndexStoreRegistry) -> Self {
+    pub fn new(data_registry: DataStoreRegistry, index_registry: IndexStoreRegistry) -> Self {
         Self {
-            data_reg,
-            index_reg,
-            debug: DebugContext::default(),
+            data_registry,
+            index_registry,
+            debug: false,
         }
     }
 
     // debug
     #[must_use]
     pub const fn debug(mut self) -> Self {
-        self.debug.enable();
+        self.debug = true;
         self
     }
 
@@ -62,8 +63,7 @@ impl DeleteExecutor {
         &self,
         query: DeleteQuery,
     ) -> Result<DeleteCollection, DataError> {
-        self.debug
-            .println(&format!("query.delete: query is {query:?}"));
+        debug!(self.debug, "query.delete: query is {query:?}");
 
         // resolver
         let resolved_selector = query.selector.resolve::<E>();
@@ -76,11 +76,12 @@ impl DeleteExecutor {
         };
 
         // get store
-        let store = self.data_reg.with(|db| db.try_get_store(E::STORE))?;
+        let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
 
         //
         // execute for every different key
         //
+
         let mut deleted_rows = Vec::new();
 
         for sk in sort_keys {
@@ -103,8 +104,7 @@ impl DeleteExecutor {
         }
 
         // debug
-        self.debug
-            .println(&format!("query.delete: deleted keys {deleted_rows:?}"));
+        debug!(self.debug, "query.delete: deleted keys {deleted_rows:?}");
 
         Ok(DeleteCollection(deleted_rows))
     }
@@ -115,16 +115,16 @@ impl DeleteExecutor {
         let entity_key = entity.key();
 
         for index in E::INDEXES {
-            // skip if missing fields, or optional fields are None
-            let Some(index_values) = values.collect_all(index.fields) else {
+            // resolve index key
+            let Some(index_key) = resolve_index_key::<E>(index.fields, &values) else {
                 continue;
             };
 
-            // store and key
-            let index_key = IndexKey::new(E::PATH, index.fields, index_values);
-
             // remove if found
-            let index_store = self.index_reg.with(|ix| ix.try_get_store(index.store))?;
+            let index_store = self
+                .index_registry
+                .with(|ix| ix.try_get_store(index.store))?;
+
             index_store.with_borrow_mut(|store| {
                 store.remove_index_value(&index_key, &entity_key);
             });
