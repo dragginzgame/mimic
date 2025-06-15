@@ -1,4 +1,4 @@
-use crate::{data::types::hash_path_to_u64, types::Key};
+use crate::types::Key;
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use icu::{impl_storable_bounded, impl_storable_unbounded};
@@ -27,16 +27,11 @@ pub struct IndexKey {
 
 impl IndexKey {
     #[must_use]
-    pub fn new(entity: &str, fields: &[String], values: &[(String, Option<String>)]) -> Self {
-        let entity_id = hash_path_to_u64(entity);
-
+    pub fn new(entity_id: u64, fields: &[&str], values: &[&str]) -> Self {
         Self {
             entity_id,
-            fields: fields.to_vec(),
-            values: values
-                .iter()
-                .map(|(_, v)| v.as_deref().unwrap_or("").to_string())
-                .collect(),
+            fields: fields.iter().map(|s| s.to_string()).collect(),
+            values: values.iter().map(|s| s.to_string()).collect(),
         }
     }
 }

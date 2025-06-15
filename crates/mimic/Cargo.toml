@@ -24,7 +24,6 @@ serde_json = { workspace = true }
 sha2 = { workspace = true }
 syn = { workspace = true }
 thiserror = { workspace = true }
-twox-hash = { workspace = true }
 tinyrand = { workspace = true }
 ulid = { workspace = true }
 

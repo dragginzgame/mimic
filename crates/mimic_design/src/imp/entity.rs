@@ -1,4 +1,5 @@
 use crate::{
+    helper::hash_path_to_u64,
     imp::{Imp, Implementor},
     node::{Entity, MacroNode, Trait},
     traits::Schemable,
@@ -15,9 +16,12 @@ pub struct EntityKindTrait {}
 
 impl Imp<Entity> for EntityKindTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
-        // store
         let store = &node.store;
+        let id = hash_path_to_u64(node.def.path());
+
+        // quote
         let mut q = quote! {
+            const ID: &'static u64 = #id;
             const STORE: &'static str = stringify!(#store);
         };
 
@@ -66,23 +70,22 @@ fn key(node: &Entity) -> TokenStream {
 // values
 fn values(node: &Entity) -> TokenStream {
     let inserts = node.fields.iter().filter_map(|field| {
-        let field_ident = &field.name;
-        let field_name = field.name.to_string();
+        let field_lit = syn::LitStr::new(&field.name, Span::call_site());
 
         match field.value.cardinality() {
             Cardinality::One => Some(quote! {
                 if let Some(v) = self.#field_ident.to_query_value() {
-                    map.insert(#field_name.into(), Some(v));
+                    map.insert(#field_lit, Some(v));
                 }
             }),
 
             Cardinality::Opt => Some(quote! {
                 if let Some(inner) = &self.#field_ident {
                     if let Some(v) = inner.to_query_value() {
-                        map.insert(#field_name.into(), Some(v));
+                        map.insert(#field_lit, Some(v));
                     }
                 } else {
-                    map.insert(#field_name.into(), None);
+                    map.insert(#field_lit, None);
                 }
             }),
 
@@ -91,7 +94,7 @@ fn values(node: &Entity) -> TokenStream {
     });
 
     quote! {
-        fn values(&self) -> ::std::collections::HashMap<String, Option<String>> {
+        fn values(&self) -> ::std::collections::HashMap<&'static str, Option<String>> {
             use ::mimic::traits::FieldQueryable;
 
             let mut map = ::std::collections::HashMap::with_capacity(3);

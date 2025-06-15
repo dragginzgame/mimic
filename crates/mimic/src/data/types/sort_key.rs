@@ -1,4 +1,3 @@
-use crate::data::types::hash_path_to_u64;
 use candid::CandidType;
 use icu::impl_storable_bounded;
 use serde::{Deserialize, Serialize};
@@ -15,13 +14,13 @@ pub struct SortKey(Vec<SortKeyPart>);
 
 impl SortKey {
     #[must_use]
-    pub fn new(parts: Vec<(String, Option<String>)>) -> Self {
+    fn new(parts: Vec<(u64, Option<String>)>) -> SortKey {
         let parts = parts
-            .into_iter()
-            .map(|(path, value)| SortKeyPart::new(&path, value))
+            .iter()
+            .map(|(id, v)| SortKeyPart::new(*id, v.clone()))
             .collect();
 
-        Self(parts)
+        SortKey::from_parts(parts)
     }
 
     #[must_use]
@@ -74,24 +73,22 @@ impl_storable_bounded!(SortKey, 128, false);
     CandidType, Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize,
 )]
 pub struct SortKeyPart {
-    pub path_id: u64,
+    pub entity_id: u64,
     pub value: Option<String>,
 }
 
 impl SortKeyPart {
     #[must_use]
-    pub fn new(path: &str, value: Option<String>) -> Self {
-        let path_id = hash_path_to_u64(path);
-
-        Self { path_id, value }
+    pub fn new(entity_id: u64, value: Option<String>) -> Self {
+        Self { entity_id, value }
     }
 }
 
 impl Display for SortKeyPart {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self.value {
-            Some(v) => write!(f, "#{} ({})", self.path_id, v),
-            None => write!(f, "#{} (None)", self.path_id),
+            Some(v) => write!(f, "#{} ({})", self.entity_id, v),
+            None => write!(f, "#{} (None)", self.entity_id),
         }
     }
 }
@@ -104,63 +101,73 @@ impl Display for SortKeyPart {
 mod tests {
     use super::*;
 
+    fn str(s: &str) -> Option<String> {
+        Some(s.to_string())
+    }
+
     #[test]
-    fn sort_key_upper_bound_is_strictly_greater_than_original() {
-        let original = SortKey::new(vec![
-            ("category".to_string(), Some("alpha".to_string())),
-            ("type".to_string(), Some("gamma".to_string())),
-        ]);
+    fn sort_key_entity_id_dominates_ordering() {
+        let lower = SortKey::new(vec![(1, str("alpha"))]);
+        let higher = SortKey::new(vec![(2, str("alpha"))]);
 
-        let upper_bound = original.create_upper_bound();
-
-        assert!(
-            original < upper_bound,
-            "Expected SortKey to be strictly less than its upper bound"
-        );
+        assert!(lower < higher, "Lower entity_id should sort before higher");
     }
 
     #[test]
     fn sort_key_none_is_less_than_some() {
-        let none_key = SortKey::new(vec![("rarity".to_string(), None)]);
-        let some_key = SortKey::new(vec![("rarity".to_string(), Some("common".to_string()))]);
+        let none_key = SortKey::new(vec![(42, None)]);
+        let some_key = SortKey::new(vec![(42, str("common"))]);
 
-        assert!(
-            none_key < some_key,
-            "Expected SortKey with None to sort before SortKey with Some value"
-        );
+        assert!(none_key < some_key, "None value should sort before Some");
     }
 
     #[test]
-    fn sort_key_some_value_sorts_before_tilde_upper_bound() {
-        let value_key = SortKey::new(vec![("rarity".to_string(), Some("123123".to_string()))]);
-        let tilde_key = SortKey::new(vec![("rarity".to_string(), Some("~".to_string()))]);
+    fn sort_key_some_value_sorts_before_tilde() {
+        let value_key = SortKey::new(vec![(42, str("123123"))]);
+        let tilde_key = SortKey::new(vec![(42, str("~"))]);
 
         assert!(
             value_key < tilde_key,
-            "Expected SortKey with normal value to sort before '~' suffix upper bound"
+            "Normal value should sort before tilde '~'"
         );
     }
 
     #[test]
-    fn sort_keys_with_same_paths_and_values_are_equal() {
-        let k1 = SortKey::new(vec![("id".to_string(), Some("abc".to_string()))]);
-        let k2 = SortKey::new(vec![("id".to_string(), Some("abc".to_string()))]);
+    fn sort_keys_with_same_data_are_equal() {
+        let k1 = SortKey::new(vec![(100, str("abc"))]);
+        let k2 = SortKey::new(vec![(100, str("abc"))]);
 
-        assert_eq!(k1, k2, "SortKeys with same data should be equal");
+        assert_eq!(k1, k2, "Identical SortKeys should be equal");
         assert_eq!(k1.partial_cmp(&k2), Some(std::cmp::Ordering::Equal));
     }
 
     #[test]
     fn sort_key_with_more_parts_is_greater() {
-        let short = SortKey::new(vec![("type".to_string(), Some("basic".to_string()))]);
-        let long = SortKey::new(vec![
-            ("type".to_string(), Some("basic".to_string())),
-            ("level".to_string(), Some("2".to_string())),
-        ]);
+        let short = SortKey::new(vec![(999, str("basic"))]);
+        let long = SortKey::new(vec![(999, str("basic")), (999, str("2"))]);
 
         assert!(
             short < long,
-            "SortKey with fewer parts should sort before longer one if prefix matches"
+            "Shorter key should sort before longer key with same prefix"
+        );
+    }
+
+    #[test]
+    fn sort_key_with_mixed_entity_ids_sorts_correctly() {
+        let k1 = SortKey::new(vec![(1, str("a")), (2, str("b"))]);
+        let k2 = SortKey::new(vec![(1, str("a")), (2, str("c"))]);
+
+        assert!(k1 < k2, "Later value should break tie");
+    }
+
+    #[test]
+    fn sort_key_with_different_entity_ids_in_parts_matters() {
+        let k1 = SortKey::new(vec![(1, str("x")), (2, str("y"))]);
+        let k2 = SortKey::new(vec![(1, str("x")), (3, str("y"))]);
+
+        assert!(
+            k1 < k2,
+            "Entity ID in second part should influence ordering"
         );
     }
 }

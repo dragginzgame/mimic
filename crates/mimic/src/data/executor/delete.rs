@@ -93,7 +93,7 @@ impl DeleteExecutor {
             let entity: E = deserialize(&data_value.bytes)?;
 
             // Step 2: Remove indexes
-            //    self.remove_indexes::<E>(entity)?;
+            self.remove_indexes::<E>(entity)?;
 
             // Step 3: Delete the data row itself
             store.with_borrow_mut(|store| {
@@ -109,23 +109,33 @@ impl DeleteExecutor {
 
         Ok(DeleteCollection(deleted_rows))
     }
-    /*
+
     // remove_indexes
     fn remove_indexes<E: EntityKind>(&self, entity: E) -> Result<(), DataError> {
-        let resolved_entity = resolve_entity::<E>()?;
         let field_values = entity.values();
         let entity_key = entity.key();
 
-        for index in resolved_entity.indexes() {
-            let index_key = IndexKey::new(E::PATH, &index.fields, &key_parts);
+        for index in E::INDEXES {
+            // Gather all the field values required by the index
+            let mut key_parts = Vec::new();
+            let mut all_fields_present = true;
 
-            // skip invalid index keys
-            let Some(index_key) = resolved_entity.build_index_key(&index, values) else {
+            for field in index.fields {
+                match field_values.get(field) {
+                    Some(value) => key_parts.push(value.clone()),
+                    None => {
+                        all_fields_present = false;
+                        break;
+                    }
+                }
+            }
+
+            if !all_fields_present {
                 continue;
-            };
+            }
 
-            let entity_key = E::build_key(values);
             let index_store = self.index_reg.with(|ix| ix.try_get_store(&index.store))?;
+            let index_key = IndexKey::new(E::ID, index.fields, key_parts);
 
             index_store.with_borrow_mut(|store| {
                 if let Some(mut existing) = store.get(&index_key) {
@@ -141,12 +151,10 @@ impl DeleteExecutor {
                         "query.delete: removed value {entity_key} from index {index_key:?}"
                     ));
                 }
-
                 Ok::<(), DataError>(())
             })?;
         }
 
         Ok(())
     }
-    */
 }

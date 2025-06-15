@@ -99,6 +99,7 @@ impl<T> TypeKind for T where
 ///
 
 pub trait EntityKind: TypeKind + EntitySearch + EntitySort + PartialEq {
+    const ID: &'static u64;
     const STORE: &'static str;
     const INDEXES: &'static [EntityIndex];
 
@@ -108,7 +109,7 @@ pub trait EntityKind: TypeKind + EntitySearch + EntitySort + PartialEq {
 
     // values
     // returns fields and values in string format for where/search queries
-    fn values(&self) -> HashMap<String, Option<String>>;
+    fn values(&self) -> HashMap<&'static str, Option<String>>;
 
     // sort_key
     // returns the current sort key (via the build_sort_key function)
