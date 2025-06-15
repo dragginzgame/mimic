@@ -1,11 +1,11 @@
 use crate::{
+    error::ErrorTree,
     schema::{
         build::schema_read,
         node::{Canister, Def, MacroNode, ValidateNode, VisitableNode},
         types::StoreType,
         visit::Visitor,
     },
-    types::ErrorTree,
     utils::case::{Case, Casing},
 };
 use serde::Serialize;

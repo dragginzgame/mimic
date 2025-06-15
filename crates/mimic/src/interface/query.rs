@@ -1,6 +1,6 @@
 use crate::{
     Error,
-    data::{
+    db::{
         query::{DeleteQuery, LoadQuery, SaveQuery},
         response::{DeleteResponse, LoadResponse, SaveResponse},
     },

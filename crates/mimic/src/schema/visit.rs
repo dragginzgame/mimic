@@ -1,4 +1,4 @@
-use crate::{schema::node::VisitableNode, types::ErrorTree};
+use crate::{error::ErrorTree, schema::node::VisitableNode};
 
 ///
 /// Event

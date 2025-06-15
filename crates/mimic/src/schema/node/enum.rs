@@ -1,9 +1,9 @@
 use crate::{
+    error::ErrorTree,
     schema::{
         node::{Def, MacroNode, Type, TypeNode, ValidateNode, Value, VisitableNode},
         visit::Visitor,
     },
-    types::ErrorTree,
     utils::case::{Case, Casing},
 };
 use serde::Serialize;

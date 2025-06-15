@@ -3,15 +3,13 @@
 /// [for external use only, keep out of reach of children]
 ///
 pub mod build;
-pub mod data;
+pub mod db;
+pub mod def;
+pub mod error;
 pub mod interface;
 pub mod macros;
 pub mod schema;
-pub mod service;
-pub mod traits;
-pub mod types;
 pub mod utils;
-pub mod visit;
 
 // makes it easier to use internally
 pub mod ic {
@@ -34,29 +32,29 @@ extern crate self as mimic;
 
 pub mod prelude {
     pub use crate::{
-        data::{
+        db::{
             executor::SaveExecutor,
             response::{LoadCollection, LoadCollectionDyn},
+            service::EntityService,
             types::SortDirection,
         },
-        mimic_start, query_delete, query_load, query_save,
-        service::EntityService,
-        traits::{
-            EntityFixture, EntityIdKind as _, EntityKind as _, Inner as _, NumCast as _, Path as _,
-            Validate as _, ValidateCustom, ValidatorBytes as _, ValidatorNumber as _,
-            ValidatorString as _, Visitable as _,
+        def::{
+            traits::{
+                EntityFixture, EntityIdKind as _, EntityKind as _, Inner as _, NumCast as _,
+                Path as _, Validate as _, ValidateCustom, ValidatorBytes as _,
+                ValidatorNumber as _, ValidatorString as _, Visitable as _,
+            },
+            types::{Key, KeySet, Ulid},
         },
-        types::{ErrorTree, Key, KeySet, Ulid},
+        error::ErrorTree,
+        mimic_start, query_delete, query_load, query_save,
     };
     pub use ::candid::CandidType;
 }
 
-use crate::types::ErrorTree;
 use candid::CandidType;
-use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use serde::{Deserialize, Serialize};
 use thiserror::Error as ThisError;
-use traits::Visitable;
-use visit::{ValidateVisitor, perform_visit};
 
 ///
 /// Error
@@ -83,9 +81,6 @@ pub enum Error {
     SerializeError(String),
 
     #[error("{0}")]
-    StorageError(String),
-
-    #[error("{0}")]
     ValidationError(String),
 }
 
@@ -100,57 +95,8 @@ macro_rules! from_to_string {
 }
 
 from_to_string!(build::BuildError, BuildError);
-from_to_string!(data::DataError, DataError);
+from_to_string!(db::DataError, DataError);
 from_to_string!(interface::InterfaceError, InterfaceError);
 from_to_string!(schema::SchemaError, SchemaError);
-from_to_string!(SerializeError, SerializeError);
-from_to_string!(ValidationError, ValidationError);
-
-///
-/// Validation
-///
-
-#[derive(Debug, ThisError)]
-pub enum ValidationError {
-    #[error("validation failed: {0}")]
-    Validation(ErrorTree),
-}
-
-// validate
-pub fn validate(node: &dyn Visitable) -> Result<(), ValidationError> {
-    let mut visitor = ValidateVisitor::new();
-    perform_visit(&mut visitor, node, "");
-
-    visitor
-        .errors
-        .result()
-        .map_err(ValidationError::Validation)?;
-
-    Ok(())
-}
-
-///
-/// Serialize
-///
-
-#[derive(Debug, ThisError)]
-pub enum SerializeError {
-    #[error(transparent)]
-    SerializeError(#[from] icu::serialize::SerializeError),
-}
-
-// serialize
-pub fn serialize<T>(ty: &T) -> Result<Vec<u8>, SerializeError>
-where
-    T: Serialize,
-{
-    icu::serialize::serialize(ty).map_err(SerializeError::from)
-}
-
-// deserialize
-pub fn deserialize<T>(bytes: &[u8]) -> Result<T, SerializeError>
-where
-    T: DeserializeOwned,
-{
-    icu::serialize::deserialize(bytes).map_err(SerializeError::from)
-}
+from_to_string!(def::SerializeError, SerializeError);
+from_to_string!(def::ValidationError, ValidationError);

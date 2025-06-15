@@ -1,5 +1,5 @@
 use crate::{DATA_REGISTRY, INDEX_REGISTRY};
-use mimic::{data::query, deserialize, prelude::*, serialize, traits::Path, types::Ulid};
+use mimic::{db::query, deserialize, prelude::*, serialize, traits::Path, types::Ulid};
 use test_design::schema::TestStore;
 
 ///

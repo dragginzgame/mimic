@@ -3,12 +3,12 @@ pub mod validate;
 
 use crate::{
     Error, ThisError,
+    error::ErrorTree,
     schema::{
         SchemaError,
         node::{Schema, VisitableNode},
         visit::ValidateVisitor,
     },
-    types::ErrorTree,
 };
 use std::sync::{LazyLock, OnceLock, RwLock, RwLockReadGuard, RwLockWriteGuard};
 

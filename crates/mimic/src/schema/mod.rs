@@ -9,6 +9,7 @@ use crate::{
     ThisError,
     schema::{build::BuildError, node::NodeError},
 };
+use std::collections::HashMap;
 
 ///
 /// SchemaError
@@ -21,4 +22,24 @@ pub enum SchemaError {
 
     #[error(transparent)]
     NodeError(#[from] NodeError),
+}
+
+///
+/// EntityValues
+///
+
+pub struct EntityValues {
+    map: HashMap<&'static str, Option<String>>,
+}
+
+impl EntityValues {
+    /// Checks if all given fields are present
+    pub fn has_all(&self, fields: &[&'static str]) -> bool {
+        fields.iter().all(|f| self.map.contains_key(f))
+    }
+
+    /// Access a field directly
+    pub fn get(&self, field: &str) -> Option<&Option<String>> {
+        self.map.get(field)
+    }
 }

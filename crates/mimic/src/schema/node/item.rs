@@ -1,11 +1,11 @@
 use crate::{
+    error::ErrorTree,
     schema::{
         build::schema_read,
         node::{Entity, Selector, TypeValidator, ValidateNode, VisitableNode},
         types::PrimitiveType,
         visit::Visitor,
     },
-    types::ErrorTree,
 };
 use serde::Serialize;
 use std::ops::Not;

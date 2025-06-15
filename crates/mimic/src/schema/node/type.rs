@@ -1,9 +1,9 @@
 use crate::{
+    error::ErrorTree,
     schema::{
         build::schema_read,
         node::{Args, ValidateNode, Validator, VisitableNode, Visitor},
     },
-    types::ErrorTree,
 };
 use serde::Serialize;
 use std::ops::Not;

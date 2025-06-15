@@ -1,4 +1,5 @@
 use crate::{
+    error::ErrorTree,
     schema::{
         build::schema_read,
         node::{
@@ -7,7 +8,6 @@ use crate::{
         types::StoreType,
         visit::Visitor,
     },
-    types::ErrorTree,
 };
 use serde::Serialize;
 use std::ops::Not;
