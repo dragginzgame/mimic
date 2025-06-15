@@ -18,9 +18,11 @@ mod tests {
             ..Default::default()
         };
         println!("{e:?}");
+        println!();
 
-        let sort_keys = e.key_values();
-        println!("{sort_keys:?}");
+        println!("key : {:?}", e.key());
+        println!("values : {:?}", e.values());
+        println!("sort_key : {:?}", e.sort_key());
     }
 
     #[test]

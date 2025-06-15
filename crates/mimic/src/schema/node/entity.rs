@@ -16,10 +16,10 @@ use std::ops::Not;
 /// Entity
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Entity {
     pub def: Def,
-    pub store: String,
+    pub store: &'static str,
 
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub sort_keys: Vec<SortKey>,
@@ -142,14 +142,14 @@ impl VisitableNode for Entity {
 /// EntityIndex
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct EntityIndex {
     pub fields: Vec<String>,
 
     #[serde(default, skip_serializing_if = "Not::not")]
     pub unique: bool,
 
-    pub store: String,
+    pub store: &'static str,
 }
 
 impl ValidateNode for EntityIndex {

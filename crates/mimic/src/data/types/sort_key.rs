@@ -1,7 +1,7 @@
+use crate::data::types::hash_path_to_u64;
 use candid::CandidType;
 use icu::impl_storable_bounded;
 use serde::{Deserialize, Serialize};
-use sha2::{Digest, Sha256};
 use std::fmt::{self, Display};
 
 ///
@@ -18,10 +18,21 @@ impl SortKey {
     pub fn new(parts: Vec<(String, Option<String>)>) -> Self {
         let parts = parts
             .into_iter()
-            .map(|(path, value)| SortKeyPart::from_path(&path, value))
+            .map(|(path, value)| SortKeyPart::new(&path, value))
             .collect();
 
         Self(parts)
+    }
+
+    #[must_use]
+    pub fn from_parts(parts: Vec<SortKeyPart>) -> Self {
+        Self(parts)
+    }
+
+    // parts
+    #[must_use]
+    pub fn parts(&self) -> Vec<SortKeyPart> {
+        self.0.clone()
     }
 
     /// Creates an upper bound by appending '~' to the last value
@@ -68,7 +79,8 @@ pub struct SortKeyPart {
 }
 
 impl SortKeyPart {
-    pub fn from_path(path: &str, value: Option<String>) -> Self {
+    #[must_use]
+    pub fn new(path: &str, value: Option<String>) -> Self {
         let path_id = hash_path_to_u64(path);
 
         Self { path_id, value }
@@ -85,17 +97,70 @@ impl Display for SortKeyPart {
 }
 
 ///
-/// Helper
+/// TESTS
 ///
 
-pub fn hash_path_to_u64(path: &str) -> u64 {
-    let mut hasher = Sha256::new();
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    hasher.update(path.as_bytes());
-    let result = hasher.finalize();
+    #[test]
+    fn sort_key_upper_bound_is_strictly_greater_than_original() {
+        let original = SortKey::new(vec![
+            ("category".to_string(), Some("alpha".to_string())),
+            ("type".to_string(), Some("gamma".to_string())),
+        ]);
 
-    // Truncate the first 8 bytes into a u64 (big endian)
-    u64::from_be_bytes([
-        result[0], result[1], result[2], result[3], result[4], result[5], result[6], result[7],
-    ])
+        let upper_bound = original.create_upper_bound();
+
+        assert!(
+            original < upper_bound,
+            "Expected SortKey to be strictly less than its upper bound"
+        );
+    }
+
+    #[test]
+    fn sort_key_none_is_less_than_some() {
+        let none_key = SortKey::new(vec![("rarity".to_string(), None)]);
+        let some_key = SortKey::new(vec![("rarity".to_string(), Some("common".to_string()))]);
+
+        assert!(
+            none_key < some_key,
+            "Expected SortKey with None to sort before SortKey with Some value"
+        );
+    }
+
+    #[test]
+    fn sort_key_some_value_sorts_before_tilde_upper_bound() {
+        let value_key = SortKey::new(vec![("rarity".to_string(), Some("123123".to_string()))]);
+        let tilde_key = SortKey::new(vec![("rarity".to_string(), Some("~".to_string()))]);
+
+        assert!(
+            value_key < tilde_key,
+            "Expected SortKey with normal value to sort before '~' suffix upper bound"
+        );
+    }
+
+    #[test]
+    fn sort_keys_with_same_paths_and_values_are_equal() {
+        let k1 = SortKey::new(vec![("id".to_string(), Some("abc".to_string()))]);
+        let k2 = SortKey::new(vec![("id".to_string(), Some("abc".to_string()))]);
+
+        assert_eq!(k1, k2, "SortKeys with same data should be equal");
+        assert_eq!(k1.partial_cmp(&k2), Some(std::cmp::Ordering::Equal));
+    }
+
+    #[test]
+    fn sort_key_with_more_parts_is_greater() {
+        let short = SortKey::new(vec![("type".to_string(), Some("basic".to_string()))]);
+        let long = SortKey::new(vec![
+            ("type".to_string(), Some("basic".to_string())),
+            ("level".to_string(), Some("2".to_string())),
+        ]);
+
+        assert!(
+            short < long,
+            "SortKey with fewer parts should sort before longer one if prefix matches"
+        );
+    }
 }

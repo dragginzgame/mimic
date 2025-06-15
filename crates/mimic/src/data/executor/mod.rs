@@ -1,13 +1,11 @@
 mod delete;
 mod load;
-mod resolver;
 mod save;
 
 pub mod macros;
 
 pub use delete::*;
 pub use load::*;
-pub use resolver::*;
 pub use save::*;
 
 use crate::data::types::{IndexKey, SortKey};

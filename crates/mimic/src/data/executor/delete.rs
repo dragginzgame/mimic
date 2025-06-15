@@ -2,16 +2,15 @@ use crate::{
     Error,
     data::{
         DataError,
-        executor::{DebugContext, ResolvedEntity, resolve_entity},
+        executor::DebugContext,
         query::{DeleteQuery, QueryError},
         response::{DeleteCollection, DeleteResponse, DeleteRow},
         store::{DataStoreRegistry, IndexStoreRegistry},
-        types::{ResolvedSelector, SortKey},
+        types::{IndexKey, ResolvedSelector, SortKey},
     },
     deserialize,
     traits::EntityKind,
 };
-use std::collections::HashMap;
 
 ///
 /// DeleteExecutor
@@ -68,7 +67,6 @@ impl DeleteExecutor {
             .println(&format!("query.delete: query is {query:?}"));
 
         // resolver
-        let resolved_entity = resolve_entity::<E>()?;
         let resolved_selector = query.selector.resolve::<E>();
         let sort_keys: Vec<SortKey> = match resolved_selector {
             ResolvedSelector::One(key) => vec![key],
@@ -87,23 +85,22 @@ impl DeleteExecutor {
         let mut deleted_rows = Vec::new();
 
         for sk in sort_keys {
-            if let Some(data_value) = store.with_borrow(|store| store.get(&sk)) {
-                // Step 1: Deserialize the entity
-                let entity: E = deserialize(&data_value.bytes)?;
+            let Some(data_value) = store.with_borrow(|s| s.get(&sk)) else {
+                continue;
+            };
 
-                // Step 2: Extract field values
-                let field_values = entity.searchable_fields();
+            // Step 1: Deserialize the entity and get values
+            let entity: E = deserialize(&data_value.bytes)?;
 
-                // Step 3: Remove indexes
-                self.remove_indexes(&resolved_entity, &field_values)?;
+            // Step 2: Remove indexes
+            //    self.remove_indexes::<E>(entity)?;
 
-                // Step 4: Delete the data row itself
-                store.with_borrow_mut(|store| {
-                    store.remove(&sk);
-                });
+            // Step 3: Delete the data row itself
+            store.with_borrow_mut(|store| {
+                store.remove(&sk);
+            });
 
-                deleted_rows.push(DeleteRow::new(sk));
-            }
+            deleted_rows.push(DeleteRow::new(sk));
         }
 
         // debug
@@ -112,20 +109,22 @@ impl DeleteExecutor {
 
         Ok(DeleteCollection(deleted_rows))
     }
-
+    /*
     // remove_indexes
-    fn remove_indexes(
-        &self,
-        resolved: &ResolvedEntity,
-        field_values: &HashMap<String, Option<String>>,
-    ) -> Result<(), DataError> {
-        for index in resolved.indexes() {
+    fn remove_indexes<E: EntityKind>(&self, entity: E) -> Result<(), DataError> {
+        let resolved_entity = resolve_entity::<E>()?;
+        let field_values = entity.values();
+        let entity_key = entity.key();
+
+        for index in resolved_entity.indexes() {
+            let index_key = IndexKey::new(E::PATH, &index.fields, &key_parts);
+
             // skip invalid index keys
-            let Some(index_key) = resolved.index_key(index, field_values) else {
+            let Some(index_key) = resolved_entity.build_index_key(&index, values) else {
                 continue;
             };
 
-            let entity_key = resolved.key(field_values);
+            let entity_key = E::build_key(values);
             let index_store = self.index_reg.with(|ix| ix.try_get_store(&index.store))?;
 
             index_store.with_borrow_mut(|store| {
@@ -149,4 +148,5 @@ impl DeleteExecutor {
 
         Ok(())
     }
+    */
 }

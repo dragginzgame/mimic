@@ -9,5 +9,10 @@ mimic = { workspace = true }
 mimic_base = { workspace = true }
 test_design = { workspace = true }
 
-[dev-dependencies]
-sha2 = { workspace = true }
+[[test]]
+name = "mytest"
+path = "mytest.rs"
+
+#[[test]]
+#name = "variant"
+#path = "variant.rs"

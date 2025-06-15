@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.4.7]
-- big rewrite...
+- faster SortKey using a hash
 
 ## [0.4.6]
 - Searchable trait now a blanket implementation for Display

@@ -16,6 +16,6 @@ impl EntityService {
     pub fn save_fixture<E: EntityKind>(exec: &mut SaveExecutor, entity: E) {
         let q = SaveQueryTyped::new(SaveMode::Replace, entity);
 
-        exec.execute::<E>(q).unwrap();
+        exec.execute(q).unwrap();
     }
 }

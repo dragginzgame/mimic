@@ -70,7 +70,6 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
         | Trait::EntityIdKind
         | Trait::FieldOrderable
         | Trait::FieldQueryable
-        | Trait::Orderable
         | Trait::ValidateAuto
         | Trait::ValidateCustom
         | Trait::Visitable => Some(Implementor::new(def, t).to_token_stream()),

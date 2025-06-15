@@ -7,7 +7,7 @@ pub use generic::*;
 use crate::{
     data::{
         DataError,
-        executor::{DebugContext, ResolvedEntity},
+        executor::DebugContext,
         store::{DataStoreLocal, DataStoreRegistry, IndexStoreRegistry},
         types::{DataRow, ResolvedSelector, Selector, SortKey, Where},
     },
@@ -43,7 +43,6 @@ impl Loader {
     // load
     pub fn load<E>(
         &self,
-        resolved: &ResolvedEntity,
         selector: &Selector,
         where_clause: Option<&Where>,
     ) -> Result<Vec<DataRow>, DataError>
@@ -51,10 +50,12 @@ impl Loader {
         E: EntityKind,
     {
         // does the where clause modify the selector?
+        /*
         let selector = match where_clause {
             Some(wc) => self.resolve_selector_with_index(resolved, selector, wc)?,
             None => selector.clone(),
         };
+        */
 
         // get store
         let store = self.data_reg.with(|db| db.try_get_store(E::STORE))?;
@@ -93,7 +94,7 @@ impl Loader {
                 .collect()
         })
     }
-
+    /*
     // resolve_selector_with_index
     pub fn resolve_selector_with_index(
         &self,
@@ -110,11 +111,11 @@ impl Loader {
 
         // look for matching indexes
         for index in resolved.indexes() {
-            if index.fields.len() == resolved.sk_fields.len()
+            if index.fields.len() == resolved.sk_data.len()
                 && index.fields.iter().all(|f| field_values.contains_key(f))
             {
                 // no index key, no index lookup
-                let Some(index_key) = resolved.index_key(index, &field_values) else {
+                let Some(index_key) = resolved.build_index_key(index, &field_values) else {
                     continue;
                 };
 
@@ -144,4 +145,5 @@ impl Loader {
 
         Ok(selector.clone())
     }
+    */
 }

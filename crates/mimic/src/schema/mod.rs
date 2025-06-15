@@ -1,6 +1,5 @@
 pub mod build;
 pub mod node;
-pub mod state;
 pub mod types;
 pub mod visit;
 
@@ -8,7 +7,7 @@ pub use build::get_schema;
 
 use crate::{
     ThisError,
-    schema::{build::BuildError, node::NodeError, state::StateError},
+    schema::{build::BuildError, node::NodeError},
 };
 
 ///
@@ -22,7 +21,4 @@ pub enum SchemaError {
 
     #[error(transparent)]
     NodeError(#[from] NodeError),
-
-    #[error(transparent)]
-    StateError(#[from] StateError),
 }

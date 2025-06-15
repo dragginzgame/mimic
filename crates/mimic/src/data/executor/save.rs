@@ -2,17 +2,16 @@ use crate::{
     Error,
     data::{
         DataError,
-        executor::{DebugContext, ExecutorError, ResolvedEntity},
+        executor::{DebugContext, ExecutorError},
         query::{SaveMode, SaveQueryTyped},
         response::{SaveCollection, SaveResponse, SaveRow},
         store::{DataStoreRegistry, IndexStoreRegistry},
-        types::{DataValue, EntityValue, IndexValue, Metadata},
+        types::{DataValue, EntityValue, Metadata},
     },
     serialize,
     traits::EntityKind,
     utils::time,
 };
-use std::collections::HashMap;
 
 ///
 /// SaveExecutor
@@ -43,11 +42,11 @@ impl SaveExecutor {
     }
 
     // execute
-    pub fn execute<E>(&self, query: SaveQueryTyped<E>) -> Result<SaveCollection, Error>
-    where
-        E: EntityKind,
-    {
-        let res = self.execute_internal::<E>(query)?;
+    pub fn execute<E: EntityKind>(
+        &self,
+        query: SaveQueryTyped<E>,
+    ) -> Result<SaveCollection, Error> {
+        let res = self.execute_internal(query)?;
 
         Ok(res)
     }
@@ -57,7 +56,7 @@ impl SaveExecutor {
         self,
         query: SaveQueryTyped<E>,
     ) -> Result<SaveResponse, Error> {
-        let res = self.execute_internal::<E>(query)?;
+        let res = self.execute_internal(query)?;
 
         Ok(SaveResponse(res.0))
     }
@@ -75,7 +74,7 @@ impl SaveExecutor {
         crate::validate(&entity)?;
 
         // resolve - get schema data
-        let sk = &entity.sort_key();
+        let sk = entity.sort_key();
         let store = self.data.with(|data| data.try_get_store(E::STORE))?;
 
         // debug
@@ -92,9 +91,9 @@ impl SaveExecutor {
         // did anything change?
 
         let (created, modified, old_ev) = match (mode, old_result) {
-            (SaveMode::Create, Some(_)) => return Err(ExecutorError::KeyExists(sk.clone()))?,
+            (SaveMode::Create, Some(_)) => return Err(ExecutorError::KeyExists(sk))?,
             (SaveMode::Create | SaveMode::Replace, None) => (now, now, None),
-            (SaveMode::Update, None) => return Err(ExecutorError::KeyNotFound(sk.clone()))?,
+            (SaveMode::Update, None) => return Err(ExecutorError::KeyNotFound(sk))?,
 
             (SaveMode::Update | SaveMode::Replace, Some(old_dv)) => {
                 let old_ev: EntityValue<E> = old_dv.try_into()?;
@@ -105,7 +104,7 @@ impl SaveExecutor {
                         .println(&format!("query.{mode}: no changes for {sk}, skipping save"));
 
                     return Ok(SaveCollection(vec![SaveRow {
-                        key: sk.clone(),
+                        key: sk,
                         created: old_ev.metadata.created,
                         modified: old_ev.metadata.modified,
                     }]));
@@ -116,8 +115,10 @@ impl SaveExecutor {
         };
 
         // update indexes
-        let old_sort_values = old_ev.as_ref().map(|ev| ev.entity.searchable_fields());
-        self.update_indexes(&resolved_entity, old_key_values.as_ref(), key_values, mode)?;
+        let new_values = entity.values();
+        let old_values = old_ev.as_ref().map(|ev| ev.entity.values());
+
+        //    self.update_indexes(old_values.as_ref(), &new_values, mode)?;
 
         // prepare data value
         let value = DataValue {
@@ -133,16 +134,17 @@ impl SaveExecutor {
 
         // return a collection
         Ok(SaveCollection(vec![SaveRow {
-            key: sk.clone(),
+            key: sk,
             created,
             modified,
         }]))
     }
 
+    /*
+
     // update_indexes
     fn update_indexes(
         &self,
-        resolved: &ResolvedEntity,
         old_values: Option<&HashMap<String, Option<String>>>,
         new_values: &HashMap<String, Option<String>>,
         mode: SaveMode,
@@ -152,8 +154,8 @@ impl SaveExecutor {
 
             // 🔁 Remove old index entry if applicable
             if let Some(old) = old_values {
-                if let Some(old_index_key) = resolved.index_key(index, old) {
-                    let old_key = resolved.key(old);
+                if let Some(old_index_key) = resolved.build_index_key(index, old) {
+                    let old_key = resolved.build_key(old);
 
                     index_store.with_borrow_mut(|istore| {
                         if let Some(mut existing) = istore.get(&old_index_key) {
@@ -176,8 +178,8 @@ impl SaveExecutor {
             }
 
             // ✅ Insert new index entry
-            if let Some(new_index_key) = resolved.index_key(index, new_values) {
-                let new_key = resolved.key(new_values);
+            if let Some(new_index_key) = resolved.build_index_key(index, new_values) {
+                let new_key = resolved.build_key(new_values);
 
                 index_store.with_borrow_mut(|istore| {
                     let index_value = match istore.get(&new_index_key) {
@@ -213,4 +215,5 @@ impl SaveExecutor {
 
         Ok(())
     }
+    */
 }

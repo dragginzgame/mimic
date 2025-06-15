@@ -96,9 +96,9 @@ impl From<Ulid> for Key {
 impl From<SortKey> for Key {
     fn from(key: SortKey) -> Self {
         Self(
-            key.0
+            key.parts()
                 .into_iter()
-                .map(|(_, opt)| opt.unwrap_or_default())
+                .map(|part| part.value.unwrap_or_default())
                 .collect(),
         )
     }

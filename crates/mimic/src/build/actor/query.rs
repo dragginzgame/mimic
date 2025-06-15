@@ -7,15 +7,15 @@ use syn::{Path, parse_str};
 #[must_use]
 pub fn generate(builder: &ActorBuilder) -> TokenStream {
     let mut tokens = quote!();
-
-    tokens.extend(generate_query("mimic_query_load", builder, QueryKind::Load));
-    tokens.extend(generate_query("mimic_query_save", builder, QueryKind::Save));
-    tokens.extend(generate_query(
-        "mimic_query_delete",
-        builder,
-        QueryKind::Delete,
-    ));
-
+    /*
+        tokens.extend(generate_query("mimic_query_load", builder, QueryKind::Load));
+        tokens.extend(generate_query("mimic_query_save", builder, QueryKind::Save));
+        tokens.extend(generate_query(
+            "mimic_query_delete",
+            builder,
+            QueryKind::Delete,
+        ));
+    */
     tokens
 }
 

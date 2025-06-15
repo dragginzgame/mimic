@@ -1,4 +1,4 @@
-use crate::types::Key;
+use crate::{data::types::hash_path_to_u64, types::Key};
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use icu::{impl_storable_bounded, impl_storable_unbounded};
@@ -20,18 +20,23 @@ use std::{
     CandidType, Clone, Debug, Default, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize,
 )]
 pub struct IndexKey {
-    pub entity: String,
+    pub entity_id: u64,
     pub fields: Vec<String>,
     pub values: Vec<String>,
 }
 
 impl IndexKey {
     #[must_use]
-    pub fn new<S: ToString>(entity: S, fields: &[S], values: &[S]) -> Self {
+    pub fn new(entity: &str, fields: &[String], values: &[(String, Option<String>)]) -> Self {
+        let entity_id = hash_path_to_u64(entity);
+
         Self {
-            entity: entity.to_string(),
-            fields: fields.iter().map(ToString::to_string).collect(),
-            values: values.iter().map(ToString::to_string).collect(),
+            entity_id,
+            fields: fields.to_vec(),
+            values: values
+                .iter()
+                .map(|(_, v)| v.as_deref().unwrap_or("").to_string())
+                .collect(),
         }
     }
 }
@@ -41,7 +46,7 @@ impl Display for IndexKey {
         write!(
             f,
             "({} [{}] [{}])",
-            self.entity,
+            self.entity_id,
             self.fields.join(", "),
             self.values.join(", ")
         )

@@ -2,7 +2,7 @@ use crate::{
     Error,
     data::{
         DataError,
-        executor::{DebugContext, Loader, with_resolver},
+        executor::{DebugContext, Loader},
         query::{LoadFormat, LoadQuery},
         response::{LoadCollection, LoadResponse},
         store::{DataStoreRegistry, IndexStoreRegistry},
@@ -43,13 +43,13 @@ impl LoadExecutor {
 
     // execute
     pub fn execute<E: EntityKind>(self, query: LoadQuery) -> Result<LoadCollection<E>, Error> {
-        let cl = self.execute_internal(query)?;
+        let cl = self.execute_internal::<E>(query)?;
 
         Ok(cl)
     }
 
     // execute_response
-    pub fn execute_response<E: EntityKind>(self, query: LoadQuery) -> Result<LoadResponse, Error> {
+    pub fn execute_respons<E: EntityKind>(self, query: LoadQuery) -> Result<LoadResponse, Error> {
         let format = query.format;
         let cl = self.execute_internal::<E>(query)?;
 
@@ -69,18 +69,17 @@ impl LoadExecutor {
     ) -> Result<LoadCollection<E>, DataError> {
         self.debug.println(&format!("query.load: {query:?}"));
 
-        let resolved_entity = with_resolver(|r| r.entity(E::PATH))?;
         let loader = Loader::new(self.data_reg, self.index_reg, self.debug);
 
         let rows = loader
-            .load::<E>(&resolved_entity, &query.selector, query.r#where.as_ref())?
+            .load::<E>(&query.selector, query.r#where.as_ref())?
             .into_iter()
             .filter(|row| row.value.path == E::PATH)
             .map(TryFrom::try_from)
             .collect::<Result<Vec<EntityRow<E>>, _>>()?;
 
         // apply post filters and paginate
-        let rows = apply_all_post(rows, &query)
+        let rows = Self::apply_all_post(rows, &query)
             .into_iter()
             .skip(query.offset as usize)
             .take(query.limit.unwrap_or(u32::MAX) as usize)
@@ -88,70 +87,76 @@ impl LoadExecutor {
 
         Ok(LoadCollection(rows))
     }
-}
 
-// apply_all_post
-// noisy but more efficient, so keeping it in its own method
-fn apply_all_post<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec<EntityRow<E>> {
-    let rows = apply_where(rows, query);
-    let mut rows = apply_search(rows, query);
-    apply_sort(&mut rows, query);
+    // apply_all_post
+    // noisy but more efficient, so keeping it in its own method
+    fn apply_all_post<E: EntityKind>(
+        rows: Vec<EntityRow<E>>,
+        query: &LoadQuery,
+    ) -> Vec<EntityRow<E>> {
+        let rows = Self::apply_where(rows, query);
+        let mut rows = Self::apply_search(rows, query);
+        Self::apply_sort(&mut rows, query);
 
-    rows
-}
+        rows
+    }
 
-// apply_where
-fn apply_where<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec<EntityRow<E>> {
-    let Some(r#where) = query.r#where.as_ref() else {
-        return rows;
-    };
-    let olen = rows.len();
+    // apply_where
+    fn apply_where<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec<EntityRow<E>> {
+        let Some(r#where) = query.r#where.as_ref() else {
+            return rows;
+        };
+        let olen = rows.len();
 
-    // filter
-    let filtered = rows
-        .into_iter()
-        .filter(|row| {
-            let field_values = row.value.entity.searchable_fields();
+        // filter
+        let filtered = rows
+            .into_iter()
+            .filter(|row| {
+                let field_values = row.value.entity.values();
 
-            r#where.matches.iter().all(|(field, value)| {
-                field_values.get(field).and_then(|v| v.as_ref()) == Some(value)
+                r#where.matches.iter().all(|(field, value)| {
+                    field_values.get(field).and_then(|v| v.as_ref()) == Some(value)
+                })
             })
-        })
-        .collect::<Vec<_>>();
-    let flen = filtered.len();
+            .collect::<Vec<_>>();
+        let flen = filtered.len();
 
-    if flen < olen {
-        log!(Log::Info, "apply_where: filtered {olen} → {flen} rows",);
+        if flen < olen {
+            log!(Log::Info, "apply_where: filtered {olen} → {flen} rows",);
+        }
+
+        filtered
     }
 
-    filtered
-}
+    // apply_search
+    fn apply_search<E: EntityKind>(
+        rows: Vec<EntityRow<E>>,
+        query: &LoadQuery,
+    ) -> Vec<EntityRow<E>> {
+        if query.search.is_empty() {
+            return rows;
+        }
+        let olen = rows.len();
 
-// apply_search
-fn apply_search<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec<EntityRow<E>> {
-    if query.search.is_empty() {
-        return rows;
+        // filter
+        let filtered = rows
+            .into_iter()
+            .filter(|row| row.value.entity.search_fields(&query.search))
+            .collect::<Vec<_>>();
+        let flen = filtered.len();
+
+        if flen < olen {
+            log!(Log::Info, "apply_search: filtered {olen} → {flen} rows",);
+        }
+
+        filtered
     }
-    let olen = rows.len();
 
-    // filter
-    let filtered = rows
-        .into_iter()
-        .filter(|row| row.value.entity.search_fields(&query.search))
-        .collect::<Vec<_>>();
-    let flen = filtered.len();
-
-    if flen < olen {
-        log!(Log::Info, "apply_search: filtered {olen} → {flen} rows",);
-    }
-
-    filtered
-}
-
-// apply_sort
-fn apply_sort<E: EntityKind>(rows: &mut [EntityRow<E>], query: &LoadQuery) {
-    if !query.sort.is_empty() {
-        let sorter = E::sort(&query.sort);
-        rows.sort_by(|a, b| sorter(&a.value.entity, &b.value.entity));
+    // apply_sort
+    fn apply_sort<E: EntityKind>(rows: &mut [EntityRow<E>], query: &LoadQuery) {
+        if !query.sort.is_empty() {
+            let sorter = E::sort(&query.sort);
+            rows.sort_by(|a, b| sorter(&a.value.entity, &b.value.entity));
+        }
     }
 }

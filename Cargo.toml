@@ -48,6 +48,7 @@ test_canister = { path = "crates/test/canister" }
 test_design = { path = "crates/test/design" }
 thiserror = "2.0"
 tinyrand = "0.5"
+twox-hash = "2.1"
 # removed std because it imports rand.  serde feature doesn't compile without it
 ulid = { version = "1.2", default-features = false }
 

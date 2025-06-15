@@ -20,7 +20,7 @@ use crate::{
         executor::SaveExecutor,
         types::{SortDirection, SortKey},
     },
-    types::{ErrorTree, Key, Ulid},
+    types::{EntityIndexDef, ErrorTree, Key, Ulid},
     visit::Visitor,
 };
 
@@ -97,15 +97,23 @@ impl<T> TypeKind for T where
 /// EntityKind
 ///
 
-pub trait EntityKind: TypeKind + EntityFixture + EntitySearch + EntitySort + PartialEq {
+pub trait EntityKind: TypeKind + EntitySearch + EntitySort + PartialEq {
     const STORE: &'static str;
+    //  const INDEXES: &'static [EntityIndexDef];
 
-    // searchable_fields
-    fn searchable_fields(&self) -> HashMap<String, Option<String>>;
+    // key
+    // returns the current key, ie ["123123", "234234", "015TaFh54u..."]
+    fn key(&self) -> Key;
+
+    // values
+    // returns fields and values in string format for where/search queries
+    fn values(&self) -> HashMap<String, Option<String>>;
 
     // sort_key
-    // returns the current sort key of the entity
-    fn sort_key(&self) -> SortKey;
+    // returns the current sort key (via the build_sort_key function)
+    fn sort_key(&self) -> SortKey {
+        Self::build_sort_key(&self.key())
+    }
 
     // build_sort_key
     // takes in a set of string values, returns the SortKey

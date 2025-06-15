@@ -20,9 +20,6 @@ pub enum DataError {
     QueryError(#[from] query::QueryError),
 
     #[error(transparent)]
-    ResolverError(#[from] executor::ResolverError),
-
-    #[error(transparent)]
     ResponseError(#[from] response::ResponseError),
 
     #[error(transparent)]

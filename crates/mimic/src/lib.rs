@@ -39,7 +39,7 @@ pub mod prelude {
             response::{LoadCollection, LoadCollectionDyn},
             types::SortDirection,
         },
-        mimic_start, query_delete, query_load, query_load_dyn, query_save,
+        mimic_start, query_delete, query_load, query_save,
         service::EntityService,
         traits::{
             EntityFixture, EntityIdKind as _, EntityKind as _, Inner as _, NumCast as _, Path as _,
