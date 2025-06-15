@@ -21,11 +21,10 @@ rust_decimal = { workspace = true }
 serde = { workspace = true }
 serde_bytes = { workspace = true }
 serde_json = { workspace = true }
-sha2 = { workspace = true }
+xxhash-rust = { workspace = true }
 syn = { workspace = true }
 thiserror = { workspace = true }
 tinyrand = { workspace = true }
-twox-hash = { workspace = true }
 ulid = { workspace = true }
 
 [lints]

@@ -1,6 +1,6 @@
 use crate::def::types::Ulid;
 use ::ulid::Ulid as WrappedUlid;
-use sha2::{Digest, Sha256};
+use xxhash_rust::xxh3::xxh3_128;
 
 ///
 /// Fixtures
@@ -20,13 +20,11 @@ impl Ulid {
     #[must_use]
     pub fn from_string_digest(name: &str) -> Self {
         // hash name to u128
-        let mut hasher = Sha256::new();
-        hasher.update(name.as_bytes());
-        let result = hasher.finalize();
+        let hash = xxh3_128(name.as_bytes());
+        let hash_bytes = hash.to_be_bytes(); // [u8; 16]
 
         // Take the first 16 bytes of the SHA-256 hash and convert them to u128
-        let bytes = &result[0..16];
-        let rand = u128::from_be_bytes(bytes.try_into().expect("slice with incorrect length"));
+        let rand = u128::from_be_bytes(hash_bytes);
         let ulid = WrappedUlid::from_parts((rand % FIXTURE_MAX_TIMESTAMP) as u64, rand);
 
         Self(ulid)

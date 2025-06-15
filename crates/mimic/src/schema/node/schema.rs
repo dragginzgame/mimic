@@ -14,11 +14,11 @@ use serde::{
     Serialize,
     ser::{SerializeStruct, Serializer},
 };
-use sha2::{Digest, Sha256};
 use std::{
     any::{Any, TypeId},
     collections::BTreeMap,
 };
+use xxhash_rust::xxh3::xxh3_128;
 
 ///
 /// SchemaNode
@@ -146,10 +146,9 @@ impl Serialize for Schema {
         let nodes_json = serde_json::to_string(&self.nodes).map_err(serde::ser::Error::custom)?;
 
         // Compute the hash of the nodes JSON string
-        let mut hasher = Sha256::new();
-        hasher.update(nodes_json.as_bytes());
-        let hash_result = hasher.finalize();
-        let hash_hex = hex::encode(hash_result);
+        let hash = xxh3_128(nodes_json.as_bytes());
+        let hash_bytes = hash.to_be_bytes(); // [u8; 16]
+        let hash_hex = hex::encode(hash_bytes);
 
         // Serialize the Schema struct, including the hash
         let mut state = serializer.serialize_struct("Schema", 3)?;

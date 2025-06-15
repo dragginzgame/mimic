@@ -1,4 +1,4 @@
-use mimic::prelude::*;
+use mimic::{def::validate, prelude::*};
 
 //
 // just a place to mess around with tests while developing
@@ -37,7 +37,7 @@ mod tests {
         };
         println!("{e:?}");
 
-        let errs = mimic::validate(&e);
+        let errs = validate(&e);
         println!("{errs:?}");
         if let Err(e) = errs {
             println!("{e}");
@@ -54,7 +54,7 @@ mod tests {
         };
         println!("{e:?}");
 
-        let errs = mimic::validate(&e);
+        let errs = validate(&e);
         println!("{errs:?}");
     }
 }

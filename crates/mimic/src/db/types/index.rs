@@ -62,9 +62,9 @@ impl IndexValue {
     }
 }
 
-impl<S: Into<Key>> From<Vec<S>> for IndexValue {
-    fn from(v: Vec<S>) -> Self {
-        Self(v.into_iter().map(Into::into).collect())
+impl<K: Into<Key>> From<Vec<K>> for IndexValue {
+    fn from(k: Vec<K>) -> Self {
+        Self(k.into_iter().map(Into::into).collect())
     }
 }
 
