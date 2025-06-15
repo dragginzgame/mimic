@@ -25,9 +25,8 @@ sha2 = { workspace = true }
 syn = { workspace = true }
 thiserror = { workspace = true }
 tinyrand = { workspace = true }
-ulid = { workspace = true }
 twox-hash = { workspace = true }
-
+ulid = { workspace = true }
 
 [lints]
 workspace = true

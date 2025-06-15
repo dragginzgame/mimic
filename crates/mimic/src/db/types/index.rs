@@ -1,4 +1,4 @@
-use crate::def::types::Key;
+use crate::{db::hasher::xx_hash_u64, def::types::Key};
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use icu::{impl_storable_bounded, impl_storable_unbounded};
@@ -20,17 +20,20 @@ use std::{
     CandidType, Clone, Debug, Default, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize,
 )]
 pub struct IndexKey {
-    pub entity_id: u64,
-    pub fields: Vec<String>,
+    pub index_id: u64, // hash of the entity path plus fields
     pub values: Vec<String>,
 }
 
 impl IndexKey {
     #[must_use]
-    pub fn new(entity_id: u64, fields: &[&str], values: &[&str]) -> Self {
+    pub fn new(entity_path: &str, fields: &[&str], values: &[&str]) -> Self {
+        // Construct a canonical string like: "my::Entity::field1,field2"
+        let mut full_key = entity_path.to_string();
+        full_key.push_str("::");
+        full_key.push_str(&fields.join(","));
+
         Self {
-            entity_id,
-            fields: fields.iter().map(|s| s.to_string()).collect(),
+            index_id: xx_hash_u64(&full_key),
             values: values.iter().map(|s| s.to_string()).collect(),
         }
     }
@@ -38,13 +41,7 @@ impl IndexKey {
 
 impl Display for IndexKey {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "({} [{}] [{}])",
-            self.entity_id,
-            self.fields.join(", "),
-            self.values.join(", ")
-        )
+        write!(f, "({} [{}])", self.index_id, self.values.join(", "))
     }
 }
 

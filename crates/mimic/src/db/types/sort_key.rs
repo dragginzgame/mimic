@@ -1,4 +1,4 @@
-use crate::db::hasher::hash_path_to_u64;
+use crate::db::hasher::xx_hash_u64;
 use candid::CandidType;
 use icu::impl_storable_bounded;
 use serde::{Deserialize, Serialize};
@@ -82,7 +82,7 @@ impl SortKeyPart {
     #[must_use]
     pub fn new(path: &str, value: Option<String>) -> Self {
         Self {
-            entity_id: hash_path_to_u64(path),
+            entity_id: xx_hash_u64(path),
             value,
         }
     }
