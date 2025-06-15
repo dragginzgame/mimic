@@ -21,12 +21,12 @@ use crate::{
         types::{SortDirection, SortKey},
     },
     def::{
-        kind::EntityIndexDef,
+        EntityValues,
         types::{Key, Ulid},
         visit::Visitor,
     },
     error::ErrorTree,
-    schema::EntityValues,
+    schema::node::EntityIndex,
 };
 
 ///
@@ -103,9 +103,8 @@ impl<T> TypeKind for T where
 ///
 
 pub trait EntityKind: TypeKind + EntitySearch + EntitySort + PartialEq {
-    const ID: &'static u64;
     const STORE: &'static str;
-    const INDEXES: &'static [EntityIndexDef];
+    const INDEXES: &'static [EntityIndex];
 
     // key
     // returns the current key, ie ["123123", "234234", "015TaFh54u..."]
@@ -133,7 +132,7 @@ pub trait EntityKind: TypeKind + EntitySearch + EntitySort + PartialEq {
 pub trait EntityIdKind: Kind + std::fmt::Debug {
     #[must_use]
     fn ulid(&self) -> Ulid {
-        let digest = format!("{}-{:?}", Self::path(), self);
+        let digest = format!("{}-{:?}", Self::PATH, self);
 
         Ulid::from_string_digest(&digest)
     }
@@ -166,13 +165,7 @@ pub trait EnumValueKind {
 ///
 
 pub trait Path {
-    const IDENT: &'static str;
     const PATH: &'static str;
-
-    #[must_use]
-    fn ident() -> String {
-        Self::IDENT.to_string()
-    }
 
     #[must_use]
     fn path() -> String {

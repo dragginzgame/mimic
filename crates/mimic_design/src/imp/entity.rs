@@ -1,11 +1,10 @@
 use crate::{
-    helper::hash_path_to_u64,
     imp::{Imp, Implementor},
     node::{Entity, MacroNode, Trait},
     traits::Schemable,
 };
 use mimic::schema::types::Cardinality;
-use proc_macro2::TokenStream;
+use proc_macro2::{Span, TokenStream};
 use quote::{ToTokens, format_ident, quote};
 
 ///
@@ -16,12 +15,9 @@ pub struct EntityKindTrait {}
 
 impl Imp<Entity> for EntityKindTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
-        let store = &node.store;
-        let id = hash_path_to_u64(node.def.path());
-
         // quote
+        let store = &node.store;
         let mut q = quote! {
-            const ID: &'static u64 = #id;
             const STORE: &'static str = stringify!(#store);
         };
 
@@ -59,7 +55,7 @@ fn key(node: &Entity) -> TokenStream {
     });
 
     quote! {
-        fn key(&self) -> ::mimic::types::Key {
+        fn key(&self) -> ::mimic::def::types::Key {
             Key(vec![
                 #(#fields),*
             ])
@@ -70,7 +66,8 @@ fn key(node: &Entity) -> TokenStream {
 // values
 fn values(node: &Entity) -> TokenStream {
     let inserts = node.fields.iter().filter_map(|field| {
-        let field_lit = syn::LitStr::new(&field.name, Span::call_site());
+        let field_ident = &field.name;
+        let field_lit = syn::LitStr::new(&field_ident.to_string(), Span::call_site());
 
         match field.value.cardinality() {
             Cardinality::One => Some(quote! {
@@ -94,13 +91,13 @@ fn values(node: &Entity) -> TokenStream {
     });
 
     quote! {
-        fn values(&self) -> ::std::collections::HashMap<&'static str, Option<String>> {
-            use ::mimic::traits::FieldQueryable;
+        fn values(&self) -> ::mimic::def::EntityValues {
+            use ::mimic::def::traits::FieldQueryable;
 
             let mut map = ::std::collections::HashMap::with_capacity(3);
             #(#inserts)*
 
-            map
+            map.into()
         }
     }
 }
@@ -128,7 +125,7 @@ fn build_sort_key(node: &Entity) -> TokenStream {
         let path_str = field.to_string();
 
         Some(quote! {
-            ::mimic::data::types::SortKeyPart::new(
+            ::mimic::db::types::SortKeyPart::new(
                 #path_str,
                 this.#field.to_sort_key_part(),
             )
@@ -139,7 +136,7 @@ fn build_sort_key(node: &Entity) -> TokenStream {
         quote!(Vec::new())
     } else {
         quote! {
-            use ::mimic::traits::FieldSortKey;
+            use ::mimic::def::traits::FieldSortKey;
 
             let mut this = Self::default();
             #(#set_fields)*
@@ -150,8 +147,8 @@ fn build_sort_key(node: &Entity) -> TokenStream {
     };
 
     quote! {
-        fn build_sort_key(values: &[::std::string::String]) -> ::mimic::data::types::SortKey {
-            ::mimic::data::types::SortKey::from_parts({
+        fn build_sort_key(values: &[::std::string::String]) -> ::mimic::db::types::SortKey {
+            ::mimic::db::types::SortKey::from_parts({
                 #inner
             })
         }
@@ -178,17 +175,17 @@ impl Imp<Entity> for EntitySearchTrait {
               match field.value.cardinality() {
                     Cardinality::One => quote! {
                         ( #name_str, |s: &#ident, text|
-                            ::mimic::traits::FieldQueryable::contains_text(&s.#name, text)
+                            ::mimic::def::traits::FieldQueryable::contains_text(&s.#name, text)
                         )
                     },
                     Cardinality::Opt => quote! {
                         ( #name_str, |s: &#ident, text|
-                            s.#name.as_ref().map_or(false, |v| ::mimic::traits::FieldQueryable::contains_text(v, text))
+                            s.#name.as_ref().map_or(false, |v| ::mimic::def::traits::FieldQueryable::contains_text(v, text))
                         )
                     },
                     Cardinality::Many => quote! {
                         ( #name_str, |s: &#ident, text|
-                             s.#name.iter().any(|v| ::mimic::traits::FieldQueryable::contains_text(v, text))
+                             s.#name.iter().any(|v| ::mimic::def::traits::FieldQueryable::contains_text(v, text))
                         )
                     },
                 }
@@ -243,24 +240,24 @@ impl Imp<Entity> for EntitySortTrait {
 
             asc_fns.extend(quote! {
                 fn #asc_fn(a: &#node_ident, b: &#node_ident) -> ::std::cmp::Ordering {
-                    ::mimic::traits::FieldOrderable::cmp(&a.#field_ident, &b.#field_ident)
+                    ::mimic::def::traits::FieldOrderable::cmp(&a.#field_ident, &b.#field_ident)
                 }
             });
 
             desc_fns.extend(quote! {
                 fn #desc_fn(a: &#node_ident, b: &#node_ident) -> ::std::cmp::Ordering {
-                    ::mimic::traits::FieldOrderable::cmp(&b.#field_ident, &a.#field_ident)
+                    ::mimic::def::traits::FieldOrderable::cmp(&b.#field_ident, &a.#field_ident)
                 }
             });
 
             match_arms.extend(quote! {
-                (#field_str, ::mimic::data::types::SortDirection::Asc) => comps.push(#asc_fn),
-                (#field_str, ::mimic::data::types::SortDirection::Desc) => comps.push(#desc_fn),
+                (#field_str, ::mimic::db::types::SortDirection::Asc) => comps.push(#asc_fn),
+                (#field_str, ::mimic::db::types::SortDirection::Desc) => comps.push(#desc_fn),
             });
         }
 
         let q = quote! {
-            fn sort(order: &[(String, ::mimic::data::types::SortDirection)])
+            fn sort(order: &[(String, ::mimic::db::types::SortDirection)])
                 -> Box<dyn Fn(&#node_ident, &#node_ident) -> ::std::cmp::Ordering>
             {
                 #asc_fns

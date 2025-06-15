@@ -776,6 +776,7 @@ dependencies = [
  "syn 2.0.103",
  "thiserror 2.0.12",
  "tinyrand",
+ "twox-hash",
  "ulid",
 ]
 
@@ -806,7 +807,6 @@ dependencies = [
  "serde",
  "syn 2.0.103",
  "tinyrand",
- "twox-hash",
 ]
 
 [[package]]

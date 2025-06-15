@@ -132,26 +132,27 @@ impl DeleteExecutor {
             if !all_fields_present {
                 continue;
             }
+            /*
+                      let index_store = self.index_reg.with(|ix| ix.try_get_store(&index.store))?;
+                      let index_key = IndexKey::new(E::ID, index.fields, key_parts);
 
-            let index_store = self.index_reg.with(|ix| ix.try_get_store(&index.store))?;
-            let index_key = IndexKey::new(E::ID, index.fields, key_parts);
+                      index_store.with_borrow_mut(|store| {
+                          if let Some(mut existing) = store.get(&index_key) {
+                              existing.remove(&entity_key);
 
-            index_store.with_borrow_mut(|store| {
-                if let Some(mut existing) = store.get(&index_key) {
-                    existing.remove(&entity_key);
+                              if existing.is_empty() {
+                                  store.remove(&index_key);
+                              } else {
+                                  store.insert(index_key.clone(), existing);
+                              }
 
-                    if existing.is_empty() {
-                        store.remove(&index_key);
-                    } else {
-                        store.insert(index_key.clone(), existing);
-                    }
-
-                    self.debug.println(&format!(
-                        "query.delete: removed value {entity_key} from index {index_key:?}"
-                    ));
-                }
-                Ok::<(), DataError>(())
-            })?;
+                              self.debug.println(&format!(
+                                  "query.delete: removed value {entity_key} from index {index_key:?}"
+                              ));
+                          }
+                          Ok::<(), DataError>(())
+                      })?;
+            */
         }
 
         Ok(())

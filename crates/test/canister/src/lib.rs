@@ -5,7 +5,7 @@ mod validate;
 use icu::{ic::export_candid, prelude::*};
 use mimic::{
     Error as MimicError,
-    data::{
+    db::{
         query,
         types::{IndexKey, IndexValue},
     },

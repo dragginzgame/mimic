@@ -24,11 +24,11 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
         if matches!(store.ty, StoreType::Index) {
             // Index store
             index_defs.extend(quote! {
-                static #cell_ident: ::std::cell::RefCell<::mimic::data::store::IndexStore> =
+                static #cell_ident: ::std::cell::RefCell<::mimic::db::store::IndexStore> =
                     ::std::cell::RefCell::new(::icu::icu_register_memory!(
-                        ::mimic::data::store::IndexStore,
+                        ::mimic::db::store::IndexStore,
                         #memory_id,
-                        ::mimic::data::store::IndexStore::init
+                        ::mimic::db::store::IndexStore::init
                     ));
             });
 
@@ -38,11 +38,11 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
         } else {
             // Data store
             data_defs.extend(quote! {
-                static #cell_ident: ::std::cell::RefCell<::mimic::data::store::DataStore> =
+                static #cell_ident: ::std::cell::RefCell<::mimic::db::store::DataStore> =
                     ::std::cell::RefCell::new(::icu::icu_register_memory!(
-                        ::mimic::data::store::DataStore,
+                        ::mimic::db::store::DataStore,
                         #memory_id,
-                        ::mimic::data::store::DataStore::init
+                        ::mimic::db::store::DataStore::init
                     ));
             });
 
@@ -60,10 +60,10 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
             #data_defs
             #index_defs
 
-            static DATA_REGISTRY: ::std::rc::Rc<::mimic::data::store::StoreRegistry<::mimic::data::store::DataStore>> =
+            static DATA_REGISTRY: ::std::rc::Rc<::mimic::db::store::StoreRegistry<::mimic::db::store::DataStore>> =
                 ::std::rc::Rc::new(#data_registry);
 
-            static INDEX_REGISTRY: ::std::rc::Rc<::mimic::data::store::StoreRegistry<::mimic::data::store::IndexStore>> =
+            static INDEX_REGISTRY: ::std::rc::Rc<::mimic::db::store::StoreRegistry<::mimic::db::store::IndexStore>> =
                 ::std::rc::Rc::new(#index_registry);
 
         }
@@ -74,13 +74,13 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
 fn wrap_registry_init(name: &str, inits: TokenStream) -> TokenStream {
     if inits.is_empty() {
         quote! {
-            ::mimic::data::store::StoreRegistry::new()
+            ::mimic::db::store::StoreRegistry::new()
         }
     } else {
         let name_ident = format_ident!("{}", name);
         quote! {
             {
-                let mut #name_ident = ::mimic::data::store::StoreRegistry::new();
+                let mut #name_ident = ::mimic::db::store::StoreRegistry::new();
                 #inits
                 #name_ident
             }

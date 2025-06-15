@@ -58,7 +58,6 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
         Trait::Path => {
             let ident_str = format!("{}", def.ident);
             let q = quote! {
-                const IDENT: &'static str = #ident_str;
                 const PATH: &'static str = concat!(module_path!(), "::", #ident_str);
             };
 
