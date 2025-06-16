@@ -27,11 +27,11 @@ tinyrand = { workspace = true }
 ulid = { workspace = true }
 xxhash-rust = { workspace = true }
 
-[lints]
-workspace = true
-
 [dev-dependencies]
 bencher = "0.1"
+
+[lints]
+workspace = true
 
 [[bench]]
 name = "all"

@@ -22,7 +22,7 @@ impl Lt {
 impl ValidatorNumber for Lt {
     fn validate<N>(&self, n: &N) -> Result<(), String>
     where
-        N: Copy + Display + NumCast,
+        N: Copy + NumCast,
     {
         if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
             if n_cast < self.target {
@@ -31,7 +31,7 @@ impl ValidatorNumber for Lt {
                 Err(format!("{n_cast} must be less than {}", self.target))
             }
         } else {
-            Err(format!("failed to cast {n} to decimal"))
+            Err("failed cast to decimal".to_string())
         }
     }
 }
@@ -56,7 +56,7 @@ impl Gt {
 impl ValidatorNumber for Gt {
     fn validate<N>(&self, n: &N) -> Result<(), String>
     where
-        N: Copy + Display + NumCast,
+        N: Copy + NumCast,
     {
         if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
             if n_cast > self.target {
@@ -65,7 +65,7 @@ impl ValidatorNumber for Gt {
                 Err(format!("{n_cast} must be greater than {}", self.target))
             }
         } else {
-            Err(format!("failed to cast {n} to decimal"))
+            Err("failed cast to decimal".to_string())
         }
     }
 }
@@ -90,7 +90,7 @@ impl Ltoe {
 impl ValidatorNumber for Ltoe {
     fn validate<N>(&self, n: &N) -> Result<(), String>
     where
-        N: Copy + Display + NumCast,
+        N: Copy + NumCast,
     {
         if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
             if n_cast <= self.target {
@@ -102,7 +102,7 @@ impl ValidatorNumber for Ltoe {
                 ))
             }
         } else {
-            Err(format!("failed to cast {n} to decimal"))
+            Err("failed cast to decimal".to_string())
         }
     }
 }
@@ -127,7 +127,7 @@ impl Gtoe {
 impl ValidatorNumber for Gtoe {
     fn validate<N>(&self, n: &N) -> Result<(), String>
     where
-        N: Copy + Display + NumCast,
+        N: Copy + NumCast,
     {
         if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
             if n_cast >= self.target {
@@ -139,7 +139,7 @@ impl ValidatorNumber for Gtoe {
                 ))
             }
         } else {
-            Err(format!("failed to cast {n} to decimal"))
+            Err("failed cast to decimal".to_string())
         }
     }
 }
@@ -164,7 +164,7 @@ impl Equal {
 impl ValidatorNumber for Equal {
     fn validate<N>(&self, n: &N) -> Result<(), String>
     where
-        N: Copy + Display + NumCast,
+        N: Copy + NumCast,
     {
         if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
             if n_cast == self.target {
@@ -173,7 +173,7 @@ impl ValidatorNumber for Equal {
                 Err(format!("{n_cast} must be equal to {}", self.target))
             }
         } else {
-            Err(format!("failed to cast {n} to decimal"))
+            Err("failed cast to decimal".to_string())
         }
     }
 }
@@ -197,7 +197,7 @@ impl NotEqual {
 impl ValidatorNumber for NotEqual {
     fn validate<N>(&self, n: &N) -> Result<(), String>
     where
-        N: Copy + Display + NumCast,
+        N: Copy + NumCast,
     {
         if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
             if n_cast == self.target {
@@ -206,7 +206,7 @@ impl ValidatorNumber for NotEqual {
                 Err(format!("{n_cast} must not be equal to {}", self.target))
             }
         } else {
-            Err(format!("failed to cast {n} to decimal"))
+            Err("failed cast to decimal".to_string())
         }
     }
 }
@@ -236,7 +236,7 @@ impl Range {
 impl ValidatorNumber for Range {
     fn validate<N>(&self, n: &N) -> Result<(), String>
     where
-        N: Copy + Display + NumCast,
+        N: Copy + NumCast,
     {
         if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
             if n_cast >= self.min && n_cast <= self.max {
@@ -248,7 +248,7 @@ impl ValidatorNumber for Range {
                 ))
             }
         } else {
-            Err(format!("failed to cast {n} to decimal"))
+            Err("failed cast to decimal".to_string())
         }
     }
 }
@@ -273,7 +273,7 @@ impl MultipleOf {
 impl ValidatorNumber for MultipleOf {
     fn validate<N>(&self, n: &N) -> Result<(), String>
     where
-        N: Copy + Display + NumCast,
+        N: Copy + NumCast,
     {
         if let Some(n_cast) = <i32 as NumCast>::from(*n) {
             let zero = i32::zero();
@@ -284,7 +284,7 @@ impl ValidatorNumber for MultipleOf {
                 Err(format!("{n_cast} is not a multiple of {}", self.target))
             }
         } else {
-            Err(format!("failed to cast {n} to decimal"))
+            Err("failed cast to i32".to_string())
         }
     }
 }
@@ -310,7 +310,7 @@ impl InArray {
 impl ValidatorNumber for InArray {
     fn validate<N>(&self, n: &N) -> Result<(), String>
     where
-        N: Copy + Display + NumCast,
+        N: Copy + NumCast,
     {
         if let Some(n_cast) = <i32 as NumCast>::from(*n) {
             if self.values.contains(&n_cast) {
@@ -322,7 +322,7 @@ impl ValidatorNumber for InArray {
                 ))
             }
         } else {
-            Err(format!("Failed to convert {n} to i32"))
+            Err("failed cast to i32".to_string())
         }
     }
 }

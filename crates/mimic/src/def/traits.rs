@@ -233,7 +233,7 @@ pub trait ValidatorBytes {
 pub trait ValidatorNumber {
     fn validate<T>(&self, _: &T) -> Result<(), String>
     where
-        T: Copy + Display + NumCast,
+        T: Copy + NumCast,
     {
         Ok(())
     }
