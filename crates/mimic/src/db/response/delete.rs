@@ -13,14 +13,14 @@ pub struct DeleteCollection(pub Vec<DeleteRow>);
 /// DeleteResponse
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Debug, Deserialize, Serialize)]
 pub struct DeleteResponse(pub Vec<DeleteRow>);
 
 ///
 /// DeleteRow
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
 pub struct DeleteRow {
     pub key: SortKey,
 }

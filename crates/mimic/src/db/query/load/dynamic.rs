@@ -79,7 +79,7 @@ impl LoadQueryDynBuilder {
 /// does not filter by there Where clause, is only there for lookup
 ///
 
-#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct LoadQueryDyn {
     pub selector: Selector,
     pub format: LoadFormat,

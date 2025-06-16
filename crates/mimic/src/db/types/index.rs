@@ -50,7 +50,7 @@ impl_storable_bounded!(IndexKey, 256, false);
 /// IndexValue
 ///
 
-#[derive(CandidType, Clone, Debug, Default, Deref, DerefMut, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Default, Deref, DerefMut, Deserialize, Serialize)]
 pub struct IndexValue(pub HashSet<Key>);
 
 impl IndexValue {

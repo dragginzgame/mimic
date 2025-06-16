@@ -27,14 +27,14 @@ use std::{
     Default,
     Deref,
     DerefMut,
+    Deserialize,
     Eq,
-    PartialEq,
     Hash,
     IntoIterator,
     Ord,
+    PartialEq,
     PartialOrd,
     Serialize,
-    Deserialize,
 )]
 pub struct Key(pub Vec<String>);
 

@@ -12,7 +12,7 @@ mod title;
 //
 
 // Case
-#[derive(Copy, Clone, Debug, Display)]
+#[derive(Clone, Copy, Debug, Display)]
 pub enum Case {
     Camel,
     Constant, // adheres to rust constant rules, more strict than UPPER_SNAKE

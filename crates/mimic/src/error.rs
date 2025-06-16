@@ -6,7 +6,7 @@ use std::{collections::HashMap, fmt};
 /// ErrorTree
 ///
 
-#[derive(CandidType, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(CandidType, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ErrorTree {
     /// errors at the current level
     pub messages: Vec<String>,

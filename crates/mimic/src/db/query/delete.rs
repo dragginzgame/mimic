@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 /// DeleteQuery
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
 pub struct DeleteQuery {
     pub selector: Selector,
 }

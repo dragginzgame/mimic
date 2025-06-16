@@ -14,7 +14,7 @@ use std::{borrow::Borrow, collections::HashMap};
 /// LoadFormat
 ///
 
-#[derive(CandidType, Clone, Copy, Debug, Default, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Copy, Debug, Default, Deserialize, Serialize)]
 pub enum LoadFormat {
     #[default]
     Rows,

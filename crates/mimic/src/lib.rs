@@ -63,7 +63,7 @@ use thiserror::Error as ThisError;
 /// as that would be a lot for any project that uses mimic
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize, ThisError)]
+#[derive(CandidType, Debug, Deserialize, Serialize, ThisError)]
 pub enum Error {
     #[error("{0}")]
     BuildError(String),

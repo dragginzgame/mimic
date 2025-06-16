@@ -13,14 +13,14 @@ pub struct SaveCollection(pub Vec<SaveRow>);
 /// SaveResponse
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
 pub struct SaveResponse(pub Vec<SaveRow>);
 
 ///
 /// SaveRow
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
 pub struct SaveRow {
     pub key: SortKey,
     pub created: u64,

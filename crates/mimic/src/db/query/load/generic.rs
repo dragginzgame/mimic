@@ -80,7 +80,7 @@ impl LoadQueryBuilder {
 /// fluent methods are handled in LoadQueryInternal
 ///
 
-#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct LoadQuery {
     pub selector: Selector,
     pub format: LoadFormat,

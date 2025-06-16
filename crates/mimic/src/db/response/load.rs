@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 /// LoadResponse
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Debug, Deserialize, Serialize)]
 pub enum LoadResponse {
     Rows(Vec<DataRow>),
     Keys(Vec<SortKey>),
@@ -150,7 +150,7 @@ impl<E: EntityKind> IntoIterator for LoadCollection<E> {
 /// LoadCollectionDyn
 ///
 
-#[derive(CandidType, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Debug, Deserialize, Serialize)]
 pub struct LoadCollectionDyn(pub Vec<DataRow>);
 
 impl LoadCollectionDyn {

@@ -42,7 +42,7 @@ impl ToTokens for Cardinality {
 /// ConstantType
 ///
 
-#[derive(CandidType, Debug, Clone, Copy, Deserialize, Display, FromStr, Serialize)]
+#[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, FromStr, Serialize)]
 #[remain::sorted]
 pub enum ConstantType {
     Bool,
@@ -101,7 +101,7 @@ impl ToTokens for ConstantType {
 /// PrimitiveType
 ///
 
-#[derive(CandidType, Debug, Clone, Copy, Display, FromStr, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, FromStr, Serialize)]
 #[remain::sorted]
 pub enum PrimitiveType {
     Account,
@@ -241,7 +241,7 @@ impl ToTokens for PrimitiveType {
 /// StoreType
 ///
 
-#[derive(CandidType, Debug, Clone, Copy, Deserialize, Display, FromStr, Serialize)]
+#[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, FromStr, Serialize)]
 pub enum StoreType {
     Data,
     Index,

@@ -54,7 +54,7 @@ impl From<::ulid::DecodeError> for UlidError {
 /// Ulid
 ///
 
-#[derive(Clone, Copy, Debug, Deref, DerefMut, Eq, PartialEq, FromStr, Hash, Ord, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deref, DerefMut, Eq, FromStr, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Ulid(WrappedUlid);
 
 impl Ulid {

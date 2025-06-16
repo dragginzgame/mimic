@@ -17,7 +17,7 @@ use serde::{Deserialize, Serialize};
 /// SortDirection
 ///
 
-#[derive(CandidType, Clone, Copy, Default, Debug, Deserialize, Serialize)]
+#[derive(CandidType, Clone, Copy, Debug, Default, Deserialize, Serialize)]
 pub enum SortDirection {
     #[default]
     Asc,
@@ -28,7 +28,7 @@ pub enum SortDirection {
 /// Where
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
 pub struct Where {
     pub matches: Vec<(String, String)>,
 }

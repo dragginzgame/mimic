@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 /// the data B-tree key and value pair
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
 pub struct DataRow {
     pub key: SortKey,
     pub value: DataValue,
@@ -25,7 +25,7 @@ impl DataRow {
 /// DataValue
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
 pub struct DataValue {
     pub bytes: Vec<u8>,
     pub path: String,
@@ -38,7 +38,7 @@ impl_storable_unbounded!(DataValue);
 /// Metadata
 ///
 
-#[derive(CandidType, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct Metadata {
     pub created: u64,
     pub modified: u64,

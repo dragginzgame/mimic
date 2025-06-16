@@ -17,7 +17,7 @@ use serde::{Deserialize, Serialize};
 /// Range  : user-defined range, ie. Item=1000 Item=1500
 ///
 
-#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub enum Selector {
     #[default]
     All,
