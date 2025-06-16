@@ -186,9 +186,9 @@ impl fmt::Display for KeySet {
     }
 }
 
-impl<S: ToString> From<Vec<S>> for KeySet {
-    fn from(vec: Vec<S>) -> Self {
-        let keys = vec.into_iter().map(|s| Key(vec![s.to_string()])).collect();
+impl<K: Into<Key>> From<Vec<K>> for KeySet {
+    fn from(vec: Vec<K>) -> Self {
+        let keys = vec.into_iter().map(Into::into).collect();
 
         Self(keys)
     }
