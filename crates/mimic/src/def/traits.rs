@@ -354,6 +354,12 @@ pub trait FieldSortKey {
     }
 }
 
+impl FieldSortKey for String {
+    fn to_sort_key_part(&self) -> Option<String> {
+        Some(self.to_string())
+    }
+}
+
 macro_rules! impl_field_sort_key_ints {
     ($($t:ty, $ut:ty, $len:expr),* $(,)?) => {
         $(
