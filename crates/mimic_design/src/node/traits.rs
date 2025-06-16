@@ -36,7 +36,6 @@ pub enum Trait {
     Deref,
     DerefMut,
     Deserialize,
-    Display,
     Eq,
     From,
     Hash,
@@ -63,13 +62,13 @@ pub enum Trait {
     EntityFixture,
     EntitySearch,
     EntitySort,
-    FormatSortKey,
+    FieldOrderable,
+    FieldQueryable,
+    FieldSortKey,
     Inner,
     NumFromPrimitive,
     NumToPrimitive,
-    Orderable,
     Path,
-    Searchable,
     Sorted,
     ValidateAuto,
     ValidateCustom,
@@ -92,11 +91,11 @@ static DEFAULT_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
 static TYPE_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
     vec![
         Trait::CandidType,
-        Trait::Eq,
         Trait::Deserialize,
-        Trait::FormatSortKey,
-        Trait::Orderable,
+        Trait::Eq,
         Trait::PartialEq,
+        Trait::FieldOrderable,
+        Trait::FieldQueryable,
         Trait::Serialize,
         Trait::ValidateAuto,
         Trait::ValidateCustom,
@@ -130,7 +129,6 @@ impl Trait {
             Self::Deref => Some(quote!(::mimic::export::derive_more::Deref)),
             Self::DerefMut => Some(quote!(::mimic::export::derive_more::DerefMut)),
             Self::Deserialize => Some(quote!(::serde::Deserialize)),
-            Self::Display => Some(quote!(::mimic::export::derive_more::Display)),
             Self::Eq => Some(quote!(Eq)),
             Self::From => Some(quote!(::mimic::export::derive_more::From)),
             Self::Hash => Some(quote!(Hash)),
@@ -178,7 +176,7 @@ impl ToTokens for Trait {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let trait_name = format_ident!("{}", self.to_string());
 
-        quote!(::mimic::traits::#trait_name).to_tokens(tokens);
+        quote!(::mimic::def::traits::#trait_name).to_tokens(tokens);
     }
 }
 

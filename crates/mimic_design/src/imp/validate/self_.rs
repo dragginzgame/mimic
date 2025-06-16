@@ -43,7 +43,7 @@ impl ImpFn<Enum> for ValidateSelfFunction {
         };
 
         quote! {
-            fn validate_self(&self) -> ::std::result::Result<(), ::mimic::types::ErrorTree> {
+            fn validate_self(&self) -> ::std::result::Result<(), ::mimic::error::ErrorTree> {
                 #inner
             }
         }

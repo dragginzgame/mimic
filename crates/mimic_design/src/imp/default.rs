@@ -104,7 +104,7 @@ fn format_default(arg: &Arg) -> TokenStream {
         Arg::Path(path) => quote!(#path().into()),
         Arg::Bool(v) => quote!(#v.into()),
         Arg::Char(v) => quote!(#v.into()),
-        Arg::Number(v) => quote!(::mimic::traits::NumCast::from(#v).expect("number is valid")),
+        Arg::Number(v) => quote!(::mimic::def::traits::NumCast::from(#v).expect("number is valid")),
         Arg::String(v) => quote!(#v.into()),
     }
 }

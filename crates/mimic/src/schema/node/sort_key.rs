@@ -1,20 +1,20 @@
 use crate::{
+    error::ErrorTree,
     schema::{
         build::schema_read,
         node::{Entity, ValidateNode, VisitableNode},
     },
-    types::ErrorTree,
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 ///
 /// SortKey
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct SortKey {
-    pub entity: String,
-    pub field: Option<String>,
+    pub entity: &'static str,
+    pub field: Option<&'static str>,
 }
 
 impl ValidateNode for SortKey {
@@ -22,7 +22,7 @@ impl ValidateNode for SortKey {
         let mut errs = ErrorTree::new();
 
         // check entity
-        errs.add_result(schema_read().check_node_as::<Entity>(&self.entity));
+        errs.add_result(schema_read().check_node_as::<Entity>(self.entity));
 
         errs.result()
     }

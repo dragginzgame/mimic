@@ -1,23 +1,23 @@
 use crate::{
+    error::ErrorTree,
     schema::{
         build::schema_read,
         node::{Args, ValidateNode, Validator, VisitableNode, Visitor},
     },
-    types::ErrorTree,
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::ops::Not;
 
 ///
 /// Type
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Type {
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub validators: Vec<TypeValidator>,
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub validators: &'static [TypeValidator],
 
-    #[serde(default, skip_serializing_if = "Not::not")]
+    #[serde(skip_serializing_if = "Not::not")]
     pub todo: bool,
 }
 
@@ -25,7 +25,7 @@ impl ValidateNode for Type {}
 
 impl VisitableNode for Type {
     fn drive<V: Visitor>(&self, v: &mut V) {
-        for node in &self.validators {
+        for node in self.validators {
             node.accept(v);
         }
     }
@@ -35,9 +35,9 @@ impl VisitableNode for Type {
 /// TypeValidator
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct TypeValidator {
-    pub path: String,
+    pub path: &'static str,
     pub args: Args,
 }
 
@@ -46,7 +46,7 @@ impl ValidateNode for TypeValidator {
         let mut errs = ErrorTree::new();
 
         // check path
-        let res = schema_read().check_node_as::<Validator>(&self.path);
+        let res = schema_read().check_node_as::<Validator>(self.path);
         if let Err(e) = res {
             errs.add(e.to_string());
         }

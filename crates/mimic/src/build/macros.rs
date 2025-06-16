@@ -7,6 +7,7 @@ macro_rules! mimic_build {
 
         //
         // CARGO
+        //
         // should include the build flags we need to get
         // different targets working
         //
@@ -21,19 +22,7 @@ macro_rules! mimic_build {
         let out_dir = ::std::env::var("OUT_DIR").expect("OUT_DIR not set");
 
         //
-        // SCHEMA
-        //
-
-        // build
-        let output = ::mimic::build::get_schema_json().unwrap();
-
-        // write
-        let schema_file = PathBuf::from(&out_dir).join("schema.rs");
-        let mut file = File::create(schema_file)?;
-        file.write_all(output.as_bytes())?;
-
-        //
-        // ACTOR
+        // ACTOR CODE
         //
 
         let output = match ::mimic::build::actor::generate($actor) {

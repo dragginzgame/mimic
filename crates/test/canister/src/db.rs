@@ -1,5 +1,9 @@
 use crate::{DATA_REGISTRY, INDEX_REGISTRY};
-use mimic::{data::query, deserialize, prelude::*, serialize, traits::Path, types::Ulid};
+use mimic::{
+    db::query,
+    def::{deserialize, serialize, traits::Path, types::Ulid},
+    prelude::*,
+};
 use test_design::schema::TestStore;
 
 ///
@@ -53,6 +57,7 @@ impl DbTester {
 
         // Retrieve rows in B-Tree order
         let keys = query_load!()
+            .debug()
             .execute::<ContainsBlob>(query::load().all().sort_field("id", SortDirection::Asc))
             .unwrap()
             .keys();

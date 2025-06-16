@@ -39,13 +39,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7dfdb4953a096c551ce9ace855a604d702e6e62d77fac690575ae347571717f5"
 
 [[package]]
-name = "benches"
-version = "0.4.6"
-dependencies = [
- "bencher",
-]
-
-[[package]]
 name = "binread"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -650,7 +643,7 @@ dependencies = [
 [[package]]
 name = "icu"
 version = "0.1.5"
-source = "git+https://github.com/dragginzgame/icu#46e50e5c1be3bd5b3327deeb5713f3b520898723"
+source = "git+https://github.com/dragginzgame/icu#7e3abbdb8f2b5574ee24d7dae794c443b1ca2d88"
 dependencies = [
  "candid",
  "ciborium",
@@ -659,6 +652,7 @@ dependencies = [
  "ic-cdk",
  "ic-cdk-timers",
  "ic-ledger-types",
+ "ic-management-canister-types",
  "ic-stable-structures",
  "ic_principal",
  "icrc-ledger-types",
@@ -724,9 +718,9 @@ checksum = "884e2677b40cc8c339eaefcb701c32ef1fd2493d71118dc0ca4b6a736c93bd67"
 
 [[package]]
 name = "libc"
-version = "0.2.172"
+version = "0.2.173"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d750af042f7ef4f724306de029d18836c26c1765a54a6a3f094cbd23a7267ffa"
+checksum = "d8cfeafaffdbc32176b64fb251369d52ea9f0a8fbc6f8759edffef7b525d64bb"
 
 [[package]]
 name = "libm"
@@ -748,8 +742,9 @@ checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
 name = "mimic"
-version = "0.4.6"
+version = "0.5.0"
 dependencies = [
+ "bencher",
  "candid",
  "convert_case 0.8.0",
  "ctor",
@@ -766,16 +761,16 @@ dependencies = [
  "serde",
  "serde_bytes",
  "serde_json",
- "sha2",
  "syn 2.0.103",
  "thiserror 2.0.12",
  "tinyrand",
  "ulid",
+ "xxhash-rust",
 ]
 
 [[package]]
 name = "mimic_base"
-version = "0.4.6"
+version = "0.5.0"
 dependencies = [
  "candid",
  "ctor",
@@ -789,7 +784,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_design"
-version = "0.4.6"
+version = "0.5.0"
 dependencies = [
  "darling",
  "derive_more",
@@ -939,9 +934,9 @@ dependencies = [
 
 [[package]]
 name = "rust_decimal"
-version = "1.37.1"
+version = "1.37.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "faa7de2ba56ac291bd90c6b9bece784a52ae1411f9506544b3eae36dd2356d50"
+checksum = "b203a6425500a03e0919c42d3c47caca51e79f1132046626d2c8871c5092035d"
 dependencies = [
  "arrayvec 0.7.6",
  "num-traits",
@@ -1035,12 +1030,9 @@ checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 
 [[package]]
 name = "slab"
-version = "0.4.9"
+version = "0.4.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f92a496fb766b417c996b9c5e57daf2f7ad3b0bebe1ccfca4856390e3d3bb67"
-dependencies = [
- "autocfg",
-]
+checksum = "04dc19736151f35336d325007ac991178d504a119863a2fcb3758cdb5e52c50d"
 
 [[package]]
 name = "slotmap"
@@ -1116,7 +1108,7 @@ dependencies = [
 
 [[package]]
 name = "test_canister"
-version = "0.4.6"
+version = "0.5.0"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -1127,7 +1119,7 @@ dependencies = [
 
 [[package]]
 name = "test_design"
-version = "0.4.6"
+version = "0.5.0"
 dependencies = [
  "candid",
  "ctor",
@@ -1140,7 +1132,7 @@ dependencies = [
 
 [[package]]
 name = "tests"
-version = "0.4.6"
+version = "0.5.0"
 dependencies = [
  "mimic",
  "mimic_base",
@@ -1464,3 +1456,9 @@ checksum = "74c7b26e3480b707944fc872477815d29a8e429d2f93a1ce000f5fa84a15cbcd"
 dependencies = [
  "memchr",
 ]
+
+[[package]]
+name = "xxhash-rust"
+version = "0.8.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fdd20c5420375476fbd4394763288da7eb0cc0b8c11deed431a91562af7335d3"

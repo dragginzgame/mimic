@@ -45,8 +45,8 @@ pub use self::validator::*;
 pub use self::value::*;
 
 use crate::{
+    error::ErrorTree,
     schema::visit::{Event, Visitor},
-    types::ErrorTree,
 };
 use std::any::Any;
 use thiserror::Error as ThisError;

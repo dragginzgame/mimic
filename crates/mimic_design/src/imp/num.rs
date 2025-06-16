@@ -23,9 +23,9 @@ impl Imp<Newtype> for NumCastTrait {
         let from_method = format_ident!("from_{}", num_fn);
 
         let q = quote! {
-            fn from<T: ::mimic::traits::NumToPrimitive>(n: T) -> Option<Self> {
+            fn from<T: ::mimic::def::traits::NumToPrimitive>(n: T) -> Option<Self> {
                 let num = n.#to_method()?;
-                <Self as ::mimic::traits::NumFromPrimitive>::#from_method(num)
+                <Self as ::mimic::def::traits::NumFromPrimitive>::#from_method(num)
             }
         };
 

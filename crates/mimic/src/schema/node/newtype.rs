@@ -2,13 +2,13 @@ use crate::schema::{
     node::{Arg, Def, Item, MacroNode, Type, TypeNode, ValidateNode, VisitableNode},
     visit::Visitor,
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 ///
 /// Newtype
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Newtype {
     pub def: Def,
     pub item: Item,

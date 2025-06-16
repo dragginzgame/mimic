@@ -1,6 +1,5 @@
 [workspace]
 members = [
-    "benches",
     "crates/mimic",
     "crates/mimic_base",
     "crates/mimic_design",
@@ -13,14 +12,13 @@ resolver = "2"
 [workspace.package]
 rust-version = "1.87.0"
 edition = "2024"
-version = "0.4.6"
+version = "0.5.0"
 authors = ["borovan <84897664+borovan@users.noreply.github.com>"]
 description = "ORM/Database framework for the Internet Computer"
 license = "MIT"
 
 [workspace.dependencies]
 anyhow = "1.0"
-bencher = "0.1"
 candid = "0.10"
 convert_case = "0.8"
 ctor = "0.4"
@@ -44,7 +42,6 @@ semver = "1.0"
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 serde_bytes = "0.11"
 serde_json = "1.0"
-sha2 = "0.10"
 syn = "2.0"
 test_canister = { path = "crates/test/canister" }
 test_design = { path = "crates/test/design" }
@@ -52,6 +49,7 @@ thiserror = "2.0"
 tinyrand = "0.5"
 # removed std because it imports rand.  serde feature doesn't compile without it
 ulid = { version = "1.2", default-features = false }
+xxhash-rust = { version = "0.8", default-features = false, features = ["xxh3"] }
 
 # clippy
 [workspace.lints.clippy]

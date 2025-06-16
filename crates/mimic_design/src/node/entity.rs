@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_one, quote_vec, split_idents, to_path, to_string},
+    helper::{quote_one, quote_slice, split_idents, to_path, to_str_lit},
     imp::{self, Imp},
     node::{Def, Field, MacroNode, Node, SortKey, Trait, TraitNode, TraitTokens, Traits, Type},
     traits::Schemable,
@@ -80,9 +80,9 @@ impl Schemable for Entity {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let store = quote_one(&self.store, to_path);
-        let sort_keys = quote_vec(&self.sort_keys, SortKey::schema);
-        let indexes = quote_vec(&self.indexes, EntityIndex::schema);
-        let fields = quote_vec(&self.fields, Field::schema);
+        let sort_keys = quote_slice(&self.sort_keys, SortKey::schema);
+        let indexes = quote_slice(&self.indexes, EntityIndex::schema);
+        let fields = quote_slice(&self.fields, Field::schema);
         let ty = &self.ty.schema();
 
         quote! {
@@ -108,7 +108,6 @@ impl TraitNode for Entity {
             Trait::EntityFixture,
             Trait::EntitySearch,
             Trait::EntitySort,
-            Trait::Searchable,
         ]);
 
         traits.list()
@@ -120,7 +119,6 @@ impl TraitNode for Entity {
             Trait::EntityKind => imp::EntityKindTrait::tokens(self, t),
             Trait::EntitySearch => imp::EntitySearchTrait::tokens(self, t),
             Trait::EntitySort => imp::EntitySortTrait::tokens(self, t),
-            Trait::FormatSortKey => imp::FormatSortKeyTrait::tokens(self, t),
             Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => imp::VisitableTrait::tokens(self, t),
 
@@ -153,7 +151,7 @@ pub struct EntityIndex {
 
 impl Schemable for EntityIndex {
     fn schema(&self) -> TokenStream {
-        let fields = quote_vec(&self.fields, to_string);
+        let fields = quote_slice(&self.fields, to_str_lit);
         let unique = &self.unique;
         let store = quote_one(&self.store, to_path);
 

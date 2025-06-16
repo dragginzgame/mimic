@@ -1,7 +1,7 @@
 mod default;
 mod entity;
 mod enum_value;
-mod format;
+mod field;
 mod from;
 mod inner;
 mod into;
@@ -14,7 +14,7 @@ pub mod implementor;
 pub use default::*;
 pub use entity::*;
 pub use enum_value::*;
-pub use format::*;
+pub use field::*;
 pub use from::*;
 pub use inner::*;
 pub use into::*;
@@ -58,7 +58,6 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
         Trait::Path => {
             let ident_str = format!("{}", def.ident);
             let q = quote! {
-                const IDENT: &'static str = #ident_str;
                 const PATH: &'static str = concat!(module_path!(), "::", #ident_str);
             };
 
@@ -68,8 +67,8 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
         // empty implementations are generated for these traits
         Trait::EntityFixture
         | Trait::EntityIdKind
-        | Trait::Orderable
-        | Trait::Searchable
+        | Trait::FieldOrderable
+        | Trait::FieldQueryable
         | Trait::ValidateAuto
         | Trait::ValidateCustom
         | Trait::Visitable => Some(Implementor::new(def, t).to_token_stream()),

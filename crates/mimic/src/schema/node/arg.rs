@@ -3,19 +3,19 @@ use crate::schema::{
     visit::Visitor,
 };
 use derive_more::{Deref, Display};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 ///
 /// Arg
 ///
 
-#[derive(Clone, Debug, Display, Serialize, Deserialize)]
+#[derive(Clone, Debug, Display, Serialize)]
 pub enum Arg {
     Bool(bool),
     Char(char),
     Number(ArgNumber),
-    Path(String),
-    String(String),
+    Path(&'static str),
+    String(&'static str),
 }
 
 impl ValidateNode for Arg {}
@@ -36,8 +36,8 @@ impl VisitableNode for Arg {
 /// Args
 ///
 
-#[derive(Clone, Debug, Deref, Serialize, Deserialize)]
-pub struct Args(pub Vec<Arg>);
+#[derive(Clone, Debug, Deref, Serialize)]
+pub struct Args(pub &'static [Arg]);
 
 impl ValidateNode for Args {}
 
@@ -45,7 +45,7 @@ impl ValidateNode for Args {}
 /// ArgNumber
 ///
 
-#[derive(Clone, Debug, Display, Serialize, Deserialize)]
+#[derive(Clone, Debug, Display, Serialize)]
 pub enum ArgNumber {
     Float(f64),
     Float32(f32),

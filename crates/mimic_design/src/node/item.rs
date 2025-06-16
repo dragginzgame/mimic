@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_one, quote_option, quote_vec, to_path},
+    helper::{quote_one, quote_option, quote_slice, to_path},
     node::TypeValidator,
     traits::Schemable,
 };
@@ -57,7 +57,7 @@ impl Schemable for Item {
     fn schema(&self) -> TokenStream {
         let target = self.target().schema();
         let selector = quote_option(self.selector.as_ref(), to_path);
-        let validators = quote_vec(&self.validators, TypeValidator::schema);
+        let validators = quote_slice(&self.validators, TypeValidator::schema);
         let indirect = self.indirect;
         let todo = self.todo;
 
@@ -105,7 +105,7 @@ impl ItemTarget {
                 let ty = prim.as_type();
                 quote!(#ty)
             }
-            Self::Relation(_) => quote!(::mimic::types::Key),
+            Self::Relation(_) => quote!(::mimic::def::types::Key),
         }
     }
 }

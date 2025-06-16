@@ -5,6 +5,15 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.5.0]
+- Schema is now all static!  It doesn't need to be stored in memory at runtime
+- SortKey and IndexKey changed to have a u64 id for 40x faster lookups
+- data directory renamed db
+- all the bits in the top mimic/ that were defined, generated entity specific are in def/
+- added Index creation and deleting into the IndexStore
+- replaced Sha256 with xxhash3
+- benchmarks properly working
+
 ## [0.4.6]
 - Searchable trait now a blanket implementation for Display
 - removed PrimitiveGroup in favour of is_numeric, is_displayable

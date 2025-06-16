@@ -5,8 +5,10 @@ mod validate;
 use icu::{ic::export_candid, prelude::*};
 use mimic::{
     Error as MimicError,
-    data::query,
-    data::store::{IndexKey, IndexValue},
+    db::{
+        query,
+        types::{IndexKey, IndexValue},
+    },
     prelude::*,
 };
 use test_design::fixtures::Rarity;

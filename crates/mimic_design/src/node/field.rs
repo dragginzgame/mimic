@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_one, quote_option, to_string},
+    helper::{quote_one, quote_option, to_str_lit},
     node::{Arg, Value},
     traits::Schemable,
 };
@@ -23,7 +23,7 @@ pub struct Field {
 
 impl Schemable for Field {
     fn schema(&self) -> TokenStream {
-        let name = quote_one(&self.name, to_string);
+        let name = quote_one(&self.name, to_str_lit);
         let value = self.value.schema();
         let default = quote_option(self.default.as_ref(), Arg::schema);
 

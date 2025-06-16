@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_one, to_path, to_string},
+    helper::{quote_one, to_path, to_str_lit},
     imp,
     node::{Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits},
     traits::Schemable,
@@ -57,7 +57,7 @@ impl MacroNode for Store {
 impl Schemable for Store {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
-        let ident = quote_one(&self.ident, to_string);
+        let ident = quote_one(&self.ident, to_str_lit);
         let ty = &self.ty;
         let canister = quote_one(&self.canister, to_path);
         let memory_id = &self.memory_id;

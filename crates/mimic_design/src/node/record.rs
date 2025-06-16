@@ -1,5 +1,5 @@
 use crate::{
-    helper::quote_vec,
+    helper::quote_slice,
     imp::{self, Imp},
     node::{Def, Field, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type},
     traits::Schemable,
@@ -70,7 +70,7 @@ impl MacroNode for Record {
 impl Schemable for Record {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
-        let fields = quote_vec(&self.fields, Field::schema);
+        let fields = quote_slice(&self.fields, Field::schema);
         let ty = self.ty.schema();
 
         quote! {
@@ -87,7 +87,6 @@ impl TraitNode for Record {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
-        traits.add(Trait::Searchable);
 
         traits.list()
     }
@@ -95,7 +94,6 @@ impl TraitNode for Record {
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::Default if self.has_default() => imp::DefaultTrait::tokens(self, t),
-            Trait::FormatSortKey => imp::FormatSortKeyTrait::tokens(self, t),
             Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => imp::VisitableTrait::tokens(self, t),
 

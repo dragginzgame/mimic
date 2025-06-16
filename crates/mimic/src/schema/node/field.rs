@@ -1,22 +1,22 @@
 use crate::{
+    error::ErrorTree,
     schema::{
         build::validate::validate_ident,
         node::{Arg, ValidateNode, Value, VisitableNode},
         types::Cardinality,
         visit::Visitor,
     },
-    types::ErrorTree,
     utils::case::{Case, Casing},
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 ///
 /// Field
 ///
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Field {
-    pub name: String,
+    pub name: &'static str,
     pub value: Value,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -26,10 +26,10 @@ pub struct Field {
 impl ValidateNode for Field {
     fn validate(&self) -> Result<(), ErrorTree> {
         let mut errs = ErrorTree::new();
-        let ident = self.name.clone();
+        let ident = self.name;
 
         // idents
-        errs.add_result(validate_ident(&self.name));
+        errs.add_result(validate_ident(self.name));
 
         // snake case
         if !self.name.is_case(Case::Snake) {

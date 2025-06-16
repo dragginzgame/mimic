@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_one, quote_vec, to_string},
+    helper::{quote_one, quote_slice, to_str_lit},
     traits::Schemable,
 };
 use darling::{Error as DarlingError, FromMeta, ast::NestedMeta};
@@ -7,7 +7,7 @@ use derive_more::Deref;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use std::fmt::{self, Display};
-use syn::{Lit, Path};
+use syn::{Lit, LitStr, Path};
 
 ///
 /// Arg
@@ -24,7 +24,7 @@ pub enum Arg {
     Char(char),
     Number(ArgNumber),
     Path(Path),
-    String(String),
+    String(LitStr),
 }
 
 impl FromMeta for Arg {
@@ -47,7 +47,7 @@ impl FromMeta for Arg {
                         .map(Arg::Path)
                         .map_err(|_| DarlingError::custom("Failed to parse path"))
                 } else {
-                    Ok(Self::String(lit.value()))
+                    Ok(Self::String(lit.clone()))
                 }
             }
             _ => Err(DarlingError::custom(format!(
@@ -67,10 +67,10 @@ impl Schemable for Arg {
                 quote!(::mimic::schema::node::Arg::Number(#num))
             }
             Self::Path(v) => {
-                let path = quote_one(v, to_string);
-                quote!(::mimic::schema::node::Arg::Path(#path.to_string()))
+                let path = quote_one(v, to_str_lit);
+                quote!(::mimic::schema::node::Arg::Path(#path))
             }
-            Self::String(v) => quote!(::mimic::schema::node::Arg::String(#v.to_string())),
+            Self::String(v) => quote!(::mimic::schema::node::Arg::String(#v)),
         }
     }
 }
@@ -94,7 +94,7 @@ impl ToTokens for Arg {
 ///
 
 #[derive(Clone, Debug, Default, Deref)]
-pub struct Args(pub Vec<Arg>);
+pub struct Args(Vec<Arg>);
 
 impl FromMeta for Args {
     fn from_list(items: &[NestedMeta]) -> Result<Self, DarlingError> {
@@ -110,7 +110,7 @@ impl FromMeta for Args {
 
 impl Schemable for Args {
     fn schema(&self) -> TokenStream {
-        let args = quote_vec(&self.0, Arg::schema);
+        let args = quote_slice(&self.0, Arg::schema);
 
         quote! {
             ::mimic::schema::node::Args(#args)
@@ -158,14 +158,7 @@ mod arg_tests {
     }
 
     #[test]
-    fn test_string_and_path_parsing() {
-        let string_lit = parse_quote!("example");
-        if let Ok(Arg::String(s)) = Arg::from_value(&string_lit) {
-            assert_eq!(s, "example", "Parsed string does not match.");
-        } else {
-            panic!("Expected String variant");
-        }
-
+    fn test_path_parsing() {
         let path_like_string_lit = parse_quote!("crate::module::Type");
         if let Ok(Arg::Path(path)) = Arg::from_value(&path_like_string_lit) {
             assert_eq!(

@@ -1,4 +1,7 @@
-use crate::helper::{as_string, quote_one, to_string};
+use crate::{
+    helper::{quote_one, to_str_lit},
+    traits::Schemable,
+};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::Ident;
@@ -21,7 +24,7 @@ pub struct Def {
 impl Default for Def {
     fn default() -> Self {
         Self {
-            comments: String::default(),
+            comments: String::new(),
             tokens: TokenStream::default(),
             ident: format_ident!("temp"),
             debug: false,
@@ -29,14 +32,14 @@ impl Default for Def {
     }
 }
 
-impl Def {
-    pub fn schema(&self) -> TokenStream {
-        let comments = quote_one(&self.comments, as_string);
-        let ident = quote_one(&self.ident, to_string);
+impl Schemable for Def {
+    fn schema(&self) -> TokenStream {
+        let comments = quote_one(&self.comments, to_str_lit);
+        let ident = quote_one(&self.ident, to_str_lit);
 
         quote! {
             ::mimic::schema::node::Def {
-                module_path: module_path!().to_string(),
+                module_path: module_path!(),
                 comments: #comments,
                 ident: #ident,
             }

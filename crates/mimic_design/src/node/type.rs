@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_one, quote_vec, to_path},
+    helper::{quote_one, quote_slice, to_path},
     node::Args,
     traits::Schemable,
 };
@@ -23,7 +23,7 @@ pub struct Type {
 
 impl Schemable for Type {
     fn schema(&self) -> TokenStream {
-        let validators = quote_vec(&self.validators, TypeValidator::schema);
+        let validators = quote_slice(&self.validators, TypeValidator::schema);
         let todo = self.todo;
 
         let q = quote! {

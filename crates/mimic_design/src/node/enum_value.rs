@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_one, quote_vec, to_string},
+    helper::{quote_one, quote_slice, to_str_lit},
     imp::{self, Imp},
     node::{ArgNumber, Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type},
     traits::Schemable,
@@ -70,7 +70,7 @@ impl MacroNode for EnumValue {
 impl Schemable for EnumValue {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
-        let variants = quote_vec(&self.variants, EnumValueVariant::schema);
+        let variants = quote_slice(&self.variants, EnumValueVariant::schema);
         let ty = &self.ty.schema();
 
         quote! {
@@ -89,12 +89,7 @@ impl TraitNode for EnumValue {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
-        traits.extend(vec![
-            Trait::Copy,
-            Trait::Display,
-            Trait::EnumValueKind,
-            Trait::Hash,
-        ]);
+        traits.extend(vec![Trait::Copy, Trait::EnumValueKind, Trait::Hash]);
 
         // extra traits
         if self.has_default() {
@@ -107,7 +102,6 @@ impl TraitNode for EnumValue {
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::EnumValueKind => imp::EnumValueTrait::tokens(self, t),
-            Trait::FormatSortKey => imp::FormatSortKeyTrait::tokens(self, t),
 
             _ => imp::any(self, t),
         }
@@ -170,7 +164,7 @@ impl Schemable for EnumValueVariant {
         } = self;
 
         // quote
-        let name = quote_one(&self.name, to_string);
+        let name = quote_one(&self.name, to_str_lit);
         let value = self.value.schema();
 
         quote! {

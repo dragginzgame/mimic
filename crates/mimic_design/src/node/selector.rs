@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_one, quote_vec, to_path, to_string},
+    helper::{quote_one, quote_slice, to_path, to_str_lit},
     imp::{self, Imp},
     node::{Arg, Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits},
     traits::Schemable,
@@ -61,7 +61,7 @@ impl Schemable for Selector {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let target = quote_one(&self.target, to_path);
-        let variants = quote_vec(&self.variants, SelectorVariant::schema);
+        let variants = quote_slice(&self.variants, SelectorVariant::schema);
 
         quote! {
             ::mimic::schema::node::SchemaNode::Selector(
@@ -129,7 +129,7 @@ impl Node for SelectorVariant {
 
 impl Schemable for SelectorVariant {
     fn schema(&self) -> TokenStream {
-        let name = quote_one(&self.name, to_string);
+        let name = quote_one(&self.name, to_str_lit);
         let value = self.value.schema();
         let default = self.default;
 
