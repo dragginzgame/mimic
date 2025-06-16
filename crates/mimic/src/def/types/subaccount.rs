@@ -1,5 +1,8 @@
 use crate::def::{
-    traits::{FieldOrderable, FieldSortKey, Inner, ValidateAuto, ValidateCustom, Visitable},
+    traits::{
+        FieldOrderable, FieldQueryable, FieldSortKey, Inner, ValidateAuto, ValidateCustom,
+        Visitable,
+    },
     types::Principal,
 };
 use derive_more::{Deref, DerefMut};
@@ -77,6 +80,12 @@ impl FieldOrderable for Subaccount {
 
 impl FieldSortKey for Subaccount {
     fn to_sort_key_part(&self) -> Option<String> {
+        Some(self.to_string())
+    }
+}
+
+impl FieldQueryable for Subaccount {
+    fn to_query_value(&self) -> Option<String> {
         Some(self.to_string())
     }
 }

@@ -1,5 +1,5 @@
 use crate::{
-    def::traits::{FieldOrderable, Inner, ValidateAuto, Visitable},
+    def::traits::{FieldOrderable, FieldQueryable, Inner, ValidateAuto, Visitable},
     prelude::*,
 };
 use candid::CandidType;
@@ -84,6 +84,12 @@ impl Display for Decimal {
 impl FieldOrderable for Decimal {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
+    }
+}
+
+impl FieldQueryable for Decimal {
+    fn to_query_value(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 

@@ -324,11 +324,23 @@ pub trait FieldQueryable {
     }
 }
 
-impl<T: Display> FieldQueryable for T {
-    fn to_query_value(&self) -> Option<String> {
-        Some(self.to_string())
-    }
+// impl_primitive_field_queryable
+#[macro_export]
+macro_rules! impl_primitive_field_queryable {
+    ($($type:ty),*) => {
+        $(
+            impl FieldQueryable for $type {
+                fn to_query_value(&self) -> Option<String> {
+                    Some(self.to_string())
+                }
+            }
+        )*
+    };
 }
+
+impl_primitive_field_queryable!(
+    bool, i8, i16, i32, i64, i128, String, u8, u16, u32, u64, u128, f32, f64
+);
 
 ///
 /// FieldSortKey

@@ -73,8 +73,8 @@ impl TraitNode for Newtype {
         ]);
 
         // primitive traits
-        if self.primitive.is_orderable() {
-            traits.extend(vec![Trait::Ord, Trait::PartialOrd]);
+        if self.primitive.is_displayable() {
+            traits.add(Trait::Display);
         }
         if self.primitive.is_numeric() {
             traits.extend(vec![
@@ -90,6 +90,9 @@ impl TraitNode for Newtype {
                 Trait::SubAssign,
             ]);
         }
+        if self.primitive.is_orderable() {
+            traits.extend(vec![Trait::Ord, Trait::PartialOrd]);
+        }
 
         traits.list()
     }
@@ -97,7 +100,6 @@ impl TraitNode for Newtype {
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::Default if self.default.is_some() => imp::DefaultTrait::tokens(self, t),
-            Trait::FieldQueryable => imp::FieldQueryableTrait::tokens(self, t),
             Trait::FieldSortKey => imp::FieldSortKeyTrait::tokens(self, t),
             Trait::From => imp::FromTrait::tokens(self, t),
             Trait::Inner => imp::InnerTrait::tokens(self, t),

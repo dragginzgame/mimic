@@ -3,7 +3,10 @@ pub mod generator;
 
 use crate::{
     ThisError,
-    def::traits::{FieldOrderable, FieldSortKey, Inner, ValidateAuto, ValidateCustom, Visitable},
+    def::traits::{
+        FieldOrderable, FieldQueryable, FieldSortKey, Inner, ValidateAuto, ValidateCustom,
+        Visitable,
+    },
     error::ErrorTree,
     prelude::*,
 };
@@ -111,6 +114,12 @@ impl Display for Ulid {
 impl FieldOrderable for Ulid {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
+    }
+}
+
+impl FieldQueryable for Ulid {
+    fn to_query_value(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 

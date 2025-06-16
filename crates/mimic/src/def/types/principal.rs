@@ -1,6 +1,9 @@
 use crate::{
     ThisError,
-    def::traits::{FieldOrderable, FieldSortKey, Inner, ValidateAuto, ValidateCustom, Visitable},
+    def::traits::{
+        FieldOrderable, FieldQueryable, FieldSortKey, Inner, ValidateAuto, ValidateCustom,
+        Visitable,
+    },
     prelude::*,
 };
 
@@ -77,6 +80,12 @@ impl Display for Principal {
 impl FieldOrderable for Principal {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
+    }
+}
+
+impl FieldQueryable for Principal {
+    fn to_query_value(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 

@@ -6,32 +6,6 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 ///
-/// FieldQueryableTrait
-///
-
-pub struct FieldQueryableTrait {}
-
-///
-/// Newtype
-///
-
-impl Imp<Newtype> for FieldQueryableTrait {
-    fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
-        let q = quote! {
-            fn to_query_value(&self) -> Option<String> {
-                self.0.to_query_value()
-            }
-        };
-
-        let tokens = Implementor::new(&node.def, t)
-            .set_tokens(q)
-            .to_token_stream();
-
-        Some(tokens)
-    }
-}
-
-///
 /// FieldSortKeyTrait
 ///
 

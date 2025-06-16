@@ -1,7 +1,7 @@
 use crate::{
     db::types::SortKey,
     def::{
-        traits::{FieldOrderable, ValidateAuto, ValidateCustom, Visitable},
+        traits::{FieldOrderable, FieldQueryable, ValidateAuto, ValidateCustom, Visitable},
         types::Ulid,
     },
 };
@@ -86,6 +86,12 @@ impl Display for Key {
 impl FieldOrderable for Key {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
+    }
+}
+
+impl FieldQueryable for Key {
+    fn to_query_value(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 
