@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - all the bits in the top mimic/ that were defined, generated entity specific are in def/
 - added Index creation and deleting into the IndexStore
 - replaced Sha256 with xxhash3
-
+- benchmarks properly working
 
 ## [0.4.6]
 - Searchable trait now a blanket implementation for Display

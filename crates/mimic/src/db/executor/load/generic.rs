@@ -50,7 +50,7 @@ impl LoadExecutor {
     }
 
     // execute_response
-    pub fn execute_respons<E: EntityKind>(self, query: LoadQuery) -> Result<LoadResponse, Error> {
+    pub fn execute_response<E: EntityKind>(self, query: LoadQuery) -> Result<LoadResponse, Error> {
         let format = query.format;
         let cl = self.execute_internal::<E>(query)?;
 

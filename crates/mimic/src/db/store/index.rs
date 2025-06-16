@@ -31,10 +31,12 @@ impl IndexStore {
         index_key: IndexKey,
         entity_key: Key,
     ) -> Result<(), ExecutorError> {
+        let debug = false;
+
         if let Some(existing) = self.get(&index_key) {
             if index.unique {
                 if !existing.contains(&entity_key) && !existing.is_empty() {
-                    debug!(true, "index.insert: unique violation at {index_key}");
+                    debug!(debug, "index.insert: unique violation at {index_key}");
 
                     return Err(ExecutorError::IndexViolation(index_key));
                 }
@@ -43,7 +45,7 @@ impl IndexStore {
                 self.insert(index_key.clone(), IndexValue::from_key(entity_key.clone()));
 
                 debug!(
-                    true,
+                    debug,
                     "index.insert: unique index updated {index_key} -> {entity_key}"
                 );
             } else {
@@ -51,13 +53,13 @@ impl IndexStore {
                 updated.insert(entity_key.clone());
                 self.insert(index_key.clone(), updated);
 
-                debug!(true, "index.insert: appended {entity_key} to {index_key}");
+                debug!(debug, "index.insert: appended {entity_key} to {index_key}");
             }
         } else {
             self.insert(index_key.clone(), IndexValue::from_key(entity_key.clone()));
 
             debug!(
-                true,
+                debug,
                 "index.insert: created new entry {index_key} -> {entity_key}"
             );
         }
@@ -71,20 +73,22 @@ impl IndexStore {
         index_key: &IndexKey,
         entity_key: &Key,
     ) -> Option<IndexValue> {
+        let debug = false;
+
         if let Some(mut existing) = self.get(index_key) {
-            debug!(true, "removing {entity_key} from index {index_key}");
+            debug!(debug, "removing {entity_key} from index {index_key}");
             existing.remove(entity_key);
 
             if existing.is_empty() {
                 debug!(
-                    true,
+                    debug,
                     "index.remove: index {index_key} is now empty, removing key"
                 );
 
                 self.remove(index_key)
             } else {
                 debug!(
-                    true,
+                    debug,
                     "index.remove: updated index {index_key} = {existing:?}"
                 );
 
