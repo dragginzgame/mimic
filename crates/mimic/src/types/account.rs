@@ -1,5 +1,5 @@
-use crate::def::{
-    traits::{
+use crate::{
+    def::traits::{
         FieldOrderable, FieldQueryable, FieldSortKey, Inner, ValidateAuto, ValidateCustom,
         Visitable,
     },

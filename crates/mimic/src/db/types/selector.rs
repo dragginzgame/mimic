@@ -1,7 +1,4 @@
-use crate::{
-    db::types::SortKey,
-    def::{traits::EntityKind, types::Key},
-};
+use crate::{db::types::SortKey, def::traits::EntityKind, types::Key};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 

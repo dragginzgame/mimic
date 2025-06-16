@@ -1,4 +1,4 @@
-use crate::{db::types::Selector, def::types::Key};
+use crate::{db::types::Selector, types::Key};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 

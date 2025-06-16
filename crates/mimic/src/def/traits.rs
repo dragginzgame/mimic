@@ -20,13 +20,10 @@ use crate::{
         executor::SaveExecutor,
         types::{SortDirection, SortKey},
     },
-    def::{
-        EntityValues,
-        types::{Key, Ulid},
-        visit::Visitor,
-    },
+    def::{EntityValues, visit::Visitor},
     error::ErrorTree,
     schema::node::EntityIndex,
+    types::{Key, Ulid},
 };
 
 ///

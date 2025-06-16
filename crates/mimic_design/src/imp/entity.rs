@@ -55,7 +55,7 @@ fn key(node: &Entity) -> TokenStream {
     });
 
     quote! {
-        fn key(&self) -> ::mimic::def::types::Key {
+        fn key(&self) -> ::mimic::types::Key {
             Key(vec![
                 #(#fields),*
             ])

@@ -1,4 +1,4 @@
-use crate::{db::hasher::xx_hash_u64, def::types::Key};
+use crate::{db::hasher::xx_hash_u64, types::Key};
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use icu::{impl_storable_bounded, impl_storable_unbounded};

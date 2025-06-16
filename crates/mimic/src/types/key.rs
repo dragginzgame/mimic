@@ -1,9 +1,7 @@
 use crate::{
     db::types::SortKey,
-    def::{
-        traits::{FieldOrderable, FieldQueryable, ValidateAuto, ValidateCustom, Visitable},
-        types::Ulid,
-    },
+    def::traits::{FieldOrderable, FieldQueryable, ValidateAuto, ValidateCustom, Visitable},
+    types::Ulid,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, IntoIterator};

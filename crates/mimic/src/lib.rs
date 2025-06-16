@@ -9,6 +9,7 @@ pub mod error;
 pub mod interface;
 pub mod macros;
 pub mod schema;
+pub mod types;
 pub mod utils;
 
 // makes it easier to use internally
@@ -38,16 +39,14 @@ pub mod prelude {
             service::EntityService,
             types::SortDirection,
         },
-        def::{
-            traits::{
-                EntityFixture, EntityIdKind as _, EntityKind as _, Inner as _, NumCast as _,
-                Path as _, Validate as _, ValidateCustom, ValidatorBytes as _,
-                ValidatorNumber as _, ValidatorString as _, Visitable as _,
-            },
-            types::{Key, KeySet, Ulid},
+        def::traits::{
+            EntityFixture, EntityIdKind as _, EntityKind as _, Inner as _, NumCast as _, Path as _,
+            Validate as _, ValidateCustom, ValidatorBytes as _, ValidatorNumber as _,
+            ValidatorString as _, Visitable as _,
         },
         error::ErrorTree,
         mimic_start, query_delete, query_load, query_save,
+        types::{Key, KeySet, Ulid},
     };
     pub use ::candid::CandidType;
 }

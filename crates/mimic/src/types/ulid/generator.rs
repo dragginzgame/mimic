@@ -1,5 +1,5 @@
 use crate::{
-    def::types::{Ulid, UlidError},
+    types::{Ulid, UlidError},
     utils::time::now_millis,
 };
 use std::sync::{LazyLock, Mutex};

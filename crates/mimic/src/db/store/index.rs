@@ -4,9 +4,9 @@ use crate::{
         types::{IndexKey, IndexValue},
     },
     debug,
-    def::types::Key,
     ic::structures::{BTreeMap, DefaultMemory},
     schema::node::EntityIndex,
+    types::Key,
 };
 use derive_more::{Deref, DerefMut};
 use std::{cell::RefCell, thread::LocalKey};

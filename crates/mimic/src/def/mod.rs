@@ -1,5 +1,4 @@
 pub mod traits;
-pub mod types;
 pub mod visit;
 
 use crate::{

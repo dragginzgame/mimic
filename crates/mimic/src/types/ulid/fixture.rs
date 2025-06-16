@@ -1,4 +1,4 @@
-use crate::def::types::Ulid;
+use crate::types::Ulid;
 use ::ulid::Ulid as WrappedUlid;
 use xxhash_rust::xxh3::xxh3_128;
 
