@@ -116,7 +116,7 @@ impl SaveExecutor {
             }
         };
 
-        // update indexes
+        // update indexes, fail if there are any unique violations
         self.update_indexes(old.as_ref(), &entity)?;
 
         // prepare data value
@@ -144,20 +144,24 @@ impl SaveExecutor {
         for index in E::INDEXES {
             let index_store = self.indexes.with(|map| map.try_get_store(index.store))?;
 
+            let new_key = new.key();
+
+            // ✅ Insert new index entry first - fail early if conflict
+            if let Some(new_index_key) = resolve_index_key::<E>(index.fields, &new.values()) {
+                index_store.with_borrow_mut(|store| {
+                    store.insert_index_value(index, new_index_key.clone(), new_key.clone())?;
+
+                    Ok::<_, DataError>(())
+                })?;
+            }
+
             // 🔁 Remove old index value (if present and resolvable)
             if let Some(old) = old {
                 if let Some(old_index_key) = resolve_index_key::<E>(index.fields, &old.values()) {
                     index_store.with_borrow_mut(|store| {
-                        store.remove_index_value(index, &old_index_key, &old.key());
+                        store.remove_index_value(&old_index_key, &old.key());
                     });
                 }
-            }
-
-            // ✅ Insert new index entry
-            if let Some(new_index_key) = resolve_index_key::<E>(index.fields, &new.values()) {
-                index_store.with_borrow_mut(|store| {
-                    store.insert_index_value(index, new_index_key, new.key());
-                });
             }
         }
 

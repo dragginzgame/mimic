@@ -1,11 +1,14 @@
 use crate::{
-    db::types::{IndexKey, IndexValue},
+    db::{
+        executor::ExecutorError,
+        types::{IndexKey, IndexValue},
+    },
+    debug,
     def::types::Key,
     ic::structures::{BTreeMap, DefaultMemory},
     schema::node::EntityIndex,
 };
 use derive_more::{Deref, DerefMut};
-use icu::{Log, log};
 use std::{cell::RefCell, thread::LocalKey};
 
 ///
@@ -27,41 +30,69 @@ impl IndexStore {
         index: &EntityIndex,
         index_key: IndexKey,
         entity_key: Key,
-    ) {
-        if let Some(mut existing) = self.get(&index_key) {
-            if !existing.contains(&entity_key) && !existing.is_empty() {
-                return Err(ExecutorError::IndexViolation(index_key));
+    ) -> Result<(), ExecutorError> {
+        if let Some(existing) = self.get(&index_key) {
+            if index.unique {
+                if !existing.contains(&entity_key) && !existing.is_empty() {
+                    debug!(true, "index.insert: unique violation at {index_key}");
+
+                    return Err(ExecutorError::IndexViolation(index_key));
+                }
+
+                // Unique, but no violation → overwrite or no-op
+                self.insert(index_key.clone(), IndexValue::from_key(entity_key.clone()));
+
+                debug!(
+                    true,
+                    "index.insert: unique index updated {index_key} -> {entity_key}"
+                );
+            } else {
+                let mut updated = existing;
+                updated.insert(entity_key.clone());
+                self.insert(index_key.clone(), updated);
+
+                debug!(true, "index.insert: appended {entity_key} to {index_key}");
             }
-
-            log!(Log::Info, "adding {entity_key} into index {index_key}");
-
-            existing.insert(entity_key);
         } else {
-            log!(
-                Log::Info,
-                "inserting vec![{entity_key}] into index {index_key}"
-            );
+            self.insert(index_key.clone(), IndexValue::from_key(entity_key.clone()));
 
-            self.insert(index_key, vec![entity_key].into());
+            debug!(
+                true,
+                "index.insert: created new entry {index_key} -> {entity_key}"
+            );
         }
+
+        Ok(())
     }
 
     // remove_index_value
     pub fn remove_index_value(
         &mut self,
-        index: &EntityIndex,
         index_key: &IndexKey,
         entity_key: &Key,
-    ) {
+    ) -> Option<IndexValue> {
         if let Some(mut existing) = self.get(index_key) {
-            log!(Log::Info, "removing {entity_key} from index {index_key}");
+            debug!(true, "removing {entity_key} from index {index_key}");
             existing.remove(entity_key);
 
             if existing.is_empty() {
-                self.remove(index_key);
+                debug!(
+                    true,
+                    "index.remove: index {index_key} is now empty, removing key"
+                );
+
+                self.remove(index_key)
             } else {
-                self.insert(index_key.clone(), existing);
+                debug!(
+                    true,
+                    "index.remove: updated index {index_key} = {existing:?}"
+                );
+
+                self.insert(index_key.clone(), existing.clone());
+                Some(existing)
             }
+        } else {
+            None
         }
     }
 }

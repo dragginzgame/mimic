@@ -10,6 +10,7 @@ use crate::{
         store::{DataStoreLocal, DataStoreRegistry, IndexStoreRegistry},
         types::{DataRow, ResolvedSelector, Selector, SortKey, Where},
     },
+    debug,
     def::traits::EntityKind,
 };
 
@@ -53,22 +54,22 @@ impl Loader {
 
         // load rows
         let rows = match resolved_selector {
-            ResolvedSelector::One(key) => Self::load_key(store, key).into_iter().collect(),
+            ResolvedSelector::One(key) => self.load_key(store, key).into_iter().collect(),
 
             ResolvedSelector::Many(keys) => keys
                 .into_iter()
-                .filter_map(|key| Self::load_key(store, key))
+                .filter_map(|key| self.load_key(store, key))
                 .collect(),
 
-            ResolvedSelector::Range(start, end) => Self::load_range(store, start, end),
+            ResolvedSelector::Range(start, end) => self.load_range(store, start, end),
         };
 
         Ok(rows)
     }
 
     // load_key
-    fn load_key(store: DataStoreLocal, key: SortKey) -> Option<DataRow> {
-        ::icu::ic::println!("load_key : {key}");
+    fn load_key(&self, store: DataStoreLocal, key: SortKey) -> Option<DataRow> {
+        debug!(self.debug, "load_key : {key}");
 
         store.with_borrow(|this| {
             this.get(&key).map(|value| DataRow {
@@ -79,8 +80,8 @@ impl Loader {
     }
 
     // load_range
-    fn load_range(store: DataStoreLocal, start: SortKey, end: SortKey) -> Vec<DataRow> {
-        ::icu::ic::println!("load_range : {start}, {end}");
+    fn load_range(&self, store: DataStoreLocal, start: SortKey, end: SortKey) -> Vec<DataRow> {
+        debug!(self.debug, "load_range : {start}, {end}");
 
         store.with_borrow(|this| {
             this.range(start..=end)
