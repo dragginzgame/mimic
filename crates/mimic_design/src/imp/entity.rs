@@ -48,10 +48,10 @@ fn indexes(node: &Entity) -> TokenStream {
 
 // key
 fn key(node: &Entity) -> TokenStream {
-    let fields = node.sort_keys.iter().map(|sk| {
-        let field_ident = &sk.field;
-
-        quote!(self.#field_ident.to_string())
+    let fields = node.sort_keys.iter().filter_map(|sk| {
+        sk.field
+            .as_ref()
+            .map(|field| quote!(self.#field.to_string()))
     });
 
     quote! {

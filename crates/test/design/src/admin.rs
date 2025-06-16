@@ -87,6 +87,17 @@ pub struct AdminEntity {}
 pub struct RelatedEntity {}
 
 ///
+/// EntityNoId
+///
+
+#[entity(
+    store = "crate::schema::TestStore",
+    sk(entity = "EntityNoId"),
+    field(name = "value", value(item(prim = "Nat8")))
+)]
+pub struct EntityNoId {}
+
+///
 /// SimpleEntity
 ///
 
