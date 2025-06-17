@@ -12,6 +12,18 @@ use crate::prelude::*;
 pub struct CreateBasic {}
 
 ///
+/// CreateBlob
+///
+
+#[entity(
+    store = "crate::schema::TestStore",
+    sk(entity = "CreateBlob", field = "id"),
+    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+    field(name = "bytes", value(item(prim = "Blob")))
+)]
+pub struct CreateBlob {}
+
+///
 /// Searchable
 ///
 

@@ -20,8 +20,9 @@ impl DbTester {
         let tests: Vec<(&str, fn())> = vec![
             ("blob", Self::blob),
             ("create", Self::create),
-            ("create_lots", Self::create_lots),
             ("create_and_delete_index", Self::create_and_delete_index),
+            ("create_lots", Self::create_lots),
+            ("create_lots_blob", Self::create_lots_blob),
             ("data_key_order", Self::data_key_order),
             ("limit_query", Self::limit_query),
             ("missing_field", Self::missing_field),
@@ -162,6 +163,31 @@ impl DbTester {
         // Retrieve the count from the store
         let count = query_load!()
             .execute::<CreateBasic>(query::load().all())
+            .unwrap()
+            .count();
+
+        // Assert that the count matches the expected number
+        assert_eq!(count, ROWS, "Expected {ROWS} keys in the store");
+    }
+
+    // create_lots_blob
+    fn create_lots_blob() {
+        use test_design::db::CreateBlob;
+        const ROWS: u32 = 500;
+        const BLOB_SIZE: usize = 1024 * 2;
+
+        // insert rows
+        for _ in 0..ROWS {
+            let e = CreateBlob {
+                bytes: vec![0u8; BLOB_SIZE].into(),
+                ..Default::default()
+            };
+            query_save!().execute(query::create().entity(e)).unwrap();
+        }
+
+        // Retrieve the count from the store
+        let count = query_load!()
+            .execute::<CreateBlob>(query::load().all())
             .unwrap()
             .count();
 
