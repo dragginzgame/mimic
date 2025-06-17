@@ -21,7 +21,7 @@ pub enum BuildError {
     #[error("serialization failed: {0}")]
     Serialize(String),
 
-    #[error("validation failed: {0:?}")]
+    #[error("validation failed: {0}")]
     Validation(ErrorTree),
 }
 
