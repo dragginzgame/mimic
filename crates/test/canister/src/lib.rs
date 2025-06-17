@@ -43,7 +43,7 @@ pub fn test() {
 #[must_use]
 #[query]
 pub fn indexes() -> Vec<(IndexKey, IndexValue)> {
-    perf!();
+    perf_start!();
 
     let res: Vec<(IndexKey, IndexValue)> = TEST_INDEX.with_borrow(|i| i.iter().collect());
 
@@ -53,11 +53,11 @@ pub fn indexes() -> Vec<(IndexKey, IndexValue)> {
 // create_lots_blob
 #[update]
 fn create_lots_blob() {
-    perf!();
+    perf_start!();
 
     use test_design::db::CreateBlob;
-    const ROWS: u32 = 1000;
-    const BLOB_SIZE: usize = 1024 * 10;
+    const ROWS: u32 = 100;
+    const BLOB_SIZE: usize = 1024;
 
     // insert rows
     for i in 0..ROWS {
@@ -65,10 +65,10 @@ fn create_lots_blob() {
             bytes: vec![0u8; BLOB_SIZE].into(),
             ..Default::default()
         };
-        //   query_save!()
-        //     .debug()
-        //        .execute(query::create().entity(e))
-        //        .unwrap();
+        query_save!()
+            //       .debug()
+            .execute(query::create().entity(e))
+            .unwrap();
 
         if i % 10 == 0 {
             debug!(true, "created {i}");
@@ -89,7 +89,7 @@ fn create_lots_blob() {
 // rarity
 #[query]
 pub fn rarity() -> Result<Vec<Rarity>, MimicError> {
-    perf!();
+    perf_start!();
 
     let res = query_load!()
         .debug()
