@@ -92,8 +92,12 @@ where
 
     // map
     #[must_use]
-    pub fn map(self) -> LoadMap<EntityValue<E>> {
-        LoadMap::from_pairs(self.0.into_iter().map(|row| (row.key.into(), row.value)))
+    pub fn map(self) -> LoadMap<E> {
+        LoadMap::from_pairs(
+            self.0
+                .into_iter()
+                .map(|row| (row.key.into(), row.value.entity)),
+        )
     }
 
     // entity

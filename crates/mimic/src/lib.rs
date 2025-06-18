@@ -42,8 +42,8 @@ pub mod prelude {
         },
         def::traits::{
             EntityFixture, EntityIdKind as _, EntityKind as _, Inner as _, NumCast as _, Path as _,
-            Validate as _, ValidateCustom, ValidatorBytes as _, ValidatorNumber as _,
-            ValidatorString as _, Visitable as _,
+            Serialize as _, Validate as _, ValidateCustom, ValidatorBytes as _,
+            ValidatorNumber as _, ValidatorString as _, Visitable as _,
         },
         error::ErrorTree,
         mimic_start,
