@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - added Index creation and deleting into the IndexStore
 - replaced Sha256 with xxhash3
 - benchmarks properly working
+- 10x speed up in Storable for DataValue as we skip serializing the vec<u8>
 
 ## [0.4.6]
 - Searchable trait now a blanket implementation for Display

@@ -13,6 +13,7 @@ use crate::{
     debug,
     def::traits::EntityKind,
 };
+use icu::perf;
 
 ///
 /// Loader
@@ -26,11 +27,13 @@ pub struct Loader {
 
 impl Loader {
     #[must_use]
-    pub const fn new(
+    pub fn new(
         data_registry: DataStoreRegistry,
         index_registry: IndexStoreRegistry,
         debug: bool,
     ) -> Self {
+        perf!("Loader::new");
+
         Self {
             data_registry,
             index_registry,
@@ -47,10 +50,14 @@ impl Loader {
     where
         E: EntityKind,
     {
+        perf!("Loader::load");
+
         // TODO - big where_clause changing selector thingy
         // get store
         let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
         let resolved_selector = selector.resolve::<E>();
+
+        perf!("Loader::before load rows");
 
         // load rows
         let rows = match resolved_selector {
@@ -64,13 +71,13 @@ impl Loader {
             ResolvedSelector::Range(start, end) => self.load_range(store, start, end),
         };
 
+        perf!("Loader::after load rows");
+
         Ok(rows)
     }
 
     // load_key
     fn load_key(&self, store: DataStoreLocal, key: SortKey) -> Option<DataRow> {
-        debug!(self.debug, "load_key : {key}");
-
         store.with_borrow(|this| {
             this.get(&key).map(|value| DataRow {
                 key: key.clone(),
@@ -81,8 +88,6 @@ impl Loader {
 
     // load_range
     fn load_range(&self, store: DataStoreLocal, start: SortKey, end: SortKey) -> Vec<DataRow> {
-        debug!(self.debug, "load_range : {start}, {end}");
-
         store.with_borrow(|this| {
             this.range(start..=end)
                 .map(|(key, value)| DataRow { key, value })

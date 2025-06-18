@@ -50,14 +50,49 @@ pub fn indexes() -> Vec<(IndexKey, IndexValue)> {
     res
 }
 
+#[update]
+fn create_lots_simple() {
+    use test_design::db::CreateBasic;
+
+    perf_start!();
+    const ROWS: u32 = 50;
+
+    // insert rows
+    for i in 0..ROWS {
+        let e = CreateBasic {
+            ..Default::default()
+        };
+        query_save!()
+            //       .debug()
+            .execute(query::create().entity(e))
+            .unwrap();
+
+        if i % 10 == 0 {
+            perf!("insert {i}");
+        }
+    }
+
+    perf!("after inserts");
+
+    // Retrieve the count from the store
+    let count = query_load!()
+        .execute::<CreateBasic>(query::load().all())
+        .unwrap()
+        .count();
+
+    debug!(true, "{count}");
+
+    //assert_eq!(count, ROWS, "Expected {ROWS} keys in the store");
+}
+
 // create_lots_blob
 #[update]
 fn create_lots_blob() {
-    perf_start!();
-
     use test_design::db::CreateBlob;
-    const ROWS: u32 = 100;
-    const BLOB_SIZE: usize = 1024;
+
+    perf_start!();
+    const ROWS: u32 = 2000;
+    const BLOB_SIZE: usize = 1024 * 10;
 
     // insert rows
     for i in 0..ROWS {
@@ -71,9 +106,11 @@ fn create_lots_blob() {
             .unwrap();
 
         if i % 10 == 0 {
-            debug!(true, "created {i}");
+            perf!("insert {i}");
         }
     }
+
+    perf!("after inserts");
 
     // Retrieve the count from the store
     let count = query_load!()
