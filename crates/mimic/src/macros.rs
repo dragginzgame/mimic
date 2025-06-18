@@ -27,5 +27,5 @@ macro_rules! debug {
 // db
 #[macro_export]
 macro_rules! db {
-    () => {{ ::mimic::db::executor::Executor::new(&DATA_REGISTRY, &INDEX_REGISTRY) }};
+    () => {{ ::mimic::db::Db::new(&DATA_REGISTRY, &INDEX_REGISTRY) }};
 }
