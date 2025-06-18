@@ -90,29 +90,31 @@ fn create_lots_simple() {
 // create_lots_blob
 #[update]
 fn create_lots_blob() {
+    use mimic::types::Blob;
     use test_design::db::CreateBlob;
 
     perf_start!();
     const ROWS: u32 = 2000;
     const BLOB_SIZE: usize = 1024 * 10;
 
+    let bytes: Blob = vec![0u8; BLOB_SIZE].into();
+
     // insert rows
-    for i in 0..ROWS {
+    for i in 1..=ROWS {
         let e = CreateBlob {
-            bytes: vec![0u8; BLOB_SIZE].into(),
+            bytes: bytes.clone(),
             ..Default::default()
         };
-        query_save!()
+        let _res = query_save!()
             //       .debug()
             .execute(query::create().entity(e))
             .unwrap();
 
         if i % 10 == 0 {
+            //      icu::ic::println!("{:?}", res.0);
             perf!("insert {i}");
         }
     }
-
-    perf!("after inserts");
 
     // Retrieve the count from the store
     let count = query_load!()
@@ -120,7 +122,7 @@ fn create_lots_blob() {
         .unwrap()
         .count();
 
-    debug!(true, "{count}");
+    let _ = count;
 
     //assert_eq!(count, ROWS, "Expected {ROWS} keys in the store");
 }

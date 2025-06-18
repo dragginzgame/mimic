@@ -3,14 +3,16 @@ use crate::{
     Error,
     db::{
         DataError,
-        query::LoadMap,
         response::ResponseError,
         types::{DataRow, EntityRow, EntityValue, SortKey},
     },
     def::traits::EntityKind,
+    types::Key,
 };
 use candid::CandidType;
+use derive_more::Deref;
 use serde::{Deserialize, Serialize};
+use std::{borrow::Borrow, collections::HashMap};
 
 ///
 /// LoadResponse
@@ -212,5 +214,42 @@ impl LoadCollectionDyn {
 impl From<Vec<DataRow>> for LoadCollectionDyn {
     fn from(rows: Vec<DataRow>) -> Self {
         Self(rows)
+    }
+}
+
+///
+/// LoadMap
+/// a HashMap indexed by id to provide an indexed alternative
+/// to Vec<Row>
+///
+
+#[derive(Debug, Deref)]
+pub struct LoadMap<T>(HashMap<Key, T>);
+
+impl<T> LoadMap<T> {
+    // from_pairs
+    pub fn from_pairs<I>(pairs: I) -> Self
+    where
+        I: IntoIterator<Item = (Key, T)>,
+    {
+        let map: HashMap<Key, T> = pairs.into_iter().collect();
+
+        Self(map)
+    }
+
+    // get
+    pub fn get<K: Borrow<Key>>(&self, k: K) -> Option<&T> {
+        self.0.get(k.borrow())
+    }
+
+    // get_many
+    pub fn get_many<K, I>(&self, keys: I) -> Vec<&T>
+    where
+        K: Borrow<Key>,
+        I: IntoIterator<Item = K>,
+    {
+        keys.into_iter()
+            .filter_map(|k| self.0.get(k.borrow()))
+            .collect()
     }
 }

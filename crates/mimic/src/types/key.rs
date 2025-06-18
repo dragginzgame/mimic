@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 use std::{
     borrow::Borrow,
     cmp::Ordering,
-    collections::HashSet,
     fmt::{self, Display},
     str::FromStr,
 };
