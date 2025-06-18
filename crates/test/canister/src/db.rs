@@ -1,4 +1,5 @@
 use crate::{DATA_REGISTRY, INDEX_REGISTRY};
+use icu::perf;
 use mimic::{
     db::query,
     def::{deserialize, serialize, traits::Path},
@@ -26,6 +27,8 @@ impl DbTester {
             ("data_key_order", Self::data_key_order),
             ("limit_query", Self::limit_query),
             ("missing_field", Self::missing_field),
+            ("perf_options", Self::perf_options),
+            ("perf_many_relations", Self::perf_many_relations),
             ("search_query", Self::search_query),
         ];
 
@@ -265,6 +268,58 @@ impl DbTester {
         assert!(!large.a_id.is_nil());
         assert!(!large.b_id.is_nil());
         assert!(large.c_id.is_nil());
+    }
+
+    // perf_options
+    fn perf_options() {
+        use test_design::db::ContainsOpts;
+
+        perf!("start perf_options");
+
+        const ROWS: u16 = 500;
+
+        // Insert rows
+        for _ in 1..ROWS {
+            let e = ContainsOpts::default();
+            query_save!().execute(query::create().entity(e)).unwrap();
+        }
+
+        // Retrieve rows in B-Tree order
+        let keys = query_load!()
+            .debug()
+            .execute::<ContainsOpts>(query::load().all())
+            .unwrap()
+            .keys();
+
+        let _ = keys.len();
+
+        perf!("end perf_options");
+    }
+
+    // perf_many_relations
+    fn perf_many_relations() {
+        use test_design::db::ContainsManyRelations;
+
+        perf!("start perf_many_relations");
+
+        const ROWS: u16 = 500;
+
+        // Insert rows
+        for _ in 1..ROWS {
+            let e = ContainsManyRelations::default();
+            query_save!().execute(query::create().entity(e)).unwrap();
+        }
+
+        // Retrieve rows in B-Tree order
+        let keys = query_load!()
+            .debug()
+            .execute::<ContainsManyRelations>(query::load().all())
+            .unwrap()
+            .keys();
+
+        let _ = keys.len();
+
+        perf!("end perf_many_relations");
     }
 
     // search_query

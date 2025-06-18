@@ -4,6 +4,7 @@ use crate::{
     traits::Schemable,
 };
 use darling::FromMeta;
+use mimic::schema::types::Cardinality;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use syn::Ident;
@@ -42,8 +43,20 @@ impl ToTokens for Field {
         let name = &self.name;
         let value = &self.value;
 
+        // serde
+        let serde_attr = match value.cardinality() {
+            Cardinality::Opt => {
+                quote!(#[serde(default, skip_serializing_if = "Option::is_none")])
+            }
+            Cardinality::Many => {
+                quote!(#[serde(default, skip_serializing_if = "Vec::is_empty")])
+            }
+            _ => quote!(),
+        };
+
         // build struct field
         tokens.extend(quote! {
+            #serde_attr
             pub #name : #value
         });
     }

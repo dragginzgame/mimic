@@ -131,3 +131,47 @@ pub struct MissingFieldLarge {}
     field(name = "bytes", value(opt, item(prim = "Blob")))
 )]
 pub struct ContainsBlob {}
+
+///
+/// ContainsOpts
+///
+
+#[entity(
+    store = "crate::schema::TestStore",
+    sk(entity = "ContainsOpts", field = "id"),
+    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+    field(name = "opt_a", value(opt, item(prim = "Principal"))),
+    field(name = "opt_b", value(opt, item(prim = "Principal"))),
+    field(name = "opt_c", value(opt, item(prim = "Principal"))),
+    field(name = "opt_d", value(opt, item(prim = "Principal"))),
+    field(name = "opt_e", value(opt, item(prim = "Principal"))),
+    field(name = "opt_f", value(opt, item(prim = "Principal"))),
+    field(name = "opt_g", value(opt, item(prim = "Principal"))),
+    field(name = "opt_h", value(opt, item(prim = "Principal"))),
+    field(name = "opt_i", value(opt, item(prim = "Principal"))),
+    field(name = "opt_j", value(opt, item(prim = "Principal"))),
+    field(name = "opt_k", value(opt, item(prim = "Principal"))),
+    field(name = "opt_l", value(opt, item(prim = "Principal")))
+)]
+pub struct ContainsOpts {}
+
+///
+/// ContainsManyRelations
+///
+
+#[entity(
+    store = "crate::schema::TestStore",
+    sk(entity = "ContainsManyRelations", field = "id"),
+    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+    field(name = "a_keys", value(many, item(rel = "ContainsBlob"))),
+    field(name = "b_keys", value(many, item(rel = "ContainsBlob"))),
+    field(name = "c_keys", value(many, item(rel = "ContainsBlob"))),
+    field(name = "d_keys", value(many, item(rel = "ContainsBlob"))),
+    field(name = "e_keys", value(many, item(rel = "ContainsBlob"))),
+    field(name = "f_keys", value(many, item(rel = "ContainsBlob"))),
+    field(name = "g_keys", value(many, item(rel = "ContainsBlob"))),
+    field(name = "h_keys", value(many, item(rel = "ContainsBlob"))),
+    field(name = "i_keys", value(many, item(rel = "ContainsBlob"))),
+    field(name = "j_keys", value(many, item(rel = "ContainsBlob")))
+)]
+pub struct ContainsManyRelations {}

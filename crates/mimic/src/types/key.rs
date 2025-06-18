@@ -153,21 +153,13 @@ impl Visitable for Key {}
     Serialize,
     Deserialize,
 )]
-pub struct KeySet(HashSet<Key>);
+pub struct KeySet(pub Vec<Key>);
 
 impl KeySet {
     pub fn add(&mut self, key: Key) {
-        self.0.insert(key);
-    }
-
-    #[must_use]
-    pub fn contains_key(&self, key: &Key) -> bool {
-        self.0.contains(key)
-    }
-
-    #[must_use]
-    pub fn find_by_prefix(&self, prefix: &[&str]) -> Vec<&Key> {
-        self.0.iter().filter(|r| r.starts_with(prefix)).collect()
+        if !self.0.contains(&key) {
+            self.0.push(key);
+        }
     }
 }
 
@@ -189,14 +181,5 @@ impl<K: Into<Key>> From<Vec<K>> for KeySet {
         let keys = vec.into_iter().map(Into::into).collect();
 
         Self(keys)
-    }
-}
-
-impl<'a> IntoIterator for &'a KeySet {
-    type Item = &'a Key;
-    type IntoIter = std::collections::hash_set::Iter<'a, Key>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.0.iter()
     }
 }

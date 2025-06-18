@@ -32,6 +32,8 @@ pub fn test() {
     db::DbTester::test();
     validate::ValidateTester::test();
 
+    perf_start!();
+
     INDEX_REGISTRY
         .with(|reg| reg.with_store("test_design::schema::TestIndex", |_| {}))
         .unwrap();
