@@ -5,6 +5,9 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.5.1]
+- redid the query_load!() macro to be a single macro mimic_query!() that returns an Executor
+
 ## [0.5.0]
 - Schema is now all static!  It doesn't need to be stored in memory at runtime
 - SortKey and IndexKey changed to have a u64 id for 40x faster lookups

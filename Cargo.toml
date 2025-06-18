@@ -12,7 +12,7 @@ resolver = "2"
 [workspace.package]
 rust-version = "1.87.0"
 edition = "2024"
-version = "0.5.0"
+version = "0.5.1"
 authors = ["borovan <84897664+borovan@users.noreply.github.com>"]
 description = "ORM/Database framework for the Internet Computer"
 license = "MIT"

@@ -45,7 +45,7 @@ pub mod prelude {
             ValidatorString as _, Visitable as _,
         },
         error::ErrorTree,
-        mimic_start, query_delete, query_load, query_load_dyn, query_save,
+        mimic_query, mimic_start,
         types::{Key, KeySet, Ulid},
     };
     pub use ::candid::CandidType;

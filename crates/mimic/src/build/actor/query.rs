@@ -41,16 +41,16 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
 
             match kind {
                 QueryKind::Load => quote! {
-                    #entity_path => query_load!().execute_response::<#ty>(query)
+                    #entity_path => mimic_query!().load().execute_response::<#ty>(query)
                 },
                 QueryKind::Save => quote! {
                     #entity_path => {
                         let qt : ::mimic::db::query::SaveQueryTyped<#ty> = query.try_into()?;
-                        query_save!().execute_response::<#ty>(qt)
+                        mimic_query!().save().execute_response::<#ty>(qt)
                     }
                 },
                 QueryKind::Delete => quote! {
-                    #entity_path => query_delete!().execute_response::<#ty>(query)
+                    #entity_path => mimic_query!().delete().execute_response::<#ty>(query)
                 },
             }
         });
