@@ -57,14 +57,11 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = ContainsBlob::default();
-            mimic_query!()
-                .save()
-                .execute(query::create().entity(e))
-                .unwrap();
+            db!().save().execute(query::create().entity(e)).unwrap();
         }
 
         // Retrieve rows in B-Tree order
-        let keys = mimic_query!()
+        let keys = db!()
             .load()
             .debug()
             .execute::<ContainsBlob>(query::load().all().sort_field("id", SortDirection::Asc))
@@ -85,13 +82,10 @@ impl DbTester {
         use test_design::db::CreateBasic;
 
         let e = CreateBasic::default();
-        mimic_query!()
-            .save()
-            .execute(query::create().entity(e))
-            .unwrap();
+        db!().save().execute(query::create().entity(e)).unwrap();
 
         // count keys
-        let num_keys = mimic_query!()
+        let num_keys = db!()
             .load()
             .execute::<CreateBasic>(query::load().all())
             .unwrap()
@@ -100,15 +94,12 @@ impl DbTester {
 
         // insert another
         let e = CreateBasic::default();
-        mimic_query!()
-            .save()
-            .execute(query::create().entity(e))
-            .unwrap();
+        db!().save().execute(query::create().entity(e)).unwrap();
 
         // count keys
 
         assert_eq!(
-            mimic_query!()
+            db!()
                 .load()
                 .execute::<CreateBasic>(query::load().all())
                 .unwrap()
@@ -123,7 +114,7 @@ impl DbTester {
 
         // Step 1: Insert entity e1 with x=1, y=10
         let e1 = Index::new(1, 10);
-        mimic_query!()
+        db!()
             .save()
             .debug()
             .execute(query::create().entity(e1.clone()))
@@ -131,7 +122,7 @@ impl DbTester {
 
         // Step 2: Insert entity e2 with x=1 (non-unique), y=20 (unique)
         let e2 = Index::new(1, 20);
-        mimic_query!()
+        db!()
             .save()
             .debug()
             .execute(query::create().entity(e2))
@@ -139,31 +130,28 @@ impl DbTester {
 
         // Step 3: Attempt to insert another with duplicate y=10 (should fail)
         let e3 = Index::new(2, 10);
-        let result = mimic_query!()
+        let result = db!()
             .save()
             .debug()
             .execute(query::create().entity(e3.clone()));
         assert!(result.is_err(), "Expected unique index violation on y=10");
 
         // Step 4: Delete e1 (y=10)
-        mimic_query!()
+        db!()
             .delete()
             .debug()
             .execute::<Index>(query::delete().one(vec![e1.id]))
             .unwrap();
 
         // Step 5: Try inserting e3 again (y=10 should now be free)
-        let result = mimic_query!()
-            .save()
-            .debug()
-            .execute(query::create().entity(e3));
+        let result = db!().save().debug().execute(query::create().entity(e3));
         assert!(
             result.is_ok(),
             "Expected insert to succeed after y=10 was freed by delete"
         );
 
         // Step 6: Confirm only 2 entities remain
-        let all = mimic_query!()
+        let all = db!()
             .load()
             .debug()
             .execute::<Index>(query::load().all())
@@ -180,14 +168,11 @@ impl DbTester {
         // insert rows
         for _ in 0..ROWS {
             let e = CreateBasic::default();
-            mimic_query!()
-                .save()
-                .execute(query::create().entity(e))
-                .unwrap();
+            db!().save().execute(query::create().entity(e)).unwrap();
         }
 
         // Retrieve the count from the store
-        let count = mimic_query!()
+        let count = db!()
             .load()
             .execute::<CreateBasic>(query::load().all())
             .unwrap()
@@ -209,14 +194,11 @@ impl DbTester {
                 bytes: vec![0u8; BLOB_SIZE].into(),
                 ..Default::default()
             };
-            mimic_query!()
-                .save()
-                .execute(query::create().entity(e))
-                .unwrap();
+            db!().save().execute(query::create().entity(e)).unwrap();
         }
 
         // Retrieve the count from the store
-        let count = mimic_query!()
+        let count = db!()
             .load()
             .execute::<CreateBlob>(query::load().all())
             .unwrap()
@@ -235,14 +217,11 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = SortKeyOrder::default();
-            mimic_query!()
-                .save()
-                .execute(query::create().entity(e))
-                .unwrap();
+            db!().save().execute(query::create().entity(e)).unwrap();
         }
 
         // Retrieve rows in B-Tree order
-        let keys = mimic_query!()
+        let keys = db!()
             .load()
             .execute::<SortKeyOrder>(query::load().all().sort([("id", SortDirection::Asc)]))
             .unwrap()
@@ -265,16 +244,13 @@ impl DbTester {
         // overwrite the ulid with replace()
         for value in 1..100 {
             let e = Limit { value };
-            mimic_query!()
-                .save()
-                .execute(query::replace().entity(e))
-                .unwrap();
+            db!().save().execute(query::replace().entity(e)).unwrap();
         }
 
         // Test various limits and offsets
         for limit in [10, 20, 50] {
             for offset in [0, 5, 10] {
-                let count = mimic_query!()
+                let count = db!()
                     .load()
                     .execute::<Limit>(query::load().all().offset(offset).limit(limit))
                     .unwrap()
@@ -317,14 +293,11 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = ContainsOpts::default();
-            mimic_query!()
-                .save()
-                .execute(query::create().entity(e))
-                .unwrap();
+            db!().save().execute(query::create().entity(e)).unwrap();
         }
 
         // Retrieve rows in B-Tree order
-        let keys = mimic_query!()
+        let keys = db!()
             .load()
             .debug()
             .execute::<ContainsOpts>(query::load().all())
@@ -347,14 +320,11 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = ContainsManyRelations::default();
-            mimic_query!()
-                .save()
-                .execute(query::create().entity(e))
-                .unwrap();
+            db!().save().execute(query::create().entity(e)).unwrap();
         }
 
         // Retrieve rows in B-Tree order
-        let keys = mimic_query!()
+        let keys = db!()
             .load()
             .debug()
             .execute::<ContainsManyRelations>(query::load().all())
@@ -393,10 +363,7 @@ impl DbTester {
                 description: description.into(),
             };
 
-            mimic_query!()
-                .save()
-                .execute(query::replace().entity(e))
-                .unwrap();
+            db!().save().execute(query::replace().entity(e)).unwrap();
         }
 
         // Each test is: field filters -> expected match count
@@ -443,7 +410,7 @@ impl DbTester {
                 .map(|(k, v)| (k.to_string(), v.to_string()))
                 .collect::<Vec<_>>();
 
-            let count = mimic_query!()
+            let count = db!()
                 .load()
                 .execute::<Searchable>(query::load().all().search(search.clone()))
                 .unwrap()

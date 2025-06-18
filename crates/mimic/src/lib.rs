@@ -33,6 +33,7 @@ extern crate self as mimic;
 
 pub mod prelude {
     pub use crate::{
+        db,
         db::{
             executor::SaveExecutor,
             response::{LoadCollection, LoadCollectionDyn},
@@ -45,7 +46,7 @@ pub mod prelude {
             ValidatorString as _, Visitable as _,
         },
         error::ErrorTree,
-        mimic_query, mimic_start,
+        mimic_start,
         types::{Key, KeySet, Ulid},
     };
     pub use ::candid::CandidType;

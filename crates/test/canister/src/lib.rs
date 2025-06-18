@@ -64,7 +64,7 @@ fn create_lots_simple() {
         let e = CreateBasic {
             ..Default::default()
         };
-        mimic_query!()
+        db!()
             .save()
             //       .debug()
             .execute(query::create().entity(e))
@@ -78,7 +78,7 @@ fn create_lots_simple() {
     perf!("after inserts");
 
     // Retrieve the count from the store
-    let count = mimic_query!()
+    let count = db!()
         .load()
         .execute::<CreateBasic>(query::load().all())
         .unwrap()
@@ -107,7 +107,7 @@ fn create_lots_blob() {
             bytes: bytes.clone(),
             ..Default::default()
         };
-        let _res = mimic_query!()
+        let _res = db!()
             //       .debug()
             .save()
             .execute(query::create().entity(e))
@@ -120,7 +120,7 @@ fn create_lots_blob() {
     }
 
     // Retrieve the count from the store
-    let count = mimic_query!()
+    let count = db!()
         .load()
         .execute::<CreateBlob>(query::load().all())
         .unwrap()
@@ -136,7 +136,7 @@ fn create_lots_blob() {
 pub fn rarity() -> Result<Vec<Rarity>, MimicError> {
     perf_start!();
 
-    let res = mimic_query!()
+    let res = db!()
         .load()
         .debug()
         .execute::<Rarity>(

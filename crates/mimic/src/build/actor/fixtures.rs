@@ -42,7 +42,7 @@ fn generate_replace_all(builder: &ActorBuilder) -> TokenStream {
         let num_entities = inner.len();
 
         quote! {
-            let mut exec = mimic_query!().save();
+            let mut exec = db!().save();
 
             #(#inner)*
             log!(Log::Info, "added fixtures ({} entities)", #num_entities);
