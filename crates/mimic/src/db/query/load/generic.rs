@@ -108,6 +108,7 @@ impl LoadQuery {
     }
 
     // where_
+    // creates a new where clause, or optionally appends additional where clauses
     #[must_use]
     pub fn where_<K, V, I>(mut self, matches: I) -> Self
     where
@@ -115,14 +116,22 @@ impl LoadQuery {
         V: Into<String>,
         I: IntoIterator<Item = (K, V)>,
     {
-        let where_clause = Where {
-            matches: matches
-                .into_iter()
-                .map(|(k, v)| (k.into(), v.into()))
-                .collect(),
-        };
+        let new_matches: Vec<(String, String)> = matches
+            .into_iter()
+            .map(|(k, v)| (k.into(), v.into()))
+            .collect();
 
-        self.r#where = Some(where_clause);
+        match &mut self.r#where {
+            Some(w) => {
+                w.matches.extend(new_matches);
+            }
+            None => {
+                self.r#where = Some(Where {
+                    matches: new_matches,
+                });
+            }
+        }
+
         self
     }
 

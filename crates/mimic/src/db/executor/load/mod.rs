@@ -10,10 +10,8 @@ use crate::{
         store::{DataStoreLocal, DataStoreRegistry, IndexStoreRegistry},
         types::{DataRow, ResolvedSelector, Selector, SortKey, Where},
     },
-    debug,
     def::traits::EntityKind,
 };
-use icu::perf;
 
 ///
 /// Loader
@@ -32,8 +30,6 @@ impl Loader {
         index_registry: IndexStoreRegistry,
         debug: bool,
     ) -> Self {
-        perf!("Loader::new");
-
         Self {
             data_registry,
             index_registry,
@@ -50,14 +46,10 @@ impl Loader {
     where
         E: EntityKind,
     {
-        perf!("Loader::load");
-
         // TODO - big where_clause changing selector thingy
         // get store
         let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
         let resolved_selector = selector.resolve::<E>();
-
-        perf!("Loader::before load rows");
 
         // load rows
         let rows = match resolved_selector {
@@ -70,8 +62,6 @@ impl Loader {
 
             ResolvedSelector::Range(start, end) => self.load_range(store, start, end),
         };
-
-        perf!("Loader::after load rows");
 
         Ok(rows)
     }

@@ -25,6 +25,9 @@ impl DataRow {
 ///
 /// DataValue
 ///
+/// custom implementation of Storable because all data goes through this
+/// point and we need maximum efficiency
+///
 
 #[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
 pub struct DataValue {
@@ -39,14 +42,14 @@ impl Storable for DataValue {
     fn to_bytes(&self) -> Cow<'_, [u8]> {
         let mut out = Vec::new();
 
-        // Write blob
+        // write blob
         let blob_bytes = self.bytes.to_bytes();
         write_chunk(&mut out, &blob_bytes);
 
-        // Write path
+        // write path
         write_chunk(&mut out, self.path.as_bytes());
 
-        // Write metadata
+        // write metadata
         let meta_bytes = Encode!(&self.metadata).expect("encode metadata");
         write_chunk(&mut out, &meta_bytes);
 
