@@ -4,9 +4,9 @@ use crate::{
     db::{
         DataError,
         response::ResponseError,
-        types::{DataRow, EntityRow, EntityValue, SortKey},
+        types::{DataRow, EntityRow, SortKey},
     },
-    def::traits::EntityKind,
+    ops::traits::EntityKind,
     types::Key,
 };
 use candid::CandidType;

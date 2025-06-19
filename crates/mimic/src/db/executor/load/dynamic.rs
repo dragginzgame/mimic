@@ -9,7 +9,7 @@ use crate::{
         types::DataRow,
     },
     debug,
-    def::traits::EntityKind,
+    ops::traits::EntityKind,
 };
 
 ///

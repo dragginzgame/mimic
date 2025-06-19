@@ -1,11 +1,6 @@
 use crate::{DATA_REGISTRY, INDEX_REGISTRY};
 use icu::perf;
-use mimic::{
-    db::query,
-    def::{deserialize, serialize, traits::Path},
-    prelude::*,
-    types::Ulid,
-};
+use mimic::{db::query, ops::traits::Path, prelude::*, types::Ulid};
 use test_design::schema::TestStore;
 
 ///
@@ -26,7 +21,6 @@ impl DbTester {
             ("create_lots_blob", Self::create_lots_blob),
             ("data_key_order", Self::data_key_order),
             ("limit_query", Self::limit_query),
-            ("missing_field", Self::missing_field),
             ("perf_options", Self::perf_options),
             ("perf_many_relations", Self::perf_many_relations),
             ("search_query", Self::search_query),
@@ -262,24 +256,6 @@ impl DbTester {
                 //    }
             }
         }
-    }
-
-    // missing_field
-    fn missing_field() {
-        use test_design::db::{MissingFieldLarge, MissingFieldSmall};
-
-        let small = MissingFieldSmall {
-            a_id: Ulid::generate(),
-            b_id: Ulid::generate(),
-        };
-
-        // move from small to large
-        let bytes = serialize(&small).unwrap();
-        let large = deserialize::<MissingFieldLarge>(&bytes).unwrap();
-
-        assert!(!large.a_id.is_nil());
-        assert!(!large.b_id.is_nil());
-        assert!(large.c_id.is_nil());
     }
 
     // perf_options

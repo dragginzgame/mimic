@@ -1,4 +1,4 @@
-use mimic::def::validate;
+use mimic::ops::validate::validate;
 use test_design::validate::ValidateTest;
 
 ///

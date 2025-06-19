@@ -1,6 +1,6 @@
 use crate::{
     db::types::IndexKey,
-    def::{EntityValues, traits::EntityKind},
+    ops::{EntityValues, traits::EntityKind},
 };
 
 // resolve_index_key

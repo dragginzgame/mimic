@@ -1,5 +1,5 @@
 use crate::{
-    def::traits::{FieldOrderable, FieldQueryable, Inner, ValidateAuto, Visitable},
+    ops::traits::{FieldOrderable, FieldQueryable, Inner, ValidateAuto, Visitable},
     prelude::*,
 };
 use candid::{CandidType, Nat as WrappedNat};

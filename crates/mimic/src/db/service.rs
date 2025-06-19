@@ -3,7 +3,7 @@ use crate::{
         executor::SaveExecutor,
         query::{SaveMode, SaveQueryTyped},
     },
-    def::traits::EntityKind,
+    ops::traits::EntityKind,
 };
 
 ///

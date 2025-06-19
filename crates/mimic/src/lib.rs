@@ -4,10 +4,10 @@
 ///
 pub mod build;
 pub mod db;
-pub mod def;
 pub mod error;
 pub mod interface;
 pub mod macros;
+pub mod ops;
 pub mod schema;
 pub mod types;
 pub mod utils;
@@ -40,13 +40,13 @@ pub mod prelude {
             service::EntityService,
             types::SortDirection,
         },
-        def::traits::{
+        error::ErrorTree,
+        mimic_start,
+        ops::traits::{
             EntityFixture, EntityIdKind as _, EntityKind as _, Inner as _, NumCast as _, Path as _,
             Serialize as _, Validate as _, ValidateCustom, ValidatorBytes as _,
             ValidatorNumber as _, ValidatorString as _, Visitable as _,
         },
-        error::ErrorTree,
-        mimic_start,
         types::{Key, KeySet, Ulid},
     };
     pub use ::candid::CandidType;
@@ -81,7 +81,7 @@ pub enum Error {
     SerializeError(String),
 
     #[error("{0}")]
-    ValidationError(String),
+    ValidateError(String),
 }
 
 macro_rules! from_to_string {
@@ -98,5 +98,6 @@ from_to_string!(build::BuildError, BuildError);
 from_to_string!(db::DataError, DataError);
 from_to_string!(interface::InterfaceError, InterfaceError);
 from_to_string!(schema::SchemaError, SchemaError);
-from_to_string!(def::SerializeError, SerializeError);
-from_to_string!(def::ValidationError, ValidationError);
+
+from_to_string!(ops::serialize::SerializeError, SerializeError);
+from_to_string!(ops::validate::ValidateError, ValidateError);

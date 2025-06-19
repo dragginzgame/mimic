@@ -9,7 +9,7 @@ use crate::{
         types::{DataValue, EntityValue, Metadata},
     },
     debug,
-    def::{serialize, traits::EntityKind},
+    ops::{serialize::serialize, traits::EntityKind, validate::validate},
     utils::time,
 };
 
@@ -71,7 +71,7 @@ impl SaveExecutor {
         let bytes = serialize(&entity)?;
 
         // validate
-        crate::def::validate(&entity)?;
+        validate(&entity)?;
 
         // resolve - get schema data
         let sk = entity.sort_key();

@@ -1,5 +1,6 @@
 mod db;
 mod default;
+mod ops;
 mod validate;
 
 use icu::{ic::export_candid, prelude::*};
@@ -30,6 +31,7 @@ fn init() {
 pub fn test() {
     default::DefaultTester::test();
     db::DbTester::test();
+    ops::OpsTester::test();
     validate::ValidateTester::test();
 
     perf_start!();

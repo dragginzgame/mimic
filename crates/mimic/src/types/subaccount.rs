@@ -1,5 +1,5 @@
 use crate::{
-    def::traits::{
+    ops::traits::{
         FieldOrderable, FieldQueryable, FieldSortKey, Inner, ValidateAuto, ValidateCustom,
         Visitable,
     },

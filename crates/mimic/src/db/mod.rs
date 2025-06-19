@@ -8,10 +8,12 @@ pub mod types;
 
 use crate::{
     db::{
-        executor::{DeleteExecutor, LoadExecutor, LoadExecutorDyn, SaveExecutor},
-        store::{DataStoreRegistry, IndexStoreRegistry},
+        executor::{DeleteExecutor, ExecutorError, LoadExecutor, LoadExecutorDyn, SaveExecutor},
+        query::QueryError,
+        response::ResponseError,
+        store::{DataStoreRegistry, IndexStoreRegistry, StoreError},
     },
-    def::{SerializeError, ValidationError},
+    ops::{serialize::SerializeError, validate::ValidateError},
 };
 use thiserror::Error as ThisError;
 
@@ -22,22 +24,22 @@ use thiserror::Error as ThisError;
 #[derive(Debug, ThisError)]
 pub enum DataError {
     #[error(transparent)]
-    ExecutorError(#[from] executor::ExecutorError),
+    ExecutorError(#[from] ExecutorError),
 
     #[error(transparent)]
-    QueryError(#[from] query::QueryError),
+    QueryError(#[from] QueryError),
 
     #[error(transparent)]
-    ResponseError(#[from] response::ResponseError),
+    ResponseError(#[from] ResponseError),
 
     #[error(transparent)]
-    StoreError(#[from] store::StoreError),
+    StoreError(#[from] StoreError),
 
     #[error(transparent)]
     SerializeError(#[from] SerializeError),
 
     #[error(transparent)]
-    ValidationError(#[from] ValidationError),
+    ValidateError(#[from] ValidateError),
 }
 
 ///

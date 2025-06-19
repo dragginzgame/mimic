@@ -9,7 +9,7 @@ use crate::{
         types::EntityRow,
     },
     debug,
-    def::traits::EntityKind,
+    ops::traits::EntityKind,
 };
 use icu::{Log, log};
 

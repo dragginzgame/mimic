@@ -91,8 +91,8 @@ fn values(node: &Entity) -> TokenStream {
     });
 
     quote! {
-        fn values(&self) -> ::mimic::def::EntityValues {
-            use ::mimic::def::traits::FieldQueryable;
+        fn values(&self) -> ::mimic::ops::EntityValues {
+            use ::mimic::ops::traits::FieldQueryable;
 
             let mut map = ::std::collections::HashMap::with_capacity(3);
             #(#inserts)*
@@ -140,7 +140,7 @@ fn build_sort_key(node: &Entity) -> TokenStream {
 
     // inner
     let inner = quote! {
-        use ::mimic::def::traits::FieldSortKey;
+        use ::mimic::ops::traits::FieldSortKey;
 
         // Ensure at least one part if none were provided
         if values.is_empty() {
@@ -180,17 +180,17 @@ impl Imp<Entity> for EntitySearchTrait {
               match field.value.cardinality() {
                     Cardinality::One => quote! {
                         ( #name_str, |s: &#ident, text|
-                            ::mimic::def::traits::FieldQueryable::contains_text(&s.#name, text)
+                            ::mimic::ops::traits::FieldQueryable::contains_text(&s.#name, text)
                         )
                     },
                     Cardinality::Opt => quote! {
                         ( #name_str, |s: &#ident, text|
-                            s.#name.as_ref().map_or(false, |v| ::mimic::def::traits::FieldQueryable::contains_text(v, text))
+                            s.#name.as_ref().map_or(false, |v| ::mimic::ops::traits::FieldQueryable::contains_text(v, text))
                         )
                     },
                     Cardinality::Many => quote! {
                         ( #name_str, |s: &#ident, text|
-                             s.#name.iter().any(|v| ::mimic::def::traits::FieldQueryable::contains_text(v, text))
+                             s.#name.iter().any(|v| ::mimic::ops::traits::FieldQueryable::contains_text(v, text))
                         )
                     },
                 }
@@ -245,13 +245,13 @@ impl Imp<Entity> for EntitySortTrait {
 
             asc_fns.extend(quote! {
                 fn #asc_fn(a: &#node_ident, b: &#node_ident) -> ::std::cmp::Ordering {
-                    ::mimic::def::traits::FieldOrderable::cmp(&a.#field_ident, &b.#field_ident)
+                    ::mimic::ops::traits::FieldOrderable::cmp(&a.#field_ident, &b.#field_ident)
                 }
             });
 
             desc_fns.extend(quote! {
                 fn #desc_fn(a: &#node_ident, b: &#node_ident) -> ::std::cmp::Ordering {
-                    ::mimic::def::traits::FieldOrderable::cmp(&b.#field_ident, &a.#field_ident)
+                    ::mimic::ops::traits::FieldOrderable::cmp(&b.#field_ident, &a.#field_ident)
                 }
             });
 

@@ -10,7 +10,7 @@ use crate::{
         store::{DataStoreLocal, DataStoreRegistry, IndexStoreRegistry},
         types::{DataRow, ResolvedSelector, Selector, SortKey, Where},
     },
-    def::traits::EntityKind,
+    ops::traits::EntityKind,
 };
 
 ///

@@ -1,5 +1,5 @@
 use crate::{
-    def::traits::{FieldOrderable, FieldQueryable, Inner, ValidateAuto, ValidateCustom, Visitable},
+    ops::traits::{FieldOrderable, FieldQueryable, Inner, ValidateAuto, ValidateCustom, Visitable},
     prelude::*,
 };
 use serde::{Deserialize, Serialize};

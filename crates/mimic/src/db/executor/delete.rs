@@ -9,7 +9,7 @@ use crate::{
         types::{ResolvedSelector, SortKey},
     },
     debug,
-    def::{deserialize, traits::EntityKind},
+    ops::{serialize::deserialize, traits::EntityKind},
 };
 
 ///

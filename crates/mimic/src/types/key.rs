@@ -1,6 +1,6 @@
 use crate::{
     db::types::SortKey,
-    def::traits::{FieldOrderable, FieldQueryable, ValidateAuto, ValidateCustom, Visitable},
+    ops::traits::{FieldOrderable, FieldQueryable, ValidateAuto, ValidateCustom, Visitable},
     types::Ulid,
 };
 use candid::CandidType;

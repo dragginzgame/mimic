@@ -3,11 +3,11 @@ pub mod generator;
 
 use crate::{
     ThisError,
-    def::traits::{
+    error::ErrorTree,
+    ops::traits::{
         FieldOrderable, FieldQueryable, FieldSortKey, Inner, ValidateAuto, ValidateCustom,
         Visitable,
     },
-    error::ErrorTree,
     prelude::*,
 };
 use ::ulid::Ulid as WrappedUlid;

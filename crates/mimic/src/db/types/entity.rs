@@ -1,6 +1,9 @@
 use crate::{
     db::types::{DataRow, DataValue, Metadata, SortKey},
-    def::{SerializeError, deserialize, serialize, traits::Path},
+    ops::{
+        serialize::{SerializeError, deserialize, serialize},
+        traits::Path,
+    },
 };
 use candid::CandidType;
 use serde::{Serialize, de::DeserializeOwned};
