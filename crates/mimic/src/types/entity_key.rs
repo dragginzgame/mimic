@@ -7,6 +7,7 @@ use crate::{
             Visitable,
         },
     },
+    types::Ulid,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, IntoIterator};
@@ -105,6 +106,12 @@ impl From<DataKey> for EntityKey {
 impl From<IndexValue> for EntityKey {
     fn from(value: IndexValue) -> Self {
         Self(vec![value])
+    }
+}
+
+impl From<Ulid> for EntityKey {
+    fn from(ulid: Ulid) -> Self {
+        Self(vec![ulid.into()])
     }
 }
 
