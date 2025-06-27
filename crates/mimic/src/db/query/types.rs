@@ -5,6 +5,7 @@ use crate::{
         traits::{EntityKind, FieldIndexValue, FieldOrderable},
         types::IndexValue,
     },
+    types::Relation,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, IntoIterator};
@@ -74,9 +75,26 @@ impl FieldOrderable for EntityKey {
     }
 }
 
+impl From<DataKey> for EntityKey {
+    fn from(key: DataKey) -> Self {
+        Self(
+            key.parts()
+                .into_iter()
+                .filter_map(|part| part.value)
+                .collect(),
+        )
+    }
+}
+
 impl From<IndexValue> for EntityKey {
     fn from(value: IndexValue) -> Self {
         Self(vec![value])
+    }
+}
+
+impl From<Relation> for EntityKey {
+    fn from(rel: Relation) -> Self {
+        Self(rel.0)
     }
 }
 
@@ -89,17 +107,6 @@ where
             values
                 .into_iter()
                 .filter_map(|v| v.to_index_value())
-                .collect(),
-        )
-    }
-}
-
-impl From<DataKey> for EntityKey {
-    fn from(key: DataKey) -> Self {
-        Self(
-            key.parts()
-                .into_iter()
-                .filter_map(|part| part.value)
                 .collect(),
         )
     }
