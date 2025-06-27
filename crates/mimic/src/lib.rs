@@ -35,9 +35,7 @@ pub mod prelude {
     pub use crate::{
         db,
         db::{
-            executor::SaveExecutor,
-            query::{EntityKey, SortDirection},
-            response::LoadCollection,
+            executor::SaveExecutor, query::SortDirection, response::LoadCollection,
             service::EntityService,
         },
         error::ErrorTree,
@@ -47,7 +45,7 @@ pub mod prelude {
             Serialize as _, Validate as _, ValidateCustom, ValidatorBytes as _,
             ValidatorNumber as _, ValidatorString as _, Visitable as _,
         },
-        types::{Relation, RelationMany, Ulid},
+        types::{EntityKey, Ulid},
     };
     pub use ::candid::CandidType;
 }

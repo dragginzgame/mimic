@@ -1,4 +1,4 @@
-use crate::types::{Decimal, Principal, Relation, Ulid};
+use crate::types::{Decimal, EntityKey, Principal, Ulid};
 use candid::CandidType;
 use derive_more::Display;
 use serde::{Deserialize, Serialize};
@@ -13,10 +13,10 @@ use std::cmp::Ordering;
 pub enum Value {
     Bool(bool),
     Decimal(Decimal),
+    EntityKey(EntityKey),
     Float(f64),
     Int(i64),
     Nat(u64),
-    Relation(Relation),
     Text(String),
     Ulid(Ulid),
 }
@@ -36,10 +36,10 @@ macro_rules! impl_from_for_value {
 impl_from_for_value! {
     bool => Bool,
     Decimal => Decimal,
+    EntityKey => EntityKey,
     f64 => Float,
     i64 => Int,
     u64 => Nat,
-    Relation => Relation,
     String => Text,
     Ulid => Ulid,
 }
@@ -51,10 +51,10 @@ impl_from_for_value! {
 #[derive(CandidType, Clone, Debug, Deserialize, Display, Eq, Hash, PartialEq, Serialize)]
 pub enum IndexValue {
     Decimal(Decimal),
+    EntityKey(EntityKey),
     Int(i64),
     Nat(u64),
     Principal(Principal),
-    Relation(Relation),
     Text(String),
     Ulid(Ulid),
     UpperBoundMarker,
@@ -64,10 +64,10 @@ impl IndexValue {
     const fn variant_rank(&self) -> u8 {
         match self {
             Self::Decimal(_) => 0,
-            Self::Int(_) => 1,
-            Self::Nat(_) => 2,
-            Self::Principal(_) => 3,
-            Self::Relation(_) => 4,
+            Self::EntityKey(_) => 1,
+            Self::Int(_) => 2,
+            Self::Nat(_) => 3,
+            Self::Principal(_) => 4,
             Self::Text(_) => 5,
             Self::Ulid(_) => 6,
             Self::UpperBoundMarker => u8::MAX,
@@ -89,9 +89,9 @@ macro_rules! impl_from_for_index_value {
 
 impl_from_for_index_value! {
     Decimal => Decimal,
+    EntityKey => EntityKey,
     i64 => Int,
     u64 => Nat,
-    Relation => Relation,
     String => Text,
     Ulid => Ulid,
 }
@@ -110,10 +110,10 @@ impl Ord for IndexValue {
             (_, Self::UpperBoundMarker) => Ordering::Less,
 
             (Self::Decimal(a), Self::Decimal(b)) => a.cmp(b),
+            (Self::EntityKey(a), Self::EntityKey(b)) => a.cmp(b),
             (Self::Int(a), Self::Int(b)) => a.cmp(b),
             (Self::Nat(a), Self::Nat(b)) => a.cmp(b),
             (Self::Principal(a), Self::Principal(b)) => a.cmp(b),
-            (Self::Relation(a), Self::Relation(b)) => a.cmp(b),
             (Self::Text(a), Self::Text(b)) => a.cmp(b),
             (Self::Ulid(a), Self::Ulid(b)) => a.cmp(b),
 

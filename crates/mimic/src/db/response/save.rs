@@ -1,4 +1,4 @@
-use crate::db::query::EntityKey;
+use crate::types::EntityKey;
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 

@@ -46,10 +46,6 @@ impl Item {
             _ => panic!("item should not have more than one target selected (is, prim, relation)"),
         }
     }
-
-    pub const fn is_relation(&self) -> bool {
-        self.relation.is_some()
-    }
 }
 
 impl Schemable for Item {
@@ -104,7 +100,7 @@ impl ItemTarget {
                 let ty = prim.as_type();
                 quote!(#ty)
             }
-            Self::Relation(_) => quote!(::mimic::types::Relation),
+            Self::Relation(_) => quote!(::mimic::types::EntityKey),
         }
     }
 }

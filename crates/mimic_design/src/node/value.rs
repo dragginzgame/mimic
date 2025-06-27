@@ -52,13 +52,7 @@ impl ToTokens for Value {
         let q = match self.cardinality() {
             Cardinality::One => quote!(#item),
             Cardinality::Opt => quote!(Option<#item>),
-            Cardinality::Many => {
-                if item.is_relation() {
-                    quote!(::mimic::types::RelationMany)
-                } else {
-                    quote!(Vec<#item>)
-                }
-            }
+            Cardinality::Many => quote!(Vec<#item>),
         };
 
         tokens.extend(q);

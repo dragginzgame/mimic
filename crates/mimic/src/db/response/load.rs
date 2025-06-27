@@ -3,10 +3,10 @@ use crate::{
     Error,
     db::{
         DataError,
-        query::EntityKey,
         response::{EntityRow, ResponseError},
     },
     ops::traits::EntityKind,
+    types::EntityKey,
 };
 use candid::CandidType;
 use derive_more::Deref;

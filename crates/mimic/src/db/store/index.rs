@@ -1,9 +1,10 @@
 use crate::{
-    db::{executor::ExecutorError, hasher::xx_hash_u64, query::EntityKey},
+    db::{executor::ExecutorError, hasher::xx_hash_u64},
     debug,
     ic::structures::{BTreeMap, DefaultMemory},
     ops::IndexValue,
     schema::node::EntityIndex,
+    types::EntityKey,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};

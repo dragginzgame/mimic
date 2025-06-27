@@ -69,14 +69,14 @@ fn entity_key(node: &Entity) -> TokenStream {
     });
 
     quote! {
-        fn entity_key(&self) -> ::mimic::db::query::EntityKey {
+        fn entity_key(&self) -> ::mimic::types::EntityKey {
             use ::mimic::ops::traits::FieldIndexValue;
 
             let mut parts = Vec::new();
 
             #(#fields)*
 
-            ::mimic::db::query::EntityKey(parts)
+            ::mimic::types::EntityKey(parts)
         }
     }
 }

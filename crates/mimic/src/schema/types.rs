@@ -104,6 +104,7 @@ pub enum PrimitiveType {
     Blob,
     Bool,
     Decimal,
+    EntityKey,
     Float32,
     Float64,
     Int,
@@ -117,8 +118,6 @@ pub enum PrimitiveType {
     Nat32,
     Nat64,
     Principal,
-    Relation,
-    RelationMany,
     Subaccount,
     Text,
     Ulid,
@@ -133,7 +132,7 @@ impl PrimitiveType {
 
     #[must_use]
     pub const fn is_displayable(self) -> bool {
-        !matches!(self, Self::Blob | Self::RelationMany | Self::Unit)
+        !matches!(self, Self::Blob | Self::Unit)
     }
 
     #[must_use]
@@ -170,6 +169,7 @@ impl PrimitiveType {
             Self::Bool => quote!(::mimic::types::Bool),
             Self::Blob => quote!(::mimic::types::Blob),
             Self::Decimal => quote!(::mimic::types::Decimal),
+            Self::EntityKey => quote!(::mimic::types::EntityKey),
             Self::Float32 => quote!(::mimic::types::Float32),
             Self::Float64 => quote!(::mimic::types::Float64),
             Self::Int => quote!(::mimic::types::Int),
@@ -178,8 +178,6 @@ impl PrimitiveType {
             Self::Int32 => quote!(::mimic::types::Int32),
             Self::Int64 => quote!(::mimic::types::Int64),
             Self::Principal => quote!(::mimic::types::Principal),
-            Self::Relation => quote!(::mimic::types::Relation),
-            Self::RelationMany => quote!(::mimic::types::RelationMany),
             Self::Nat => quote!(::mimic::types::Nat),
             Self::Nat8 => quote!(::mimic::types::Nat8),
             Self::Nat16 => quote!(::mimic::types::Nat16),

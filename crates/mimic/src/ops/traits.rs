@@ -18,7 +18,7 @@ pub use std::{
 use crate::{
     db::{
         executor::SaveExecutor,
-        query::{EntityKey, SortDirection},
+        query::SortDirection,
         store::{DataKey, IndexKey},
     },
     error::ErrorTree,
@@ -27,7 +27,7 @@ use crate::{
         visit::Visitor,
     },
     schema::node::EntityIndex,
-    types::{Relation, Ulid},
+    types::{EntityKey, Ulid},
 };
 
 ///
@@ -127,13 +127,13 @@ pub trait EntityIdKind: Kind + std::fmt::Debug {
 
     // relation
     #[must_use]
-    fn relation(&self) -> Relation {
+    fn entity_key(&self) -> EntityKey {
         let iv = self
             .ulid()
             .to_index_value()
-            .expect("relation has an index value");
+            .expect("entityid has an index value");
 
-        Relation(vec![iv])
+        EntityKey(vec![iv])
     }
 }
 

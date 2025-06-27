@@ -1,7 +1,8 @@
 #![allow(clippy::type_complexity)]
 use crate::{
-    db::query::{EntityKey, Selector, SortDirection, Where},
+    db::query::{Selector, SortDirection, Where},
     ops::types::Value,
+    types::EntityKey,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
