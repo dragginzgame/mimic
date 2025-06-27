@@ -23,11 +23,11 @@ pub enum Value {
 }
 
 macro_rules! impl_from_for_value {
-    ( $( $type:ty => $variant:ident ),* $(,)? ) => {
+    ( $( $type:ty => $variant:ident as $cast:ty ),* $(,)? ) => {
         $(
             impl From<$type> for Value {
                 fn from(v: $type) -> Self {
-                    Self::$variant(v)
+                    Self::$variant(v as $cast)
                 }
             }
         )*
@@ -35,15 +35,28 @@ macro_rules! impl_from_for_value {
 }
 
 impl_from_for_value! {
-    bool => Bool,
-    Decimal => Decimal,
-    EntityKey => EntityKey,
-    f64 => Float,
-    i64 => Int,
-    u64 => Nat,
-    Principal => Principal,
-    String => Text,
-    Ulid => Ulid,
+    bool => Bool as bool,
+    Decimal => Decimal as Decimal,
+    EntityKey => EntityKey as EntityKey,
+    f32 => Float as f64,
+    f64 => Float as f64,
+    i8 => Int as i64,
+    i16 => Int as i64,
+    i32 => Int as i64,
+    i64 => Int as i64,
+    Principal => Principal as Principal,
+    String => Text as String,
+    Ulid => Ulid as Ulid,
+    u8 => Nat as u64,
+    u16 => Nat as u64,
+    u32 => Nat as u64,
+    u64 => Nat as u64,
+}
+
+impl From<candid::Principal> for Value {
+    fn from(p: candid::Principal) -> Self {
+        Self::Principal(p.into())
+    }
 }
 
 ///
@@ -78,11 +91,11 @@ impl IndexValue {
 }
 
 macro_rules! impl_from_for_index_value {
-    ( $( $type:ty => $variant:ident ),* $(,)? ) => {
+    ( $( $type:ty => $variant:ident as $cast:ty ),* $(,)? ) => {
         $(
             impl From<$type> for IndexValue {
                 fn from(v: $type) -> Self {
-                    Self::$variant(v)
+                    Self::$variant(v as $cast)
                 }
             }
         )*
@@ -90,12 +103,25 @@ macro_rules! impl_from_for_index_value {
 }
 
 impl_from_for_index_value! {
-    Decimal => Decimal,
-    EntityKey => EntityKey,
-    i64 => Int,
-    u64 => Nat,
-    String => Text,
-    Ulid => Ulid,
+    Decimal => Decimal as Decimal,
+    EntityKey => EntityKey as EntityKey,
+    i8 => Int as i64,
+    i16 => Int as i64,
+    i32 => Int as i64,
+    i64 => Int as i64,
+    Principal => Principal as Principal,
+    String => Text as String,
+    Ulid => Ulid as Ulid,
+    u8 => Nat as u64,
+    u16 => Nat as u64,
+    u32 => Nat as u64,
+    u64 => Nat as u64,
+}
+
+impl From<candid::Principal> for IndexValue {
+    fn from(p: candid::Principal) -> Self {
+        Self::Principal(p.into())
+    }
 }
 
 impl PartialOrd for IndexValue {
