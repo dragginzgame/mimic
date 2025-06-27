@@ -35,7 +35,9 @@ pub mod prelude {
     pub use crate::{
         db,
         db::{
-            executor::SaveExecutor, query::SortDirection, response::LoadCollection,
+            executor::SaveExecutor,
+            query::{EntityKey, SortDirection},
+            response::LoadCollection,
             service::EntityService,
         },
         error::ErrorTree,
