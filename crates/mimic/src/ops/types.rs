@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::{cmp::Ordering, collections::HashMap};
 
 ///
-/// Handy Macro
+/// Handy Macros
 ///
 
 macro_rules! impl_from_for {
@@ -14,6 +14,18 @@ macro_rules! impl_from_for {
             impl From<$type> for $struct {
                 fn from(v: $type) -> Self {
                     Self::$variant(v.into())
+                }
+            }
+        )*
+    };
+}
+
+macro_rules! impl_from_ref_for {
+    ( $struct:ty, $( $type:ty => $variant:ident ),* $(,)? ) => {
+        $(
+            impl From<&$type> for $struct {
+                fn from(v: &$type) -> Self {
+                    Self::$variant(v.clone())
                 }
             }
         )*
@@ -101,6 +113,11 @@ impl_from_for! {
     u64 => Nat,
 }
 
+impl_from_ref_for! {
+    Value,
+    EntityKey => EntityKey,
+}
+
 impl From<Blob> for Value {
     fn from(_: Blob) -> Self {
         Self::Blob
@@ -186,6 +203,11 @@ impl_from_for! {
     u16 => Nat,
     u32 => Nat,
     u64 => Nat,
+}
+
+impl_from_ref_for! {
+    IndexValue,
+    EntityKey => EntityKey,
 }
 
 impl From<candid::Principal> for IndexValue {
