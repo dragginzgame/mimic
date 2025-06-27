@@ -50,7 +50,7 @@ impl ToTokens for Field {
             Cardinality::Many => {
                 quote!(#[serde(default, skip_serializing_if = "Vec::is_empty")])
             }
-            _ => quote!(),
+            Cardinality::One => quote!(),
         };
 
         // build struct field

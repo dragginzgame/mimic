@@ -1,5 +1,4 @@
 use crate::{DATA_REGISTRY, INDEX_REGISTRY};
-use icu::perf;
 use mimic::{db::query, ops::traits::Path, prelude::*, types::Ulid};
 use test_design::schema::TestStore;
 

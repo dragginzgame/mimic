@@ -165,7 +165,7 @@ impl Display for IndexKey {
         let value_strs = self
             .values
             .iter()
-            .map(|v| v.to_string())
+            .map(ToString::to_string)
             .collect::<Vec<_>>()
             .join(", ");
 

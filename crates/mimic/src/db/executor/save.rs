@@ -25,7 +25,7 @@ pub struct SaveExecutor {
 impl SaveExecutor {
     // new
     #[must_use]
-    pub fn new(data: DataStoreRegistry, indexes: IndexStoreRegistry) -> Self {
+    pub const fn new(data: DataStoreRegistry, indexes: IndexStoreRegistry) -> Self {
         Self {
             data,
             indexes,

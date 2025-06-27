@@ -106,13 +106,13 @@ impl FieldValue for Principal {
 
 impl From<WrappedPrincipal> for Principal {
     fn from(p: WrappedPrincipal) -> Self {
-        Principal(p)
+        Self(p)
     }
 }
 
 impl From<&WrappedPrincipal> for Principal {
     fn from(p: &WrappedPrincipal) -> Self {
-        Principal(*p)
+        Self(*p)
     }
 }
 

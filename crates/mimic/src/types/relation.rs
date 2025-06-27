@@ -65,7 +65,7 @@ impl Borrow<[IndexValue]> for Relation {
 
 impl Display for Relation {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let formatted: Vec<String> = self.0.iter().map(|v| v.to_string()).collect();
+        let formatted: Vec<String> = self.0.iter().map(ToString::to_string).collect();
         write!(f, "[{}]", formatted.join(", "))
     }
 }

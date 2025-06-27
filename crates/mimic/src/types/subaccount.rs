@@ -45,7 +45,7 @@ pub struct Subaccount(WrappedSubaccount);
 
 impl Subaccount {
     #[must_use]
-    pub fn to_bytes(self) -> [u8; 32] {
+    pub const fn to_bytes(self) -> [u8; 32] {
         self.0.0
     }
 
@@ -109,7 +109,7 @@ impl From<Subaccount> for WrappedSubaccount {
 
 impl From<WrappedSubaccount> for Subaccount {
     fn from(wrap: WrappedSubaccount) -> Self {
-        Subaccount(wrap)
+        Self(wrap)
     }
 }
 

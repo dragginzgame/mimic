@@ -63,7 +63,7 @@ impl Borrow<[IndexValue]> for EntityKey {
 
 impl Display for EntityKey {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let formatted: Vec<String> = self.0.iter().map(|v| v.to_string()).collect();
+        let formatted: Vec<String> = self.0.iter().map(ToString::to_string).collect();
         write!(f, "[{}]", formatted.join(", "))
     }
 }
@@ -79,7 +79,7 @@ where
     T: FieldIndexValue,
 {
     fn from(values: Vec<T>) -> Self {
-        EntityKey(
+        Self(
             values
                 .into_iter()
                 .filter_map(|v| v.to_index_value())
@@ -126,26 +126,26 @@ impl Selector {
     #[must_use]
     pub fn resolve<E: EntityKind>(&self) -> ResolvedSelector {
         match self {
-            Selector::All => {
+            Self::All => {
                 let start = E::build_data_key(&[]);
                 let end = start.create_upper_bound();
 
                 ResolvedSelector::Range(start, end)
             }
-            Selector::Only => ResolvedSelector::One(E::build_data_key(&[])),
-            Selector::One(key) => ResolvedSelector::One(E::build_data_key(key)),
-            Selector::Many(keys) => {
+            Self::Only => ResolvedSelector::One(E::build_data_key(&[])),
+            Self::One(key) => ResolvedSelector::One(E::build_data_key(key)),
+            Self::Many(keys) => {
                 let keys = keys.iter().map(|k| E::build_data_key(k)).collect();
 
                 ResolvedSelector::Many(keys)
             }
-            Selector::Prefix(prefix) => {
+            Self::Prefix(prefix) => {
                 let start = E::build_data_key(prefix);
                 let end = start.create_upper_bound();
 
                 ResolvedSelector::Range(start, end)
             }
-            Selector::Range(start, end) => {
+            Self::Range(start, end) => {
                 let start = E::build_data_key(start);
                 let end = E::build_data_key(end);
 

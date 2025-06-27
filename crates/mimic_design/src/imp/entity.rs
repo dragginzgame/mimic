@@ -45,7 +45,7 @@ fn store(node: &Entity) -> TokenStream {
 
 // indexes
 fn indexes(node: &Entity) -> TokenStream {
-    let defs = node.indexes.iter().map(|index| index.schema());
+    let defs = node.indexes.iter().map(Schemable::schema);
 
     quote! {
         const INDEXES: &'static [::mimic::schema::node::EntityIndex] = &[

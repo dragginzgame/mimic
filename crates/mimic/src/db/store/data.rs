@@ -106,7 +106,7 @@ impl Display for DataKey {
 
 impl From<Vec<DataKeyPart>> for DataKey {
     fn from(parts: Vec<DataKeyPart>) -> Self {
-        DataKey(parts)
+        Self(parts)
     }
 }
 
@@ -185,7 +185,7 @@ impl Storable for DataEntry {
         let metadata_buf = read_chunk(&mut cursor);
         let metadata = Decode!(&metadata_buf, Metadata).expect("decode metadata");
 
-        DataEntry {
+        Self {
             bytes,
             path,
             metadata,

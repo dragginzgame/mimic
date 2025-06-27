@@ -53,22 +53,22 @@ pub struct Db {
 
 impl Db {
     #[must_use]
-    pub fn new(data: DataStoreRegistry, index: IndexStoreRegistry) -> Self {
+    pub const fn new(data: DataStoreRegistry, index: IndexStoreRegistry) -> Self {
         Self { data, index }
     }
 
     #[must_use]
-    pub fn load(&self) -> LoadExecutor {
+    pub const fn load(&self) -> LoadExecutor {
         LoadExecutor::new(self.data, self.index)
     }
 
     #[must_use]
-    pub fn save(&self) -> SaveExecutor {
+    pub const fn save(&self) -> SaveExecutor {
         SaveExecutor::new(self.data, self.index)
     }
 
     #[must_use]
-    pub fn delete(&self) -> DeleteExecutor {
+    pub const fn delete(&self) -> DeleteExecutor {
         DeleteExecutor::new(self.data, self.index)
     }
 }

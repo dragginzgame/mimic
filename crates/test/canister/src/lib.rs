@@ -57,15 +57,14 @@ pub fn indexes() -> Vec<(IndexKey, IndexEntry)> {
 #[update]
 fn create_lots_simple() {
     use test_design::db::CreateBasic;
+    const ROWS: u32 = 50;
 
     perf_start!();
-    const ROWS: u32 = 50;
 
     // insert rows
     for i in 0..ROWS {
-        let e = CreateBasic {
-            ..Default::default()
-        };
+        let e = CreateBasic::default();
+
         db!()
             .save()
             //       .debug()
@@ -97,9 +96,10 @@ fn create_lots_blob() {
     use mimic::types::Blob;
     use test_design::db::CreateBlob;
 
-    perf_start!();
     const ROWS: u32 = 2000;
     const BLOB_SIZE: usize = 1024 * 10;
+
+    perf_start!();
 
     let bytes: Blob = vec![0u8; BLOB_SIZE].into();
 

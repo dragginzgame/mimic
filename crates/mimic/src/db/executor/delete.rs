@@ -24,7 +24,7 @@ pub struct DeleteExecutor {
 impl DeleteExecutor {
     // new
     #[must_use]
-    pub fn new(data_registry: DataStoreRegistry, index_registry: IndexStoreRegistry) -> Self {
+    pub const fn new(data_registry: DataStoreRegistry, index_registry: IndexStoreRegistry) -> Self {
         Self {
             data_registry,
             index_registry,

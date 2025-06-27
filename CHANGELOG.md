@@ -5,6 +5,12 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.5.2]
+- changed the .to_string() usage of indexes and where statements to use a variant type
+- sort key renamed to data key
+- removed the dynamic loader db!().load_dyn, as it's not really needed
+- removed Nat128 and Int128 which shouldn't have been there, they map to Nat and Int anyway
+
 ## [0.5.1]
 - redid the query_load!() macro to be a single macro mimic_query!() that returns an Executor
 

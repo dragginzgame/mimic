@@ -38,18 +38,16 @@ pub enum IndexValue {
 }
 
 impl IndexValue {
-    fn variant_rank(&self) -> u8 {
-        use IndexValue::*;
-
+    const fn variant_rank(&self) -> u8 {
         match self {
-            Decimal(_) => 0,
-            Int(_) => 1,
-            Nat(_) => 2,
-            Principal(_) => 3,
-            Relation(_) => 4,
-            Text(_) => 5,
-            Ulid(_) => 6,
-            UpperBoundMarker => u8::MAX,
+            Self::Decimal(_) => 0,
+            Self::Int(_) => 1,
+            Self::Nat(_) => 2,
+            Self::Principal(_) => 3,
+            Self::Relation(_) => 4,
+            Self::Text(_) => 5,
+            Self::Ulid(_) => 6,
+            Self::UpperBoundMarker => u8::MAX,
         }
     }
 }
@@ -62,20 +60,18 @@ impl PartialOrd for IndexValue {
 
 impl Ord for IndexValue {
     fn cmp(&self, other: &Self) -> Ordering {
-        use IndexValue::*;
-
         match (self, other) {
-            (UpperBoundMarker, UpperBoundMarker) => Ordering::Equal,
-            (UpperBoundMarker, _) => Ordering::Greater,
-            (_, UpperBoundMarker) => Ordering::Less,
+            (Self::UpperBoundMarker, Self::UpperBoundMarker) => Ordering::Equal,
+            (Self::UpperBoundMarker, _) => Ordering::Greater,
+            (_, Self::UpperBoundMarker) => Ordering::Less,
 
-            (Decimal(a), Decimal(b)) => a.cmp(b),
-            (Int(a), Int(b)) => a.cmp(b),
-            (Nat(a), Nat(b)) => a.cmp(b),
-            (Principal(a), Principal(b)) => a.cmp(b),
-            (Relation(a), Relation(b)) => a.cmp(b),
-            (Text(a), Text(b)) => a.cmp(b),
-            (Ulid(a), Ulid(b)) => a.cmp(b),
+            (Self::Decimal(a), Self::Decimal(b)) => a.cmp(b),
+            (Self::Int(a), Self::Int(b)) => a.cmp(b),
+            (Self::Nat(a), Self::Nat(b)) => a.cmp(b),
+            (Self::Principal(a), Self::Principal(b)) => a.cmp(b),
+            (Self::Relation(a), Self::Relation(b)) => a.cmp(b),
+            (Self::Text(a), Self::Text(b)) => a.cmp(b),
+            (Self::Ulid(a), Self::Ulid(b)) => a.cmp(b),
 
             // Define an arbitrary but stable variant order fallback
             (a, b) => a.variant_rank().cmp(&b.variant_rank()),
