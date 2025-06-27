@@ -74,6 +74,12 @@ impl FieldOrderable for EntityKey {
     }
 }
 
+impl From<IndexValue> for EntityKey {
+    fn from(value: IndexValue) -> Self {
+        Self(vec![value])
+    }
+}
+
 impl<T> From<Vec<T>> for EntityKey
 where
     T: FieldIndexValue,
