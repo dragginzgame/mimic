@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 /// - `True` or `False` constants
 /// - Single clauses comparing a field with a value
 /// - Composite expressions: `And`, `Or`, and negation `Not`.
-#[derive(CandidType, Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[derive(CandidType, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum WhereExpr {
     True,
     False,
