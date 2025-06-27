@@ -17,6 +17,7 @@ pub enum Value {
     Float(f64),
     Int(i64),
     Nat(u64),
+    Principal(Principal),
     Text(String),
     Ulid(Ulid),
 }
@@ -40,6 +41,7 @@ impl_from_for_value! {
     f64 => Float,
     i64 => Int,
     u64 => Nat,
+    Principal => Principal,
     String => Text,
     Ulid => Ulid,
 }
