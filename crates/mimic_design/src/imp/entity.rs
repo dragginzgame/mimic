@@ -1,9 +1,9 @@
 use crate::{
     imp::{Imp, Implementor},
-    node::{Entity, MacroNode, Trait},
-    traits::Schemable,
+    node::{Entity, MacroNode},
+    traits::Trait,
 };
-use mimic::schema::types::Cardinality;
+use mimic::schema::{traits::Schemable, types::Cardinality};
 use proc_macro2::{Span, TokenStream};
 use quote::{ToTokens, format_ident, quote};
 
@@ -15,23 +15,26 @@ pub struct EntityKindTrait {}
 
 impl Imp<Entity> for EntityKindTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
-        // quote
-        let store = &node.store;
-        let mut q = quote! {
-            const STORE: &'static str = #store::PATH;
-        };
-
+        q.extend(store(node));
         q.extend(indexes(node));
         q.extend(key(node));
         q.extend(values(node));
         q.extend(build_sort_key(node));
-        //    q.extend(build_index_key(node));
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
             .to_token_stream();
 
         Some(tokens)
+    }
+}
+
+// store
+fn store(node: &Entity) -> TokenStream {
+    let store = &node.store;
+
+    quote! {
+        const STORE: &'static str = #store::PATH;
     }
 }
 
@@ -51,11 +54,13 @@ fn key(node: &Entity) -> TokenStream {
     let fields = node.sort_keys.iter().filter_map(|sk| {
         sk.field
             .as_ref()
-            .map(|field| quote!(self.#field.to_string()))
+            .map(|field| quote!(self.#field.to_value()))
     });
 
     quote! {
         fn key(&self) -> ::mimic::types::Key {
+            use ::mimic::ops::traits::FieldValue;
+
             Key(vec![
                 #(#fields),*
             ])
@@ -71,28 +76,25 @@ fn values(node: &Entity) -> TokenStream {
 
         match field.value.cardinality() {
             Cardinality::One => Some(quote! {
-                if let Some(v) = self.#field_ident.to_query_value() {
-                    map.insert(#field_lit, Some(v));
-                }
+                map.insert(#field_lit, self.#field_ident.to_value());
             }),
 
             Cardinality::Opt => Some(quote! {
-                if let Some(inner) = &self.#field_ident {
-                    if let Some(v) = inner.to_query_value() {
-                        map.insert(#field_lit, Some(v));
-                    }
-                } else {
-                    map.insert(#field_lit, None);
-                }
+                map.insert(
+                    #field_lit,
+                    self.#field_ident
+                        .as_ref()
+                        .and_then(|inner| inner.to_value()),
+                );
             }),
 
-            Cardinality::Many => None,
+            Cardinality::Many => None, // Optionally: serialize Vec<T> if needed
         }
     });
 
     quote! {
-        fn values(&self) -> ::mimic::ops::EntityValues {
-            use ::mimic::ops::traits::FieldQueryable;
+        fn values(&self) -> ::mimic::ops::types::EntityValues {
+            use ::mimic::ops::traits::FieldValue;
 
             let mut map = ::std::collections::HashMap::with_capacity(3);
             #(#inserts)*
@@ -112,7 +114,7 @@ fn build_sort_key(node: &Entity) -> TokenStream {
             Some(field) => quote! {
                 ::mimic::db::types::SortKeyPart::new(
                     #entity::PATH,
-                    this.#field.to_sort_key_part(),
+                    this.#field.to_value(),
                 )
             },
             None => quote! {
@@ -140,7 +142,7 @@ fn build_sort_key(node: &Entity) -> TokenStream {
 
     // inner
     let inner = quote! {
-        use ::mimic::ops::traits::FieldSortKey;
+        use ::mimic::ops::traits::FieldValue;
 
         // Ensure at least one part if none were provided
         if values.is_empty() {
@@ -154,7 +156,7 @@ fn build_sort_key(node: &Entity) -> TokenStream {
     };
 
     quote! {
-        fn build_sort_key(values: &[::std::string::String]) -> ::mimic::db::types::SortKey {
+        fn build_sort_key(values: &[::mimic::ops::types::Value]) -> ::mimic::db::types::SortKey {
             #inner
         }
     }
@@ -180,17 +182,17 @@ impl Imp<Entity> for EntitySearchTrait {
               match field.value.cardinality() {
                     Cardinality::One => quote! {
                         ( #name_str, |s: &#ident, text|
-                            ::mimic::ops::traits::FieldQueryable::contains_text(&s.#name, text)
+                            ::mimic::ops::traits::FieldSearch::contains_text(&s.#name, text)
                         )
                     },
                     Cardinality::Opt => quote! {
                         ( #name_str, |s: &#ident, text|
-                            s.#name.as_ref().map_or(false, |v| ::mimic::ops::traits::FieldQueryable::contains_text(v, text))
+                            s.#name.as_ref().map_or(false, |v| ::mimic::ops::traits::FieldSearch::contains_text(v, text))
                         )
                     },
                     Cardinality::Many => quote! {
                         ( #name_str, |s: &#ident, text|
-                             s.#name.iter().any(|v| ::mimic::ops::traits::FieldQueryable::contains_text(v, text))
+                             s.#name.iter().any(|v| ::mimic::ops::traits::FieldSearch::contains_text(v, text))
                         )
                     },
                 }

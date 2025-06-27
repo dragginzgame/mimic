@@ -1,4 +1,4 @@
-use mimic::{def::validate, prelude::*};
+use mimic::{ops::validate::validate, prelude::*};
 
 //
 // just a place to mess around with tests while developing

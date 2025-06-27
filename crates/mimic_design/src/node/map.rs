@@ -1,9 +1,10 @@
 use crate::{
     imp::{self, Imp},
-    node::{Def, Item, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type, Value},
-    traits::Schemable,
+    node::{Def, Item, MacroNode, Node, Trait, TraitNode, TraitTokens, Type, Value},
+    traits::Traits,
 };
 use darling::FromMeta;
+use mimic::schema::traits::Schemable;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 

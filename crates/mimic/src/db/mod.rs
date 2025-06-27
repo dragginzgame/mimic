@@ -4,11 +4,10 @@ pub mod query;
 pub mod response;
 pub mod service;
 pub mod store;
-pub mod types;
 
 use crate::{
     db::{
-        executor::{DeleteExecutor, ExecutorError, LoadExecutor, LoadExecutorDyn, SaveExecutor},
+        executor::{DeleteExecutor, ExecutorError, LoadExecutor, SaveExecutor},
         query::QueryError,
         response::ResponseError,
         store::{DataStoreRegistry, IndexStoreRegistry, StoreError},
@@ -61,11 +60,6 @@ impl Db {
     #[must_use]
     pub fn load(&self) -> LoadExecutor {
         LoadExecutor::new(self.data, self.index)
-    }
-
-    #[must_use]
-    pub fn load_dyn(&self) -> LoadExecutorDyn {
-        LoadExecutorDyn::new(self.data, self.index)
     }
 
     #[must_use]

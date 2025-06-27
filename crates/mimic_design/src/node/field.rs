@@ -1,10 +1,9 @@
 use crate::{
     helper::{quote_one, quote_option, to_str_lit},
     node::{Arg, Value},
-    traits::Schemable,
 };
 use darling::FromMeta;
-use mimic::schema::types::Cardinality;
+use mimic::schema::{traits::Schemable, types::Cardinality};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use syn::Ident;

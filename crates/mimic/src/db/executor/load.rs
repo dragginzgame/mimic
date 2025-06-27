@@ -2,11 +2,10 @@ use crate::{
     Error,
     db::{
         DataError,
-        executor::Loader,
-        query::{LoadFormat, LoadQuery},
-        response::{LoadCollection, LoadResponse},
-        store::{DataStoreRegistry, IndexStoreRegistry},
-        types::EntityRow,
+        executor::ResolvedSelector,
+        query::{LoadFormat, LoadQuery, Selector, Where},
+        response::{EntityRow, LoadCollection, LoadResponse},
+        store::{DataKey, DataRow, DataStoreLocal, DataStoreRegistry, IndexStoreRegistry},
     },
     debug,
     ops::traits::EntityKind,
@@ -55,7 +54,6 @@ impl LoadExecutor {
         let cl = self.execute_internal::<E>(query)?;
 
         let resp = match format {
-            LoadFormat::Rows => LoadResponse::Rows(cl.data_rows()),
             LoadFormat::Keys => LoadResponse::Keys(cl.keys()),
             LoadFormat::Count => LoadResponse::Count(cl.count()),
         };
@@ -70,12 +68,10 @@ impl LoadExecutor {
     ) -> Result<LoadCollection<E>, DataError> {
         debug!(self.debug, "query.load: {query:?}");
 
-        let loader = Loader::new(self.data_registry, self.index_registry, self.debug);
-
-        let rows = loader
+        let rows = self
             .load::<E>(&query.selector, query.r#where.as_ref())?
             .into_iter()
-            .filter(|row| row.value.path == E::PATH)
+            .filter(|row| row.entry.path == E::PATH)
             .map(TryFrom::try_from)
             .collect::<Result<Vec<EntityRow<E>>, _>>()?;
 
@@ -87,6 +83,51 @@ impl LoadExecutor {
             .collect();
 
         Ok(LoadCollection(rows))
+    }
+
+    // load
+    pub fn load<E: EntityKind>(
+        &self,
+        selector: &Selector,
+        _where_clause: Option<&Where>,
+    ) -> Result<Vec<DataRow>, DataError> {
+        // TODO - big where_clause changing selector thingy
+        // get store
+        let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
+        let resolved_selector = selector.resolve::<E>();
+
+        // load rows
+        let rows = match resolved_selector {
+            ResolvedSelector::One(key) => self.load_one(store, key).into_iter().collect(),
+
+            ResolvedSelector::Many(keys) => keys
+                .into_iter()
+                .filter_map(|key| self.load_one(store, key))
+                .collect(),
+
+            ResolvedSelector::Range(start, end) => self.load_range(store, start, end),
+        };
+
+        Ok(rows)
+    }
+
+    // load_one
+    fn load_one(&self, store: DataStoreLocal, key: DataKey) -> Option<DataRow> {
+        store.with_borrow(|this| {
+            this.get(&key).map(|entry| DataRow {
+                key: key.clone(),
+                entry,
+            })
+        })
+    }
+
+    // load_range
+    fn load_range(&self, store: DataStoreLocal, start: DataKey, end: DataKey) -> Vec<DataRow> {
+        store.with_borrow(|this| {
+            this.range(start..=end)
+                .map(|(key, entry)| DataRow { key, entry })
+                .collect()
+        })
     }
 
     // apply_all_post
@@ -113,11 +154,15 @@ impl LoadExecutor {
         let filtered = rows
             .into_iter()
             .filter(|row| {
-                let field_values = row.value.entity.values();
+                let values = row.entry.entity.values();
 
-                r#where.matches.iter().all(|(field, value)| {
-                    field_values.get(field).and_then(|v| v.as_ref()) == Some(value)
-                })
+                r#where
+                    .matches
+                    .iter()
+                    .all(|(field, expected)| match values.get(field) {
+                        Some(Some(actual)) => actual == expected,
+                        _ => false,
+                    })
             })
             .collect::<Vec<_>>();
         let flen = filtered.len();
@@ -142,7 +187,7 @@ impl LoadExecutor {
         // filter
         let filtered = rows
             .into_iter()
-            .filter(|row| row.value.entity.search_fields(&query.search))
+            .filter(|row| row.entry.entity.search_fields(&query.search))
             .collect::<Vec<_>>();
         let flen = filtered.len();
 
@@ -157,7 +202,7 @@ impl LoadExecutor {
     fn apply_sort<E: EntityKind>(rows: &mut [EntityRow<E>], query: &LoadQuery) {
         if !query.sort.is_empty() {
             let sorter = E::sort(&query.sort);
-            rows.sort_by(|a, b| sorter(&a.value.entity, &b.value.entity));
+            rows.sort_by(|a, b| sorter(&a.entry.entity, &b.entry.entity));
         }
     }
 }

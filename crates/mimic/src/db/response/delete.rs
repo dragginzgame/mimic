@@ -1,4 +1,4 @@
-use crate::db::types::SortKey;
+use crate::db::query::EntityKey;
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
@@ -22,12 +22,12 @@ pub struct DeleteResponse(pub Vec<DeleteRow>);
 
 #[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
 pub struct DeleteRow {
-    pub key: SortKey,
+    pub key: EntityKey,
 }
 
 impl DeleteRow {
     #[must_use]
-    pub const fn new(key: SortKey) -> Self {
+    pub const fn new(key: EntityKey) -> Self {
         Self { key }
     }
 }

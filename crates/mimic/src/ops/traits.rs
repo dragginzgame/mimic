@@ -18,12 +18,16 @@ pub use std::{
 use crate::{
     db::{
         executor::SaveExecutor,
-        types::{SortDirection, SortKey},
+        query::{EntityKey, SortDirection},
+        store::DataKey,
     },
     error::ErrorTree,
-    ops::{EntityValues, visit::Visitor},
+    ops::{
+        types::{IndexValue, IndexValues, Value, Values},
+        visit::Visitor,
+    },
     schema::node::EntityIndex,
-    types::{Key, Ulid},
+    types::Ulid,
 };
 
 ///
@@ -70,28 +74,12 @@ impl<T> Kind for T where T: Path {}
 ///
 
 pub trait TypeKind:
-    Kind
-    + CandidType
-    + Clone
-    + Default
-    + FieldOrderable
-    + FieldQueryable
-    + Serialize
-    + DeserializeOwned
-    + Visitable
+    Kind + CandidType + Clone + Default + Serialize + DeserializeOwned + Visitable
 {
 }
 
 impl<T> TypeKind for T where
-    T: Kind
-        + CandidType
-        + Clone
-        + Default
-        + FieldOrderable
-        + FieldQueryable
-        + Serialize
-        + DeserializeOwned
-        + Visitable
+    T: Kind + CandidType + Clone + Default + Serialize + DeserializeOwned + Visitable
 {
 }
 
@@ -103,23 +91,25 @@ pub trait EntityKind: TypeKind + EntitySearch + EntitySort + PartialEq {
     const STORE: &'static str;
     const INDEXES: &'static [EntityIndex];
 
-    // key
-    // returns the current key, ie ["123123", "234234", "015TaFh54u..."]
-    fn key(&self) -> Key;
-
     // values
-    // returns fields and values in string format for where/search queries
-    fn values(&self) -> EntityValues;
+    fn values(&self) -> Values;
+
+    // index_values
+    fn index_values(&self) -> IndexValues;
+
+    // entity_key
+    // returns the current entity key, ie ["123123", "234234", "015TaFh54u..."]
+    fn entity_key(&self) -> EntityKey;
 
     // sort_key
-    // returns the current sort key (via the build_sort_key function)
-    fn sort_key(&self) -> SortKey {
-        Self::build_sort_key(&self.key())
+    // builds the data key using the current entity key
+    fn data_key(&self) -> DataKey {
+        Self::build_data_key(&self.entity_key())
     }
 
-    // build_sort_key
-    // takes in a set of string values, returns the SortKey
-    fn build_sort_key(values: &[String]) -> SortKey;
+    // build_data_key
+    // takes in a set of values, returns the DataKey
+    fn build_data_key(values: &[IndexValue]) -> DataKey;
 }
 
 ///
@@ -134,9 +124,10 @@ pub trait EntityIdKind: Kind + std::fmt::Debug {
         Ulid::from_string_digest(&digest)
     }
 
+    // key
     #[must_use]
-    fn key(&self) -> Key {
-        Key::from(vec![self.ulid()])
+    fn key(&self) -> EntityKey {
+        EntityKey(vec![self.ulid().to_index_value()])
     }
 }
 
@@ -147,6 +138,13 @@ pub trait EntityIdKind: Kind + std::fmt::Debug {
 pub trait EnumValueKind {
     fn value(&self) -> i32;
 }
+
+///
+/// FieldKind
+///
+
+pub trait FieldKind: FieldValue + FieldSearch {}
+impl<T: FieldValue + FieldSearch> FieldKind for T {}
 
 ///
 /// ANY KIND TRAITS
@@ -250,6 +248,15 @@ pub trait ValidatorString {
 ///
 
 ///
+/// FieldIndexValue
+/// optional, a field can be turned into an IndexValue
+///
+
+pub trait FieldIndexValue {
+    fn to_index_value(&self) -> IndexValue;
+}
+
+///
 /// FieldOrderable
 ///
 /// wrapper around the Ord/PartialOrd traits so that we can extend it to
@@ -301,33 +308,30 @@ impl<T: FieldOrderable> FieldOrderable for Option<T> {
 }
 
 ///
-/// FieldQueryable
-///
-/// A trait that defines how a value is converted to a string representation
-/// suitable for WHERE queries, filtering, or comparison.
+/// FieldSearch
 ///
 
-pub trait FieldQueryable {
+pub trait FieldSearch {
     /// Returns a canonical string form of the value, if available
     /// if None is returned it means that the type is just not suitable for searching
-    fn to_query_value(&self) -> Option<String> {
+    fn to_searchable_string(&self) -> Option<String> {
         None
     }
 
     /// Case-insensitive containment check using the query value.
-    fn contains_text(&self, query: &str) -> bool {
-        self.to_query_value()
-            .is_some_and(|val| val.to_lowercase().contains(&query.to_lowercase()))
+    fn contains_text(&self, s: &str) -> bool {
+        self.to_searchable_string()
+            .is_some_and(|val| val.to_lowercase().contains(&s.to_lowercase()))
     }
 }
 
-// impl_primitive_field_queryable
+// impl_primitive_field_search
 #[macro_export]
-macro_rules! impl_primitive_field_queryable {
+macro_rules! impl_primitive_field_search {
     ($($type:ty),*) => {
         $(
-            impl FieldQueryable for $type {
-                fn to_query_value(&self) -> Option<String> {
+            impl FieldSearch for $type {
+                fn to_searchable_string(&self) -> Option<String> {
                     Some(self.to_string())
                 }
             }
@@ -335,75 +339,52 @@ macro_rules! impl_primitive_field_queryable {
     };
 }
 
-impl_primitive_field_queryable!(
+impl_primitive_field_search!(
     bool, i8, i16, i32, i64, i128, String, u8, u16, u32, u64, u128, f32, f64
 );
 
 ///
-/// FieldSortKey
+/// FieldValue
+///
+/// A trait that defines how a value is wrapped for WHERE queries,
+/// filtering, or comparison.
 ///
 
-pub trait FieldSortKey {
-    // to_sort_key_part
-    // if None, the type CANNOT be formatted as a Sort Key and an error is returned
-    fn to_sort_key_part(&self) -> Option<String> {
-        None
+pub trait FieldValue {
+    fn to_value(&self) -> Value;
+}
+
+impl FieldValue for String {
+    fn to_value(&self) -> Value {
+        Value::Text(self.clone())
     }
 }
 
-impl FieldSortKey for String {
-    fn to_sort_key_part(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
-
-macro_rules! impl_field_sort_key_ints {
-    ($($t:ty, $ut:ty, $len:expr),* $(,)?) => {
-        $(
-            impl FieldSortKey for $t {
-                #[allow(clippy::cast_sign_loss)]
-                fn to_sort_key_part(&self) -> Option<String> {
-                    if *self < 0 {
-                        let inverted = <$ut>::MAX - self.wrapping_abs() as $ut;
-                        Some(format!("-{:0>width$}", inverted, width = $len - 1))
-                    } else {
-                        Some(format!("{:0>width$}", *self as $ut, width = $len))
-                    }
-                }
+// impl_field_value_as
+#[macro_export]
+macro_rules! impl_field_value_as {
+    ($type:ty => $variant:ident) => {
+        impl FieldValue for $type {
+            fn to_value(&self) -> Value {
+                Value::$variant(*self as _)
             }
-        )*
+        }
     };
 }
 
-macro_rules! impl_field_sort_key_uints {
-    ($($t:ty, $len:expr),* $(,)?) => {
-        $(
-            impl FieldSortKey for $t {
-                fn to_sort_key_part(&self) -> Option<String> {
-                    Some(format!("{:0>width$}", self, width = $len))
-                }
-            }
-        )*
-    };
-}
+impl_field_value_as!(i8 => Int128);
+impl_field_value_as!(i16 => Int128);
+impl_field_value_as!(i32 => Int128);
+impl_field_value_as!(i64 => Int128);
+impl_field_value_as!(i128 => Int128);
 
-#[rustfmt::skip]
-impl_field_sort_key_ints!(
-    i8, u8, 4,
-    i16, u16, 6,
-    i32, u32, 11,
-    i64, u64, 21,
-    i128, u128, 41
-);
+impl_field_value_as!(u8 => Nat128);
+impl_field_value_as!(u16 => Nat128);
+impl_field_value_as!(u32 => Nat128);
+impl_field_value_as!(u64 => Nat128);
+impl_field_value_as!(u128 => Nat128);
 
-#[rustfmt::skip]
-impl_field_sort_key_uints!(
-    u8, 3,
-    u16, 5,
-    u32, 10,
-    u64, 20,
-    u128, 40
-);
+impl_field_value_as!(bool => Bool);
 
 ///
 /// Inner

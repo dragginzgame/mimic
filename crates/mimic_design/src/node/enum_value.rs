@@ -1,10 +1,11 @@
 use crate::{
     helper::{quote_one, quote_slice, to_str_lit},
     imp::{self, Imp},
-    node::{ArgNumber, Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type},
-    traits::Schemable,
+    node::{ArgNumber, Def, MacroNode, Node, TraitNode, TraitTokens, Type},
+    traits::{Trait, Traits},
 };
 use darling::FromMeta;
+use mimic::schema::traits::Schemable;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::Ident;

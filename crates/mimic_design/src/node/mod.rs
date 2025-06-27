@@ -16,7 +16,6 @@ mod selector;
 mod set;
 mod sort_key;
 mod store;
-mod traits;
 mod tuple;
 mod r#type;
 mod validator;
@@ -41,12 +40,12 @@ pub use self::selector::*;
 pub use self::set::*;
 pub use self::sort_key::*;
 pub use self::store::*;
-pub use self::traits::*;
 pub use self::tuple::*;
 pub use self::r#type::*;
 pub use self::validator::*;
 pub use self::value::*;
 
+use crate::traits::Trait;
 use proc_macro2::TokenStream;
 use quote::quote;
 

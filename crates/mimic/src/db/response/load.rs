@@ -3,11 +3,10 @@ use crate::{
     Error,
     db::{
         DataError,
-        response::ResponseError,
-        types::{DataRow, EntityRow, SortKey},
+        query::EntityKey,
+        response::{EntityRow, ResponseError},
     },
     ops::traits::EntityKind,
-    types::Key,
 };
 use candid::CandidType;
 use derive_more::Deref;
@@ -20,8 +19,7 @@ use std::{borrow::Borrow, collections::HashMap};
 
 #[derive(CandidType, Debug, Deserialize, Serialize)]
 pub enum LoadResponse {
-    Rows(Vec<DataRow>),
-    Keys(Vec<SortKey>),
+    Keys(Vec<EntityKey>),
     Count(u32),
 }
 
@@ -36,18 +34,6 @@ impl<E> LoadCollection<E>
 where
     E: EntityKind,
 {
-    // as_dyn
-    #[must_use]
-    pub fn as_dyn(self) -> LoadCollectionDyn {
-        let data_rows: Vec<DataRow> = self
-            .0
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect();
-
-        LoadCollectionDyn(data_rows)
-    }
-
     // count
     #[must_use]
     pub const fn count(&self) -> u32 {
@@ -56,38 +42,14 @@ where
 
     // key
     #[must_use]
-    pub fn key(self) -> Option<SortKey> {
+    pub fn key(self) -> Option<EntityKey> {
         self.0.into_iter().next().map(|row| row.key)
     }
 
     // keys
     #[must_use]
-    pub fn keys(self) -> Vec<SortKey> {
+    pub fn keys(self) -> Vec<EntityKey> {
         self.0.into_iter().map(|row| row.key).collect()
-    }
-
-    // data_row
-    #[must_use]
-    pub fn data_row(self) -> Option<DataRow> {
-        self.as_dyn().data_row()
-    }
-
-    // data_rows
-    #[must_use]
-    pub fn data_rows(self) -> Vec<DataRow> {
-        self.as_dyn().data_rows()
-    }
-
-    // blob
-    #[must_use]
-    pub fn blob(self) -> Option<Vec<u8>> {
-        self.as_dyn().blob()
-    }
-
-    // blobs
-    #[must_use]
-    pub fn blobs(self) -> Vec<Vec<u8>> {
-        self.as_dyn().blobs()
     }
 
     // map
@@ -96,14 +58,14 @@ where
         LoadMap::from_pairs(
             self.0
                 .into_iter()
-                .map(|row| (row.key.into(), row.value.entity)),
+                .map(|row| (row.key.into(), row.entry.entity)),
         )
     }
 
     // entity
     #[must_use]
     pub fn entity(self) -> Option<E> {
-        self.0.into_iter().next().map(|row| row.value.entity)
+        self.0.into_iter().next().map(|row| row.entry.entity)
     }
 
     // try_entity
@@ -112,7 +74,7 @@ where
             .0
             .into_iter()
             .next()
-            .map(|row| row.value.entity)
+            .map(|row| row.entry.entity)
             .ok_or(ResponseError::EmptyCollection)
             .map_err(DataError::from)?;
 
@@ -122,12 +84,12 @@ where
     // entities
     #[must_use]
     pub fn entities(self) -> Vec<E> {
-        self.0.into_iter().map(|row| row.value.entity).collect()
+        self.0.into_iter().map(|row| row.entry.entity).collect()
     }
 
     // entities_iter
     pub fn entities_iter(self) -> impl Iterator<Item = E> {
-        self.0.into_iter().map(|row| row.value.entity)
+        self.0.into_iter().map(|row| row.entry.entity)
     }
 
     // entity_row
@@ -153,103 +115,34 @@ impl<E: EntityKind> IntoIterator for LoadCollection<E> {
 }
 
 ///
-/// LoadCollectionDyn
-///
-
-#[derive(CandidType, Debug, Deserialize, Serialize)]
-pub struct LoadCollectionDyn(pub Vec<DataRow>);
-
-impl LoadCollectionDyn {
-    // count
-    #[must_use]
-    pub const fn count(&self) -> u32 {
-        self.0.len() as u32
-    }
-
-    // key
-    #[must_use]
-    pub fn key(self) -> Option<SortKey> {
-        self.0.into_iter().next().map(|row| row.key)
-    }
-
-    // keys
-    #[must_use]
-    pub fn keys(self) -> Vec<SortKey> {
-        self.0.into_iter().map(|row| row.key).collect()
-    }
-
-    // data_row
-    #[must_use]
-    pub fn data_row(self) -> Option<DataRow> {
-        self.0.into_iter().next()
-    }
-
-    // try_data_row
-    pub fn try_data_row(self) -> Result<DataRow, Error> {
-        let res = self
-            .0
-            .into_iter()
-            .next()
-            .ok_or(ResponseError::EmptyCollection)
-            .map_err(DataError::from)?;
-
-        Ok(res)
-    }
-
-    // data_rows
-    #[must_use]
-    pub fn data_rows(self) -> Vec<DataRow> {
-        self.0
-    }
-
-    // blob
-    #[must_use]
-    pub fn blob(self) -> Option<Vec<u8>> {
-        self.0.into_iter().next().map(|row| row.value.bytes)
-    }
-
-    // blobs
-    #[must_use]
-    pub fn blobs(self) -> Vec<Vec<u8>> {
-        self.0.into_iter().map(|row| row.value.bytes).collect()
-    }
-}
-
-impl From<Vec<DataRow>> for LoadCollectionDyn {
-    fn from(rows: Vec<DataRow>) -> Self {
-        Self(rows)
-    }
-}
-
-///
 /// LoadMap
 /// a HashMap indexed by id to provide an indexed alternative
 /// to Vec<Row>
 ///
 
 #[derive(Debug, Deref)]
-pub struct LoadMap<T>(HashMap<Key, T>);
+pub struct LoadMap<T>(HashMap<EntityKey, T>);
 
 impl<T> LoadMap<T> {
     // from_pairs
     pub fn from_pairs<I>(pairs: I) -> Self
     where
-        I: IntoIterator<Item = (Key, T)>,
+        I: IntoIterator<Item = (EntityKey, T)>,
     {
-        let map: HashMap<Key, T> = pairs.into_iter().collect();
+        let map: HashMap<EntityKey, T> = pairs.into_iter().collect();
 
         Self(map)
     }
 
     // get
-    pub fn get<K: Borrow<Key>>(&self, k: K) -> Option<&T> {
+    pub fn get<K: Borrow<EntityKey>>(&self, k: K) -> Option<&T> {
         self.0.get(k.borrow())
     }
 
     // get_many
     pub fn get_many<K, I>(&self, keys: I) -> Vec<&T>
     where
-        K: Borrow<Key>,
+        K: Borrow<EntityKey>,
         I: IntoIterator<Item = K>,
     {
         keys.into_iter()

@@ -1,8 +1,10 @@
 use crate::{
     ThisError,
-    ops::traits::{
-        FieldOrderable, FieldQueryable, FieldSortKey, Inner, ValidateAuto, ValidateCustom,
-        Visitable,
+    ops::{
+        traits::{
+            FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable,
+        },
+        types::Value,
     },
     prelude::*,
 };
@@ -83,15 +85,15 @@ impl FieldOrderable for Principal {
     }
 }
 
-impl FieldQueryable for Principal {
-    fn to_query_value(&self) -> Option<String> {
+impl FieldSearch for Principal {
+    fn to_searchable_string(&self) -> Option<String> {
         Some(self.to_string())
     }
 }
 
-impl FieldSortKey for Principal {
-    fn to_sort_key_part(&self) -> Option<String> {
-        Some(self.to_string())
+impl FieldValue for Principal {
+    fn to_value(&self) -> Value {
+        Value::Text(self.to_string())
     }
 }
 

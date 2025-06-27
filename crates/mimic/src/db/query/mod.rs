@@ -1,10 +1,12 @@
 mod delete;
 mod load;
 mod save;
+mod types;
 
 pub use delete::*;
 pub use load::*;
 pub use save::*;
+pub use types::*;
 
 use thiserror::Error as ThisError;
 
@@ -22,12 +24,6 @@ pub enum QueryError {
 #[must_use]
 pub fn load() -> LoadQueryBuilder {
     LoadQueryBuilder::new()
-}
-
-// load_dyn
-#[must_use]
-pub fn load_dyn() -> LoadQueryDynBuilder {
-    LoadQueryDynBuilder::new()
 }
 
 // delete

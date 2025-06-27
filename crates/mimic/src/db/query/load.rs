@@ -1,13 +1,21 @@
 #![allow(clippy::type_complexity)]
 use crate::{
-    db::{
-        query::LoadFormat,
-        types::{Selector, SortDirection, Where},
-    },
-    types::Key,
+    db::query::{EntityKey, Selector, SortDirection, Where},
+    ops::types::Value,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
+
+///
+/// LoadFormat
+///
+
+#[derive(CandidType, Clone, Copy, Debug, Default, Deserialize, Serialize)]
+pub enum LoadFormat {
+    #[default]
+    Keys,
+    Count,
+}
 
 ///
 /// LoadQueryBuilder
@@ -42,7 +50,7 @@ impl LoadQueryBuilder {
     }
 
     // one
-    pub fn one<K: Into<Key>>(self, key: K) -> LoadQuery {
+    pub fn one<K: Into<EntityKey>>(self, key: K) -> LoadQuery {
         let selector = Selector::One(key.into());
 
         LoadQuery::new(selector)
@@ -52,7 +60,7 @@ impl LoadQueryBuilder {
     #[must_use]
     pub fn many<K>(self, keys: &[K]) -> LoadQuery
     where
-        K: Clone + Into<Key>,
+        K: Clone + Into<EntityKey>,
     {
         let keys = keys.iter().cloned().map(Into::into).collect();
         let selector = Selector::Many(keys);
@@ -61,14 +69,14 @@ impl LoadQueryBuilder {
     }
 
     // range
-    pub fn range<K: Into<Key>>(self, start: K, end: K) -> LoadQuery {
+    pub fn range<K: Into<EntityKey>>(self, start: K, end: K) -> LoadQuery {
         let selector = Selector::Range(start.into(), end.into());
 
         LoadQuery::new(selector)
     }
 
     // prefix
-    pub fn prefix<K: Into<Key>>(self, prefix: K) -> LoadQuery {
+    pub fn prefix<K: Into<EntityKey>>(self, prefix: K) -> LoadQuery {
         let selector = Selector::Prefix(prefix.into());
 
         LoadQuery::new(selector)
@@ -113,10 +121,10 @@ impl LoadQuery {
     pub fn where_<K, V, I>(mut self, matches: I) -> Self
     where
         K: Into<String>,
-        V: Into<String>,
+        V: Into<Value>,
         I: IntoIterator<Item = (K, V)>,
     {
-        let new_matches: Vec<(String, String)> = matches
+        let new_matches: Vec<(String, Value)> = matches
             .into_iter()
             .map(|(k, v)| (k.into(), v.into()))
             .collect();
@@ -137,7 +145,7 @@ impl LoadQuery {
 
     // where_field
     #[must_use]
-    pub fn where_field<K: Into<String>, V: Into<String>>(self, field: K, value: V) -> Self {
+    pub fn where_field<K: Into<String>, V: Into<Value>>(self, field: K, value: V) -> Self {
         self.where_(vec![(field.into(), value.into())])
     }
 

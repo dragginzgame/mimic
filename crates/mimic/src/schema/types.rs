@@ -64,21 +64,23 @@ pub enum ConstantType {
 impl ConstantType {
     #[must_use]
     pub fn as_type(&self) -> TokenStream {
+        use ConstantType::*;
+
         match self {
-            Self::Bool => quote!(bool),
-            Self::Float32 => quote!(f32),
-            Self::Float64 => quote!(f64),
-            Self::Int8 => quote!(i8),
-            Self::Int16 => quote!(i16),
-            Self::Int32 => quote!(i32),
-            Self::Int64 => quote!(i64),
-            Self::Int128 => quote!(i128),
-            Self::Nat8 => quote!(u8),
-            Self::Nat16 => quote!(u16),
-            Self::Nat32 => quote!(u32),
-            Self::Nat64 => quote!(u64),
-            Self::Nat128 => quote!(u128),
-            Self::Str => quote!(&str),
+            Bool => quote!(bool),
+            Float32 => quote!(f32),
+            Float64 => quote!(f64),
+            Int8 => quote!(i8),
+            Int16 => quote!(i16),
+            Int32 => quote!(i32),
+            Int64 => quote!(i64),
+            Int128 => quote!(i128),
+            Nat8 => quote!(u8),
+            Nat16 => quote!(u16),
+            Nat32 => quote!(u32),
+            Nat64 => quote!(u64),
+            Nat128 => quote!(u128),
+            Str => quote!(&str),
         }
     }
 }
@@ -151,72 +153,77 @@ impl PrimitiveType {
     // no floats, this is the check for all the arithmetic traits
     #[must_use]
     pub const fn is_numeric(&self) -> bool {
+        use PrimitiveType::*;
+
         matches!(
             self,
-            Self::Int
-                | Self::Int8
-                | Self::Int16
-                | Self::Int32
-                | Self::Int64
-                | Self::Int128
-                | Self::Nat
-                | Self::Nat8
-                | Self::Nat16
-                | Self::Nat32
-                | Self::Nat64
-                | Self::Nat128
-                | Self::Float32
-                | Self::Float64
-                | Self::Decimal
+            Int | Int8
+                | Int16
+                | Int32
+                | Int64
+                | Int128
+                | Nat
+                | Nat8
+                | Nat16
+                | Nat32
+                | Nat64
+                | Nat128
+                | Float32
+                | Float64
+                | Decimal
         )
     }
 
     #[must_use]
     pub fn as_type(&self) -> TokenStream {
+        use PrimitiveType::*;
+
         match self {
-            Self::Account => quote!(::mimic::types::Account),
-            Self::Bool => quote!(::mimic::types::Bool),
-            Self::Blob => quote!(::mimic::types::Blob),
-            Self::Decimal => quote!(::mimic::types::Decimal),
-            Self::Float32 => quote!(::mimic::types::Float32),
-            Self::Float64 => quote!(::mimic::types::Float64),
-            Self::Int => quote!(::mimic::types::Int),
-            Self::Int8 => quote!(::mimic::types::Int8),
-            Self::Int16 => quote!(::mimic::types::Int16),
-            Self::Int32 => quote!(::mimic::types::Int32),
-            Self::Int64 => quote!(::mimic::types::Int64),
-            Self::Int128 => quote!(::mimic::types::Int128),
-            Self::Key => quote!(::mimic::types::Key),
-            Self::KeySet => quote!(::mimic::types::KeySet),
-            Self::Principal => quote!(::mimic::types::Principal),
-            Self::Nat => quote!(::mimic::types::Nat),
-            Self::Nat8 => quote!(::mimic::types::Nat8),
-            Self::Nat16 => quote!(::mimic::types::Nat16),
-            Self::Nat32 => quote!(::mimic::types::Nat32),
-            Self::Nat64 => quote!(::mimic::types::Nat64),
-            Self::Nat128 => quote!(::mimic::types::Nat128),
-            Self::Subaccount => quote!(::mimic::types::Subaccount),
-            Self::Text => quote!(::mimic::types::Text),
-            Self::Unit => quote!(::mimic::types::Unit),
-            Self::Ulid => quote!(::mimic::types::Ulid),
+            Account => quote!(::mimic::types::Account),
+            Bool => quote!(::mimic::types::Bool),
+            Blob => quote!(::mimic::types::Blob),
+            Decimal => quote!(::mimic::types::Decimal),
+            Float32 => quote!(::mimic::types::Float32),
+            Float64 => quote!(::mimic::types::Float64),
+            Int => quote!(::mimic::types::Int),
+            Int8 => quote!(::mimic::types::Int8),
+            Int16 => quote!(::mimic::types::Int16),
+            Int32 => quote!(::mimic::types::Int32),
+            Int64 => quote!(::mimic::types::Int64),
+            Int128 => quote!(::mimic::types::Int128),
+            Key => quote!(::mimic::types::Key),
+            KeySet => quote!(::mimic::types::KeySet),
+            Principal => quote!(::mimic::types::Principal),
+            Nat => quote!(::mimic::types::Nat),
+            Nat8 => quote!(::mimic::types::Nat8),
+            Nat16 => quote!(::mimic::types::Nat16),
+            Nat32 => quote!(::mimic::types::Nat32),
+            Nat64 => quote!(::mimic::types::Nat64),
+            Nat128 => quote!(::mimic::types::Nat128),
+            Subaccount => quote!(::mimic::types::Subaccount),
+            Text => quote!(::mimic::types::Text),
+            Unit => quote!(::mimic::types::Unit),
+            Ulid => quote!(::mimic::types::Ulid),
         }
     }
 
     #[must_use]
     pub fn num_cast_fn(self) -> String {
+        use PrimitiveType::*;
+
         match self {
-            Self::Float32 => "f32",
-            Self::Decimal | Self::Float64 => "f64",
-            Self::Int8 => "i8",
-            Self::Int16 => "i16",
-            Self::Int32 => "i32",
-            Self::Int64 => "i64",
-            Self::Int128 => "i128",
-            Self::Nat8 => "u8",
-            Self::Nat16 => "u16",
-            Self::Nat32 => "u32",
-            Self::Nat64 => "u64",
-            Self::Nat128 => "u128",
+            Float32 => "f32",
+            Decimal | Float64 => "f64",
+            Int8 => "i8",
+            Int16 => "i16",
+            Int32 => "i32",
+            Int64 => "i64",
+            Int128 => "i128",
+            Nat8 => "u8",
+            Nat16 => "u16",
+            Nat32 => "u32",
+            Nat64 => "u64",
+            Nat128 => "u128",
             _ => panic!("unexpected primitive type"),
         }
         .into()

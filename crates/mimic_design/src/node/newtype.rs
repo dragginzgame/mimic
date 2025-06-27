@@ -1,11 +1,11 @@
 use crate::{
     helper::quote_option,
     imp::{self, Imp},
-    node::{Arg, Def, Item, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits, Type},
-    traits::Schemable,
+    node::{Arg, Def, Item, MacroNode, Node, Trait, TraitNode, TraitTokens, Type},
+    traits::Traits,
 };
 use darling::FromMeta;
-use mimic::schema::types::PrimitiveType;
+use mimic::schema::{traits::Schemable, types::PrimitiveType};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
@@ -100,7 +100,7 @@ impl TraitNode for Newtype {
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::Default if self.default.is_some() => imp::DefaultTrait::tokens(self, t),
-            Trait::FieldSortKey => imp::FieldSortKeyTrait::tokens(self, t),
+            Trait::FieldValue => imp::FieldValueTrait::tokens(self, t),
             Trait::From => imp::FromTrait::tokens(self, t),
             Trait::Inner => imp::InnerTrait::tokens(self, t),
             Trait::NumCast => imp::NumCastTrait::tokens(self, t),

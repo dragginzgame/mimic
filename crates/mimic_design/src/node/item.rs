@@ -1,10 +1,9 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_path},
     node::TypeValidator,
-    traits::Schemable,
 };
 use darling::FromMeta;
-use mimic::schema::types::PrimitiveType;
+use mimic::schema::{traits::Schemable, types::PrimitiveType};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use syn::Path;

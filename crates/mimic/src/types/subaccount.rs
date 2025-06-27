@@ -1,7 +1,7 @@
 use crate::{
-    ops::traits::{
-        FieldOrderable, FieldQueryable, FieldSortKey, Inner, ValidateAuto, ValidateCustom,
-        Visitable,
+    ops::{
+        traits::{FieldOrderable, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable},
+        types::Value,
     },
     types::Principal,
 };
@@ -78,15 +78,9 @@ impl FieldOrderable for Subaccount {
     }
 }
 
-impl FieldSortKey for Subaccount {
-    fn to_sort_key_part(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
-
-impl FieldQueryable for Subaccount {
-    fn to_query_value(&self) -> Option<String> {
-        Some(self.to_string())
+impl FieldValue for Subaccount {
+    fn to_value(&self) -> Value {
+        Value::Text(self.to_string())
     }
 }
 

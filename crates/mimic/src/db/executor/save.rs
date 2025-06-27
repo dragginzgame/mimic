@@ -2,11 +2,10 @@ use crate::{
     Error,
     db::{
         DataError,
-        executor::{ExecutorError, resolve_index_key},
+        executor::ExecutorError,
         query::{SaveMode, SaveQueryTyped},
-        response::{SaveCollection, SaveResponse, SaveRow},
-        store::{DataStoreRegistry, IndexStoreRegistry},
-        types::{DataValue, EntityValue, Metadata},
+        response::{EntityEntry, SaveCollection, SaveResponse, SaveRow},
+        store::{DataEntry, DataStoreRegistry, IndexKey, IndexStoreRegistry, Metadata},
     },
     debug,
     ops::{serialize::serialize, traits::EntityKind, validate::validate},
@@ -74,11 +73,11 @@ impl SaveExecutor {
         validate(&entity)?;
 
         // resolve - get schema data
-        let sk = entity.sort_key();
+        let dk = entity.data_key();
         let store = self.data.with(|data| data.try_get_store(E::STORE))?;
 
         // debug
-        debug!(self.debug, "query.{mode}: {} ({sk}) ", E::PATH);
+        debug!(self.debug, "query.{mode}: {} ({dk}) ", E::PATH);
 
         //
         // match save mode
@@ -86,27 +85,27 @@ impl SaveExecutor {
         //
 
         let now = time::now_secs();
-        let old_result = store.with_borrow(|store| store.get(&sk));
+        let old_result = store.with_borrow(|store| store.get(&dk));
 
         // did anything change?
 
         let (created, modified, old) = match (mode, old_result) {
-            (SaveMode::Create, Some(_)) => return Err(ExecutorError::KeyExists(sk))?,
+            (SaveMode::Create, Some(_)) => return Err(ExecutorError::KeyExists(dk))?,
             (SaveMode::Create | SaveMode::Replace, None) => (now, now, None),
-            (SaveMode::Update, None) => return Err(ExecutorError::KeyNotFound(sk))?,
+            (SaveMode::Update, None) => return Err(ExecutorError::KeyNotFound(dk))?,
 
             (SaveMode::Update | SaveMode::Replace, Some(old_dv)) => {
-                let old_ev: EntityValue<E> = old_dv.try_into()?;
+                let old_ev: EntityEntry<E> = old_dv.try_into()?;
 
                 // no changes
                 if entity == old_ev.entity {
                     debug!(
                         self.debug,
-                        "query.{mode}: no changes for {sk}, skipping save"
+                        "query.{mode}: no changes for {dk}, skipping save"
                     );
 
                     return Ok(SaveCollection(vec![SaveRow {
-                        key: sk,
+                        key: dk.into(),
                         created: old_ev.metadata.created,
                         modified: old_ev.metadata.modified,
                     }]));
@@ -119,8 +118,8 @@ impl SaveExecutor {
         // update indexes, fail if there are any unique violations
         self.update_indexes(old.as_ref(), &entity)?;
 
-        // prepare data value
-        let value = DataValue {
+        // prepare data
+        let entry = DataEntry {
             bytes,
             path: E::path(),
             metadata: Metadata { created, modified },
@@ -128,12 +127,12 @@ impl SaveExecutor {
 
         // insert data row
         store.with_borrow_mut(|store| {
-            store.insert(sk.clone(), value);
+            store.insert(dk.clone(), entry);
         });
 
         // return a collection
         Ok(SaveCollection(vec![SaveRow {
-            key: sk,
+            key: dk.into(),
             created,
             modified,
         }]))
@@ -145,8 +144,10 @@ impl SaveExecutor {
             let index_store = self.indexes.with(|map| map.try_get_store(index.store))?;
 
             // ✅ Insert new index entry first - fail early if conflict
-            if let Some(new_index_key) = resolve_index_key::<E>(index.fields, &new.values()) {
-                let new_key = new.key();
+            if let Some(old) = old {
+                let old_index_key = IndexKey::new(E::PATH, index.fields, old.index_values());
+                let new_index_key = new.index_key();
+
                 index_store.with_borrow_mut(|store| {
                     store.insert_index_value(index, new_index_key.clone(), new_key.clone())?;
 
@@ -156,11 +157,11 @@ impl SaveExecutor {
 
             // 🔁 Remove old index value (if present and resolvable)
             if let Some(old) = old {
-                if let Some(old_index_key) = resolve_index_key::<E>(index.fields, &old.values()) {
-                    index_store.with_borrow_mut(|store| {
-                        store.remove_index_value(&old_index_key, &old.key());
-                    });
-                }
+                let old_index_key = IndexKey::new(E::PATH, index.fields, old.index_values());
+
+                index_store.with_borrow_mut(|store| {
+                    store.remove_index_value(&old_index_key, &old.entity_key());
+                });
             }
         }
 

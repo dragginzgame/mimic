@@ -1,6 +1,6 @@
-use crate::{node::Item, traits::Schemable};
+use crate::node::Item;
 use darling::FromMeta;
-use mimic::schema::types::Cardinality;
+use mimic::schema::{traits::Schemable, types::Cardinality};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 

@@ -128,7 +128,7 @@ impl DbTester {
             .save()
             .debug()
             .execute(query::create().entity(e3.clone()));
-        assert!(result.is_err(), "Expected unique index violation on y=10");
+        assert!(result.is_err(), "expected unique index violation on y=10");
 
         // Step 4: Delete e1 (y=10)
         db!()
@@ -141,7 +141,7 @@ impl DbTester {
         let result = db!().save().debug().execute(query::create().entity(e3));
         assert!(
             result.is_ok(),
-            "Expected insert to succeed after y=10 was freed by delete"
+            "expected insert to succeed after y=10 was freed by delete"
         );
 
         // Step 6: Confirm only 2 entities remain

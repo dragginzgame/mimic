@@ -35,10 +35,8 @@ pub mod prelude {
     pub use crate::{
         db,
         db::{
-            executor::SaveExecutor,
-            response::{LoadCollection, LoadCollectionDyn},
+            executor::SaveExecutor, query::SortDirection, response::LoadCollection,
             service::EntityService,
-            types::SortDirection,
         },
         error::ErrorTree,
         mimic_start,
@@ -47,7 +45,7 @@ pub mod prelude {
             Serialize as _, Validate as _, ValidateCustom, ValidatorBytes as _,
             ValidatorNumber as _, ValidatorString as _, Visitable as _,
         },
-        types::{Key, KeySet, Ulid},
+        types::{Relation, RelationMany, Ulid},
     };
     pub use ::candid::CandidType;
 }

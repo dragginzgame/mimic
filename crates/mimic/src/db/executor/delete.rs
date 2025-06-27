@@ -2,11 +2,10 @@ use crate::{
     Error,
     db::{
         DataError,
-        executor::resolve_index_key,
+        executor::ResolvedSelector,
         query::{DeleteQuery, QueryError},
         response::{DeleteCollection, DeleteResponse, DeleteRow},
-        store::{DataStoreRegistry, IndexStoreRegistry},
-        types::{ResolvedSelector, SortKey},
+        store::{DataKey, DataStoreRegistry, IndexKey, IndexStoreRegistry},
     },
     debug,
     ops::{serialize::deserialize, traits::EntityKind},
@@ -67,7 +66,7 @@ impl DeleteExecutor {
 
         // resolver
         let resolved_selector = query.selector.resolve::<E>();
-        let sort_keys: Vec<SortKey> = match resolved_selector {
+        let data_keys: Vec<DataKey> = match resolved_selector {
             ResolvedSelector::One(key) => vec![key],
             ResolvedSelector::Many(keys) => keys,
             ResolvedSelector::Range(..) => {
@@ -84,8 +83,8 @@ impl DeleteExecutor {
 
         let mut deleted_rows = Vec::new();
 
-        for sk in sort_keys {
-            let Some(data_value) = store.with_borrow(|s| s.get(&sk)) else {
+        for dk in data_keys {
+            let Some(data_value) = store.with_borrow(|s| s.get(&dk)) else {
                 continue;
             };
 
@@ -97,10 +96,10 @@ impl DeleteExecutor {
 
             // Step 3: Delete the data row itself
             store.with_borrow_mut(|store| {
-                store.remove(&sk);
+                store.remove(&dk);
             });
 
-            deleted_rows.push(DeleteRow::new(sk));
+            deleted_rows.push(DeleteRow::new(dk.into()));
         }
 
         // debug
@@ -111,14 +110,12 @@ impl DeleteExecutor {
 
     // remove_indexes
     fn remove_indexes<E: EntityKind>(&self, entity: E) -> Result<(), DataError> {
-        let values = entity.values();
-        let entity_key = entity.key();
+        let values = entity.index_values();
+        let entity_key = entity.entity_key();
 
         for index in E::INDEXES {
             // resolve index key
-            let Some(index_key) = resolve_index_key::<E>(index.fields, &values) else {
-                continue;
-            };
+            let index_key = IndexKey::new(E::PATH, index.fields, &values);
 
             // remove if found
             let index_store = self

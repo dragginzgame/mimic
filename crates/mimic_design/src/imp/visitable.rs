@@ -1,8 +1,7 @@
 use crate::{
     imp::{Imp, Implementor},
-    node::{
-        Entity, Enum, EnumVariant, Field, List, Map, Newtype, Record, Set, Trait, Tuple, Value,
-    },
+    node::{Entity, Enum, EnumVariant, Field, List, Map, Newtype, Record, Set, Tuple, Value},
+    traits::Trait,
 };
 use mimic::schema::types::Cardinality;
 use proc_macro2::TokenStream;

@@ -1,5 +1,5 @@
 use crate::{
-    ops::traits::{FieldOrderable, FieldQueryable, Inner, ValidateAuto, ValidateCustom, Visitable},
+    ops::traits::{FieldOrderable, Inner, ValidateAuto, ValidateCustom, Visitable},
     prelude::*,
 };
 use serde::{Deserialize, Serialize};
@@ -14,8 +14,6 @@ use serde::{Deserialize, Serialize};
 pub struct Unit();
 
 impl FieldOrderable for Unit {}
-
-impl FieldQueryable for Unit {}
 
 impl Inner for Unit {
     type Primitive = Self;

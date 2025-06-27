@@ -1,9 +1,6 @@
-use crate::{
-    node::{Arg, Def, MacroNode, Node},
-    traits::Schemable,
-};
+use crate::node::{Arg, Def, MacroNode, Node};
 use darling::FromMeta;
-use mimic::schema::types::ConstantType;
+use mimic::schema::{traits::Schemable, types::ConstantType};
 use proc_macro2::TokenStream;
 use quote::quote;
 

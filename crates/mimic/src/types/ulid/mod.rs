@@ -4,9 +4,12 @@ pub mod generator;
 use crate::{
     ThisError,
     error::ErrorTree,
-    ops::traits::{
-        FieldOrderable, FieldQueryable, FieldSortKey, Inner, ValidateAuto, ValidateCustom,
-        Visitable,
+    ops::{
+        traits::{
+            FieldIndexValue, FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto,
+            ValidateCustom, Visitable,
+        },
+        types::{IndexValue, Value},
     },
     prelude::*,
 };
@@ -117,15 +120,21 @@ impl FieldOrderable for Ulid {
     }
 }
 
-impl FieldQueryable for Ulid {
-    fn to_query_value(&self) -> Option<String> {
+impl FieldSearch for Ulid {
+    fn to_searchable_string(&self) -> Option<String> {
         Some(self.to_string())
     }
 }
 
-impl FieldSortKey for Ulid {
-    fn to_sort_key_part(&self) -> Option<String> {
-        Some(self.to_string())
+impl FieldIndexValue for Ulid {
+    fn to_index_value(&self) -> IndexValue {
+        IndexValue::Ulid(*self)
+    }
+}
+
+impl FieldValue for Ulid {
+    fn to_value(&self) -> Value {
+        Value::Text(self.to_string())
     }
 }
 

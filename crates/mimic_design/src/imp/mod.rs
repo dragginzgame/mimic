@@ -22,7 +22,7 @@ pub use num::*;
 pub use validate::*;
 pub use visitable::*;
 
-use crate::node::{MacroNode, Trait};
+use crate::{node::MacroNode, traits::Trait};
 use implementor::Implementor;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -68,7 +68,8 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
         Trait::EntityFixture
         | Trait::EntityIdKind
         | Trait::FieldOrderable
-        | Trait::FieldQueryable
+        | Trait::FieldSearch
+        | Trait::FieldValue
         | Trait::ValidateAuto
         | Trait::ValidateCustom
         | Trait::Visitable => Some(Implementor::new(def, t).to_token_stream()),

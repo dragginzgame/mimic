@@ -1,6 +1,7 @@
 use crate::{
     imp::{self, Imp},
-    node::{Def, MacroNode, Node, Trait, TraitNode, TraitTokens, Traits},
+    node::{Def, MacroNode, Node, TraitNode, TraitTokens},
+    traits::{Trait, Traits},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;

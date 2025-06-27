@@ -10,7 +10,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-rust-version = "1.87.0"
+rust-version = "1.88.0"
 edition = "2024"
 version = "0.5.1"
 authors = ["borovan <84897664+borovan@users.noreply.github.com>"]
@@ -25,7 +25,7 @@ ctor = "0.4"
 darling = "0.20"
 derive_more = { version = "2.0", default-features = false, features = ["full"] }
 hex = "0.4"
-ic-cdk = "0.18.4"
+ic-cdk = "0.18.5"
 icu = { git = "https://github.com/dragginzgame/icu" }
 mimic = { path = "crates/mimic" }
 mimic_base = { path = "crates/mimic_base" }

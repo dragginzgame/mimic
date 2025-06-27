@@ -1,5 +1,8 @@
 use crate::{
-    ops::traits::{FieldOrderable, FieldQueryable, Inner, ValidateAuto, Visitable},
+    ops::{
+        traits::{FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto, Visitable},
+        types::Value,
+    },
     prelude::*,
 };
 use candid::CandidType;
@@ -87,9 +90,15 @@ impl FieldOrderable for Decimal {
     }
 }
 
-impl FieldQueryable for Decimal {
-    fn to_query_value(&self) -> Option<String> {
+impl FieldSearch for Decimal {
+    fn to_searchable_string(&self) -> Option<String> {
         Some(self.to_string())
+    }
+}
+
+impl FieldValue for Decimal {
+    fn to_value(&self) -> Value {
+        Value::Decimal(*self)
     }
 }
 

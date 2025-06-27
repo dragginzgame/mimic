@@ -1,25 +1,26 @@
 use crate::{
     imp::{Imp, Implementor},
-    node::{Newtype, Trait},
+    node::Newtype,
+    traits::Trait,
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 ///
-/// FieldSortKeyTrait
+/// FieldValueTrait
 ///
 
-pub struct FieldSortKeyTrait {}
+pub struct FieldValueTrait {}
 
 ///
 /// Newtype
 ///
 
-impl Imp<Newtype> for FieldSortKeyTrait {
+impl Imp<Newtype> for FieldValueTrait {
     fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
         let q = quote! {
-            fn to_sort_key_part(&self) -> Option<String> {
-                self.0.to_sort_key_part()
+            fn to_value(&self) -> ::mimic::ops::types::Value {
+                self.0.to_value()
             }
         };
 

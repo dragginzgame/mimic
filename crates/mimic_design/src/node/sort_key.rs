@@ -1,8 +1,6 @@
-use crate::{
-    helper::{quote_one, quote_option, to_path, to_str_lit},
-    traits::Schemable,
-};
+use crate::helper::{quote_one, quote_option, to_path, to_str_lit};
 use darling::FromMeta;
+use mimic::schema::traits::Schemable;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Ident, Path};

@@ -1,14 +1,14 @@
 mod delete;
-mod helper;
 mod load;
 mod save;
+mod types;
 
 pub use delete::*;
-pub use helper::*;
 pub use load::*;
 pub use save::*;
+pub use types::*;
 
-use crate::db::types::{IndexKey, SortKey};
+use crate::db::store::{DataKey, IndexKey};
 use thiserror::Error as ThisError;
 
 ///
@@ -17,11 +17,11 @@ use thiserror::Error as ThisError;
 
 #[derive(Debug, ThisError)]
 pub enum ExecutorError {
-    #[error("key exists: {0}")]
-    KeyExists(SortKey),
+    #[error("data key exists: {0}")]
+    KeyExists(DataKey),
 
-    #[error("key not found: {0}")]
-    KeyNotFound(SortKey),
+    #[error("data key not found: {0}")]
+    KeyNotFound(DataKey),
 
     #[error("index constraint violation for index: {0:?}")]
     IndexViolation(IndexKey),

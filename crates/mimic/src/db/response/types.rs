@@ -1,5 +1,8 @@
 use crate::{
-    db::types::{DataRow, DataValue, Metadata, SortKey},
+    db::{
+        query::EntityKey,
+        store::{DataEntry, DataRow, Metadata},
+    },
     ops::{
         serialize::{SerializeError, deserialize, serialize},
         traits::Path,
@@ -18,16 +21,16 @@ pub struct EntityRow<E>
 where
     E: DeserializeOwned,
 {
-    pub key: SortKey,
-    pub value: EntityValue<E>,
+    pub key: EntityKey,
+    pub entry: EntityEntry<E>,
 }
 
 impl<E> EntityRow<E>
 where
     E: DeserializeOwned,
 {
-    pub const fn new(key: SortKey, value: EntityValue<E>) -> Self {
-        Self { key, value }
+    pub const fn new(key: EntityKey, entry: EntityEntry<E>) -> Self {
+        Self { key, entry }
     }
 }
 
@@ -39,32 +42,18 @@ where
 
     fn try_from(row: DataRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            key: row.key,
-            value: row.value.try_into()?,
-        })
-    }
-}
-
-impl<E> TryFrom<EntityRow<E>> for DataRow
-where
-    E: Path + Serialize + DeserializeOwned,
-{
-    type Error = SerializeError;
-
-    fn try_from(row: EntityRow<E>) -> Result<Self, Self::Error> {
-        Ok(Self {
-            key: row.key,
-            value: row.value.try_into()?,
+            key: row.key.into(),
+            entry: row.entry.try_into()?,
         })
     }
 }
 
 ///
-/// EntityValue
+/// EntityEntry
 ///
 
 #[derive(CandidType, Clone, Debug, Serialize)]
-pub struct EntityValue<E>
+pub struct EntityEntry<E>
 where
     E: DeserializeOwned,
 {
@@ -72,13 +61,13 @@ where
     pub metadata: Metadata,
 }
 
-impl<E> TryFrom<DataValue> for EntityValue<E>
+impl<E> TryFrom<DataEntry> for EntityEntry<E>
 where
     E: DeserializeOwned,
 {
     type Error = SerializeError;
 
-    fn try_from(value: DataValue) -> Result<Self, Self::Error> {
+    fn try_from(value: DataEntry) -> Result<Self, Self::Error> {
         let entity = deserialize::<E>(&value.bytes)?;
 
         Ok(Self {
@@ -88,13 +77,13 @@ where
     }
 }
 
-impl<E> TryFrom<EntityValue<E>> for DataValue
+impl<E> TryFrom<EntityEntry<E>> for DataEntry
 where
     E: Path + Serialize + DeserializeOwned,
 {
     type Error = SerializeError;
 
-    fn try_from(value: EntityValue<E>) -> Result<Self, Self::Error> {
+    fn try_from(value: EntityEntry<E>) -> Result<Self, Self::Error> {
         let bytes = serialize::<E>(&value.entity)?;
 
         Ok(Self {
