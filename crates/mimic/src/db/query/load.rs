@@ -1,6 +1,6 @@
 #![allow(clippy::type_complexity)]
 use crate::{
-    db::query::{Selector, SortDirection, Where},
+    db::query::{Comparator, Selector, SortDirection, WhereClause, WhereExpr},
     ops::types::Value,
     types::EntityKey,
 };
@@ -93,7 +93,7 @@ impl LoadQueryBuilder {
 pub struct LoadQuery {
     pub selector: Selector,
     pub format: LoadFormat,
-    pub r#where: Option<Where>,
+    pub r#where: Option<WhereExpr>,
     pub limit: Option<u32>,
     pub offset: u32,
     pub search: Vec<(String, String)>,
@@ -118,36 +118,27 @@ impl LoadQuery {
 
     // where_
     // creates a new where clause, or optionally appends additional where clauses
+    // defaults to AND currently
     #[must_use]
-    pub fn where_<K, V, I>(mut self, matches: I) -> Self
+    pub fn where_<F, V>(mut self, field: F, comparator: Comparator, value: V) -> Self
     where
-        K: Into<String>,
+        F: Into<String>,
         V: Into<Value>,
-        I: IntoIterator<Item = (K, V)>,
     {
-        let new_matches: Vec<(String, Value)> = matches
-            .into_iter()
-            .map(|(k, v)| (k.into(), v.into()))
-            .collect();
+        let clause = WhereExpr::Clause(WhereClause::new(field, comparator, value));
 
-        match &mut self.r#where {
-            Some(w) => {
-                w.matches.extend(new_matches);
-            }
-            None => {
-                self.r#where = Some(Where {
-                    matches: new_matches,
-                });
-            }
-        }
+        self.r#where = Some(match self.r#where {
+            Some(existing) => existing.and(clause),
+            None => clause,
+        });
 
         self
     }
 
-    // where_field
+    // where_eq
     #[must_use]
-    pub fn where_field<K: Into<String>, V: Into<Value>>(self, field: K, value: V) -> Self {
-        self.where_(vec![(field.into(), value.into())])
+    pub fn where_eq<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
+        self.where_(field, Comparator::Eq, value)
     }
 
     // offset

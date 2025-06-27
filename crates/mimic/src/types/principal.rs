@@ -2,10 +2,9 @@ use crate::{
     ThisError,
     ops::{
         traits::{
-            FieldIndexValue, FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto,
-            ValidateCustom, Visitable,
+            FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable,
         },
-        types::{IndexValue, Value},
+        types::Value,
     },
     prelude::*,
 };
@@ -80,12 +79,6 @@ impl Display for Principal {
     }
 }
 
-impl FieldIndexValue for Principal {
-    fn to_index_value(&self) -> Option<IndexValue> {
-        Some(IndexValue::Principal(*self))
-    }
-}
-
 impl FieldOrderable for Principal {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
@@ -99,8 +92,8 @@ impl FieldSearch for Principal {
 }
 
 impl FieldValue for Principal {
-    fn to_value(&self) -> Option<Value> {
-        Some(Value::Text(self.to_string()))
+    fn to_value(&self) -> Value {
+        Value::Principal(*self)
     }
 }
 

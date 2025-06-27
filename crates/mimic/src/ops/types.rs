@@ -1,8 +1,47 @@
-use crate::types::{Decimal, EntityKey, Principal, Ulid};
-use candid::CandidType;
-use derive_more::Display;
+use crate::types::{Blob, Decimal, EntityKey, Principal, Ulid, Unit};
+use candid::{CandidType, Principal as WrappedPrincipal};
+use derive_more::{Deref, DerefMut, Display};
 use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
+use std::{cmp::Ordering, collections::HashMap};
+
+///
+/// Handy Macro
+///
+
+macro_rules! impl_from_for {
+    ( $struct:ty, $( $type:ty => $variant:ident ),* $(,)? ) => {
+        $(
+            impl From<$type> for $struct {
+                fn from(v: $type) -> Self {
+                    Self::$variant(v.into())
+                }
+            }
+        )*
+    };
+}
+
+///
+/// Values
+/// a HashMap of Values returned from the Entity
+///
+
+#[derive(Debug, Deref, DerefMut)]
+pub struct Values(pub HashMap<&'static str, Value>);
+
+impl Values {
+    #[must_use]
+    pub fn collect_all(&self, fields: &[&str]) -> Vec<Value> {
+        let mut values = Vec::with_capacity(fields.len());
+
+        for field in fields {
+            if let Some(v) = self.0.get(field) {
+                values.push(v.clone())
+            }
+        }
+
+        values
+    }
+}
 
 ///
 /// Value
@@ -12,6 +51,7 @@ use std::cmp::Ordering;
 #[derive(CandidType, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Value {
     Bool(bool),
+    Blob, // don't want the data right now
     Decimal(Decimal),
     EntityKey(EntityKey),
     Float(f64),
@@ -20,21 +60,28 @@ pub enum Value {
     Principal(Principal),
     Text(String),
     Ulid(Ulid),
+    Unit,
+    Unsupported,
 }
 
-macro_rules! impl_from_for_value {
-    ( $( $type:ty => $variant:ident ),* $(,)? ) => {
-        $(
-            impl From<$type> for Value {
-                fn from(v: $type) -> Self {
-                    Self::$variant(v.into())
-                }
-            }
-        )*
-    };
+impl Value {
+    #[must_use]
+    pub fn into_index_value(self) -> Option<IndexValue> {
+        match self {
+            Value::Decimal(d) => Some(IndexValue::Decimal(d)),
+            Value::EntityKey(k) => Some(IndexValue::EntityKey(k)),
+            Value::Int(i) => Some(IndexValue::Int(i)),
+            Value::Nat(n) => Some(IndexValue::Nat(n)),
+            Value::Principal(p) => Some(IndexValue::Principal(p)),
+            Value::Text(s) => Some(IndexValue::Text(s)),
+            Value::Ulid(u) => Some(IndexValue::Ulid(u)),
+            _ => None,
+        }
+    }
 }
 
-impl_from_for_value! {
+impl_from_for! {
+    Value,
     bool => Bool,
     Decimal => Decimal,
     EntityKey => EntityKey,
@@ -45,6 +92,7 @@ impl_from_for_value! {
     i32 => Int,
     i64 => Int,
     Principal => Principal,
+    &str => Text,
     String => Text,
     Ulid => Ulid,
     u8 => Nat,
@@ -53,14 +101,46 @@ impl_from_for_value! {
     u64 => Nat,
 }
 
-impl From<candid::Principal> for Value {
-    fn from(p: candid::Principal) -> Self {
-        Self::Principal(p.into())
+impl From<Blob> for Value {
+    fn from(_: Blob) -> Self {
+        Self::Blob
+    }
+}
+
+impl From<Unit> for Value {
+    fn from(_: Unit) -> Self {
+        Self::Unit
+    }
+}
+
+impl From<WrappedPrincipal> for Value {
+    fn from(v: WrappedPrincipal) -> Self {
+        Self::Principal(v.into())
+    }
+}
+
+impl PartialOrd for Value {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        match (self, other) {
+            (Self::Bool(a), Self::Bool(b)) => a.partial_cmp(b),
+            (Self::Decimal(a), Self::Decimal(b)) => a.partial_cmp(b),
+            (Self::EntityKey(a), Self::EntityKey(b)) => a.partial_cmp(b),
+            (Self::Float(a), Self::Float(b)) => a.partial_cmp(b),
+            (Self::Int(a), Self::Int(b)) => a.partial_cmp(b),
+            (Self::Nat(a), Self::Nat(b)) => a.partial_cmp(b),
+            (Self::Principal(a), Self::Principal(b)) => a.partial_cmp(b),
+            (Self::Text(a), Self::Text(b)) => a.partial_cmp(b),
+            (Self::Ulid(a), Self::Ulid(b)) => a.partial_cmp(b),
+
+            // Cross-type comparisons: no ordering
+            _ => None,
+        }
     }
 }
 
 ///
 /// IndexValue
+/// strictly for indexable fields (DataKey, EntityKey)
 ///
 
 #[derive(CandidType, Clone, Debug, Deserialize, Display, Eq, Hash, PartialEq, Serialize)]
@@ -90,19 +170,8 @@ impl IndexValue {
     }
 }
 
-macro_rules! impl_from_for_index_value {
-    ( $( $type:ty => $variant:ident ),* $(,)? ) => {
-        $(
-            impl From<$type> for IndexValue {
-                fn from(v: $type) -> Self {
-                    Self::$variant(v.into())
-                }
-            }
-        )*
-    };
-}
-
-impl_from_for_index_value! {
+impl_from_for! {
+    IndexValue,
     Decimal => Decimal,
     EntityKey => EntityKey,
     i8 => Int,
@@ -110,6 +179,7 @@ impl_from_for_index_value! {
     i32 => Int,
     i64 => Int,
     Principal => Principal,
+    &str => Text,
     String => Text,
     Ulid => Ulid,
     u8 => Nat,
@@ -121,12 +191,6 @@ impl_from_for_index_value! {
 impl From<candid::Principal> for IndexValue {
     fn from(p: candid::Principal) -> Self {
         Self::Principal(p.into())
-    }
-}
-
-impl PartialOrd for IndexValue {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
     }
 }
 
@@ -148,5 +212,11 @@ impl Ord for IndexValue {
             // Define an arbitrary but stable variant order fallback
             (a, b) => a.variant_rank().cmp(&b.variant_rank()),
         }
+    }
+}
+
+impl PartialOrd for IndexValue {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }

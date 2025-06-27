@@ -143,14 +143,6 @@ impl SaveExecutor {
         for index in E::INDEXES {
             let index_store = self.indexes.with(|map| map.try_get_store(index.store))?;
 
-            debug!(
-                self.debug,
-                "update_indexes {} {index:?} fields {:?} values {:?}",
-                E::PATH,
-                &index.fields,
-                new.index_values(index.fields),
-            );
-
             // ✅ Insert new index entry first - fail early if conflict
             if let Some(new_index_key) = new.index_key(index.fields) {
                 index_store.with_borrow_mut(|store| {

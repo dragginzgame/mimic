@@ -23,7 +23,7 @@ use crate::{
     },
     error::ErrorTree,
     ops::{
-        types::{IndexValue, Value},
+        types::{IndexValue, Value, Values},
         visit::Visitor,
     },
     schema::node::EntityIndex,
@@ -90,8 +90,7 @@ pub trait EntityKind: TypeKind + EntitySearch + EntitySort + PartialEq {
     const INDEXES: &'static [EntityIndex];
 
     // values
-    fn values(&self, fields: &[&str]) -> Vec<Value>;
-    fn index_values(&self, fields: &[&str]) -> Vec<IndexValue>;
+    fn values(&self) -> Values;
 
     // entity_key
     // returns the current entity key, ie [V::Text("00AX5"), V::Nat8(1)]
@@ -102,12 +101,22 @@ pub trait EntityKind: TypeKind + EntitySearch + EntitySort + PartialEq {
     fn data_key(&self) -> DataKey {
         Self::build_data_key(&self.entity_key())
     }
+
+    // build_data_key
     fn build_data_key(values: &[IndexValue]) -> DataKey;
 
     // build_index_key
     // returns the current index key for specific fields, ie [V::Nat32(0), V::Nat32(16)]
+    // @todo - should this return a Result?
     fn index_key(&self, fields: &[&str]) -> Option<IndexKey> {
-        IndexKey::build(Self::PATH, fields, &self.index_values(fields))
+        let index_values: Vec<IndexValue> = self
+            .values()
+            .collect_all(fields)
+            .into_iter()
+            .filter_map(|v| v.into_index_value())
+            .collect();
+
+        IndexKey::build(Self::PATH, fields, &index_values)
     }
 }
 
@@ -126,10 +135,7 @@ pub trait EntityIdKind: Kind + std::fmt::Debug {
     // entity_key
     #[must_use]
     fn entity_key(&self) -> EntityKey {
-        let iv = self
-            .ulid()
-            .to_index_value()
-            .expect("entityid has an index value");
+        let iv = self.ulid().into();
 
         EntityKey(vec![iv])
     }
@@ -252,51 +258,6 @@ pub trait ValidatorString {
 ///
 
 ///
-/// FieldIndexValue
-/// optional, a field can be turned into an IndexValue
-///
-
-pub trait FieldIndexValue {
-    fn to_index_value(&self) -> Option<IndexValue> {
-        None
-    }
-}
-
-impl FieldIndexValue for String {
-    fn to_index_value(&self) -> Option<IndexValue> {
-        Some(IndexValue::Text(self.clone()))
-    }
-}
-impl FieldIndexValue for bool {}
-impl FieldIndexValue for f32 {}
-impl FieldIndexValue for f64 {}
-
-// impl_field_value_as
-#[macro_export]
-macro_rules! impl_field_index_value_as {
-    ( $( $type:ty => $variant:ident ),* $(,)? ) => {
-        $(
-            impl FieldIndexValue for $type {
-                fn to_index_value(&self) -> Option<IndexValue> {
-                    Some(IndexValue::$variant((*self).into()))
-                }
-            }
-        )*
-    };
-}
-
-impl_field_index_value_as!(
-    i8 => Int,
-    i16 => Int,
-    i32 => Int,
-    i64 => Int,
-    u8 => Nat,
-    u16 => Nat,
-    u32 => Nat,
-    u64 => Nat,
-);
-
-///
 /// FieldOrderable
 ///
 /// wrapper around the Ord/PartialOrd traits so that we can extend it to
@@ -387,14 +348,14 @@ impl_primitive_field_search!(bool, i8, i16, i32, i64, String, u8, u16, u32, u64,
 ///
 
 pub trait FieldValue {
-    fn to_value(&self) -> Option<Value> {
-        None
+    fn to_value(&self) -> Value {
+        Value::Unsupported
     }
 }
 
 impl FieldValue for String {
-    fn to_value(&self) -> Option<Value> {
-        Some(Value::Text(self.clone()))
+    fn to_value(&self) -> Value {
+        Value::Text(self.clone())
     }
 }
 
@@ -404,8 +365,8 @@ macro_rules! impl_field_value_as {
     ( $( $type:ty => $variant:ident ),* $(,)? ) => {
         $(
             impl FieldValue for $type {
-                fn to_value(&self) -> Option<Value> {
-                    Some(Value::$variant((*self).into()))
+                fn to_value(&self) -> Value {
+                    Value::$variant((*self).into())
                 }
             }
         )*

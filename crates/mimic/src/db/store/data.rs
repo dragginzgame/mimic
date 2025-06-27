@@ -235,7 +235,7 @@ mod tests {
 
     #[test]
     fn data_keys_with_identical_paths_and_values_are_equal() {
-        let k1 = DataKey::new(vec![("my::Entity", text("abc"))]);
+        let k1 = DataKey::new(vec![("my::Entity", Some("abc".into()))]);
         let k2 = DataKey::new(vec![("my::Entity", text("abc"))]);
 
         assert_eq!(k1, k2, "DataKeys from same path and value should be equal");

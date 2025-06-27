@@ -2,13 +2,13 @@ use crate::{
     Error,
     db::{
         DataError,
-        executor::ResolvedSelector,
-        query::{LoadFormat, LoadQuery, Selector, Where},
+        executor::{ResolvedSelector, WhereEvaluator},
+        query::{LoadFormat, LoadQuery, Selector, WhereExpr},
         response::{EntityRow, LoadCollection, LoadResponse},
         store::{DataKey, DataRow, DataStoreLocal, DataStoreRegistry, IndexStoreRegistry},
     },
     debug,
-    ops::{Value, traits::EntityKind},
+    ops::traits::EntityKind,
 };
 use icu::{Log, log};
 
@@ -89,7 +89,7 @@ impl LoadExecutor {
     pub fn load<E: EntityKind>(
         &self,
         selector: &Selector,
-        _where_clause: Option<&Where>,
+        _where_clause: Option<&WhereExpr>,
     ) -> Result<Vec<DataRow>, DataError> {
         // TODO - big where_clause changing selector thingy
         // get store
@@ -145,38 +145,24 @@ impl LoadExecutor {
 
     // apply_where
     fn apply_where<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec<EntityRow<E>> {
-        let Some(r#where) = query.r#where.as_ref() else {
-            return rows;
-        };
+        match &query.r#where {
+            Some(expr) => {
+                let olen = rows.len();
 
-        let olen = rows.len();
+                let filtered: Vec<_> = rows
+                    .into_iter()
+                    .filter(|row| WhereEvaluator::eval(expr, &row.entry.entity))
+                    .collect();
 
-        // 1. Extract field names and expected values
-        let fields: Vec<&str> = r#where.matches.iter().map(|(f, _)| f.as_str()).collect();
-        let expected_values: Vec<&Value> = r#where.matches.iter().map(|(_, v)| v).collect();
-
-        // 2. Filter rows
-        let filtered = rows
-            .into_iter()
-            .filter(|row| {
-                let actual_values = row.entry.entity.values(&fields);
-                if actual_values.len() != expected_values.len() {
-                    return false;
+                let flen = filtered.len();
+                if flen < olen {
+                    log!(Log::Info, "apply_where: filtered {olen} → {flen} rows");
                 }
 
-                actual_values
-                    .iter()
-                    .zip(expected_values.iter())
-                    .all(|(actual, expected)| actual == *expected)
-            })
-            .collect::<Vec<_>>();
-
-        let flen = filtered.len();
-        if flen < olen {
-            log!(Log::Info, "apply_where: filtered {olen} → {flen} rows");
+                filtered
+            }
+            None => rows,
         }
-
-        filtered
     }
 
     // apply_search

@@ -1,6 +1,7 @@
 use crate::{
-    ops::traits::{
-        FieldIndexValue, FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto, Visitable,
+    ops::{
+        Value,
+        traits::{FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto, Visitable},
     },
     prelude::*,
 };
@@ -41,13 +42,15 @@ impl Blob {
     }
 }
 
-impl FieldIndexValue for Blob {}
-
 impl FieldOrderable for Blob {}
 
 impl FieldSearch for Blob {}
 
-impl FieldValue for Blob {}
+impl FieldValue for Blob {
+    fn to_value(&self) -> Value {
+        Value::Blob
+    }
+}
 
 impl From<Vec<u8>> for Blob {
     fn from(bytes: Vec<u8>) -> Self {

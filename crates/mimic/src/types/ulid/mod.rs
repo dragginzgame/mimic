@@ -6,10 +6,9 @@ use crate::{
     error::ErrorTree,
     ops::{
         traits::{
-            FieldIndexValue, FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto,
-            ValidateCustom, Visitable,
+            FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable,
         },
-        types::{IndexValue, Value},
+        types::Value,
     },
     prelude::*,
 };
@@ -114,12 +113,6 @@ impl Display for Ulid {
     }
 }
 
-impl FieldIndexValue for Ulid {
-    fn to_index_value(&self) -> Option<IndexValue> {
-        Some(IndexValue::Ulid(*self))
-    }
-}
-
 impl FieldOrderable for Ulid {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
@@ -133,8 +126,8 @@ impl FieldSearch for Ulid {
 }
 
 impl FieldValue for Ulid {
-    fn to_value(&self) -> Option<Value> {
-        Some(Value::Text(self.to_string()))
+    fn to_value(&self) -> Value {
+        Value::Ulid(*self)
     }
 }
 

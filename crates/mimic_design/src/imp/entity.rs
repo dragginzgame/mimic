@@ -4,8 +4,9 @@ use crate::{
     traits::Trait,
 };
 use mimic::schema::{traits::Schemable, types::Cardinality};
-use proc_macro2::TokenStream;
+use proc_macro2::{Span, TokenStream};
 use quote::{ToTokens, format_ident, quote};
+use syn::LitStr;
 
 ///
 /// EntityKindTrait
@@ -21,8 +22,6 @@ impl Imp<Entity> for EntityKindTrait {
         q.extend(indexes(node));
 
         q.extend(values(node));
-        q.extend(index_values(node));
-
         q.extend(entity_key(node));
         q.extend(build_data_key(node));
 
@@ -54,6 +53,44 @@ fn indexes(node: &Entity) -> TokenStream {
     }
 }
 
+// values
+fn values(node: &Entity) -> TokenStream {
+    let inserts = node
+        .fields
+        .iter()
+        .filter_map(|field| {
+            let field_ident = &field.name;
+            let field_lit = LitStr::new(&field_ident.to_string(), Span::call_site());
+
+            match field.value.cardinality() {
+                Cardinality::One => Some(quote! {
+                    map.insert(#field_lit, self.#field_ident.to_value());
+                }),
+
+                Cardinality::Opt => Some(quote! {
+                    if let Some(inner) = self.#field_ident.as_ref() {
+                        map.insert(#field_lit, inner.to_value());
+                    }
+                }),
+
+                Cardinality::Many => None, // Optionally: serialize Vec<T> if needed
+            }
+        })
+        .collect::<Vec<_>>();
+
+    let cap = inserts.len();
+    quote! {
+        fn values(&self) -> ::mimic::ops::types::Values {
+            use ::mimic::ops::traits::FieldValue;
+
+            let mut map = ::std::collections::HashMap::with_capacity(#cap);
+            #(#inserts)*
+
+            ::mimic::ops::Values(map)
+        }
+    }
+}
+
 // entity_key
 fn entity_key(node: &Entity) -> TokenStream {
     let fields = node.data_keys.iter().filter_map(|dk| {
@@ -61,7 +98,7 @@ fn entity_key(node: &Entity) -> TokenStream {
             let field_ident = field;
 
             quote! {
-                if let Some(val) = self.#field_ident.to_index_value() {
+                if let Some(val) = self.#field_ident.to_value().into_index_value() {
                     parts.push(val);
                 }
             }
@@ -70,90 +107,13 @@ fn entity_key(node: &Entity) -> TokenStream {
 
     quote! {
         fn entity_key(&self) -> ::mimic::types::EntityKey {
-            use ::mimic::ops::traits::FieldIndexValue;
+            use ::mimic::ops::traits::FieldValue;
 
             let mut parts = Vec::new();
 
             #(#fields)*
 
             ::mimic::types::EntityKey(parts)
-        }
-    }
-}
-// values
-fn values(node: &Entity) -> TokenStream {
-    let match_arms = node.fields.iter().filter_map(|field| {
-        let field_ident = &field.name;
-        let field_name = field_ident.to_string();
-
-        match field.value.cardinality() {
-            Cardinality::One => Some(quote! {
-                #field_name => self.#field_ident.to_value(),
-            }),
-            Cardinality::Opt => Some(quote! {
-                #field_name => self.#field_ident.as_ref().and_then(|v| v.to_value()),
-            }),
-            Cardinality::Many => None, // Not supported for value/indexing
-        }
-    });
-
-    quote! {
-        fn values(&self, fields: &[&str]) -> Vec<::mimic::ops::Value> {
-            use ::mimic::ops::traits::FieldValue;
-
-            let mut out = Vec::with_capacity(fields.len());
-
-            for field in fields {
-                let val_opt = match *field {
-                    #(#match_arms)*
-                    _ => None,
-                };
-
-                if let Some(val) = val_opt {
-                    out.push(val);
-                }
-            }
-
-            out
-        }
-    }
-}
-
-// index_values
-fn index_values(node: &Entity) -> TokenStream {
-    let match_arms = node.fields.iter().filter_map(|field| {
-        let field_ident = &field.name;
-        let field_name = field_ident.to_string();
-
-        match field.value.cardinality() {
-            Cardinality::One => Some(quote! {
-                #field_name => self.#field_ident.to_index_value(),
-            }),
-            Cardinality::Opt => Some(quote! {
-                #field_name => self.#field_ident.as_ref().and_then(|v| v.to_index_value()),
-            }),
-            Cardinality::Many => None, // Not supported for indexing
-        }
-    });
-
-    quote! {
-        fn index_values(&self, fields: &[&str]) -> Vec<::mimic::ops::IndexValue> {
-            use ::mimic::ops::traits::FieldIndexValue;
-
-            let mut out = Vec::with_capacity(fields.len());
-
-            for field in fields {
-                let val_opt = match *field {
-                    #(#match_arms)*
-                    _ => None,
-                };
-
-                if let Some(val) = val_opt {
-                    out.push(val);
-                }
-            }
-
-            out
         }
     }
 }

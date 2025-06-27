@@ -3,8 +3,7 @@ use crate::{
     ops::{
         IndexValue, Value,
         traits::{
-            FieldIndexValue, FieldOrderable, FieldSearch, FieldValue, ValidateAuto, ValidateCustom,
-            Visitable,
+            FieldOrderable, FieldSearch, FieldValue, ValidateAuto, ValidateCustom, Visitable,
         },
     },
     types::Ulid,
@@ -71,12 +70,6 @@ impl Display for EntityKey {
     }
 }
 
-impl FieldIndexValue for EntityKey {
-    fn to_index_value(&self) -> Option<IndexValue> {
-        Some(IndexValue::EntityKey(self.clone()))
-    }
-}
-
 impl FieldOrderable for EntityKey {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
@@ -84,8 +77,8 @@ impl FieldOrderable for EntityKey {
 }
 
 impl FieldValue for EntityKey {
-    fn to_value(&self) -> Option<Value> {
-        Some(Value::EntityKey(self.clone()))
+    fn to_value(&self) -> Value {
+        Value::EntityKey(self.clone())
     }
 }
 
