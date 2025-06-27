@@ -107,7 +107,6 @@ pub trait EntityKind: TypeKind + EntitySearch + EntitySort + PartialEq {
 
     // build_index_key
     // returns the current index key for specific fields, ie [V::Nat32(0), V::Nat32(16)]
-    // @todo - should this return a Result?
     fn index_key(&self, fields: &[&str]) -> Option<IndexKey> {
         let index_values: Vec<IndexValue> = self
             .values()

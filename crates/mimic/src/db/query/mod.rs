@@ -2,11 +2,13 @@ mod delete;
 mod load;
 mod save;
 mod types;
+mod r#where;
 
 pub use delete::*;
 pub use load::*;
 pub use save::*;
 pub use types::*;
+pub use r#where::*;
 
 use thiserror::Error as ThisError;
 

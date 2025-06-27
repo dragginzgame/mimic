@@ -7,6 +7,7 @@ use std::marker::PhantomData;
 ///
 /// WhereEvaluator
 ///
+
 pub struct WhereEvaluator<E: EntityKind>(PhantomData<E>);
 
 impl<E> WhereEvaluator<E>
@@ -22,6 +23,8 @@ where
 
     fn eval_cached(expr: &WhereExpr, values: &Values) -> bool {
         match expr {
+            WhereExpr::True => true,
+            WhereExpr::False => false,
             WhereExpr::Clause(clause) => Self::eval_clause(clause, values),
             WhereExpr::And(children) => children.iter().all(|c| Self::eval_cached(c, values)),
             WhereExpr::Or(children) => children.iter().any(|c| Self::eval_cached(c, values)),

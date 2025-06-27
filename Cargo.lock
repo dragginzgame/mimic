@@ -693,7 +693,7 @@ checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
 name = "mimic"
-version = "0.5.2"
+version = "0.5.3"
 dependencies = [
  "bencher",
  "candid",
@@ -721,7 +721,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_base"
-version = "0.5.2"
+version = "0.5.3"
 dependencies = [
  "candid",
  "ctor",
@@ -735,7 +735,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_design"
-version = "0.5.2"
+version = "0.5.3"
 dependencies = [
  "darling",
  "derive_more",
@@ -1088,7 +1088,7 @@ dependencies = [
 
 [[package]]
 name = "test_canister"
-version = "0.5.2"
+version = "0.5.3"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -1099,7 +1099,7 @@ dependencies = [
 
 [[package]]
 name = "test_design"
-version = "0.5.2"
+version = "0.5.3"
 dependencies = [
  "candid",
  "ctor",
@@ -1112,7 +1112,7 @@ dependencies = [
 
 [[package]]
 name = "tests"
-version = "0.5.2"
+version = "0.5.3"
 dependencies = [
  "mimic",
  "mimic_base",

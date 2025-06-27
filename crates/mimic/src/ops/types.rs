@@ -1,4 +1,4 @@
-use crate::types::{Blob, Decimal, EntityKey, Principal, Ulid, Unit};
+use crate::types::{Decimal, EntityKey, Principal, Ulid};
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut, Display};
 use serde::{Deserialize, Serialize};
@@ -63,7 +63,6 @@ impl Values {
 #[derive(CandidType, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Value {
     Bool(bool),
-    Blob, // don't want the data right now
     Decimal(Decimal),
     EntityKey(EntityKey),
     Float(f64),
@@ -72,7 +71,6 @@ pub enum Value {
     Principal(Principal),
     Text(String),
     Ulid(Ulid),
-    Unit,
     Unsupported,
 }
 
@@ -116,18 +114,6 @@ impl_from_for! {
 impl_from_ref_for! {
     Value,
     EntityKey => EntityKey,
-}
-
-impl From<Blob> for Value {
-    fn from(_: Blob) -> Self {
-        Self::Blob
-    }
-}
-
-impl From<Unit> for Value {
-    fn from(_: Unit) -> Self {
-        Self::Unit
-    }
 }
 
 impl From<WrappedPrincipal> for Value {

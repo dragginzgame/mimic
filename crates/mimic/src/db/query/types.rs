@@ -1,8 +1,4 @@
-use crate::{
-    db::executor::ResolvedSelector,
-    ops::{Value, traits::EntityKind},
-    types::EntityKey,
-};
+use crate::{db::executor::ResolvedSelector, ops::traits::EntityKind, types::EntityKey};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
@@ -71,65 +67,4 @@ pub enum SortDirection {
     #[default]
     Asc,
     Desc,
-}
-
-///
-/// WhereExpr
-///
-
-#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
-pub enum WhereExpr {
-    Clause(WhereClause),
-    And(Vec<WhereExpr>),
-    Or(Vec<WhereExpr>),
-    Not(Box<WhereExpr>),
-}
-
-impl WhereExpr {
-    /// Combines this expression with another using `And`.
-    #[must_use]
-    pub fn and(self, other: WhereExpr) -> Self {
-        match self {
-            WhereExpr::And(mut children) => {
-                children.push(other);
-                WhereExpr::And(children)
-            }
-            _ => WhereExpr::And(vec![self, other]),
-        }
-    }
-}
-
-///
-/// WhereClause
-///
-
-#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
-pub struct WhereClause {
-    pub field: String,
-    pub cmp: Comparator,
-    pub value: Value,
-}
-
-impl WhereClause {
-    pub fn new<F: Into<String>, V: Into<Value>>(field: F, cmp: Comparator, value: V) -> Self {
-        Self {
-            field: field.into(),
-            cmp,
-            value: value.into(),
-        }
-    }
-}
-
-///
-/// Comparator
-///
-
-#[derive(CandidType, Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
-pub enum Comparator {
-    Eq,
-    Ne,
-    Lt,
-    Ltoe,
-    Gt,
-    Gtoe,
 }

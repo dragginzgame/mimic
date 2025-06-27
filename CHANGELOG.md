@@ -5,6 +5,9 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.5.3]
+- full support for WHERE logic trees, with simplification and DeMorgan's laws (thanks GCSE Computing!)
+
 ## [0.5.2]
 - changed the .to_string() usage of indexes and where statements to use a variant type
 - sort key renamed to data key

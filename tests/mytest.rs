@@ -21,8 +21,11 @@ mod tests {
         println!();
 
         println!("data_key : {:?}", e.data_key());
-        println!("values : {:?}", e.values(&["x", "y"]));
-        println!("index_values : {:?}", e.index_values(&["x", "y"]));
+        println!("values : {:?}", e.values());
+        println!(
+            "values (filtered) : {:?}",
+            e.values().collect_all(&["id", "x"])
+        );
     }
 
     #[test]
