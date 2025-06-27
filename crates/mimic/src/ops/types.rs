@@ -21,6 +21,29 @@ pub enum Value {
     Ulid(Ulid),
 }
 
+macro_rules! impl_from_for_value {
+    ( $( $type:ty => $variant:ident ),* $(,)? ) => {
+        $(
+            impl From<$type> for Value {
+                fn from(v: $type) -> Self {
+                    Self::$variant(v)
+                }
+            }
+        )*
+    };
+}
+
+impl_from_for_value! {
+    bool => Bool,
+    Decimal => Decimal,
+    f64 => Float,
+    i64 => Int,
+    u64 => Nat,
+    Relation => Relation,
+    String => Text,
+    Ulid => Ulid,
+}
+
 ///
 /// IndexValue
 ///
@@ -50,6 +73,27 @@ impl IndexValue {
             Self::UpperBoundMarker => u8::MAX,
         }
     }
+}
+
+macro_rules! impl_from_for_index_value {
+    ( $( $type:ty => $variant:ident ),* $(,)? ) => {
+        $(
+            impl From<$type> for IndexValue {
+                fn from(v: $type) -> Self {
+                    Self::$variant(v)
+                }
+            }
+        )*
+    };
+}
+
+impl_from_for_index_value! {
+    Decimal => Decimal,
+    i64 => Int,
+    u64 => Nat,
+    Relation => Relation,
+    String => Text,
+    Ulid => Ulid,
 }
 
 impl PartialOrd for IndexValue {
