@@ -145,7 +145,7 @@ pub fn rarity() -> Result<Vec<Rarity>, MimicError> {
             query::load()
                 .all()
                 .search_field("name", "co")
-                .sort([("level", SortDirection::Asc)]),
+                .sort([("level", SortDirection::Desc)]),
         )?
         .entities();
 

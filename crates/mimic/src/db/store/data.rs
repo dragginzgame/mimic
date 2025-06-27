@@ -203,6 +203,7 @@ fn read_chunk(buf: &mut &[u8]) -> Vec<u8> {
 }
 
 // write_chunk
+#[allow(clippy::cast_possible_truncation)]
 fn write_chunk(buf: &mut Vec<u8>, data: &[u8]) {
     let len = data.len() as u32;
     buf.extend(&len.to_le_bytes());

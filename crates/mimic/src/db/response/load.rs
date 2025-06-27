@@ -36,6 +36,7 @@ where
 {
     // count
     #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
     pub const fn count(&self) -> u32 {
         self.0.len() as u32
     }

@@ -98,21 +98,21 @@ impl LoadExecutor {
 
         // load rows
         let rows = match resolved_selector {
-            ResolvedSelector::One(key) => self.load_one(store, key).into_iter().collect(),
+            ResolvedSelector::One(key) => Self::load_one(store, key).into_iter().collect(),
 
             ResolvedSelector::Many(keys) => keys
                 .into_iter()
-                .filter_map(|key| self.load_one(store, key))
+                .filter_map(|key| Self::load_one(store, key))
                 .collect(),
 
-            ResolvedSelector::Range(start, end) => self.load_range(store, start, end),
+            ResolvedSelector::Range(start, end) => Self::load_range(store, start, end),
         };
 
         Ok(rows)
     }
 
     // load_one
-    fn load_one(&self, store: DataStoreLocal, key: DataKey) -> Option<DataRow> {
+    fn load_one(store: DataStoreLocal, key: DataKey) -> Option<DataRow> {
         store.with_borrow(|this| {
             this.get(&key).map(|entry| DataRow {
                 key: key.clone(),
@@ -122,7 +122,7 @@ impl LoadExecutor {
     }
 
     // load_range
-    fn load_range(&self, store: DataStoreLocal, start: DataKey, end: DataKey) -> Vec<DataRow> {
+    fn load_range(store: DataStoreLocal, start: DataKey, end: DataKey) -> Vec<DataRow> {
         store.with_borrow(|this| {
             this.range(start..=end)
                 .map(|(key, entry)| DataRow { key, entry })

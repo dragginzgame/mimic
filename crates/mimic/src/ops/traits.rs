@@ -42,12 +42,10 @@ macro_rules! impl_primitive {
         impl $trait for i16 {}
         impl $trait for i32 {}
         impl $trait for i64 {}
-        impl $trait for i128 {}
         impl $trait for u8 {}
         impl $trait for u16 {}
         impl $trait for u32 {}
         impl $trait for u64 {}
-        impl $trait for u128 {}
         impl $trait for f32 {}
         impl $trait for f64 {}
         impl $trait for bool {}
@@ -125,7 +123,7 @@ pub trait EntityIdKind: Kind + std::fmt::Debug {
         Ulid::from_string_digest(&digest)
     }
 
-    // relation
+    // entity_key
     #[must_use]
     fn entity_key(&self) -> EntityKey {
         let iv = self
@@ -280,7 +278,7 @@ macro_rules! impl_field_index_value_as {
         $(
             impl FieldIndexValue for $type {
                 fn to_index_value(&self) -> Option<IndexValue> {
-                    Some(IndexValue::$variant(*self as _))
+                    Some(IndexValue::$variant((*self).into()))
                 }
             }
         )*
@@ -292,12 +290,10 @@ impl_field_index_value_as!(
     i16 => Int,
     i32 => Int,
     i64 => Int,
-    i128 => Int,
     u8 => Nat,
     u16 => Nat,
     u32 => Nat,
     u64 => Nat,
-    u128 => Nat,
 );
 
 ///
@@ -331,9 +327,7 @@ macro_rules! impl_primitive_field_orderable {
     };
 }
 
-impl_primitive_field_orderable!(
-    bool, i8, i16, i32, i64, i128, String, u8, u16, u32, u64, u128
-);
+impl_primitive_field_orderable!(bool, i8, i16, i32, i64, String, u8, u16, u32, u64);
 
 impl<T: FieldOrderable> FieldOrderable for Option<T> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
@@ -383,9 +377,7 @@ macro_rules! impl_primitive_field_search {
     };
 }
 
-impl_primitive_field_search!(
-    bool, i8, i16, i32, i64, i128, String, u8, u16, u32, u64, u128, f32, f64
-);
+impl_primitive_field_search!(bool, i8, i16, i32, i64, String, u8, u16, u32, u64, f32, f64);
 
 ///
 /// FieldValue
@@ -413,7 +405,7 @@ macro_rules! impl_field_value_as {
         $(
             impl FieldValue for $type {
                 fn to_value(&self) -> Option<Value> {
-                    Some(Value::$variant(*self as _))
+                    Some(Value::$variant((*self).into()))
                 }
             }
         )*
@@ -425,12 +417,10 @@ impl_field_value_as!(
     i16 => Int,
     i32 => Int,
     i64 => Int,
-    i128 => Int,
     u8 => Nat,
     u16 => Nat,
     u32 => Nat,
     u64 => Nat,
-    u128 => Nat,
     f32 => Float,
     f64 => Float,
     bool => Bool,
@@ -479,9 +469,7 @@ macro_rules! impl_primitive_inner {
     };
 }
 
-impl_primitive_inner!(
-    bool, f32, f64, i8, i16, i32, i64, i128, u8, u16, u32, u64, u128
-);
+impl_primitive_inner!(bool, f32, f64, i8, i16, i32, i64, u8, u16, u32, u64);
 
 ///
 /// Validate

@@ -48,15 +48,6 @@ impl Subaccount {
     pub const fn to_bytes(self) -> [u8; 32] {
         self.0.0
     }
-
-    #[must_use]
-    pub fn from_u128s(a: u128, b: u128) -> Self {
-        let mut bytes = [0u8; 32];
-        bytes[..16].copy_from_slice(&a.to_be_bytes());
-        bytes[16..].copy_from_slice(&b.to_be_bytes());
-
-        Self(WrappedSubaccount(bytes))
-    }
 }
 
 impl Default for Subaccount {

@@ -120,12 +120,12 @@ where
     T: Into<IndexValue>,
 {
     fn from(values: Vec<T>) -> Self {
-        Self(values.into_iter().map(|v| v.into()).collect())
+        Self(values.into_iter().map(Into::into).collect())
     }
 }
 
-impl ValidateCustom for EntityKey {}
-
 impl ValidateAuto for EntityKey {}
+
+impl ValidateCustom for EntityKey {}
 
 impl Visitable for EntityKey {}
