@@ -117,15 +117,10 @@ impl From<Ulid> for EntityKey {
 
 impl<T> From<Vec<T>> for EntityKey
 where
-    T: FieldIndexValue,
+    T: Into<IndexValue>,
 {
     fn from(values: Vec<T>) -> Self {
-        Self(
-            values
-                .into_iter()
-                .filter_map(|v| v.to_index_value())
-                .collect(),
-        )
+        Self(values.into_iter().map(|v| v.into()).collect())
     }
 }
 
