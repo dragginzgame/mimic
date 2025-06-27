@@ -19,15 +19,15 @@ use crate::{
     db::{
         executor::SaveExecutor,
         query::{EntityKey, SortDirection},
-        store::DataKey,
+        store::{DataKey, IndexKey},
     },
     error::ErrorTree,
     ops::{
-        types::{IndexValue, IndexValues, Value, Values},
+        types::{IndexValue, Value},
         visit::Visitor,
     },
     schema::node::EntityIndex,
-    types::Ulid,
+    types::{Relation, Ulid},
 };
 
 ///
@@ -92,24 +92,25 @@ pub trait EntityKind: TypeKind + EntitySearch + EntitySort + PartialEq {
     const INDEXES: &'static [EntityIndex];
 
     // values
-    fn values(&self) -> Values;
-
-    // index_values
-    fn index_values(&self) -> IndexValues;
+    fn values(&self, fields: &[&str]) -> Vec<Value>;
+    fn index_values(&self, fields: &[&str]) -> Vec<IndexValue>;
 
     // entity_key
-    // returns the current entity key, ie ["123123", "234234", "015TaFh54u..."]
+    // returns the current entity key, ie [V::Text("00AX5"), V::Nat8(1)]
     fn entity_key(&self) -> EntityKey;
 
-    // sort_key
+    // data_key
     // builds the data key using the current entity key
     fn data_key(&self) -> DataKey {
         Self::build_data_key(&self.entity_key())
     }
-
-    // build_data_key
-    // takes in a set of values, returns the DataKey
     fn build_data_key(values: &[IndexValue]) -> DataKey;
+
+    // build_index_key
+    // returns the current index key for specific fields, ie [V::Nat32(0), V::Nat32(16)]
+    fn index_key(&self, fields: &[&str]) -> Option<IndexKey> {
+        IndexKey::build(Self::PATH, fields, &self.index_values(fields))
+    }
 }
 
 ///
@@ -124,10 +125,15 @@ pub trait EntityIdKind: Kind + std::fmt::Debug {
         Ulid::from_string_digest(&digest)
     }
 
-    // key
+    // relation
     #[must_use]
-    fn key(&self) -> EntityKey {
-        EntityKey(vec![self.ulid().to_index_value()])
+    fn relation(&self) -> Relation {
+        let iv = self
+            .ulid()
+            .to_index_value()
+            .expect("relation has an index value");
+
+        Relation(vec![iv])
     }
 }
 
@@ -253,8 +259,46 @@ pub trait ValidatorString {
 ///
 
 pub trait FieldIndexValue {
-    fn to_index_value(&self) -> IndexValue;
+    fn to_index_value(&self) -> Option<IndexValue> {
+        None
+    }
 }
+
+impl FieldIndexValue for String {
+    fn to_index_value(&self) -> Option<IndexValue> {
+        Some(IndexValue::Text(self.clone()))
+    }
+}
+impl FieldIndexValue for bool {}
+impl FieldIndexValue for f32 {}
+impl FieldIndexValue for f64 {}
+
+// impl_field_value_as
+#[macro_export]
+macro_rules! impl_field_index_value_as {
+    ( $( $type:ty => $variant:ident ),* $(,)? ) => {
+        $(
+            impl FieldIndexValue for $type {
+                fn to_index_value(&self) -> Option<IndexValue> {
+                    Some(IndexValue::$variant(*self as _))
+                }
+            }
+        )*
+    };
+}
+
+impl_field_index_value_as!(
+    i8 => Int,
+    i16 => Int,
+    i32 => Int,
+    i64 => Int,
+    i128 => Int,
+    u8 => Nat,
+    u16 => Nat,
+    u32 => Nat,
+    u64 => Nat,
+    u128 => Nat,
+);
 
 ///
 /// FieldOrderable
@@ -351,40 +395,46 @@ impl_primitive_field_search!(
 ///
 
 pub trait FieldValue {
-    fn to_value(&self) -> Value;
+    fn to_value(&self) -> Option<Value> {
+        None
+    }
 }
 
 impl FieldValue for String {
-    fn to_value(&self) -> Value {
-        Value::Text(self.clone())
+    fn to_value(&self) -> Option<Value> {
+        Some(Value::Text(self.clone()))
     }
 }
 
 // impl_field_value_as
 #[macro_export]
 macro_rules! impl_field_value_as {
-    ($type:ty => $variant:ident) => {
-        impl FieldValue for $type {
-            fn to_value(&self) -> Value {
-                Value::$variant(*self as _)
+    ( $( $type:ty => $variant:ident ),* $(,)? ) => {
+        $(
+            impl FieldValue for $type {
+                fn to_value(&self) -> Option<Value> {
+                    Some(Value::$variant(*self as _))
+                }
             }
-        }
+        )*
     };
 }
 
-impl_field_value_as!(i8 => Int128);
-impl_field_value_as!(i16 => Int128);
-impl_field_value_as!(i32 => Int128);
-impl_field_value_as!(i64 => Int128);
-impl_field_value_as!(i128 => Int128);
-
-impl_field_value_as!(u8 => Nat128);
-impl_field_value_as!(u16 => Nat128);
-impl_field_value_as!(u32 => Nat128);
-impl_field_value_as!(u64 => Nat128);
-impl_field_value_as!(u128 => Nat128);
-
-impl_field_value_as!(bool => Bool);
+impl_field_value_as!(
+    i8 => Int,
+    i16 => Int,
+    i32 => Int,
+    i64 => Int,
+    i128 => Int,
+    u8 => Nat,
+    u16 => Nat,
+    u32 => Nat,
+    u64 => Nat,
+    u128 => Nat,
+    f32 => Float,
+    f64 => Float,
+    bool => Bool,
+);
 
 ///
 /// Inner

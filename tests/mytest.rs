@@ -20,9 +20,9 @@ mod tests {
         println!("{e:?}");
         println!();
 
-        println!("key : {:?}", e.key());
-        println!("values : {:?}", e.values());
-        println!("sort_key : {:?}", e.sort_key());
+        println!("data_key : {:?}", e.data_key());
+        println!("values : {:?}", e.values(&["x", "y"]));
+        println!("index_values : {:?}", e.index_values(&["x", "y"]));
     }
 
     #[test]

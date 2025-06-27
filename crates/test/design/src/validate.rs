@@ -7,7 +7,7 @@ use base::validator;
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "ValidateTest", field = "id"),
+    data_key(entity = "ValidateTest", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "multiple_ten", value(item(is = "MultipleTenType"))),
     field(

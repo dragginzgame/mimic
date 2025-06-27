@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_slice, split_idents, to_path, to_str_lit},
     imp::{self, Imp},
-    node::{Def, Field, MacroNode, Node, SortKey, TraitNode, TraitTokens, Type},
+    node::{DataKey, Def, Field, MacroNode, Node, TraitNode, TraitTokens, Type},
     traits::{Trait, Traits},
 };
 use darling::FromMeta;
@@ -21,8 +21,8 @@ pub struct Entity {
 
     pub store: Path,
 
-    #[darling(multiple, rename = "sk")]
-    pub sort_keys: Vec<SortKey>,
+    #[darling(multiple, rename = "data_key")]
+    pub data_keys: Vec<DataKey>,
 
     #[darling(multiple, rename = "index")]
     pub indexes: Vec<EntityIndex>,
@@ -81,7 +81,7 @@ impl Schemable for Entity {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let store = quote_one(&self.store, to_path);
-        let sort_keys = quote_slice(&self.sort_keys, SortKey::schema);
+        let data_keys = quote_slice(&self.data_keys, DataKey::schema);
         let indexes = quote_slice(&self.indexes, EntityIndex::schema);
         let fields = quote_slice(&self.fields, Field::schema);
         let ty = &self.ty.schema();
@@ -90,7 +90,7 @@ impl Schemable for Entity {
             ::mimic::schema::node::SchemaNode::Entity(::mimic::schema::node::Entity {
                 def: #def,
                 store: #store,
-                sort_keys: #sort_keys,
+                data_keys: #data_keys,
                 indexes: #indexes,
                 fields: #fields,
                 ty: #ty,

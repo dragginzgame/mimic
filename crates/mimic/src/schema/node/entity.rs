@@ -3,7 +3,7 @@ use crate::{
     schema::{
         build::schema_read,
         node::{
-            Def, Field, MacroNode, SortKey, Store, Type, TypeNode, ValidateNode, VisitableNode,
+            DataKey, Def, Field, MacroNode, Store, Type, TypeNode, ValidateNode, VisitableNode,
         },
         types::StoreType,
         visit::Visitor,
@@ -22,7 +22,7 @@ pub struct Entity {
     pub store: &'static str,
 
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-    pub sort_keys: &'static [SortKey],
+    pub data_keys: &'static [DataKey],
 
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub indexes: &'static [EntityIndex],
@@ -64,31 +64,31 @@ impl ValidateNode for Entity {
         }
 
         // ensure there are sort keys
-        if self.sort_keys.is_empty() {
-            errs.add("entity has no sort keys");
+        if self.data_keys.is_empty() {
+            errs.add("entity has no data keys");
         }
 
         // check sort keys
-        for (i, sk) in self.sort_keys.iter().enumerate() {
-            let is_last = i == self.sort_keys.len() - 1;
+        for (i, dk) in self.data_keys.iter().enumerate() {
+            let is_last = i == self.data_keys.len() - 1;
 
             // Last sort key must always point to this entity
-            if is_last && sk.entity != self.def.path() {
+            if is_last && dk.entity != self.def.path() {
                 errs.add(format!(
-                    "last sort key '{}' must be '{}'",
-                    &sk.entity,
+                    "last data key '{}' must be '{}'",
+                    &dk.entity,
                     self.def.path(),
                 ));
             }
 
-            match &sk.field {
+            match &dk.field {
                 Some(field_name) => {
                     match self.get_field(field_name) {
                         Some(field) => {
                             // no relations
                             if field.value.item.is_relation() {
                                 errs.add(format!(
-                                    "sort key field '{field_name}' is a relation, which is not allowed",
+                                    "data key field '{field_name}' is a relation, which is not allowed",
                                 ));
                             }
                         }
@@ -125,7 +125,7 @@ impl VisitableNode for Entity {
 
     fn drive<V: Visitor>(&self, v: &mut V) {
         self.def.accept(v);
-        for node in self.sort_keys {
+        for node in self.data_keys {
             node.accept(v);
         }
         for node in self.indexes {

@@ -1,6 +1,9 @@
 use crate::{
     ops::{
-        traits::{FieldOrderable, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable},
+        traits::{
+            FieldIndexValue, FieldOrderable, FieldValue, Inner, ValidateAuto, ValidateCustom,
+            Visitable,
+        },
         types::Value,
     },
     types::Principal,
@@ -65,12 +68,14 @@ impl Default for Subaccount {
 impl Display for Subaccount {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for byte in &self.0.0 {
-            write!(f, "{:02x}", byte)?;
+            write!(f, "{byte:02x}")?;
         }
 
         Ok(())
     }
 }
+
+impl FieldIndexValue for Subaccount {}
 
 impl FieldOrderable for Subaccount {
     fn cmp(&self, other: &Self) -> Ordering {
@@ -79,8 +84,8 @@ impl FieldOrderable for Subaccount {
 }
 
 impl FieldValue for Subaccount {
-    fn to_value(&self) -> Value {
-        Value::Text(self.to_string())
+    fn to_value(&self) -> Option<Value> {
+        Some(Value::Text(self.to_string()))
     }
 }
 

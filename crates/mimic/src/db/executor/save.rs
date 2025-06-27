@@ -5,7 +5,7 @@ use crate::{
         executor::ExecutorError,
         query::{SaveMode, SaveQueryTyped},
         response::{EntityEntry, SaveCollection, SaveResponse, SaveRow},
-        store::{DataEntry, DataStoreRegistry, IndexKey, IndexStoreRegistry, Metadata},
+        store::{DataEntry, DataStoreRegistry, IndexStoreRegistry, Metadata},
     },
     debug,
     ops::{serialize::serialize, traits::EntityKind, validate::validate},
@@ -143,13 +143,18 @@ impl SaveExecutor {
         for index in E::INDEXES {
             let index_store = self.indexes.with(|map| map.try_get_store(index.store))?;
 
-            // ✅ Insert new index entry first - fail early if conflict
-            if let Some(old) = old {
-                let old_index_key = IndexKey::new(E::PATH, index.fields, old.index_values());
-                let new_index_key = new.index_key();
+            debug!(
+                self.debug,
+                "update_indexes {} {index:?} fields {:?} values {:?}",
+                E::PATH,
+                &index.fields,
+                new.index_values(index.fields),
+            );
 
+            // ✅ Insert new index entry first - fail early if conflict
+            if let Some(new_index_key) = new.index_key(index.fields) {
                 index_store.with_borrow_mut(|store| {
-                    store.insert_index_value(index, new_index_key.clone(), new_key.clone())?;
+                    store.insert_index_entry(index, new_index_key.clone(), new.entity_key())?;
 
                     Ok::<_, DataError>(())
                 })?;
@@ -157,11 +162,11 @@ impl SaveExecutor {
 
             // 🔁 Remove old index value (if present and resolvable)
             if let Some(old) = old {
-                let old_index_key = IndexKey::new(E::PATH, index.fields, old.index_values());
-
-                index_store.with_borrow_mut(|store| {
-                    store.remove_index_value(&old_index_key, &old.entity_key());
-                });
+                if let Some(old_index_key) = old.index_key(index.fields) {
+                    index_store.with_borrow_mut(|store| {
+                        store.remove_index_entry(&old_index_key, &old.entity_key());
+                    });
+                }
             }
         }
 

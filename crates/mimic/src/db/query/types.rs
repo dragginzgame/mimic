@@ -2,7 +2,7 @@ use crate::{
     db::{executor::ResolvedSelector, store::DataKey},
     ops::{
         Value,
-        traits::{EntityKind, FieldOrderable},
+        traits::{EntityKind, FieldIndexValue, FieldOrderable},
         types::IndexValue,
     },
 };
@@ -71,6 +71,20 @@ impl Display for EntityKey {
 impl FieldOrderable for EntityKey {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
+    }
+}
+
+impl<T> From<Vec<T>> for EntityKey
+where
+    T: FieldIndexValue,
+{
+    fn from(values: Vec<T>) -> Self {
+        EntityKey(
+            values
+                .into_iter()
+                .filter_map(|v| v.to_index_value())
+                .collect(),
+        )
     }
 }
 

@@ -19,7 +19,7 @@ pub struct FieldValueTrait {}
 impl Imp<Newtype> for FieldValueTrait {
     fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
         let q = quote! {
-            fn to_value(&self) -> ::mimic::ops::types::Value {
+            fn to_value(&self) -> Option<::mimic::ops::types::Value> {
                 self.0.to_value()
             }
         };

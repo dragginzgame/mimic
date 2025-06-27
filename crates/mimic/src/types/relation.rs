@@ -1,8 +1,11 @@
 use crate::{
     db::query::EntityKey,
     ops::{
-        traits::{FieldOrderable, FieldSearch, ValidateAuto, ValidateCustom, Visitable},
-        types::IndexValue,
+        IndexValue, Value,
+        traits::{
+            FieldIndexValue, FieldOrderable, FieldSearch, FieldValue, ValidateAuto, ValidateCustom,
+            Visitable,
+        },
     },
 };
 use candid::CandidType;
@@ -67,9 +70,21 @@ impl Display for Relation {
     }
 }
 
+impl FieldIndexValue for Relation {
+    fn to_index_value(&self) -> Option<IndexValue> {
+        Some(IndexValue::Relation(self.clone()))
+    }
+}
+
 impl FieldOrderable for Relation {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
+    }
+}
+
+impl FieldValue for Relation {
+    fn to_value(&self) -> Option<Value> {
+        Some(Value::Relation(self.clone()))
     }
 }
 

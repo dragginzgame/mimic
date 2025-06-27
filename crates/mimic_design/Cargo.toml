@@ -16,7 +16,6 @@ quote = { workspace = true }
 remain = { workspace = true }
 serde = { workspace = true }
 syn = { workspace = true }
-tinyrand = { workspace = true }
 
 [lints]
 workspace = true

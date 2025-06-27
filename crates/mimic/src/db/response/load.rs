@@ -55,11 +55,7 @@ where
     // map
     #[must_use]
     pub fn map(self) -> LoadMap<E> {
-        LoadMap::from_pairs(
-            self.0
-                .into_iter()
-                .map(|row| (row.key.into(), row.entry.entity)),
-        )
+        LoadMap::from_pairs(self.0.into_iter().map(|row| (row.key, row.entry.entity)))
     }
 
     // entity

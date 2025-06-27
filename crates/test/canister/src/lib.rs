@@ -8,7 +8,7 @@ use mimic::{
     Error as MimicError,
     db::{
         query,
-        types::{IndexKey, IndexValue},
+        store::{IndexEntry, IndexKey},
     },
     debug,
     prelude::*,
@@ -46,10 +46,10 @@ pub fn test() {
 // indexes
 #[must_use]
 #[query]
-pub fn indexes() -> Vec<(IndexKey, IndexValue)> {
+pub fn indexes() -> Vec<(IndexKey, IndexEntry)> {
     perf_start!();
 
-    let res: Vec<(IndexKey, IndexValue)> = TEST_INDEX.with_borrow(|i| i.iter().collect());
+    let res: Vec<(IndexKey, IndexEntry)> = TEST_INDEX.with_borrow(|i| i.iter().collect());
 
     res
 }

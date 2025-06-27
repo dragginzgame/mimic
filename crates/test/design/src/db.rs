@@ -6,7 +6,7 @@ use crate::prelude::*;
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "CreateBasic", field = "id"),
+    data_key(entity = "CreateBasic", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate")
 )]
 pub struct CreateBasic {}
@@ -17,7 +17,7 @@ pub struct CreateBasic {}
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "CreateBlob", field = "id"),
+    data_key(entity = "CreateBlob", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "bytes", value(item(prim = "Blob")))
 )]
@@ -29,7 +29,7 @@ pub struct CreateBlob {}
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "Searchable", field = "id"),
+    data_key(entity = "Searchable", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "name", value(item(prim = "Text"))),
     field(name = "description", value(item(prim = "Text")))
@@ -42,60 +42,60 @@ pub struct Searchable {}
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "Limit", field = "value"),
+    data_key(entity = "Limit", field = "value"),
     field(name = "value", value(item(prim = "Nat32")))
 )]
 pub struct Limit {}
 
 ///
-/// SortKeyOrder
+/// DataKeyOrder
 ///
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "SortKeyOrder", field = "id"),
+    data_key(entity = "DataKeyOrder", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate")
 )]
-pub struct SortKeyOrder {}
+pub struct DataKeyOrder {}
 
 ///
-/// SortKeyA
+/// DataKeyA
 ///
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "SortKeyA", field = "a_id"),
+    data_key(entity = "DataKeyA", field = "a_id"),
     field(name = "a_id", value(item(prim = "Ulid")), default = "Ulid::generate")
 )]
-pub struct SortKeyA {}
+pub struct DataKeyA {}
 
 ///
-/// SortKeyB
+/// DataKeyB
 ///
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "SortKeyA", field = "a_id"),
-    sk(entity = "SortKeyB", field = "b_id"),
+    data_key(entity = "DataKeyA", field = "a_id"),
+    data_key(entity = "DataKeyB", field = "b_id"),
     field(name = "a_id", value(item(prim = "Ulid"))),
     field(name = "b_id", value(item(prim = "Ulid")), default = "Ulid::generate")
 )]
-pub struct SortKeyB {}
+pub struct DataKeyB {}
 
 ///
-/// SortKeyC
+/// DataKeyC
 ///
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "SortKeyA", field = "a_id"),
-    sk(entity = "SortKeyB", field = "b_id"),
-    sk(entity = "SortKeyC", field = "c_id"),
+    data_key(entity = "DataKeyA", field = "a_id"),
+    data_key(entity = "DataKeyB", field = "b_id"),
+    data_key(entity = "DataKeyC", field = "c_id"),
     field(name = "a_id", value(item(prim = "Ulid"))),
     field(name = "b_id", value(item(prim = "Ulid"))),
     field(name = "c_id", value(item(prim = "Ulid")), default = "Ulid::generate")
 )]
-pub struct SortKeyC {}
+pub struct DataKeyC {}
 
 ///
 /// MissingFieldSmall
@@ -126,7 +126,7 @@ pub struct MissingFieldLarge {}
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "ContainsBlob", field = "id"),
+    data_key(entity = "ContainsBlob", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "bytes", value(opt, item(prim = "Blob")))
 )]
@@ -138,7 +138,7 @@ pub struct ContainsBlob {}
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "ContainsOpts", field = "id"),
+    data_key(entity = "ContainsOpts", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "opt_a", value(opt, item(prim = "Principal"))),
     field(name = "opt_b", value(opt, item(prim = "Principal"))),
@@ -161,7 +161,7 @@ pub struct ContainsOpts {}
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "ContainsManyRelations", field = "id"),
+    data_key(entity = "ContainsManyRelations", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "a_keys", value(many, item(rel = "ContainsBlob"))),
     field(name = "b_keys", value(many, item(rel = "ContainsBlob"))),

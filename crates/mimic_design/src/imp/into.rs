@@ -42,15 +42,15 @@ impl Imp<EntityId> for IntoTrait {
         //
 
         let q = quote! {
-            fn into(self) -> mimic::types::Key {
-                self.key()
+            fn into(self) -> mimic::types::Relation {
+                self.relation()
             }
         };
 
         tokens.extend(
             Implementor::new(&node.def, t)
                 .set_tokens(q)
-                .add_trait_generic(quote!(mimic::types::Key))
+                .add_trait_generic(quote!(mimic::types::Relation))
                 .to_token_stream(),
         );
 

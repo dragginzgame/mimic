@@ -1,5 +1,7 @@
 use crate::{
-    ops::traits::{FieldOrderable, FieldSearch, Inner, ValidateAuto, Visitable},
+    ops::traits::{
+        FieldIndexValue, FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto, Visitable,
+    },
     prelude::*,
 };
 use derive_more::{Deref, DerefMut};
@@ -39,9 +41,13 @@ impl Blob {
     }
 }
 
+impl FieldIndexValue for Blob {}
+
 impl FieldOrderable for Blob {}
 
 impl FieldSearch for Blob {}
+
+impl FieldValue for Blob {}
 
 impl From<Vec<u8>> for Blob {
     fn from(bytes: Vec<u8>) -> Self {

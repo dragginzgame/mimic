@@ -191,12 +191,10 @@ pub enum ArgNumber {
     Int16(i16),
     Int32(i32),
     Int64(i64),
-    Int128(i128),
     Nat8(u8),
     Nat16(u16),
     Nat32(u32),
     Nat64(u64),
-    Nat128(u128),
 }
 
 macro_rules! impl_from_for_numeric_value {
@@ -218,12 +216,10 @@ impl_from_for_numeric_value! {
     i16 => Int16,
     i32 => Int32,
     i64 => Int64,
-    i128 => Int128,
     u8 => Nat8,
     u16 => Nat16,
     u32 => Nat32,
-    u64 => Nat64,
-    u128 => Nat128
+    u64 => Nat64
 }
 
 impl ArgNumber {
@@ -232,7 +228,7 @@ impl ArgNumber {
         let s = s.replace('_', "");
 
         let suffixes = [
-            "f32", "f64", "i8", "i16", "i32", "i64", "i128", "u8", "u16", "u32", "u64", "u128",
+            "f32", "f64", "i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64",
         ];
 
         // 1. Handle suffixed values
@@ -253,12 +249,10 @@ impl ArgNumber {
                         "i16" => num_part.parse::<i16>().map(Self::Int16),
                         "i32" => num_part.parse::<i32>().map(Self::Int32),
                         "i64" => num_part.parse::<i64>().map(Self::Int64),
-                        "i128" => num_part.parse::<i128>().map(Self::Int128),
                         "u8" => num_part.parse::<u8>().map(Self::Nat8),
                         "u16" => num_part.parse::<u16>().map(Self::Nat16),
                         "u32" => num_part.parse::<u32>().map(Self::Nat32),
                         "u64" => num_part.parse::<u64>().map(Self::Nat64),
-                        "u128" => num_part.parse::<u128>().map(Self::Nat128),
                         _ => unreachable!(),
                     }
                     .map_err(|_| {})
@@ -289,15 +283,13 @@ impl ArgNumber {
             // Try smallest fitting signed int
             try_parse!(
                 i32 => Int32,
-                i64 => Int64,
-                i128 => Int128
+                i64 => Int64
             );
 
             // Try smallest fitting unsigned int
             try_parse!(
                 u32 => Nat32,
-                u64 => Nat64,
-                u128 => Nat128
+                u64 => Nat64
             );
         }
 
@@ -317,12 +309,10 @@ impl Display for ArgNumber {
             Self::Int16(v) => write!(f, "{v}"),
             Self::Int32(v) => write!(f, "{v}"),
             Self::Int64(v) => write!(f, "{v}"),
-            Self::Int128(v) => write!(f, "{v}"),
             Self::Nat8(v) => write!(f, "{v}"),
             Self::Nat16(v) => write!(f, "{v}"),
             Self::Nat32(v) => write!(f, "{v}"),
             Self::Nat64(v) => write!(f, "{v}"),
-            Self::Nat128(v) => write!(f, "{v}"),
         }
     }
 }
@@ -360,7 +350,6 @@ impl PartialEq for ArgNumber {
             (Self::Nat16(a), Self::Nat16(b)) => a == b,
             (Self::Nat32(a), Self::Nat32(b)) => a == b,
             (Self::Nat64(a), Self::Nat64(b)) => a == b,
-            (Self::Nat128(a), Self::Nat128(b)) => a == b,
             _ => false,
         }
     }
@@ -375,12 +364,10 @@ impl Schemable for ArgNumber {
             Self::Int16(v) => quote!(::mimic::schema::node::ArgNumber::Int16(#v)),
             Self::Int32(v) => quote!(::mimic::schema::node::ArgNumber::Int32(#v)),
             Self::Int64(v) => quote!(::mimic::schema::node::ArgNumber::Int64(#v)),
-            Self::Int128(v) => quote!(::mimic::schema::node::ArgNumber::Int128(#v)),
             Self::Nat8(v) => quote!(::mimic::schema::node::ArgNumber::Nat8(#v)),
             Self::Nat16(v) => quote!(::mimic::schema::node::ArgNumber::Nat16(#v)),
             Self::Nat32(v) => quote!(::mimic::schema::node::ArgNumber::Nat32(#v)),
             Self::Nat64(v) => quote!(::mimic::schema::node::ArgNumber::Nat64(#v)),
-            Self::Nat128(v) => quote!(::mimic::schema::node::ArgNumber::Nat128(#v)),
         }
     }
 }
@@ -394,12 +381,10 @@ impl ToTokens for ArgNumber {
             Self::Int16(v) => quote!(#v),
             Self::Int32(v) => quote!(#v),
             Self::Int64(v) => quote!(#v),
-            Self::Int128(v) => quote!(#v),
             Self::Nat8(v) => quote!(#v),
             Self::Nat16(v) => quote!(#v),
             Self::Nat32(v) => quote!(#v),
             Self::Nat64(v) => quote!(#v),
-            Self::Nat128(v) => quote!(#v),
         };
 
         tokens.extend(q);

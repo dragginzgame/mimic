@@ -8,7 +8,7 @@ use crate::{
         store::{DataKey, DataRow, DataStoreLocal, DataStoreRegistry, IndexStoreRegistry},
     },
     debug,
-    ops::traits::EntityKind,
+    ops::{Value, traits::EntityKind},
 };
 use icu::{Log, log};
 
@@ -148,27 +148,32 @@ impl LoadExecutor {
         let Some(r#where) = query.r#where.as_ref() else {
             return rows;
         };
+
         let olen = rows.len();
 
-        // filter
+        // 1. Extract field names and expected values
+        let fields: Vec<&str> = r#where.matches.iter().map(|(f, _)| f.as_str()).collect();
+        let expected_values: Vec<&Value> = r#where.matches.iter().map(|(_, v)| v).collect();
+
+        // 2. Filter rows
         let filtered = rows
             .into_iter()
             .filter(|row| {
-                let values = row.entry.entity.values();
+                let actual_values = row.entry.entity.values(&fields);
+                if actual_values.len() != expected_values.len() {
+                    return false;
+                }
 
-                r#where
-                    .matches
+                actual_values
                     .iter()
-                    .all(|(field, expected)| match values.get(field) {
-                        Some(Some(actual)) => actual == expected,
-                        _ => false,
-                    })
+                    .zip(expected_values.iter())
+                    .all(|(actual, expected)| actual == *expected)
             })
             .collect::<Vec<_>>();
-        let flen = filtered.len();
 
+        let flen = filtered.len();
         if flen < olen {
-            log!(Log::Info, "apply_where: filtered {olen} → {flen} rows",);
+            log!(Log::Info, "apply_where: filtered {olen} → {flen} rows");
         }
 
         filtered

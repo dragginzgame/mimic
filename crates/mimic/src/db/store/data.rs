@@ -36,7 +36,7 @@ pub type DataStoreLocal = &'static LocalKey<RefCell<DataStore>>;
 
 ///
 /// DataRow
-/// the data B-tree key and value pair
+/// the data B-tree key and entry pair
 ///
 
 #[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
@@ -100,7 +100,7 @@ impl Display for DataKey {
             .collect::<Vec<_>>()
             .join(", ");
 
-        write!(f, "[{}]", parts)
+        write!(f, "[{parts}]")
     }
 }
 
@@ -233,7 +233,7 @@ mod tests {
     }
 
     #[test]
-    fn sort_keys_with_identical_paths_and_values_are_equal() {
+    fn data_keys_with_identical_paths_and_values_are_equal() {
         let k1 = DataKey::new(vec![("my::Entity", text("abc"))]);
         let k2 = DataKey::new(vec![("my::Entity", text("abc"))]);
 
@@ -241,7 +241,7 @@ mod tests {
     }
 
     #[test]
-    fn sort_keys_with_different_paths_are_not_equal() {
+    fn data_keys_with_different_paths_are_not_equal() {
         let k1 = DataKey::new(vec![("a::Entity", text("abc"))]);
         let k2 = DataKey::new(vec![("b::Entity", text("abc"))]);
 
@@ -249,7 +249,7 @@ mod tests {
     }
 
     #[test]
-    fn sort_keys_with_different_values_are_not_equal() {
+    fn data_keys_with_different_values_are_not_equal() {
         let k1 = DataKey::new(vec![("my::Entity", text("abc"))]);
         let k2 = DataKey::new(vec![("my::Entity", text("def"))]);
 
@@ -257,7 +257,7 @@ mod tests {
     }
 
     #[test]
-    fn sort_keys_with_none_and_some_are_different() {
+    fn data_keys_with_none_and_some_are_different() {
         let k1 = DataKey::new(vec![("my::Entity", None)]);
         let k2 = DataKey::new(vec![("my::Entity", text("value"))]);
 
@@ -265,7 +265,7 @@ mod tests {
     }
 
     #[test]
-    fn sort_keys_with_additional_parts_are_different() {
+    fn data_keys_with_additional_parts_are_different() {
         let short = DataKey::new(vec![("my::Entity", text("v1"))]);
         let long = DataKey::new(vec![("my::Entity", text("v1")), ("my::Entity", text("v2"))]);
 
@@ -273,7 +273,7 @@ mod tests {
     }
 
     #[test]
-    fn sort_keys_are_stable_across_invocations() {
+    fn data_keys_are_stable_across_invocations() {
         let k1 = DataKey::new(vec![("stable::Entity", text("42"))]);
         let k2 = DataKey::new(vec![("stable::Entity", text("42"))]);
 
@@ -281,7 +281,7 @@ mod tests {
     }
 
     #[test]
-    fn sort_key_ordering_is_structural_only() {
+    fn data_key_ordering_is_structural_only() {
         let k1 = DataKey::new(vec![("x::Entity", text("a")), ("y::Entity", text("a"))]);
         let k2 = DataKey::new(vec![("x::Entity", text("a")), ("y::Entity", text("b"))]);
 

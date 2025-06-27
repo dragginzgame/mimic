@@ -6,7 +6,7 @@ use crate::prelude::*;
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "Index", field = "id"),
+    data_key(entity = "Index", field = "id"),
     index(store = "crate::schema::TestIndex", fields = "x"),
     index(store = "crate::schema::TestIndex", fields = "y", unique),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
@@ -32,7 +32,7 @@ impl Index {
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "IndexWithFixtures", field = "id"),
+    data_key(entity = "IndexWithFixtures", field = "id"),
     index(store = "crate::schema::TestIndex", fields = "x", unique),             // unique
     index(store = "crate::schema::TestIndex", fields = "y"),                     // normal
     index(store = "crate::schema::TestIndex", fields = "x, z"),                  // compound with opt

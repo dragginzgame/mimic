@@ -1,6 +1,9 @@
 use crate::{
     ops::{
-        traits::{FieldOrderable, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable},
+        traits::{
+            FieldIndexValue, FieldOrderable, FieldValue, Inner, ValidateAuto, ValidateCustom,
+            Visitable,
+        },
         types::Value,
     },
     types::{Principal, Subaccount},
@@ -46,6 +49,8 @@ impl Account {
     }
 }
 
+impl FieldIndexValue for Account {}
+
 impl FieldOrderable for Account {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
@@ -53,8 +58,8 @@ impl FieldOrderable for Account {
 }
 
 impl FieldValue for Account {
-    fn to_value(&self) -> Value {
-        Value::Text(self.to_string())
+    fn to_value(&self) -> Option<Value> {
+        Some(Value::Text(self.to_string()))
     }
 }
 

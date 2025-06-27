@@ -54,12 +54,10 @@ pub enum ArgNumber {
     Int16(i16),
     Int32(i32),
     Int64(i64),
-    Int128(i128),
     Nat8(u8),
     Nat16(u16),
     Nat32(u32),
     Nat64(u64),
-    Nat128(u128),
 }
 
 impl ValidateNode for ArgNumber {}

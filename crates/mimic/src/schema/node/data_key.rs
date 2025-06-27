@@ -8,16 +8,16 @@ use crate::{
 use serde::Serialize;
 
 ///
-/// SortKey
+/// DataKey
 ///
 
 #[derive(Clone, Debug, Serialize)]
-pub struct SortKey {
+pub struct DataKey {
     pub entity: &'static str,
     pub field: Option<&'static str>,
 }
 
-impl ValidateNode for SortKey {
+impl ValidateNode for DataKey {
     fn validate(&self) -> Result<(), ErrorTree> {
         let mut errs = ErrorTree::new();
 
@@ -28,7 +28,7 @@ impl ValidateNode for SortKey {
     }
 }
 
-impl VisitableNode for SortKey {
+impl VisitableNode for DataKey {
     fn route_key(&self) -> String {
         "sort key".into()
     }

@@ -4,7 +4,7 @@ use crate::{
     traits::Trait,
 };
 use mimic::schema::{traits::Schemable, types::Cardinality};
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 
 ///
@@ -15,11 +15,16 @@ pub struct EntityKindTrait {}
 
 impl Imp<Entity> for EntityKindTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
+        let mut q = quote!();
+
         q.extend(store(node));
         q.extend(indexes(node));
-        q.extend(key(node));
+
         q.extend(values(node));
-        q.extend(build_sort_key(node));
+        q.extend(index_values(node));
+
+        q.extend(entity_key(node));
+        q.extend(build_data_key(node));
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
@@ -49,115 +54,150 @@ fn indexes(node: &Entity) -> TokenStream {
     }
 }
 
-// key
-fn key(node: &Entity) -> TokenStream {
-    let fields = node.sort_keys.iter().filter_map(|sk| {
-        sk.field
-            .as_ref()
-            .map(|field| quote!(self.#field.to_value()))
-    });
+// entity_key
+fn entity_key(node: &Entity) -> TokenStream {
+    let fields = node.data_keys.iter().filter_map(|dk| {
+        dk.field.as_ref().map(|field| {
+            let field_ident = field;
 
-    quote! {
-        fn key(&self) -> ::mimic::types::Key {
-            use ::mimic::ops::traits::FieldValue;
-
-            Key(vec![
-                #(#fields),*
-            ])
-        }
-    }
-}
-
-// values
-fn values(node: &Entity) -> TokenStream {
-    let inserts = node.fields.iter().filter_map(|field| {
-        let field_ident = &field.name;
-        let field_lit = syn::LitStr::new(&field_ident.to_string(), Span::call_site());
-
-        match field.value.cardinality() {
-            Cardinality::One => Some(quote! {
-                map.insert(#field_lit, self.#field_ident.to_value());
-            }),
-
-            Cardinality::Opt => Some(quote! {
-                map.insert(
-                    #field_lit,
-                    self.#field_ident
-                        .as_ref()
-                        .and_then(|inner| inner.to_value()),
-                );
-            }),
-
-            Cardinality::Many => None, // Optionally: serialize Vec<T> if needed
-        }
-    });
-
-    quote! {
-        fn values(&self) -> ::mimic::ops::types::EntityValues {
-            use ::mimic::ops::traits::FieldValue;
-
-            let mut map = ::std::collections::HashMap::with_capacity(3);
-            #(#inserts)*
-
-            map.into()
-        }
-    }
-}
-
-// build_sort_key
-fn build_sort_key(node: &Entity) -> TokenStream {
-    // parts
-    let parts = node.sort_keys.iter().map(|sort_key| {
-        let entity = &sort_key.entity;
-
-        match &sort_key.field {
-            Some(field) => quote! {
-                ::mimic::db::types::SortKeyPart::new(
-                    #entity::PATH,
-                    this.#field.to_value(),
-                )
-            },
-            None => quote! {
-                ::mimic::db::types::SortKeyPart::new(
-                    #entity::PATH,
-                    None,
-                )
-            },
-        }
-    });
-
-    // set_fields
-    let mut index: usize = 0;
-    let set_fields = node.sort_keys.iter().filter_map(|sort_key| {
-        let field = sort_key.field.as_ref()?;
-        let i = index;
-        index += 1;
-
-        Some(quote! {
-            if let Some(value) = values.get(#i) {
-                this.#field = value.parse().unwrap_or_default();
+            quote! {
+                if let Some(val) = self.#field_ident.to_index_value() {
+                    parts.push(val);
+                }
             }
         })
     });
 
-    // inner
-    let inner = quote! {
-        use ::mimic::ops::traits::FieldValue;
+    quote! {
+        fn entity_key(&self) -> ::mimic::db::query::EntityKey {
+            use ::mimic::ops::traits::FieldIndexValue;
 
-        // Ensure at least one part if none were provided
-        if values.is_empty() {
-            return vec![::mimic::db::types::SortKeyPart::new(Self::PATH, None)].into();
+            let mut parts = Vec::new();
+
+            #(#fields)*
+
+            ::mimic::db::query::EntityKey(parts)
         }
+    }
+}
+// values
+fn values(node: &Entity) -> TokenStream {
+    let match_arms = node.fields.iter().filter_map(|field| {
+        let field_ident = &field.name;
+        let field_name = field_ident.to_string();
 
-        let mut this = Self::default();
-        #(#set_fields)*
-
-        vec![#(#parts),*].into()
-    };
+        match field.value.cardinality() {
+            Cardinality::One => Some(quote! {
+                #field_name => self.#field_ident.to_value(),
+            }),
+            Cardinality::Opt => Some(quote! {
+                #field_name => self.#field_ident.as_ref().and_then(|v| v.to_value()),
+            }),
+            Cardinality::Many => None, // Not supported for value/indexing
+        }
+    });
 
     quote! {
-        fn build_sort_key(values: &[::mimic::ops::types::Value]) -> ::mimic::db::types::SortKey {
-            #inner
+        fn values(&self, fields: &[&str]) -> Vec<::mimic::ops::Value> {
+            use ::mimic::ops::traits::FieldValue;
+
+            let mut out = Vec::with_capacity(fields.len());
+
+            for field in fields {
+                let val_opt = match *field {
+                    #(#match_arms)*
+                    _ => None,
+                };
+
+                if let Some(val) = val_opt {
+                    out.push(val);
+                }
+            }
+
+            out
+        }
+    }
+}
+
+// index_values
+fn index_values(node: &Entity) -> TokenStream {
+    let match_arms = node.fields.iter().filter_map(|field| {
+        let field_ident = &field.name;
+        let field_name = field_ident.to_string();
+
+        match field.value.cardinality() {
+            Cardinality::One => Some(quote! {
+                #field_name => self.#field_ident.to_index_value(),
+            }),
+            Cardinality::Opt => Some(quote! {
+                #field_name => self.#field_ident.as_ref().and_then(|v| v.to_index_value()),
+            }),
+            Cardinality::Many => None, // Not supported for indexing
+        }
+    });
+
+    quote! {
+        fn index_values(&self, fields: &[&str]) -> Vec<::mimic::ops::IndexValue> {
+            use ::mimic::ops::traits::FieldIndexValue;
+
+            let mut out = Vec::with_capacity(fields.len());
+
+            for field in fields {
+                let val_opt = match *field {
+                    #(#match_arms)*
+                    _ => None,
+                };
+
+                if let Some(val) = val_opt {
+                    out.push(val);
+                }
+            }
+
+            out
+        }
+    }
+}
+
+// build_data_key
+fn build_data_key(node: &Entity) -> TokenStream {
+    let mut value_index: usize = 0;
+
+    let parts = node.data_keys.iter().map(|data_key| {
+        let entity = &data_key.entity;
+
+        if data_key.field.is_some() {
+            let idx = value_index;
+            value_index += 1;
+
+            quote! {
+                ::mimic::db::store::DataKeyPart::new(
+                    #entity::PATH,
+                    Some(values[#idx].clone()),
+                )
+            }
+        } else {
+            quote! {
+                ::mimic::db::store::DataKeyPart::new(
+                    #entity::PATH,
+                    None,
+                )
+            }
+        }
+    });
+
+    quote! {
+        fn build_data_key(values: &[::mimic::ops::types::IndexValue]) -> ::mimic::db::store::DataKey {
+
+            // Ensure at least one part if none were provided
+            if values.is_empty() {
+                return vec![::mimic::db::store::DataKeyPart::new(Self::PATH, None)].into();
+            }
+
+            let parts = vec![
+                #(#parts),*
+            ];
+
+            parts.into()
         }
     }
 }
@@ -258,13 +298,13 @@ impl Imp<Entity> for EntitySortTrait {
             });
 
             match_arms.extend(quote! {
-                (#field_str, ::mimic::db::types::SortDirection::Asc) => comps.push(#asc_fn),
-                (#field_str, ::mimic::db::types::SortDirection::Desc) => comps.push(#desc_fn),
+                (#field_str, ::mimic::db::query::SortDirection::Asc) => comps.push(#asc_fn),
+                (#field_str, ::mimic::db::query::SortDirection::Desc) => comps.push(#desc_fn),
             });
         }
 
         let q = quote! {
-            fn sort(order: &[(String, ::mimic::db::types::SortDirection)])
+            fn sort(order: &[(String, ::mimic::db::query::SortDirection)])
                 -> Box<dyn Fn(&#node_ident, &#node_ident) -> ::std::cmp::Ordering>
             {
                 #asc_fns

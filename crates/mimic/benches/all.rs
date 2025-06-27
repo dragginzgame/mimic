@@ -1,7 +1,7 @@
 extern crate bencher;
 
-mod sort_key;
+mod data_key;
 
 use bencher::benchmark_main;
 
-benchmark_main!(sort_key::benchmarks);
+benchmark_main!(data_key::benchmarks);

@@ -28,8 +28,9 @@ impl IndexStore {
         Self(BTreeMap::init(memory))
     }
 
-    // insert_index_value
-    pub fn insert_index_value(
+    // insert_index_entry
+    // we pass in the actual index to look for uniqueness
+    pub fn insert_index_entry(
         &mut self,
         index: &EntityIndex,
         index_key: IndexKey,
@@ -71,8 +72,8 @@ impl IndexStore {
         Ok(())
     }
 
-    // remove_index_value
-    pub fn remove_index_value(
+    // remove_index_entry
+    pub fn remove_index_entry(
         &mut self,
         index_key: &IndexKey,
         entity_key: &EntityKey,
@@ -142,16 +143,20 @@ pub struct IndexKey {
 }
 
 impl IndexKey {
-    // fields are passed in statically
+    // fields are passed in statically from the
     #[must_use]
-    pub fn new(entity_path: &str, fields: &[&'static str], values: &[IndexValue]) -> Self {
+    pub fn build(entity_path: &str, fields: &[&str], values: &[IndexValue]) -> Option<Self> {
+        if fields.len() != values.len() {
+            return None;
+        }
+
         // Construct a canonical string like: "my::Entity::field1,field2"
         let full_key = format!("{entity_path}::{}", fields.join(","));
 
-        Self {
+        Some(Self {
             index_id: xx_hash_u64(&full_key),
             values: values.to_vec(),
-        }
+        })
     }
 }
 

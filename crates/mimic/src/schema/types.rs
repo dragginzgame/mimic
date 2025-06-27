@@ -52,12 +52,10 @@ pub enum ConstantType {
     Int16,
     Int32,
     Int64,
-    Int128,
     Nat8,
     Nat16,
     Nat32,
     Nat64,
-    Nat128,
     Str,
 }
 
@@ -74,12 +72,10 @@ impl ConstantType {
             Int16 => quote!(i16),
             Int32 => quote!(i32),
             Int64 => quote!(i64),
-            Int128 => quote!(i128),
             Nat8 => quote!(u8),
             Nat16 => quote!(u16),
             Nat32 => quote!(u32),
             Nat64 => quote!(u64),
-            Nat128 => quote!(u128),
             Str => quote!(&str),
         }
     }
@@ -117,16 +113,14 @@ pub enum PrimitiveType {
     Int16,
     Int32,
     Int64,
-    Int128,
-    Key,
-    KeySet,
     Nat,
     Nat8,
     Nat16,
     Nat32,
     Nat64,
-    Nat128,
     Principal,
+    Relation,
+    RelationMany,
     Subaccount,
     Text,
     Ulid,
@@ -141,7 +135,7 @@ impl PrimitiveType {
 
     #[must_use]
     pub const fn is_displayable(self) -> bool {
-        !matches!(self, Self::Blob | Self::KeySet | Self::Unit)
+        !matches!(self, Self::Blob | Self::RelationMany | Self::Unit)
     }
 
     #[must_use]
@@ -161,13 +155,11 @@ impl PrimitiveType {
                 | Int16
                 | Int32
                 | Int64
-                | Int128
                 | Nat
                 | Nat8
                 | Nat16
                 | Nat32
                 | Nat64
-                | Nat128
                 | Float32
                 | Float64
                 | Decimal
@@ -190,16 +182,14 @@ impl PrimitiveType {
             Int16 => quote!(::mimic::types::Int16),
             Int32 => quote!(::mimic::types::Int32),
             Int64 => quote!(::mimic::types::Int64),
-            Int128 => quote!(::mimic::types::Int128),
-            Key => quote!(::mimic::types::Key),
-            KeySet => quote!(::mimic::types::KeySet),
             Principal => quote!(::mimic::types::Principal),
+            Relation => quote!(::mimic::types::Relation),
+            RelationMany => quote!(::mimic::types::RelationMany),
             Nat => quote!(::mimic::types::Nat),
             Nat8 => quote!(::mimic::types::Nat8),
             Nat16 => quote!(::mimic::types::Nat16),
             Nat32 => quote!(::mimic::types::Nat32),
             Nat64 => quote!(::mimic::types::Nat64),
-            Nat128 => quote!(::mimic::types::Nat128),
             Subaccount => quote!(::mimic::types::Subaccount),
             Text => quote!(::mimic::types::Text),
             Unit => quote!(::mimic::types::Unit),
@@ -218,12 +208,10 @@ impl PrimitiveType {
             Int16 => "i16",
             Int32 => "i32",
             Int64 => "i64",
-            Int128 => "i128",
             Nat8 => "u8",
             Nat16 => "u16",
             Nat32 => "u32",
             Nat64 => "u64",
-            Nat128 => "u128",
             _ => panic!("unexpected primitive type"),
         }
         .into()

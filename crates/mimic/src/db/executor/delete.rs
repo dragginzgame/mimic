@@ -5,7 +5,7 @@ use crate::{
         executor::ResolvedSelector,
         query::{DeleteQuery, QueryError},
         response::{DeleteCollection, DeleteResponse, DeleteRow},
-        store::{DataKey, DataStoreRegistry, IndexKey, IndexStoreRegistry},
+        store::{DataKey, DataStoreRegistry, IndexStoreRegistry},
     },
     debug,
     ops::{serialize::deserialize, traits::EntityKind},
@@ -110,21 +110,20 @@ impl DeleteExecutor {
 
     // remove_indexes
     fn remove_indexes<E: EntityKind>(&self, entity: E) -> Result<(), DataError> {
-        let values = entity.index_values();
         let entity_key = entity.entity_key();
 
         for index in E::INDEXES {
             // resolve index key
-            let index_key = IndexKey::new(E::PATH, index.fields, &values);
+            if let Some(index_key) = entity.index_key(index.fields) {
+                // remove if found
+                let index_store = self
+                    .index_registry
+                    .with(|ix| ix.try_get_store(index.store))?;
 
-            // remove if found
-            let index_store = self
-                .index_registry
-                .with(|ix| ix.try_get_store(index.store))?;
-
-            index_store.with_borrow_mut(|store| {
-                store.remove_index_value(&index_key, &entity_key);
-            });
+                index_store.with_borrow_mut(|store| {
+                    store.remove_index_entry(&index_key, &entity_key);
+                });
+            }
         }
 
         Ok(())

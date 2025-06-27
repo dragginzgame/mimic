@@ -204,20 +204,20 @@ impl DbTester {
 
     // data_key_order
     fn data_key_order() {
-        use test_design::db::SortKeyOrder;
+        use test_design::db::DataKeyOrder;
 
         const ROWS: u16 = 1_000;
 
         // Insert rows
         for _ in 1..ROWS {
-            let e = SortKeyOrder::default();
+            let e = DataKeyOrder::default();
             db!().save().execute(query::create().entity(e)).unwrap();
         }
 
         // Retrieve rows in B-Tree order
         let keys = db!()
             .load()
-            .execute::<SortKeyOrder>(query::load().all().sort([("id", SortDirection::Asc)]))
+            .execute::<DataKeyOrder>(query::load().all().sort([("id", SortDirection::Asc)]))
             .unwrap()
             .keys();
 
@@ -262,8 +262,6 @@ impl DbTester {
     fn perf_options() {
         use test_design::db::ContainsOpts;
 
-        perf!("start perf_options");
-
         const ROWS: u16 = 500;
 
         // Insert rows
@@ -281,15 +279,11 @@ impl DbTester {
             .keys();
 
         let _ = keys.len();
-
-        perf!("end perf_options");
     }
 
     // perf_many_relations
     fn perf_many_relations() {
         use test_design::db::ContainsManyRelations;
-
-        perf!("start perf_many_relations");
 
         const ROWS: u16 = 500;
 
@@ -308,8 +302,6 @@ impl DbTester {
             .keys();
 
         let _ = keys.len();
-
-        perf!("end perf_many_relations");
     }
 
     // search_query

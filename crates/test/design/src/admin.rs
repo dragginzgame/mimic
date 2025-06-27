@@ -7,7 +7,7 @@ use base::types;
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "ComplexEntity", field = "id"),
+    data_key(entity = "ComplexEntity", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "string_test", value(item(prim = "Text"))),
     field(name = "principal_test", value(item(prim = "Principal"))),
@@ -16,12 +16,10 @@ use base::types;
     field(name = "int_16", value(item(prim = "Int16"))),
     field(name = "int_32", value(item(prim = "Int32"))),
     field(name = "int_64", value(item(prim = "Int64"))),
-    field(name = "int_128", value(item(prim = "Int128"))),
     field(name = "nat_8", value(item(prim = "Nat8"))),
     field(name = "nat_16", value(item(prim = "Nat16"))),
     field(name = "nat_32", value(item(prim = "Nat32"))),
     field(name = "nat_64", value(item(prim = "Nat64"))),
-    field(name = "nat_128", value(item(prim = "Nat128"))),
     field(name = "float_32", value(item(prim = "Float32"))),
     field(name = "float_64", value(item(prim = "Float64"))),
     field(name = "bool_test", value(item(prim = "Bool"))),
@@ -53,7 +51,7 @@ pub struct ComplexEntity {}
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "AdminEntity", field = "id"),
+    data_key(entity = "AdminEntity", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "simple_text", value(item(prim = "Text"))),
     field(name = "tuple_test", value(item(is = "Tuple"))),
@@ -78,7 +76,7 @@ pub struct AdminEntity {}
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "RelatedEntity", field = "id"),
+    data_key(entity = "RelatedEntity", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "simple_key", value(item(rel = "SimpleEntity"))),
     field(name = "opt_simple_key", value(opt, item(rel = "SimpleEntity"))),
@@ -92,7 +90,7 @@ pub struct RelatedEntity {}
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "EntityNoId"),
+    data_key(entity = "EntityNoId"),
     field(name = "value", value(item(prim = "Nat8")))
 )]
 pub struct EntityNoId {}
@@ -103,7 +101,7 @@ pub struct EntityNoId {}
 
 #[entity(
     store = "crate::schema::TestStore",
-    sk(entity = "SimpleEntity", field = "id"),
+    data_key(entity = "SimpleEntity", field = "id"),
     field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
     field(name = "name", value(item(prim = "Text")))
 )]
