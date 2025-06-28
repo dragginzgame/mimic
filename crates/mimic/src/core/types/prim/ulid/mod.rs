@@ -11,9 +11,9 @@ use crate::{
         value::Value,
     },
     error::ErrorTree,
-    prelude::*,
 };
 use ::ulid::Ulid as WrappedUlid;
+use candid::CandidType;
 use derive_more::{Deref, DerefMut, FromStr};
 use icu::impl_storable_bounded;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};

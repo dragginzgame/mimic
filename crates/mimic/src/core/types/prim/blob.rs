@@ -1,7 +1,7 @@
-use crate::{
-    core::traits::{FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, Visitable},
-    prelude::*,
+use crate::core::traits::{
+    FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable,
 };
+use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
 use serde_bytes::ByteBuf;

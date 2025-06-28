@@ -33,7 +33,10 @@ extern crate self as mimic;
 
 pub mod prelude {
     pub use crate::{
-        core::types::{EntityKey, EntityKeys, Ulid},
+        core::{
+            traits::EntityFixture as _,
+            types::{EntityKey, EntityKeys, Ulid},
+        },
         db,
         db::{
             executor::SaveExecutor,
@@ -41,7 +44,6 @@ pub mod prelude {
             response::LoadCollection,
             service::EntityService,
         },
-        error::ErrorTree,
         mimic_start,
     };
     pub use ::candid::CandidType;

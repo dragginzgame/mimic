@@ -15,6 +15,7 @@ pub mod prelude {
             types::{Decimal, Principal, Ulid},
         },
         db,
+        db::{executor::SaveExecutor, service::EntityService},
         error::ErrorTree,
     };
     pub use ::candid::CandidType;
