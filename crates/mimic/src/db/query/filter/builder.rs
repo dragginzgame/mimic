@@ -18,6 +18,7 @@ impl FilterBuilder {
         Self::default()
     }
 
+    #[must_use]
     pub fn filter<F: Into<String>, V: Into<Value>>(mut self, field: F, cmp: Cmp, value: V) -> Self {
         let clause = FilterExpr::Clause(FilterClause::new(field, cmp, value));
         self.filter = Some(match self.filter {
@@ -27,6 +28,7 @@ impl FilterBuilder {
         self
     }
 
+    #[must_use]
     pub fn or_filter<F: Into<String>, V: Into<Value>>(
         mut self,
         field: F,
@@ -59,6 +61,7 @@ impl FilterBuilder {
         self
     }
 
+    #[must_use]
     pub fn filter_group<F: FnOnce(Self) -> Self>(self, f: F) -> Self {
         match f(Self::new()).filter {
             Some(expr) => self.filter_expr(expr),
@@ -66,6 +69,7 @@ impl FilterBuilder {
         }
     }
 
+    #[must_use]
     pub fn or_filter_group<F: FnOnce(Self) -> Self>(self, f: F) -> Self {
         match f(Self::new()).filter {
             Some(expr) => self.or_filter_expr(expr),

@@ -33,8 +33,7 @@ impl<'a> FilterEvaluator<'a> {
     fn eval_clause(&self, clause: &FilterClause) -> bool {
         self.values
             .get(&clause.field.as_str())
-            .map(|actual| Self::compare(actual, clause.cmp, &clause.value))
-            .unwrap_or(false)
+            .is_some_and(|actual| Self::compare(actual, clause.cmp, &clause.value))
     }
 
     // compare
@@ -63,6 +62,8 @@ impl<'a> FilterEvaluator<'a> {
     }
 
     #[must_use]
+    #[allow(clippy::cast_sign_loss)]
+    #[allow(clippy::cast_precision_loss)]
     fn coerce_match(actual: &Value, expected: &Value, cmp: Cmp) -> Option<bool> {
         match (actual, expected) {
             // Int ↔ Nat

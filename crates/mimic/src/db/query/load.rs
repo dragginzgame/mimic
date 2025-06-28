@@ -115,6 +115,7 @@ impl LoadQuery {
     }
 
     // with_filter
+    #[must_use]
     pub fn with_filter(mut self, build: impl FnOnce(FilterBuilder) -> FilterBuilder) -> Self {
         if let Some(expr) = build(FilterBuilder::new()).build() {
             self.filter = Some(expr);
