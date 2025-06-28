@@ -24,7 +24,6 @@ convert_case = "0.8"
 ctor = "0.4"
 darling = "0.20"
 derive_more = { version = "2.0", default-features = false, features = ["full"] }
-hex = "0.4"
 ic-cdk = "0.18.5"
 icu = { git = "https://github.com/dragginzgame/icu" }
 mimic = { path = "crates/mimic" }

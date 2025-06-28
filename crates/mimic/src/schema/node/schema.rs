@@ -148,7 +148,10 @@ impl Serialize for Schema {
         // Compute the hash of the nodes JSON string
         let hash = xxh3_128(nodes_json.as_bytes());
         let hash_bytes = hash.to_be_bytes(); // [u8; 16]
-        let hash_hex = hex::encode(hash_bytes);
+        let hash_hex = hash_bytes
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect::<String>();
 
         // Serialize the Schema struct, including the hash
         let mut state = serializer.serialize_struct("Schema", 3)?;

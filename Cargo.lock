@@ -701,7 +701,6 @@ dependencies = [
  "ctor",
  "darling",
  "derive_more",
- "hex",
  "ic-cdk",
  "icu",
  "num-traits",
