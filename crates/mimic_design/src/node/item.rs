@@ -46,6 +46,10 @@ impl Item {
             _ => panic!("item should not have more than one target selected (is, prim, relation)"),
         }
     }
+
+    pub const fn is_relation(&self) -> bool {
+        self.relation.is_some()
+    }
 }
 
 impl Schemable for Item {
