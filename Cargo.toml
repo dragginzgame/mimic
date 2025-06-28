@@ -18,7 +18,6 @@ description = "ORM/Database framework for the Internet Computer"
 license = "MIT"
 
 [workspace.dependencies]
-anyhow = "1.0"
 candid = "0.10"
 convert_case = "0.8"
 ctor = "0.4"
