@@ -1,7 +1,7 @@
 // mimic_build
 // for the various build.rs files
 #[macro_export]
-macro_rules! mimic_build {
+macro_rules! build {
     ($actor:expr) => {
         use std::{fs::File, io::Write, path::PathBuf};
 
@@ -25,13 +25,7 @@ macro_rules! mimic_build {
         // ACTOR CODE
         //
 
-        let output = match ::mimic::build::actor::generate($actor) {
-            Ok(res) => res,
-            Err(err) => {
-                eprintln!("Error building actor: {err}");
-                std::process::exit(1);
-            }
-        };
+        let output = ::mimic_build::actor::generate($actor);
 
         // write the file
         let actor_file = PathBuf::from(out_dir.clone()).join("actor.rs");

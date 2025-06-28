@@ -2,10 +2,10 @@ use crate::{
     helper::quote_option,
     imp::{self, Imp},
     node::{Arg, Def, Item, MacroNode, Node, Trait, TraitNode, TraitTokens, Type},
+    schema::{BPrimitiveType, Schemable},
     traits::Traits,
 };
 use darling::FromMeta;
-use mimic::schema::{traits::Schemable, types::PrimitiveType};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
@@ -18,7 +18,7 @@ pub struct Newtype {
     #[darling(default, skip)]
     pub def: Def,
 
-    pub primitive: PrimitiveType,
+    pub primitive: BPrimitiveType,
     pub item: Item,
 
     #[darling(default)]

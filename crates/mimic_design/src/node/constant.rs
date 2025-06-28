@@ -1,6 +1,8 @@
-use crate::node::{Arg, Def, MacroNode, Node};
+use crate::{
+    node::{Arg, Def, MacroNode, Node},
+    schema::{BConstantType, Schemable},
+};
 use darling::FromMeta;
-use mimic::schema::{traits::Schemable, types::ConstantType};
 use proc_macro2::TokenStream;
 use quote::quote;
 
@@ -13,7 +15,7 @@ pub struct Constant {
     #[darling(default, skip)]
     pub def: Def,
 
-    pub ty: ConstantType,
+    pub ty: BConstantType,
     pub value: Arg,
 }
 

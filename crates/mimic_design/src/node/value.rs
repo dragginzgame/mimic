@@ -1,6 +1,8 @@
-use crate::node::Item;
+use crate::{
+    node::Item,
+    schema::{BCardinality, Cardinality, Schemable},
+};
 use darling::FromMeta;
-use mimic::schema::{traits::Schemable, types::Cardinality};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
@@ -21,13 +23,15 @@ pub struct Value {
 
 impl Value {
     // cardinality
-    pub fn cardinality(&self) -> Cardinality {
-        match (&self.opt, &self.many) {
+    pub fn cardinality(&self) -> BCardinality {
+        let cardinality = match (&self.opt, &self.many) {
             (false, false) => Cardinality::One,
             (true, false) => Cardinality::Opt,
             (false, true) => Cardinality::Many,
             (true, true) => panic!("cardinality cannot be opt and many"),
-        }
+        };
+
+        BCardinality(cardinality)
     }
 }
 
@@ -49,7 +53,7 @@ impl ToTokens for Value {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let item = &self.item;
 
-        let q = match self.cardinality() {
+        let q = match *self.cardinality() {
             Cardinality::One => quote!(#item),
             Cardinality::Opt => quote!(Option<#item>),
             Cardinality::Many => {

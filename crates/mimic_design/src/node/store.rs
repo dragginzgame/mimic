@@ -2,10 +2,10 @@ use crate::{
     helper::{quote_one, to_path, to_str_lit},
     imp,
     node::{Def, MacroNode, Node, TraitNode, TraitTokens},
+    schema::{BStoreType, Schemable},
     traits::{Trait, Traits},
 };
 use darling::FromMeta;
-use mimic::schema::{traits::Schemable, types::StoreType};
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Ident, Path};
@@ -20,7 +20,7 @@ pub struct Store {
     pub def: Def,
 
     pub ident: Ident,
-    pub ty: StoreType,
+    pub ty: BStoreType,
     pub canister: Path,
     pub memory_id: u8,
 }

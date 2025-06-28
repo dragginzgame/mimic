@@ -1,8 +1,5 @@
 use candid::CandidType;
-use darling::FromMeta;
 use derive_more::{Display, FromStr};
-use proc_macro2::TokenStream;
-use quote::{ToTokens, format_ident, quote};
 use serde::{Deserialize, Serialize};
 
 ///
@@ -10,32 +7,13 @@ use serde::{Deserialize, Serialize};
 ///
 
 #[derive(
-    CandidType,
-    Clone,
-    Copy,
-    Default,
-    Debug,
-    Deserialize,
-    Display,
-    Eq,
-    FromMeta,
-    FromStr,
-    PartialEq,
-    Serialize,
+    CandidType, Clone, Copy, Default, Debug, Deserialize, Display, Eq, FromStr, PartialEq, Serialize,
 )]
 pub enum Cardinality {
     #[default]
     One,
     Opt,
     Many,
-}
-
-impl ToTokens for Cardinality {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = format_ident!("{}", self.to_string());
-
-        tokens.extend(quote!(::mimic::schema::types::Cardinality::#ident));
-    }
 }
 
 ///
@@ -57,40 +35,6 @@ pub enum ConstantType {
     Nat32,
     Nat64,
     Str,
-}
-
-impl ConstantType {
-    #[must_use]
-    pub fn as_type(&self) -> TokenStream {
-        match self {
-            Self::Bool => quote!(bool),
-            Self::Float32 => quote!(f32),
-            Self::Float64 => quote!(f64),
-            Self::Int8 => quote!(i8),
-            Self::Int16 => quote!(i16),
-            Self::Int32 => quote!(i32),
-            Self::Int64 => quote!(i64),
-            Self::Nat8 => quote!(u8),
-            Self::Nat16 => quote!(u16),
-            Self::Nat32 => quote!(u32),
-            Self::Nat64 => quote!(u64),
-            Self::Str => quote!(&str),
-        }
-    }
-}
-
-impl FromMeta for ConstantType {
-    fn from_string(s: &str) -> Result<Self, darling::Error> {
-        s.parse().map_err(|_| darling::Error::unknown_value(s))
-    }
-}
-
-impl ToTokens for ConstantType {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = format_ident!("{}", self.to_string());
-
-        tokens.extend(quote!(::mimic::schema::types::ConstantType::#ident));
-    }
 }
 
 ///
@@ -123,104 +67,6 @@ pub enum PrimitiveType {
     Unit,
 }
 
-impl PrimitiveType {
-    #[must_use]
-    pub const fn is_orderable(self) -> bool {
-        !matches!(self, Self::Blob | Self::Float32 | Self::Float64)
-    }
-
-    #[must_use]
-    pub const fn is_displayable(self) -> bool {
-        !matches!(self, Self::Blob | Self::Unit)
-    }
-
-    #[must_use]
-    pub const fn is_float(&self) -> bool {
-        matches!(self, Self::Float32 | Self::Float64)
-    }
-
-    // is_numeric
-    // no floats, this is the check for all the arithmetic traits
-    #[must_use]
-    pub const fn is_numeric(&self) -> bool {
-        matches!(
-            self,
-            Self::Int
-                | Self::Int8
-                | Self::Int16
-                | Self::Int32
-                | Self::Int64
-                | Self::Nat
-                | Self::Nat8
-                | Self::Nat16
-                | Self::Nat32
-                | Self::Nat64
-                | Self::Float32
-                | Self::Float64
-                | Self::Decimal
-        )
-    }
-
-    #[must_use]
-    pub fn as_type(&self) -> TokenStream {
-        match self {
-            Self::Account => quote!(::mimic::core::types::Account),
-            Self::Bool => quote!(::mimic::core::types::Bool),
-            Self::Blob => quote!(::mimic::core::types::Blob),
-            Self::Decimal => quote!(::mimic::core::types::Decimal),
-            Self::Float32 => quote!(::mimic::core::types::Float32),
-            Self::Float64 => quote!(::mimic::core::types::Float64),
-            Self::Int => quote!(::mimic::core::types::Int),
-            Self::Int8 => quote!(::mimic::core::types::Int8),
-            Self::Int16 => quote!(::mimic::core::types::Int16),
-            Self::Int32 => quote!(::mimic::core::types::Int32),
-            Self::Int64 => quote!(::mimic::core::types::Int64),
-            Self::Principal => quote!(::mimic::core::types::Principal),
-            Self::Nat => quote!(::mimic::core::types::Nat),
-            Self::Nat8 => quote!(::mimic::core::types::Nat8),
-            Self::Nat16 => quote!(::mimic::core::types::Nat16),
-            Self::Nat32 => quote!(::mimic::core::types::Nat32),
-            Self::Nat64 => quote!(::mimic::core::types::Nat64),
-            Self::Subaccount => quote!(::mimic::core::types::Subaccount),
-            Self::Text => quote!(::mimic::core::types::Text),
-            Self::Unit => quote!(::mimic::core::types::Unit),
-            Self::Ulid => quote!(::mimic::core::types::Ulid),
-        }
-    }
-
-    #[must_use]
-    pub fn num_cast_fn(self) -> String {
-        match self {
-            Self::Float32 => "f32",
-            Self::Decimal | Self::Float64 => "f64",
-            Self::Int8 => "i8",
-            Self::Int16 => "i16",
-            Self::Int32 => "i32",
-            Self::Int64 => "i64",
-            Self::Nat8 => "u8",
-            Self::Nat16 => "u16",
-            Self::Nat32 => "u32",
-            Self::Nat64 => "u64",
-            _ => panic!("unexpected primitive type"),
-        }
-        .into()
-    }
-}
-
-impl FromMeta for PrimitiveType {
-    fn from_string(s: &str) -> Result<Self, darling::Error> {
-        s.parse().map_err(|_| darling::Error::unknown_value(s))
-    }
-}
-
-impl ToTokens for PrimitiveType {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = format_ident!("{}", self.to_string());
-
-        tokens.extend(quote!(::mimic::schema::types::PrimitiveType::#ident));
-    }
-}
-
 ///
 /// StoreType
 ///
@@ -229,18 +75,4 @@ impl ToTokens for PrimitiveType {
 pub enum StoreType {
     Data,
     Index,
-}
-
-impl FromMeta for StoreType {
-    fn from_string(s: &str) -> Result<Self, darling::Error> {
-        s.parse().map_err(|_| darling::Error::unknown_value(s))
-    }
-}
-
-impl ToTokens for StoreType {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = format_ident!("{}", self.to_string());
-
-        tokens.extend(quote!(::mimic::schema::types::StoreType::#ident));
-    }
 }

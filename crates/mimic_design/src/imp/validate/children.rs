@@ -182,7 +182,7 @@ fn generate_value_validation_inner(value: &Value, var_expr: TokenStream) -> Opti
         return None;
     }
 
-    let tokens = match value.cardinality() {
+    let tokens = match *value.cardinality() {
         Cardinality::One => {
             quote! {
                 {

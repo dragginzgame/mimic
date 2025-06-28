@@ -166,7 +166,7 @@ impl Imp<Tuple> for VisitableTrait {
             let key = format!("{i}");
             let var_expr: Expr = syn::parse_str(&var).expect("can parse");
 
-            inner.extend(quote_value(&var_expr, value.cardinality(), &key));
+            inner.extend(quote_value(&var_expr, *value.cardinality(), &key));
         }
         let q = drive_inner(&inner);
 
@@ -193,7 +193,7 @@ pub fn field_list(fields: &[Field]) -> TokenStream {
         let key = f.name.to_string();
         let var_expr: Expr = syn::parse_str(&var).expect("can parse");
 
-        inner.extend(quote_value(&var_expr, f.value.cardinality(), &key));
+        inner.extend(quote_value(&var_expr, *f.value.cardinality(), &key));
     }
 
     drive_inner(&inner)
@@ -220,7 +220,7 @@ pub fn enum_variant(variant: &EnumVariant) -> TokenStream {
 // quote_variant
 fn quote_variant(value: &Value, ident: &Ident) -> TokenStream {
     let name = ident.to_string();
-    match value.cardinality() {
+    match *value.cardinality() {
         Cardinality::One => quote! {
             Self::#ident(value) => ::mimic::core::visit::perform_visit(visitor, value, #name),
         },

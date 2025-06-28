@@ -66,7 +66,7 @@ impl Imp<Newtype> for NumFromPrimitiveTrait {
 
         // Decimal
         if matches!(
-            node.primitive,
+            *node.primitive,
             PrimitiveType::Decimal | PrimitiveType::Float64
         ) {
             q.extend(quote! {

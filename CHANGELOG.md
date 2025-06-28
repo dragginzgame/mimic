@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.5.4]
+- moved proc_macro2, darling, syn and quote out of mimic and just into the mimic_design crate and it saved
+around 150k
+
 ## [0.5.3]
 - full support for WHERE logic trees, with simplification and DeMorgan's laws (thanks GCSE Computing!)
 - added type coercion so you can search for a u64 == 4u8

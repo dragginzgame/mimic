@@ -1,5 +1,7 @@
-use crate::helper::{quote_one, to_str_lit};
-use mimic::schema::traits::Schemable;
+use crate::{
+    helper::{quote_one, to_str_lit},
+    schema::Schemable,
+};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::Ident;

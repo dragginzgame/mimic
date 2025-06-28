@@ -1,4 +1,4 @@
-use crate::build::actor::ActorBuilder;
+use crate::actor::ActorBuilder;
 use mimic::schema::types::StoreType;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};

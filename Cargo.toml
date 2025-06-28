@@ -2,8 +2,8 @@
 members = [
     "crates/mimic",
     "crates/mimic_base",
+    "crates/mimic_build",
     "crates/mimic_design",
-
     "crates/test/canister",
     "crates/test/design",
     "crates/test/tests",
@@ -13,7 +13,7 @@ resolver = "2"
 [workspace.package]
 rust-version = "1.88.0"
 edition = "2024"
-version = "0.5.3"
+version = "0.5.4"
 authors = ["borovan <84897664+borovan@users.noreply.github.com>"]
 description = "ORM/Database framework for the Internet Computer"
 license = "MIT"
@@ -28,8 +28,8 @@ ic-cdk = "0.18.5"
 icu = { git = "https://github.com/dragginzgame/icu" }
 mimic = { path = "crates/mimic" }
 mimic_base = { path = "crates/mimic_base" }
+mimic_build = { path = "crates/mimic_build" }
 mimic_design = { path = "crates/mimic_design" }
-test_design = { path = "crates/test/design" }
 num-traits = { version = "0.2", default-features = false }
 proc-macro2 = "1.0"
 quote = "1.0"
@@ -42,6 +42,7 @@ semver = "1.0"
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 serde_bytes = "0.11"
 syn = "2.0"
+test_design = { path = "crates/test/design" }
 thiserror = "2.0"
 tinyrand = "0.5"
 # removed std because it imports rand.  serde feature doesn't compile without it

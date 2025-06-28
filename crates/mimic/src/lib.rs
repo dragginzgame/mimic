@@ -2,7 +2,6 @@
 /// mimic
 /// [for external use only, keep out of reach of children]
 ///
-pub mod build;
 pub mod core;
 pub mod db;
 pub mod error;
@@ -67,9 +66,6 @@ use thiserror::Error as ThisError;
 #[derive(CandidType, Debug, Deserialize, Serialize, ThisError)]
 pub enum Error {
     #[error("{0}")]
-    BuildError(String),
-
-    #[error("{0}")]
     DataError(String),
 
     #[error("{0}")]
@@ -95,7 +91,6 @@ macro_rules! from_to_string {
     };
 }
 
-from_to_string!(build::BuildError, BuildError);
 from_to_string!(db::DataError, DataError);
 from_to_string!(interface::InterfaceError, InterfaceError);
 from_to_string!(schema::SchemaError, SchemaError);

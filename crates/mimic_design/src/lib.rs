@@ -6,6 +6,7 @@
 mod helper;
 mod imp;
 mod node;
+mod schema;
 mod traits;
 
 use crate::node::{Def, Node};

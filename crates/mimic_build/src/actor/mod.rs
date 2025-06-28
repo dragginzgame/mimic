@@ -2,7 +2,6 @@ pub mod db;
 pub mod fixtures;
 pub mod query;
 
-use crate::{Error, build::BuildError};
 use mimic::schema::{
     get_schema,
     node::{Canister, Entity, Schema, Store},
@@ -12,20 +11,19 @@ use quote::quote;
 use std::sync::Arc;
 
 // generate
-pub fn generate(canister_path: &str) -> Result<String, Error> {
+#[must_use]
+pub fn generate(canister_path: &str) -> String {
     // load schema and get the specified canister
-    let schema = get_schema()?;
+    let schema = get_schema().unwrap();
 
     // filter by name
-    let canister = schema
-        .try_get_node_as::<Canister>(canister_path)
-        .map_err(|_| BuildError::CanisterNotFound(canister_path.to_string()))?;
+    let canister = schema.try_get_node_as::<Canister>(canister_path).unwrap();
 
     // create the ActorBuilder and generate the code
     let code = ActorBuilder::new(Arc::new(schema.clone()), canister.clone());
     let tokens = code.generate();
 
-    Ok(tokens.to_string())
+    tokens.to_string()
 }
 
 ///

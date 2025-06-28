@@ -582,7 +582,7 @@ dependencies = [
 [[package]]
 name = "icu"
 version = "0.1.6"
-source = "git+https://github.com/dragginzgame/icu#7f87cd6f69260f684c43d642675b8ffd99e6e6a3"
+source = "git+https://github.com/dragginzgame/icu#ef3ca5ecb928ca1fd566c6316ed7390220c2406c"
 dependencies = [
  "candid",
  "defer",
@@ -669,24 +669,20 @@ checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
 name = "mimic"
-version = "0.5.3"
+version = "0.5.4"
 dependencies = [
  "bencher",
  "candid",
  "convert_case 0.8.0",
  "ctor",
- "darling",
  "derive_more",
  "ic-cdk",
  "icu",
  "num-traits",
- "proc-macro2",
- "quote",
  "remain",
  "rust_decimal",
  "serde",
  "serde_bytes",
- "syn 2.0.104",
  "thiserror 2.0.12",
  "tinyrand",
  "ulid",
@@ -695,7 +691,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_base"
-version = "0.5.3"
+version = "0.5.4"
 dependencies = [
  "candid",
  "ctor",
@@ -708,8 +704,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "mimic_design"
-version = "0.5.3"
+name = "mimic_build"
+version = "0.5.4"
 dependencies = [
  "darling",
  "derive_more",
@@ -719,6 +715,21 @@ dependencies = [
  "remain",
  "serde",
  "syn 2.0.104",
+]
+
+[[package]]
+name = "mimic_design"
+version = "0.5.4"
+dependencies = [
+ "darling",
+ "derive_more",
+ "mimic",
+ "proc-macro2",
+ "quote",
+ "remain",
+ "serde",
+ "syn 2.0.104",
+ "tinyrand",
 ]
 
 [[package]]
@@ -1035,18 +1046,21 @@ dependencies = [
 
 [[package]]
 name = "test_canister"
-version = "0.5.3"
+version = "0.5.4"
 dependencies = [
  "candid",
  "ic-cdk",
  "icu",
  "mimic",
+ "mimic_build",
+ "proc-macro2",
+ "quote",
  "test_design",
 ]
 
 [[package]]
 name = "test_design"
-version = "0.5.3"
+version = "0.5.4"
 dependencies = [
  "candid",
  "ctor",
@@ -1059,7 +1073,7 @@ dependencies = [
 
 [[package]]
 name = "tests"
-version = "0.5.3"
+version = "0.5.4"
 dependencies = [
  "mimic",
  "mimic_base",

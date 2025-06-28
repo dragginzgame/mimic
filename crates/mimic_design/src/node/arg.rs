@@ -1,7 +1,9 @@
-use crate::helper::{quote_one, quote_slice, to_str_lit};
+use crate::{
+    helper::{quote_one, quote_slice, to_str_lit},
+    schema::Schemable,
+};
 use darling::{Error as DarlingError, FromMeta, ast::NestedMeta};
 use derive_more::Deref;
-use mimic::schema::traits::Schemable;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use std::fmt::{self, Display};
