@@ -1,5 +1,5 @@
 use crate::{
-    ops::traits::{FieldOrderable, Inner, ValidateAuto, Visitable},
+    core::traits::{FieldOrderable, Inner, ValidateAuto, Visitable},
     prelude::*,
 };
 use candid::{CandidType, Int as WrappedInt};

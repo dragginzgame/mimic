@@ -179,7 +179,7 @@ impl ToTokens for Trait {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let trait_name = format_ident!("{}", self.to_string());
 
-        quote!(::mimic::ops::traits::#trait_name).to_tokens(tokens);
+        quote!(::mimic::core::traits::#trait_name).to_tokens(tokens);
     }
 }
 

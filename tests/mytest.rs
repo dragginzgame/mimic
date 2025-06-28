@@ -1,4 +1,4 @@
-use mimic::{ops::validate::validate, prelude::*};
+use mimic::{core::validate::validate, prelude::*};
 
 //
 // just a place to mess around with tests while developing

@@ -1,5 +1,5 @@
 use bencher::*;
-use mimic::{db::store::DataKey, ops::types::IndexValue};
+use mimic::{core::value::IndexValue, db::store::DataKey};
 
 benchmark_group!(
     benchmarks,

@@ -1,4 +1,4 @@
-use crate::types::EntityKey;
+use crate::core::types::EntityKey;
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 

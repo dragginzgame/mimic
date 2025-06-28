@@ -1,6 +1,6 @@
 use crate::{
     Error,
-    ops::{
+    core::{
         serialize::{deserialize, serialize},
         traits::EntityKind,
     },

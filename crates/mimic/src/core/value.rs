@@ -1,4 +1,4 @@
-use crate::types::{Decimal, EntityKey, Principal, Ulid};
+use crate::core::types::{Decimal, EntityKey, Principal, Ulid};
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut, Display};
 use serde::{Deserialize, Serialize};

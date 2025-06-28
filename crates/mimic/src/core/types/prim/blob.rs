@@ -1,5 +1,5 @@
 use crate::{
-    ops::traits::{FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto, Visitable},
+    core::traits::{FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto, Visitable},
     prelude::*,
 };
 use derive_more::{Deref, DerefMut};

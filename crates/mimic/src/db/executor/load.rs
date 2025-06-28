@@ -1,5 +1,6 @@
 use crate::{
     Error,
+    core::traits::EntityKind,
     db::{
         DataError,
         executor::{ResolvedSelector, WhereEvaluator},
@@ -8,7 +9,6 @@ use crate::{
         store::{DataKey, DataRow, DataStoreLocal, DataStoreRegistry, IndexStoreRegistry},
     },
     debug,
-    ops::traits::EntityKind,
 };
 use icu::{Log, log};
 

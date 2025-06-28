@@ -1,7 +1,7 @@
 use crate::{
+    core::{traits::Storable, value::IndexValue},
     db::hasher::xx_hash_u64,
     ic::structures::{BTreeMap, DefaultMemory, storable::Bound},
-    ops::{IndexValue, traits::Storable},
 };
 use candid::{CandidType, Decode, Encode};
 use derive_more::{Deref, DerefMut};

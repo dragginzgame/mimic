@@ -1,5 +1,6 @@
 use crate::{
     Error,
+    core::{serialize::deserialize, traits::EntityKind},
     db::{
         DataError,
         executor::ResolvedSelector,
@@ -8,7 +9,6 @@ use crate::{
         store::{DataKey, DataStoreRegistry, IndexStoreRegistry},
     },
     debug,
-    ops::{serialize::deserialize, traits::EntityKind},
 };
 
 ///

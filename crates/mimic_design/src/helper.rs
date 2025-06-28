@@ -58,7 +58,7 @@ pub fn to_str_lit<T: ToTokens>(t: &T) -> TokenStream {
 /// to_path
 pub fn to_path<T: ToTokens>(t: &T) -> TokenStream {
     quote! {
-        <#t as ::mimic::ops::traits::Path>::PATH
+        <#t as ::mimic::core::traits::Path>::PATH
     }
 }
 

@@ -3,13 +3,12 @@
 /// [for external use only, keep out of reach of children]
 ///
 pub mod build;
+pub mod core;
 pub mod db;
 pub mod error;
 pub mod interface;
 pub mod macros;
-pub mod ops;
 pub mod schema;
-pub mod types;
 pub mod utils;
 
 // makes it easier to use internally
@@ -33,6 +32,14 @@ extern crate self as mimic;
 
 pub mod prelude {
     pub use crate::{
+        core::{
+            traits::{
+                EntityFixture, EntityIdKind as _, EntityKind as _, Inner as _, NumCast as _,
+                Path as _, Serialize as _, Validate as _, ValidateCustom, ValidatorBytes as _,
+                ValidatorNumber as _, ValidatorString as _, Visitable as _,
+            },
+            types::{EntityKey, EntityKeys, Ulid},
+        },
         db,
         db::{
             executor::SaveExecutor, query::SortDirection, response::LoadCollection,
@@ -40,12 +47,6 @@ pub mod prelude {
         },
         error::ErrorTree,
         mimic_start,
-        ops::traits::{
-            EntityFixture, EntityIdKind as _, EntityKind as _, Inner as _, NumCast as _, Path as _,
-            Serialize as _, Validate as _, ValidateCustom, ValidatorBytes as _,
-            ValidatorNumber as _, ValidatorString as _, Visitable as _,
-        },
-        types::{EntityKey, Ulid},
     };
     pub use ::candid::CandidType;
 }
@@ -97,5 +98,5 @@ from_to_string!(db::DataError, DataError);
 from_to_string!(interface::InterfaceError, InterfaceError);
 from_to_string!(schema::SchemaError, SchemaError);
 
-from_to_string!(ops::serialize::SerializeError, SerializeError);
-from_to_string!(ops::validate::ValidateError, ValidateError);
+from_to_string!(core::serialize::SerializeError, SerializeError);
+from_to_string!(core::validate::ValidateError, ValidateError);

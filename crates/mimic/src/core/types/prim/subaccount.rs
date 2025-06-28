@@ -1,11 +1,9 @@
-use crate::{
-    ops::{
-        traits::{
-            FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable,
-        },
-        types::Value,
+use crate::core::{
+    traits::{
+        FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable,
     },
     types::Principal,
+    value::Value,
 };
 use derive_more::{Deref, DerefMut};
 use icu::{

@@ -1,7 +1,7 @@
 use crate::{
-    ops::{
+    core::{
         traits::{FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto, Visitable},
-        types::Value,
+        value::Value,
     },
     prelude::*,
 };

@@ -93,7 +93,7 @@ fn create_lots_simple() {
 // create_lots_blob
 #[update]
 fn create_lots_blob() {
-    use mimic::types::Blob;
+    use mimic::core::types::Blob;
     use test_design::db::CreateBlob;
 
     const ROWS: u32 = 2000;

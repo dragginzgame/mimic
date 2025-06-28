@@ -100,7 +100,7 @@ impl ItemTarget {
                 let ty = prim.as_type();
                 quote!(#ty)
             }
-            Self::Relation(_) => quote!(::mimic::types::EntityKey),
+            Self::Relation(_) => quote!(::mimic::core::types::EntityKey),
         }
     }
 }

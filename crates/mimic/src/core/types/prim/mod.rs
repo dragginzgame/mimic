@@ -1,7 +1,6 @@
 mod account;
 mod blob;
 mod decimal;
-mod entity_key;
 mod int;
 mod nat;
 mod principal;
@@ -12,7 +11,6 @@ mod unit;
 pub use account::*;
 pub use blob::*;
 pub use decimal::*;
-pub use entity_key::*;
 pub use int::*;
 pub use nat::*;
 pub use principal::*;

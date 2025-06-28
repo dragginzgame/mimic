@@ -12,10 +12,10 @@ pub mod validator;
 
 pub(crate) mod prelude {
     pub use crate::{types, validator};
-    pub use mimic::prelude::*;
-    pub use mimic::{
-        ops::traits::{ValidatorBytes, ValidatorNumber, ValidatorString},
+    pub use mimic::core::{
+        traits::{ValidatorBytes, ValidatorNumber, ValidatorString},
         types::*,
     };
+    pub use mimic::prelude::*;
     pub use mimic_design::*;
 }

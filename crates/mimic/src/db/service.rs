@@ -1,9 +1,9 @@
 use crate::{
+    core::traits::EntityKind,
     db::{
         executor::SaveExecutor,
         query::{SaveMode, SaveQueryTyped},
     },
-    ops::traits::EntityKind,
 };
 
 ///

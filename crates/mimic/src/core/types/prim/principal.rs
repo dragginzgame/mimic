@@ -1,10 +1,10 @@
 use crate::{
     ThisError,
-    ops::{
+    core::{
         traits::{
             FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable,
         },
-        types::Value,
+        value::Value,
     },
     prelude::*,
 };

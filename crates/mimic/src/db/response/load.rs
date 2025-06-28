@@ -1,12 +1,11 @@
 #![allow(clippy::type_complexity)]
 use crate::{
     Error,
+    core::{traits::EntityKind, types::EntityKey},
     db::{
         DataError,
         response::{EntityRow, ResponseError},
     },
-    ops::traits::EntityKind,
-    types::EntityKey,
 };
 use candid::CandidType;
 use derive_more::Deref;

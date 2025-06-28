@@ -1,4 +1,4 @@
-use crate::ops::Value;
+use crate::core::value::Value;
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 

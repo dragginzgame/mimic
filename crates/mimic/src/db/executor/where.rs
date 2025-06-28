@@ -1,6 +1,9 @@
 use crate::{
+    core::{
+        traits::EntityKind,
+        value::{Value, Values},
+    },
     db::query::{Comparator, WhereClause, WhereExpr},
-    ops::{Value, Values, traits::EntityKind},
 };
 use std::marker::PhantomData;
 

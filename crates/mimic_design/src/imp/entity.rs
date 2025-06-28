@@ -80,13 +80,13 @@ fn values(node: &Entity) -> TokenStream {
 
     let cap = inserts.len();
     quote! {
-        fn values(&self) -> ::mimic::ops::types::Values {
-            use ::mimic::ops::traits::FieldValue;
+        fn values(&self) -> ::mimic::core::value::Values {
+            use ::mimic::core::traits::FieldValue;
 
             let mut map = ::std::collections::HashMap::with_capacity(#cap);
             #(#inserts)*
 
-            ::mimic::ops::Values(map)
+            ::mimic::core::value::Values(map)
         }
     }
 }
@@ -106,14 +106,14 @@ fn entity_key(node: &Entity) -> TokenStream {
     });
 
     quote! {
-        fn entity_key(&self) -> ::mimic::types::EntityKey {
-            use ::mimic::ops::traits::FieldValue;
+        fn entity_key(&self) -> ::mimic::core::types::EntityKey {
+            use ::mimic::core::traits::FieldValue;
 
             let mut parts = Vec::new();
 
             #(#fields)*
 
-            ::mimic::types::EntityKey(parts)
+            ::mimic::core::types::EntityKey(parts)
         }
     }
 }
@@ -146,7 +146,7 @@ fn build_data_key(node: &Entity) -> TokenStream {
     });
 
     quote! {
-        fn build_data_key(values: &[::mimic::ops::types::IndexValue]) -> ::mimic::db::store::DataKey {
+        fn build_data_key(values: &[::mimic::core::value::IndexValue]) -> ::mimic::db::store::DataKey {
 
             // Ensure at least one part if none were provided
             if values.is_empty() {
@@ -182,17 +182,17 @@ impl Imp<Entity> for EntitySearchTrait {
               match field.value.cardinality() {
                     Cardinality::One => quote! {
                         ( #name_str, |s: &#ident, text|
-                            ::mimic::ops::traits::FieldSearch::contains_text(&s.#name, text)
+                            ::mimic::core::traits::FieldSearch::contains_text(&s.#name, text)
                         )
                     },
                     Cardinality::Opt => quote! {
                         ( #name_str, |s: &#ident, text|
-                            s.#name.as_ref().map_or(false, |v| ::mimic::ops::traits::FieldSearch::contains_text(v, text))
+                            s.#name.as_ref().map_or(false, |v| ::mimic::core::traits::FieldSearch::contains_text(v, text))
                         )
                     },
                     Cardinality::Many => quote! {
                         ( #name_str, |s: &#ident, text|
-                             s.#name.iter().any(|v| ::mimic::ops::traits::FieldSearch::contains_text(v, text))
+                             s.#name.iter().any(|v| ::mimic::core::traits::FieldSearch::contains_text(v, text))
                         )
                     },
                 }
@@ -247,13 +247,13 @@ impl Imp<Entity> for EntitySortTrait {
 
             asc_fns.extend(quote! {
                 fn #asc_fn(a: &#node_ident, b: &#node_ident) -> ::std::cmp::Ordering {
-                    ::mimic::ops::traits::FieldOrderable::cmp(&a.#field_ident, &b.#field_ident)
+                    ::mimic::core::traits::FieldOrderable::cmp(&a.#field_ident, &b.#field_ident)
                 }
             });
 
             desc_fns.extend(quote! {
                 fn #desc_fn(a: &#node_ident, b: &#node_ident) -> ::std::cmp::Ordering {
-                    ::mimic::ops::traits::FieldOrderable::cmp(&b.#field_ident, &a.#field_ident)
+                    ::mimic::core::traits::FieldOrderable::cmp(&b.#field_ident, &a.#field_ident)
                 }
             });
 

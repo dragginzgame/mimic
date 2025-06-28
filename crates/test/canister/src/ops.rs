@@ -1,6 +1,6 @@
 use mimic::{
-    ops::serialize::{deserialize, serialize},
-    types::Ulid,
+    core::serialize::{deserialize, serialize},
+    prelude::*,
 };
 
 ///

@@ -1,10 +1,10 @@
 use crate::{
-    db::store::{DataEntry, DataRow, Metadata},
-    ops::{
+    core::{
         serialize::{SerializeError, deserialize, serialize},
         traits::Path,
+        types::EntityKey,
     },
-    types::EntityKey,
+    db::store::{DataEntry, DataRow, Metadata},
 };
 use candid::CandidType;
 use serde::{Serialize, de::DeserializeOwned};

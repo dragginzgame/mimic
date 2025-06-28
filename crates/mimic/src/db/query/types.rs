@@ -1,4 +1,7 @@
-use crate::{db::executor::ResolvedSelector, ops::traits::EntityKind, types::EntityKey};
+use crate::{
+    core::{traits::EntityKind, types::EntityKey},
+    db::executor::ResolvedSelector,
+};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
