@@ -94,11 +94,11 @@ impl SaveExecutor {
             (SaveMode::Create | SaveMode::Replace, None) => (now, now, None),
             (SaveMode::Update, None) => return Err(ExecutorError::KeyNotFound(dk))?,
 
-            (SaveMode::Update | SaveMode::Replace, Some(old_dv)) => {
-                let old_ev: EntityEntry<E> = old_dv.try_into()?;
+            (SaveMode::Update | SaveMode::Replace, Some(old_data_value)) => {
+                let old_entity_value: EntityEntry<E> = old_data_value.try_into()?;
 
                 // no changes
-                if entity == old_ev.entity {
+                if entity == old_entity_value.entity {
                     debug!(
                         self.debug,
                         "query.{mode}: no changes for {dk}, skipping save"
@@ -106,12 +106,16 @@ impl SaveExecutor {
 
                     return Ok(SaveCollection(vec![SaveRow {
                         key: dk.into(),
-                        created: old_ev.metadata.created,
-                        modified: old_ev.metadata.modified,
+                        created: old_entity_value.metadata.created,
+                        modified: old_entity_value.metadata.modified,
                     }]));
                 }
 
-                (old_ev.metadata.created, now, Some(old_ev.entity))
+                (
+                    old_entity_value.metadata.created,
+                    now,
+                    Some(old_entity_value.entity),
+                )
             }
         };
 

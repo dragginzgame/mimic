@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.5.3]
 - full support for WHERE logic trees, with simplification and DeMorgan's laws (thanks GCSE Computing!)
+- added type coercion so you can search for a u64 == 4u8
+- removed .search() from the query as you can do that all within where now
 
 ## [0.5.2]
 - changed the .to_string() usage of indexes and where statements to use a variant type

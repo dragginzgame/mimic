@@ -229,30 +229,30 @@ pub struct Metadata {
 mod tests {
     use super::*;
 
-    fn text(s: &str) -> Option<IndexValue> {
-        Some(IndexValue::Text(s.to_string()))
+    fn text(s: &str) -> IndexValue {
+        IndexValue::Text(s.to_string())
     }
 
     #[test]
     fn data_keys_with_identical_paths_and_values_are_equal() {
         let k1 = DataKey::new(vec![("my::Entity", Some("abc".into()))]);
-        let k2 = DataKey::new(vec![("my::Entity", text("abc"))]);
+        let k2 = DataKey::new(vec![("my::Entity", Some(text("abc")))]);
 
         assert_eq!(k1, k2, "DataKeys from same path and value should be equal");
     }
 
     #[test]
     fn data_keys_with_different_paths_are_not_equal() {
-        let k1 = DataKey::new(vec![("a::Entity", text("abc"))]);
-        let k2 = DataKey::new(vec![("b::Entity", text("abc"))]);
+        let k1 = DataKey::new(vec![("a::Entity", Some(text("abc")))]);
+        let k2 = DataKey::new(vec![("b::Entity", Some(text("abc")))]);
 
         assert_ne!(k1, k2, "Different paths should produce different DataKey#s");
     }
 
     #[test]
     fn data_keys_with_different_values_are_not_equal() {
-        let k1 = DataKey::new(vec![("my::Entity", text("abc"))]);
-        let k2 = DataKey::new(vec![("my::Entity", text("def"))]);
+        let k1 = DataKey::new(vec![("my::Entity", Some(text("abc")))]);
+        let k2 = DataKey::new(vec![("my::Entity", Some(text("def")))]);
 
         assert_ne!(k1, k2, "Same path with different values should differ");
     }
@@ -260,31 +260,40 @@ mod tests {
     #[test]
     fn data_keys_with_none_and_some_are_different() {
         let k1 = DataKey::new(vec![("my::Entity", None)]);
-        let k2 = DataKey::new(vec![("my::Entity", text("value"))]);
+        let k2 = DataKey::new(vec![("my::Entity", Some(text("value")))]);
 
         assert_ne!(k1, k2, "None vs Some should differ");
     }
 
     #[test]
     fn data_keys_with_additional_parts_are_different() {
-        let short = DataKey::new(vec![("my::Entity", text("v1"))]);
-        let long = DataKey::new(vec![("my::Entity", text("v1")), ("my::Entity", text("v2"))]);
+        let short = DataKey::new(vec![("my::Entity", Some(text("v1")))]);
+        let long = DataKey::new(vec![
+            ("my::Entity", Some(text("v1"))),
+            ("my::Entity", Some(text("v2"))),
+        ]);
 
         assert_ne!(short, long, "Longer DataKey# should not equal shorter one");
     }
 
     #[test]
     fn data_keys_are_stable_across_invocations() {
-        let k1 = DataKey::new(vec![("stable::Entity", text("42"))]);
-        let k2 = DataKey::new(vec![("stable::Entity", text("42"))]);
+        let k1 = DataKey::new(vec![("stable::Entity", Some(text("42")))]);
+        let k2 = DataKey::new(vec![("stable::Entity", Some(text("42")))]);
 
         assert_eq!(k1, k2, "DataKey#s should be equal on repeated construction");
     }
 
     #[test]
     fn data_key_ordering_is_structural_only() {
-        let k1 = DataKey::new(vec![("x::Entity", text("a")), ("y::Entity", text("a"))]);
-        let k2 = DataKey::new(vec![("x::Entity", text("a")), ("y::Entity", text("b"))]);
+        let k1 = DataKey::new(vec![
+            ("x::Entity", Some(text("a"))),
+            ("y::Entity", Some(text("a"))),
+        ]);
+        let k2 = DataKey::new(vec![
+            ("x::Entity", Some(text("a"))),
+            ("y::Entity", Some(text("b"))),
+        ]);
 
         assert_ne!(
             k1, k2,

@@ -1,7 +1,4 @@
-use crate::{
-    core::types::{Decimal, EntityKey, Principal, Ulid},
-    db::query::Cmp,
-};
+use crate::core::types::{Decimal, EntityKey, Principal, Ulid};
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut, Display};
 use serde::{Deserialize, Serialize};
@@ -50,7 +47,7 @@ impl Values {
 
         for field in fields {
             if let Some(v) = self.0.get(field) {
-                values.push(v.clone())
+                values.push(v.clone());
             }
         }
 
@@ -81,13 +78,13 @@ impl Value {
     #[must_use]
     pub fn into_index_value(self) -> Option<IndexValue> {
         match self {
-            Value::Decimal(d) => Some(IndexValue::Decimal(d)),
-            Value::EntityKey(k) => Some(IndexValue::EntityKey(k)),
-            Value::Int(i) => Some(IndexValue::Int(i)),
-            Value::Nat(n) => Some(IndexValue::Nat(n)),
-            Value::Principal(p) => Some(IndexValue::Principal(p)),
-            Value::Text(s) => Some(IndexValue::Text(s)),
-            Value::Ulid(u) => Some(IndexValue::Ulid(u)),
+            Self::Decimal(d) => Some(IndexValue::Decimal(d)),
+            Self::EntityKey(k) => Some(IndexValue::EntityKey(k)),
+            Self::Int(i) => Some(IndexValue::Int(i)),
+            Self::Nat(n) => Some(IndexValue::Nat(n)),
+            Self::Principal(p) => Some(IndexValue::Principal(p)),
+            Self::Text(s) => Some(IndexValue::Text(s)),
+            Self::Ulid(u) => Some(IndexValue::Ulid(u)),
             _ => None,
         }
     }
@@ -96,58 +93,10 @@ impl Value {
     #[must_use]
     pub fn to_searchable_string(&self) -> Option<String> {
         match self {
-            Value::Text(s) => Some(s.to_lowercase()),
-            Value::Principal(p) => Some(p.to_text().to_lowercase()),
-            Value::Ulid(u) => Some(u.to_string().to_lowercase()),
-            Value::EntityKey(k) => Some(k.to_string().to_lowercase()),
-            _ => None,
-        }
-    }
-
-    #[must_use]
-    pub fn coerce_match(&self, other: &Value, cmp: &Cmp) -> Option<bool> {
-        match (self, other) {
-            // Int vs Nat coercion
-            (Value::Int(a), Value::Nat(b)) => {
-                if *a < 0 {
-                    Some(matches!(cmp, Cmp::Ne)) // negative can't equal nat
-                } else {
-                    Some(cmp.compare_order((*a as u64).cmp(b)))
-                }
-            }
-
-            (Value::Nat(a), Value::Int(b)) => {
-                if *b < 0 {
-                    Some(matches!(cmp, Cmp::Ne)) // can't match a negative int to nat
-                } else {
-                    Some(cmp.compare_order(a.cmp(&(*b as u64))))
-                }
-            }
-
-            // Int vs Float (lossy)
-            (Value::Int(a), Value::Float(b)) => {
-                Some(cmp.compare_order((*a as f64).partial_cmp(b)?))
-            }
-            (Value::Float(a), Value::Int(b)) => {
-                Some(cmp.compare_order(a.partial_cmp(&(*b as f64))?))
-            }
-
-            // Nat vs Float
-            (Value::Nat(a), Value::Float(b)) => {
-                Some(cmp.compare_order((*a as f64).partial_cmp(b)?))
-            }
-            (Value::Float(a), Value::Nat(b)) => {
-                Some(cmp.compare_order(a.partial_cmp(&(*b as f64))?))
-            }
-
-            // Ulid or Principal vs Text
-            (Value::Ulid(a), Value::Text(b)) => Some(cmp.compare_order(a.to_string().cmp(b))),
-            (Value::Principal(a), Value::Text(b)) => Some(cmp.compare_order(a.to_text().cmp(b))),
-
-            // EntityKey vs Text (if you want)
-            (Value::EntityKey(a), Value::Text(b)) => Some(cmp.compare_order(a.to_string().cmp(b))),
-            (Value::Text(a), Value::EntityKey(b)) => Some(cmp.compare_order(a.cmp(&b.to_string()))),
-
+            Self::Text(s) => Some(s.to_lowercase()),
+            Self::Principal(p) => Some(p.to_text().to_lowercase()),
+            Self::Ulid(u) => Some(u.to_string().to_lowercase()),
+            Self::EntityKey(k) => Some(k.to_string().to_lowercase()),
             _ => None,
         }
     }

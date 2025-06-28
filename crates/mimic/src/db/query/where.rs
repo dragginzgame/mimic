@@ -24,22 +24,22 @@ impl WhereExpr {
     ///
     /// This flattens nested `And`s to avoid deep nesting (e.g., `(a AND b) AND c` becomes `AND[a,b,c]`).
     #[must_use]
-    pub fn and(self, other: WhereExpr) -> Self {
+    pub fn and(self, other: Self) -> Self {
         match (self, other) {
-            (WhereExpr::And(mut a), WhereExpr::And(mut b)) => {
+            (Self::And(mut a), Self::And(mut b)) => {
                 a.append(&mut b);
-                WhereExpr::And(a)
+                Self::And(a)
             }
-            (WhereExpr::And(mut a), b) => {
+            (Self::And(mut a), b) => {
                 a.push(b);
-                WhereExpr::And(a)
+                Self::And(a)
             }
-            (a, WhereExpr::And(mut b)) => {
+            (a, Self::And(mut b)) => {
                 let mut list = vec![a];
                 list.append(&mut b);
-                WhereExpr::And(list)
+                Self::And(list)
             }
-            (a, b) => WhereExpr::And(vec![a, b]),
+            (a, b) => Self::And(vec![a, b]),
         }
     }
 
@@ -47,28 +47,28 @@ impl WhereExpr {
     #[must_use]
     #[allow(clippy::should_implement_trait)]
     pub fn not(self) -> Self {
-        WhereExpr::Not(Box::new(self))
+        Self::Not(Box::new(self))
     }
 
     /// Combine two expressions into an `Or` expression,
     /// flattening nested `Or`s similarly to `and`.
     #[must_use]
-    pub fn or(self, other: WhereExpr) -> Self {
+    pub fn or(self, other: Self) -> Self {
         match (self, other) {
-            (WhereExpr::Or(mut a), WhereExpr::Or(mut b)) => {
+            (Self::Or(mut a), Self::Or(mut b)) => {
                 a.append(&mut b);
-                WhereExpr::Or(a)
+                Self::Or(a)
             }
-            (WhereExpr::Or(mut a), b) => {
+            (Self::Or(mut a), b) => {
                 a.push(b);
-                WhereExpr::Or(a)
+                Self::Or(a)
             }
-            (a, WhereExpr::Or(mut b)) => {
+            (a, Self::Or(mut b)) => {
                 let mut list = vec![a];
                 list.append(&mut b);
-                WhereExpr::Or(list)
+                Self::Or(list)
             }
-            (a, b) => WhereExpr::Or(vec![a, b]),
+            (a, b) => Self::Or(vec![a, b]),
         }
     }
 
@@ -87,63 +87,63 @@ impl WhereExpr {
     #[must_use]
     pub fn simplify(self) -> Self {
         match self {
-            WhereExpr::Not(inner) => match *inner {
-                WhereExpr::True => WhereExpr::False,
-                WhereExpr::False => WhereExpr::True,
-                WhereExpr::Not(inner2) => *inner2.simplify_boxed(), // Double negation elimination
-                WhereExpr::And(children) => {
+            Self::Not(inner) => match *inner {
+                Self::True => Self::False,
+                Self::False => Self::True,
+                Self::Not(inner2) => *inner2.simplify_boxed(), // Double negation elimination
+                Self::And(children) => {
                     // De Morgan's: NOT(AND(...)) == OR(NOT(...))
-                    WhereExpr::Or(children.into_iter().map(|c| c.not().simplify()).collect())
+                    Self::Or(children.into_iter().map(|c| c.not().simplify()).collect())
                 }
-                WhereExpr::Or(children) => {
+                Self::Or(children) => {
                     // De Morgan's: NOT(OR(...)) == AND(NOT(...))
-                    WhereExpr::And(children.into_iter().map(|c| c.not().simplify()).collect())
+                    Self::And(children.into_iter().map(|c| c.not().simplify()).collect())
                 }
-                x => WhereExpr::Not(Box::new(x.simplify())),
+                x @ Self::Clause(_) => Self::Not(Box::new(x.simplify())),
             },
 
-            WhereExpr::And(children) => {
+            Self::And(children) => {
                 // Recursively simplify and flatten `And` children
-                let flat = Self::simplify_children(children, |e| matches!(e, WhereExpr::And(_)));
+                let flat = Self::simplify_children(children, |e| matches!(e, Self::And(_)));
 
                 // If any child is `False`, whole AND is False (short circuit)
-                if flat.iter().any(|e| matches!(e, WhereExpr::False)) {
-                    WhereExpr::False
+                if flat.iter().any(|e| matches!(e, Self::False)) {
+                    Self::False
                 } else {
                     // Remove neutral elements `True`
                     let filtered: Vec<_> = flat
                         .into_iter()
-                        .filter(|e| !matches!(e, WhereExpr::True))
+                        .filter(|e| !matches!(e, Self::True))
                         .collect();
 
                     // If empty after filtering, all were True -> return True
                     match filtered.len() {
-                        0 => WhereExpr::True,
+                        0 => Self::True,
                         1 => filtered.into_iter().next().unwrap(),
-                        _ => WhereExpr::And(filtered),
+                        _ => Self::And(filtered),
                     }
                 }
             }
 
-            WhereExpr::Or(children) => {
+            Self::Or(children) => {
                 // Recursively simplify and flatten `Or` children
-                let flat = Self::simplify_children(children, |e| matches!(e, WhereExpr::Or(_)));
+                let flat = Self::simplify_children(children, |e| matches!(e, Self::Or(_)));
 
                 // If any child is `True`, whole OR is True (short circuit)
-                if flat.iter().any(|e| matches!(e, WhereExpr::True)) {
-                    WhereExpr::True
+                if flat.iter().any(|e| matches!(e, Self::True)) {
+                    Self::True
                 } else {
                     // Remove neutral elements `False`
                     let filtered: Vec<_> = flat
                         .into_iter()
-                        .filter(|e| !matches!(e, WhereExpr::False))
+                        .filter(|e| !matches!(e, Self::False))
                         .collect();
 
                     // If empty after filtering, all were False -> return False
                     match filtered.len() {
-                        0 => WhereExpr::False,
+                        0 => Self::False,
                         1 => filtered.into_iter().next().unwrap(),
-                        _ => WhereExpr::Or(filtered),
+                        _ => Self::Or(filtered),
                     }
                 }
             }
@@ -157,16 +157,13 @@ impl WhereExpr {
     ///
     /// - `children`: the children expressions to simplify and flatten
     /// - `flatten_if`: a predicate to decide if the child should be flattened
-    fn simplify_children(
-        children: Vec<WhereExpr>,
-        flatten_if: fn(&WhereExpr) -> bool,
-    ) -> Vec<WhereExpr> {
+    fn simplify_children(children: Vec<Self>, flatten_if: fn(&Self) -> bool) -> Vec<Self> {
         let mut flat = Vec::with_capacity(children.len());
 
         for child in children {
             let simplified = child.simplify();
             if flatten_if(&simplified) {
-                if let WhereExpr::And(nested) | WhereExpr::Or(nested) = simplified {
+                if let Self::And(nested) | Self::Or(nested) = simplified {
                     flat.extend(nested);
                 }
             } else {
@@ -178,7 +175,7 @@ impl WhereExpr {
     }
 
     /// Simplify and return boxed expression (helper for double negation case)
-    fn simplify_boxed(self) -> Box<WhereExpr> {
+    fn simplify_boxed(self) -> Box<Self> {
         Box::new(self.simplify())
     }
 }
@@ -231,12 +228,12 @@ impl Cmp {
     #[must_use]
     pub fn compare_order(&self, ord: Ordering) -> bool {
         match self {
-            Cmp::Eq => ord == Ordering::Equal,
-            Cmp::Ne => ord != Ordering::Equal,
-            Cmp::Lt => ord == Ordering::Less,
-            Cmp::Ltoe => ord != Ordering::Greater,
-            Cmp::Gt => ord == Ordering::Greater,
-            Cmp::Gtoe => ord != Ordering::Less,
+            Self::Eq => ord == Ordering::Equal,
+            Self::Ne => ord != Ordering::Equal,
+            Self::Lt => ord == Ordering::Less,
+            Self::Ltoe => ord != Ordering::Greater,
+            Self::Gt => ord == Ordering::Greater,
+            Self::Gtoe => ord != Ordering::Less,
             _ => false,
         }
     }
@@ -364,17 +361,6 @@ mod tests {
 
         let simplified = expr.simplify();
 
-        fn contains_clause_f(expr: &WhereExpr) -> bool {
-            match expr {
-                WhereExpr::Clause(c) => c.field == "f",
-                WhereExpr::And(children) | WhereExpr::Or(children) => {
-                    children.iter().any(contains_clause_f)
-                }
-                WhereExpr::Not(inner) => contains_clause_f(inner),
-                _ => false,
-            }
-        }
-
         assert!(
             matches!(simplified, WhereExpr::Or(_)),
             "Expected top-level Or"
@@ -383,5 +369,16 @@ mod tests {
             contains_clause_f(&simplified),
             "Simplified expression must contain clause(\"f\")"
         );
+    }
+
+    fn contains_clause_f(expr: &WhereExpr) -> bool {
+        match expr {
+            WhereExpr::Clause(c) => c.field == "f",
+            WhereExpr::And(children) | WhereExpr::Or(children) => {
+                children.iter().any(contains_clause_f)
+            }
+            WhereExpr::Not(inner) => contains_clause_f(inner),
+            _ => false,
+        }
     }
 }

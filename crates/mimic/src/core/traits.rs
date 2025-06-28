@@ -112,7 +112,7 @@ pub trait EntityKind: TypeKind + EntitySearch + EntitySort + PartialEq {
             .values()
             .collect_all(fields)
             .into_iter()
-            .filter_map(|v| v.into_index_value())
+            .filter_map(Value::into_index_value)
             .collect();
 
         IndexKey::build(Self::PATH, fields, &index_values)
