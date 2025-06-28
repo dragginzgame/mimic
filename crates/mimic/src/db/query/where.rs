@@ -1,6 +1,7 @@
 use crate::core::value::Value;
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 
 /// Represents logical expressions for querying/filtering data.
 ///
@@ -203,8 +204,10 @@ impl WhereClause {
 }
 
 ///
-/// Comparator operators for clauses.
+/// Cmp
+/// comparator operators for clauses
 ///
+
 #[derive(CandidType, Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum Cmp {
     // general comparison
@@ -219,6 +222,24 @@ pub enum Cmp {
     Contains,
     StartsWith,
     EndsWith,
+}
+
+impl Cmp {
+    // compare_order
+    // helper function to evaluate an 'Ordering' result against this
+    // comparison operator
+    #[must_use]
+    pub fn compare_order(&self, ord: Ordering) -> bool {
+        match self {
+            Cmp::Eq => ord == Ordering::Equal,
+            Cmp::Ne => ord != Ordering::Equal,
+            Cmp::Lt => ord == Ordering::Less,
+            Cmp::Ltoe => ord != Ordering::Greater,
+            Cmp::Gt => ord == Ordering::Greater,
+            Cmp::Gtoe => ord != Ordering::Less,
+            _ => false,
+        }
+    }
 }
 
 ///

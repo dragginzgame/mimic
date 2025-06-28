@@ -37,8 +37,13 @@ impl<'a> WhereEvaluator<'a> {
     }
 
     fn compare(actual: &Value, cmp: &Cmp, expected: &Value) -> bool {
+        // attempt to match via coercion first
+        if let Some(res) = actual.coerce_match(expected, cmp) {
+            return res;
+        }
+
+        // then we'll use the type comparison logic
         match cmp {
-            // general comparison
             Cmp::Eq => actual == expected,
             Cmp::Ne => actual != expected,
             Cmp::Lt => actual < expected,
@@ -46,7 +51,6 @@ impl<'a> WhereEvaluator<'a> {
             Cmp::Gt => actual > expected,
             Cmp::Gtoe => actual >= expected,
 
-            // string matching
             Cmp::Contains => match (actual, expected) {
                 (Value::Text(a), Value::Text(b)) => a.contains(b),
                 _ => false,

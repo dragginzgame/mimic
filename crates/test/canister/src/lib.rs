@@ -144,7 +144,7 @@ pub fn rarity() -> Result<Vec<Rarity>, MimicError> {
         .execute::<Rarity>(
             query::load()
                 .all()
-                .where_eq("level", 4u8)
+                .where_eq("level", 4)
                 .sort([("level", SortDirection::Desc)]),
         )?
         .entities();
