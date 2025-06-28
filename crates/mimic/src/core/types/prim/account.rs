@@ -1,5 +1,5 @@
 use crate::core::{
-    traits::{FieldOrderable, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldSortable, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable},
     types::{Principal, Subaccount},
     value::Value,
 };
@@ -44,7 +44,7 @@ impl Account {
     }
 }
 
-impl FieldOrderable for Account {
+impl FieldSortable for Account {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
     }

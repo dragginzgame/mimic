@@ -1,5 +1,5 @@
 use crate::{
-    core::traits::{FieldOrderable, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable},
+    core::traits::{FieldSortable, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable},
     prelude::*,
 };
 use serde::{Deserialize, Serialize};
@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 )]
 pub struct Unit();
 
-impl FieldOrderable for Unit {}
+impl FieldSortable for Unit {}
 
 impl FieldValue for Unit {}
 

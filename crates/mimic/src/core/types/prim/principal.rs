@@ -2,7 +2,8 @@ use crate::{
     ThisError,
     core::{
         traits::{
-            FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable,
+            FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, ValidateCustom,
+            Visitable,
         },
         value::Value,
     },
@@ -79,15 +80,15 @@ impl Display for Principal {
     }
 }
 
-impl FieldOrderable for Principal {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
+impl FieldSearchable for Principal {
+    fn to_searchable_string(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 
-impl FieldSearch for Principal {
-    fn to_searchable_string(&self) -> Option<String> {
-        Some(self.to_string())
+impl FieldSortable for Principal {
+    fn cmp(&self, other: &Self) -> Ordering {
+        Ord::cmp(self, other)
     }
 }
 

@@ -1,7 +1,7 @@
 use crate::{
     core::{
         traits::{
-            FieldOrderable, FieldSearch, FieldValue, ValidateAuto, ValidateCustom, Visitable,
+            FieldSearchable, FieldSortable, FieldValue, ValidateAuto, ValidateCustom, Visitable,
         },
         types::Ulid,
         value::{IndexValue, Value},
@@ -70,7 +70,9 @@ impl Display for EntityKey {
     }
 }
 
-impl FieldOrderable for EntityKey {
+impl FieldSearchable for EntityKey {}
+
+impl FieldSortable for EntityKey {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
     }
@@ -81,8 +83,6 @@ impl FieldValue for EntityKey {
         Value::EntityKey(self.clone())
     }
 }
-
-impl FieldSearch for EntityKey {}
 
 impl From<DataKey> for EntityKey {
     fn from(key: DataKey) -> Self {

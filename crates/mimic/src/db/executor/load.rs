@@ -68,6 +68,7 @@ impl LoadExecutor {
     ) -> Result<LoadCollection<E>, DataError> {
         debug!(self.debug, "query.load: {query:?}");
 
+        // cast results to E
         let rows = self
             .load::<E>(&query.selector, query.r#where.as_ref())?
             .into_iter()
@@ -75,12 +76,16 @@ impl LoadExecutor {
             .map(TryFrom::try_from)
             .collect::<Result<Vec<EntityRow<E>>, _>>()?;
 
-        // apply post filters and paginate
-        let rows = Self::apply_all_post(rows, &query)
+        // post filters
+        let mut rows = Self::apply_where(rows, &query);
+        Self::apply_sort(&mut rows, &query);
+
+        // paginate
+        rows = rows
             .into_iter()
             .skip(query.offset as usize)
             .take(query.limit.unwrap_or(u32::MAX) as usize)
-            .collect();
+            .collect::<Vec<_>>();
 
         Ok(LoadCollection(rows))
     }
@@ -130,28 +135,20 @@ impl LoadExecutor {
         })
     }
 
-    // apply_all_post
-    // noisy but more efficient, so keeping it in its own method
-    fn apply_all_post<E: EntityKind>(
-        rows: Vec<EntityRow<E>>,
-        query: &LoadQuery,
-    ) -> Vec<EntityRow<E>> {
-        let rows = Self::apply_where(rows, query);
-        let mut rows = Self::apply_search(rows, query);
-        Self::apply_sort(&mut rows, query);
-
-        rows
-    }
-
     // apply_where
     fn apply_where<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec<EntityRow<E>> {
         match &query.r#where {
-            Some(expr) => {
+            Some(expr_raw) => {
+                let expr = expr_raw.clone().simplify(); // ⬅️ done once
+                debug!(true, "{expr:?}");
                 let olen = rows.len();
 
                 let filtered: Vec<_> = rows
                     .into_iter()
-                    .filter(|row| WhereEvaluator::eval(expr, &row.entry.entity))
+                    .filter(|row| {
+                        let values = row.entry.entity.values();
+                        WhereEvaluator::new(&values).eval(&expr)
+                    })
                     .collect();
 
                 let flen = filtered.len();
@@ -163,30 +160,6 @@ impl LoadExecutor {
             }
             None => rows,
         }
-    }
-
-    // apply_search
-    fn apply_search<E: EntityKind>(
-        rows: Vec<EntityRow<E>>,
-        query: &LoadQuery,
-    ) -> Vec<EntityRow<E>> {
-        if query.search.is_empty() {
-            return rows;
-        }
-        let olen = rows.len();
-
-        // filter
-        let filtered = rows
-            .into_iter()
-            .filter(|row| row.entry.entity.search_fields(&query.search))
-            .collect::<Vec<_>>();
-        let flen = filtered.len();
-
-        if flen < olen {
-            log!(Log::Info, "apply_search: filtered {olen} → {flen} rows",);
-        }
-
-        filtered
     }
 
     // apply_sort

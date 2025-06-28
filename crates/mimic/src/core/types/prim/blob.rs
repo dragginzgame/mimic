@@ -1,5 +1,5 @@
 use crate::{
-    core::traits::{FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto, Visitable},
+    core::traits::{FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, Visitable},
     prelude::*,
 };
 use derive_more::{Deref, DerefMut};
@@ -39,9 +39,9 @@ impl Blob {
     }
 }
 
-impl FieldOrderable for Blob {}
+impl FieldSearchable for Blob {}
 
-impl FieldSearch for Blob {}
+impl FieldSortable for Blob {}
 
 impl FieldValue for Blob {}
 

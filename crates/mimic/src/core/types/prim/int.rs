@@ -1,5 +1,5 @@
 use crate::{
-    core::traits::{FieldOrderable, Inner, ValidateAuto, Visitable},
+    core::traits::{FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, Visitable},
     prelude::*,
 };
 use candid::{CandidType, Int as WrappedInt};
@@ -39,11 +39,19 @@ impl Display for Int {
     }
 }
 
-impl FieldOrderable for Int {
+impl FieldSearchable for Int {
+    fn to_searchable_string(&self) -> Option<String> {
+        Some(self.to_string())
+    }
+}
+
+impl FieldSortable for Int {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
     }
 }
+
+impl FieldValue for Int {}
 
 impl From<WrappedInt> for Int {
     fn from(i: WrappedInt) -> Self {

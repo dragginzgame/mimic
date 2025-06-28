@@ -1,7 +1,7 @@
 #![allow(clippy::type_complexity)]
 use crate::{
     core::{types::EntityKey, value::Value},
-    db::query::{Comparator, Selector, SortDirection, WhereClause, WhereExpr},
+    db::query::{Cmp, Selector, SortDirection, WhereClause, WhereExpr},
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -95,7 +95,6 @@ pub struct LoadQuery {
     pub r#where: Option<WhereExpr>,
     pub limit: Option<u32>,
     pub offset: u32,
-    pub search: Vec<(String, String)>,
     pub sort: Vec<(String, SortDirection)>,
 }
 
@@ -119,12 +118,12 @@ impl LoadQuery {
     // creates a new where clause, or optionally appends additional where clauses
     // defaults to AND currently
     #[must_use]
-    pub fn where_<F, V>(mut self, field: F, comparator: Comparator, value: V) -> Self
+    pub fn where_<F, V>(mut self, field: F, cmp: Cmp, value: V) -> Self
     where
         F: Into<String>,
         V: Into<Value>,
     {
-        let clause = WhereExpr::Clause(WhereClause::new(field, comparator, value));
+        let clause = WhereExpr::Clause(WhereClause::new(field, cmp, value));
 
         self.r#where = Some(match self.r#where {
             Some(existing) => existing.and(clause),
@@ -137,7 +136,7 @@ impl LoadQuery {
     // where_eq
     #[must_use]
     pub fn where_eq<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
-        self.where_(field, Comparator::Eq, value)
+        self.where_(field, Cmp::Eq, value)
     }
 
     // offset
@@ -159,28 +158,6 @@ impl LoadQuery {
     pub const fn limit_option(mut self, limit: Option<u32>) -> Self {
         self.limit = limit;
         self
-    }
-
-    // search
-    #[must_use]
-    pub fn search<K, V, I>(mut self, search: I) -> Self
-    where
-        K: Into<String>,
-        V: Into<String>,
-        I: IntoIterator<Item = (K, V)>,
-    {
-        self.search = search
-            .into_iter()
-            .map(|(k, v)| (k.into(), v.into()))
-            .collect();
-
-        self
-    }
-
-    // search_field
-    #[must_use]
-    pub fn search_field<K: Into<String>, V: Into<String>>(self, field: K, value: V) -> Self {
-        self.search(std::iter::once((field, value)))
     }
 
     // sort

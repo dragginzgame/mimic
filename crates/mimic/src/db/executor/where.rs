@@ -1,56 +1,66 @@
 use crate::{
-    core::{
-        traits::EntityKind,
-        value::{Value, Values},
-    },
-    db::query::{Comparator, WhereClause, WhereExpr},
+    core::value::{Value, Values},
+    db::query::{Cmp, WhereClause, WhereExpr},
 };
-use std::marker::PhantomData;
 
 ///
 /// WhereEvaluator
 ///
 
-pub struct WhereEvaluator<E: EntityKind>(PhantomData<E>);
+pub struct WhereEvaluator<'a> {
+    values: &'a Values,
+}
 
-impl<E> WhereEvaluator<E>
-where
-    E: EntityKind,
-{
-    pub fn eval(expr: &WhereExpr, entity: &E) -> bool {
-        // Get all fields once, as a HashMap for quick lookup
-        let cached_values = entity.values();
-
-        Self::eval_cached(expr, &cached_values)
+impl<'a> WhereEvaluator<'a> {
+    #[must_use]
+    pub fn new(values: &'a Values) -> Self {
+        Self { values }
     }
 
-    fn eval_cached(expr: &WhereExpr, values: &Values) -> bool {
+    #[must_use]
+    pub fn eval(&self, expr: &WhereExpr) -> bool {
         match expr {
             WhereExpr::True => true,
             WhereExpr::False => false,
-            WhereExpr::Clause(clause) => Self::eval_clause(clause, values),
-            WhereExpr::And(children) => children.iter().all(|c| Self::eval_cached(c, values)),
-            WhereExpr::Or(children) => children.iter().any(|c| Self::eval_cached(c, values)),
-            WhereExpr::Not(child) => !Self::eval_cached(child, values),
+            WhereExpr::Clause(clause) => self.eval_clause(clause),
+            WhereExpr::And(children) => children.iter().all(|e| self.eval(e)),
+            WhereExpr::Or(children) => children.iter().any(|e| self.eval(e)),
+            WhereExpr::Not(inner) => !self.eval(inner),
         }
     }
 
-    fn eval_clause(clause: &WhereClause, values: &Values) -> bool {
-        if let Some(actual) = values.get(clause.field.as_str()) {
-            Self::compare(actual, &clause.cmp, &clause.value)
-        } else {
-            false
-        }
+    fn eval_clause(&self, clause: &WhereClause) -> bool {
+        self.values
+            .get(&clause.field.as_str())
+            .map(|actual| Self::compare(actual, &clause.cmp, &clause.value))
+            .unwrap_or(false)
     }
 
-    fn compare(actual: &Value, cmp: &Comparator, expected: &Value) -> bool {
+    fn compare(actual: &Value, cmp: &Cmp, expected: &Value) -> bool {
         match cmp {
-            Comparator::Eq => actual == expected,
-            Comparator::Ne => actual != expected,
-            Comparator::Lt => actual < expected,
-            Comparator::Ltoe => actual <= expected,
-            Comparator::Gt => actual > expected,
-            Comparator::Gtoe => actual >= expected,
+            // general comparison
+            Cmp::Eq => actual == expected,
+            Cmp::Ne => actual != expected,
+            Cmp::Lt => actual < expected,
+            Cmp::Ltoe => actual <= expected,
+            Cmp::Gt => actual > expected,
+            Cmp::Gtoe => actual >= expected,
+
+            // string matching
+            Cmp::Contains => match (actual, expected) {
+                (Value::Text(a), Value::Text(b)) => a.contains(b),
+                _ => false,
+            },
+
+            Cmp::StartsWith => match (actual, expected) {
+                (Value::Text(a), Value::Text(b)) => a.starts_with(b),
+                _ => false,
+            },
+
+            Cmp::EndsWith => match (actual, expected) {
+                (Value::Text(a), Value::Text(b)) => a.ends_with(b),
+                _ => false,
+            },
         }
     }
 }

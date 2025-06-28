@@ -22,7 +22,6 @@ impl DbTester {
             ("limit_query", Self::limit_query),
             ("perf_options", Self::perf_options),
             ("perf_many_relations", Self::perf_many_relations),
-            ("search_query", Self::search_query),
         ];
 
         for (name, test_fn) in tests {
@@ -301,92 +300,5 @@ impl DbTester {
             .keys();
 
         let _ = keys.len();
-    }
-
-    // search_query
-    fn search_query() {
-        use test_design::db::Searchable;
-
-        // Seed test data
-        let test_entities = vec![
-            (
-                "01HMBEJJM0D6CMABQ3ZF6TMQ1M",
-                "The Book of Magic",
-                "This book has so much magic in it",
-            ),
-            (
-                "01HMBEK2QT84T2GNV2Y02ED9D9",
-                "The Sparkle Sword",
-                "*** SPARKLES ***",
-            ),
-            ("01HMBEK9HQTTH6ZWYYYNTJ4ZC1", "Fruit Salad", "Yummy yummy"),
-            ("01HMBEKHXZMRYDHP51APS9791H", "Same", "Same"),
-        ];
-
-        for (id, name, description) in test_entities {
-            let e = Searchable {
-                id: Ulid::from_str(id).unwrap(),
-                name: name.into(),
-                description: description.into(),
-            };
-
-            db!().save().execute(query::replace().entity(e)).unwrap();
-        }
-
-        // Each test is: field filters -> expected match count
-        let tests = vec![
-            // Single field match
-            (vec![("name", "Sparkle")], 1),
-            (vec![("description", "SPARKLES")], 1),
-            // Partial string, lowercased
-            (vec![("name", "fruit")], 1),
-            (vec![("description", "yummy")], 1),
-            // Case-insensitive full match
-            (vec![("name", "SAME")], 1),
-            (vec![("description", "same")], 1),
-            // Must match both fields
-            (vec![("name", "same"), ("description", "same")], 1), // ✅ match
-            (vec![("name", "same"), ("description", "wrong")], 0), // ❌ fails AND
-            // ULID prefix
-            (vec![("id", "01HMBEK9")], 1),
-            // All fields must match
-            (
-                vec![
-                    ("id", "01HMBEK9"),
-                    ("name", "fruit"),
-                    ("description", "yummy"),
-                ],
-                1,
-            ),
-            (
-                vec![
-                    ("id", "01HMBEK9"),
-                    ("name", "fruit"),
-                    ("description", "WRONG"),
-                ],
-                0,
-            ),
-            // No matches
-            (vec![("name", "unknown")], 0),
-            (vec![("name", "the"), ("description", "sparkle")], 1), // both exist, but not in same entity
-        ];
-
-        for (fields, expected) in tests {
-            let search = fields
-                .into_iter()
-                .map(|(k, v)| (k.to_string(), v.to_string()))
-                .collect::<Vec<_>>();
-
-            let count = db!()
-                .load()
-                .execute::<Searchable>(query::load().all().search(search.clone()))
-                .unwrap()
-                .count();
-
-            assert_eq!(
-                count, expected,
-                "search_fields test failed with criteria: {search:?}",
-            );
-        }
     }
 }

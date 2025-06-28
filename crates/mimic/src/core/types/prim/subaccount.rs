@@ -1,6 +1,6 @@
 use crate::core::{
     traits::{
-        FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable,
+        FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable,
     },
     types::Principal,
     value::Value,
@@ -63,15 +63,15 @@ impl Display for Subaccount {
     }
 }
 
-impl FieldOrderable for Subaccount {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
+impl FieldSearchable for Subaccount {
+    fn to_searchable_string(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 
-impl FieldSearch for Subaccount {
-    fn to_searchable_string(&self) -> Option<String> {
-        Some(self.to_string())
+impl FieldSortable for Subaccount {
+    fn cmp(&self, other: &Self) -> Ordering {
+        Ord::cmp(self, other)
     }
 }
 

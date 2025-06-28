@@ -188,12 +188,12 @@ impl WhereExpr {
 #[derive(CandidType, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct WhereClause {
     pub field: String,
-    pub cmp: Comparator,
+    pub cmp: Cmp,
     pub value: Value,
 }
 
 impl WhereClause {
-    pub fn new<F: Into<String>, V: Into<Value>>(field: F, cmp: Comparator, value: V) -> Self {
+    pub fn new<F: Into<String>, V: Into<Value>>(field: F, cmp: Cmp, value: V) -> Self {
         Self {
             field: field.into(),
             cmp,
@@ -206,13 +206,19 @@ impl WhereClause {
 /// Comparator operators for clauses.
 ///
 #[derive(CandidType, Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
-pub enum Comparator {
+pub enum Cmp {
+    // general comparison
     Eq,
     Ne,
     Lt,
     Ltoe,
     Gt,
     Gtoe,
+
+    // text matching
+    Contains,
+    StartsWith,
+    EndsWith,
 }
 
 ///
@@ -224,7 +230,7 @@ mod tests {
     use super::*;
 
     fn clause(field: &str) -> WhereExpr {
-        WhereExpr::Clause(WhereClause::new(field, Comparator::Eq, "foo"))
+        WhereExpr::Clause(WhereClause::new(field, Cmp::Eq, "foo"))
     }
 
     #[test]

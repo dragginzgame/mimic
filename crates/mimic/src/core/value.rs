@@ -88,6 +88,18 @@ impl Value {
             _ => None,
         }
     }
+
+    /// Return the canonical lowercase searchable string, if this value supports fuzzy matching.
+    #[must_use]
+    pub fn to_searchable_string(&self) -> Option<String> {
+        match self {
+            Value::Text(s) => Some(s.to_lowercase()),
+            Value::Principal(p) => Some(p.to_text().to_lowercase()),
+            Value::Ulid(u) => Some(u.to_string().to_lowercase()),
+            Value::EntityKey(k) => Some(k.to_string().to_lowercase()),
+            _ => None,
+        }
+    }
 }
 
 impl_from_for! {

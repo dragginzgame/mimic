@@ -182,17 +182,17 @@ impl Imp<Entity> for EntitySearchTrait {
               match field.value.cardinality() {
                     Cardinality::One => quote! {
                         ( #name_str, |s: &#ident, text|
-                            ::mimic::core::traits::FieldSearch::contains_text(&s.#name, text)
+                            ::mimic::core::traits::FieldSearchable::contains_text(&s.#name, text)
                         )
                     },
                     Cardinality::Opt => quote! {
                         ( #name_str, |s: &#ident, text|
-                            s.#name.as_ref().map_or(false, |v| ::mimic::core::traits::FieldSearch::contains_text(v, text))
+                            s.#name.as_ref().map_or(false, |v| ::mimic::core::traits::FieldSearchable::contains_text(v, text))
                         )
                     },
                     Cardinality::Many => quote! {
                         ( #name_str, |s: &#ident, text|
-                             s.#name.iter().any(|v| ::mimic::core::traits::FieldSearch::contains_text(v, text))
+                             s.#name.iter().any(|v| ::mimic::core::traits::FieldSearchable::contains_text(v, text))
                         )
                     },
                 }
@@ -247,13 +247,13 @@ impl Imp<Entity> for EntitySortTrait {
 
             asc_fns.extend(quote! {
                 fn #asc_fn(a: &#node_ident, b: &#node_ident) -> ::std::cmp::Ordering {
-                    ::mimic::core::traits::FieldOrderable::cmp(&a.#field_ident, &b.#field_ident)
+                    ::mimic::core::traits::FieldSortable::cmp(&a.#field_ident, &b.#field_ident)
                 }
             });
 
             desc_fns.extend(quote! {
                 fn #desc_fn(a: &#node_ident, b: &#node_ident) -> ::std::cmp::Ordering {
-                    ::mimic::core::traits::FieldOrderable::cmp(&b.#field_ident, &a.#field_ident)
+                    ::mimic::core::traits::FieldSortable::cmp(&b.#field_ident, &a.#field_ident)
                 }
             });
 

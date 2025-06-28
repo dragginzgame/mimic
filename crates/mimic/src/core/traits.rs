@@ -152,8 +152,8 @@ pub trait EnumValueKind {
 /// FieldKind
 ///
 
-pub trait FieldKind: FieldValue + FieldSearch {}
-impl<T: FieldValue + FieldSearch> FieldKind for T {}
+pub trait FieldKind: FieldValue + FieldSearchable + FieldSortable {}
+impl<T: FieldValue + FieldSearchable + FieldSortable> FieldKind for T {}
 
 ///
 /// ANY KIND TRAITS
@@ -217,7 +217,7 @@ pub trait EntitySearch {
 /// allows anything with a collection of fields to be sorted
 ///
 
-type EntitySortFn<E> = dyn Fn(&E, &E) -> ::std::cmp::Ordering;
+type EntitySortFn<E> = dyn Fn(&E, &E) -> Ordering;
 
 pub trait EntitySort {
     fn sort(order: &[(String, SortDirection)]) -> Box<EntitySortFn<Self>>;
@@ -257,59 +257,10 @@ pub trait ValidatorString {
 ///
 
 ///
-/// FieldOrderable
-///
-/// wrapper around the Ord/PartialOrd traits so that we can extend it to
-/// more ORM types
+/// FieldSearchable
 ///
 
-pub trait FieldOrderable {
-    fn cmp(&self, _other: &Self) -> std::cmp::Ordering {
-        std::cmp::Ordering::Equal
-    }
-}
-
-impl FieldOrderable for f32 {}
-impl FieldOrderable for f64 {}
-impl<T: FieldOrderable> FieldOrderable for Box<T> {}
-
-// impl_primitive_field_orderable
-#[macro_export]
-macro_rules! impl_primitive_field_orderable {
-    ($($type:ty),*) => {
-        $(
-            impl FieldOrderable for $type {
-                fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-                    std::cmp::Ord::cmp(self, other)
-                }
-            }
-        )*
-    };
-}
-
-impl_primitive_field_orderable!(bool, i8, i16, i32, i64, String, u8, u16, u32, u64);
-
-impl<T: FieldOrderable> FieldOrderable for Option<T> {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        match (self, other) {
-            // Both are None, they are equal
-            (None, None) => std::cmp::Ordering::Equal,
-
-            // Any None is less than Some
-            (None, Some(_)) => std::cmp::Ordering::Less,
-            (Some(_), None) => std::cmp::Ordering::Greater,
-
-            // If both are Some, compare the inner values
-            (Some(a), Some(b)) => a.cmp(b),
-        }
-    }
-}
-
-///
-/// FieldSearch
-///
-
-pub trait FieldSearch {
+pub trait FieldSearchable {
     /// Returns a canonical string form of the value, if available
     /// if None is returned it means that the type is just not suitable for searching
     fn to_searchable_string(&self) -> Option<String> {
@@ -328,7 +279,7 @@ pub trait FieldSearch {
 macro_rules! impl_primitive_field_search {
     ($($type:ty),*) => {
         $(
-            impl FieldSearch for $type {
+            impl FieldSearchable for $type {
                 fn to_searchable_string(&self) -> Option<String> {
                     Some(self.to_string())
                 }
@@ -338,6 +289,51 @@ macro_rules! impl_primitive_field_search {
 }
 
 impl_primitive_field_search!(bool, i8, i16, i32, i64, String, u8, u16, u32, u64, f32, f64);
+
+///
+/// FieldSortable
+///
+/// wrapper around the Ord/PartialOrd traits so that we can extend it to
+/// more ORM types
+///
+
+pub trait FieldSortable {
+    fn cmp(&self, _other: &Self) -> std::cmp::Ordering {
+        std::cmp::Ordering::Equal
+    }
+}
+
+impl FieldSortable for f32 {}
+impl FieldSortable for f64 {}
+
+// impl_primitive_field_orderable
+#[macro_export]
+macro_rules! impl_primitive_field_orderable {
+    ($($type:ty),*) => {
+        $(
+            impl FieldSortable for $type {
+                fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+                    std::cmp::Ord::cmp(self, other)
+                }
+            }
+        )*
+    };
+}
+
+impl_primitive_field_orderable!(bool, i8, i16, i32, i64, String, u8, u16, u32, u64);
+
+impl<T: FieldSortable> FieldSortable for Box<T> {}
+
+impl<T: FieldSortable> FieldSortable for Option<T> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match (self, other) {
+            (None, None) => Ordering::Equal,
+            (None, Some(_)) => Ordering::Less,
+            (Some(_), None) => Ordering::Greater,
+            (Some(a), Some(b)) => a.cmp(b),
+        }
+    }
+}
 
 ///
 /// FieldValue

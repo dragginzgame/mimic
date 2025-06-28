@@ -1,5 +1,5 @@
 use crate::{
-    core::traits::{FieldOrderable, Inner, ValidateAuto, Visitable},
+    core::traits::{FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, Visitable},
     prelude::*,
 };
 use candid::{CandidType, Nat as WrappedNat};
@@ -39,11 +39,19 @@ impl Display for Nat {
     }
 }
 
-impl FieldOrderable for Nat {
+impl FieldSearchable for Nat {
+    fn to_searchable_string(&self) -> Option<String> {
+        Some(self.to_string())
+    }
+}
+
+impl FieldSortable for Nat {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
     }
 }
+
+impl FieldValue for Nat {}
 
 impl From<WrappedNat> for Nat {
     fn from(n: WrappedNat) -> Self {

@@ -1,6 +1,6 @@
 use crate::{
     core::{
-        traits::{FieldOrderable, FieldSearch, FieldValue, Inner, ValidateAuto, Visitable},
+        traits::{FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, Visitable},
         value::Value,
     },
     prelude::*,
@@ -84,15 +84,15 @@ impl Display for Decimal {
     }
 }
 
-impl FieldOrderable for Decimal {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
+impl FieldSearchable for Decimal {
+    fn to_searchable_string(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 
-impl FieldSearch for Decimal {
-    fn to_searchable_string(&self) -> Option<String> {
-        Some(self.to_string())
+impl FieldSortable for Decimal {
+    fn cmp(&self, other: &Self) -> Ordering {
+        Ord::cmp(self, other)
     }
 }
 
