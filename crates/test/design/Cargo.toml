@@ -3,6 +3,7 @@ name = "test_design"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }
+publish = false
 
 [dependencies]
 candid = { workspace = true }

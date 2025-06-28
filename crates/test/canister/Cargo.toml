@@ -3,6 +3,7 @@ name = "test_canister"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }
+publish = false
 
 [lib]
 crate-type = ["cdylib"]
@@ -12,11 +13,11 @@ candid = { workspace = true }
 ic-cdk = { workspace = true }
 icu = { workspace = true }
 mimic = { workspace = true }
-test_design = { workspace = true }
+test_design = { path = "../../test/design" }
 
 [build-dependencies]
 mimic = { workspace = true }
-test_design = { workspace = true }
+test_design = { path = "../../test/design" }
 
 [lints]
 workspace = true
