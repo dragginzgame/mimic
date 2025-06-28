@@ -10,16 +10,16 @@ use std::cmp::Ordering;
 /// - Single clauses comparing a field with a value
 /// - Composite expressions: `And`, `Or`, and negation `Not`.
 #[derive(CandidType, Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub enum WhereExpr {
+pub enum FilterExpr {
     True,
     False,
-    Clause(WhereClause),
-    And(Vec<WhereExpr>),
-    Or(Vec<WhereExpr>),
-    Not(Box<WhereExpr>),
+    Clause(FilterClause),
+    And(Vec<FilterExpr>),
+    Or(Vec<FilterExpr>),
+    Not(Box<FilterExpr>),
 }
 
-impl WhereExpr {
+impl FilterExpr {
     /// Combine two expressions into an `And` expression.
     ///
     /// This flattens nested `And`s to avoid deep nesting (e.g., `(a AND b) AND c` becomes `AND[a,b,c]`).
@@ -181,16 +181,16 @@ impl WhereExpr {
 }
 
 ///
-/// WhereClause represents a basic comparison expression: `field cmp value`
+/// FilterClause represents a basic comparison expression: `field cmp value`
 ///
 #[derive(CandidType, Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub struct WhereClause {
+pub struct FilterClause {
     pub field: String,
     pub cmp: Cmp,
     pub value: Value,
 }
 
-impl WhereClause {
+impl FilterClause {
     pub fn new<F: Into<String>, V: Into<Value>>(field: F, cmp: Cmp, value: V) -> Self {
         Self {
             field: field.into(),
@@ -247,38 +247,38 @@ impl Cmp {
 mod tests {
     use super::*;
 
-    fn clause(field: &str) -> WhereExpr {
-        WhereExpr::Clause(WhereClause::new(field, Cmp::Eq, "foo"))
+    fn clause(field: &str) -> FilterExpr {
+        FilterExpr::Clause(FilterClause::new(field, Cmp::Eq, "foo"))
     }
 
     #[test]
     fn test_simplify_and_true() {
-        let expr = WhereExpr::And(vec![WhereExpr::True, clause("a")]);
-        assert!(matches!(expr.simplify(), WhereExpr::Clause(_)));
+        let expr = FilterExpr::And(vec![FilterExpr::True, clause("a")]);
+        assert!(matches!(expr.simplify(), FilterExpr::Clause(_)));
     }
 
     #[test]
     fn test_simplify_and_false() {
-        let expr = WhereExpr::And(vec![clause("a"), WhereExpr::False]);
-        assert_eq!(expr.simplify(), WhereExpr::False);
+        let expr = FilterExpr::And(vec![clause("a"), FilterExpr::False]);
+        assert_eq!(expr.simplify(), FilterExpr::False);
     }
 
     #[test]
     fn test_double_negation() {
-        let expr = WhereExpr::Not(Box::new(WhereExpr::Not(Box::new(clause("x")))));
+        let expr = FilterExpr::Not(Box::new(FilterExpr::Not(Box::new(clause("x")))));
         let simplified = expr.simplify();
-        assert!(matches!(simplified, WhereExpr::Clause(_)));
+        assert!(matches!(simplified, FilterExpr::Clause(_)));
     }
 
     #[test]
     fn test_nested_and_or_flatten() {
-        let expr = WhereExpr::And(vec![
+        let expr = FilterExpr::And(vec![
             clause("a"),
-            WhereExpr::And(vec![clause("b"), clause("c")]),
+            FilterExpr::And(vec![clause("b"), clause("c")]),
         ]);
         let simplified = expr.simplify();
 
-        if let WhereExpr::And(children) = simplified {
+        if let FilterExpr::And(children) = simplified {
             assert_eq!(children.len(), 3);
         } else {
             panic!("Expected And");
@@ -287,9 +287,9 @@ mod tests {
 
     #[test]
     fn test_demorgan_not_and() {
-        let expr = WhereExpr::Not(Box::new(WhereExpr::And(vec![clause("a"), clause("b")])));
+        let expr = FilterExpr::Not(Box::new(FilterExpr::And(vec![clause("a"), clause("b")])));
         let simplified = expr.simplify();
-        if let WhereExpr::Or(children) = simplified {
+        if let FilterExpr::Or(children) = simplified {
             assert_eq!(children.len(), 2);
         } else {
             panic!("Expected Or");
@@ -298,21 +298,21 @@ mod tests {
 
     #[test]
     fn test_and_with_only_true() {
-        let expr = WhereExpr::And(vec![WhereExpr::True, WhereExpr::True]);
-        assert_eq!(expr.simplify(), WhereExpr::True);
+        let expr = FilterExpr::And(vec![FilterExpr::True, FilterExpr::True]);
+        assert_eq!(expr.simplify(), FilterExpr::True);
     }
 
     #[test]
     fn test_or_with_only_false() {
-        let expr = WhereExpr::Or(vec![WhereExpr::False, WhereExpr::False]);
-        assert_eq!(expr.simplify(), WhereExpr::False);
+        let expr = FilterExpr::Or(vec![FilterExpr::False, FilterExpr::False]);
+        assert_eq!(expr.simplify(), FilterExpr::False);
     }
 
     #[test]
     fn test_demorgan_not_or() {
-        let expr = WhereExpr::Not(Box::new(WhereExpr::Or(vec![clause("a"), clause("b")])));
+        let expr = FilterExpr::Not(Box::new(FilterExpr::Or(vec![clause("a"), clause("b")])));
         let simplified = expr.simplify();
-        if let WhereExpr::And(children) = simplified {
+        if let FilterExpr::And(children) = simplified {
             assert_eq!(children.len(), 2);
         } else {
             panic!("Expected And");
@@ -321,18 +321,18 @@ mod tests {
 
     #[test]
     fn test_double_negation_complex() {
-        let inner = WhereExpr::Or(vec![clause("a"), clause("b")]);
-        let expr = WhereExpr::Not(Box::new(WhereExpr::Not(Box::new(inner.clone()))));
+        let inner = FilterExpr::Or(vec![clause("a"), clause("b")]);
+        let expr = FilterExpr::Not(Box::new(FilterExpr::Not(Box::new(inner.clone()))));
         assert_eq!(expr.simplify(), inner);
     }
 
     #[test]
     fn test_not_clause() {
-        let expr = WhereExpr::Not(Box::new(clause("foo")));
+        let expr = FilterExpr::Not(Box::new(clause("foo")));
         let simplified = expr.simplify();
         match simplified {
-            WhereExpr::Not(boxed) => {
-                assert!(matches!(*boxed, WhereExpr::Clause(_)));
+            FilterExpr::Not(boxed) => {
+                assert!(matches!(*boxed, FilterExpr::Clause(_)));
             }
             _ => panic!("Expected Not"),
         }
@@ -340,29 +340,32 @@ mod tests {
 
     #[test]
     fn test_complex_nested_expression() {
-        let expr = WhereExpr::Not(Box::new(WhereExpr::And(vec![
-            WhereExpr::Or(vec![
+        let expr = FilterExpr::Not(Box::new(FilterExpr::And(vec![
+            FilterExpr::Or(vec![
                 clause("a"),
-                WhereExpr::False,
-                WhereExpr::Not(Box::new(clause("b"))),
-                WhereExpr::Or(vec![
+                FilterExpr::False,
+                FilterExpr::Not(Box::new(clause("b"))),
+                FilterExpr::Or(vec![
                     clause("c"),
-                    WhereExpr::True,
-                    WhereExpr::Not(Box::new(WhereExpr::False)),
+                    FilterExpr::True,
+                    FilterExpr::Not(Box::new(FilterExpr::False)),
                 ]),
             ]),
-            WhereExpr::And(vec![
+            FilterExpr::And(vec![
                 clause("d"),
-                WhereExpr::True,
-                WhereExpr::Not(Box::new(WhereExpr::Or(vec![clause("e"), WhereExpr::False]))),
+                FilterExpr::True,
+                FilterExpr::Not(Box::new(FilterExpr::Or(vec![
+                    clause("e"),
+                    FilterExpr::False,
+                ]))),
             ]),
-            WhereExpr::Not(Box::new(WhereExpr::Not(Box::new(clause("f"))))),
+            FilterExpr::Not(Box::new(FilterExpr::Not(Box::new(clause("f"))))),
         ])));
 
         let simplified = expr.simplify();
 
         assert!(
-            matches!(simplified, WhereExpr::Or(_)),
+            matches!(simplified, FilterExpr::Or(_)),
             "Expected top-level Or"
         );
         assert!(
@@ -371,13 +374,13 @@ mod tests {
         );
     }
 
-    fn contains_clause_f(expr: &WhereExpr) -> bool {
+    fn contains_clause_f(expr: &FilterExpr) -> bool {
         match expr {
-            WhereExpr::Clause(c) => c.field == "f",
-            WhereExpr::And(children) | WhereExpr::Or(children) => {
+            FilterExpr::Clause(c) => c.field == "f",
+            FilterExpr::And(children) | FilterExpr::Or(children) => {
                 children.iter().any(contains_clause_f)
             }
-            WhereExpr::Not(inner) => contains_clause_f(inner),
+            FilterExpr::Not(inner) => contains_clause_f(inner),
             _ => false,
         }
     }

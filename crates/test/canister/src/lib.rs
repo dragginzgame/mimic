@@ -144,7 +144,13 @@ pub fn rarity() -> Result<Vec<Rarity>, MimicError> {
         .execute::<Rarity>(
             query::load()
                 .all()
-                .where_eq("level", 4)
+                .with_filter(|f| {
+                    f.or_filter_group(|f| {
+                        f.filter("level", Cmp::Gtoe, 2)
+                            .filter("level", Cmp::Ltoe, 4)
+                    })
+                    .or_filter_group(|f| f.filter("name", Cmp::Contains, "incon"))
+                })
                 .sort([("level", SortDirection::Desc)]),
         )?
         .entities();

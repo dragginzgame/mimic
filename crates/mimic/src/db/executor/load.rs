@@ -3,8 +3,8 @@ use crate::{
     core::traits::EntityKind,
     db::{
         DataError,
-        executor::{ResolvedSelector, WhereEvaluator},
-        query::{LoadFormat, LoadQuery, Selector, WhereExpr},
+        executor::{FilterEvaluator, ResolvedSelector},
+        query::{FilterExpr, LoadFormat, LoadQuery, Selector},
         response::{EntityRow, LoadCollection, LoadResponse},
         store::{DataKey, DataRow, DataStoreLocal, DataStoreRegistry, IndexStoreRegistry},
     },
@@ -70,7 +70,7 @@ impl LoadExecutor {
 
         // cast results to E
         let rows = self
-            .load::<E>(&query.selector, query.r#where.as_ref())?
+            .load::<E>(&query.selector, query.filter.as_ref())?
             .into_iter()
             .filter(|row| row.entry.path == E::PATH)
             .map(TryFrom::try_from)
@@ -94,7 +94,7 @@ impl LoadExecutor {
     pub fn load<E: EntityKind>(
         &self,
         selector: &Selector,
-        _where_clause: Option<&WhereExpr>,
+        _where_clause: Option<&FilterExpr>,
     ) -> Result<Vec<DataRow>, DataError> {
         // TODO - big where_clause changing selector thingy
         // get store
@@ -137,17 +137,16 @@ impl LoadExecutor {
 
     // apply_where
     fn apply_where<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec<EntityRow<E>> {
-        match &query.r#where {
+        match &query.filter {
             Some(expr_raw) => {
                 let expr = expr_raw.clone().simplify(); // ⬅️ done once
-                debug!(true, "{expr:?}");
                 let olen = rows.len();
 
                 let filtered: Vec<_> = rows
                     .into_iter()
                     .filter(|row| {
                         let values = row.entry.entity.values();
-                        WhereEvaluator::new(&values).eval(&expr)
+                        FilterEvaluator::new(&values).eval(&expr)
                     })
                     .collect();
 

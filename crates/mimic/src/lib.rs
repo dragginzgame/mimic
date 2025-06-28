@@ -42,7 +42,9 @@ pub mod prelude {
         },
         db,
         db::{
-            executor::SaveExecutor, query::SortDirection, response::LoadCollection,
+            executor::SaveExecutor,
+            query::{Cmp, SortDirection},
+            response::LoadCollection,
             service::EntityService,
         },
         error::ErrorTree,

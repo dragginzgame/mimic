@@ -1,36 +1,36 @@
 use crate::{
     core::value::{Value, Values},
-    db::query::{Cmp, WhereClause, WhereExpr},
+    db::query::{Cmp, FilterClause, FilterExpr},
 };
 
 ///
-/// WhereEvaluator
+/// FilterEvaluator
 ///
 
-pub struct WhereEvaluator<'a> {
+pub struct FilterEvaluator<'a> {
     values: &'a Values,
 }
 
-impl<'a> WhereEvaluator<'a> {
+impl<'a> FilterEvaluator<'a> {
     #[must_use]
     pub const fn new(values: &'a Values) -> Self {
         Self { values }
     }
 
     #[must_use]
-    pub fn eval(&self, expr: &WhereExpr) -> bool {
+    pub fn eval(&self, expr: &FilterExpr) -> bool {
         match expr {
-            WhereExpr::True => true,
-            WhereExpr::False => false,
-            WhereExpr::Clause(clause) => self.eval_clause(clause),
-            WhereExpr::And(children) => children.iter().all(|e| self.eval(e)),
-            WhereExpr::Or(children) => children.iter().any(|e| self.eval(e)),
-            WhereExpr::Not(inner) => !self.eval(inner),
+            FilterExpr::True => true,
+            FilterExpr::False => false,
+            FilterExpr::Clause(clause) => self.eval_clause(clause),
+            FilterExpr::And(children) => children.iter().all(|e| self.eval(e)),
+            FilterExpr::Or(children) => children.iter().any(|e| self.eval(e)),
+            FilterExpr::Not(inner) => !self.eval(inner),
         }
     }
 
     // eval_clause
-    fn eval_clause(&self, clause: &WhereClause) -> bool {
+    fn eval_clause(&self, clause: &FilterClause) -> bool {
         self.values
             .get(&clause.field.as_str())
             .map(|actual| Self::compare(actual, clause.cmp, &clause.value))

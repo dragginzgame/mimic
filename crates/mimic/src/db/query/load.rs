@@ -1,7 +1,7 @@
 #![allow(clippy::type_complexity)]
 use crate::{
-    core::{types::EntityKey, value::Value},
-    db::query::{Cmp, Selector, SortDirection, WhereClause, WhereExpr},
+    core::types::EntityKey,
+    db::query::{FilterBuilder, FilterExpr, Selector, SortDirection},
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -92,7 +92,7 @@ impl LoadQueryBuilder {
 pub struct LoadQuery {
     pub selector: Selector,
     pub format: LoadFormat,
-    pub r#where: Option<WhereExpr>,
+    pub filter: Option<FilterExpr>,
     pub limit: Option<u32>,
     pub offset: u32,
     pub sort: Vec<(String, SortDirection)>,
@@ -114,29 +114,19 @@ impl LoadQuery {
         self
     }
 
-    // where_
-    // creates a new where clause, or optionally appends additional where clauses
-    // defaults to AND currently
-    #[must_use]
-    pub fn where_<F, V>(mut self, field: F, cmp: Cmp, value: V) -> Self
-    where
-        F: Into<String>,
-        V: Into<Value>,
-    {
-        let clause = WhereExpr::Clause(WhereClause::new(field, cmp, value));
-
-        self.r#where = Some(match self.r#where {
-            Some(existing) => existing.and(clause),
-            None => clause,
-        });
-
+    // with_filter
+    pub fn with_filter(mut self, build: impl FnOnce(FilterBuilder) -> FilterBuilder) -> Self {
+        if let Some(expr) = build(FilterBuilder::new()).build() {
+            self.filter = Some(expr);
+        }
         self
     }
 
-    // where_eq
+    // filter
     #[must_use]
-    pub fn where_eq<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
-        self.where_(field, Cmp::Eq, value)
+    pub fn filter(mut self, filter: FilterExpr) -> Self {
+        self.filter = Some(filter);
+        self
     }
 
     // offset
