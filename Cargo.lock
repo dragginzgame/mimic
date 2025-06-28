@@ -678,29 +678,18 @@ dependencies = [
  "derive_more",
  "ic-cdk",
  "icu",
+ "mimic_common",
+ "mimic_design",
  "num-traits",
  "remain",
  "rust_decimal",
+ "semver",
  "serde",
  "serde_bytes",
  "thiserror 2.0.12",
  "tinyrand",
  "ulid",
  "xxhash-rust",
-]
-
-[[package]]
-name = "mimic_base"
-version = "0.5.4"
-dependencies = [
- "candid",
- "ctor",
- "derive_more",
- "mimic",
- "mimic_design",
- "num-traits",
- "semver",
- "serde",
 ]
 
 [[package]]
@@ -718,12 +707,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "mimic_common"
+version = "0.5.4"
+dependencies = [
+ "candid",
+ "convert_case 0.8.0",
+ "ctor",
+ "derive_more",
+ "ic-cdk",
+ "icu",
+ "num-traits",
+ "remain",
+ "rust_decimal",
+ "serde",
+ "serde_bytes",
+ "thiserror 2.0.12",
+ "tinyrand",
+ "ulid",
+ "xxhash-rust",
+]
+
+[[package]]
 name = "mimic_design"
 version = "0.5.4"
 dependencies = [
  "darling",
  "derive_more",
- "mimic",
+ "mimic_common",
  "proc-macro2",
  "quote",
  "remain",
@@ -1066,8 +1076,6 @@ dependencies = [
  "ctor",
  "derive_more",
  "mimic",
- "mimic_base",
- "mimic_design",
  "serde",
 ]
 
@@ -1076,7 +1084,6 @@ name = "tests"
 version = "0.5.4"
 dependencies = [
  "mimic",
- "mimic_base",
  "test_design",
 ]
 

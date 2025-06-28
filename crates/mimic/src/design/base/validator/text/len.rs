@@ -1,5 +1,4 @@
-use crate::prelude::*;
-use num_traits::NumCast;
+use crate::design::prelude::*;
 
 const MAX_DISPLAY_CHARS: usize = 20;
 

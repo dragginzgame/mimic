@@ -1,7 +1,10 @@
 pub mod build;
 pub mod node;
-pub mod types;
 pub mod visit;
+
+pub mod types {
+    pub use mimic_common::schema::types::*;
+}
 
 pub use build::get_schema;
 

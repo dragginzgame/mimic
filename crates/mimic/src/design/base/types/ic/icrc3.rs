@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::design::prelude::*;
 
 ///
 /// Icrc3 Value

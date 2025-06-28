@@ -1,8 +1,8 @@
 [workspace]
 members = [
     "crates/mimic",
-    "crates/mimic_base",
     "crates/mimic_build",
+    "crates/mimic_common",
     "crates/mimic_design",
     "crates/test/canister",
     "crates/test/design",
@@ -27,8 +27,8 @@ derive_more = { version = "2.0", default-features = false, features = ["full"] }
 ic-cdk = "0.18.5"
 icu = { git = "https://github.com/dragginzgame/icu" }
 mimic = { path = "crates/mimic" }
-mimic_base = { path = "crates/mimic_base" }
 mimic_build = { path = "crates/mimic_build" }
+mimic_common = { path = "crates/mimic_common" }
 mimic_design = { path = "crates/mimic_design" }
 num-traits = { version = "0.2", default-features = false }
 proc-macro2 = "1.0"
@@ -42,6 +42,7 @@ semver = "1.0"
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 serde_bytes = "0.11"
 syn = "2.0"
+test_canister = { path = "crates/test/canister" }
 test_design = { path = "crates/test/design" }
 thiserror = "2.0"
 tinyrand = "0.5"

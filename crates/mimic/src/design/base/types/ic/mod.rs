@@ -1,7 +1,7 @@
 pub mod icrc1;
 pub mod icrc3;
 
-use crate::prelude::*;
+use crate::design::prelude::*;
 
 ///
 /// Memo

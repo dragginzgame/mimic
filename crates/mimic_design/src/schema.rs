@@ -8,7 +8,7 @@ use std::{
 };
 use tinyrand::{Rand, Seeded, StdRand};
 
-pub use mimic::schema::types::*;
+pub use mimic_common::schema::types::*;
 
 ///
 /// RNG

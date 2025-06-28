@@ -1,9 +1,9 @@
 use crate::{
     imp::{Imp, Implementor},
     node::Newtype,
+    schema::PrimitiveType,
     traits::Trait,
 };
-use mimic::schema::types::PrimitiveType;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 

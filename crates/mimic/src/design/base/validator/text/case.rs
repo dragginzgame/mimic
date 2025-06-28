@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::design::prelude::*;
 use mimic::utils::case::{Case, Casing};
 
 ///

@@ -1,9 +1,11 @@
-///
-/// mimic
-/// [for external use only, keep out of reach of children]
-///
+//
+// mimic
+//
+// [for external use only, keep out of reach of children]
+//
 pub mod core;
 pub mod db;
+pub mod design;
 pub mod error;
 pub mod interface;
 pub mod macros;
@@ -31,14 +33,7 @@ extern crate self as mimic;
 
 pub mod prelude {
     pub use crate::{
-        core::{
-            traits::{
-                EntityFixture, EntityIdKind as _, EntityKind as _, Inner as _, NumCast as _,
-                Path as _, Serialize as _, Validate as _, ValidateCustom, ValidatorBytes as _,
-                ValidatorNumber as _, ValidatorString as _, Visitable as _,
-            },
-            types::{EntityKey, EntityKeys, Ulid},
-        },
+        core::types::{EntityKey, EntityKeys, Ulid},
         db,
         db::{
             executor::SaveExecutor,

@@ -6,7 +6,6 @@ publish = false
 
 [dependencies]
 mimic = { workspace = true }
-mimic_base = { workspace = true }
 
 [dev-dependencies]
 test_design = { path = "../../test/design" }

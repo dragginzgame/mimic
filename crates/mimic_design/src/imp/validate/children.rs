@@ -1,8 +1,8 @@
 use crate::{
     imp::ImpFn,
     node::{Entity, Field, List, Map, Newtype, Record, Set, TypeValidator, Value},
+    schema::Cardinality,
 };
-use mimic::schema::types::Cardinality;
 use proc_macro2::TokenStream;
 use quote::quote;
 

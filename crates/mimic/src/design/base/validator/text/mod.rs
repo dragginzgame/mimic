@@ -3,7 +3,7 @@ pub mod color;
 pub mod iso;
 pub mod len;
 
-use crate::prelude::*;
+use crate::design::prelude::*;
 
 ///
 /// AlphaUscore
