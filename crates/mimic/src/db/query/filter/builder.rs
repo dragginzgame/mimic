@@ -7,7 +7,7 @@ use crate::{
 /// FilterBuilder
 ///
 
-#[derive(Default, Debug, Clone)]
+#[derive(Clone, Debug, Default)]
 pub struct FilterBuilder {
     pub filter: Option<FilterExpr>,
 }

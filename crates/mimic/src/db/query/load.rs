@@ -1,7 +1,7 @@
 #![allow(clippy::type_complexity)]
 use crate::{
-    core::types::EntityKey,
-    db::query::{FilterBuilder, FilterExpr, Selector, SortDirection},
+    core::{types::EntityKey, value::Value},
+    db::query::{Cmp, FilterBuilder, FilterClause, FilterExpr, Selector, SortDirection},
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -115,18 +115,22 @@ impl LoadQuery {
     }
 
     // with_filter
+    // use an external builder to replace the current Filter
     #[must_use]
-    pub fn with_filter(mut self, build: impl FnOnce(FilterBuilder) -> FilterBuilder) -> Self {
-        if let Some(expr) = build(FilterBuilder::new()).build() {
+    pub fn with_filter(mut self, f: impl FnOnce(FilterBuilder) -> FilterBuilder) -> Self {
+        if let Some(expr) = f(FilterBuilder::new()).build() {
             self.filter = Some(expr);
         }
         self
     }
 
-    // filter
-    #[must_use]
-    pub fn filter(mut self, filter: FilterExpr) -> Self {
-        self.filter = Some(filter);
+    // filter_eq
+    pub fn filter_eq<F: Into<String>, V: Into<Value>>(mut self, field: F, value: V) -> Self {
+        let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::Eq, value));
+        self.filter = Some(match self.filter.take() {
+            Some(existing) => existing.and(clause),
+            None => clause,
+        });
         self
     }
 
