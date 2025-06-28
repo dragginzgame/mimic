@@ -18,9 +18,6 @@ use std::sync::{LazyLock, OnceLock, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 #[derive(Debug, ThisError)]
 pub enum BuildError {
-    #[error("serialization failed: {0}")]
-    Serialize(String),
-
     #[error("validation failed: {0}")]
     Validation(ErrorTree),
 }
@@ -54,18 +51,6 @@ pub fn get_schema() -> Result<RwLockReadGuard<'static, Schema>, Error> {
         .map_err(SchemaError::BuildError)?;
 
     Ok(schema)
-}
-
-// get_schema_json
-// to get the built schema via an executable
-pub fn get_schema_json() -> Result<String, Error> {
-    let schema = get_schema()?;
-
-    let json = serde_json::to_string(&*schema)
-        .map_err(|e| BuildError::Serialize(e.to_string()))
-        .map_err(SchemaError::BuildError)?;
-
-    Ok(json)
 }
 
 // validate

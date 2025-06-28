@@ -10,15 +10,11 @@ use crate::{
         visit::Visitor,
     },
 };
-use serde::{
-    Serialize,
-    ser::{SerializeStruct, Serializer},
-};
+use serde::Serialize;
 use std::{
     any::{Any, TypeId},
     collections::BTreeMap,
 };
-use xxhash_rust::xxh3::xxh3_128;
 
 ///
 /// SchemaNode
@@ -130,36 +126,11 @@ impl VisitableNode for SchemaNode {
 /// Schema
 ///
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Schema {
     pub nodes: BTreeMap<String, SchemaNode>,
     pub hash: &'static str,
     pub timestamp: u64,
-}
-
-impl Serialize for Schema {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        // Serialize just the nodes part to JSON
-        let nodes_json = serde_json::to_string(&self.nodes).map_err(serde::ser::Error::custom)?;
-
-        // Compute the hash of the nodes JSON string
-        let hash = xxh3_128(nodes_json.as_bytes());
-        let hash_bytes = hash.to_be_bytes(); // [u8; 16]
-        let hash_hex = hash_bytes
-            .iter()
-            .map(|b| format!("{b:02x}"))
-            .collect::<String>();
-
-        // Serialize the Schema struct, including the hash
-        let mut state = serializer.serialize_struct("Schema", 3)?;
-        state.serialize_field("nodes", &self.nodes)?;
-        state.serialize_field("timestamp", &self.timestamp)?;
-        state.serialize_field("hash", &hash_hex)?;
-        state.end()
-    }
 }
 
 impl Schema {
