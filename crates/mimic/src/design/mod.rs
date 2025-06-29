@@ -16,7 +16,7 @@ pub mod prelude {
                 Serialize as _, Validate as _, ValidateCustom, ValidatorBytes, ValidatorNumber,
                 ValidatorString, Visitable as _,
             },
-            types::{Decimal, Principal, Ulid},
+            types::*,
         },
         db,
         db::{executor::SaveExecutor, service::EntityService},
