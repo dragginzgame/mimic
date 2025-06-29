@@ -2,8 +2,8 @@ pub mod db;
 pub mod fixtures;
 pub mod query;
 
-use mimic::schema::{
-    get_schema,
+use mimic_schema::{
+    build::get_schema,
     node::{Canister, Entity, Schema, Store},
 };
 use proc_macro2::TokenStream;

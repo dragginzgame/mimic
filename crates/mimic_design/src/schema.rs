@@ -8,7 +8,7 @@ use std::{
 };
 use tinyrand::{Rand, Seeded, StdRand};
 
-pub use mimic_common::schema::types::*;
+pub use mimic_schema::types::*;
 
 ///
 /// RNG
@@ -83,8 +83,8 @@ pub struct BConstantType(pub ConstantType);
 
 impl BConstantType {
     #[must_use]
-    pub fn as_type(&self) -> TokenStream {
-        match &**self {
+    pub fn as_type(self) -> TokenStream {
+        match &*self {
             ConstantType::Bool => quote!(bool),
             ConstantType::Float32 => quote!(f32),
             ConstantType::Float64 => quote!(f64),
@@ -128,24 +128,24 @@ pub struct BPrimitiveType(pub PrimitiveType);
 
 impl BPrimitiveType {
     #[must_use]
-    pub fn is_orderable(&self) -> bool {
+    pub fn is_orderable(self) -> bool {
         !matches!(
-            **self,
+            *self,
             PrimitiveType::Blob | PrimitiveType::Float32 | PrimitiveType::Float64
         )
     }
 
     #[must_use]
-    pub fn is_displayable(&self) -> bool {
-        !matches!(**self, PrimitiveType::Blob | PrimitiveType::Unit)
+    pub fn is_displayable(self) -> bool {
+        !matches!(*self, PrimitiveType::Blob | PrimitiveType::Unit)
     }
 
     // is_numeric
     // no floats, this is the check for all the arithmetic traits
     #[must_use]
-    pub fn is_numeric(&self) -> bool {
+    pub fn is_numeric(self) -> bool {
         matches!(
-            **self,
+            *self,
             PrimitiveType::Int
                 | PrimitiveType::Int8
                 | PrimitiveType::Int16
@@ -163,8 +163,8 @@ impl BPrimitiveType {
     }
 
     #[must_use]
-    pub fn as_type(&self) -> TokenStream {
-        match &**self {
+    pub fn as_type(self) -> TokenStream {
+        match &*self {
             PrimitiveType::Account => quote!(::mimic::core::types::Account),
             PrimitiveType::Bool => quote!(::mimic::core::types::Bool),
             PrimitiveType::Blob => quote!(::mimic::core::types::Blob),
@@ -190,8 +190,8 @@ impl BPrimitiveType {
     }
 
     #[must_use]
-    pub fn num_cast_fn(&self) -> String {
-        match &**self {
+    pub fn num_cast_fn(self) -> String {
+        match &*self {
             PrimitiveType::Float32 => "f32",
             PrimitiveType::Decimal | PrimitiveType::Float64 => "f64",
             PrimitiveType::Int8 => "i8",

@@ -1,5 +1,5 @@
 [package]
-name = "mimic"
+name = "mimic_schema"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }
@@ -11,14 +11,10 @@ ctor = { workspace = true }
 derive_more = { workspace = true }
 ic-cdk = { workspace = true }
 icu = { workspace = true }
-mimic_build = { workspace = true }
 mimic_common = { workspace = true }
-mimic_design = { workspace = true }
-mimic_schema = { workspace = true }
 num-traits = { workspace = true }
 remain = { workspace = true }
 rust_decimal = { workspace = true }
-semver = { workspace = true }
 serde = { workspace = true }
 serde_bytes = { workspace = true }
 thiserror = { workspace = true }
@@ -26,12 +22,5 @@ tinyrand = { workspace = true }
 ulid = { workspace = true }
 xxhash-rust = { workspace = true }
 
-[dev-dependencies]
-bencher = "0.1"
-
 [lints]
 workspace = true
-
-[[bench]]
-name = "all"
-harness = false

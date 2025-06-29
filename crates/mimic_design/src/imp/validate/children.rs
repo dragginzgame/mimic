@@ -214,8 +214,8 @@ fn generate_value_validation_inner(value: &Value, var_expr: TokenStream) -> Opti
 fn fn_wrap(inner: Option<TokenStream>) -> TokenStream {
     if let Some(inner) = inner {
         quote! {
-            fn validate_children(&self) -> ::std::result::Result<(), ::mimic::error::ErrorTree> {
-                let mut errs = ::mimic::error::ErrorTree::new();
+            fn validate_children(&self) -> ::std::result::Result<(), ::mimic::common::error::ErrorTree> {
+                let mut errs = ::mimic::common::error::ErrorTree::new();
                 #inner
 
                 errs.result()
@@ -223,7 +223,7 @@ fn fn_wrap(inner: Option<TokenStream>) -> TokenStream {
         }
     } else {
         quote! {
-            fn validate_children(&self) -> ::std::result::Result<(), ::mimic::error::ErrorTree> {
+            fn validate_children(&self) -> ::std::result::Result<(), ::mimic::common::error::ErrorTree> {
                 Ok(())
             }
         }

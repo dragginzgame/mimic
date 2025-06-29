@@ -16,6 +16,7 @@ pub use std::{
 };
 
 use crate::{
+    common::error::ErrorTree,
     core::{
         types::{EntityKey, Ulid},
         value::{IndexValue, Value, Values},
@@ -26,7 +27,6 @@ use crate::{
         query::SortDirection,
         store::{DataKey, IndexKey},
     },
-    error::ErrorTree,
     schema::node::EntityIndex,
 };
 

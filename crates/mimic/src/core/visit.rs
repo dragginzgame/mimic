@@ -1,4 +1,4 @@
-use crate::{core::traits::Visitable, error::ErrorTree};
+use crate::{common::error::ErrorTree, core::traits::Visitable};
 
 ///
 /// Event

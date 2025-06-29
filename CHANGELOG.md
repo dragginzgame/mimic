@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.5.4]
 - moved proc_macro2, darling, syn and quote out of mimic and just into the mimic_design crate and it saved
 around 150k
+- merged mimic_base and mimic, and added a seperate mimic_common trait.  Now the Schema types that are shared between
+mimic and mimic_design are properly wrapped and kept DRY
+- redid the crate layout so that people only have to include mimic
 
 ## [0.5.3]
 - full support for WHERE logic trees, with simplification and DeMorgan's laws (thanks GCSE Computing!)

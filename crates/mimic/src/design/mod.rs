@@ -6,6 +6,10 @@ pub mod base;
 
 pub mod prelude {
     pub use crate::{
+        common::{
+            error::ErrorTree,
+            utils::case::{Case, Casing},
+        },
         core::{
             traits::{
                 EntityFixture, EntityIdKind as _, EntityKind as _, Inner as _, NumCast, Path as _,
@@ -16,7 +20,6 @@ pub mod prelude {
         },
         db,
         db::{executor::SaveExecutor, service::EntityService},
-        error::ErrorTree,
     };
     pub use ::candid::CandidType;
     pub use mimic_design::*;

@@ -678,8 +678,10 @@ dependencies = [
  "derive_more",
  "ic-cdk",
  "icu",
+ "mimic_build",
  "mimic_common",
  "mimic_design",
+ "mimic_schema",
  "num-traits",
  "remain",
  "rust_decimal",
@@ -698,7 +700,8 @@ version = "0.5.4"
 dependencies = [
  "darling",
  "derive_more",
- "mimic",
+ "mimic_common",
+ "mimic_schema",
  "proc-macro2",
  "quote",
  "remain",
@@ -734,12 +737,35 @@ dependencies = [
  "darling",
  "derive_more",
  "mimic_common",
+ "mimic_schema",
  "proc-macro2",
  "quote",
  "remain",
  "serde",
  "syn 2.0.104",
  "tinyrand",
+]
+
+[[package]]
+name = "mimic_schema"
+version = "0.5.4"
+dependencies = [
+ "candid",
+ "convert_case 0.8.0",
+ "ctor",
+ "derive_more",
+ "ic-cdk",
+ "icu",
+ "mimic_common",
+ "num-traits",
+ "remain",
+ "rust_decimal",
+ "serde",
+ "serde_bytes",
+ "thiserror 2.0.12",
+ "tinyrand",
+ "ulid",
+ "xxhash-rust",
 ]
 
 [[package]]

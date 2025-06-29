@@ -125,6 +125,7 @@ impl LoadQuery {
     }
 
     // filter_eq
+    #[must_use]
     pub fn filter_eq<F: Into<String>, V: Into<Value>>(mut self, field: F, value: V) -> Self {
         let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::Eq, value));
         self.filter = Some(match self.filter.take() {

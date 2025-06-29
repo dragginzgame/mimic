@@ -4,6 +4,7 @@ members = [
     "crates/mimic_build",
     "crates/mimic_common",
     "crates/mimic_design",
+    "crates/mimic_schema",
     "crates/test/canister",
     "crates/test/design",
     "crates/test/tests",
@@ -30,6 +31,7 @@ mimic = { path = "crates/mimic" }
 mimic_build = { path = "crates/mimic_build" }
 mimic_common = { path = "crates/mimic_common" }
 mimic_design = { path = "crates/mimic_design" }
+mimic_schema = { path = "crates/mimic_schema" }
 num-traits = { version = "0.2", default-features = false }
 proc-macro2 = "1.0"
 quote = "1.0"

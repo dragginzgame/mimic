@@ -1,6 +1,6 @@
 use crate::{
+    common::utils,
     core::types::{Ulid, UlidError},
-    utils::time::now_millis,
 };
 use std::sync::{LazyLock, Mutex};
 
@@ -33,7 +33,7 @@ impl Generator {
     // generate
     pub fn generate(&mut self) -> Result<Ulid, UlidError> {
         let last_ts = self.previous.timestamp_ms();
-        let ts = now_millis();
+        let ts = utils::time::now_millis();
 
         // maybe time went backward, or it is the same ms.
         // increment instead of generating a new random so that it is monotonic
@@ -49,7 +49,7 @@ impl Generator {
         }
 
         // generate
-        let rand = crate::utils::rand::next_u128();
+        let rand = utils::rand::next_u128();
         let ulid = Ulid::from_parts(ts, rand);
 
         self.previous = ulid;

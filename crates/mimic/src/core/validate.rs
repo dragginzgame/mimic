@@ -1,9 +1,9 @@
 use crate::{
+    common::error::ErrorTree,
     core::{
         traits::Visitable,
         visit::{ValidateVisitor, perform_visit},
     },
-    error::ErrorTree,
 };
 use thiserror::Error as ThisError;
 

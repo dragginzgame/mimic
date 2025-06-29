@@ -6,11 +6,28 @@
 pub mod core;
 pub mod db;
 pub mod design;
-pub mod error;
 pub mod interface;
 pub mod macros;
-pub mod schema;
-pub mod utils;
+
+///
+/// MIMIC CRATE EXPORTS
+///
+
+pub mod common {
+    pub use mimic_common::*;
+}
+
+pub mod build {
+    pub use mimic_build::*;
+}
+
+pub mod schema {
+    pub use mimic_schema::*;
+}
+
+///
+/// RE-EXPORTS
+///
 
 // makes it easier to use internally
 pub mod ic {
@@ -34,7 +51,7 @@ extern crate self as mimic;
 pub mod prelude {
     pub use crate::{
         core::{
-            traits::EntityFixture as _,
+            traits::{EntityFixture as _, EntityKind as _},
             types::{EntityKey, EntityKeys, Ulid},
         },
         db,
@@ -69,9 +86,6 @@ pub enum Error {
     InterfaceError(String),
 
     #[error("{0}")]
-    SchemaError(String),
-
-    #[error("{0}")]
     SerializeError(String),
 
     #[error("{0}")]
@@ -90,7 +104,6 @@ macro_rules! from_to_string {
 
 from_to_string!(db::DataError, DataError);
 from_to_string!(interface::InterfaceError, InterfaceError);
-from_to_string!(schema::SchemaError, SchemaError);
 
 from_to_string!(core::serialize::SerializeError, SerializeError);
 from_to_string!(core::validate::ValidateError, ValidateError);

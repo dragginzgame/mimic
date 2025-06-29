@@ -1,5 +1,6 @@
 use crate::{
     ThisError,
+    common::error::ErrorTree,
     core::{
         traits::{
             FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, ValidateCustom,
@@ -7,7 +8,6 @@ use crate::{
         },
         value::Value,
     },
-    error::ErrorTree,
 };
 
 use derive_more::{Deref, DerefMut};

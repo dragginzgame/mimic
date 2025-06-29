@@ -1,5 +1,6 @@
 use crate::{
     Error,
+    common::utils::time,
     core::{serialize::serialize, traits::EntityKind, validate::validate},
     db::{
         DataError,
@@ -9,7 +10,6 @@ use crate::{
         store::{DataEntry, DataStoreRegistry, IndexStoreRegistry, Metadata},
     },
     debug,
-    utils::time,
 };
 
 ///
