@@ -1,6 +1,6 @@
 mod account;
 mod blob;
-mod decimal;
+mod fixed_e8;
 mod int;
 mod nat;
 mod principal;
@@ -10,7 +10,7 @@ mod unit;
 
 pub use account::*;
 pub use blob::*;
-pub use decimal::*;
+pub use fixed_e8::*;
 pub use int::*;
 pub use nat::*;
 pub use principal::*;

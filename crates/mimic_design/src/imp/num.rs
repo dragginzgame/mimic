@@ -1,7 +1,6 @@
 use crate::{
     imp::{Imp, Implementor},
     node::Newtype,
-    schema::PrimitiveType,
     traits::Trait,
 };
 use proc_macro2::TokenStream;
@@ -52,7 +51,7 @@ impl Imp<Newtype> for NumFromPrimitiveTrait {
     fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
         let item = &node.item;
 
-        let mut q = quote! {
+        let q = quote! {
             fn from_i64(n: i64) -> Option<Self> {
                 type Ty = #item;
                 Ty::from_i64(n).map(Self)
@@ -63,19 +62,6 @@ impl Imp<Newtype> for NumFromPrimitiveTrait {
                 Ty::from_u64(n).map(Self)
             }
         };
-
-        // Decimal
-        if matches!(
-            *node.primitive,
-            PrimitiveType::Decimal | PrimitiveType::Float64
-        ) {
-            q.extend(quote! {
-                fn from_f64(n: f64) -> Option<Self> {
-                    type Ty = #item;
-                    Ty::from_f64(n).map(Self)
-                }
-            });
-        }
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)

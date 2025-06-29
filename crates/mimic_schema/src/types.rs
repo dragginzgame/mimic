@@ -18,6 +18,8 @@ pub enum Cardinality {
 
 ///
 /// ConstantType
+/// f32 and f64 are allowed in constants, but would have to be converted to
+/// a Decimal to be used in the ORM
 ///
 
 #[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, FromStr, Serialize)]
@@ -47,7 +49,7 @@ pub enum PrimitiveType {
     Account,
     Blob,
     Bool,
-    Decimal,
+    FixedE8,
     Float32,
     Float64,
     Int,

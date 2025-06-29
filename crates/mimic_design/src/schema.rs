@@ -129,10 +129,7 @@ pub struct BPrimitiveType(pub PrimitiveType);
 impl BPrimitiveType {
     #[must_use]
     pub fn is_orderable(self) -> bool {
-        !matches!(
-            *self,
-            PrimitiveType::Blob | PrimitiveType::Float32 | PrimitiveType::Float64
-        )
+        !matches!(*self, PrimitiveType::Blob)
     }
 
     #[must_use]
@@ -146,7 +143,9 @@ impl BPrimitiveType {
     pub fn is_numeric(self) -> bool {
         matches!(
             *self,
-            PrimitiveType::Int
+            PrimitiveType::Float32
+                | PrimitiveType::Float64
+                | PrimitiveType::Int
                 | PrimitiveType::Int8
                 | PrimitiveType::Int16
                 | PrimitiveType::Int32
@@ -156,9 +155,7 @@ impl BPrimitiveType {
                 | PrimitiveType::Nat16
                 | PrimitiveType::Nat32
                 | PrimitiveType::Nat64
-                | PrimitiveType::Float32
-                | PrimitiveType::Float64
-                | PrimitiveType::Decimal
+                | PrimitiveType::FixedE8
         )
     }
 
@@ -168,7 +165,7 @@ impl BPrimitiveType {
             PrimitiveType::Account => quote!(::mimic::core::types::Account),
             PrimitiveType::Bool => quote!(::mimic::core::types::Bool),
             PrimitiveType::Blob => quote!(::mimic::core::types::Blob),
-            PrimitiveType::Decimal => quote!(::mimic::core::types::Decimal),
+            PrimitiveType::FixedE8 => quote!(::mimic::core::types::FixedE8),
             PrimitiveType::Float32 => quote!(::mimic::core::types::Float32),
             PrimitiveType::Float64 => quote!(::mimic::core::types::Float64),
             PrimitiveType::Int => quote!(::mimic::core::types::Int),
@@ -193,7 +190,7 @@ impl BPrimitiveType {
     pub fn num_cast_fn(self) -> String {
         match &*self {
             PrimitiveType::Float32 => "f32",
-            PrimitiveType::Decimal | PrimitiveType::Float64 => "f64",
+            PrimitiveType::Float64 => "f64",
             PrimitiveType::Int8 => "i8",
             PrimitiveType::Int16 => "i16",
             PrimitiveType::Int32 => "i32",
@@ -201,7 +198,7 @@ impl BPrimitiveType {
             PrimitiveType::Nat8 => "u8",
             PrimitiveType::Nat16 => "u16",
             PrimitiveType::Nat32 => "u32",
-            PrimitiveType::Nat64 => "u64",
+            PrimitiveType::Nat64 | PrimitiveType::FixedE8 => "u64",
             _ => panic!("unexpected primitive type"),
         }
         .into()

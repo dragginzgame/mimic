@@ -1,5 +1,5 @@
 use crate::design::prelude::*;
-use num_traits::{NumCast, Zero};
+use num_traits::{NumCast, ToPrimitive, Zero};
 
 ///
 /// Lt
@@ -7,7 +7,7 @@ use num_traits::{NumCast, Zero};
 
 #[validator]
 pub struct Lt {
-    pub target: Decimal,
+    pub target: f64,
 }
 
 impl Lt {
@@ -23,14 +23,12 @@ impl ValidatorNumber for Lt {
     where
         N: Copy + NumCast,
     {
-        if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
-            if n_cast < self.target {
-                Ok(())
-            } else {
-                Err(format!("{n_cast} must be less than {}", self.target))
-            }
+        let n_cast = n.to_f64().ok_or("failed to convert input")?;
+
+        if n_cast < self.target {
+            Ok(())
         } else {
-            Err("failed cast to decimal".to_string())
+            Err(format!("{n_cast} must be less than {}", self.target))
         }
     }
 }
@@ -41,7 +39,7 @@ impl ValidatorNumber for Lt {
 
 #[validator]
 pub struct Gt {
-    pub target: Decimal,
+    pub target: f64,
 }
 
 impl Gt {
@@ -57,14 +55,12 @@ impl ValidatorNumber for Gt {
     where
         N: Copy + NumCast,
     {
-        if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
-            if n_cast > self.target {
-                Ok(())
-            } else {
-                Err(format!("{n_cast} must be greater than {}", self.target))
-            }
+        let n_cast = n.to_f64().ok_or("failed to convert input")?;
+
+        if n_cast > self.target {
+            Ok(())
         } else {
-            Err("failed cast to decimal".to_string())
+            Err(format!("{n_cast} must be greater than {}", self.target))
         }
     }
 }
@@ -75,7 +71,7 @@ impl ValidatorNumber for Gt {
 
 #[validator]
 pub struct Ltoe {
-    pub target: Decimal,
+    pub target: f64,
 }
 
 impl Ltoe {
@@ -91,17 +87,15 @@ impl ValidatorNumber for Ltoe {
     where
         N: Copy + NumCast,
     {
-        if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
-            if n_cast <= self.target {
-                Ok(())
-            } else {
-                Err(format!(
-                    "{n_cast} must be less than or equal to {}",
-                    self.target
-                ))
-            }
+        let n_cast = n.to_f64().ok_or("failed to convert input")?;
+
+        if n_cast <= self.target {
+            Ok(())
         } else {
-            Err("failed cast to decimal".to_string())
+            Err(format!(
+                "{n_cast} must be less than or equal to {}",
+                self.target
+            ))
         }
     }
 }
@@ -112,7 +106,7 @@ impl ValidatorNumber for Ltoe {
 
 #[validator]
 pub struct Gtoe {
-    pub target: Decimal,
+    pub target: f64,
 }
 
 impl Gtoe {
@@ -128,17 +122,15 @@ impl ValidatorNumber for Gtoe {
     where
         N: Copy + NumCast,
     {
-        if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
-            if n_cast >= self.target {
-                Ok(())
-            } else {
-                Err(format!(
-                    "{n_cast} must be greater than or equal to {}",
-                    self.target
-                ))
-            }
+        let n_cast = n.to_f64().ok_or("failed to convert input")?;
+
+        if n_cast >= self.target {
+            Ok(())
         } else {
-            Err("failed cast to decimal".to_string())
+            Err(format!(
+                "{n_cast} must be greater than or equal to {}",
+                self.target
+            ))
         }
     }
 }
@@ -149,7 +141,7 @@ impl ValidatorNumber for Gtoe {
 
 #[validator]
 pub struct Equal {
-    pub target: Decimal,
+    pub target: f64,
 }
 
 impl Equal {
@@ -165,14 +157,12 @@ impl ValidatorNumber for Equal {
     where
         N: Copy + NumCast,
     {
-        if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
-            if n_cast == self.target {
-                Ok(())
-            } else {
-                Err(format!("{n_cast} must be equal to {}", self.target))
-            }
+        let n_cast = n.to_f64().ok_or("failed to convert input")?;
+
+        if n_cast == self.target {
+            Ok(())
         } else {
-            Err("failed cast to decimal".to_string())
+            Err(format!("{n_cast} must be equal to {}", self.target))
         }
     }
 }
@@ -183,13 +173,13 @@ impl ValidatorNumber for Equal {
 
 #[validator]
 pub struct NotEqual {
-    pub target: Decimal,
+    pub target: f64,
 }
 
 impl NotEqual {
     pub fn new<N: NumCast>(target: N) -> Self {
         Self {
-            target: NumCast::from(target).unwrap(),
+            target: NumCast::from(target).expect("invalid target value"),
         }
     }
 }
@@ -198,14 +188,12 @@ impl ValidatorNumber for NotEqual {
     where
         N: Copy + NumCast,
     {
-        if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
-            if n_cast == self.target {
-                Ok(())
-            } else {
-                Err(format!("{n_cast} must not be equal to {}", self.target))
-            }
+        let n_cast = n.to_f64().ok_or("failed to convert input")?;
+
+        if n_cast != self.target {
+            Ok(())
         } else {
-            Err("failed cast to decimal".to_string())
+            Err(format!("{n_cast} must not be equal to {}", self.target))
         }
     }
 }
@@ -216,18 +204,18 @@ impl ValidatorNumber for NotEqual {
 
 #[validator]
 pub struct Range {
-    pub min: Decimal,
-    pub max: Decimal,
+    pub min: f64,
+    pub max: f64,
 }
 
 impl Range {
     pub fn new<N>(min: N, max: N) -> Self
     where
-        N: NumCast,
+        N: ToPrimitive,
     {
         Self {
-            min: NumCast::from(min).unwrap(),
-            max: NumCast::from(max).unwrap(),
+            min: min.to_f64().expect("invalid min value"),
+            max: max.to_f64().expect("invalid max value"),
         }
     }
 }
@@ -235,19 +223,17 @@ impl Range {
 impl ValidatorNumber for Range {
     fn validate<N>(&self, n: &N) -> Result<(), String>
     where
-        N: Copy + NumCast,
+        N: Copy + ToPrimitive,
     {
-        if let Some(n_cast) = <Decimal as NumCast>::from(*n) {
-            if n_cast >= self.min && n_cast <= self.max {
-                Ok(())
-            } else {
-                Err(format!(
-                    "{n_cast} must be in the range {} to {}",
-                    self.min, self.max
-                ))
-            }
+        let n_val = n.to_f64().ok_or("failed to cast input to f64")?;
+
+        if n_val >= self.min && n_val <= self.max {
+            Ok(())
         } else {
-            Err("failed cast to decimal".to_string())
+            Err(format!(
+                "{n_val} must be in the range {} to {}",
+                self.min, self.max
+            ))
         }
     }
 }
@@ -325,6 +311,7 @@ impl ValidatorNumber for InArray {
         }
     }
 }
+
 ///
 /// TESTS
 ///

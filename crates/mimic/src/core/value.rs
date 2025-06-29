@@ -1,4 +1,4 @@
-use crate::core::types::{Decimal, EntityKey, Principal, Ulid};
+use crate::core::types::{EntityKey, FixedE8, Principal, Ulid};
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut, Display};
 use serde::{Deserialize, Serialize};
@@ -63,8 +63,8 @@ impl Values {
 #[derive(CandidType, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Value {
     Bool(bool),
-    Decimal(Decimal),
     EntityKey(EntityKey),
+    FixedE8(FixedE8),
     Float(f64),
     Int(i64),
     Nat(u64),
@@ -78,7 +78,6 @@ impl Value {
     #[must_use]
     pub fn into_index_value(self) -> Option<IndexValue> {
         match self {
-            Self::Decimal(d) => Some(IndexValue::Decimal(d)),
             Self::EntityKey(k) => Some(IndexValue::EntityKey(k)),
             Self::Int(i) => Some(IndexValue::Int(i)),
             Self::Nat(n) => Some(IndexValue::Nat(n)),
@@ -105,8 +104,8 @@ impl Value {
 impl_from_for! {
     Value,
     bool => Bool,
-    Decimal => Decimal,
     EntityKey => EntityKey,
+    FixedE8 => FixedE8,
     f32 => Float,
     f64 => Float,
     i8 => Int,
@@ -138,8 +137,8 @@ impl PartialOrd for Value {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         match (self, other) {
             (Self::Bool(a), Self::Bool(b)) => a.partial_cmp(b),
-            (Self::Decimal(a), Self::Decimal(b)) => a.partial_cmp(b),
             (Self::EntityKey(a), Self::EntityKey(b)) => a.partial_cmp(b),
+            (Self::FixedE8(a), Self::FixedE8(b)) => a.partial_cmp(b),
             (Self::Float(a), Self::Float(b)) => a.partial_cmp(b),
             (Self::Int(a), Self::Int(b)) => a.partial_cmp(b),
             (Self::Nat(a), Self::Nat(b)) => a.partial_cmp(b),
@@ -160,7 +159,6 @@ impl PartialOrd for Value {
 
 #[derive(CandidType, Clone, Debug, Deserialize, Display, Eq, Hash, PartialEq, Serialize)]
 pub enum IndexValue {
-    Decimal(Decimal),
     EntityKey(EntityKey),
     Int(i64),
     Nat(u64),
@@ -173,13 +171,12 @@ pub enum IndexValue {
 impl IndexValue {
     const fn variant_rank(&self) -> u8 {
         match self {
-            Self::Decimal(_) => 0,
-            Self::EntityKey(_) => 1,
-            Self::Int(_) => 2,
-            Self::Nat(_) => 3,
-            Self::Principal(_) => 4,
-            Self::Text(_) => 5,
-            Self::Ulid(_) => 6,
+            Self::EntityKey(_) => 0,
+            Self::Int(_) => 1,
+            Self::Nat(_) => 2,
+            Self::Principal(_) => 3,
+            Self::Text(_) => 4,
+            Self::Ulid(_) => 5,
             Self::UpperBoundMarker => u8::MAX,
         }
     }
@@ -187,7 +184,6 @@ impl IndexValue {
 
 impl_from_for! {
     IndexValue,
-    Decimal => Decimal,
     EntityKey => EntityKey,
     i8 => Int,
     i16 => Int,
@@ -221,7 +217,6 @@ impl Ord for IndexValue {
             (Self::UpperBoundMarker, _) => Ordering::Greater,
             (_, Self::UpperBoundMarker) => Ordering::Less,
 
-            (Self::Decimal(a), Self::Decimal(b)) => a.cmp(b),
             (Self::EntityKey(a), Self::EntityKey(b)) => a.cmp(b),
             (Self::Int(a), Self::Int(b)) => a.cmp(b),
             (Self::Nat(a), Self::Nat(b)) => a.cmp(b),

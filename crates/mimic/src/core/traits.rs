@@ -369,6 +369,8 @@ macro_rules! impl_field_value_as {
 }
 
 impl_field_value_as!(
+    f32 => Float,
+    f64 => Float,
     i8 => Int,
     i16 => Int,
     i32 => Int,
@@ -377,8 +379,6 @@ impl_field_value_as!(
     u16 => Nat,
     u32 => Nat,
     u64 => Nat,
-    f32 => Float,
-    f64 => Float,
     bool => Bool,
 );
 
