@@ -2,13 +2,10 @@ use crate::core::traits::{
     FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable,
 };
 use candid::{CandidType, Nat as WrappedNat};
-use derive_more::{Deref, DerefMut, FromStr};
+use derive_more::{Deref, DerefMut, Display, FromStr};
 use icu::impl_storable_unbounded;
 use serde::{Deserialize, Serialize};
-use std::{
-    cmp::Ordering,
-    fmt::{self, Display},
-};
+use std::cmp::Ordering;
 
 ///
 /// Nat
@@ -21,6 +18,7 @@ use std::{
     Default,
     Deref,
     DerefMut,
+    Display,
     Eq,
     PartialEq,
     FromStr,
@@ -31,12 +29,6 @@ use std::{
     Deserialize,
 )]
 pub struct Nat(WrappedNat);
-
-impl Display for Nat {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.0.fmt(f)
-    }
-}
 
 impl FieldSearchable for Nat {
     fn to_searchable_string(&self) -> Option<String> {

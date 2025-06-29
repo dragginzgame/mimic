@@ -57,3 +57,16 @@ impl Generator {
         Ok(ulid)
     }
 }
+
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_monotonic_generation() {
+        let mut g = Generator::default();
+        let a = g.generate().unwrap();
+        let b = g.generate().unwrap();
+
+        assert!(a < b);
+    }
+}

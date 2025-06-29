@@ -18,9 +18,9 @@ impl Ulid {
     /// from_string_digest
     /// a way of turning a string via a hash function into a valid ULID
     #[must_use]
-    pub fn from_string_digest(name: &str) -> Self {
+    pub fn from_string_digest(digest: &str) -> Self {
         // hash name to u128
-        let hash = xxh3_128(name.as_bytes());
+        let hash = xxh3_128(digest.as_bytes());
         let hash_bytes = hash.to_be_bytes(); // [u8; 16]
 
         // Take the first 16 bytes of the SHA-256 hash and convert them to u128
@@ -70,5 +70,14 @@ mod tests {
         }
 
         assert!(all_start_with_00, "Not all ULIDs start with '00'");
+    }
+
+    #[test]
+    fn test_ulid_order_is_consistent() {
+        let a = Ulid::from_string_digest("apple");
+        let b = Ulid::from_string_digest("banana");
+
+        // Consistent order, even if not strictly lexicographic
+        assert!(a != b);
     }
 }

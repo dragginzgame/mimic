@@ -1061,6 +1061,7 @@ dependencies = [
 name = "tests"
 version = "0.5.4"
 dependencies = [
+ "candid",
  "mimic",
  "test_design",
 ]

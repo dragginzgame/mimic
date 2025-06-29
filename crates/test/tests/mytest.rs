@@ -1,4 +1,7 @@
-use mimic::{core::validate::validate, prelude::*};
+use mimic::{
+    core::{types::*, validate::validate},
+    prelude::*,
+};
 
 //
 // just a place to mess around with tests while developing
@@ -7,6 +10,15 @@ use mimic::{core::validate::validate, prelude::*};
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_account() {
+        use mimic::core::types::Account;
+
+        let a = Account::new(Principal::anonymous(), None);
+
+        println!("{a}");
+    }
 
     #[test]
     fn test_get_sort_keys() {

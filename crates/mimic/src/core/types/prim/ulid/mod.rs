@@ -14,13 +14,10 @@ use crate::{
 };
 use ::ulid::Ulid as WrappedUlid;
 use candid::CandidType;
-use derive_more::{Deref, DerefMut, FromStr};
+use derive_more::{Deref, DerefMut, Display, FromStr};
 use icu::impl_storable_bounded;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::{
-    cmp::Ordering,
-    fmt::{self, Display},
-};
+use std::cmp::Ordering;
 
 ///
 /// Error
@@ -57,7 +54,9 @@ impl From<::ulid::DecodeError> for UlidError {
 /// Ulid
 ///
 
-#[derive(Clone, Copy, Debug, Deref, DerefMut, Eq, FromStr, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(
+    Clone, Copy, Debug, Deref, DerefMut, Display, Eq, FromStr, Hash, Ord, PartialEq, PartialOrd,
+)]
 pub struct Ulid(WrappedUlid);
 
 impl Ulid {
@@ -105,12 +104,6 @@ impl CandidType for Ulid {
 impl Default for Ulid {
     fn default() -> Self {
         Self(WrappedUlid::nil())
-    }
-}
-
-impl Display for Ulid {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.0.fmt(f)
     }
 }
 
@@ -168,7 +161,7 @@ impl<'de> Deserialize<'de> for Ulid {
         D: Deserializer<'de>,
     {
         let deserialized_str = String::deserialize(deserializer)?;
-        let ulid = WrappedUlid::from_string(&deserialized_str).unwrap_or_default();
+        let ulid = WrappedUlid::from_string(&deserialized_str).map_err(serde::de::Error::custom)?;
 
         Ok(Self(ulid))
     }
@@ -189,3 +182,16 @@ impl ValidateAuto for Ulid {
 impl ValidateCustom for Ulid {}
 
 impl Visitable for Ulid {}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_ulid_string_roundtrip() {
+        let u1 = Ulid::generate();
+        let u2 = Ulid::from_str(&u1.to_string()).unwrap();
+
+        assert_eq!(u1, u2);
+    }
+}

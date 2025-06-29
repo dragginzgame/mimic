@@ -1,9 +1,11 @@
 use crate::core::{
-    traits::{FieldSortable, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable},
+    traits::{
+        FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable,
+    },
     types::{Principal, Subaccount},
     value::Value,
 };
-use derive_more::{Deref, DerefMut};
+use derive_more::{Deref, DerefMut, Display};
 use icu::{
     ic::{
         candid::CandidType, icrc_ledger_types::icrc1::account::Account as WrappedAccount,
@@ -25,6 +27,7 @@ use std::cmp::Ordering;
     Debug,
     Deref,
     DerefMut,
+    Display,
     Eq,
     PartialEq,
     Hash,
@@ -41,6 +44,12 @@ impl Account {
             owner: *owner,
             subaccount: subaccount.map(Subaccount::to_bytes),
         })
+    }
+}
+
+impl FieldSearchable for Account {
+    fn to_searchable_string(&self) -> Option<String> {
+        Some(self.to_string())
     }
 }
 
@@ -124,5 +133,17 @@ mod tests {
     #[test]
     fn account_is_63_bytes() {
         assert_eq!(mem::size_of::<Account>(), 63);
+    }
+
+    #[test]
+    fn account_roundtrip() {
+        let p = Principal::anonymous();
+        let s = Some(Subaccount::new([1; 32]));
+
+        let a = Account::new(p, s);
+        let b = WrappedAccount::from(a);
+        let c = Account::from(b);
+
+        assert_eq!(a, c);
     }
 }

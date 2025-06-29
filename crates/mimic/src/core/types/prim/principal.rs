@@ -9,18 +9,13 @@ use crate::{
         value::Value,
     },
 };
-
-use derive_more::{Deref, DerefMut};
+use derive_more::{Deref, DerefMut, Display};
 use icu::{
     ic::{api::msg_caller, candid::CandidType, principal::Principal as WrappedPrincipal},
     impl_storable_bounded,
 };
 use serde::{Deserialize, Serialize};
-use std::{
-    cmp::Ordering,
-    fmt::{self, Display},
-    str::FromStr,
-};
+use std::{cmp::Ordering, str::FromStr};
 
 ///
 /// PrincipalError
@@ -46,6 +41,7 @@ pub enum PrincipalError {
     Debug,
     Deref,
     DerefMut,
+    Display,
     Eq,
     PartialEq,
     Hash,
@@ -71,12 +67,6 @@ impl Principal {
 impl Default for Principal {
     fn default() -> Self {
         Self(WrappedPrincipal::from_slice(&[]))
-    }
-}
-
-impl Display for Principal {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.0.fmt(f)
     }
 }
 

@@ -5,6 +5,7 @@ use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
 use serde_bytes::ByteBuf;
+use std::fmt::{self, Display};
 
 ///
 /// Blob
@@ -36,6 +37,12 @@ impl Blob {
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
+    }
+}
+
+impl Display for Blob {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "[blob ({} bytes)]", self.0.len())
     }
 }
 
