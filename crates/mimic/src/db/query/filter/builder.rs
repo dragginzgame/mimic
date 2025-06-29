@@ -12,6 +12,41 @@ pub struct FilterBuilder {
     pub filter: Option<FilterExpr>,
 }
 
+///
+/// FilterBuilder is a compositional helper for building `FilterExpr` trees incrementally,
+/// with automatic flattening of `And`/`Or` logic and support for nested groupings.
+///
+/// # Purpose
+/// This builder abstracts the mechanical construction of `FilterExpr` trees. Instead of manually
+/// nesting `FilterExpr::And`, `Or`, `Not`, etc., this provides a fluent interface for progressive
+/// filter composition that aligns with common query-building workflows.
+///
+/// Internally it uses `FilterExpr::{and, or}` methods, which already flatten nested expressions,
+/// so this builder preserves logical flattening and avoids unnecessary tree depth.
+///
+/// # Grouping Semantics
+/// Use `filter_group(...)` and `or_filter_group(...)` to build nested subtrees (like `(a AND b)`),
+/// which are inserted into the parent with the correct logical context. These are useful for cases
+/// like:
+/// ```text
+///    x = 1 AND (y = 2 OR z = 3)
+/// ```
+///
+/// # Interop with FilterExpr
+/// You can inject existing `FilterExpr` trees using `.filter_expr()` or `.or_filter_expr()`,
+/// and the builder is also `From<FilterExpr>`-convertible.
+///
+/// # Output
+/// `build()` returns `Option<FilterExpr>`. If no filters were added, it returns `None`.
+/// You can simplify the result post-build using `.simplify()` on the resulting `FilterExpr`.
+///
+/// # Future You Notes
+/// - If you’re picking this up later: the core `FilterExpr` enum supports flattening, simplification,
+///   and De Morgan-style rewrites. This builder is just a layered ergonomic interface over that system.
+/// - No validation or optimization is done here — that lives in `FilterExpr::simplify()`.
+/// - See `filter_opt` if you’re adding dynamic/optional filters based on user input.
+/// - Tests live alongside and verify grouping, flattening, and common construction patterns.
+///
 impl FilterBuilder {
     #[must_use]
     pub fn new() -> Self {

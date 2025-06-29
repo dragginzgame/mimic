@@ -71,6 +71,7 @@ pub enum Value {
     Principal(Principal),
     Text(String),
     Ulid(Ulid),
+    Null,
     Unsupported,
 }
 
@@ -88,14 +89,14 @@ impl Value {
         }
     }
 
-    /// Return the canonical lowercase searchable string, if this value supports fuzzy matching.
+    /// Return the unmodified searchable string
     #[must_use]
     pub fn to_searchable_string(&self) -> Option<String> {
         match self {
-            Self::Text(s) => Some(s.to_lowercase()),
-            Self::Principal(p) => Some(p.to_text().to_lowercase()),
-            Self::Ulid(u) => Some(u.to_string().to_lowercase()),
-            Self::EntityKey(k) => Some(k.to_string().to_lowercase()),
+            Self::Text(s) => Some(s.to_string()),
+            Self::Principal(p) => Some(p.to_text()),
+            Self::Ulid(u) => Some(u.to_string()),
+            Self::EntityKey(k) => Some(k.to_string()),
             _ => None,
         }
     }

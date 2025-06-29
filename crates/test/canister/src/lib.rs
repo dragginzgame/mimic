@@ -1,5 +1,6 @@
 mod db;
 mod default;
+mod filter;
 mod ops;
 mod validate;
 
@@ -31,6 +32,7 @@ fn init() {
 pub fn test() {
     default::DefaultTester::test();
     db::DbTester::test();
+    filter::FilterTester::test();
     ops::OpsTester::test();
     validate::ValidateTester::test();
 

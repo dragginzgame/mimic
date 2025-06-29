@@ -121,6 +121,13 @@ impl LoadQuery {
         if let Some(expr) = f(FilterBuilder::new()).build() {
             self.filter = Some(expr);
         }
+
+        self
+    }
+
+    #[must_use]
+    pub fn set_filter(mut self, expr: Option<FilterExpr>) -> Self {
+        self.filter = expr;
         self
     }
 
@@ -132,6 +139,7 @@ impl LoadQuery {
             Some(existing) => existing.and(clause),
             None => clause,
         });
+
         self
     }
 

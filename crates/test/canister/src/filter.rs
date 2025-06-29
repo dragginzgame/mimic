@@ -1,0 +1,227 @@
+use crate::{DATA_REGISTRY, INDEX_REGISTRY};
+use mimic::{
+    core::traits::Path,
+    db::query::{self, FilterClause, FilterExpr},
+    prelude::*,
+};
+use test_design::{filter::Filterable, schema::TestStore};
+
+///
+/// FilterTester
+///
+
+pub struct FilterTester {}
+
+impl FilterTester {
+    // test
+    // best if these are kept in code order so we can see where it failed
+    pub fn test() {
+        let tests: Vec<(&str, fn())> = vec![
+            ("filter_eq_string", Self::filter_eq_string),
+            ("filter_eq_bool", Self::filter_eq_bool),
+            ("filter_gt_score", Self::filter_gt_score),
+            ("filter_le_level", Self::filter_le_level),
+            ("filter_ne_category", Self::filter_ne_category),
+            ("filter_and_group", Self::filter_and_group),
+            ("filter_or_group", Self::filter_or_group),
+            ("filter_nested_groups", Self::filter_nested_groups),
+            ("filter_startswith_name", Self::filter_startswith_name),
+            ("filter_not_clause", Self::filter_not_clause),
+            ("filter_true_short_circuit", Self::filter_true_short_circuit),
+            (
+                "filter_false_short_circuit",
+                Self::filter_false_short_circuit,
+            ),
+            ("filter_empty_result", Self::filter_empty_result),
+        ];
+
+        for (name, test_fn) in tests {
+            println!("clearing db");
+            DATA_REGISTRY.with(|reg| {
+                reg.with_store_mut(TestStore::PATH, |store| store.clear())
+                    .ok();
+            });
+
+            println!("Running test: {name}");
+            test_fn();
+        }
+    }
+
+    // filter
+    fn filter_eq_string() {
+        let query = query::load()
+            .all()
+            .with_filter(|f| f.filter("category", Cmp::Eq, "A"));
+
+        let results = db!()
+            .load()
+            .execute::<Filterable>(query)
+            .unwrap()
+            .entities();
+        assert!(results.iter().all(|e| e.category == "A"));
+    }
+
+    fn filter_eq_bool() {
+        let query = query::load()
+            .all()
+            .with_filter(|f| f.filter("active", Cmp::Eq, true));
+
+        let results = db!()
+            .load()
+            .execute::<Filterable>(query)
+            .unwrap()
+            .entities();
+        assert!(results.iter().all(|e| e.active));
+    }
+
+    fn filter_gt_score() {
+        let query = query::load()
+            .all()
+            .with_filter(|f| f.filter("score", Cmp::Gt, 80.0));
+
+        let results = db!()
+            .load()
+            .execute::<Filterable>(query)
+            .unwrap()
+            .entities();
+        assert!(results.iter().all(|e| e.score > 80.0));
+    }
+
+    fn filter_le_level() {
+        let query = query::load()
+            .all()
+            .with_filter(|f| f.filter("level", Cmp::Ltoe, 3));
+
+        let results = db!()
+            .load()
+            .execute::<Filterable>(query)
+            .unwrap()
+            .entities();
+        assert!(results.iter().all(|e| e.level <= 3));
+    }
+
+    fn filter_ne_category() {
+        let query = query::load()
+            .all()
+            .with_filter(|f| f.filter("category", Cmp::Ne, "B"));
+
+        let results = db!()
+            .load()
+            .execute::<Filterable>(query)
+            .unwrap()
+            .entities();
+        assert!(results.iter().all(|e| e.category != "B"));
+    }
+
+    fn filter_and_group() {
+        let query = query::load().all().with_filter(|f| {
+            f.filter_group(|b| {
+                b.filter("score", Cmp::Gtoe, 60.0)
+                    .filter("level", Cmp::Gtoe, 2)
+            })
+        });
+
+        let results = db!()
+            .load()
+            .execute::<Filterable>(query)
+            .unwrap()
+            .entities();
+        assert!(results.iter().all(|e| e.score >= 60.0 && e.level >= 2));
+    }
+
+    fn filter_or_group() {
+        let query = query::load().all().with_filter(|f| {
+            f.or_filter_group(|b| {
+                b.filter("category", Cmp::Eq, "A")
+                    .filter("category", Cmp::Eq, "C")
+            })
+        });
+
+        let results = db!()
+            .load()
+            .execute::<Filterable>(query)
+            .unwrap()
+            .entities();
+        assert!(
+            results
+                .iter()
+                .all(|e| e.category == "A" || e.category == "C")
+        );
+    }
+
+    fn filter_nested_groups() {
+        let query = query::load().all().with_filter(|f| {
+            f.filter("active", Cmp::Eq, true).or_filter_group(|b| {
+                b.filter_group(|b| b.filter("score", Cmp::Lt, 40.0))
+                    .or_filter("offset", Cmp::Lt, 0)
+            })
+        });
+
+        let results = db!()
+            .load()
+            .execute::<Filterable>(query)
+            .unwrap()
+            .entities();
+        assert!(!results.is_empty());
+    }
+
+    fn filter_startswith_name() {
+        let query = query::load()
+            .all()
+            .with_filter(|f| f.filter("name", Cmp::StartsWith, "A"));
+
+        let results = db!()
+            .load()
+            .execute::<Filterable>(query)
+            .unwrap()
+            .entities();
+        assert!(results.iter().all(|e| e.name.starts_with("A")));
+    }
+
+    fn filter_not_clause() {
+        let expr = FilterExpr::Clause(FilterClause::new("category", Cmp::Eq, "C")).not();
+        let query = query::load().all().set_filter(Some(expr));
+
+        let results = db!()
+            .load()
+            .execute::<Filterable>(query)
+            .unwrap()
+            .entities();
+        assert!(results.iter().all(|e| e.category != "C"));
+    }
+
+    fn filter_true_short_circuit() {
+        let query = query::load().all().set_filter(Some(FilterExpr::True));
+        let results = db!()
+            .load()
+            .execute::<Filterable>(query)
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 10); // all fixtures
+    }
+
+    fn filter_false_short_circuit() {
+        let query = query::load().all().set_filter(Some(FilterExpr::False));
+        let results = db!()
+            .load()
+            .execute::<Filterable>(query)
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 0);
+    }
+
+    fn filter_empty_result() {
+        let query = query::load()
+            .all()
+            .with_filter(|f| f.filter("category", Cmp::Eq, "Nonexistent"));
+
+        let results = db!()
+            .load()
+            .execute::<Filterable>(query)
+            .unwrap()
+            .entities();
+        assert_eq!(results.len(), 0);
+    }
+}

@@ -68,9 +68,11 @@ fn values(node: &Entity) -> TokenStream {
                 }),
 
                 Cardinality::Opt => Some(quote! {
-                    if let Some(inner) = self.#field_ident.as_ref() {
-                        map.insert(#field_lit, inner.to_value());
-                    }
+                    map.insert(#field_lit,
+                        self.#field_ident
+                            .as_ref()
+                            .map_or(::mimic::core::value::Value::Null, |v| v.to_value())
+                    );
                 }),
 
                 Cardinality::Many => None, // Optionally: serialize Vec<T> if needed

@@ -3,6 +3,7 @@ pub mod collections;
 pub mod constant;
 pub mod db;
 pub mod default;
+pub mod filter;
 pub mod fixtures;
 pub mod index;
 pub mod newtype;

@@ -10,7 +10,6 @@ use crate::{
     },
     debug,
 };
-use icu::{Log, log};
 
 ///
 /// LoadExecutor
@@ -140,22 +139,13 @@ impl LoadExecutor {
         match &query.filter {
             Some(expr_raw) => {
                 let expr = expr_raw.clone().simplify(); // ⬅️ done once
-                let olen = rows.len();
 
-                let filtered: Vec<_> = rows
-                    .into_iter()
+                rows.into_iter()
                     .filter(|row| {
                         let values = row.entry.entity.values();
                         FilterEvaluator::new(&values).eval(&expr)
                     })
-                    .collect();
-
-                let flen = filtered.len();
-                if flen < olen {
-                    log!(Log::Info, "apply_where: filtered {olen} → {flen} rows");
-                }
-
-                filtered
+                    .collect()
             }
             None => rows,
         }
