@@ -323,7 +323,7 @@ mod tests {
 
     #[test]
     fn test_lt_validator_success() {
-        let result = Lt::new(10.0).validate(&5);
+        let result = Lt::new(10).validate(&5);
         assert!(result.is_ok());
 
         let result = Lt::new(5.1).validate(&5);
