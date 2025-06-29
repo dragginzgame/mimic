@@ -168,9 +168,9 @@ mod tests {
 
     #[test]
     fn test_to_searchable_string() {
-        let fixed = FixedE8::from_tokens(3.14).unwrap();
+        let fixed = FixedE8::from_tokens(3.17).unwrap();
         let search = fixed.to_searchable_string().unwrap();
-        assert_eq!(search, "3.14000000");
+        assert_eq!(search, "3.17000000");
     }
 
     #[test]
