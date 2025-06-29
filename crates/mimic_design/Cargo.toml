@@ -3,6 +3,7 @@ name = "mimic_design"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }
+publish = false
 
 [lib]
 proc-macro = true

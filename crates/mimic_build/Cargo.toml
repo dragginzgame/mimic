@@ -3,6 +3,7 @@ name = "mimic_build"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }
+publish = false
 
 [dependencies]
 mimic_schema = { workspace = true }
