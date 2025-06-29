@@ -154,10 +154,15 @@ impl BPrimitiveType {
         matches!(
             *self,
             PrimitiveType::Int
+                | PrimitiveType::Int8
+                | PrimitiveType::Int16
                 | PrimitiveType::Int32
                 | PrimitiveType::Int64
                 | PrimitiveType::Float32
                 | PrimitiveType::Float64
+                | PrimitiveType::Nat
+                | PrimitiveType::Nat8
+                | PrimitiveType::Nat16
                 | PrimitiveType::Nat32
                 | PrimitiveType::Nat64
                 | PrimitiveType::FixedE8
