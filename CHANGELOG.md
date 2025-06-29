@@ -12,6 +12,7 @@ around 150k
 mimic and mimic_design are properly wrapped and kept DRY
 - redid the crate layout so that people only have to include mimic
 - removed rust-decimal, now we use a native FixedE8 type that should handle all the cases
+- removed hundreds of derives on types that didn't need them
 
 ## [0.5.3]
 - full support for WHERE logic trees, with simplification and DeMorgan's laws (thanks GCSE Computing!)

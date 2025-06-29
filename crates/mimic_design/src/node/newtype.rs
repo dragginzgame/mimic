@@ -95,10 +95,9 @@ impl TraitNode for Newtype {
         if self.primitive.supports_hash() {
             traits.add(Trait::Hash);
         }
-        if self.primitive.supports_num_from_primitive() {
+        if self.primitive.supports_num_cast() {
+            traits.add(Trait::NumCast);
             traits.add(Trait::NumToPrimitive);
-        }
-        if self.primitive.supports_num_to_primitive() {
             traits.add(Trait::NumFromPrimitive);
         }
         if self.primitive.supports_total_ord() {

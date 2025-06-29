@@ -150,7 +150,7 @@ impl BPrimitiveType {
     }
 
     #[must_use]
-    pub fn supports_num_from_primitive(self) -> bool {
+    pub fn supports_num_cast(self) -> bool {
         matches!(
             *self,
             PrimitiveType::Int
@@ -159,21 +159,6 @@ impl BPrimitiveType {
                 | PrimitiveType::Nat32
                 | PrimitiveType::Nat64
                 | PrimitiveType::FixedE8
-        )
-    }
-
-    #[must_use]
-    pub fn supports_num_to_primitive(self) -> bool {
-        matches!(
-            *self,
-            PrimitiveType::Int
-                | PrimitiveType::Int32
-                | PrimitiveType::Int64
-                | PrimitiveType::Nat32
-                | PrimitiveType::Nat64
-                | PrimitiveType::FixedE8
-                | PrimitiveType::Float32
-                | PrimitiveType::Float64
         )
     }
 
