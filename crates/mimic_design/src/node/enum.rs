@@ -79,12 +79,7 @@ impl TraitNode for Enum {
 
         // extra traits
         if self.is_unit_enum() {
-            traits.extend(vec![
-                Trait::Copy,
-                Trait::Hash,
-                Trait::Ord,
-                Trait::PartialOrd,
-            ]);
+            traits.extend(vec![Trait::Copy, Trait::Hash, Trait::PartialOrd]);
         }
         if self.has_default() {
             traits.add(Trait::Default);

@@ -73,25 +73,39 @@ impl TraitNode for Newtype {
         ]);
 
         // primitive traits
-        if self.primitive.is_displayable() {
-            traits.add(Trait::Display);
-        }
-        if self.primitive.is_numeric() {
+        if self.primitive.supports_arithmetic() {
             traits.extend(vec![
                 Trait::Add,
                 Trait::AddAssign,
-                Trait::Copy,
                 Trait::Mul,
                 Trait::MulAssign,
-                Trait::NumCast,
-                Trait::NumFromPrimitive,
-                Trait::NumToPrimitive,
                 Trait::Sub,
                 Trait::SubAssign,
             ]);
         }
-        if self.primitive.is_orderable() {
-            traits.extend(vec![Trait::Ord, Trait::PartialOrd]);
+        if self.primitive.supports_copy() {
+            traits.add(Trait::Copy);
+        }
+        if self.primitive.supports_display() {
+            traits.add(Trait::Display);
+        }
+        if self.primitive.supports_eq() {
+            traits.add(Trait::Eq);
+        }
+        if self.primitive.supports_hash() {
+            traits.add(Trait::Hash);
+        }
+        if self.primitive.supports_num_from_primitive() {
+            traits.add(Trait::NumToPrimitive);
+        }
+        if self.primitive.supports_num_to_primitive() {
+            traits.add(Trait::NumFromPrimitive);
+        }
+        if self.primitive.supports_total_ord() {
+            traits.add(Trait::Ord);
+        }
+        if self.primitive.supports_partial_ord() {
+            traits.add(Trait::PartialOrd);
         }
 
         traits.list()

@@ -72,12 +72,12 @@ impl<T> Kind for T where T: Path {}
 ///
 
 pub trait TypeKind:
-    Kind + CandidType + Clone + Default + Serialize + DeserializeOwned + Visitable
+    Kind + CandidType + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq
 {
 }
 
 impl<T> TypeKind for T where
-    T: Kind + CandidType + Clone + Default + Serialize + DeserializeOwned + Visitable
+    T: Kind + CandidType + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq
 {
 }
 
@@ -85,7 +85,7 @@ impl<T> TypeKind for T where
 /// EntityKind
 ///
 
-pub trait EntityKind: TypeKind + EntitySearch + EntitySort + PartialEq {
+pub trait EntityKind: TypeKind + EntitySearch + EntitySort {
     const STORE: &'static str;
     const INDEXES: &'static [EntityIndex];
 

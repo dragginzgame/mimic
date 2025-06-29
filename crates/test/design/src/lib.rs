@@ -5,6 +5,7 @@ pub mod db;
 pub mod default;
 pub mod fixtures;
 pub mod index;
+pub mod newtype;
 pub mod schema;
 pub mod sorted;
 pub mod validate;

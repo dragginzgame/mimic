@@ -128,35 +128,111 @@ pub struct BPrimitiveType(pub PrimitiveType);
 
 impl BPrimitiveType {
     #[must_use]
-    pub fn is_orderable(self) -> bool {
-        !matches!(*self, PrimitiveType::Blob)
+    pub fn supports_arithmetic(self) -> bool {
+        self.is_int() || self.is_fixed_point()
+    }
+
+    pub fn supports_copy(self) -> bool {
+        matches!(*self, PrimitiveType::Bool | PrimitiveType::Principal) || self.is_numeric()
     }
 
     #[must_use]
-    pub fn is_displayable(self) -> bool {
+    pub fn supports_display(self) -> bool {
         !matches!(*self, PrimitiveType::Blob | PrimitiveType::Unit)
     }
 
-    // is_numeric
-    // no floats, this is the check for all the arithmetic traits
+    pub fn supports_eq(self) -> bool {
+        !self.is_float()
+    }
+
+    pub fn supports_hash(self) -> bool {
+        !(self.is_float() || matches!(*self, PrimitiveType::Blob))
+    }
+
     #[must_use]
-    pub fn is_numeric(self) -> bool {
+    pub fn supports_num_from_primitive(self) -> bool {
         matches!(
             *self,
-            PrimitiveType::Float32
-                | PrimitiveType::Float64
-                | PrimitiveType::Int
-                | PrimitiveType::Int8
-                | PrimitiveType::Int16
+            PrimitiveType::Int
                 | PrimitiveType::Int32
                 | PrimitiveType::Int64
-                | PrimitiveType::Nat
-                | PrimitiveType::Nat8
-                | PrimitiveType::Nat16
                 | PrimitiveType::Nat32
                 | PrimitiveType::Nat64
                 | PrimitiveType::FixedE8
         )
+    }
+
+    #[must_use]
+    pub fn supports_num_to_primitive(self) -> bool {
+        matches!(
+            *self,
+            PrimitiveType::Int
+                | PrimitiveType::Int32
+                | PrimitiveType::Int64
+                | PrimitiveType::Nat32
+                | PrimitiveType::Nat64
+                | PrimitiveType::FixedE8
+                | PrimitiveType::Float32
+                | PrimitiveType::Float64
+        )
+    }
+
+    pub fn supports_partial_ord(self) -> bool {
+        !matches!(*self, PrimitiveType::Blob | PrimitiveType::Unit)
+    }
+
+    pub fn supports_total_ord(self) -> bool {
+        !matches!(
+            *self,
+            PrimitiveType::Blob
+                | PrimitiveType::Float32
+                | PrimitiveType::Float64
+                | PrimitiveType::Unit
+        )
+    }
+
+    //
+    // grouped helpers
+    //
+
+    // is_numeric
+    // no floats, this is the check for all the arithmetic traits
+    pub fn is_numeric(self) -> bool {
+        self.is_int() || self.is_float() || self.is_fixed_point()
+    }
+
+    pub fn is_float(self) -> bool {
+        matches!(*self, PrimitiveType::Float32 | PrimitiveType::Float64)
+    }
+
+    pub fn is_signed_int(self) -> bool {
+        matches!(
+            *self,
+            PrimitiveType::Int
+                | PrimitiveType::Int8
+                | PrimitiveType::Int16
+                | PrimitiveType::Int32
+                | PrimitiveType::Int64
+        )
+    }
+
+    pub fn is_unsigned_int(self) -> bool {
+        matches!(
+            *self,
+            PrimitiveType::Nat
+                | PrimitiveType::Nat8
+                | PrimitiveType::Nat16
+                | PrimitiveType::Nat32
+                | PrimitiveType::Nat64
+        )
+    }
+
+    pub fn is_int(self) -> bool {
+        self.is_signed_int() || self.is_unsigned_int()
+    }
+
+    pub fn is_fixed_point(self) -> bool {
+        matches!(*self, PrimitiveType::FixedE8)
     }
 
     #[must_use]
