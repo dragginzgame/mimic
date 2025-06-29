@@ -1,5 +1,5 @@
 use crate::design::prelude::*;
-use num_traits::{NumCast, ToPrimitive, Zero};
+use num_traits::{NumCast, Zero};
 
 ///
 /// Lt
@@ -11,10 +11,9 @@ pub struct Lt {
 }
 
 impl Lt {
-    #[must_use]
-    pub fn new<T: Into<f64>>(target: T) -> Self {
+    pub fn new<N: NumCast>(target: N) -> Self {
         Self {
-            target: target.into(),
+            target: NumCast::from(target).unwrap(),
         }
     }
 }
@@ -24,12 +23,14 @@ impl ValidatorNumber for Lt {
     where
         N: Copy + NumCast,
     {
-        let n_cast = n.to_f64().ok_or("failed to convert input")?;
-
-        if n_cast < self.target {
-            Ok(())
+        if let Some(n_cast) = <f64 as NumCast>::from(*n) {
+            if n_cast < self.target {
+                Ok(())
+            } else {
+                Err(format!("{n_cast} must be less than {}", self.target))
+            }
         } else {
-            Err(format!("{n_cast} must be less than {}", self.target))
+            Err("failed cast to f64".to_string())
         }
     }
 }
@@ -44,10 +45,9 @@ pub struct Gt {
 }
 
 impl Gt {
-    #[must_use]
-    pub fn new<T: Into<f64>>(target: T) -> Self {
+    pub fn new<N: NumCast>(target: N) -> Self {
         Self {
-            target: target.into(),
+            target: NumCast::from(target).unwrap(),
         }
     }
 }
@@ -57,12 +57,14 @@ impl ValidatorNumber for Gt {
     where
         N: Copy + NumCast,
     {
-        let n_cast = n.to_f64().ok_or("failed to convert input")?;
-
-        if n_cast > self.target {
-            Ok(())
+        if let Some(n_cast) = <f64 as NumCast>::from(*n) {
+            if n_cast > self.target {
+                Ok(())
+            } else {
+                Err(format!("{n_cast} must be greater than {}", self.target))
+            }
         } else {
-            Err(format!("{n_cast} must be greater than {}", self.target))
+            Err("failed cast to f64".to_string())
         }
     }
 }
@@ -77,10 +79,9 @@ pub struct Ltoe {
 }
 
 impl Ltoe {
-    #[must_use]
-    pub fn new<T: Into<f64>>(target: T) -> Self {
+    pub fn new<N: NumCast>(target: N) -> Self {
         Self {
-            target: target.into(),
+            target: NumCast::from(target).unwrap(),
         }
     }
 }
@@ -90,15 +91,17 @@ impl ValidatorNumber for Ltoe {
     where
         N: Copy + NumCast,
     {
-        let n_cast = n.to_f64().ok_or("failed to convert input")?;
-
-        if n_cast <= self.target {
-            Ok(())
+        if let Some(n_cast) = <f64 as NumCast>::from(*n) {
+            if n_cast <= self.target {
+                Ok(())
+            } else {
+                Err(format!(
+                    "{n_cast} must be less than or equal to {}",
+                    self.target
+                ))
+            }
         } else {
-            Err(format!(
-                "{n_cast} must be less than or equal to {}",
-                self.target
-            ))
+            Err("failed cast to f64".to_string())
         }
     }
 }
@@ -113,10 +116,9 @@ pub struct Gtoe {
 }
 
 impl Gtoe {
-    #[must_use]
-    pub fn new<T: Into<f64>>(target: T) -> Self {
+    pub fn new<N: NumCast>(target: N) -> Self {
         Self {
-            target: target.into(),
+            target: NumCast::from(target).unwrap(),
         }
     }
 }
@@ -126,15 +128,17 @@ impl ValidatorNumber for Gtoe {
     where
         N: Copy + NumCast,
     {
-        let n_cast = n.to_f64().ok_or("failed to convert input")?;
-
-        if n_cast >= self.target {
-            Ok(())
+        if let Some(n_cast) = <f64 as NumCast>::from(*n) {
+            if n_cast >= self.target {
+                Ok(())
+            } else {
+                Err(format!(
+                    "{n_cast} must be greater than or equal to {}",
+                    self.target
+                ))
+            }
         } else {
-            Err(format!(
-                "{n_cast} must be greater than or equal to {}",
-                self.target
-            ))
+            Err("failed cast to f64".to_string())
         }
     }
 }
@@ -149,9 +153,9 @@ pub struct Equal {
 }
 
 impl Equal {
-    pub fn new<T: Into<f64>>(target: T) -> Self {
+    pub fn new<N: NumCast>(target: N) -> Self {
         Self {
-            target: target.into(),
+            target: NumCast::from(target).unwrap(),
         }
     }
 }
@@ -161,12 +165,14 @@ impl ValidatorNumber for Equal {
     where
         N: Copy + NumCast,
     {
-        let n_cast = n.to_f64().ok_or("failed to convert input")?;
-
-        if n_cast == self.target {
-            Ok(())
+        if let Some(n_cast) = <f64 as NumCast>::from(*n) {
+            if n_cast == self.target {
+                Ok(())
+            } else {
+                Err(format!("{n_cast} must be equal to {}", self.target))
+            }
         } else {
-            Err(format!("{n_cast} must be equal to {}", self.target))
+            Err("failed cast to f64".to_string())
         }
     }
 }
@@ -181,9 +187,9 @@ pub struct NotEqual {
 }
 
 impl NotEqual {
-    pub fn new<T: Into<f64>>(target: T) -> Self {
+    pub fn new<N: NumCast>(target: N) -> Self {
         Self {
-            target: target.into(),
+            target: NumCast::from(target).unwrap(),
         }
     }
 }
@@ -192,12 +198,14 @@ impl ValidatorNumber for NotEqual {
     where
         N: Copy + NumCast,
     {
-        let n_cast = n.to_f64().ok_or("failed to convert input")?;
-
-        if n_cast != self.target {
-            Ok(())
+        if let Some(n_cast) = <f64 as NumCast>::from(*n) {
+            if n_cast == self.target {
+                Ok(())
+            } else {
+                Err(format!("{n_cast} must not be equal to {}", self.target))
+            }
         } else {
-            Err(format!("{n_cast} must not be equal to {}", self.target))
+            Err("failed cast to f64".to_string())
         }
     }
 }
@@ -213,10 +221,13 @@ pub struct Range {
 }
 
 impl Range {
-    pub fn new<T: Into<f64>>(min: T, max: T) -> Self {
+    pub fn new<N>(min: N, max: N) -> Self
+    where
+        N: NumCast,
+    {
         Self {
-            min: min.into(),
-            max: max.into(),
+            min: NumCast::from(min).unwrap(),
+            max: NumCast::from(max).unwrap(),
         }
     }
 }
@@ -224,17 +235,19 @@ impl Range {
 impl ValidatorNumber for Range {
     fn validate<N>(&self, n: &N) -> Result<(), String>
     where
-        N: Copy + ToPrimitive,
+        N: Copy + NumCast,
     {
-        let n_val = n.to_f64().ok_or("failed to cast input to f64")?;
-
-        if n_val >= self.min && n_val <= self.max {
-            Ok(())
+        if let Some(n_cast) = <f64 as NumCast>::from(*n) {
+            if n_cast >= self.min && n_cast <= self.max {
+                Ok(())
+            } else {
+                Err(format!(
+                    "{n_cast} must be in the range {} to {}",
+                    self.min, self.max
+                ))
+            }
         } else {
-            Err(format!(
-                "{n_val} must be in the range {} to {}",
-                self.min, self.max
-            ))
+            Err("failed cast to f64".to_string())
         }
     }
 }
@@ -249,9 +262,9 @@ pub struct MultipleOf {
 }
 
 impl MultipleOf {
-    pub fn new<T: Into<i32>>(target: T) -> Self {
+    pub fn new<N: NumCast>(target: N) -> Self {
         Self {
-            target: target.into(),
+            target: NumCast::from(target).unwrap(),
         }
     }
 }
@@ -312,7 +325,6 @@ impl ValidatorNumber for InArray {
         }
     }
 }
-
 ///
 /// TESTS
 ///
@@ -332,7 +344,7 @@ mod tests {
 
     #[test]
     fn test_lt_validator_failure() {
-        let result = Lt::new(5.0).validate(&10);
+        let result = Lt::new(5).validate(&10);
         assert!(result.is_err());
     }
 
