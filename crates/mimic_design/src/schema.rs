@@ -156,6 +156,8 @@ impl BPrimitiveType {
             PrimitiveType::Int
                 | PrimitiveType::Int32
                 | PrimitiveType::Int64
+                | PrimitiveType::Float32
+                | PrimitiveType::Float64
                 | PrimitiveType::Nat32
                 | PrimitiveType::Nat64
                 | PrimitiveType::FixedE8
