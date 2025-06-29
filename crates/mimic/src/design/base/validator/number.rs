@@ -11,9 +11,10 @@ pub struct Lt {
 }
 
 impl Lt {
-    pub fn new<N: NumCast>(target: N) -> Self {
+    #[must_use]
+    pub fn new<T: Into<f64>>(target: T) -> Self {
         Self {
-            target: NumCast::from(target).unwrap(),
+            target: target.into(),
         }
     }
 }
@@ -43,9 +44,10 @@ pub struct Gt {
 }
 
 impl Gt {
-    pub fn new<N: NumCast>(target: N) -> Self {
+    #[must_use]
+    pub fn new<T: Into<f64>>(target: T) -> Self {
         Self {
-            target: NumCast::from(target).unwrap(),
+            target: target.into(),
         }
     }
 }
@@ -75,9 +77,10 @@ pub struct Ltoe {
 }
 
 impl Ltoe {
-    pub fn new<N: NumCast>(target: N) -> Self {
+    #[must_use]
+    pub fn new<T: Into<f64>>(target: T) -> Self {
         Self {
-            target: NumCast::from(target).unwrap(),
+            target: target.into(),
         }
     }
 }
@@ -110,9 +113,10 @@ pub struct Gtoe {
 }
 
 impl Gtoe {
-    pub fn new<N: NumCast>(target: N) -> Self {
+    #[must_use]
+    pub fn new<T: Into<f64>>(target: T) -> Self {
         Self {
-            target: NumCast::from(target).unwrap(),
+            target: target.into(),
         }
     }
 }
@@ -145,9 +149,9 @@ pub struct Equal {
 }
 
 impl Equal {
-    pub fn new<N: NumCast>(target: N) -> Self {
+    pub fn new<T: Into<f64>>(target: T) -> Self {
         Self {
-            target: NumCast::from(target).unwrap(),
+            target: target.into(),
         }
     }
 }
@@ -177,9 +181,9 @@ pub struct NotEqual {
 }
 
 impl NotEqual {
-    pub fn new<N: NumCast>(target: N) -> Self {
+    pub fn new<T: Into<f64>>(target: T) -> Self {
         Self {
-            target: NumCast::from(target).expect("invalid target value"),
+            target: target.into(),
         }
     }
 }
@@ -209,13 +213,10 @@ pub struct Range {
 }
 
 impl Range {
-    pub fn new<N>(min: N, max: N) -> Self
-    where
-        N: ToPrimitive,
-    {
+    pub fn new<T: Into<f64>>(min: T, max: T) -> Self {
         Self {
-            min: min.to_f64().expect("invalid min value"),
-            max: max.to_f64().expect("invalid max value"),
+            min: min.into(),
+            max: max.into(),
         }
     }
 }
@@ -248,9 +249,9 @@ pub struct MultipleOf {
 }
 
 impl MultipleOf {
-    pub fn new<N: NumCast>(target: N) -> Self {
+    pub fn new<T: Into<i32>>(target: T) -> Self {
         Self {
-            target: NumCast::from(target).unwrap(),
+            target: target.into(),
         }
     }
 }
@@ -322,7 +323,7 @@ mod tests {
 
     #[test]
     fn test_lt_validator_success() {
-        let result = Lt::new(10).validate(&5);
+        let result = Lt::new(10.0).validate(&5);
         assert!(result.is_ok());
 
         let result = Lt::new(5.1).validate(&5);
@@ -331,7 +332,7 @@ mod tests {
 
     #[test]
     fn test_lt_validator_failure() {
-        let result = Lt::new(5).validate(&10);
+        let result = Lt::new(5.0).validate(&10);
         assert!(result.is_err());
     }
 
