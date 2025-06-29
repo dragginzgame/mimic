@@ -18,7 +18,6 @@ pub mod common {
 }
 
 pub mod build {
-    pub use mimic_build::build;
     pub use mimic_build::*;
 }
 
