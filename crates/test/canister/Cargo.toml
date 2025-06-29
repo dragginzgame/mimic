@@ -13,8 +13,6 @@ candid = { workspace = true }
 ic-cdk = { workspace = true }
 icu = { workspace = true }
 mimic = { workspace = true }
-proc-macro2 = { workspace = true }
-quote = { workspace = true }
 test_design = { workspace = true }
 
 [build-dependencies]
