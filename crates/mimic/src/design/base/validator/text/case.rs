@@ -1,4 +1,4 @@
-use crate::design::prelude::*;
+use crate::{core::traits::ValidatorString, design::prelude::*};
 
 ///
 /// Kebab

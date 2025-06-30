@@ -18,7 +18,7 @@ pub use std::{
 use crate::{
     common::error::ErrorTree,
     core::{
-        types::{EntityKey, Ulid},
+        types::{Decimal, EntityKey, Ulid},
         value::{IndexValue, Value, Values},
         visit::Visitor,
     },
@@ -230,6 +230,12 @@ pub trait EntitySort {
 
 pub trait ValidatorBytes {
     fn validate(&self, _: &[u8]) -> Result<(), String> {
+        Ok(())
+    }
+}
+
+pub trait ValidatorDecimal {
+    fn validate(&self, _: &Decimal) -> Result<(), String> {
         Ok(())
     }
 }

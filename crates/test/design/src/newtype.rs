@@ -7,15 +7,15 @@ pub(crate) mod prelude {
 pub use prelude::*;
 
 ///
-/// Decimal
+/// DecimalMaxDp
 ///
 
 #[newtype(
     primitive = "Decimal",
     item(prim = "Decimal"),
-    ty(validator(path = "validator::number::Ltoe", args(5.0)))
+    ty(validator(path = "validator::decimal::MaxDecimalPlaces", args(3)))
 )]
-pub struct Decimal {}
+pub struct DecimalMaxDp {}
 
 ///
 /// Float32

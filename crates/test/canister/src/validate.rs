@@ -1,5 +1,5 @@
 use mimic::core::validate::validate;
-use test_design::validate::ValidateTest;
+use test_design::validate::*;
 
 ///
 /// ValidateTester
@@ -11,6 +11,7 @@ impl ValidateTester {
     // test
     pub fn test() {
         Self::test_collections();
+        Self::test_decimal();
         Self::test_record();
     }
 
@@ -59,6 +60,19 @@ impl ValidateTester {
         // set
         let set = SetValidated::from(vec![1, 2, 2, 2, 52, 2, 3, 4, 8]);
         let res = validate(&set);
+        assert!(res.is_err(), "{res:?}");
+    }
+
+    // test_decimal
+    fn test_decimal() {
+        // OK
+        let d = DecimalMaxDp::from(1.2);
+        let res = validate(&d);
+        assert!(res.is_ok(), "{res:?}");
+
+        // ERR
+        let d = DecimalMaxDp::from(1.2453);
+        let res = validate(&d);
         assert!(res.is_err(), "{res:?}");
     }
 

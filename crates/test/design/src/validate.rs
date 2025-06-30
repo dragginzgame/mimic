@@ -30,3 +30,14 @@ pub struct ValidateTest {}
     ty(validator(path = "validator::number::MultipleOf", args(10)))
 )]
 pub struct MultipleTenType {}
+
+///
+/// DecimalMaxDp
+///
+
+#[newtype(
+    primitive = "Decimal",
+    item(prim = "Decimal"),
+    ty(validator(path = "validator::decimal::MaxDecimalPlaces", args(3)))
+)]
+pub struct DecimalMaxDp {}

@@ -1,4 +1,4 @@
-use crate::design::prelude::*;
+use crate::{core::traits::ValidatorNumber, design::prelude::*};
 use num_traits::{NumCast, Zero};
 
 ///
