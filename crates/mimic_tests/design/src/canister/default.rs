@@ -9,7 +9,7 @@ use crate::prelude::*;
     field(
         name = "nat8_static_fn",
         value(item(prim = "Nat8")),
-        default = "crate::default::Record::nat8_static_fn"
+        default = "Record::nat8_static_fn"
     ),
     traits(add(Default))
 )]
@@ -30,7 +30,7 @@ impl Record {
     field(
         name = "static_fn",
         value(item(prim = "Principal")),
-        default = "crate::default::WithPrincipal::static_fn"
+        default = "WithPrincipal::static_fn"
     ),
     traits(add(Default))
 )]

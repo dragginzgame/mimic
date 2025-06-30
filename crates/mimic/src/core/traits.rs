@@ -86,6 +86,8 @@ impl<T> TypeKind for T where
 ///
 
 pub trait EntityKind: TypeKind + EntitySearch + EntitySort {
+    type PrimaryKey: AsRef<[IndexValue]> + Copy;
+
     const STORE: &'static str;
     const INDEXES: &'static [EntityIndex];
 

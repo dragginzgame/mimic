@@ -228,76 +228,78 @@ pub struct Metadata {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::core::types::Ulid;
 
-    fn text(s: &str) -> IndexValue {
-        IndexValue::Text(s.to_string())
+    fn ulid(v: u128) -> IndexValue {
+        IndexValue::Ulid(Ulid::from_u128(v))
+    }
+
+    fn int(n: i64) -> IndexValue {
+        IndexValue::Int(n)
     }
 
     #[test]
     fn data_keys_with_identical_paths_and_values_are_equal() {
-        let k1 = DataKey::new(vec![("my::Entity", Some("abc".into()))]);
-        let k2 = DataKey::new(vec![("my::Entity", Some(text("abc")))]);
+        let k1 = DataKey::new(vec![("my::Entity", Some(ulid(1)))]);
+        let k2 = DataKey::new(vec![("my::Entity", Some(ulid(1)))]);
 
-        assert_eq!(k1, k2, "DataKeys from same path and value should be equal");
+        assert_eq!(k1, k2);
     }
 
     #[test]
     fn data_keys_with_different_paths_are_not_equal() {
-        let k1 = DataKey::new(vec![("a::Entity", Some(text("abc")))]);
-        let k2 = DataKey::new(vec![("b::Entity", Some(text("abc")))]);
+        let k1 = DataKey::new(vec![("a::Entity", Some(ulid(1)))]);
+        let k2 = DataKey::new(vec![("b::Entity", Some(ulid(1)))]);
 
-        assert_ne!(k1, k2, "Different paths should produce different DataKey#s");
+        assert_ne!(k1, k2);
     }
 
     #[test]
     fn data_keys_with_different_values_are_not_equal() {
-        let k1 = DataKey::new(vec![("my::Entity", Some(text("abc")))]);
-        let k2 = DataKey::new(vec![("my::Entity", Some(text("def")))]);
+        let k1 = DataKey::new(vec![("my::Entity", Some(ulid(1)))]);
+        let k2 = DataKey::new(vec![("my::Entity", Some(ulid(2)))]);
 
-        assert_ne!(k1, k2, "Same path with different values should differ");
+        assert_ne!(k1, k2);
     }
 
     #[test]
     fn data_keys_with_none_and_some_are_different() {
         let k1 = DataKey::new(vec![("my::Entity", None)]);
-        let k2 = DataKey::new(vec![("my::Entity", Some(text("value")))]);
+        let k2 = DataKey::new(vec![("my::Entity", Some(ulid(1)))]);
 
-        assert_ne!(k1, k2, "None vs Some should differ");
+        assert_ne!(k1, k2);
     }
 
     #[test]
     fn data_keys_with_additional_parts_are_different() {
-        let short = DataKey::new(vec![("my::Entity", Some(text("v1")))]);
+        let short = DataKey::new(vec![("my::Entity", Some(ulid(1)))]);
         let long = DataKey::new(vec![
-            ("my::Entity", Some(text("v1"))),
-            ("my::Entity", Some(text("v2"))),
+            ("my::Entity", Some(ulid(1))),
+            ("my::Entity", Some(ulid(2))),
         ]);
 
-        assert_ne!(short, long, "Longer DataKey# should not equal shorter one");
+        assert_ne!(short, long);
     }
 
     #[test]
     fn data_keys_are_stable_across_invocations() {
-        let k1 = DataKey::new(vec![("stable::Entity", Some(text("42")))]);
-        let k2 = DataKey::new(vec![("stable::Entity", Some(text("42")))]);
+        let k1 = DataKey::new(vec![("stable::Entity", Some(int(42)))]);
+        let k2 = DataKey::new(vec![("stable::Entity", Some(int(42)))]);
 
-        assert_eq!(k1, k2, "DataKey#s should be equal on repeated construction");
+        assert_eq!(k1, k2);
     }
 
     #[test]
     fn data_key_ordering_is_structural_only() {
         let k1 = DataKey::new(vec![
-            ("x::Entity", Some(text("a"))),
-            ("y::Entity", Some(text("a"))),
+            ("x::Entity", Some(ulid(1))),
+            ("y::Entity", Some(ulid(1))),
         ]);
         let k2 = DataKey::new(vec![
-            ("x::Entity", Some(text("a"))),
-            ("y::Entity", Some(text("b"))),
+            ("x::Entity", Some(ulid(1))),
+            ("y::Entity", Some(ulid(2))),
         ]);
 
-        assert_ne!(
-            k1, k2,
-            "DataKey# ordering should reflect structure and value differences"
-        );
+        assert_ne!(k1, k2);
     }
 }

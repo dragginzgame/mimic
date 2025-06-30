@@ -1,27 +1,6 @@
 use crate::prelude::*;
 
 ///
-/// List
-///
-
-#[list(item(prim = "Text"))]
-pub struct List {}
-
-///
-/// Map
-///
-
-#[map(key(prim = "Text"), value(item(prim = "Nat8")))]
-pub struct Map {}
-
-///
-/// Set
-///
-
-#[set(item(prim = "Text"))]
-pub struct Set {}
-
-///
 /// ListValidated
 ///
 

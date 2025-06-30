@@ -42,7 +42,7 @@ impl DbTester {
 
     // blob
     fn blob() {
-        use test_design::db::ContainsBlob;
+        use test_design::canister::db::ContainsBlob;
 
         const ROWS: u16 = 100;
 
@@ -71,7 +71,7 @@ impl DbTester {
 
     // create
     fn create() {
-        use test_design::db::CreateBasic;
+        use test_design::canister::db::CreateBasic;
 
         let e = CreateBasic::default();
         db!().save().execute(query::create().entity(e)).unwrap();
@@ -102,7 +102,7 @@ impl DbTester {
 
     // create_and_delete_index
     fn create_and_delete_index() {
-        use test_design::index::Index;
+        use test_design::canister::index::Index;
 
         // Step 1: Insert entity e1 with x=1, y=10
         let e1 = Index::new(1, 10);
@@ -154,7 +154,7 @@ impl DbTester {
 
     // create_lots
     fn create_lots() {
-        use test_design::db::CreateBasic;
+        use test_design::canister::db::CreateBasic;
         const ROWS: u32 = 1_000;
 
         // insert rows
@@ -176,7 +176,7 @@ impl DbTester {
 
     // create_lots_blob
     fn create_lots_blob() {
-        use test_design::db::CreateBlob;
+        use test_design::canister::db::CreateBlob;
         const ROWS: u32 = 500;
         const BLOB_SIZE: usize = 1024 * 2;
 
@@ -202,7 +202,7 @@ impl DbTester {
 
     // data_key_order
     fn data_key_order() {
-        use test_design::db::DataKeyOrder;
+        use test_design::canister::db::DataKeyOrder;
 
         const ROWS: u16 = 1_000;
 
@@ -230,7 +230,7 @@ impl DbTester {
 
     // limit_query
     fn limit_query() {
-        use test_design::db::Limit;
+        use test_design::canister::db::Limit;
 
         // Insert 100 rows
         // overwrite the ulid with replace()
@@ -258,7 +258,7 @@ impl DbTester {
 
     // perf_options
     fn perf_options() {
-        use test_design::db::ContainsOpts;
+        use test_design::canister::db::ContainsOpts;
 
         const ROWS: u16 = 500;
 
@@ -281,7 +281,7 @@ impl DbTester {
 
     // perf_many_relations
     fn perf_many_relations() {
-        use test_design::db::ContainsManyRelations;
+        use test_design::canister::db::ContainsManyRelations;
 
         const ROWS: u16 = 500;
 

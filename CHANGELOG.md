@@ -14,6 +14,7 @@ mimic and mimic_design are properly wrapped and kept DRY
 - removed hundreds of derives on types that didn't need them
 - added a FixedE8 type to use instead of u64/Decimal for token values
 - added MaxDecimalPlaces validator
+- cleaned up the mimic_tests, design, canister a lot
 
 ## [0.5.3]
 - full support for WHERE logic trees, with simplification and DeMorgan's laws (thanks GCSE Computing!)

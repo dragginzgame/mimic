@@ -83,3 +83,19 @@ impl EntityFixture for IndexWithFixtures {
         );
     }
 }
+
+///
+/// IndexRelation
+///
+
+#[entity(
+    store = "crate::schema::TestStore",
+    data_key(entity = "IndexRelation", field = "id"),
+    index(store = "crate::schema::TestIndex", fields = "rarity_key"),
+    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+    field(
+        name = "rarity_key",
+        value(item(rel = "crate::fixture::rarity::Rarity"))
+    )
+)]
+pub struct IndexRelation {}

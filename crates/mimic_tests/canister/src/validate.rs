@@ -1,5 +1,5 @@
 use mimic::core::validate::validate;
-use test_design::validate::*;
+use test_design::canister::validate::*;
 
 ///
 /// ValidateTester
@@ -22,7 +22,7 @@ impl ValidateTester {
     // test_collections
     // all of these use Lt(10) as the validator
     fn test_collections() {
-        use test_design::collections::{ListValidated, MapValidated, SetValidated};
+        use test_design::canister::collections::{ListValidated, MapValidated, SetValidated};
 
         //
         // PASS

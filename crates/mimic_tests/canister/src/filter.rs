@@ -4,7 +4,7 @@ use mimic::{
     db::query::{self, FilterClause, FilterExpr},
     prelude::*,
 };
-use test_design::{filter::Filterable, schema::TestStore};
+use test_design::{canister::filter::Filterable, schema::TestStore};
 
 ///
 /// FilterTester

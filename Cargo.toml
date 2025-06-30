@@ -5,9 +5,9 @@ members = [
     "crates/mimic_common",
     "crates/mimic_design",
     "crates/mimic_schema",
-    "crates/test/canister",
-    "crates/test/design",
-    "crates/test/tests",
+    "crates/mimic_tests",
+    "crates/mimic_tests/canister",
+    "crates/mimic_tests/design",
 ]
 resolver = "2"
 
@@ -45,8 +45,8 @@ semver = "1.0"
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 serde_bytes = "0.11"
 syn = "2.0"
-test_canister = { path = "crates/test/canister" }
-test_design = { path = "crates/test/design" }
+test_canister = { path = "crates/mimic_tests/canister" }
+test_design = { path = "crates/mimic_tests/design" }
 thiserror = "2.0"
 tinyrand = "0.5"
 # removed std because it imports rand.  serde feature doesn't compile without it

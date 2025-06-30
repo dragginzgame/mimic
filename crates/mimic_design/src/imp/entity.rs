@@ -16,11 +16,21 @@ pub struct EntityKindTrait {}
 
 impl Imp<Entity> for EntityKindTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
-        let mut q = quote!();
+        let key_size = &node.data_keys.len();
+        let store = &node.store;
+        let defs = node.indexes.iter().map(Schemable::schema);
 
-        q.extend(store(node));
-        q.extend(indexes(node));
+        // static definitions
+        let mut q = quote! {
+            type PrimaryKey = [::mimic::core::value::IndexValue; #key_size];
 
+            const STORE: &'static str = #store::PATH;
+            const INDEXES: &'static [::mimic::schema::node::EntityIndex] = &[
+                #(#defs),*
+            ];
+        };
+
+        // impls
         q.extend(values(node));
         q.extend(entity_key(node));
         q.extend(build_data_key(node));
@@ -30,26 +40,6 @@ impl Imp<Entity> for EntityKindTrait {
             .to_token_stream();
 
         Some(tokens)
-    }
-}
-
-// store
-fn store(node: &Entity) -> TokenStream {
-    let store = &node.store;
-
-    quote! {
-        const STORE: &'static str = #store::PATH;
-    }
-}
-
-// indexes
-fn indexes(node: &Entity) -> TokenStream {
-    let defs = node.indexes.iter().map(Schemable::schema);
-
-    quote! {
-        const INDEXES: &'static [::mimic::schema::node::EntityIndex] = &[
-            #(#defs),*
-        ];
     }
 }
 
@@ -134,7 +124,7 @@ fn build_data_key(node: &Entity) -> TokenStream {
             quote! {
                 ::mimic::db::store::DataKeyPart::new(
                     #entity::PATH,
-                    Some(values[#idx].clone()),
+                    Some(values[#idx]),
                 )
             }
         } else {

@@ -86,6 +86,12 @@ impl Ulid {
 
         Ok(Self(this))
     }
+
+    /// from_u128
+    #[must_use]
+    pub fn from_u128(n: u128) -> Self {
+        Self(WrappedUlid::from_bytes(n.to_be_bytes()))
+    }
 }
 
 impl CandidType for Ulid {

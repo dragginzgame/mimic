@@ -80,11 +80,9 @@ impl Value {
     #[must_use]
     pub fn into_index_value(self) -> Option<IndexValue> {
         match self {
-            Self::EntityKey(k) => Some(IndexValue::EntityKey(k)),
             Self::Int(i) => Some(IndexValue::Int(i)),
             Self::Nat(n) => Some(IndexValue::Nat(n)),
             Self::Principal(p) => Some(IndexValue::Principal(p)),
-            Self::Text(s) => Some(IndexValue::Text(s)),
             Self::Ulid(u) => Some(IndexValue::Ulid(u)),
             _ => None,
         }
@@ -158,16 +156,17 @@ impl PartialOrd for Value {
 
 ///
 /// IndexValue
-/// strictly for indexable fields (DataKey, EntityKey)
+///
+/// Treating IndexValue as the atomic, normalized unit of the keyspace
+/// Backing primary keys and secondary indexes with the same value representation
+/// Planning to enforce Copy semantics (i.e., fast, clean, safe)
 ///
 
-#[derive(CandidType, Clone, Debug, Deserialize, Display, Eq, Hash, PartialEq, Serialize)]
+#[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, Eq, Hash, PartialEq, Serialize)]
 pub enum IndexValue {
-    EntityKey(EntityKey),
     Int(i64),
     Nat(u64),
     Principal(Principal),
-    Text(String),
     Ulid(Ulid),
     UpperBoundMarker,
 }
@@ -175,12 +174,10 @@ pub enum IndexValue {
 impl IndexValue {
     const fn variant_rank(&self) -> u8 {
         match self {
-            Self::EntityKey(_) => 0,
-            Self::Int(_) => 1,
-            Self::Nat(_) => 2,
-            Self::Principal(_) => 3,
-            Self::Text(_) => 4,
-            Self::Ulid(_) => 5,
+            Self::Int(_) => 0,
+            Self::Nat(_) => 1,
+            Self::Principal(_) => 2,
+            Self::Ulid(_) => 3,
             Self::UpperBoundMarker => u8::MAX,
         }
     }
@@ -188,24 +185,16 @@ impl IndexValue {
 
 impl_from_for! {
     IndexValue,
-    EntityKey => EntityKey,
     i8 => Int,
     i16 => Int,
     i32 => Int,
     i64 => Int,
     Principal => Principal,
-    &str => Text,
-    String => Text,
     Ulid => Ulid,
     u8 => Nat,
     u16 => Nat,
     u32 => Nat,
     u64 => Nat,
-}
-
-impl_from_ref_for! {
-    IndexValue,
-    EntityKey => EntityKey,
 }
 
 impl From<candid::Principal> for IndexValue {
@@ -221,11 +210,9 @@ impl Ord for IndexValue {
             (Self::UpperBoundMarker, _) => Ordering::Greater,
             (_, Self::UpperBoundMarker) => Ordering::Less,
 
-            (Self::EntityKey(a), Self::EntityKey(b)) => a.cmp(b),
             (Self::Int(a), Self::Int(b)) => a.cmp(b),
             (Self::Nat(a), Self::Nat(b)) => a.cmp(b),
             (Self::Principal(a), Self::Principal(b)) => a.cmp(b),
-            (Self::Text(a), Self::Text(b)) => a.cmp(b),
             (Self::Ulid(a), Self::Ulid(b)) => a.cmp(b),
 
             // Define an arbitrary but stable variant order fallback

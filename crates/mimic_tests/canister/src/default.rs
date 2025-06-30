@@ -1,4 +1,4 @@
-use test_design::default::Record;
+use test_design::canister::default::Record;
 
 ///
 /// DefaultTester

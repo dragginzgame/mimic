@@ -1,19 +1,5 @@
-pub mod admin;
-pub mod collections;
-pub mod constant;
-pub mod db;
-pub mod default;
-pub mod filter;
-pub mod fixtures;
-pub mod index;
 pub mod newtype;
-pub mod schema;
 pub mod sorted;
-pub mod validate;
-
-///
-/// Prelude
-///
 
 pub(crate) mod prelude {
     pub use mimic::design::{
@@ -22,6 +8,39 @@ pub(crate) mod prelude {
     };
 }
 pub use prelude::*;
+
+//
+// SIMPLE TESTS
+// these types just test themselves by existing
+//
+
+///
+/// List
+///
+
+#[list(item(prim = "Text"))]
+pub struct List {}
+
+///
+/// Map
+///
+
+#[map(key(prim = "Text"), value(item(prim = "Nat8")))]
+pub struct Map {}
+
+///
+/// Set
+///
+
+#[set(item(prim = "Text"))]
+pub struct Set {}
+
+///
+/// Constant
+///
+
+#[constant(ty = "Str", value = "Hello")]
+pub struct CONSTANT {}
 
 ///
 /// EntityIdTest
