@@ -129,7 +129,7 @@ pub struct BPrimitiveType(pub PrimitiveType);
 impl BPrimitiveType {
     #[must_use]
     pub fn supports_arithmetic(self) -> bool {
-        self.is_int() || self.is_fixed_point()
+        self.is_int() || self.is_fixed_point() || self.is_decimal()
     }
 
     pub fn supports_copy(self) -> bool {
@@ -149,26 +149,6 @@ impl BPrimitiveType {
         !(self.is_float() || matches!(*self, PrimitiveType::Blob))
     }
 
-    #[must_use]
-    pub fn supports_num_cast(self) -> bool {
-        matches!(
-            *self,
-            PrimitiveType::Int
-                | PrimitiveType::Int8
-                | PrimitiveType::Int16
-                | PrimitiveType::Int32
-                | PrimitiveType::Int64
-                | PrimitiveType::Float32
-                | PrimitiveType::Float64
-                | PrimitiveType::Nat
-                | PrimitiveType::Nat8
-                | PrimitiveType::Nat16
-                | PrimitiveType::Nat32
-                | PrimitiveType::Nat64
-                | PrimitiveType::FixedE8
-        )
-    }
-
     pub fn supports_partial_ord(self) -> bool {
         !matches!(*self, PrimitiveType::Blob | PrimitiveType::Unit)
     }
@@ -177,6 +157,7 @@ impl BPrimitiveType {
         !matches!(
             *self,
             PrimitiveType::Blob
+                | PrimitiveType::Decimal
                 | PrimitiveType::Float32
                 | PrimitiveType::Float64
                 | PrimitiveType::Unit
@@ -187,10 +168,14 @@ impl BPrimitiveType {
     // grouped helpers
     //
 
+    pub fn is_decimal(self) -> bool {
+        matches!(*self, PrimitiveType::Decimal)
+    }
+
     // is_numeric
     // no floats, this is the check for all the arithmetic traits
     pub fn is_numeric(self) -> bool {
-        self.is_int() || self.is_float() || self.is_fixed_point()
+        self.is_int() || self.is_float() || self.is_fixed_point() || self.is_decimal()
     }
 
     pub fn is_float(self) -> bool {
@@ -233,6 +218,7 @@ impl BPrimitiveType {
             PrimitiveType::Account => quote!(::mimic::core::types::Account),
             PrimitiveType::Bool => quote!(::mimic::core::types::Bool),
             PrimitiveType::Blob => quote!(::mimic::core::types::Blob),
+            PrimitiveType::Decimal => quote!(::mimic::core::types::Decimal),
             PrimitiveType::FixedE8 => quote!(::mimic::core::types::FixedE8),
             PrimitiveType::Float32 => quote!(::mimic::core::types::Float32),
             PrimitiveType::Float64 => quote!(::mimic::core::types::Float64),
@@ -252,24 +238,6 @@ impl BPrimitiveType {
             PrimitiveType::Unit => quote!(::mimic::core::types::Unit),
             PrimitiveType::Ulid => quote!(::mimic::core::types::Ulid),
         }
-    }
-
-    #[must_use]
-    pub fn num_cast_fn(self) -> String {
-        match &*self {
-            PrimitiveType::Float32 => "f32",
-            PrimitiveType::Float64 => "f64",
-            PrimitiveType::Int8 => "i8",
-            PrimitiveType::Int16 => "i16",
-            PrimitiveType::Int32 => "i32",
-            PrimitiveType::Int64 => "i64",
-            PrimitiveType::Nat8 => "u8",
-            PrimitiveType::Nat16 => "u16",
-            PrimitiveType::Nat32 => "u32",
-            PrimitiveType::Nat64 | PrimitiveType::FixedE8 => "u64",
-            _ => panic!("unexpected primitive type"),
-        }
-        .into()
     }
 }
 

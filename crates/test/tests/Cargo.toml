@@ -5,8 +5,8 @@ edition = { workspace = true }
 publish = false
 
 [dependencies]
-mimic = { workspace = true }
 candid = { workspace = true }
+mimic = { workspace = true }
 
 [dev-dependencies]
 test_design = { path = "../../test/design" }

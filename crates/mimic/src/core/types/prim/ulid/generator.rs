@@ -59,6 +59,7 @@ impl Generator {
 }
 
 mod test {
+    #[allow(unused_imports)] // weird
     use super::*;
 
     #[test]

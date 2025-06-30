@@ -95,11 +95,6 @@ impl TraitNode for Newtype {
         if self.primitive.supports_hash() {
             traits.add(Trait::Hash);
         }
-        if self.primitive.supports_num_cast() {
-            traits.add(Trait::NumCast);
-            traits.add(Trait::NumToPrimitive);
-            traits.add(Trait::NumFromPrimitive);
-        }
         if self.primitive.supports_total_ord() {
             traits.add(Trait::Ord);
         }
@@ -116,9 +111,6 @@ impl TraitNode for Newtype {
             Trait::FieldValue => imp::FieldValueTrait::tokens(self, t),
             Trait::From => imp::FromTrait::tokens(self, t),
             Trait::Inner => imp::InnerTrait::tokens(self, t),
-            Trait::NumCast => imp::NumCastTrait::tokens(self, t),
-            Trait::NumToPrimitive => imp::NumToPrimitiveTrait::tokens(self, t),
-            Trait::NumFromPrimitive => imp::NumFromPrimitiveTrait::tokens(self, t),
             Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => imp::VisitableTrait::tokens(self, t),
 

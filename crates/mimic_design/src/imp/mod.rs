@@ -5,7 +5,6 @@ mod field;
 mod from;
 mod inner;
 mod into;
-mod num;
 mod validate;
 mod visitable;
 
@@ -18,7 +17,6 @@ pub use field::*;
 pub use from::*;
 pub use inner::*;
 pub use into::*;
-pub use num::*;
 pub use validate::*;
 pub use visitable::*;
 

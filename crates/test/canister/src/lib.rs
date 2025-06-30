@@ -45,6 +45,10 @@ pub fn test() {
     log!(Log::Ok, "test: all tests passed successfully");
 }
 
+//
+// ENDPOINTS
+//
+
 // indexes
 #[must_use]
 #[query]

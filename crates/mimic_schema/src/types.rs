@@ -49,6 +49,7 @@ pub enum PrimitiveType {
     Account,
     Blob,
     Bool,
+    Decimal,
     FixedE8,
     Float32,
     Float64,

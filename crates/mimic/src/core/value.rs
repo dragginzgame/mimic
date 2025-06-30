@@ -1,4 +1,4 @@
-use crate::core::types::{EntityKey, FixedE8, Principal, Ulid};
+use crate::core::types::{Decimal, EntityKey, FixedE8, Principal, Ulid};
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut, Display};
 use serde::{Deserialize, Serialize};
@@ -63,6 +63,7 @@ impl Values {
 #[derive(CandidType, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Value {
     Bool(bool),
+    Decimal(Decimal),
     EntityKey(EntityKey),
     FixedE8(FixedE8),
     Float(f64),
@@ -93,10 +94,11 @@ impl Value {
     #[must_use]
     pub fn to_searchable_string(&self) -> Option<String> {
         match self {
-            Self::Text(s) => Some(s.to_string()),
-            Self::Principal(p) => Some(p.to_text()),
-            Self::Ulid(u) => Some(u.to_string()),
-            Self::EntityKey(k) => Some(k.to_string()),
+            Self::Decimal(v) => Some(v.to_string()),
+            Self::EntityKey(v) => Some(v.to_string()),
+            Self::Principal(v) => Some(v.to_text()),
+            Self::Text(v) => Some(v.to_string()),
+            Self::Ulid(v) => Some(v.to_string()),
             _ => None,
         }
     }
@@ -105,6 +107,7 @@ impl Value {
 impl_from_for! {
     Value,
     bool => Bool,
+    Decimal => Decimal,
     EntityKey => EntityKey,
     FixedE8 => FixedE8,
     f32 => Float,

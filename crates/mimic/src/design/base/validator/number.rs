@@ -2,6 +2,14 @@ use crate::design::prelude::*;
 use num_traits::{NumCast, Zero};
 
 ///
+/// Helper Functions
+///
+
+fn cast_to_f64<N: Copy + NumCast>(n: &N) -> Result<f64, String> {
+    NumCast::from(*n).ok_or_else(|| "failed to cast value to f64".to_string())
+}
+
+///
 /// Lt
 ///
 
@@ -23,14 +31,12 @@ impl ValidatorNumber for Lt {
     where
         N: Copy + NumCast,
     {
-        if let Some(n_cast) = <f64 as NumCast>::from(*n) {
-            if n_cast < self.target {
-                Ok(())
-            } else {
-                Err(format!("{n_cast} must be less than {}", self.target))
-            }
+        let n_cast = cast_to_f64(n)?;
+
+        if n_cast < self.target {
+            Ok(())
         } else {
-            Err("failed cast to f64".to_string())
+            Err(format!("{n_cast} must be less than {}", self.target))
         }
     }
 }
@@ -57,14 +63,12 @@ impl ValidatorNumber for Gt {
     where
         N: Copy + NumCast,
     {
-        if let Some(n_cast) = <f64 as NumCast>::from(*n) {
-            if n_cast > self.target {
-                Ok(())
-            } else {
-                Err(format!("{n_cast} must be greater than {}", self.target))
-            }
+        let n_cast = cast_to_f64(n)?;
+
+        if n_cast > self.target {
+            Ok(())
         } else {
-            Err("failed cast to f64".to_string())
+            Err(format!("{n_cast} must be greater than {}", self.target))
         }
     }
 }
@@ -91,17 +95,15 @@ impl ValidatorNumber for Ltoe {
     where
         N: Copy + NumCast,
     {
-        if let Some(n_cast) = <f64 as NumCast>::from(*n) {
-            if n_cast <= self.target {
-                Ok(())
-            } else {
-                Err(format!(
-                    "{n_cast} must be less than or equal to {}",
-                    self.target
-                ))
-            }
+        let n_cast = cast_to_f64(n)?;
+
+        if n_cast <= self.target {
+            Ok(())
         } else {
-            Err("failed cast to f64".to_string())
+            Err(format!(
+                "{n_cast} must be less than or equal to {}",
+                self.target
+            ))
         }
     }
 }
@@ -128,17 +130,15 @@ impl ValidatorNumber for Gtoe {
     where
         N: Copy + NumCast,
     {
-        if let Some(n_cast) = <f64 as NumCast>::from(*n) {
-            if n_cast >= self.target {
-                Ok(())
-            } else {
-                Err(format!(
-                    "{n_cast} must be greater than or equal to {}",
-                    self.target
-                ))
-            }
+        let n_cast = cast_to_f64(n)?;
+
+        if n_cast >= self.target {
+            Ok(())
         } else {
-            Err("failed cast to f64".to_string())
+            Err(format!(
+                "{n_cast} must be greater than or equal to {}",
+                self.target
+            ))
         }
     }
 }
@@ -165,14 +165,12 @@ impl ValidatorNumber for Equal {
     where
         N: Copy + NumCast,
     {
-        if let Some(n_cast) = <f64 as NumCast>::from(*n) {
-            if n_cast == self.target {
-                Ok(())
-            } else {
-                Err(format!("{n_cast} must be equal to {}", self.target))
-            }
+        let n_cast = cast_to_f64(n)?;
+
+        if n_cast == self.target {
+            Ok(())
         } else {
-            Err("failed cast to f64".to_string())
+            Err(format!("{n_cast} must be equal to {}", self.target))
         }
     }
 }
@@ -198,14 +196,12 @@ impl ValidatorNumber for NotEqual {
     where
         N: Copy + NumCast,
     {
-        if let Some(n_cast) = <f64 as NumCast>::from(*n) {
-            if n_cast == self.target {
-                Ok(())
-            } else {
-                Err(format!("{n_cast} must not be equal to {}", self.target))
-            }
+        let n_cast = cast_to_f64(n)?;
+
+        if n_cast != self.target {
+            Ok(())
         } else {
-            Err("failed cast to f64".to_string())
+            Err(format!("{n_cast} must not be equal to {}", self.target))
         }
     }
 }
@@ -237,17 +233,15 @@ impl ValidatorNumber for Range {
     where
         N: Copy + NumCast,
     {
-        if let Some(n_cast) = <f64 as NumCast>::from(*n) {
-            if n_cast >= self.min && n_cast <= self.max {
-                Ok(())
-            } else {
-                Err(format!(
-                    "{n_cast} must be in the range {} to {}",
-                    self.min, self.max
-                ))
-            }
+        let n_cast = cast_to_f64(n)?;
+
+        if n_cast >= self.min && n_cast <= self.max {
+            Ok(())
         } else {
-            Err("failed cast to f64".to_string())
+            Err(format!(
+                "{n_cast} must be in the range {} to {}",
+                self.min, self.max
+            ))
         }
     }
 }
@@ -274,16 +268,17 @@ impl ValidatorNumber for MultipleOf {
     where
         N: Copy + NumCast,
     {
-        if let Some(n_cast) = <i32 as NumCast>::from(*n) {
-            let zero = i32::zero();
+        // cast
+        let n_cast: i32 = match NumCast::from(*n) {
+            Some(val) => val,
+            None => return Err("failed to cast value to i32".to_string()),
+        };
 
-            if n_cast.checked_rem(self.target) == Some(zero) {
-                Ok(())
-            } else {
-                Err(format!("{n_cast} is not a multiple of {}", self.target))
-            }
+        // check
+        if n_cast.checked_rem(self.target) == Some(i32::zero()) {
+            Ok(())
         } else {
-            Err("failed cast to i32".to_string())
+            Err(format!("{n_cast} is not a multiple of {}", self.target))
         }
     }
 }
