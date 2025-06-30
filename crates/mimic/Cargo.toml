@@ -15,8 +15,8 @@ mimic_design = { workspace = true }
 mimic_schema = { workspace = true }
 num-traits = { workspace = true }
 remain = { workspace = true }
-semver = { workspace = true }
 rust_decimal = { workspace = true }
+semver = { workspace = true }
 serde = { workspace = true }
 serde_bytes = { workspace = true }
 thiserror = { workspace = true }
