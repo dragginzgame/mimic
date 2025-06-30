@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.5.5]
+- IndexValue types (DataKey, IndexKey) are now Copy, so no Text keys
+- Every EntityKind has a PrimaryKey type [IndexValue; N].  Single PrimaryKeys can be flattened to use as an IndexValue
+
 ## [0.5.4]
 - moved proc_macro2, darling, syn and quote out of mimic and just into the mimic_design crate and it saved
 around 150k

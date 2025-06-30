@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// Selector
 ///
-/// All    : no sort key prefix, only works with top-level Sort Keys
+/// All    : no data key prefix, only works with top-level DataKeys
 /// Only   : for entities that have no keys
 /// One    : returns one row by composite key
 /// Many   : returns many rows (from many keys)

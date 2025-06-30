@@ -98,6 +98,21 @@ pub struct DataKeyB {}
 pub struct DataKeyC {}
 
 ///
+/// RelationWithDataKeyC
+/// relation should be allowed
+/// index should NOT be allowed
+///
+/*
+#[entity(
+    store = "crate::schema::TestStore",
+    data_key(entity = "RelationWithDataKeyC"),
+    index(store = "crate::schema::TestIndex", fields = "c_key"),
+    field(name = "c_key", value(item(rel = "DataKeyC")))
+)]
+pub struct RelationWithDataKeyC {}
+*/
+
+///
 /// MissingFieldSmall
 ///
 

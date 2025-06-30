@@ -28,6 +28,6 @@ impl ValidateNode for DataKey {
 
 impl VisitableNode for DataKey {
     fn route_key(&self) -> String {
-        "sort key".into()
+        "data key".into()
     }
 }

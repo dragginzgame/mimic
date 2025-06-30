@@ -1,6 +1,9 @@
 use crate::{
     build::schema_read,
-    node::{DataKey, Def, Field, MacroNode, Store, Type, TypeNode, ValidateNode, VisitableNode},
+    node::{
+        DataKey, Def, Field, ItemTarget, MacroNode, Store, Type, TypeNode, ValidateNode,
+        VisitableNode,
+    },
     types::StoreType,
     visit::Visitor,
 };
@@ -59,16 +62,16 @@ impl ValidateNode for Entity {
             Err(e) => errs.add(e),
         }
 
-        // ensure there are sort keys
+        // ensure there are data keys
         if self.data_keys.is_empty() {
             errs.add("entity has no data keys");
         }
 
-        // check sort keys
+        // check data keys
         for (i, dk) in self.data_keys.iter().enumerate() {
             let is_last = i == self.data_keys.len() - 1;
 
-            // Last sort key must always point to this entity
+            // last data key must always point to this entity
             if is_last && dk.entity != self.def.path() {
                 errs.add(format!(
                     "last data key '{}' must be '{}'",
@@ -89,13 +92,13 @@ impl ValidateNode for Entity {
                             }
                         }
                         None => {
-                            errs.add(format!("sort key field '{field_name}' does not exist"));
+                            errs.add(format!("data key field '{field_name}' does not exist"));
                         }
                     }
                 }
                 None => {
                     if self.get_field("id").is_some() {
-                        errs.add("sort key is missing a field, but entity has an 'id' field — you must specify it explicitly");
+                        errs.add("data key is missing a field, but entity has an 'id' field — you must specify it explicitly");
                     }
                 }
             }
@@ -103,9 +106,19 @@ impl ValidateNode for Entity {
 
         // indexes
         for index in self.indexes {
-            for field in index.fields {
-                if self.get_field(field).is_none() {
-                    errs.add(format!("index field '{field}' does not exist"));
+            for field_name in index.fields {
+                // get field, and check relation
+                if let Some(field) = self.get_field(field_name) {
+                    if let ItemTarget::Relation(rel) = &field.value.item.target {
+                        if let Ok(entity) = schema.try_get_node_as::<Entity>(rel) {
+                            if entity.data_keys.len() > 1 {
+                                errs.add(format!(
+                                    "cannot index field '{}': related entity '{}' has multiple data keys (compound primary key)",
+                                    field.name, rel
+                                ));
+                            }
+                        }
+                    }
                 }
             }
         }

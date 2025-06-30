@@ -16,7 +16,11 @@ pub struct EntityKindTrait {}
 
 impl Imp<Entity> for EntityKindTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
-        let key_size = &node.data_keys.len();
+        let key_size = &node
+            .data_keys
+            .iter()
+            .filter(|dk| dk.field.is_some())
+            .count();
         let store = &node.store;
         let defs = node.indexes.iter().map(Schemable::schema);
 
@@ -31,9 +35,9 @@ impl Imp<Entity> for EntityKindTrait {
         };
 
         // impls
-        q.extend(values(node));
-        q.extend(entity_key(node));
+        q.extend(primary_key(node));
         q.extend(build_data_key(node));
+        q.extend(values(node));
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
@@ -43,69 +47,25 @@ impl Imp<Entity> for EntityKindTrait {
     }
 }
 
-// values
-fn values(node: &Entity) -> TokenStream {
-    let inserts = node
-        .fields
-        .iter()
-        .filter_map(|field| {
-            let field_ident = &field.name;
-            let field_lit = LitStr::new(&field_ident.to_string(), Span::call_site());
-
-            match *field.value.cardinality() {
-                Cardinality::One => Some(quote! {
-                    map.insert(#field_lit, self.#field_ident.to_value());
-                }),
-
-                Cardinality::Opt => Some(quote! {
-                    map.insert(#field_lit,
-                        self.#field_ident
-                            .as_ref()
-                            .map_or(::mimic::core::value::Value::Null, |v| v.to_value())
-                    );
-                }),
-
-                Cardinality::Many => None, // Optionally: serialize Vec<T> if needed
-            }
-        })
-        .collect::<Vec<_>>();
-
-    let cap = inserts.len();
-    quote! {
-        fn values(&self) -> ::mimic::core::value::Values {
-            use ::mimic::core::traits::FieldValue;
-
-            let mut map = ::std::collections::HashMap::with_capacity(#cap);
-            #(#inserts)*
-
-            ::mimic::core::value::Values(map)
-        }
-    }
-}
-
-// entity_key
-fn entity_key(node: &Entity) -> TokenStream {
-    let fields = node.data_keys.iter().filter_map(|dk| {
+// primary_key
+fn primary_key(node: &Entity) -> TokenStream {
+    let fields: Vec<_> = node.data_keys.iter().filter_map(|dk| {
         dk.field.as_ref().map(|field| {
             let field_ident = field;
 
             quote! {
-                if let Some(val) = self.#field_ident.to_value().into_index_value() {
-                    parts.push(val);
-                }
+                self.#field_ident.to_value().into_index_value().expect("primary key field must be indexable")
             }
         })
-    });
+    }).collect();
 
     quote! {
-        fn entity_key(&self) -> ::mimic::core::types::EntityKey {
+        fn primary_key(&self) -> Self::PrimaryKey {
             use ::mimic::core::traits::FieldValue;
 
-            let mut parts = Vec::new();
-
-            #(#fields)*
-
-            ::mimic::core::types::EntityKey(parts)
+            [
+                #(#fields),*
+            ]
         }
     }
 }
@@ -150,6 +110,46 @@ fn build_data_key(node: &Entity) -> TokenStream {
             ];
 
             parts.into()
+        }
+    }
+}
+
+// values
+fn values(node: &Entity) -> TokenStream {
+    let inserts = node
+        .fields
+        .iter()
+        .filter_map(|field| {
+            let field_ident = &field.name;
+            let field_lit = LitStr::new(&field_ident.to_string(), Span::call_site());
+
+            match *field.value.cardinality() {
+                Cardinality::One => Some(quote! {
+                    map.insert(#field_lit, self.#field_ident.to_value());
+                }),
+
+                Cardinality::Opt => Some(quote! {
+                    map.insert(#field_lit,
+                        self.#field_ident
+                            .as_ref()
+                            .map_or(::mimic::core::value::Value::Null, |v| v.to_value())
+                    );
+                }),
+
+                Cardinality::Many => None, // Optionally: serialize Vec<T> if needed
+            }
+        })
+        .collect::<Vec<_>>();
+
+    let cap = inserts.len();
+    quote! {
+        fn values(&self) -> ::mimic::core::value::Values {
+            use ::mimic::core::traits::FieldValue;
+
+            let mut map = ::std::collections::HashMap::with_capacity(#cap);
+            #(#inserts)*
+
+            ::mimic::core::value::Values(map)
         }
     }
 }

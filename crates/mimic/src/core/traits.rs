@@ -91,12 +91,15 @@ pub trait EntityKind: TypeKind + EntitySearch + EntitySort {
     const STORE: &'static str;
     const INDEXES: &'static [EntityIndex];
 
-    // values
-    fn values(&self) -> Values;
+    // primary_key
+    // returns the current primary key (a slice of IndexValues)
+    fn primary_key(&self) -> Self::PrimaryKey;
 
     // entity_key
-    // returns the current entity key, ie [V::Text("00AX5"), V::Nat8(1)]
-    fn entity_key(&self) -> EntityKey;
+    // returns the current runtime entity key, ie [V::Text("00AX5"), V::Nat8(1)]
+    fn entity_key(&self) -> ::mimic::core::types::EntityKey {
+        ::mimic::core::types::EntityKey(self.primary_key().as_ref().to_vec())
+    }
 
     // data_key
     // builds the data key using the current entity key
@@ -119,6 +122,20 @@ pub trait EntityKind: TypeKind + EntitySearch + EntitySort {
 
         IndexKey::build(Self::PATH, fields, &index_values)
     }
+
+    // ✅ default method to flatten the primary key
+    fn flatten_primary_key(pk: Self::PrimaryKey) -> Option<IndexValue> {
+        let slice = pk.as_ref();
+
+        if slice.len() == 1 {
+            Some(slice[0])
+        } else {
+            None
+        }
+    }
+
+    // values
+    fn values(&self) -> Values;
 }
 
 ///
