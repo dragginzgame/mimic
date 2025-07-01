@@ -139,6 +139,28 @@ pub trait EntityKind: TypeKind + EntitySearch + EntitySort {
 }
 
 ///
+/// SingleKey
+///
+
+pub trait SingleKey {
+    fn to_ulid(&self) -> Ulid;
+    fn from_ulid(id: Ulid) -> Self;
+}
+
+impl SingleKey for [IndexValue; 1] {
+    fn to_ulid(&self) -> Ulid {
+        match self[0] {
+            IndexValue::Ulid(id) => id,
+            _ => panic!("expected Ulid in single-key"),
+        }
+    }
+
+    fn from_ulid(id: Ulid) -> Self {
+        [IndexValue::Ulid(id)]
+    }
+}
+
+///
 /// EntityIdKind
 ///
 

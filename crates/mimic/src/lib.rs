@@ -53,6 +53,7 @@ pub mod prelude {
         core::{
             traits::{EntityFixture as _, EntityKind as _, Inner as _},
             types::{EntityKey, EntityKeys, Ulid},
+            value::IndexValue,
         },
         db,
         db::{
