@@ -111,6 +111,18 @@ impl_from_for! {
     u64 => Nat,
 }
 
+impl From<[IndexValue; 1]> for Value {
+    fn from(key: [IndexValue; 1]) -> Self {
+        match key[0] {
+            IndexValue::Int(v) => Value::Int(v),
+            IndexValue::Nat(v) => Value::Nat(v),
+            IndexValue::Principal(p) => Value::Principal(p),
+            IndexValue::Ulid(id) => Value::Ulid(id),
+            IndexValue::UpperBoundMarker => Value::Unsupported, // or panic if invalid
+        }
+    }
+}
+
 impl From<WrappedPrincipal> for Value {
     fn from(v: WrappedPrincipal) -> Self {
         Self::Principal(v.into())
