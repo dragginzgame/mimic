@@ -1,7 +1,7 @@
 use crate::{
     build::schema_read,
     node::{Entity, Selector, TypeValidator, ValidateNode, VisitableNode},
-    types::PrimitiveType,
+    types::Primitive,
     visit::Visitor,
 };
 use mimic_common::error::ErrorTree;
@@ -102,5 +102,5 @@ impl VisitableNode for Item {
 pub enum ItemTarget {
     Is(&'static str),
     Relation(&'static str),
-    Prim(PrimitiveType),
+    Prim(Primitive),
 }

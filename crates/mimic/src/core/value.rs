@@ -1,4 +1,4 @@
-use crate::core::types::{Decimal, EntityKey, FixedE8, Principal, Ulid};
+use crate::core::types::{Decimal, E8s, E18s, EntityKey, Principal, Ulid};
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut, Display};
 use serde::{Deserialize, Serialize};
@@ -65,7 +65,8 @@ pub enum Value {
     Bool(bool),
     Decimal(Decimal),
     EntityKey(EntityKey),
-    FixedE8(FixedE8),
+    E8s(E8s),
+    E18s(E18s),
     Float(f64),
     Int(i64),
     Nat(u64),
@@ -107,7 +108,8 @@ impl_from_for! {
     bool => Bool,
     Decimal => Decimal,
     EntityKey => EntityKey,
-    FixedE8 => FixedE8,
+    E8s => E8s,
+    E18s => E18s,
     f32 => Float,
     f64 => Float,
     i8 => Int,
@@ -140,7 +142,8 @@ impl PartialOrd for Value {
         match (self, other) {
             (Self::Bool(a), Self::Bool(b)) => a.partial_cmp(b),
             (Self::EntityKey(a), Self::EntityKey(b)) => a.partial_cmp(b),
-            (Self::FixedE8(a), Self::FixedE8(b)) => a.partial_cmp(b),
+            (Self::E8s(a), Self::E8s(b)) => a.partial_cmp(b),
+            (Self::E18s(a), Self::E18s(b)) => a.partial_cmp(b),
             (Self::Float(a), Self::Float(b)) => a.partial_cmp(b),
             (Self::Int(a), Self::Int(b)) => a.partial_cmp(b),
             (Self::Nat(a), Self::Nat(b)) => a.partial_cmp(b),

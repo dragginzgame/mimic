@@ -40,17 +40,18 @@ pub enum ConstantType {
 }
 
 ///
-/// PrimitiveType
+/// Primitive
 ///
 
 #[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, FromStr, Serialize)]
 #[remain::sorted]
-pub enum PrimitiveType {
+pub enum Primitive {
     Account,
     Blob,
     Bool,
     Decimal,
-    FixedE8,
+    E8s,
+    E18s,
     Float32,
     Float64,
     Int,

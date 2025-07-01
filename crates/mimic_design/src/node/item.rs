@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_path},
     node::TypeValidator,
-    schema::{BPrimitiveType, PrimitiveType, Schemable},
+    schema::{BPrimitive, Primitive, Schemable},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -18,7 +18,7 @@ pub struct Item {
     pub is: Option<Path>,
 
     #[darling(default, rename = "prim")]
-    pub primitive: Option<BPrimitiveType>,
+    pub primitive: Option<BPrimitive>,
 
     #[darling(default, rename = "rel")]
     pub relation: Option<Path>,
@@ -42,7 +42,7 @@ impl Item {
             (Some(path), None, None) => ItemTarget::Is(path.clone()),
             (None, Some(prim), None) => ItemTarget::Prim(*prim),
             (None, None, Some(path)) => ItemTarget::Relation(path.clone()),
-            (None, None, None) => ItemTarget::Prim(BPrimitiveType(PrimitiveType::Unit)),
+            (None, None, None) => ItemTarget::Prim(BPrimitive(Primitive::Unit)),
             _ => panic!("item should not have more than one target selected (is, prim, relation)"),
         }
     }
@@ -93,7 +93,7 @@ impl ToTokens for Item {
 pub enum ItemTarget {
     Is(Path),
     Relation(Path),
-    Prim(BPrimitiveType),
+    Prim(BPrimitive),
 }
 
 impl ItemTarget {

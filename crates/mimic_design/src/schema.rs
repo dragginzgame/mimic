@@ -120,25 +120,25 @@ impl ToTokens for BConstantType {
 }
 
 ///
-/// BPrimitiveType
+/// BPrimitive
 ///
 
 #[derive(Clone, Copy, Debug, Deref, DerefMut)]
-pub struct BPrimitiveType(pub PrimitiveType);
+pub struct BPrimitive(pub Primitive);
 
-impl BPrimitiveType {
+impl BPrimitive {
     #[must_use]
     pub fn supports_arithmetic(self) -> bool {
         self.is_int() || self.is_fixed_point() || self.is_decimal()
     }
 
     pub fn supports_copy(self) -> bool {
-        matches!(*self, PrimitiveType::Bool | PrimitiveType::Principal) || self.is_numeric()
+        matches!(*self, Primitive::Bool | Primitive::Principal) || self.is_numeric()
     }
 
     #[must_use]
     pub fn supports_display(self) -> bool {
-        !matches!(*self, PrimitiveType::Blob | PrimitiveType::Unit)
+        !matches!(*self, Primitive::Blob | Primitive::Unit)
     }
 
     pub fn supports_eq(self) -> bool {
@@ -146,41 +146,42 @@ impl BPrimitiveType {
     }
 
     pub fn supports_hash(self) -> bool {
-        !(self.is_float() || matches!(*self, PrimitiveType::Blob))
+        !(self.is_float() || matches!(*self, Primitive::Blob))
     }
 
     pub fn supports_num_cast(self) -> bool {
         matches!(
             *self,
-            PrimitiveType::Decimal
-                | PrimitiveType::Int
-                | PrimitiveType::Int8
-                | PrimitiveType::Int16
-                | PrimitiveType::Int32
-                | PrimitiveType::Int64
-                | PrimitiveType::Float32
-                | PrimitiveType::Float64
-                | PrimitiveType::Nat
-                | PrimitiveType::Nat8
-                | PrimitiveType::Nat16
-                | PrimitiveType::Nat32
-                | PrimitiveType::Nat64
-                | PrimitiveType::FixedE8
+            Primitive::Decimal
+                | Primitive::E8s
+                | Primitive::E18s
+                | Primitive::Int
+                | Primitive::Int8
+                | Primitive::Int16
+                | Primitive::Int32
+                | Primitive::Int64
+                | Primitive::Float32
+                | Primitive::Float64
+                | Primitive::Nat
+                | Primitive::Nat8
+                | Primitive::Nat16
+                | Primitive::Nat32
+                | Primitive::Nat64
         )
     }
 
     pub fn supports_partial_ord(self) -> bool {
-        !matches!(*self, PrimitiveType::Blob | PrimitiveType::Unit)
+        !matches!(*self, Primitive::Blob | Primitive::Unit)
     }
 
     pub fn supports_total_ord(self) -> bool {
         !matches!(
             *self,
-            PrimitiveType::Blob
-                | PrimitiveType::Decimal
-                | PrimitiveType::Float32
-                | PrimitiveType::Float64
-                | PrimitiveType::Unit
+            Primitive::Blob
+                | Primitive::Decimal
+                | Primitive::Float32
+                | Primitive::Float64
+                | Primitive::Unit
         )
     }
 
@@ -189,7 +190,7 @@ impl BPrimitiveType {
     //
 
     pub fn is_decimal(self) -> bool {
-        matches!(*self, PrimitiveType::Decimal)
+        matches!(*self, Primitive::Decimal)
     }
 
     // is_numeric
@@ -199,28 +200,28 @@ impl BPrimitiveType {
     }
 
     pub fn is_float(self) -> bool {
-        matches!(*self, PrimitiveType::Float32 | PrimitiveType::Float64)
+        matches!(*self, Primitive::Float32 | Primitive::Float64)
     }
 
     pub fn is_signed_int(self) -> bool {
         matches!(
             *self,
-            PrimitiveType::Int
-                | PrimitiveType::Int8
-                | PrimitiveType::Int16
-                | PrimitiveType::Int32
-                | PrimitiveType::Int64
+            Primitive::Int
+                | Primitive::Int8
+                | Primitive::Int16
+                | Primitive::Int32
+                | Primitive::Int64
         )
     }
 
     pub fn is_unsigned_int(self) -> bool {
         matches!(
             *self,
-            PrimitiveType::Nat
-                | PrimitiveType::Nat8
-                | PrimitiveType::Nat16
-                | PrimitiveType::Nat32
-                | PrimitiveType::Nat64
+            Primitive::Nat
+                | Primitive::Nat8
+                | Primitive::Nat16
+                | Primitive::Nat32
+                | Primitive::Nat64
         )
     }
 
@@ -229,71 +230,73 @@ impl BPrimitiveType {
     }
 
     pub fn is_fixed_point(self) -> bool {
-        matches!(*self, PrimitiveType::FixedE8)
+        matches!(*self, Primitive::E8s | Primitive::E18s)
     }
 
     #[must_use]
     pub fn as_type(self) -> TokenStream {
         match &*self {
-            PrimitiveType::Account => quote!(::mimic::core::types::Account),
-            PrimitiveType::Bool => quote!(::mimic::core::types::Bool),
-            PrimitiveType::Blob => quote!(::mimic::core::types::Blob),
-            PrimitiveType::Decimal => quote!(::mimic::core::types::Decimal),
-            PrimitiveType::FixedE8 => quote!(::mimic::core::types::FixedE8),
-            PrimitiveType::Float32 => quote!(::mimic::core::types::Float32),
-            PrimitiveType::Float64 => quote!(::mimic::core::types::Float64),
-            PrimitiveType::Int => quote!(::mimic::core::types::Int),
-            PrimitiveType::Int8 => quote!(::mimic::core::types::Int8),
-            PrimitiveType::Int16 => quote!(::mimic::core::types::Int16),
-            PrimitiveType::Int32 => quote!(::mimic::core::types::Int32),
-            PrimitiveType::Int64 => quote!(::mimic::core::types::Int64),
-            PrimitiveType::Principal => quote!(::mimic::core::types::Principal),
-            PrimitiveType::Nat => quote!(::mimic::core::types::Nat),
-            PrimitiveType::Nat8 => quote!(::mimic::core::types::Nat8),
-            PrimitiveType::Nat16 => quote!(::mimic::core::types::Nat16),
-            PrimitiveType::Nat32 => quote!(::mimic::core::types::Nat32),
-            PrimitiveType::Nat64 => quote!(::mimic::core::types::Nat64),
-            PrimitiveType::Subaccount => quote!(::mimic::core::types::Subaccount),
-            PrimitiveType::Text => quote!(::mimic::core::types::Text),
-            PrimitiveType::Unit => quote!(::mimic::core::types::Unit),
-            PrimitiveType::Ulid => quote!(::mimic::core::types::Ulid),
+            Primitive::Account => quote!(::mimic::core::types::Account),
+            Primitive::Bool => quote!(::mimic::core::types::Bool),
+            Primitive::Blob => quote!(::mimic::core::types::Blob),
+            Primitive::Decimal => quote!(::mimic::core::types::Decimal),
+            Primitive::E8s => quote!(::mimic::core::types::E8s),
+            Primitive::E18s => quote!(::mimic::core::types::E18s),
+            Primitive::Float32 => quote!(::mimic::core::types::Float32),
+            Primitive::Float64 => quote!(::mimic::core::types::Float64),
+            Primitive::Int => quote!(::mimic::core::types::Int),
+            Primitive::Int8 => quote!(::mimic::core::types::Int8),
+            Primitive::Int16 => quote!(::mimic::core::types::Int16),
+            Primitive::Int32 => quote!(::mimic::core::types::Int32),
+            Primitive::Int64 => quote!(::mimic::core::types::Int64),
+            Primitive::Principal => quote!(::mimic::core::types::Principal),
+            Primitive::Nat => quote!(::mimic::core::types::Nat),
+            Primitive::Nat8 => quote!(::mimic::core::types::Nat8),
+            Primitive::Nat16 => quote!(::mimic::core::types::Nat16),
+            Primitive::Nat32 => quote!(::mimic::core::types::Nat32),
+            Primitive::Nat64 => quote!(::mimic::core::types::Nat64),
+            Primitive::Subaccount => quote!(::mimic::core::types::Subaccount),
+            Primitive::Text => quote!(::mimic::core::types::Text),
+            Primitive::Unit => quote!(::mimic::core::types::Unit),
+            Primitive::Ulid => quote!(::mimic::core::types::Ulid),
         }
     }
 
     #[must_use]
     pub fn num_cast_fn(self) -> String {
         match &*self {
-            PrimitiveType::Float32 => "f32",
-            PrimitiveType::Decimal | PrimitiveType::Float64 => "f64",
-            PrimitiveType::Int8 => "i8",
-            PrimitiveType::Int16 => "i16",
-            PrimitiveType::Int32 => "i32",
-            PrimitiveType::Int64 => "i64",
-            PrimitiveType::Nat8 => "u8",
-            PrimitiveType::Nat16 => "u16",
-            PrimitiveType::Nat32 => "u32",
-            PrimitiveType::Nat64 | PrimitiveType::FixedE8 => "u64",
+            Primitive::E18s => "u128",
+            Primitive::Float32 => "f32",
+            Primitive::Decimal | Primitive::Float64 => "f64",
+            Primitive::Int8 => "i8",
+            Primitive::Int16 => "i16",
+            Primitive::Int32 => "i32",
+            Primitive::Int64 => "i64",
+            Primitive::Nat8 => "u8",
+            Primitive::Nat16 => "u16",
+            Primitive::Nat32 => "u32",
+            Primitive::Nat64 | Primitive::E8s => "u64",
             _ => panic!("unexpected primitive type"),
         }
         .into()
     }
 }
 
-impl FromMeta for BPrimitiveType {
+impl FromMeta for BPrimitive {
     fn from_string(s: &str) -> Result<Self, darling::Error> {
         let inner = s
-            .parse::<PrimitiveType>()
+            .parse::<Primitive>()
             .map_err(|_| darling::Error::unknown_value(s))?;
 
         Ok(Self(inner))
     }
 }
 
-impl ToTokens for BPrimitiveType {
+impl ToTokens for BPrimitive {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let ident = format_ident!("{}", self.to_string());
 
-        tokens.extend(quote!(::mimic::schema::types::PrimitiveType::#ident));
+        tokens.extend(quote!(::mimic::schema::types::Primitive::#ident));
     }
 }
 
