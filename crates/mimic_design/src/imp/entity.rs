@@ -179,7 +179,7 @@ impl Imp<Entity> for EntitySearchTrait {
                     },
                     Cardinality::Opt => quote! {
                         ( #name_str, |s: &#ident, text|
-                            s.#name.as_ref().map_or(false, |v| ::mimic::core::traits::FieldSearchable::contains_text(v, text))
+                            s.#name.as_ref().is_some_and(|v| ::mimic::core::traits::FieldSearchable::contains_text(v, text))
                         )
                     },
                     Cardinality::Many => quote! {
