@@ -44,10 +44,10 @@ impl DbTester {
     fn blob() {
         use test_design::canister::db::ContainsBlob;
 
-        const ROWS: u16 = 100;
+        const ROWS: usize = 100;
 
         // Insert rows
-        for _ in 1..ROWS {
+        for _ in 0..ROWS {
             let e = ContainsBlob::default();
             db!().save().execute(query::create().entity(e)).unwrap();
         }
@@ -60,12 +60,15 @@ impl DbTester {
             .unwrap()
             .keys();
 
+        assert!(
+            keys.len() == ROWS,
+            "{} rows returned, should be {ROWS}",
+            keys.len()
+        );
+
         // Verify the order
-        for i in 0..(keys.len() - 1) {
-            assert!(
-                keys[i] < keys[i + 1],
-                "key ordering is incorrect at index {i}"
-            );
+        for pair in keys.windows(2) {
+            assert!(pair[0] < pair[1], "key ordering is incorrect");
         }
     }
 
@@ -220,11 +223,8 @@ impl DbTester {
             .keys();
 
         // Verify the order
-        for i in 0..(keys.len() - 1) {
-            assert!(
-                keys[i] < keys[i + 1],
-                "key ordering is incorrect at index {i}"
-            );
+        for pair in keys.windows(2) {
+            assert!(pair[0] < pair[1], "key ordering is incorrect");
         }
     }
 

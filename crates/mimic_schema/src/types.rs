@@ -18,8 +18,6 @@ pub enum Cardinality {
 
 ///
 /// ConstantType
-/// f32 and f64 are allowed in constants, but would have to be converted to
-/// a Decimal to be used in the ORM
 ///
 
 #[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, FromStr, Serialize)]

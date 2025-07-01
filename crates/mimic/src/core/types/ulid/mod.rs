@@ -60,6 +60,8 @@ impl From<::ulid::DecodeError> for UlidError {
 pub struct Ulid(WrappedUlid);
 
 impl Ulid {
+    pub const MAX: Self = Self::from_bytes([0xFF; 16]);
+
     /// nil
     #[must_use]
     pub const fn nil() -> Self {
@@ -77,6 +79,12 @@ impl Ulid {
     #[must_use]
     pub fn generate() -> Self {
         generator::generate().unwrap()
+    }
+
+    /// from_bytes
+    #[must_use]
+    pub const fn from_bytes(bytes: [u8; 16]) -> Self {
+        Self(WrappedUlid::from_bytes(bytes))
     }
 
     /// from_str

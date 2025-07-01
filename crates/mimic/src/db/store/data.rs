@@ -11,6 +11,7 @@ use std::{
     borrow::Cow,
     cell::RefCell,
     fmt::{self, Display},
+    ops::{Range, RangeInclusive},
     thread::LocalKey,
 };
 
@@ -77,18 +78,6 @@ impl DataKey {
     pub fn parts(&self) -> Vec<DataKeyPart> {
         self.0.clone()
     }
-
-    /// Creates an upper bound by appending '~' to the last value
-    #[must_use]
-    pub fn create_upper_bound(&self) -> Self {
-        let mut parts = self.0.clone();
-
-        if let Some(last) = parts.last_mut() {
-            last.value = Some(IndexValue::UpperBoundMarker);
-        }
-
-        Self(parts)
-    }
 }
 
 impl Display for DataKey {
@@ -111,6 +100,18 @@ impl From<Vec<DataKeyPart>> for DataKey {
 }
 
 impl_storable_bounded!(DataKey, 128, false);
+
+///
+/// DataKeyRange
+///
+
+#[derive(Debug)]
+pub enum DataKeyRange {
+    Inclusive(RangeInclusive<DataKey>),
+    Exclusive(Range<DataKey>),
+    SkipFirstInclusive(RangeInclusive<DataKey>),
+    SkipFirstExclusive(Range<DataKey>),
+}
 
 ///
 /// DataKeyPart

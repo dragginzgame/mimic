@@ -49,6 +49,28 @@ impl EntityKey {
     pub fn into_vec(self) -> Vec<IndexValue> {
         self.0
     }
+
+    #[must_use]
+    pub fn from_values(values: &[IndexValue]) -> Self {
+        Self(values.to_vec())
+    }
+
+    /// Returns a new key where the last component is replaced with its sentinel max.
+    /// If the key is empty, returns a single-element key containing `IndexValue::sentinel_max()`.
+    #[must_use]
+    pub fn with_last_max(&self) -> Self {
+        if self.0.is_empty() {
+            // Treat empty key as the lowest bound — return a high upper bound
+            return Self(vec![IndexValue::MAX]);
+        }
+
+        let mut values = self.0.clone();
+        if let Some(last) = values.last_mut() {
+            *last = last.sentinel_max();
+        }
+
+        Self(values)
+    }
 }
 
 impl AsRef<[IndexValue]> for EntityKey {

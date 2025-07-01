@@ -3,10 +3,12 @@ use crate::{
     core::traits::EntityKind,
     db::{
         DataError,
-        executor::{FilterEvaluator, ResolvedSelector},
-        query::{FilterExpr, LoadFormat, LoadQuery, Selector},
+        executor::FilterEvaluator,
+        query::{FilterExpr, LoadFormat, LoadQuery, QueryPlan, QueryRange, QueryShape, Selector},
         response::{EntityRow, LoadCollection, LoadResponse},
-        store::{DataKey, DataRow, DataStoreLocal, DataStoreRegistry, IndexStoreRegistry},
+        store::{
+            DataKey, DataKeyRange, DataRow, DataStoreLocal, DataStoreRegistry, IndexStoreRegistry,
+        },
     },
     debug,
 };
@@ -36,7 +38,7 @@ impl LoadExecutor {
     // debug
     #[must_use]
     pub const fn debug(mut self) -> Self {
-        self.debug = false;
+        self.debug = true;
         self
     }
 
@@ -76,7 +78,7 @@ impl LoadExecutor {
             .collect::<Result<Vec<EntityRow<E>>, _>>()?;
 
         // post filters
-        let mut rows = Self::apply_where(rows, &query);
+        let mut rows = Self::apply_filter(rows, &query);
         Self::apply_sort(&mut rows, &query);
 
         // paginate
@@ -93,23 +95,36 @@ impl LoadExecutor {
     pub fn load<E: EntityKind>(
         &self,
         selector: &Selector,
-        _where_clause: Option<&FilterExpr>,
+        filter: Option<&FilterExpr>,
     ) -> Result<Vec<DataRow>, DataError> {
-        // TODO - big where_clause changing selector thingy
-        // get store
+        let resolved = selector.resolve();
+        let plan = QueryPlan::from_resolved_selector(resolved, filter.cloned());
+
+        self.execute_plan::<E>(plan)
+    }
+
+    // execute_plan
+    fn execute_plan<E: EntityKind>(&self, plan: QueryPlan) -> Result<Vec<DataRow>, DataError> {
         let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
-        let resolved_selector = selector.resolve::<E>();
 
-        // load rows
-        let rows = match resolved_selector {
-            ResolvedSelector::One(key) => Self::load_one(store, key).into_iter().collect(),
-
-            ResolvedSelector::Many(keys) => keys
+        let rows = match plan.shape {
+            QueryShape::Single(key) => Self::load_one(store, E::build_data_key(&key))
                 .into_iter()
-                .filter_map(|key| Self::load_one(store, key))
                 .collect(),
 
-            ResolvedSelector::Range(start, end) => Self::load_range(store, start, end),
+            QueryShape::Many(keys) => keys
+                .into_iter()
+                .map(|key| E::build_data_key(&key))
+                .filter_map(|dk| Self::load_one(store, dk))
+                .collect(),
+
+            QueryShape::Range(range) => Self::load_range_with_bounds::<E>(store, range),
+
+            QueryShape::FullScan => store.with_borrow(|this| {
+                this.iter()
+                    .map(|(key, entry)| DataRow { key, entry })
+                    .collect()
+            }),
         };
 
         Ok(rows)
@@ -125,17 +140,36 @@ impl LoadExecutor {
         })
     }
 
-    // load_range
-    fn load_range(store: DataStoreLocal, start: DataKey, end: DataKey) -> Vec<DataRow> {
-        store.with_borrow(|this| {
-            this.range(start..=end)
-                .map(|(key, entry)| DataRow { key, entry })
-                .collect()
+    // load_range_with_bounds
+    fn load_range_with_bounds<E: EntityKind>(
+        store: DataStoreLocal,
+        range: QueryRange,
+    ) -> Vec<DataRow> {
+        let data_range = range.to_data_key_range::<E>();
+
+        store.with_borrow(|this| match data_range {
+            DataKeyRange::Inclusive(r) => this.range(r).map(|(k, v)| DataRow::new(k, v)).collect(),
+            DataKeyRange::Exclusive(r) => this.range(r).map(|(k, v)| DataRow::new(k, v)).collect(),
+
+            DataKeyRange::SkipFirstInclusive(r) => this
+                .range(r)
+                .skip(1)
+                .map(|(k, v)| DataRow::new(k, v))
+                .collect(),
+
+            DataKeyRange::SkipFirstExclusive(r) => this
+                .range(r)
+                .skip(1)
+                .map(|(k, v)| DataRow::new(k, v))
+                .collect(),
         })
     }
 
-    // apply_where
-    fn apply_where<E: EntityKind>(rows: Vec<EntityRow<E>>, query: &LoadQuery) -> Vec<EntityRow<E>> {
+    // apply_filter
+    fn apply_filter<E: EntityKind>(
+        rows: Vec<EntityRow<E>>,
+        query: &LoadQuery,
+    ) -> Vec<EntityRow<E>> {
         match &query.filter {
             Some(expr_raw) => {
                 let expr = expr_raw.clone().simplify(); // ⬅️ done once

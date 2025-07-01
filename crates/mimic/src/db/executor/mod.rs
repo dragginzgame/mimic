@@ -2,13 +2,11 @@ mod delete;
 mod filter;
 mod load;
 mod save;
-mod types;
 
 pub use delete::*;
 pub use filter::*;
 pub use load::*;
 pub use save::*;
-pub use types::*;
 
 use crate::db::store::{DataKey, IndexKey};
 use thiserror::Error as ThisError;

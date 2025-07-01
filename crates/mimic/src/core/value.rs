@@ -118,7 +118,6 @@ impl From<[IndexValue; 1]> for Value {
             IndexValue::Nat(v) => Value::Nat(v),
             IndexValue::Principal(p) => Value::Principal(p),
             IndexValue::Ulid(id) => Value::Ulid(id),
-            IndexValue::UpperBoundMarker => Value::Unsupported, // or panic if invalid
         }
     }
 }
@@ -162,17 +161,28 @@ pub enum IndexValue {
     Nat(u64),
     Principal(Principal),
     Ulid(Ulid),
-    UpperBoundMarker,
 }
 
 impl IndexValue {
+    pub const MAX: Self = Self::Ulid(Ulid::MAX);
+
     const fn variant_rank(&self) -> u8 {
         match self {
             Self::Int(_) => 0,
             Self::Nat(_) => 1,
             Self::Principal(_) => 2,
             Self::Ulid(_) => 3,
-            Self::UpperBoundMarker => u8::MAX,
+        }
+    }
+
+    /// Returns the maximum possible index value for range upper bounds.
+    #[must_use]
+    pub fn sentinel_max(&self) -> Self {
+        match self {
+            Self::Int(_) => Self::Int(i64::MAX),
+            Self::Nat(_) => Self::Nat(u64::MAX),
+            Self::Principal(_) => Self::Principal(Principal::MAX),
+            Self::Ulid(_) => Self::Ulid(Ulid::MAX),
         }
     }
 }
@@ -206,17 +216,12 @@ impl From<[IndexValue; 1]> for IndexValue {
 impl Ord for IndexValue {
     fn cmp(&self, other: &Self) -> Ordering {
         match (self, other) {
-            (Self::UpperBoundMarker, Self::UpperBoundMarker) => Ordering::Equal,
-            (Self::UpperBoundMarker, _) => Ordering::Greater,
-            (_, Self::UpperBoundMarker) => Ordering::Less,
-
             (Self::Int(a), Self::Int(b)) => a.cmp(b),
             (Self::Nat(a), Self::Nat(b)) => a.cmp(b),
             (Self::Principal(a), Self::Principal(b)) => a.cmp(b),
             (Self::Ulid(a), Self::Ulid(b)) => a.cmp(b),
 
-            // Define an arbitrary but stable variant order fallback
-            (a, b) => a.variant_rank().cmp(&b.variant_rank()),
+            _ => self.variant_rank().cmp(&other.variant_rank()), // fallback for cross-type comparison
         }
     }
 }
@@ -224,5 +229,30 @@ impl Ord for IndexValue {
 impl PartialOrd for IndexValue {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
+    }
+}
+
+///
+/// TESTS
+///
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ulid_max_is_highest_index_value() {
+        let max = IndexValue::MAX;
+
+        let others = vec![
+            IndexValue::Int(i64::MAX),
+            IndexValue::Nat(u64::MAX),
+            IndexValue::Principal(Principal::from_slice(&[0xFF; 29])),
+            IndexValue::Ulid(Ulid::from_u128(0)),
+        ];
+
+        for v in others {
+            assert!(v < max, "Expected {v:?} < Ulid::MAX");
+        }
     }
 }

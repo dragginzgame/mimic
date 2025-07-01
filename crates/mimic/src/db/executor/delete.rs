@@ -3,10 +3,9 @@ use crate::{
     core::{serialize::deserialize, traits::EntityKind},
     db::{
         DataError,
-        executor::ResolvedSelector,
-        query::{DeleteQuery, QueryError},
+        query::{DeleteQuery, QueryError, QueryPlan, QueryShape},
         response::{DeleteCollection, DeleteResponse, DeleteRow},
-        store::{DataKey, DataStoreRegistry, IndexStoreRegistry},
+        store::{DataKey, DataKeyRange, DataStoreRegistry, IndexStoreRegistry},
     },
     debug,
 };
@@ -64,39 +63,56 @@ impl DeleteExecutor {
     ) -> Result<DeleteCollection, DataError> {
         debug!(self.debug, "query.delete: query is {query:?}");
 
-        // resolver
-        let resolved_selector = query.selector.resolve::<E>();
-        let data_keys: Vec<DataKey> = match resolved_selector {
-            ResolvedSelector::One(key) => vec![key],
-            ResolvedSelector::Many(keys) => keys,
-            ResolvedSelector::Range(..) => {
-                return Err(QueryError::SelectorNotSupported)?;
-            }
-        };
+        let resolved = query.selector.resolve();
+        let plan = QueryPlan::from_resolved_selector(resolved, None);
 
         // get store
         let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
 
-        //
+        // resolver
+        let data_keys: Vec<DataKey> = match plan.shape {
+            QueryShape::Single(entity_key) => vec![E::build_data_key(&entity_key)],
+            QueryShape::Many(entity_keys) => entity_keys
+                .into_iter()
+                .map(|key| E::build_data_key(&key))
+                .collect(),
+            QueryShape::Range(range) => {
+                let data_range = range.to_data_key_range::<E>();
+
+                store.with_borrow(|s| match data_range {
+                    DataKeyRange::Inclusive(r) => s.range(r).map(|(k, _)| k).collect(),
+                    DataKeyRange::Exclusive(r) => s.range(r).map(|(k, _)| k).collect(),
+                    DataKeyRange::SkipFirstInclusive(r) => {
+                        let mut it = s.range(r);
+                        it.next();
+                        it.map(|(k, _)| k).collect()
+                    }
+                    DataKeyRange::SkipFirstExclusive(r) => {
+                        let mut it = s.range(r);
+                        it.next();
+                        it.map(|(k, _)| k).collect()
+                    }
+                })
+            }
+            QueryShape::FullScan => {
+                return Err(QueryError::SelectorNotSupported)?; // Optional: implement full delete
+            }
+        };
+
         // execute for every different key
-        //
-
         let mut deleted_rows = Vec::new();
-
         for dk in data_keys {
             let Some(data_value) = store.with_borrow(|s| s.get(&dk)) else {
                 continue;
             };
 
-            // Step 1: Deserialize the entity and get values
+            // deserialize and remove indexes
             let entity: E = deserialize(&data_value.bytes)?;
-
-            // Step 2: Remove indexes
             self.remove_indexes::<E>(entity)?;
 
-            // Step 3: Delete the data row itself
-            store.with_borrow_mut(|store| {
-                store.remove(&dk);
+            // delete
+            store.with_borrow_mut(|s| {
+                s.remove(&dk);
             });
 
             deleted_rows.push(DeleteRow::new(dk.into()));

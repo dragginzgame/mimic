@@ -53,9 +53,17 @@ pub enum PrincipalError {
 pub struct Principal(WrappedPrincipal);
 
 impl Principal {
+    // MAX - for comparison in IndexKey
+    pub const MAX: Self = Self(WrappedPrincipal::from_slice(&[0xFF; 29]));
+
     #[must_use]
     pub fn msg_caller() -> Self {
         Self(msg_caller())
+    }
+
+    #[must_use]
+    pub const fn from_slice(slice: &[u8]) -> Self {
+        Self(WrappedPrincipal::from_slice(slice))
     }
 
     #[must_use]
