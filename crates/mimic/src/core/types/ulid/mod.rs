@@ -3,13 +3,13 @@ pub mod generator;
 
 use crate::{
     ThisError,
-    common::error::ErrorTree,
     core::{
+        db::EntityKey,
         traits::{
             FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, ValidateCustom,
             Visitable,
         },
-        value::Value,
+        value::{IndexValue, Value},
     },
 };
 use ::ulid::Ulid as WrappedUlid;
@@ -25,9 +25,6 @@ use std::cmp::Ordering;
 
 #[derive(Debug, ThisError)]
 pub enum UlidError {
-    #[error("ulid is nil")]
-    Nil,
-
     #[error("invalid character found")]
     InvalidChar,
 
@@ -183,15 +180,29 @@ impl<'de> Deserialize<'de> for Ulid {
 
 impl_storable_bounded!(Ulid, 16, true);
 
-impl ValidateAuto for Ulid {
-    fn validate_self(&self) -> Result<(), ErrorTree> {
-        if self.is_nil() {
-            Err(UlidError::Nil.to_string().into())
-        } else {
-            Ok(())
+impl TryFrom<EntityKey> for Ulid {
+    type Error = &'static str;
+
+    fn try_from(key: EntityKey) -> Result<Self, Self::Error> {
+        match key.as_slice() {
+            [IndexValue::Ulid(id)] => Ok(*id),
+            _ => Err("Expected single Ulid in EntityKey"),
         }
     }
 }
+
+impl TryFrom<&EntityKey> for Ulid {
+    type Error = &'static str;
+
+    fn try_from(key: &EntityKey) -> Result<Self, Self::Error> {
+        match key.as_slice() {
+            [IndexValue::Ulid(id)] => Ok(*id),
+            _ => Err("Expected single Ulid in EntityKey"),
+        }
+    }
+}
+
+impl ValidateAuto for Ulid {}
 
 impl ValidateCustom for Ulid {}
 
