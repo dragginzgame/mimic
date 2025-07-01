@@ -4,7 +4,7 @@ use crate::{
             FieldSearchable, FieldSortable, FieldValue, ValidateAuto, ValidateCustom, Visitable,
         },
         types::Ulid,
-        value::{IndexValue, Value},
+        value::IndexValue,
     },
     db::store::DataKey,
 };
@@ -78,11 +78,7 @@ impl FieldSortable for EntityKey {
     }
 }
 
-impl FieldValue for EntityKey {
-    fn to_value(&self) -> Value {
-        Value::EntityKey(self.clone())
-    }
-}
+impl FieldValue for EntityKey {}
 
 impl From<DataKey> for EntityKey {
     fn from(key: DataKey) -> Self {

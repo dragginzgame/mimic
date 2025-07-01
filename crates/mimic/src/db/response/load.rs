@@ -1,7 +1,7 @@
 #![allow(clippy::type_complexity)]
 use crate::{
     Error,
-    core::{traits::EntityKind, types::EntityKey},
+    core::{db::EntityKey, traits::EntityKind},
     db::{
         DataError,
         response::{EntityRow, ResponseError},

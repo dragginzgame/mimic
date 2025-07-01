@@ -106,10 +106,6 @@ impl<'a> FilterEvaluator<'a> {
             (Value::Principal(a), Value::Text(b)) => Some(cmp.compare_order(a.to_text().cmp(b))),
             (Value::Text(a), Value::Principal(b)) => Some(cmp.compare_order(a.cmp(&b.to_text()))),
 
-            // EntityKey ↔ Text
-            (Value::EntityKey(a), Value::Text(b)) => Some(cmp.compare_order(a.to_string().cmp(b))),
-            (Value::Text(a), Value::EntityKey(b)) => Some(cmp.compare_order(a.cmp(&b.to_string()))),
-
             _ => None,
         }
     }

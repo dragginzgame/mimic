@@ -1,6 +1,6 @@
 #![allow(clippy::type_complexity)]
 use crate::{
-    core::{types::EntityKey, value::Value},
+    core::{db::EntityKey, value::Value},
     db::query::{Cmp, FilterBuilder, FilterClause, FilterExpr, Selector, SortDirection},
 };
 use candid::CandidType;

@@ -1,5 +1,5 @@
 use crate::{
-    core::{types::EntityKey, value::IndexValue},
+    core::{db::EntityKey, value::IndexValue},
     db::{executor::ExecutorError, hasher::xx_hash_u64},
     debug,
     ic::structures::{BTreeMap, DefaultMemory},

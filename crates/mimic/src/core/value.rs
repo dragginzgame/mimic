@@ -1,4 +1,4 @@
-use crate::core::types::{Decimal, E8s, E18s, EntityKey, Principal, Ulid};
+use crate::core::types::{Decimal, E8s, E18s, Principal, Ulid};
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut, Display};
 use serde::{Deserialize, Serialize};
@@ -14,18 +14,6 @@ macro_rules! impl_from_for {
             impl From<$type> for $struct {
                 fn from(v: $type) -> Self {
                     Self::$variant(v.into())
-                }
-            }
-        )*
-    };
-}
-
-macro_rules! impl_from_ref_for {
-    ( $struct:ty, $( $type:ty => $variant:ident ),* $(,)? ) => {
-        $(
-            impl From<&$type> for $struct {
-                fn from(v: &$type) -> Self {
-                    Self::$variant(v.clone())
                 }
             }
         )*
@@ -64,7 +52,6 @@ impl Values {
 pub enum Value {
     Bool(bool),
     Decimal(Decimal),
-    EntityKey(EntityKey),
     E8s(E8s),
     E18s(E18s),
     Float(f64),
@@ -94,7 +81,6 @@ impl Value {
     pub fn to_searchable_string(&self) -> Option<String> {
         match self {
             Self::Decimal(v) => Some(v.to_string()),
-            Self::EntityKey(v) => Some(v.to_string()),
             Self::Principal(v) => Some(v.to_text()),
             Self::Text(v) => Some(v.to_string()),
             Self::Ulid(v) => Some(v.to_string()),
@@ -107,7 +93,6 @@ impl_from_for! {
     Value,
     bool => Bool,
     Decimal => Decimal,
-    EntityKey => EntityKey,
     E8s => E8s,
     E18s => E18s,
     f32 => Float,
@@ -126,11 +111,6 @@ impl_from_for! {
     u64 => Nat,
 }
 
-impl_from_ref_for! {
-    Value,
-    EntityKey => EntityKey,
-}
-
 impl From<WrappedPrincipal> for Value {
     fn from(v: WrappedPrincipal) -> Self {
         Self::Principal(v.into())
@@ -141,7 +121,6 @@ impl PartialOrd for Value {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         match (self, other) {
             (Self::Bool(a), Self::Bool(b)) => a.partial_cmp(b),
-            (Self::EntityKey(a), Self::EntityKey(b)) => a.partial_cmp(b),
             (Self::E8s(a), Self::E8s(b)) => a.partial_cmp(b),
             (Self::E18s(a), Self::E18s(b)) => a.partial_cmp(b),
             (Self::Float(a), Self::Float(b)) => a.partial_cmp(b),

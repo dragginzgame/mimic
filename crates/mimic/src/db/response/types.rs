@@ -1,8 +1,8 @@
 use crate::{
     core::{
+        db::EntityKey,
         serialize::{SerializeError, deserialize, serialize},
         traits::Path,
-        types::EntityKey,
     },
     db::store::{DataEntry, DataRow, Metadata},
 };

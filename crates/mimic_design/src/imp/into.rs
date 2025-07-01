@@ -42,7 +42,7 @@ impl Imp<EntityId> for IntoTrait {
         //
 
         let q = quote! {
-            fn into(self) -> mimic::core::types::EntityKey {
+            fn into(self) -> mimic::core::db::EntityKey {
                 self.entity_key()
             }
         };
@@ -50,7 +50,7 @@ impl Imp<EntityId> for IntoTrait {
         tokens.extend(
             Implementor::new(&node.def, t)
                 .set_tokens(q)
-                .add_trait_generic(quote!(mimic::core::types::EntityKey))
+                .add_trait_generic(quote!(mimic::core::db::EntityKey))
                 .to_token_stream(),
         );
 

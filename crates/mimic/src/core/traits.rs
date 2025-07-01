@@ -18,7 +18,8 @@ pub use std::{
 use crate::{
     common::error::ErrorTree,
     core::{
-        types::{Decimal, EntityKey, Ulid},
+        db::EntityKey,
+        types::{Decimal, Ulid},
         value::{IndexValue, Value, Values},
         visit::Visitor,
     },
@@ -100,8 +101,8 @@ pub trait EntityKind: TypeKind + EntitySearch + EntitySort {
 
     // entity_key
     // the runtime EntityKey is the PrimaryKey as a vector
-    fn entity_key(&self) -> ::mimic::core::types::EntityKey {
-        ::mimic::core::types::EntityKey(self.primary_key().as_ref().to_vec())
+    fn entity_key(&self) -> ::mimic::core::db::EntityKey {
+        ::mimic::core::db::EntityKey(self.primary_key().as_ref().to_vec())
     }
 
     // data_key

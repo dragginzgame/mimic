@@ -1,5 +1,5 @@
 use crate::{
-    core::{traits::EntityKind, types::EntityKey},
+    core::{db::EntityKey, traits::EntityKind},
     db::executor::ResolvedSelector,
 };
 use candid::CandidType;

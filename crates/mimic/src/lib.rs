@@ -51,8 +51,9 @@ extern crate self as mimic;
 pub mod prelude {
     pub use crate::{
         core::{
+            db::{EntityKey, EntityKeys},
             traits::{EntityFixture as _, EntityKind as _, Inner as _},
-            types::{EntityKey, EntityKeys, Ulid},
+            types::Ulid,
             value::IndexValue,
         },
         db,

@@ -1,3 +1,4 @@
+pub mod db;
 pub mod serialize;
 pub mod traits;
 pub mod types;
