@@ -1,4 +1,7 @@
-use crate::core::types::{Decimal, E8s, E18s, Principal, Ulid};
+use crate::core::{
+    db::EntityKey,
+    types::{Decimal, E8s, E18s, Principal, Ulid},
+};
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut, Display};
 use serde::{Deserialize, Serialize};
@@ -122,17 +125,6 @@ impl_from_for! {
     u64 => Nat,
 }
 
-impl From<[IndexValue; 1]> for Value {
-    fn from(key: [IndexValue; 1]) -> Self {
-        match key[0] {
-            IndexValue::Int(v) => Value::Int(v),
-            IndexValue::Nat(v) => Value::Nat(v),
-            IndexValue::Principal(p) => Value::Principal(p),
-            IndexValue::Ulid(id) => Value::Ulid(id),
-        }
-    }
-}
-
 impl From<WrappedPrincipal> for Value {
     fn from(v: WrappedPrincipal) -> Self {
         Self::Principal(v.into())
@@ -154,6 +146,23 @@ impl PartialOrd for Value {
 
             // Cross-type comparisons: no ordering
             _ => None,
+        }
+    }
+}
+
+impl TryFrom<EntityKey> for Value {
+    type Error = &'static str;
+
+    fn try_from(key: EntityKey) -> Result<Self, Self::Error> {
+        if key.len() == 1 {
+            match &key[0] {
+                IndexValue::Int(v) => Ok(Value::Int(*v)),
+                IndexValue::Nat(v) => Ok(Value::Nat(*v)),
+                IndexValue::Principal(p) => Ok(Value::Principal(*p)),
+                IndexValue::Ulid(id) => Ok(Value::Ulid(*id)),
+            }
+        } else {
+            Err("Cannot convert compound EntityKey into Value")
         }
     }
 }
