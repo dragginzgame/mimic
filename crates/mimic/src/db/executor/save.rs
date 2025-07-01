@@ -1,7 +1,7 @@
 use crate::{
-    Error,
+    MimicError,
     common::utils::time,
-    core::{serialize::serialize, traits::EntityKind, validate::validate},
+    core::{traits::EntityKind, validate::validate},
     db::{
         DataError,
         executor::ExecutorError,
@@ -10,6 +10,7 @@ use crate::{
         store::{DataEntry, DataStoreRegistry, IndexStoreRegistry, Metadata},
     },
     debug,
+    serialize::serialize,
 };
 
 ///
@@ -44,7 +45,7 @@ impl SaveExecutor {
     pub fn execute<E: EntityKind>(
         &self,
         query: SaveQueryTyped<E>,
-    ) -> Result<SaveCollection, Error> {
+    ) -> Result<SaveCollection, MimicError> {
         let res = self.execute_internal(query)?;
 
         Ok(res)
@@ -54,7 +55,7 @@ impl SaveExecutor {
     pub fn execute_response<E: EntityKind>(
         self,
         query: SaveQueryTyped<E>,
-    ) -> Result<SaveResponse, Error> {
+    ) -> Result<SaveResponse, MimicError> {
         let res = self.execute_internal(query)?;
 
         Ok(SaveResponse(res.0))

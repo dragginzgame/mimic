@@ -1,9 +1,7 @@
 use crate::{
-    Error,
-    core::{
-        serialize::{deserialize, serialize},
-        traits::EntityKind,
-    },
+    MimicError,
+    core::traits::EntityKind,
+    serialize::{deserialize, serialize},
 };
 use candid::CandidType;
 use derive_more::Display;
@@ -47,7 +45,7 @@ impl SaveQueryBuilder {
     }
 
     // entity
-    pub fn entity<E: EntityKind>(self, entity: E) -> Result<SaveQuery, Error> {
+    pub fn entity<E: EntityKind>(self, entity: E) -> Result<SaveQuery, MimicError> {
         let bytes = serialize(&entity)?;
 
         Ok(SaveQuery::new(self.mode, &bytes))
@@ -75,10 +73,11 @@ impl SaveQuery {
 }
 
 impl<E: EntityKind> TryInto<SaveQueryTyped<E>> for SaveQuery {
-    type Error = Error;
+    type Error = MimicError;
 
     fn try_into(self) -> Result<SaveQueryTyped<E>, Self::Error> {
         let entity = deserialize::<E>(&self.bytes)?;
+
         Ok(SaveQueryTyped::new(self.mode, entity))
     }
 }

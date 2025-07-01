@@ -1,6 +1,6 @@
 use crate::{
-    Error,
-    core::{serialize::deserialize, traits::EntityKind},
+    MimicError,
+    core::traits::EntityKind,
     db::{
         DataError,
         query::{DeleteQuery, QueryError, QueryPlan, QueryShape},
@@ -8,6 +8,7 @@ use crate::{
         store::{DataKey, DataKeyRange, DataStoreRegistry, IndexStoreRegistry},
     },
     debug,
+    serialize::deserialize,
 };
 
 ///
@@ -39,7 +40,10 @@ impl DeleteExecutor {
     }
 
     // execute
-    pub fn execute<E: EntityKind>(self, query: DeleteQuery) -> Result<DeleteCollection, Error> {
+    pub fn execute<E: EntityKind>(
+        self,
+        query: DeleteQuery,
+    ) -> Result<DeleteCollection, MimicError> {
         let res = self.execute_internal::<E>(query)?;
 
         Ok(res)
@@ -50,7 +54,7 @@ impl DeleteExecutor {
     pub fn execute_response<E: EntityKind>(
         self,
         query: DeleteQuery,
-    ) -> Result<DeleteResponse, Error> {
+    ) -> Result<DeleteResponse, MimicError> {
         let res = self.execute_internal::<E>(query)?;
 
         Ok(DeleteResponse(res.0))

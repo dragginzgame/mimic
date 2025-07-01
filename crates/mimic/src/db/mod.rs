@@ -6,13 +6,14 @@ pub mod service;
 pub mod store;
 
 use crate::{
-    core::{serialize::SerializeError, validate::ValidateError},
+    core::validate::ValidateError,
     db::{
         executor::{DeleteExecutor, ExecutorError, LoadExecutor, SaveExecutor},
         query::QueryError,
         response::ResponseError,
         store::{DataStoreRegistry, IndexStoreRegistry, StoreError},
     },
+    serialize::SerializeError,
 };
 use thiserror::Error as ThisError;
 

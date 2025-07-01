@@ -1,6 +1,6 @@
 #![allow(clippy::type_complexity)]
 use crate::{
-    Error,
+    MimicError,
     core::{db::EntityKey, traits::EntityKind},
     db::{
         DataError,
@@ -65,7 +65,7 @@ where
     }
 
     // try_entity
-    pub fn try_entity(self) -> Result<E, Error> {
+    pub fn try_entity(self) -> Result<E, MimicError> {
         let res = self
             .0
             .into_iter()

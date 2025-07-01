@@ -1,5 +1,5 @@
 use crate::{
-    Error,
+    MimicError,
     core::traits::EntityKind,
     db::{
         DataError,
@@ -43,14 +43,17 @@ impl LoadExecutor {
     }
 
     // execute
-    pub fn execute<E: EntityKind>(self, query: LoadQuery) -> Result<LoadCollection<E>, Error> {
+    pub fn execute<E: EntityKind>(self, query: LoadQuery) -> Result<LoadCollection<E>, MimicError> {
         let cl = self.execute_internal::<E>(query)?;
 
         Ok(cl)
     }
 
     // execute_response
-    pub fn execute_response<E: EntityKind>(self, query: LoadQuery) -> Result<LoadResponse, Error> {
+    pub fn execute_response<E: EntityKind>(
+        self,
+        query: LoadQuery,
+    ) -> Result<LoadResponse, MimicError> {
         let format = query.format;
         let cl = self.execute_internal::<E>(query)?;
 

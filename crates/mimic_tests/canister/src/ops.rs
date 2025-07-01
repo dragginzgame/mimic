@@ -1,6 +1,6 @@
 use mimic::{
-    core::serialize::{deserialize, serialize},
     prelude::*,
+    serialize::{deserialize, serialize},
 };
 
 ///

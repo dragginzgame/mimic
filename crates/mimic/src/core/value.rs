@@ -3,6 +3,17 @@ use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut, Display};
 use serde::{Deserialize, Serialize};
 use std::{cmp::Ordering, collections::HashMap};
+use thiserror::Error as ThisError;
+
+///
+/// ValueError
+///
+
+#[derive(Debug, ThisError)]
+pub enum ValueError {
+    #[error("index value conversion fail")]
+    IndexValueConversion,
+}
 
 ///
 /// Handy Macros
@@ -233,45 +244,45 @@ impl PartialOrd for IndexValue {
 }
 
 impl TryFrom<IndexValue> for u64 {
-    type Error = &'static str;
+    type Error = ValueError;
 
     fn try_from(value: IndexValue) -> Result<Self, Self::Error> {
         match value {
             IndexValue::Nat(n) => Ok(n),
-            _ => Err("Expected IndexValue::Nat"),
+            _ => Err(ValueError::IndexValueConversion),
         }
     }
 }
 
 impl TryFrom<IndexValue> for i64 {
-    type Error = &'static str;
+    type Error = ValueError;
 
     fn try_from(value: IndexValue) -> Result<Self, Self::Error> {
         match value {
             IndexValue::Int(i) => Ok(i),
-            _ => Err("Expected IndexValue::Int"),
+            _ => Err(ValueError::IndexValueConversion),
         }
     }
 }
 
 impl TryFrom<IndexValue> for Principal {
-    type Error = &'static str;
+    type Error = ValueError;
 
     fn try_from(value: IndexValue) -> Result<Self, Self::Error> {
         match value {
             IndexValue::Principal(p) => Ok(p),
-            _ => Err("Expected IndexValue::Principal"),
+            _ => Err(ValueError::IndexValueConversion),
         }
     }
 }
 
 impl TryFrom<IndexValue> for Ulid {
-    type Error = &'static str;
+    type Error = ValueError;
 
     fn try_from(value: IndexValue) -> Result<Self, Self::Error> {
         match value {
             IndexValue::Ulid(id) => Ok(id),
-            _ => Err("Expected IndexValue::Ulid"),
+            _ => Err(ValueError::IndexValueConversion),
         }
     }
 }
