@@ -132,7 +132,7 @@ fn values(node: &Entity) -> TokenStream {
                     map.insert(#field_lit,
                         self.#field_ident
                             .as_ref()
-                            .map_or(::mimic::core::value::Value::Null, |v| v.to_value())
+                            .map_or(::mimic::core::value::Value::Null, FieldValue::to_value)
                     );
                 }),
 
