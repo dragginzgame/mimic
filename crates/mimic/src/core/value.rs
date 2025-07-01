@@ -179,9 +179,15 @@ impl_from_for! {
     u64 => Nat,
 }
 
-impl From<candid::Principal> for IndexValue {
-    fn from(p: candid::Principal) -> Self {
+impl From<WrappedPrincipal> for IndexValue {
+    fn from(p: WrappedPrincipal) -> Self {
         Self::Principal(p.into())
+    }
+}
+
+impl From<[IndexValue; 1]> for IndexValue {
+    fn from(value: [IndexValue; 1]) -> Self {
+        value[0]
     }
 }
 
@@ -206,25 +212,5 @@ impl Ord for IndexValue {
 impl PartialOrd for IndexValue {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
-    }
-}
-
-///
-/// IndexValueSingle
-/// helper to translate from/to PrimaryKeys
-///
-
-pub trait IndexValueSingle {
-    fn to_value(&self) -> IndexValue;
-    fn from_value(value: IndexValue) -> Self;
-}
-
-impl IndexValueSingle for [IndexValue; 1] {
-    fn to_value(&self) -> IndexValue {
-        self[0]
-    }
-
-    fn from_value(value: IndexValue) -> Self {
-        [value]
     }
 }
