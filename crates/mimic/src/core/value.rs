@@ -229,3 +229,23 @@ impl PartialOrd for IndexValue {
         Some(self.cmp(other))
     }
 }
+
+///
+/// IndexValueSingle
+/// helper to translate from/to PrimaryKeys
+///
+
+pub trait IndexValueSingle {
+    fn to_value(&self) -> IndexValue;
+    fn from_value(value: IndexValue) -> Self;
+}
+
+impl IndexValueSingle for [IndexValue; 1] {
+    fn to_value(&self) -> IndexValue {
+        self[0]
+    }
+
+    fn from_value(value: IndexValue) -> Self {
+        [value]
+    }
+}

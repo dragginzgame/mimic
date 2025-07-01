@@ -139,25 +139,6 @@ pub trait EntityKind: TypeKind + EntitySearch + EntitySort {
 }
 
 ///
-/// SingleKey
-///
-
-pub trait SingleKey {
-    fn to_value(&self) -> IndexValue;
-    fn from_value(value: IndexValue) -> Self;
-}
-
-impl SingleKey for [IndexValue; 1] {
-    fn to_value(&self) -> IndexValue {
-        self[0]
-    }
-
-    fn from_value(value: IndexValue) -> Self {
-        [value]
-    }
-}
-
-///
 /// EntityIdKind
 ///
 
