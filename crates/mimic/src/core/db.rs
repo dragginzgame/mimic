@@ -4,7 +4,7 @@ use crate::{
             FieldSearchable, FieldSortable, FieldValue, ValidateAuto, ValidateCustom, Visitable,
         },
         types::Ulid,
-        value::{IndexValue, Value},
+        value::IndexValue,
     },
     db::store::DataKey,
 };
