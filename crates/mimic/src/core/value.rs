@@ -150,23 +150,6 @@ impl PartialOrd for Value {
     }
 }
 
-impl TryFrom<EntityKey> for Value {
-    type Error = &'static str;
-
-    fn try_from(key: EntityKey) -> Result<Self, Self::Error> {
-        if key.len() == 1 {
-            match &key[0] {
-                IndexValue::Int(v) => Ok(Value::Int(*v)),
-                IndexValue::Nat(v) => Ok(Value::Nat(*v)),
-                IndexValue::Principal(p) => Ok(Value::Principal(*p)),
-                IndexValue::Ulid(id) => Ok(Value::Ulid(*id)),
-            }
-        } else {
-            Err("Cannot convert compound EntityKey into Value")
-        }
-    }
-}
-
 ///
 /// IndexValue
 ///

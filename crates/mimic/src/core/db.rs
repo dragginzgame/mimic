@@ -4,7 +4,7 @@ use crate::{
             FieldSearchable, FieldSortable, FieldValue, ValidateAuto, ValidateCustom, Visitable,
         },
         types::Ulid,
-        value::IndexValue,
+        value::{IndexValue, Value},
     },
     db::store::DataKey,
 };
@@ -70,6 +70,16 @@ impl EntityKey {
         }
 
         Self(values)
+    }
+
+    pub fn to_value(&self) -> Result<Value, &'static str> {
+        match self.as_slice() {
+            [IndexValue::Int(v)] => Ok(Value::Int(*v)),
+            [IndexValue::Nat(v)] => Ok(Value::Nat(*v)),
+            [IndexValue::Principal(p)] => Ok(Value::Principal(*p)),
+            [IndexValue::Ulid(id)] => Ok(Value::Ulid(*id)),
+            _ => Err("Expected single-value EntityKey"),
+        }
     }
 }
 
