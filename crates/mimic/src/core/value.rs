@@ -232,6 +232,50 @@ impl PartialOrd for IndexValue {
     }
 }
 
+impl TryFrom<IndexValue> for u64 {
+    type Error = &'static str;
+
+    fn try_from(value: IndexValue) -> Result<Self, Self::Error> {
+        match value {
+            IndexValue::Nat(n) => Ok(n),
+            _ => Err("Expected IndexValue::Nat"),
+        }
+    }
+}
+
+impl TryFrom<IndexValue> for i64 {
+    type Error = &'static str;
+
+    fn try_from(value: IndexValue) -> Result<Self, Self::Error> {
+        match value {
+            IndexValue::Int(i) => Ok(i),
+            _ => Err("Expected IndexValue::Int"),
+        }
+    }
+}
+
+impl TryFrom<IndexValue> for Principal {
+    type Error = &'static str;
+
+    fn try_from(value: IndexValue) -> Result<Self, Self::Error> {
+        match value {
+            IndexValue::Principal(p) => Ok(p),
+            _ => Err("Expected IndexValue::Principal"),
+        }
+    }
+}
+
+impl TryFrom<IndexValue> for Ulid {
+    type Error = &'static str;
+
+    fn try_from(value: IndexValue) -> Result<Self, Self::Error> {
+        match value {
+            IndexValue::Ulid(id) => Ok(id),
+            _ => Err("Expected IndexValue::Ulid"),
+        }
+    }
+}
+
 ///
 /// TESTS
 ///
