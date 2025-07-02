@@ -155,7 +155,6 @@ impl Visitable for EntityKey {}
     Deserialize,
     Eq,
     Hash,
-    IntoIterator,
     Ord,
     PartialEq,
     PartialOrd,
@@ -193,5 +192,14 @@ impl<K: Into<EntityKey>> From<Vec<K>> for EntityKeys {
         let keys = vec.into_iter().map(Into::into).collect();
 
         Self(keys)
+    }
+}
+
+impl<'a> IntoIterator for &'a EntityKeys {
+    type Item = &'a EntityKey;
+    type IntoIter = std::slice::Iter<'a, EntityKey>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.iter()
     }
 }
