@@ -169,6 +169,10 @@ impl EntityKeys {
             self.0.push(key);
         }
     }
+
+    pub fn iter(&self) -> impl Iterator<Item = &EntityKey> {
+        self.0.iter()
+    }
 }
 
 impl Display for EntityKeys {
