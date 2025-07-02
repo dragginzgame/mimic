@@ -6,6 +6,7 @@
 pub mod core;
 pub mod db;
 pub mod design;
+pub mod dto;
 pub mod interface;
 pub mod macros;
 pub mod serialize;
