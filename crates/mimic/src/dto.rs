@@ -4,9 +4,9 @@ use std::{collections::HashMap, hash::Hash};
 /// DTO Helpers
 ///
 
-pub fn try_map<A, B, E>(opt: A) -> Result<B, E>
+pub fn try_map<'a, A, B, E>(opt: &'a A) -> Result<B, E>
 where
-    B: TryFrom<A, Error = E>,
+    B: TryFrom<&'a A, Error = E>,
 {
     opt.try_into()
 }
