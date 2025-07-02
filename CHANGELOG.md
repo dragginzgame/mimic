@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - IndexValue types (DataKey, IndexKey) are now Copy, so no Text keys
 - Every EntityKind has a PrimaryKey type [IndexValue; N].  Single PrimaryKeys can be flattened to use as an IndexValue
 - FixedE8 changed to E8s, and E18s as a bonus.  PrimitiveType -> Primitive as we don't have the macro node any more.
+- Adding a suite of DTO helper functions in mimic::dto, to convert design types <-> DTO types
 
 ## [0.5.4]
 - moved proc_macro2, darling, syn and quote out of mimic and just into the mimic_design crate and it saved
