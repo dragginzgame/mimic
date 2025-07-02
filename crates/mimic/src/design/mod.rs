@@ -11,7 +11,7 @@ pub mod prelude {
             utils::case::{Case, Casing},
         },
         core::{
-            db::EntityKey,
+            db::{EntityKey, EntityKeys},
             traits::{
                 EntityFixture, EntityIdKind as _, EntityKind as _, Inner as _, NumCast, Path as _,
                 Serialize as _, Validate as _, ValidateCustom, ValidatorBytes as _,

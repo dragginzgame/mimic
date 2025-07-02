@@ -54,7 +54,7 @@ pub mod prelude {
     pub use crate::{
         MimicError,
         core::{
-            db::EntityKey,
+            db::{EntityKey, EntityKeys},
             traits::{EntityFixture as _, EntityKind as _, Inner as _},
             types::Ulid,
             value::IndexValue,
