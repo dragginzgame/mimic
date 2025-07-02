@@ -4,6 +4,13 @@ use std::{collections::HashMap, hash::Hash};
 /// DTO Helpers
 ///
 
+pub fn try_map<A, B, E>(opt: Option<A>) -> Result<Option<B>, E>
+where
+    B: TryFrom<A, Error = E>,
+{
+    opt.map(B::try_from).transpose()
+}
+
 pub fn map_option<'a, A, B>(opt: Option<&'a A>) -> Option<B>
 where
     B: From<&'a A>,
