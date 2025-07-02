@@ -42,3 +42,12 @@ where
         .map(|(k, v)| Ok((K2::try_from(k.clone())?, V2::try_from(v)?)))
         .collect()
 }
+
+pub fn try_map_vec<'a, A, B, E, I>(input: I) -> Result<Vec<B>, E>
+where
+    A: 'a,
+    I: IntoIterator<Item = &'a A>,
+    B: TryFrom<&'a A, Error = E>,
+{
+    input.into_iter().map(B::try_from).collect()
+}
