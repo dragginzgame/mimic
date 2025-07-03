@@ -13,7 +13,7 @@ pub fn tokens(node: &Newtype) -> Option<TokenStream> {
     let item = &node.item;
     let primitive = &node.primitive.as_type();
 
-    // Into <primitive>
+    // From Into<primitive>
     q.extend(quote! {
         impl<T> From<T> for #ident
         where

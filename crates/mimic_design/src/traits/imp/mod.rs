@@ -5,6 +5,7 @@ mod field;
 mod implementor;
 mod inner;
 mod num;
+mod type_view;
 mod validate;
 mod visitable;
 
@@ -15,6 +16,7 @@ pub use field::*;
 pub use implementor::*;
 pub use inner::*;
 pub use num::*;
+pub use type_view::*;
 pub use validate::*;
 pub use visitable::*;
 
@@ -37,15 +39,6 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
             let ident_str = format!("{}", def.ident);
             let q = quote! {
                 const PATH: &'static str = concat!(module_path!(), "::", #ident_str);
-            };
-
-            Some(Implementor::new(def, t).set_tokens(q).to_token_stream())
-        }
-
-        Trait::TypeKind => {
-            let kind_ident = format_ident!("{}_View", def.ident);
-            let q = quote! {
-                type View = #kind_ident;
             };
 
             Some(Implementor::new(def, t).set_tokens(q).to_token_stream())

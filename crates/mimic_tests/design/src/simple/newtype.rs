@@ -26,5 +26,5 @@ pub struct Float64 {}
 /// double wrapped primitive
 ///
 
-#[newtype(item(is = "Float64"))]
+#[newtype(primitive = "Float64", item(is = "Float64"))]
 pub struct WrapFloat64 {}

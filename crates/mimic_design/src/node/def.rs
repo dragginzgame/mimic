@@ -21,6 +21,12 @@ pub struct Def {
     pub debug: bool,
 }
 
+impl Def {
+    pub fn view_ident(&self) -> Ident {
+        format_ident!("{}_View", self.ident)
+    }
+}
+
 impl Default for Def {
     fn default() -> Self {
         Self {

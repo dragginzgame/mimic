@@ -16,6 +16,7 @@ pub use std::{
 };
 
 use crate::{
+    MimicError,
     common::error::ErrorTree,
     core::{
         db::EntityKey,
@@ -69,15 +70,12 @@ impl<T> Kind for T where T: Path {}
 
 ///
 /// TypeKind
-/// a Meta that can act as a data type
+/// any data type
 ///
 
 pub trait TypeKind:
-    Kind + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq
-//  + TryFrom<Self::View>
-//  + TryInto<Self::View>
+    Kind + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq + TypeView
 {
-    type View;
 }
 
 ///
@@ -176,6 +174,19 @@ impl<T: FieldValue + FieldSearchable + FieldSortable> FieldKind for T {}
 ///
 /// ANY KIND TRAITS
 ///
+
+///
+/// TypeView
+///
+
+pub trait TypeView {
+    type View;
+
+    fn to_view(&self) -> Result<Self::View, MimicError>;
+    fn from_view(view: Self::View) -> Result<Self, MimicError>
+    where
+        Self: Sized;
+}
 
 ///
 /// Path

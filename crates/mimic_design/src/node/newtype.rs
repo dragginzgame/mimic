@@ -118,6 +118,7 @@ impl TraitNode for Newtype {
             Trait::NumCast => traits::NumCastTrait::tokens(self, t),
             Trait::NumToPrimitive => traits::NumToPrimitiveTrait::tokens(self, t),
             Trait::NumFromPrimitive => traits::NumFromPrimitiveTrait::tokens(self, t),
+            Trait::TypeView => traits::TypeViewTrait::tokens(self, t),
             Trait::ValidateAuto => traits::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => traits::VisitableTrait::tokens(self, t),
 
@@ -155,13 +156,14 @@ impl ToTokens for Newtype {
 
         // view
         let view_ident = format_ident!("{}_View", ident);
-        let view_item = quote!(u8);
+        let view_type = self.primitive.as_type();
+        let view_item = quote!(#view_type);
 
         let q = quote! {
             pub struct #ident(#item);
 
             #[derive(CandidType)]
-            pub struct #view_ident = #view_item;
+            pub struct #view_ident(#view_item);
         };
 
         tokens.extend(q);

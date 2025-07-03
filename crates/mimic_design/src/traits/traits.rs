@@ -55,7 +55,6 @@ pub enum Trait {
     EntityIdKind,
     EnumValueKind,
     PrimitiveKind,
-    TypeKind,
 
     // orm
     EntityFixture,
@@ -70,6 +69,7 @@ pub enum Trait {
     NumToPrimitive,
     Path,
     Sorted,
+    TypeView,
     ValidateAuto,
     ValidateCustom,
     Visitable,
@@ -97,7 +97,7 @@ static TYPE_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
         Trait::FieldValue,
         Trait::PartialEq,
         Trait::Serialize,
-        Trait::TypeKind,
+        Trait::TypeView,
         Trait::ValidateAuto,
         Trait::ValidateCustom,
         Trait::Visitable,
