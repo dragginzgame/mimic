@@ -10,7 +10,7 @@ use serde::Serialize;
 pub struct Def {
     pub module_path: &'static str,
     pub ident: &'static str,
-    pub comments: &'static str,
+    pub comments: Option<&'static str>,
 }
 
 impl Def {

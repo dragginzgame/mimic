@@ -1,13 +1,7 @@
 pub mod newtype;
 pub mod sorted;
 
-pub(crate) mod prelude {
-    pub use mimic::design::{
-        base::{types, validator},
-        prelude::*,
-    };
-}
-pub use prelude::*;
+use crate::prelude::*;
 
 //
 // SIMPLE TESTS

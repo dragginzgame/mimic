@@ -1,10 +1,10 @@
 use crate::{
-    helper::{quote_one, to_str_lit},
+    helper::{as_tokens, quote_one, quote_option, to_str_lit},
     schema::Schemable,
 };
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use syn::Ident;
+use syn::{Ident, LitStr};
 
 ///
 /// Def
@@ -15,7 +15,7 @@ use syn::Ident;
 
 #[derive(Clone, Debug)]
 pub struct Def {
-    pub comments: String,
+    pub comments: Option<LitStr>,
     pub tokens: TokenStream,
     pub ident: Ident,
     pub debug: bool,
@@ -24,7 +24,7 @@ pub struct Def {
 impl Default for Def {
     fn default() -> Self {
         Self {
-            comments: String::new(),
+            comments: None,
             tokens: TokenStream::default(),
             ident: format_ident!("temp"),
             debug: false,
@@ -34,7 +34,7 @@ impl Default for Def {
 
 impl Schemable for Def {
     fn schema(&self) -> TokenStream {
-        let comments = quote_one(&self.comments, to_str_lit);
+        let comments = quote_option(self.comments.as_ref(), as_tokens);
         let ident = quote_one(&self.ident, to_str_lit);
 
         quote! {

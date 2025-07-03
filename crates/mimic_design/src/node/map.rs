@@ -1,8 +1,7 @@
 use crate::{
-    imp::{self, Imp},
-    node::{Def, Item, MacroNode, Node, Trait, TraitNode, TraitTokens, Type, Value},
+    node::{Def, Item, MacroNode, Node, TraitNode, TraitTokens, Type, Value},
     schema::Schemable,
-    traits::Traits,
+    traits::{self, Imp, Trait, Traits},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -64,7 +63,6 @@ impl TraitNode for Map {
             Trait::Default,
             Trait::Deref,
             Trait::DerefMut,
-            Trait::From,
             Trait::IntoIterator,
         ]);
 
@@ -73,12 +71,15 @@ impl TraitNode for Map {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::From => imp::FromTrait::tokens(self, t),
-            Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
-            Trait::Visitable => imp::VisitableTrait::tokens(self, t),
+            Trait::ValidateAuto => traits::ValidateAutoTrait::tokens(self, t),
+            Trait::Visitable => traits::VisitableTrait::tokens(self, t),
 
-            _ => imp::any(self, t),
+            _ => traits::any(self, t),
         }
+    }
+
+    fn custom_impl(&self) -> Option<TokenStream> {
+        crate::node::imp::map::tokens(self)
     }
 }
 

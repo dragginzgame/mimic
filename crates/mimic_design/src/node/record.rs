@@ -1,9 +1,8 @@
 use crate::{
     helper::quote_slice,
-    imp::{self, Imp},
-    node::{Def, Field, MacroNode, Node, Trait, TraitNode, TraitTokens, Type},
+    node::{Def, Field, MacroNode, Node, TraitNode, TraitTokens, Type},
     schema::Schemable,
-    traits::Traits,
+    traits::{self, Imp, Trait, Traits},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -94,11 +93,11 @@ impl TraitNode for Record {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::Default if self.has_default() => imp::DefaultTrait::tokens(self, t),
-            Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
-            Trait::Visitable => imp::VisitableTrait::tokens(self, t),
+            Trait::Default if self.has_default() => traits::DefaultTrait::tokens(self, t),
+            Trait::ValidateAuto => traits::ValidateAutoTrait::tokens(self, t),
+            Trait::Visitable => traits::VisitableTrait::tokens(self, t),
 
-            _ => imp::any(self, t),
+            _ => traits::any(self, t),
         }
     }
 

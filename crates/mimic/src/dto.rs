@@ -4,6 +4,7 @@ use std::{collections::HashMap, hash::Hash};
 /// DTO Helpers
 ///
 
+// try_map
 pub fn try_map<'a, A, B, E>(opt: &'a A) -> Result<B, E>
 where
     B: TryFrom<&'a A, Error = E>,
@@ -11,6 +12,7 @@ where
     opt.try_into()
 }
 
+// map_option
 pub fn map_option<'a, A, B>(opt: Option<&'a A>) -> Option<B>
 where
     B: From<&'a A>,
@@ -18,6 +20,7 @@ where
     opt.map(From::from)
 }
 
+// try_map_option
 pub fn try_map_option<'a, A, B, E>(opt: Option<&'a A>) -> Result<Option<B>, E>
 where
     B: TryFrom<&'a A, Error = E>,
@@ -25,6 +28,27 @@ where
     opt.map(TryFrom::try_from).transpose()
 }
 
+// map_vec
+pub fn map_vec<'a, A, B, I>(input: I) -> Vec<B>
+where
+    A: 'a,
+    I: IntoIterator<Item = &'a A>,
+    B: From<&'a A>,
+{
+    input.into_iter().map(From::from).collect()
+}
+
+// try_map_vec
+pub fn try_map_vec<'a, A, B, E, I>(input: I) -> Result<Vec<B>, E>
+where
+    A: 'a,
+    I: IntoIterator<Item = &'a A>,
+    B: TryFrom<&'a A, Error = E>,
+{
+    input.into_iter().map(B::try_from).collect()
+}
+
+// map_hashmap
 #[must_use]
 pub fn map_hashmap<K, V, K2, V2>(input: &HashMap<K, V>) -> HashMap<K2, V2>
 where
@@ -38,6 +62,7 @@ where
         .collect()
 }
 
+// try_map_hashmap
 pub fn try_map_hashmap<K, V, K2, V2, E>(input: &HashMap<K, V>) -> Result<HashMap<K2, V2>, E>
 where
     K: Clone + Eq + Hash,
@@ -48,13 +73,4 @@ where
         .iter()
         .map(|(k, v)| Ok((K2::try_from(k.clone())?, V2::try_from(v)?)))
         .collect()
-}
-
-pub fn try_map_vec<'a, A, B, E, I>(input: I) -> Result<Vec<B>, E>
-where
-    A: 'a,
-    I: IntoIterator<Item = &'a A>,
-    B: TryFrom<&'a A, Error = E>,
-{
-    input.into_iter().map(B::try_from).collect()
 }

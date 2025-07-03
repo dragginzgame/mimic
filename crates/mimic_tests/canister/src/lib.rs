@@ -43,7 +43,7 @@ pub fn test() {
 
 // rarity
 #[query]
-pub fn rarity() -> Result<Vec<Rarity>, MimicError> {
+pub fn rarity() -> Result<Vec<Rarity_View>, MimicError> {
     perf_start!();
 
     let res = db!()

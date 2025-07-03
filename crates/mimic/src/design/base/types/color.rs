@@ -105,13 +105,12 @@ impl TryFrom<&str> for Rgba {
     primitive = "Text",
     item(prim = "Text"),
     default = "FFFFFF",
-    ty(validator(path = "validator::text::color::RgbHex")),
-    traits(remove(From))
+    ty(validator(path = "validator::text::color::RgbHex"))
 )]
 pub struct RgbHex {}
 
-impl From<&str> for RgbHex {
-    fn from(s: &str) -> Self {
+impl RgbHex {
+    pub fn from_hex_str(s: &str) -> Self {
         Self(normalize_rgb_hex(s))
     }
 }
@@ -130,13 +129,12 @@ impl From<Rgb> for RgbHex {
     primitive = "Text",
     item(prim = "Text"),
     default = "FFFFFFFF",
-    ty(validator(path = "validator::text::color::RgbaHex")),
-    traits(remove(From))
+    ty(validator(path = "validator::text::color::RgbaHex"))
 )]
 pub struct RgbaHex {}
 
-impl From<&str> for RgbaHex {
-    fn from(s: &str) -> Self {
+impl RgbaHex {
+    pub fn from_hex_str(s: &str) -> Self {
         Self(normalize_rgba_hex(s))
     }
 }

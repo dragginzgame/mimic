@@ -1,9 +1,8 @@
 use crate::{
     helper::quote_slice,
-    imp::{self, Imp},
     node::{Def, MacroNode, Node, TraitNode, TraitTokens, Type, Value},
     schema::Schemable,
-    traits::{Trait, Traits},
+    traits::{self, Imp, Trait, Traits},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -87,9 +86,9 @@ impl TraitNode for Tuple {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::Visitable => imp::VisitableTrait::tokens(self, t),
+            Trait::Visitable => traits::VisitableTrait::tokens(self, t),
 
-            _ => imp::any(self, t),
+            _ => traits::any(self, t),
         }
     }
 }

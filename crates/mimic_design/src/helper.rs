@@ -48,6 +48,12 @@ where
 /// TRANSFORM HELPERS
 ///
 
+/// as_tokens
+/// passes through without any change, ie. comments
+pub fn as_tokens<T: ToTokens>(t: &T) -> TokenStream {
+    quote!(#t)
+}
+
 /// to_str_lit
 pub fn to_str_lit<T: ToTokens>(t: &T) -> TokenStream {
     let s = quote!(#t).to_string();

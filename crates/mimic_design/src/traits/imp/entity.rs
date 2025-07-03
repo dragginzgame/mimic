@@ -1,8 +1,7 @@
 use crate::{
-    imp::{Imp, Implementor},
     node::{Entity, MacroNode},
     schema::{Cardinality, Schemable},
-    traits::Trait,
+    traits::{Imp, Implementor, Trait},
 };
 use proc_macro2::{Span, TokenStream};
 use quote::{ToTokens, format_ident, quote};

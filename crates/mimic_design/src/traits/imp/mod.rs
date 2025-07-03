@@ -2,47 +2,25 @@ mod default;
 mod entity;
 mod enum_value;
 mod field;
-mod from;
+mod implementor;
 mod inner;
-mod into;
 mod num;
 mod validate;
 mod visitable;
-
-pub mod implementor;
 
 pub use default::*;
 pub use entity::*;
 pub use enum_value::*;
 pub use field::*;
-pub use from::*;
+pub use implementor::*;
 pub use inner::*;
-pub use into::*;
 pub use num::*;
 pub use validate::*;
 pub use visitable::*;
 
 use crate::{node::MacroNode, traits::Trait};
-use implementor::Implementor;
 use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
-
-///
-/// Imp
-///
-
-pub trait Imp<N: MacroNode> {
-    fn tokens(node: &N, t: Trait) -> Option<TokenStream>;
-}
-
-///
-/// ImpFn
-/// for breaking down traits even further
-///
-
-pub trait ImpFn<N: MacroNode> {
-    fn tokens(node: &N) -> TokenStream;
-}
+use quote::{ToTokens, format_ident, quote};
 
 ///
 /// any
@@ -64,6 +42,15 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
             Some(Implementor::new(def, t).set_tokens(q).to_token_stream())
         }
 
+        Trait::TypeKind => {
+            let kind_ident = format_ident!("{}_View", def.ident);
+            let q = quote! {
+                type View = #kind_ident;
+            };
+
+            Some(Implementor::new(def, t).set_tokens(q).to_token_stream())
+        }
+
         // empty implementations are generated for these traits
         Trait::EntityFixture
         | Trait::EntityIdKind
@@ -76,4 +63,21 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
 
         _ => None,
     }
+}
+
+///
+/// Imp
+///
+
+pub trait Imp<N: MacroNode> {
+    fn tokens(node: &N, t: Trait) -> Option<TokenStream>;
+}
+
+///
+/// ImpFn
+/// for breaking down traits even further
+///
+
+pub trait ImpFn<N: MacroNode> {
+    fn tokens(node: &N) -> TokenStream;
 }

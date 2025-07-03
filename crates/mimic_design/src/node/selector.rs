@@ -1,9 +1,8 @@
 use crate::{
     helper::{quote_one, quote_slice, to_path, to_str_lit},
-    imp::{self, Imp},
     node::{Arg, Def, MacroNode, Node, TraitNode, TraitTokens},
     schema::Schemable,
-    traits::{Trait, Traits},
+    traits::{self, Trait, Traits},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -79,7 +78,6 @@ impl Schemable for Selector {
 impl TraitNode for Selector {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = Traits::default();
-        traits.add(Trait::Into);
 
         // add default if needed
         if self.variants.iter().any(|v| v.default) {
@@ -90,11 +88,11 @@ impl TraitNode for Selector {
     }
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
-        match t {
-            Trait::Into => imp::IntoTrait::tokens(self, t),
+        traits::any(self, t)
+    }
 
-            _ => imp::any(self, t),
-        }
+    fn custom_impl(&self) -> Option<TokenStream> {
+        crate::node::imp::selector::tokens(self)
     }
 }
 

@@ -8,6 +8,7 @@ mod entity_id;
 mod r#enum;
 mod enum_value;
 mod field;
+mod imp;
 mod item;
 mod list;
 mod map;
@@ -45,7 +46,6 @@ pub use self::r#type::*;
 pub use self::validator::*;
 pub use self::value::*;
 
-use crate::traits::Trait;
 use proc_macro2::TokenStream;
 use quote::quote;
 
@@ -73,15 +73,15 @@ pub trait MacroNode {
 /// TraitNode
 ///
 
-pub struct TraitTokens {
+struct TraitTokens {
     pub derive: TokenStream,
     pub impls: TokenStream,
 }
 
-pub trait TraitNode: MacroNode {
+trait TraitNode: MacroNode {
     // traits
     // returns the list of traits for this type
-    fn traits(&self) -> Vec<Trait>;
+    fn traits(&self) -> Vec<crate::traits::Trait>;
 
     // trait_tokens
     fn trait_tokens(&self) -> TraitTokens {
@@ -113,6 +113,11 @@ pub trait TraitNode: MacroNode {
             }
         }
 
+        // custom impls
+        if let Some(custom) = self.custom_impl() {
+            impls.extend(custom);
+        }
+
         // derive
         let mut derive = if derived_traits.is_empty() {
             quote!()
@@ -126,14 +131,19 @@ pub trait TraitNode: MacroNode {
         TraitTokens { derive, impls }
     }
 
+    // custom_impl
+    fn custom_impl(&self) -> Option<TokenStream> {
+        None
+    }
+
     // map_trait
     // if None is returned it means that this trait should be derived
     // otherwise it's the code for the implementation
-    fn map_trait(&self, t: Trait) -> Option<TokenStream>;
+    fn map_trait(&self, t: crate::traits::Trait) -> Option<TokenStream>;
 
     // map_attribute
     // extra attributes for the derive
-    fn map_attribute(&self, _: Trait) -> Option<TokenStream> {
+    fn map_attribute(&self, _: crate::traits::Trait) -> Option<TokenStream> {
         None
     }
 }

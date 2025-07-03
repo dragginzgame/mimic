@@ -1,6 +1,6 @@
 // re-exports of other traits
 // for the standard traits::X pattern
-pub use icu::ic::{candid::CandidType, structures::storable::Storable};
+pub use icu::ic::structures::storable::Storable;
 pub use num_traits::{FromPrimitive as NumFromPrimitive, NumCast, ToPrimitive as NumToPrimitive};
 pub use serde::{Deserialize, Serialize, de::DeserializeOwned};
 pub use std::{
@@ -73,13 +73,11 @@ impl<T> Kind for T where T: Path {}
 ///
 
 pub trait TypeKind:
-    Kind + CandidType + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq
+    Kind + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq
+//  + TryFrom<Self::View>
+//  + TryInto<Self::View>
 {
-}
-
-impl<T> TypeKind for T where
-    T: Kind + CandidType + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq
-{
+    type View;
 }
 
 ///
@@ -277,10 +275,6 @@ pub trait ValidatorString {
         Ok(())
     }
 }
-
-///
-/// TYPE TRAITS
-///
 
 ///
 /// FieldSearchable

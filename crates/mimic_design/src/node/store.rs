@@ -1,9 +1,8 @@
 use crate::{
     helper::{quote_one, to_path, to_str_lit},
-    imp,
     node::{Def, MacroNode, Node, TraitNode, TraitTokens},
     schema::{BStoreType, Schemable},
-    traits::{Trait, Traits},
+    traits::{self, Trait, Traits},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -80,6 +79,6 @@ impl TraitNode for Store {
     }
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
-        imp::any(self, t)
+        traits::any(self, t)
     }
 }

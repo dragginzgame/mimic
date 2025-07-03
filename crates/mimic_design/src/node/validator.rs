@@ -1,8 +1,7 @@
 use crate::{
-    imp,
     node::{Def, MacroNode, Node, TraitNode, TraitTokens},
     schema::Schemable,
-    traits::{Trait, Traits},
+    traits::{self, Trait, Traits},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -69,6 +68,6 @@ impl TraitNode for Validator {
     }
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
-        imp::any(self, t)
+        traits::any(self, t)
     }
 }

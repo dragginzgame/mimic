@@ -1,9 +1,8 @@
 use crate::{
     helper::{quote_one, quote_slice, to_str_lit},
-    imp::{self, Imp},
     node::{ArgNumber, Def, MacroNode, Node, TraitNode, TraitTokens, Type},
     schema::Schemable,
-    traits::{Trait, Traits},
+    traits::{self, Imp, Trait, Traits},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -102,9 +101,9 @@ impl TraitNode for EnumValue {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::EnumValueKind => imp::EnumValueTrait::tokens(self, t),
+            Trait::EnumValueKind => traits::EnumValueTrait::tokens(self, t),
 
-            _ => imp::any(self, t),
+            _ => traits::any(self, t),
         }
     }
 }

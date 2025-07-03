@@ -5,6 +5,8 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.6.0] - View Layer
+
 ## [0.5.5]
 - IndexValue types (DataKey, IndexKey) are now Copy, so no Text keys
 - Every EntityKind has a PrimaryKey type [IndexValue; N].  Single PrimaryKeys can be flattened to use as an IndexValue

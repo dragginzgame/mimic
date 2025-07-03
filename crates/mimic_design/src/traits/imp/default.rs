@@ -1,7 +1,9 @@
 use crate::{
-    imp::{Imp, Implementor},
     node::{Arg, Entity, Field, Newtype, Record},
-    traits::Trait,
+    traits::{
+        Trait,
+        imp::{Imp, Implementor},
+    },
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};

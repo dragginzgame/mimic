@@ -1,13 +1,12 @@
 use crate::{
     helper::quote_option,
-    imp::{self, Imp},
-    node::{Arg, Def, Item, MacroNode, Node, Trait, TraitNode, TraitTokens, Type},
+    node::{Arg, Def, Item, MacroNode, Node, TraitNode, TraitTokens, Type},
     schema::{BPrimitive, Schemable},
-    traits::Traits,
+    traits::{self, Imp, Trait, Traits},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
+use quote::{ToTokens, format_ident, quote};
 
 ///
 /// Newtype
@@ -68,7 +67,6 @@ impl TraitNode for Newtype {
             Trait::Default,
             Trait::Deref,
             Trait::DerefMut,
-            Trait::From,
             Trait::Inner,
         ]);
 
@@ -114,18 +112,21 @@ impl TraitNode for Newtype {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::Default if self.default.is_some() => imp::DefaultTrait::tokens(self, t),
-            Trait::FieldValue => imp::FieldValueTrait::tokens(self, t),
-            Trait::From => imp::FromTrait::tokens(self, t),
-            Trait::Inner => imp::InnerTrait::tokens(self, t),
-            Trait::NumCast => imp::NumCastTrait::tokens(self, t),
-            Trait::NumToPrimitive => imp::NumToPrimitiveTrait::tokens(self, t),
-            Trait::NumFromPrimitive => imp::NumFromPrimitiveTrait::tokens(self, t),
-            Trait::ValidateAuto => imp::ValidateAutoTrait::tokens(self, t),
-            Trait::Visitable => imp::VisitableTrait::tokens(self, t),
+            Trait::Default if self.default.is_some() => traits::DefaultTrait::tokens(self, t),
+            Trait::FieldValue => traits::FieldValueTrait::tokens(self, t),
+            Trait::Inner => traits::InnerTrait::tokens(self, t),
+            Trait::NumCast => traits::NumCastTrait::tokens(self, t),
+            Trait::NumToPrimitive => traits::NumToPrimitiveTrait::tokens(self, t),
+            Trait::NumFromPrimitive => traits::NumFromPrimitiveTrait::tokens(self, t),
+            Trait::ValidateAuto => traits::ValidateAutoTrait::tokens(self, t),
+            Trait::Visitable => traits::VisitableTrait::tokens(self, t),
 
-            _ => imp::any(self, t),
+            _ => traits::any(self, t),
         }
+    }
+
+    fn custom_impl(&self) -> Option<TokenStream> {
+        crate::node::imp::newtype::tokens(self)
     }
 }
 
@@ -152,8 +153,15 @@ impl ToTokens for Newtype {
         let Def { ident, .. } = &self.def;
         let item = &self.item;
 
+        // view
+        let view_ident = format_ident!("{}_View", ident);
+        let view_item = quote!(u8);
+
         let q = quote! {
             pub struct #ident(#item);
+
+            #[derive(CandidType)]
+            pub struct #view_ident = #view_item;
         };
 
         tokens.extend(q);

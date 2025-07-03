@@ -1,7 +1,6 @@
 use crate::{
-    imp::{self, Imp},
     node::{Def, MacroNode, Node, TraitNode, TraitTokens},
-    traits::{Trait, Traits},
+    traits::{self, Trait, Traits},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -58,17 +57,17 @@ impl MacroNode for EntityId {
 impl TraitNode for EntityId {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
-        traits.extend(vec![Trait::Copy, Trait::EntityIdKind, Trait::Into]);
+        traits.extend(vec![Trait::Copy, Trait::EntityIdKind]);
 
         traits.list()
     }
 
-    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
-        match t {
-            Trait::Into => imp::IntoTrait::tokens(self, t),
+    fn custom_impl(&self) -> Option<TokenStream> {
+        crate::node::imp::entity_id::tokens(self)
+    }
 
-            _ => imp::any(self, t),
-        }
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+        traits::any(self, t)
     }
 
     fn map_attribute(&self, t: Trait) -> Option<TokenStream> {
