@@ -1,12 +1,13 @@
 use crate::{
     helper::quote_option,
-    node::{Arg, Def, Item, MacroNode, Node, TraitNode, TraitTokens, Type},
-    schema::{BPrimitive, Schemable},
-    traits::{self, Imp, Trait, Traits},
+    node::{Arg, Def, Item, Type},
+    node_traits::{self, Imp, Trait, Traits},
+    traits::{MacroNode, SchemaNode},
+    types::BPrimitive,
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::{ToTokens, format_ident, quote};
+use quote::{ToTokens, quote};
 
 ///
 /// Newtype
@@ -30,26 +31,21 @@ pub struct Newtype {
     pub traits: Traits,
 }
 
-impl Node for Newtype {
-    fn expand(&self) -> TokenStream {
-        let TraitTokens { derive, impls } = self.trait_tokens();
+impl ToTokens for Newtype {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Def { ident, .. } = &self.def;
+        let item = &self.item;
 
-        // quote
-        let schema = self.ctor_schema();
-        let q = quote! {
-            #schema
-            #derive
-            #self
-            #impls
-        };
+        // view
+        let view_ident = self.def.view_ident();
+        let view_type = self.primitive.as_type();
 
-        // debug
-        if self.def.debug {
-            let s = q.to_string();
-            return quote!(compile_error!(#s););
-        }
+        tokens.extend(quote! {
+            pub struct #ident(#item);
 
-        q
+            #[derive(CandidType)]
+            pub struct #view_ident(#view_type);
+        });
     }
 }
 
@@ -57,9 +53,7 @@ impl MacroNode for Newtype {
     fn def(&self) -> &Def {
         &self.def
     }
-}
 
-impl TraitNode for Newtype {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
@@ -112,17 +106,17 @@ impl TraitNode for Newtype {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::Default if self.default.is_some() => traits::DefaultTrait::tokens(self, t),
-            Trait::FieldValue => traits::FieldValueTrait::tokens(self, t),
-            Trait::Inner => traits::InnerTrait::tokens(self, t),
-            Trait::NumCast => traits::NumCastTrait::tokens(self, t),
-            Trait::NumToPrimitive => traits::NumToPrimitiveTrait::tokens(self, t),
-            Trait::NumFromPrimitive => traits::NumFromPrimitiveTrait::tokens(self, t),
-            Trait::TypeView => traits::TypeViewTrait::tokens(self, t),
-            Trait::ValidateAuto => traits::ValidateAutoTrait::tokens(self, t),
-            Trait::Visitable => traits::VisitableTrait::tokens(self, t),
+            Trait::Default if self.default.is_some() => node_traits::DefaultTrait::tokens(self, t),
+            Trait::FieldValue => node_traits::FieldValueTrait::tokens(self, t),
+            Trait::Inner => node_traits::InnerTrait::tokens(self, t),
+            Trait::NumCast => node_traits::NumCastTrait::tokens(self, t),
+            Trait::NumToPrimitive => node_traits::NumToPrimitiveTrait::tokens(self, t),
+            Trait::NumFromPrimitive => node_traits::NumFromPrimitiveTrait::tokens(self, t),
+            Trait::TypeView => node_traits::TypeViewTrait::tokens(self, t),
+            Trait::ValidateAuto => node_traits::ValidateAutoTrait::tokens(self, t),
+            Trait::Visitable => node_traits::VisitableTrait::tokens(self, t),
 
-            _ => traits::any(self, t),
+            _ => node_traits::any(self, t),
         }
     }
 
@@ -131,7 +125,7 @@ impl TraitNode for Newtype {
     }
 }
 
-impl Schemable for Newtype {
+impl SchemaNode for Newtype {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let item = self.item.schema();
@@ -146,26 +140,5 @@ impl Schemable for Newtype {
                 ty: #ty,
             })
         }
-    }
-}
-
-impl ToTokens for Newtype {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
-        let item = &self.item;
-
-        // view
-        let view_ident = format_ident!("{}_View", ident);
-        let view_type = self.primitive.as_type();
-        let view_item = quote!(#view_type);
-
-        let q = quote! {
-            pub struct #ident(#item);
-
-            #[derive(CandidType)]
-            pub struct #view_ident(#view_item);
-        };
-
-        tokens.extend(q);
     }
 }

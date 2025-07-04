@@ -3,7 +3,7 @@ pub mod self_;
 
 use crate::{
     node::{Entity, Enum, List, Map, Newtype, Record, Set},
-    traits::{Imp, ImpFn, Implementor, Trait},
+    node_traits::{Imp, ImpFn, Implementor, Trait},
 };
 use children::ValidateChildrenFunction;
 use proc_macro2::TokenStream;

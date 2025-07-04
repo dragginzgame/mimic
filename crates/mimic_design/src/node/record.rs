@@ -1,12 +1,11 @@
 use crate::{
-    helper::quote_slice,
-    node::{Def, Field, MacroNode, Node, TraitNode, TraitTokens, Type},
-    schema::Schemable,
-    traits::{self, Imp, Trait, Traits},
+    node::{Def, FieldList, Type},
+    node_traits::{self, Imp, Trait, Traits},
+    traits::{MacroNode, SchemaNode},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{ToTokens, quote};
 
 ///
 /// Record
@@ -17,8 +16,8 @@ pub struct Record {
     #[darling(default, skip)]
     pub def: Def,
 
-    #[darling(multiple, rename = "field")]
-    pub fields: Vec<Field>,
+    #[darling(default)]
+    pub fields: FieldList,
 
     #[darling(default)]
     pub traits: Traits,
@@ -27,37 +26,23 @@ pub struct Record {
     pub ty: Type,
 }
 
-impl Record {
-    // has_default
-    pub fn has_default(&self) -> bool {
-        self.fields.iter().any(|f| f.default.is_some())
-    }
-}
-
-impl Node for Record {
-    fn expand(&self) -> TokenStream {
+impl ToTokens for Record {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
         let Self { fields, .. } = self;
         let Def { ident, .. } = &self.def;
-        let TraitTokens { derive, impls } = self.trait_tokens();
+
+        // view
+        let view_ident = &self.def.view_ident();
+        let view = self.fields.type_view_fields(view_ident);
 
         // quote
-        let schema = self.ctor_schema();
-        let q = quote! {
-            #schema
-            #derive
+        tokens.extend(quote! {
             pub struct #ident {
-                #(#fields,)*
+                #fields
             }
-            #impls
-        };
 
-        // debug
-        if self.def.debug {
-            let s = q.to_string();
-            return quote!(compile_error!(#s););
-        }
-
-        q
+            #view
+        });
     }
 }
 
@@ -65,25 +50,7 @@ impl MacroNode for Record {
     fn def(&self) -> &Def {
         &self.def
     }
-}
 
-impl Schemable for Record {
-    fn schema(&self) -> TokenStream {
-        let def = self.def.schema();
-        let fields = quote_slice(&self.fields, Field::schema);
-        let ty = self.ty.schema();
-
-        quote! {
-            ::mimic::schema::node::SchemaNode::Record(::mimic::schema::node::Record {
-                def: #def,
-                fields: #fields,
-                ty: #ty,
-            })
-        }
-    }
-}
-
-impl TraitNode for Record {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
@@ -93,11 +60,14 @@ impl TraitNode for Record {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::Default if self.has_default() => traits::DefaultTrait::tokens(self, t),
-            Trait::ValidateAuto => traits::ValidateAutoTrait::tokens(self, t),
-            Trait::Visitable => traits::VisitableTrait::tokens(self, t),
+            Trait::Default if self.fields.has_default() => {
+                node_traits::DefaultTrait::tokens(self, t)
+            }
+            Trait::TypeView => node_traits::TypeViewTrait::tokens(self, t),
+            Trait::ValidateAuto => node_traits::ValidateAutoTrait::tokens(self, t),
+            Trait::Visitable => node_traits::VisitableTrait::tokens(self, t),
 
-            _ => traits::any(self, t),
+            _ => node_traits::any(self, t),
         }
     }
 
@@ -105,6 +75,22 @@ impl TraitNode for Record {
         match t {
             Trait::Default => Trait::Default.derive_attribute(),
             _ => None,
+        }
+    }
+}
+
+impl SchemaNode for Record {
+    fn schema(&self) -> TokenStream {
+        let def = self.def.schema();
+        let fields = self.fields.schema();
+        let ty = self.ty.schema();
+
+        quote! {
+            ::mimic::schema::node::SchemaNode::Record(::mimic::schema::node::Record {
+                def: #def,
+                fields: #fields,
+                ty: #ty,
+            })
         }
     }
 }

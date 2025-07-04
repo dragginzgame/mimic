@@ -182,11 +182,43 @@ impl<T: FieldValue + FieldSearchable + FieldSortable> FieldKind for T {}
 pub trait TypeView {
     type View;
 
-    fn to_view(&self) -> Result<Self::View, MimicError>;
-    fn from_view(view: Self::View) -> Result<Self, MimicError>
-    where
-        Self: Sized;
+    fn to_view(&self) -> Self::View;
+    fn from_view(view: Self::View) -> Self;
 }
+
+impl TypeView for String {
+    type View = String;
+
+    fn to_view(&self) -> Self::View {
+        self.clone()
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        view
+    }
+}
+
+// impl_primitive_type_view
+#[macro_export]
+macro_rules! impl_primitive_type_view {
+    ($($type:ty),*) => {
+        $(
+            impl TypeView for $type {
+                type View = $type;
+
+                fn to_view(&self) -> Self::View {
+                    *self
+                }
+
+                fn from_view(view: Self::View) -> Self {
+                    view
+                }
+            }
+        )*
+    };
+}
+
+impl_primitive_type_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
 
 ///
 /// Path

@@ -1,6 +1,6 @@
 use crate::{
     helper::{as_tokens, quote_one, quote_option, to_str_lit},
-    schema::Schemable,
+    traits::SchemaNode,
 };
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -38,7 +38,7 @@ impl Default for Def {
     }
 }
 
-impl Schemable for Def {
+impl SchemaNode for Def {
     fn schema(&self) -> TokenStream {
         let comments = quote_option(self.comments.as_ref(), as_tokens);
         let ident = quote_one(&self.ident, to_str_lit);

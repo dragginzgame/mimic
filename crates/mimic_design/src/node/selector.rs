@@ -1,12 +1,12 @@
 use crate::{
     helper::{quote_one, quote_slice, to_path, to_str_lit},
-    node::{Arg, Def, MacroNode, Node, TraitNode, TraitTokens},
-    schema::Schemable,
-    traits::{self, Trait, Traits},
+    node::{Arg, Def},
+    node_traits::{self, Trait, Traits},
+    traits::{MacroNode, SchemaNode},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{ToTokens, quote};
 use syn::{Ident, Path};
 
 ///
@@ -24,30 +24,17 @@ pub struct Selector {
     pub variants: Vec<SelectorVariant>,
 }
 
-impl Node for Selector {
-    fn expand(&self) -> TokenStream {
+impl ToTokens for Selector {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
         let Def { ident, .. } = &self.def;
-        let TraitTokens { derive, impls } = self.trait_tokens();
 
         // quote
-        let schema = self.ctor_schema();
-        let variants = self.variants.iter().map(Node::expand);
-        let q = quote! {
-            #schema
-            #derive
+        let variants = &self.variants;
+        tokens.extend(quote! {
             pub enum #ident {
                 #(#variants,)*
             }
-            #impls
-        };
-
-        // debug
-        if self.def.debug {
-            let s = q.to_string();
-            return quote!(compile_error!(#s););
-        }
-
-        q
+        });
     }
 }
 
@@ -55,9 +42,28 @@ impl MacroNode for Selector {
     fn def(&self) -> &Def {
         &self.def
     }
+
+    fn traits(&self) -> Vec<Trait> {
+        let mut traits = Traits::default();
+
+        // add default if needed
+        if self.variants.iter().any(|v| v.default) {
+            traits.add(Trait::Default);
+        }
+
+        traits.list()
+    }
+
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+        node_traits::any(self, t)
+    }
+
+    fn custom_impl(&self) -> Option<TokenStream> {
+        crate::node::imp::selector::tokens(self)
+    }
 }
 
-impl Schemable for Selector {
+impl SchemaNode for Selector {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let target = quote_one(&self.target, to_path);
@@ -75,27 +81,6 @@ impl Schemable for Selector {
     }
 }
 
-impl TraitNode for Selector {
-    fn traits(&self) -> Vec<Trait> {
-        let mut traits = Traits::default();
-
-        // add default if needed
-        if self.variants.iter().any(|v| v.default) {
-            traits.add(Trait::Default);
-        }
-
-        traits.list()
-    }
-
-    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
-        traits::any(self, t)
-    }
-
-    fn custom_impl(&self) -> Option<TokenStream> {
-        crate::node::imp::selector::tokens(self)
-    }
-}
-
 ///
 /// SelectorVariant
 ///
@@ -109,24 +94,20 @@ pub struct SelectorVariant {
     pub default: bool,
 }
 
-impl Node for SelectorVariant {
-    fn expand(&self) -> TokenStream {
+impl ToTokens for SelectorVariant {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
         let name = &self.name;
-        let mut q = quote!();
 
         // default
         if self.default {
-            q.extend(quote!(#[default]));
+            tokens.extend(quote!(#[default]));
         }
 
-        // quote
-        q.extend(quote! (#name));
-
-        q
+        tokens.extend(quote! (#name));
     }
 }
 
-impl Schemable for SelectorVariant {
+impl SchemaNode for SelectorVariant {
     fn schema(&self) -> TokenStream {
         let name = quote_one(&self.name, to_str_lit);
         let value = self.value.schema();

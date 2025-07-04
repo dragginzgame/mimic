@@ -3,7 +3,7 @@ use crate::{
     MimicError,
     core::{db::EntityKey, traits::EntityKind},
     db::{
-        DataError,
+        DbError,
         response::{EntityRow, ResponseError},
     },
 };
@@ -72,7 +72,7 @@ where
             .next()
             .map(|row| row.entry.entity)
             .ok_or(ResponseError::EmptyCollection)
-            .map_err(DataError::from)?;
+            .map_err(DbError::from)?;
 
         Ok(res)
     }

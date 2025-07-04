@@ -2,10 +2,11 @@
 
 mod helper;
 mod node;
-mod schema;
+mod node_traits;
 mod traits;
+mod types;
 
-use crate::node::{Def, Node};
+use crate::{node::Def, traits::MacroNode};
 use darling::{Error as DarlingError, FromMeta, ast::NestedMeta};
 use proc_macro2::Span;
 use quote::quote;
@@ -50,7 +51,7 @@ macro_rules! macro_node {
                     };
 
                     // expand tokens
-                    node.expand().into()
+                    MacroNode::macro_tokens(&node).into()
                 }
                 Err(e) => proc_macro::TokenStream::from(DarlingError::from(e).write_errors()),
             }

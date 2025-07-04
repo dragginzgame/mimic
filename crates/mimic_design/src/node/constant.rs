@@ -1,10 +1,11 @@
 use crate::{
-    node::{Arg, Def, MacroNode, Node},
-    schema::{BConstantType, Schemable},
+    node::{Arg, Def},
+    traits::{MacroNode, SchemaNode},
+    types::BConstantType,
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{ToTokens, quote};
 
 ///
 /// Constant
@@ -19,26 +20,17 @@ pub struct Constant {
     pub value: Arg,
 }
 
-impl Node for Constant {
-    fn expand(&self) -> TokenStream {
+impl ToTokens for Constant {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
         let Def { ident, .. } = &self.def;
 
         // quote
-        let schema = self.ctor_schema();
         let ty = &self.ty.as_type();
         let value = &self.value;
-        let q = quote! {
-            #schema
+
+        tokens.extend(quote! {
             pub const #ident: #ty = #value;
-        };
-
-        // debug
-        if self.def.debug {
-            let s = q.to_string();
-            return quote!(compile_error!(#s););
-        }
-
-        q
+        });
     }
 }
 
@@ -48,7 +40,7 @@ impl MacroNode for Constant {
     }
 }
 
-impl Schemable for Constant {
+impl SchemaNode for Constant {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let ty = &self.ty;

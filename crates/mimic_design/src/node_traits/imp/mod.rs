@@ -20,9 +20,9 @@ pub use type_view::*;
 pub use validate::*;
 pub use visitable::*;
 
-use crate::{node::MacroNode, traits::Trait};
+use crate::{node_traits::Trait, traits::MacroNode};
 use proc_macro2::TokenStream;
-use quote::{ToTokens, format_ident, quote};
+use quote::{ToTokens, quote};
 
 ///
 /// any

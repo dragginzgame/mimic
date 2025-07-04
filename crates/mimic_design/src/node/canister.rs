@@ -1,11 +1,11 @@
 use crate::{
-    node::{Def, MacroNode, Node, TraitNode, TraitTokens},
-    schema::Schemable,
-    traits::{self, Trait, Traits},
+    node::Def,
+    node_traits::{self, Trait, Traits},
+    traits::{MacroNode, SchemaNode},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{ToTokens, quote};
 
 ///
 /// Canister
@@ -18,26 +18,13 @@ pub struct Canister {
     pub def: Def,
 }
 
-impl Node for Canister {
-    fn expand(&self) -> TokenStream {
+impl ToTokens for Canister {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
         let Def { ident, .. } = &self.def();
-        let TraitTokens { impls, .. } = self.trait_tokens();
 
-        // quote
-        let schema = self.ctor_schema();
-        let q = quote! {
-            #schema
+        tokens.extend(quote! {
             pub struct #ident {}
-            #impls
-        };
-
-        // debug
-        if self.def.debug {
-            let s = q.to_string();
-            return quote!(compile_error!(#s););
-        }
-
-        q
+        });
     }
 }
 
@@ -45,9 +32,17 @@ impl MacroNode for Canister {
     fn def(&self) -> &Def {
         &self.def
     }
+
+    fn traits(&self) -> Vec<Trait> {
+        Traits::default().list()
+    }
+
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+        node_traits::any(self, t)
+    }
 }
 
-impl Schemable for Canister {
+impl SchemaNode for Canister {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
 
@@ -56,15 +51,5 @@ impl Schemable for Canister {
                 def: #def,
             })
         }
-    }
-}
-
-impl TraitNode for Canister {
-    fn traits(&self) -> Vec<Trait> {
-        Traits::default().list()
-    }
-
-    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
-        traits::any(self, t)
     }
 }

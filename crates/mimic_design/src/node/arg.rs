@@ -1,6 +1,6 @@
 use crate::{
     helper::{quote_one, quote_slice, to_str_lit},
-    schema::Schemable,
+    traits::SchemaNode,
 };
 use darling::{Error as DarlingError, FromMeta, ast::NestedMeta};
 use derive_more::Deref;
@@ -57,7 +57,7 @@ impl FromMeta for Arg {
     }
 }
 
-impl Schemable for Arg {
+impl SchemaNode for Arg {
     fn schema(&self) -> TokenStream {
         match self {
             Self::Bool(v) => quote!(::mimic::schema::node::Arg::Bool(#v)),
@@ -108,7 +108,7 @@ impl FromMeta for Args {
     }
 }
 
-impl Schemable for Args {
+impl SchemaNode for Args {
     fn schema(&self) -> TokenStream {
         let args = quote_slice(&self.0, Arg::schema);
 
@@ -357,7 +357,7 @@ impl PartialEq for ArgNumber {
     }
 }
 
-impl Schemable for ArgNumber {
+impl SchemaNode for ArgNumber {
     fn schema(&self) -> TokenStream {
         match self {
             Self::Float32(v) => quote!(::mimic::schema::node::ArgNumber::Float32(#v)),
@@ -376,20 +376,12 @@ impl Schemable for ArgNumber {
 
 impl ToTokens for ArgNumber {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let q = match self {
-            Self::Float32(v) => quote!(#v),
-            Self::Float64(v) => quote!(#v),
-            Self::Int8(v) => quote!(#v),
-            Self::Int16(v) => quote!(#v),
-            Self::Int32(v) => quote!(#v),
-            Self::Int64(v) => quote!(#v),
-            Self::Nat8(v) => quote!(#v),
-            Self::Nat16(v) => quote!(#v),
-            Self::Nat32(v) => quote!(#v),
-            Self::Nat64(v) => quote!(#v),
-        };
+        let s = self.to_string();
+        let stream: TokenStream = s
+            .parse()
+            .expect("Failed to parse ArgNumber into TokenStream");
 
-        tokens.extend(q);
+        tokens.extend(stream);
     }
 }
 

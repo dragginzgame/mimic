@@ -1,4 +1,4 @@
-use crate::{node::Def, traits::Trait};
+use crate::{node::Def, node_traits::Trait};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use syn::Generics;

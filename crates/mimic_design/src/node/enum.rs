@@ -1,12 +1,12 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_str_lit},
-    node::{Def, MacroNode, Node, TraitNode, TraitTokens, Type, Value},
-    schema::Schemable,
-    traits::{self, Imp, Trait, Traits},
+    node::{Def, Type, Value},
+    node_traits::{self, Imp, Trait, Traits},
+    traits::{MacroNode, SchemaNode},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::{ToTokens, format_ident, quote};
 use syn::Ident;
 
 ///
@@ -38,30 +38,17 @@ impl Enum {
     }
 }
 
-impl Node for Enum {
-    fn expand(&self) -> TokenStream {
+impl ToTokens for Enum {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
         let Def { ident, .. } = &self.def;
-        let TraitTokens { derive, impls } = self.trait_tokens();
 
         // quote
-        let schema = self.ctor_schema();
-        let variants = self.variants.iter().map(Node::expand);
-        let q = quote! {
-            #schema
-            #derive
+        let variants = &self.variants;
+        tokens.extend(quote! {
             pub enum #ident {
                 #(#variants,)*
             }
-            #impls
-        };
-
-        // debug
-        if self.def.debug {
-            let s = q.to_string();
-            return quote!(compile_error!(#s););
-        }
-
-        q
+        });
     }
 }
 
@@ -69,9 +56,7 @@ impl MacroNode for Enum {
     fn def(&self) -> &Def {
         &self.def
     }
-}
 
-impl TraitNode for Enum {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
@@ -89,10 +74,11 @@ impl TraitNode for Enum {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::ValidateAuto => traits::ValidateAutoTrait::tokens(self, t),
-            Trait::Visitable => traits::VisitableTrait::tokens(self, t),
+            //     Trait::TypeView => node_traits::TypeViewTrait::tokens(self, t),
+            Trait::ValidateAuto => node_traits::ValidateAutoTrait::tokens(self, t),
+            Trait::Visitable => node_traits::VisitableTrait::tokens(self, t),
 
-            _ => traits::any(self, t),
+            _ => node_traits::any(self, t),
         }
     }
 
@@ -104,7 +90,7 @@ impl TraitNode for Enum {
     }
 }
 
-impl Schemable for Enum {
+impl SchemaNode for Enum {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let variants = quote_slice(&self.variants, EnumVariant::schema);
@@ -145,8 +131,8 @@ impl EnumVariant {
     }
 }
 
-impl Node for EnumVariant {
-    fn expand(&self) -> TokenStream {
+impl ToTokens for EnumVariant {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
         let mut q = quote!();
 
         // default
@@ -162,17 +148,15 @@ impl Node for EnumVariant {
         };
 
         // quote
-        q.extend(if let Some(value) = &self.value {
+        tokens.extend(if let Some(value) = &self.value {
             quote! (#name(#value))
         } else {
             quote! (#name)
         });
-
-        q
     }
 }
 
-impl Schemable for EnumVariant {
+impl SchemaNode for EnumVariant {
     fn schema(&self) -> TokenStream {
         let Self {
             default,

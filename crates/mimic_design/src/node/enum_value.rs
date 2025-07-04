@@ -1,12 +1,12 @@
 use crate::{
     helper::{quote_one, quote_slice, to_str_lit},
-    node::{ArgNumber, Def, MacroNode, Node, TraitNode, TraitTokens, Type},
-    schema::Schemable,
-    traits::{self, Imp, Trait, Traits},
+    node::{ArgNumber, Def, Type},
+    node_traits::{self, Imp, Trait, Traits},
+    traits::{MacroNode, SchemaNode},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::{ToTokens, format_ident, quote};
 use syn::Ident;
 
 ///
@@ -34,30 +34,17 @@ impl EnumValue {
     }
 }
 
-impl Node for EnumValue {
-    fn expand(&self) -> TokenStream {
+impl ToTokens for EnumValue {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
         let Def { ident, .. } = &self.def;
-        let TraitTokens { derive, impls } = self.trait_tokens();
+        let variants = &self.variants;
 
         // quote
-        let schema = self.ctor_schema();
-        let variants = self.variants.iter().map(Node::expand);
-        let q = quote! {
-            #schema
-            #derive
+        tokens.extend(quote! {
             pub enum #ident {
                 #(#variants,)*
             }
-            #impls
-        };
-
-        // debug
-        if self.def.debug {
-            let s = q.to_string();
-            return quote!(compile_error!(#s););
-        }
-
-        q
+        });
     }
 }
 
@@ -65,27 +52,7 @@ impl MacroNode for EnumValue {
     fn def(&self) -> &Def {
         &self.def
     }
-}
 
-impl Schemable for EnumValue {
-    fn schema(&self) -> TokenStream {
-        let def = &self.def.schema();
-        let variants = quote_slice(&self.variants, EnumValueVariant::schema);
-        let ty = &self.ty.schema();
-
-        quote! {
-            ::mimic::schema::node::SchemaNode::EnumValue(
-                ::mimic::schema::node::EnumValue{
-                    def: #def,
-                    variants: #variants,
-                    ty: #ty,
-                }
-            )
-        }
-    }
-}
-
-impl TraitNode for EnumValue {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
@@ -101,9 +68,27 @@ impl TraitNode for EnumValue {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::EnumValueKind => traits::EnumValueTrait::tokens(self, t),
+            Trait::EnumValueKind => node_traits::EnumValueTrait::tokens(self, t),
 
-            _ => traits::any(self, t),
+            _ => node_traits::any(self, t),
+        }
+    }
+}
+
+impl SchemaNode for EnumValue {
+    fn schema(&self) -> TokenStream {
+        let def = &self.def.schema();
+        let variants = quote_slice(&self.variants, EnumValueVariant::schema);
+        let ty = &self.ty.schema();
+
+        quote! {
+            ::mimic::schema::node::SchemaNode::EnumValue(
+                ::mimic::schema::node::EnumValue{
+                    def: #def,
+                    variants: #variants,
+                    ty: #ty,
+                }
+            )
         }
     }
 }
@@ -132,13 +117,11 @@ impl EnumValueVariant {
     }
 }
 
-impl Node for EnumValueVariant {
-    fn expand(&self) -> TokenStream {
-        let mut q = quote!();
-
+impl ToTokens for EnumValueVariant {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
         // default
         if self.default {
-            q.extend(quote!(#[default]));
+            tokens.extend(quote!(#[default]));
         }
 
         // name
@@ -147,15 +130,11 @@ impl Node for EnumValueVariant {
         } else {
             self.name.clone()
         };
-
-        // quote
-        q.extend(quote! (#name));
-
-        q
+        tokens.extend(quote! (#name));
     }
 }
 
-impl Schemable for EnumValueVariant {
+impl SchemaNode for EnumValueVariant {
     fn schema(&self) -> TokenStream {
         let Self {
             default,

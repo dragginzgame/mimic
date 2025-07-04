@@ -5,19 +5,14 @@ use crate::design::{base::validator, prelude::*};
 ///
 
 #[record(
-    field(name = "r", value(item(prim = "Nat8"))),
-    field(name = "g", value(item(prim = "Nat8"))),
-    field(name = "b", value(item(prim = "Nat8"))),
+    fields(
+        field(name = "r", value(item(prim = "Nat8"))),
+        field(name = "g", value(item(prim = "Nat8"))),
+        field(name = "b", value(item(prim = "Nat8"))),
+    ),
     traits(add(Default))
 )]
 pub struct Rgb {}
-
-impl Rgb {
-    #[must_use]
-    pub const fn new(r: u8, g: u8, b: u8) -> Self {
-        Self { r, g, b }
-    }
-}
 
 impl From<&RgbHex> for Rgb {
     fn from(hex: &RgbHex) -> Self {
@@ -51,10 +46,12 @@ impl TryFrom<&str> for Rgb {
 ///
 
 #[record(
-    field(name = "r", value(item(prim = "Nat8"))),
-    field(name = "g", value(item(prim = "Nat8"))),
-    field(name = "b", value(item(prim = "Nat8"))),
-    field(name = "a", value(item(prim = "Nat8"))),
+    fields(
+        field(name = "r", value(item(prim = "Nat8"))),
+        field(name = "g", value(item(prim = "Nat8"))),
+        field(name = "b", value(item(prim = "Nat8"))),
+        field(name = "a", value(item(prim = "Nat8"))),
+    ),
     traits(add(Default))
 )]
 pub struct Rgba {}

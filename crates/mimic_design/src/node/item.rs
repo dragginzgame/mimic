@@ -1,7 +1,8 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_path},
     node::TypeValidator,
-    schema::{BPrimitive, Primitive, Schemable},
+    traits::SchemaNode,
+    types::{BPrimitive, Primitive},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -52,7 +53,7 @@ impl Item {
     }
 }
 
-impl Schemable for Item {
+impl SchemaNode for Item {
     fn schema(&self) -> TokenStream {
         let target = self.target().schema();
         let selector = quote_option(self.selector.as_ref(), to_path);
@@ -96,6 +97,10 @@ pub enum ItemTarget {
     Prim(BPrimitive),
 }
 
+impl ToTokens for ItemTarget {
+    fn to_tokens(&self, _: &mut proc_macro2::TokenStream) {}
+}
+
 impl ItemTarget {
     pub fn quoted_path(&self) -> TokenStream {
         match self {
@@ -109,7 +114,7 @@ impl ItemTarget {
     }
 }
 
-impl Schemable for ItemTarget {
+impl SchemaNode for ItemTarget {
     fn schema(&self) -> TokenStream {
         match self {
             Self::Is(path) => {

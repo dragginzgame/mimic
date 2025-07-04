@@ -1,7 +1,7 @@
 use crate::{
-    node::{Entity, Field, List, Map, Newtype, Record, Set, TypeValidator, Value},
-    schema::Cardinality,
-    traits::ImpFn,
+    node::{Entity, FieldList, List, Map, Newtype, Record, Set, TypeValidator, Value},
+    node_traits::ImpFn,
+    types::Cardinality,
 };
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -120,7 +120,7 @@ impl ImpFn<Set> for ValidateChildrenFunction {
 /// Helper Functions
 ///
 
-fn field_list(fields: &[Field]) -> Option<TokenStream> {
+fn field_list(fields: &FieldList) -> Option<TokenStream> {
     let field_validations: Vec<TokenStream> = fields
         .iter()
         .filter_map(|field| {

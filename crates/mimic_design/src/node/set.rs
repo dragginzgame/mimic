@@ -1,7 +1,7 @@
 use crate::{
-    node::{Def, Item, MacroNode, Node, TraitNode, TraitTokens, Type},
-    schema::Schemable,
-    traits::{self, Imp, Trait, Traits},
+    node::{Def, Item, Type},
+    node_traits::{self, Imp, Trait, Traits},
+    traits::{MacroNode, SchemaNode},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -25,26 +25,15 @@ pub struct Set {
     pub traits: Traits,
 }
 
-impl Node for Set {
-    fn expand(&self) -> TokenStream {
-        let TraitTokens { derive, impls } = self.trait_tokens();
+impl ToTokens for Set {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Def { ident, .. } = &self.def;
+        let item = &self.item;
 
         // quote
-        let schema = self.ctor_schema();
-        let q = quote! {
-            #schema
-            #derive
-            #self
-            #impls
-        };
-
-        // debug
-        if self.def.debug {
-            let s = q.to_string();
-            return quote!(compile_error!(#s););
-        }
-
-        q
+        tokens.extend(quote! {
+            pub struct #ident(::std::collections::HashSet<#item>);
+        });
     }
 }
 
@@ -52,9 +41,7 @@ impl MacroNode for Set {
     fn def(&self) -> &Def {
         &self.def
     }
-}
 
-impl TraitNode for Set {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
@@ -70,10 +57,10 @@ impl TraitNode for Set {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::ValidateAuto => traits::ValidateAutoTrait::tokens(self, t),
-            Trait::Visitable => traits::VisitableTrait::tokens(self, t),
+            Trait::ValidateAuto => node_traits::ValidateAutoTrait::tokens(self, t),
+            Trait::Visitable => node_traits::VisitableTrait::tokens(self, t),
 
-            _ => traits::any(self, t),
+            _ => node_traits::any(self, t),
         }
     }
 
@@ -82,7 +69,7 @@ impl TraitNode for Set {
     }
 }
 
-impl Schemable for Set {
+impl SchemaNode for Set {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let item = self.item.schema();
@@ -95,19 +82,5 @@ impl Schemable for Set {
                 ty: #ty,
             })
         }
-    }
-}
-
-impl ToTokens for Set {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
-        let item = &self.item;
-
-        // quote
-        let q = quote! {
-            pub struct #ident(::std::collections::HashSet<#item>);
-        };
-
-        tokens.extend(q);
     }
 }

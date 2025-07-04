@@ -1,7 +1,7 @@
 use crate::{
-    node::{Def, Item, MacroNode, Node, TraitNode, TraitTokens, Type, Value},
-    schema::Schemable,
-    traits::{self, Imp, Trait, Traits},
+    node::{Def, Item, Type, Value},
+    node_traits::{self, Imp, Trait, Traits},
+    traits::{MacroNode, SchemaNode},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -26,26 +26,15 @@ pub struct Map {
     pub traits: Traits,
 }
 
-impl Node for Map {
-    fn expand(&self) -> TokenStream {
-        let TraitTokens { derive, impls } = self.trait_tokens();
+impl ToTokens for Map {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Def { ident, .. } = &self.def;
+        let key = &self.key;
+        let value = &self.value;
 
-        // quote
-        let schema = self.ctor_schema();
-        let q = quote! {
-            #schema
-            #derive
-            #self
-            #impls
-        };
-
-        // debug
-        if self.def.debug {
-            let s = q.to_string();
-            return quote!(compile_error!(#s););
-        }
-
-        q
+        tokens.extend(quote! {
+            pub struct #ident(::std::collections::HashMap<#key, #value>);
+        });
     }
 }
 
@@ -53,9 +42,7 @@ impl MacroNode for Map {
     fn def(&self) -> &Def {
         &self.def
     }
-}
 
-impl TraitNode for Map {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
@@ -71,10 +58,10 @@ impl TraitNode for Map {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::ValidateAuto => traits::ValidateAutoTrait::tokens(self, t),
-            Trait::Visitable => traits::VisitableTrait::tokens(self, t),
+            Trait::ValidateAuto => node_traits::ValidateAutoTrait::tokens(self, t),
+            Trait::Visitable => node_traits::VisitableTrait::tokens(self, t),
 
-            _ => traits::any(self, t),
+            _ => node_traits::any(self, t),
         }
     }
 
@@ -83,7 +70,7 @@ impl TraitNode for Map {
     }
 }
 
-impl Schemable for Map {
+impl SchemaNode for Map {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let key = self.key.schema();
@@ -98,20 +85,5 @@ impl Schemable for Map {
                 ty: #ty,
             })
         }
-    }
-}
-
-impl ToTokens for Map {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
-        let key = &self.key;
-        let value = &self.value;
-
-        // quote
-        let q = quote! {
-            pub struct #ident(::std::collections::HashMap<#key, #value>);
-        };
-
-        tokens.extend(q);
     }
 }

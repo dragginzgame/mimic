@@ -1,7 +1,7 @@
 use crate::{
-    node::{Entity, Enum, EnumVariant, Field, List, Map, Newtype, Record, Set, Tuple, Value},
-    schema::Cardinality,
-    traits::{Imp, Implementor, Trait},
+    node::{Entity, Enum, EnumVariant, FieldList, List, Map, Newtype, Record, Set, Tuple, Value},
+    node_traits::{Imp, Implementor, Trait},
+    types::Cardinality,
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -185,7 +185,7 @@ impl Imp<Tuple> for VisitableTrait {
 //
 
 // field_list
-pub fn field_list(fields: &[Field]) -> TokenStream {
+pub fn field_list(fields: &FieldList) -> TokenStream {
     let mut inner = quote!();
     for f in fields {
         let var = format!("self.{}", f.name);

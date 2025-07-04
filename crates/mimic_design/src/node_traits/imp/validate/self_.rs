@@ -1,4 +1,4 @@
-use crate::{node::Enum, traits::ImpFn};
+use crate::{node::Enum, node_traits::ImpFn};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 

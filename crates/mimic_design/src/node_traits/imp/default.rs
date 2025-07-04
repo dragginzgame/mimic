@@ -1,6 +1,6 @@
 use crate::{
-    node::{Arg, Entity, Field, Newtype, Record},
-    traits::{
+    node::{Arg, Entity, FieldList, Newtype, Record},
+    node_traits::{
         Trait,
         imp::{Imp, Implementor},
     },
@@ -45,7 +45,7 @@ impl Imp<Record> for DefaultTrait {
 }
 
 // field_list
-fn field_list(fields: &[Field]) -> TokenStream {
+fn field_list(fields: &FieldList) -> TokenStream {
     // inner
     let mut inner = quote!();
     for field in fields {

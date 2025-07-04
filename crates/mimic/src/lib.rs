@@ -85,16 +85,25 @@ use thiserror::Error as ThisError;
 #[derive(CandidType, Debug, Deserialize, Serialize, ThisError)]
 pub enum MimicError {
     #[error("{0}")]
+    Test(String), // probably dont need this
+
+    #[error("{0}")]
     CoreError(String),
 
     #[error("{0}")]
-    DataError(String),
+    DbError(String),
 
     #[error("{0}")]
     InterfaceError(String),
 
     #[error("{0}")]
     SerializeError(String),
+}
+
+impl MimicError {
+    pub fn test(s: &str) -> Self {
+        Self::Test(s.to_string())
+    }
 }
 
 macro_rules! from_to_string {
@@ -108,6 +117,6 @@ macro_rules! from_to_string {
 }
 
 from_to_string!(core::CoreError, CoreError);
-from_to_string!(db::DataError, DataError);
+from_to_string!(db::DbError, DbError);
 from_to_string!(interface::InterfaceError, InterfaceError);
 from_to_string!(serialize::SerializeError, SerializeError);

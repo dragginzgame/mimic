@@ -1,7 +1,8 @@
 use crate::{
-    node::{Entity, MacroNode},
-    schema::{Cardinality, Schemable},
-    traits::{Imp, Implementor, Trait},
+    node::Entity,
+    node_traits::{Imp, Implementor, Trait},
+    traits::{MacroNode, SchemaNode},
+    types::Cardinality,
 };
 use proc_macro2::{Span, TokenStream};
 use quote::{ToTokens, format_ident, quote};
@@ -21,7 +22,7 @@ impl Imp<Entity> for EntityKindTrait {
             .filter(|dk| dk.field.is_some())
             .count();
         let store = &node.store;
-        let defs = node.indexes.iter().map(Schemable::schema);
+        let defs = node.indexes.iter().map(SchemaNode::schema);
 
         // static definitions
         let mut q = quote! {
@@ -115,7 +116,7 @@ fn build_data_key(node: &Entity) -> TokenStream {
 
 // values
 fn values(node: &Entity) -> TokenStream {
-    let inserts = node
+    let inserts = &node
         .fields
         .iter()
         .filter_map(|field| {

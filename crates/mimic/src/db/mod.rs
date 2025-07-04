@@ -18,11 +18,11 @@ use crate::{
 use thiserror::Error as ThisError;
 
 ///
-/// DataError
+/// DbError
 ///
 
 #[derive(Debug, ThisError)]
-pub enum DataError {
+pub enum DbError {
     #[error(transparent)]
     ExecutorError(#[from] ExecutorError),
 

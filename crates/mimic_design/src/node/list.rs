@@ -1,7 +1,7 @@
 use crate::{
-    node::{Def, Item, MacroNode, Node, TraitNode, TraitTokens, Type},
-    schema::Schemable,
-    traits::{self, Imp, Trait, Traits},
+    node::{Def, Item, Type},
+    node_traits::{self, Imp, Trait, Traits},
+    traits::{MacroNode, SchemaNode},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -25,26 +25,21 @@ pub struct List {
     pub traits: Traits,
 }
 
-impl Node for List {
-    fn expand(&self) -> TokenStream {
-        let TraitTokens { derive, impls } = self.trait_tokens();
+impl ToTokens for List {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Def { ident, .. } = &self.def;
+        let item = &self.item;
+
+        // view
+        let view_ident = &self.def.view_ident();
 
         // quote
-        let schema = self.ctor_schema();
-        let q = quote! {
-            #schema
-            #derive
-            #self
-            #impls
-        };
+        tokens.extend(quote! {
+            pub struct #ident(Vec<#item>);
 
-        // debug
-        if self.def.debug {
-            let s = q.to_string();
-            return quote!(compile_error!(#s););
-        }
-
-        q
+            #[derive(CandidType)]
+            pub struct #view_ident(Vec<<#item as ::mimic::core::traits::TypeView>::View>);
+        });
     }
 }
 
@@ -52,9 +47,7 @@ impl MacroNode for List {
     fn def(&self) -> &Def {
         &self.def
     }
-}
 
-impl TraitNode for List {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
@@ -70,10 +63,11 @@ impl TraitNode for List {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::ValidateAuto => traits::ValidateAutoTrait::tokens(self, t),
-            Trait::Visitable => traits::VisitableTrait::tokens(self, t),
+            //    Trait::TypeView => node_traits::TypeViewTrait::tokens(self, t),
+            Trait::ValidateAuto => node_traits::ValidateAutoTrait::tokens(self, t),
+            Trait::Visitable => node_traits::VisitableTrait::tokens(self, t),
 
-            _ => traits::any(self, t),
+            _ => node_traits::any(self, t),
         }
     }
 
@@ -82,7 +76,7 @@ impl TraitNode for List {
     }
 }
 
-impl Schemable for List {
+impl SchemaNode for List {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let item = self.item.schema();
@@ -95,19 +89,5 @@ impl Schemable for List {
                 ty: #ty,
             })
         }
-    }
-}
-
-impl ToTokens for List {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
-        let item = &self.item;
-
-        // cannot skip if hidden as the traits break
-        let q = quote! {
-            pub struct #ident(Vec<#item>);
-        };
-
-        tokens.extend(q);
     }
 }

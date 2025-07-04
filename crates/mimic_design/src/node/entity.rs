@@ -1,12 +1,12 @@
 use crate::{
     helper::{quote_one, quote_slice, split_idents, to_path, to_str_lit},
-    node::{DataKey, Def, Field, MacroNode, Node, TraitNode, TraitTokens, Type},
-    schema::Schemable,
-    traits::{self, Imp, Trait, Traits},
+    node::{DataKey, Def, FieldList, Type},
+    node_traits::{self, Imp, Trait, Traits},
+    traits::{MacroNode, SchemaNode},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{ToTokens, quote};
 use syn::{Ident, Path};
 
 ///
@@ -26,8 +26,8 @@ pub struct Entity {
     #[darling(multiple, rename = "index")]
     pub indexes: Vec<EntityIndex>,
 
-    #[darling(multiple, rename = "field")]
-    pub fields: Vec<Field>,
+    #[darling(default)]
+    pub fields: FieldList,
 
     #[darling(default)]
     pub ty: Type,
@@ -36,42 +36,26 @@ pub struct Entity {
     pub traits: Traits,
 }
 
-impl Entity {
-    // has_default
-    pub fn has_default(&self) -> bool {
-        self.fields.iter().any(|f| f.default.is_some())
-    }
-}
-
-impl Node for Entity {
-    fn expand(&self) -> TokenStream {
+impl ToTokens for Entity {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
         let Self { fields, .. } = self;
         let Def { ident, .. } = &self.def;
-        let TraitTokens { derive, impls } = self.trait_tokens();
+
+        // view
+        let view_ident = &self.def.view_ident();
+        let view = self.fields.type_view_fields(view_ident);
 
         // quote
-        // let view_ident = format_ident!("{}_View", ident);
-        let schema = self.ctor_schema();
-        let q = quote! {
-             // data model
-             #schema
-             #derive
-             pub struct #ident {
-                 #(#fields,)*
-             }
-             #impls
+        tokens.extend(quote! {
+            // data model
+            #self
+            pub struct #ident {
+                #fields
+            }
 
-             // view
-        //     pub struct #view_ident {}
-         };
-
-        // debug
-        if self.def.debug {
-            let s = q.to_string();
-            return quote!(compile_error!(#s););
-        }
-
-        q
+            // view
+            #view
+        });
     }
 }
 
@@ -79,31 +63,7 @@ impl MacroNode for Entity {
     fn def(&self) -> &Def {
         &self.def
     }
-}
 
-impl Schemable for Entity {
-    fn schema(&self) -> TokenStream {
-        let def = &self.def.schema();
-        let store = quote_one(&self.store, to_path);
-        let data_keys = quote_slice(&self.data_keys, DataKey::schema);
-        let indexes = quote_slice(&self.indexes, EntityIndex::schema);
-        let fields = quote_slice(&self.fields, Field::schema);
-        let ty = &self.ty.schema();
-
-        quote! {
-            ::mimic::schema::node::SchemaNode::Entity(::mimic::schema::node::Entity {
-                def: #def,
-                store: #store,
-                data_keys: #data_keys,
-                indexes: #indexes,
-                fields: #fields,
-                ty: #ty,
-            })
-        }
-    }
-}
-
-impl TraitNode for Entity {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone();
         traits.add_type_traits();
@@ -120,14 +80,16 @@ impl TraitNode for Entity {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            Trait::Default if self.has_default() => traits::DefaultTrait::tokens(self, t),
-            Trait::EntityKind => traits::EntityKindTrait::tokens(self, t),
-            Trait::EntitySearch => traits::EntitySearchTrait::tokens(self, t),
-            Trait::EntitySort => traits::EntitySortTrait::tokens(self, t),
-            Trait::ValidateAuto => traits::ValidateAutoTrait::tokens(self, t),
-            Trait::Visitable => traits::VisitableTrait::tokens(self, t),
+            Trait::Default if self.fields.has_default() => {
+                node_traits::DefaultTrait::tokens(self, t)
+            }
+            Trait::EntityKind => node_traits::EntityKindTrait::tokens(self, t),
+            Trait::EntitySearch => node_traits::EntitySearchTrait::tokens(self, t),
+            Trait::EntitySort => node_traits::EntitySortTrait::tokens(self, t),
+            Trait::ValidateAuto => node_traits::ValidateAutoTrait::tokens(self, t),
+            Trait::Visitable => node_traits::VisitableTrait::tokens(self, t),
 
-            _ => traits::any(self, t),
+            _ => node_traits::any(self, t),
         }
     }
 
@@ -135,6 +97,28 @@ impl TraitNode for Entity {
         match t {
             Trait::Default => Trait::Default.derive_attribute(),
             _ => None,
+        }
+    }
+}
+
+impl SchemaNode for Entity {
+    fn schema(&self) -> TokenStream {
+        let def = &self.def.schema();
+        let store = quote_one(&self.store, to_path);
+        let data_keys = quote_slice(&self.data_keys, DataKey::schema);
+        let indexes = quote_slice(&self.indexes, EntityIndex::schema);
+        let fields = &self.fields.schema();
+        let ty = &self.ty.schema();
+
+        quote! {
+            ::mimic::schema::node::SchemaNode::Entity(::mimic::schema::node::Entity {
+                def: #def,
+                store: #store,
+                data_keys: #data_keys,
+                indexes: #indexes,
+                fields: #fields,
+                ty: #ty,
+            })
         }
     }
 }
@@ -154,7 +138,7 @@ pub struct EntityIndex {
     pub store: Path,
 }
 
-impl Schemable for EntityIndex {
+impl SchemaNode for EntityIndex {
     fn schema(&self) -> TokenStream {
         let fields = quote_slice(&self.fields, to_str_lit);
         let unique = &self.unique;
