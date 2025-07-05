@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_path},
     node::TypeValidator,
-    traits::Schemable,
+    traits::AsSchema,
 };
 use darling::FromMeta;
 use mimic_schema::types::Primitive;
@@ -53,7 +53,7 @@ impl Item {
     }
 }
 
-impl Schemable for Item {
+impl AsSchema for Item {
     fn schema(&self) -> TokenStream {
         let target = self.target().schema();
         let selector = quote_option(self.selector.as_ref(), to_path);
@@ -110,7 +110,7 @@ impl ItemTarget {
     }
 }
 
-impl Schemable for ItemTarget {
+impl AsSchema for ItemTarget {
     fn schema(&self) -> TokenStream {
         match self {
             Self::Is(path) => {

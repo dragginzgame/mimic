@@ -2,7 +2,7 @@ use crate::{
     helper::{quote_one, quote_slice, split_idents, to_path, to_str_lit},
     node::{DataKey, Def, FieldList, Type},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{Macro, Schemable},
+    traits::{AsMacro, AsSchema, AsType},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -36,22 +36,13 @@ pub struct Entity {
     pub traits: Traits,
 }
 
-impl Macro for Entity {
+impl AsMacro for Entity {
     fn def(&self) -> &Def {
         &self.def
     }
 
-    fn macro_body(&self) -> TokenStream {
-        quote! { self }
-    }
-
     fn macro_extra(&self) -> TokenStream {
-        let view_ident = &self.def.view_ident();
-        let view = self.fields.type_view_fields(view_ident);
-
-        quote! {
-            #view
-        }
+        self.view_tokens()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -76,10 +67,11 @@ impl Macro for Entity {
             Trait::EntityKind => node_traits::EntityKindTrait::tokens(self, t),
             Trait::EntitySearch => node_traits::EntitySearchTrait::tokens(self, t),
             Trait::EntitySort => node_traits::EntitySortTrait::tokens(self, t),
+            Trait::TypeView => node_traits::TypeViewTrait::tokens(self, t),
             Trait::ValidateAuto => node_traits::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => node_traits::VisitableTrait::tokens(self, t),
 
-            _ => node_traits::any(self, t),
+            _ => None,
         }
     }
 
@@ -91,7 +83,7 @@ impl Macro for Entity {
     }
 }
 
-impl Schemable for Entity {
+impl AsSchema for Entity {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let store = quote_one(&self.store, to_path);
@@ -101,7 +93,7 @@ impl Schemable for Entity {
         let ty = &self.ty.schema();
 
         quote! {
-            ::mimic::schema::node::Schemable::Entity(::mimic::schema::node::Entity {
+            ::mimic::schema::node::SchemaNode::Entity(::mimic::schema::node::Entity {
                 def: #def,
                 store: #store,
                 data_keys: #data_keys,
@@ -109,6 +101,20 @@ impl Schemable for Entity {
                 fields: #fields,
                 ty: #ty,
             })
+        }
+    }
+}
+
+impl AsType for Entity {
+    fn view(&self) -> TokenStream {
+        let view_ident = &self.def.view_ident();
+        let view_field_list = AsType::view(&self.fields);
+
+        // quote
+        quote! {
+            pub struct #view_ident {
+                #view_field_list
+            }
         }
     }
 }
@@ -142,7 +148,7 @@ pub struct EntityIndex {
     pub store: Path,
 }
 
-impl Schemable for EntityIndex {
+impl AsSchema for EntityIndex {
     fn schema(&self) -> TokenStream {
         let fields = quote_slice(&self.fields, to_str_lit);
         let unique = &self.unique;

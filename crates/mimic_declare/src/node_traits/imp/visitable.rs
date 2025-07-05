@@ -219,7 +219,7 @@ pub fn enum_variant(variant: &EnumVariant) -> TokenStream {
 // quote_variant
 fn quote_variant(value: &Value, ident: &Ident) -> TokenStream {
     let name = ident.to_string();
-    match *value.cardinality() {
+    match value.cardinality() {
         Cardinality::One => quote! {
             Self::#ident(value) => ::mimic::core::visit::perform_visit(visitor, value, #name),
         },

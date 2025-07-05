@@ -1,5 +1,5 @@
 use crate::{
-    node::{Def, MacroNode, ValidateNode, VisitableNode},
+    node::{Def, FieldList, MacroNode, ValidateNode, VisitableNode},
     visit::Visitor,
 };
 use serde::Serialize;
@@ -11,6 +11,7 @@ use serde::Serialize;
 #[derive(Clone, Debug, Serialize)]
 pub struct Validator {
     pub def: Def,
+    pub fields: FieldList,
 }
 
 impl MacroNode for Validator {
@@ -28,5 +29,6 @@ impl VisitableNode for Validator {
 
     fn drive<V: Visitor>(&self, v: &mut V) {
         self.def.accept(v);
+        self.fields.accept(v);
     }
 }

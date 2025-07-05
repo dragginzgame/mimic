@@ -1,6 +1,7 @@
 use crate::{
-    node::{Entity, Enum, FieldList, Newtype, Record},
+    node::{Entity, Enum, FieldList, List, Map, Newtype, Record, Set, Tuple},
     node_traits::{Imp, Implementor, Trait},
+    traits::AsType,
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -11,6 +12,120 @@ use syn::Ident;
 ///
 
 pub struct TypeViewTrait {}
+
+///
+/// Entity
+///
+
+impl Imp<Entity> for TypeViewTrait {
+    fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
+        let view_ident = node.def.view_ident();
+        let tokens = field_list(view_ident, &node.fields);
+
+        Some(
+            Implementor::new(&node.def, t)
+                .set_tokens(tokens)
+                .to_token_stream(),
+        )
+    }
+}
+
+///
+/// Enum
+///
+
+impl Imp<Enum> for TypeViewTrait {
+    fn tokens(node: &Enum, t: Trait) -> Option<TokenStream> {
+        let ident = &node.def.ident;
+        let view_ident = node.def.view_ident();
+
+        let to_view_arms = node.variants.iter().map(|variant| {
+            let variant_name = &variant.name;
+            quote! {
+                #ident::#variant_name(v) => Self::View::#variant_name(v.to_view())
+            }
+        });
+
+        let from_view_arms = node.variants.iter().map(|variant| {
+            let variant_name = &variant.name;
+            quote! {
+                Self::View::#variant_name(v) => #ident::#variant_name(::mimic::core::traits::TypeView::from_view(v))
+            }
+        });
+
+        let q = quote! {
+                type View = #view_ident;
+
+                fn to_view(&self) -> Self::View {
+                    match self {
+                        #(#to_view_arms,)*
+                    }
+                }
+
+                fn from_view(view: Self::View) -> Self {
+                    match view {
+                        #(#from_view_arms,)*
+                    }
+                }
+        };
+
+        Some(
+            Implementor::new(&node.def, t)
+                .set_tokens(q)
+                .to_token_stream(),
+        )
+    }
+}
+
+///
+/// List
+///
+
+impl Imp<List> for TypeViewTrait {
+    fn tokens(node: &List, t: Trait) -> Option<TokenStream> {
+        Some(quote!())
+    }
+}
+
+///
+/// Map
+///
+
+impl Imp<Map> for TypeViewTrait {
+    fn tokens(node: &Map, t: Trait) -> Option<TokenStream> {
+        let view_ident = node.def.view_ident();
+        let key = &node.key;
+        let value = &node.value;
+
+        let q = quote! {
+            type View = #view_ident;
+
+            fn to_view(&self) -> Self::View {
+                self.0.iter()
+                    .map(|(k, v)| (
+                        k.to_view(),
+                        v.to_view()
+                    ))
+                    .collect()
+            }
+
+            fn from_view(view: Self::View) -> Self {
+                Self(view.0.into_iter()
+                    .map(|(k, v)| (
+                        <#key as ::mimic::core::traits::TypeView>::from_view(k),
+                        <#value as ::mimic::core::traits::TypeView>::from_view(v)
+                    ))
+                    .collect())
+            }
+        };
+
+        Some(
+            Implementor::new(&node.def, t)
+                .set_tokens(q)
+                .to_token_stream(),
+        )
+    }
+}
 
 ///
 /// Newtype
@@ -41,23 +156,6 @@ impl Imp<Newtype> for TypeViewTrait {
 }
 
 ///
-/// Entity
-///
-
-impl Imp<Entity> for TypeViewTrait {
-    fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
-        let view_ident = node.def.view_ident();
-        let tokens = field_list(view_ident, &node.fields);
-
-        Some(
-            Implementor::new(&node.def, t)
-                .set_tokens(tokens)
-                .to_token_stream(),
-        )
-    }
-}
-
-///
 /// Record
 ///
 
@@ -71,6 +169,26 @@ impl Imp<Record> for TypeViewTrait {
                 .set_tokens(tokens)
                 .to_token_stream(),
         )
+    }
+}
+
+///
+/// Set
+///
+
+impl Imp<Set> for TypeViewTrait {
+    fn tokens(node: &Set, t: Trait) -> Option<TokenStream> {
+        Some(quote!())
+    }
+}
+
+///
+/// Tuple
+///
+
+impl Imp<Tuple> for TypeViewTrait {
+    fn tokens(node: &Tuple, t: Trait) -> Option<TokenStream> {
+        Some(quote!())
     }
 }
 

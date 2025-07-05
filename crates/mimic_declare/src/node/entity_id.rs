@@ -1,11 +1,11 @@
 use crate::{
     node::Def,
     node_traits::{self, Trait, Traits},
-    traits::Macro,
+    traits::{AsMacro, AsSchema},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{ToTokens, quote};
 use syn::Ident;
 
 ///
@@ -24,20 +24,9 @@ pub struct EntityId {
     pub traits: Traits,
 }
 
-impl Macro for EntityId {
+impl AsMacro for EntityId {
     fn def(&self) -> &Def {
         &self.def
-    }
-
-    fn macro_body(&self) -> TokenStream {
-        let Def { ident, .. } = &self.def;
-        let keys = self.keys.iter().map(quote::ToTokens::to_token_stream);
-
-        quote! {
-            pub enum #ident {
-                #(#keys,)*
-            }
-        }
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -51,14 +40,29 @@ impl Macro for EntityId {
         crate::node::imp::entity_id::tokens(self)
     }
 
-    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
-        node_traits::any(self, t)
-    }
-
     fn map_attribute(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::Sorted => Trait::Sorted.derive_attribute(),
             _ => None,
         }
+    }
+}
+
+impl AsSchema for EntityId {
+    fn schema(&self) -> TokenStream {
+        quote!()
+    }
+}
+
+impl ToTokens for EntityId {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Def { ident, .. } = &self.def;
+        let keys = self.keys.iter().map(quote::ToTokens::to_token_stream);
+
+        tokens.extend(quote! {
+            pub enum #ident {
+                #(#keys,)*
+            }
+        })
     }
 }

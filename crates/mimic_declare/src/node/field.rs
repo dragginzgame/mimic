@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_str_lit},
     node::{Arg, Value},
-    traits::Schemable,
+    traits::{AsSchema, AsType},
 };
 use darling::FromMeta;
 use mimic_schema::types::Cardinality;
@@ -14,7 +14,7 @@ use syn::Ident;
 /// FieldList
 ///
 
-#[derive(Clone, Debug, Default, FromMeta)]
+#[derive(Debug, Default, FromMeta)]
 pub struct FieldList {
     #[darling(multiple, rename = "field")]
     pub fields: Vec<Field>,
@@ -29,27 +29,6 @@ impl FieldList {
         self.fields.iter_mut()
     }
 
-    pub fn type_view_fields(&self, view_ident: &Ident) -> TokenStream {
-        let view_fields: Vec<_> = self
-            .fields
-            .iter()
-            .map(|f| {
-                let name = &f.name;
-                let ty = &f.value;
-                quote! {
-                    #name: <#ty as ::mimic::core::traits::TypeView>::View
-                }
-            })
-            .collect();
-
-        quote! {
-            pub struct #view_ident {
-                #(#view_fields,)*
-            }
-        }
-    }
-
-    // has_default
     pub fn has_default(&self) -> bool {
         self.fields.iter().any(|f| f.default.is_some())
     }
@@ -64,7 +43,7 @@ impl<'a> IntoIterator for &'a FieldList {
     }
 }
 
-impl Schemable for FieldList {
+impl AsSchema for FieldList {
     fn schema(&self) -> TokenStream {
         let fields = quote_slice(&self.fields, Field::schema);
 
@@ -72,6 +51,16 @@ impl Schemable for FieldList {
             ::mimic::schema::node::FieldList {
                 fields: #fields,
             }
+        }
+    }
+}
+
+impl AsType for FieldList {
+    fn view(&self) -> TokenStream {
+        let view_fields = self.fields.iter().map(AsType::view);
+
+        quote! {
+            #(#view_fields,)*
         }
     }
 }
@@ -99,7 +88,7 @@ pub struct Field {
     pub default: Option<Arg>,
 }
 
-impl Schemable for Field {
+impl AsSchema for Field {
     fn schema(&self) -> TokenStream {
         let name = quote_one(&self.name, to_str_lit);
         let value = self.value.schema();
@@ -111,6 +100,17 @@ impl Schemable for Field {
                 value: #value,
                 default: #default,
             }
+        }
+    }
+}
+
+impl AsType for Field {
+    fn view(&self) -> TokenStream {
+        let name = &self.name;
+        let ty = &self.value;
+
+        quote! {
+            #name: <#ty as ::mimic::core::traits::TypeView>::View
         }
     }
 }

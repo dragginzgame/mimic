@@ -5,7 +5,7 @@ mod node;
 mod node_traits;
 mod traits;
 
-use crate::{node::Def, traits::Macro};
+use crate::{node::Def, node_traits::MacroHandler};
 use darling::{Error as DarlingError, FromMeta, ast::NestedMeta};
 use proc_macro2::Span;
 use syn::{Attribute, ItemStruct, LitStr, Visibility, parse_macro_input};
@@ -44,8 +44,8 @@ macro_rules! macro_node {
                         debug,
                     };
 
-                    // emit macro
-                    node.emit_macro().into()
+                    // macro tokens
+                    MacroHandler::new(&node).macro_tokens().into()
                 }
                 Err(e) => proc_macro::TokenStream::from(DarlingError::from(e).write_errors()),
             }

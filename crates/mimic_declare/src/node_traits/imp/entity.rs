@@ -1,7 +1,7 @@
 use crate::{
     node::Entity,
     node_traits::{Imp, Implementor, Trait},
-    traits::{Macro, Schemable},
+    traits::{AsMacro, AsSchema},
 };
 use mimic_schema::types::Cardinality;
 use proc_macro2::{Span, TokenStream};
@@ -22,7 +22,7 @@ impl Imp<Entity> for EntityKindTrait {
             .filter(|dk| dk.field.is_some())
             .count();
         let store = &node.store;
-        let defs = node.indexes.iter().map(Schemable::schema);
+        let defs = node.indexes.iter().map(AsSchema::schema);
 
         // static definitions
         let mut q = quote! {

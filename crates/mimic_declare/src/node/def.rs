@@ -1,6 +1,6 @@
 use crate::{
     helper::{as_tokens, quote_one, quote_option, to_str_lit},
-    traits::Schemable,
+    traits::AsSchema,
 };
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -13,7 +13,7 @@ use syn::{Ident, LitStr};
 /// the schema doesn't care about the generics as they're not useful as static text
 ///
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct Def {
     pub comments: Option<LitStr>,
     pub ident: Ident,
@@ -36,7 +36,7 @@ impl Default for Def {
     }
 }
 
-impl Schemable for Def {
+impl AsSchema for Def {
     fn schema(&self) -> TokenStream {
         let comments = quote_option(self.comments.as_ref(), as_tokens);
         let ident = quote_one(&self.ident, to_str_lit);

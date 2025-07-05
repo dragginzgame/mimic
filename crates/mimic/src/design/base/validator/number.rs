@@ -13,10 +13,8 @@ fn cast_to_f64<N: Copy + NumCast>(n: &N) -> Result<f64, String> {
 /// Lt
 ///
 
-#[validator]
-pub struct Lt {
-    pub target: f64,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Float64")))))]
+pub struct Lt {}
 
 impl Lt {
     pub fn new<N: NumCast>(target: N) -> Self {
@@ -45,10 +43,8 @@ impl ValidatorNumber for Lt {
 /// Gt
 ///
 
-#[validator]
-pub struct Gt {
-    pub target: f64,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Float64")))))]
+pub struct Gt {}
 
 impl Gt {
     pub fn new<N: NumCast>(target: N) -> Self {
@@ -77,10 +73,8 @@ impl ValidatorNumber for Gt {
 /// Ltoe
 ///
 
-#[validator]
-pub struct Ltoe {
-    pub target: f64,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Float64")))))]
+pub struct Ltoe {}
 
 impl Ltoe {
     pub fn new<N: NumCast>(target: N) -> Self {
@@ -112,10 +106,8 @@ impl ValidatorNumber for Ltoe {
 /// Gtoe
 ///
 
-#[validator]
-pub struct Gtoe {
-    pub target: f64,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Float64")))))]
+pub struct Gtoe {}
 
 impl Gtoe {
     pub fn new<N: NumCast>(target: N) -> Self {
@@ -147,10 +139,8 @@ impl ValidatorNumber for Gtoe {
 /// Equal
 ///
 
-#[validator]
-pub struct Equal {
-    pub target: f64,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Float64")))))]
+pub struct Equal {}
 
 impl Equal {
     pub fn new<N: NumCast>(target: N) -> Self {
@@ -179,10 +169,8 @@ impl ValidatorNumber for Equal {
 /// NotEqual
 ///
 
-#[validator]
-pub struct NotEqual {
-    pub target: f64,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Float64")))))]
+pub struct NotEqual {}
 
 impl NotEqual {
     pub fn new<N: NumCast>(target: N) -> Self {

@@ -20,41 +20,136 @@ pub use type_view::*;
 pub use validate::*;
 pub use visitable::*;
 
-use crate::{node_traits::Trait, traits::Macro};
+use crate::{node_traits::Trait, traits::AsMacro};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 ///
-/// any
-///
-/// shared implementation
-/// that can be used by a Node of any type
+/// TraitTokens
 ///
 
-pub fn any<N: Macro>(node: &N, t: Trait) -> Option<TokenStream> {
-    let def = node.def();
+pub struct TraitTokens {
+    pub derive: TokenStream,
+    pub impls: TokenStream,
+}
 
-    match t {
-        Trait::Path => {
-            let ident_str = format!("{}", def.ident);
-            let q = quote! {
-                const PATH: &'static str = concat!(module_path!(), "::", #ident_str);
-            };
+///
+/// MacroHandler
+///
 
-            Some(Implementor::new(def, t).set_tokens(q).to_token_stream())
+pub struct MacroHandler<'a, T: AsMacro> {
+    pub item: &'a T,
+}
+
+impl<'a, T: AsMacro> MacroHandler<'a, T> {
+    pub fn new(item: &'a T) -> Self {
+        Self { item }
+    }
+
+    // macro_tokens
+    pub fn macro_tokens(&self) -> TokenStream {
+        let TraitTokens { derive, impls } = self.trait_tokens();
+        let schema = self.item.schema_tokens();
+        let extra = self.item.macro_extra();
+        let item = self.item;
+
+        let q = quote! {
+            #schema
+            #derive
+            #item
+            #impls
+            #extra
+        };
+
+        if self.item.def().debug {
+            quote! {
+                compile_error!(stringify! { #q });
+            }
+        } else {
+            quote!(#q)
+        }
+    }
+
+    pub fn trait_tokens(&self) -> TraitTokens {
+        let mut derived_traits = Vec::new();
+        let mut attrs = Vec::new();
+        let mut impls = quote!();
+
+        for tr in self.item.traits() {
+            match (self.resolve_trait(tr), self.resolve_attribute(tr)) {
+                (Some(t), Some(a)) => {
+                    impls.extend(t);
+                    attrs.push(a);
+                }
+                (Some(t), None) => {
+                    impls.extend(t);
+                }
+                (None, Some(a)) => {
+                    if let Some(path) = tr.derive_path() {
+                        derived_traits.push(path);
+                    }
+                    attrs.push(a);
+                }
+                (None, None) => {
+                    derived_traits.push(tr.derive_path().unwrap_or_else(|| {
+                        panic!("trait '{tr}' has no derive, impl or attributes")
+                    }));
+                }
+            }
         }
 
-        // empty implementations are generated for these traits
-        Trait::EntityFixture
-        | Trait::EntityIdKind
-        | Trait::FieldSearchable
-        | Trait::FieldSortable
-        | Trait::FieldValue
-        | Trait::ValidateAuto
-        | Trait::ValidateCustom
-        | Trait::Visitable => Some(Implementor::new(def, t).to_token_stream()),
+        if let Some(custom) = self.item.custom_impl() {
+            impls.extend(custom);
+        }
 
-        _ => None,
+        let mut derive = if derived_traits.is_empty() {
+            quote!()
+        } else {
+            quote! {
+                #[derive(#(#derived_traits),*)]
+            }
+        };
+        derive.extend(attrs);
+
+        TraitTokens { derive, impls }
+    }
+
+    // resolve_attribute
+    fn resolve_attribute(&self, tr: Trait) -> Option<TokenStream> {
+        self.item.map_attribute(tr)
+    }
+
+    // resolve_trait
+    fn resolve_trait(&self, tr: Trait) -> Option<TokenStream> {
+        self.item.map_trait(tr).or_else(|| self.default_trait(tr))
+    }
+
+    // default_trait
+    pub fn default_trait(&self, tr: Trait) -> Option<TokenStream> {
+        let def = &self.item.def();
+
+        match tr {
+            Trait::Path => {
+                let ident_str = format!("{}", def.ident);
+                let q = quote! {
+                    const PATH: &'static str = concat!(module_path!(), "::", #ident_str);
+                };
+
+                Some(Implementor::new(def, tr).set_tokens(q).to_token_stream())
+            }
+
+            // empty implementations are generated for these traits
+            Trait::EntityFixture
+            | Trait::EntityIdKind
+            | Trait::FieldSearchable
+            | Trait::FieldSortable
+            | Trait::FieldValue
+            | Trait::ValidateAuto
+            | Trait::ValidateCustom
+            | Trait::Visitable => Some(Implementor::new(def, tr).to_token_stream()),
+
+            _ => None,
+        }
     }
 }
 
@@ -62,7 +157,7 @@ pub fn any<N: Macro>(node: &N, t: Trait) -> Option<TokenStream> {
 /// Imp
 ///
 
-pub trait Imp<N: Macro> {
+pub trait Imp<N: AsMacro> {
     fn tokens(node: &N, t: Trait) -> Option<TokenStream>;
 }
 
@@ -71,6 +166,6 @@ pub trait Imp<N: Macro> {
 /// for breaking down traits even further
 ///
 
-pub trait ImpFn<N: Macro> {
+pub trait ImpFn<N: AsMacro> {
     fn tokens(node: &N) -> TokenStream;
 }

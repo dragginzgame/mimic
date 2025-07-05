@@ -37,8 +37,23 @@ impl ValidatorString for MimeType {
 /// Url
 ///
 
-#[validator]
+#[cfg(not(target_arch = "wasm32"))]
+#[::mimic::export::ctor::ctor]
+fn ctor_1913848862() {
+    ::mimic::schema::build::schema_write().insert_node(
+        ::mimic::schema::node::SchemaNode::Validator(::mimic::schema::node::Validator {
+            def: ::mimic::schema::node::Def {
+                module_path: module_path!(),
+                comments: Some("Url"),
+                ident: "Url",
+            },
+            fields: ::mimic::schema::node::FieldList { fields: &[] },
+        }),
+    );
+}
+#[derive(Clone, Debug, Default)]
 pub struct Url {}
+const PATH: &'static str = concat!(module_path!(), "::", "Url");
 
 impl ValidatorString for Url {
     fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {

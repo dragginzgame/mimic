@@ -16,7 +16,6 @@ pub use std::{
 };
 
 use crate::{
-    MimicError,
     common::error::ErrorTree,
     core::{
         db::EntityKey,

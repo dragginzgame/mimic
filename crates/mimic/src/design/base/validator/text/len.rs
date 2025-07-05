@@ -17,10 +17,8 @@ fn truncate_string<S: ToString>(s: &S) -> String {
 /// Equal
 ///
 
-#[validator]
-pub struct Equal {
-    target: usize,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Nat64")))))]
+pub struct Equal {}
 
 impl Equal {
     pub fn new<N: NumCast>(target: N) -> Self {
@@ -52,10 +50,8 @@ impl ValidatorString for Equal {
 /// Min
 ///
 
-#[validator]
-pub struct Min {
-    target: usize,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Nat64")))))]
+pub struct Min {}
 
 impl Min {
     pub fn new<N: NumCast>(target: N) -> Self {
@@ -87,10 +83,8 @@ impl ValidatorString for Min {
 /// Max
 ///
 
-#[validator]
-pub struct Max {
-    target: usize,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Nat64")))))]
+pub struct Max {}
 
 impl Max {
     pub fn new<N: NumCast>(target: N) -> Self {
@@ -122,11 +116,11 @@ impl ValidatorString for Max {
 /// Range
 ///
 
-#[validator]
-pub struct Range {
-    min: usize,
-    max: usize,
-}
+#[validator(fields(
+    field(name = "min", value(item(prim = "Nat64"))),
+    field(name = "max", value(item(prim = "Nat64")))
+))]
+pub struct Range {}
 
 impl Range {
     pub fn new<N: NumCast>(min: N, max: N) -> Self {

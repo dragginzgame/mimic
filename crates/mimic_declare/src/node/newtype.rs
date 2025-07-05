@@ -2,7 +2,7 @@ use crate::{
     helper::quote_option,
     node::{Arg, Def, Item, Type},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{Macro, Schemable},
+    traits::{AsMacro, AsSchema, AsType},
 };
 use darling::FromMeta;
 use mimic_schema::types::Primitive;
@@ -31,22 +31,13 @@ pub struct Newtype {
     pub traits: Traits,
 }
 
-impl Macro for Newtype {
+impl AsMacro for Newtype {
     fn def(&self) -> &Def {
         &self.def
     }
 
-    fn macro_body(&self) -> TokenStream {
-        quote! { self }
-    }
-
     fn macro_extra(&self) -> TokenStream {
-        let view_ident = self.def.view_ident();
-        let view_type = self.primitive.as_type();
-
-        quote! {
-            pub struct #view_ident(#view_type);
-        }
+        self.view_tokens()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -111,12 +102,41 @@ impl Macro for Newtype {
             Trait::ValidateAuto => node_traits::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => node_traits::VisitableTrait::tokens(self, t),
 
-            _ => node_traits::any(self, t),
+            _ => None,
         }
     }
 
     fn custom_impl(&self) -> Option<TokenStream> {
         crate::node::imp::newtype::tokens(self)
+    }
+}
+
+impl AsSchema for Newtype {
+    fn schema(&self) -> TokenStream {
+        let def = self.def.schema();
+        let item = self.item.schema();
+        let default = quote_option(self.default.as_ref(), Arg::schema);
+        let ty = self.ty.schema();
+
+        quote! {
+            ::mimic::schema::node::SchemaNode::Newtype(::mimic::schema::node::Newtype {
+                def: #def,
+                item: #item,
+                default: #default,
+                ty: #ty,
+            })
+        }
+    }
+}
+
+impl AsType for Newtype {
+    fn view(&self) -> TokenStream {
+        let view_ident = self.def.view_ident();
+        let view_type = self.primitive.as_type();
+
+        quote! {
+            pub struct #view_ident(#view_type);
+        }
     }
 }
 
@@ -128,23 +148,5 @@ impl ToTokens for Newtype {
         tokens.extend(quote! {
             pub struct #ident(#item);
         });
-    }
-}
-
-impl Schemable for Newtype {
-    fn schema(&self) -> TokenStream {
-        let def = self.def.schema();
-        let item = self.item.schema();
-        let default = quote_option(self.default.as_ref(), Arg::schema);
-        let ty = self.ty.schema();
-
-        quote! {
-            ::mimic::schema::node::Schemable::Newtype(::mimic::schema::node::Newtype {
-                def: #def,
-                item: #item,
-                default: #default,
-                ty: #ty,
-            })
-        }
     }
 }

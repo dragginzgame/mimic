@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.6.0] - View Layer
+-
+
+
+- FieldList has come back to consolidate logic over multiple Fields
+- Validator now has a FieldList
+- optimised the mimic_declare macros as we don't need to pass through tokens any longer
 
 ## [0.5.5]
 - IndexValue types (DataKey, IndexKey) are now Copy, so no Text keys

@@ -16,7 +16,7 @@ use serde::Serialize;
 
 #[derive(Clone, Debug, Serialize)]
 pub struct FieldList {
-    pub fields: Vec<Field>,
+    pub fields: &'static [Field],
 }
 
 impl FieldList {
@@ -31,7 +31,7 @@ impl ValidateNode for FieldList {}
 
 impl VisitableNode for FieldList {
     fn drive<V: Visitor>(&self, v: &mut V) {
-        for node in &self.fields {
+        for node in self.fields {
             node.accept(v);
         }
     }

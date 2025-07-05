@@ -2,7 +2,7 @@ use crate::{
     helper::{quote_one, quote_slice, to_path, to_str_lit},
     node::{Arg, Def},
     node_traits::{self, Trait, Traits},
-    traits::{Macro, Schemable},
+    traits::{AsMacro, AsSchema},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -24,13 +24,9 @@ pub struct Selector {
     pub variants: Vec<SelectorVariant>,
 }
 
-impl Macro for Selector {
+impl AsMacro for Selector {
     fn def(&self) -> &Def {
         &self.def
-    }
-
-    fn macro_body(&self) -> TokenStream {
-        quote! { self }
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -42,10 +38,6 @@ impl Macro for Selector {
         }
 
         traits.list()
-    }
-
-    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
-        node_traits::any(self, t)
     }
 
     fn custom_impl(&self) -> Option<TokenStream> {
@@ -67,14 +59,14 @@ impl ToTokens for Selector {
     }
 }
 
-impl Schemable for Selector {
+impl AsSchema for Selector {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let target = quote_one(&self.target, to_path);
         let variants = quote_slice(&self.variants, SelectorVariant::schema);
 
         quote! {
-            ::mimic::schema::node::Schemable::Selector(
+            ::mimic::schema::node::SchemaNode::Selector(
                 ::mimic::schema::node::Selector{
                     def: #def,
                     target: #target,
@@ -115,7 +107,7 @@ impl ToTokens for SelectorVariant {
     }
 }
 
-impl Schemable for SelectorVariant {
+impl AsSchema for SelectorVariant {
     fn schema(&self) -> TokenStream {
         let name = quote_one(&self.name, to_str_lit);
         let value = self.value.schema();

@@ -1,7 +1,7 @@
 use crate::{
     node::{Def, Item, Type, Value},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{Macro, Schemable},
+    traits::{AsMacro, AsSchema, AsType},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -26,13 +26,13 @@ pub struct Map {
     pub traits: Traits,
 }
 
-impl Macro for Map {
+impl AsMacro for Map {
     fn def(&self) -> &Def {
         &self.def
     }
 
-    fn macro_body(&self) -> TokenStream {
-        quote! { self }
+    fn macro_extra(&self) -> TokenStream {
+        self.view_tokens()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -50,10 +50,11 @@ impl Macro for Map {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
+            Trait::TypeView => node_traits::TypeViewTrait::tokens(self, t),
             Trait::ValidateAuto => node_traits::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => node_traits::VisitableTrait::tokens(self, t),
 
-            _ => node_traits::any(self, t),
+            _ => None,
         }
     }
 
@@ -62,7 +63,7 @@ impl Macro for Map {
     }
 }
 
-impl Schemable for Map {
+impl AsSchema for Map {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let key = self.key.schema();
@@ -70,12 +71,29 @@ impl Schemable for Map {
         let ty = self.ty.schema();
 
         quote! {
-            ::mimic::schema::node::Schemable::Map(::mimic::schema::node::Map {
+            ::mimic::schema::node::SchemaNode::Map(::mimic::schema::node::Map {
                 def: #def,
                 key: #key,
                 value: #value,
                 ty: #ty,
             })
+        }
+    }
+}
+
+impl AsType for Map {
+    fn view(&self) -> TokenStream {
+        let view_ident = self.def.view_ident();
+        let key = &self.key;
+        let value = &self.value;
+
+        quote! {
+            pub struct #view_ident(
+                ::std::collections::HashMap<
+                    <#key as ::mimic::core::traits::TypeView>::View,
+                    <#value as ::mimic::core::traits::TypeView>::View
+                >
+            );
         }
     }
 }

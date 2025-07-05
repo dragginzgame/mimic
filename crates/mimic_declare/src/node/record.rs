@@ -1,7 +1,7 @@
 use crate::{
     node::{Def, FieldList, Type},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{Macro, Schemable},
+    traits::{AsMacro, AsSchema, AsType},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -26,29 +26,13 @@ pub struct Record {
     pub ty: Type,
 }
 
-impl ToTokens for Record {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Self { fields, .. } = self;
-        let Def { ident, .. } = &self.def;
-
-        // view
-        let view_ident = &self.def.view_ident();
-        let view = self.fields.type_view_fields(view_ident);
-
-        // quote
-        tokens.extend(quote! {
-            pub struct #ident {
-                #fields
-            }
-
-            #view
-        });
-    }
-}
-
-impl Macro for Record {
+impl AsMacro for Record {
     fn def(&self) -> &Def {
         &self.def
+    }
+
+    fn macro_extra(&self) -> TokenStream {
+        self.view_tokens()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -67,7 +51,7 @@ impl Macro for Record {
             Trait::ValidateAuto => node_traits::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => node_traits::VisitableTrait::tokens(self, t),
 
-            _ => node_traits::any(self, t),
+            _ => None,
         }
     }
 
@@ -79,18 +63,46 @@ impl Macro for Record {
     }
 }
 
-impl Schemable for Record {
+impl AsSchema for Record {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let fields = self.fields.schema();
         let ty = self.ty.schema();
 
         quote! {
-            ::mimic::schema::node::Schemable::Record(::mimic::schema::node::Record {
+            ::mimic::schema::node::SchemaNode::Record(::mimic::schema::node::Record {
                 def: #def,
                 fields: #fields,
                 ty: #ty,
             })
         }
+    }
+}
+
+impl AsType for Record {
+    fn view(&self) -> TokenStream {
+        let view_ident = &self.def.view_ident();
+        let view_field_list = AsType::view(&self.fields);
+
+        // quote
+        quote! {
+            pub struct #view_ident {
+                #view_field_list
+            }
+        }
+    }
+}
+
+impl ToTokens for Record {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Self { fields, .. } = self;
+        let Def { ident, .. } = &self.def;
+
+        // quote
+        tokens.extend(quote! {
+            pub struct #ident {
+                #fields
+            }
+        });
     }
 }

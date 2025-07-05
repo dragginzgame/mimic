@@ -2,7 +2,7 @@ use crate::{
     helper::{quote_one, quote_slice, to_str_lit},
     node::{ArgNumber, Def, Type},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{Macro, Schemable},
+    traits::{AsMacro, AsSchema},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -34,21 +34,9 @@ impl EnumValue {
     }
 }
 
-impl Macro for EnumValue {
+impl AsMacro for EnumValue {
     fn def(&self) -> &Def {
         &self.def
-    }
-
-    fn macro_body(&self) -> TokenStream {
-        let Def { ident, .. } = &self.def;
-        let variants = &self.variants;
-
-        // quote
-        quote! {
-            pub enum #ident {
-                #(#variants,)*
-            }
-        }
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -68,19 +56,19 @@ impl Macro for EnumValue {
         match t {
             Trait::EnumValueKind => node_traits::EnumValueTrait::tokens(self, t),
 
-            _ => node_traits::any(self, t),
+            _ => None,
         }
     }
 }
 
-impl Schemable for EnumValue {
+impl AsSchema for EnumValue {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let variants = quote_slice(&self.variants, EnumValueVariant::schema);
         let ty = &self.ty.schema();
 
         quote! {
-            ::mimic::schema::node::Schemable::EnumValue(
+            ::mimic::schema::node::SchemaNode::EnumValue(
                 ::mimic::schema::node::EnumValue{
                     def: #def,
                     variants: #variants,
@@ -91,11 +79,25 @@ impl Schemable for EnumValue {
     }
 }
 
+impl ToTokens for EnumValue {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Def { ident, .. } = &self.def;
+        let variants = &self.variants;
+
+        // quote
+        tokens.extend(quote! {
+            pub enum #ident {
+                #(#variants,)*
+            }
+        })
+    }
+}
+
 ///
 /// EnumValueVariant
 ///
 
-#[derive(Clone, Debug, FromMeta)]
+#[derive(Debug, FromMeta)]
 pub struct EnumValueVariant {
     #[darling(default = EnumValueVariant::unspecified_ident)]
     pub name: Ident,
@@ -133,7 +135,7 @@ impl ToTokens for EnumValueVariant {
     }
 }
 
-impl Schemable for EnumValueVariant {
+impl AsSchema for EnumValueVariant {
     fn schema(&self) -> TokenStream {
         let Self {
             default,

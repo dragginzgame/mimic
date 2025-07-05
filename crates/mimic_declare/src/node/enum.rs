@@ -2,7 +2,7 @@ use crate::{
     helper::{quote_one, quote_option, quote_slice, to_str_lit},
     node::{Def, Type, Value},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{Macro, Schemable},
+    traits::{AsMacro, AsSchema, AsType},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -38,25 +38,13 @@ impl Enum {
     }
 }
 
-impl Macro for Enum {
+impl AsMacro for Enum {
     fn def(&self) -> &Def {
         &self.def
     }
 
-    fn macro_body(&self) -> TokenStream {
-        let Def { ident, .. } = &self.def;
-
-        // quote
-        let variants = &self.variants;
-        quote! {
-            pub enum #ident {
-                #(#variants,)*
-            }
-        }
-    }
-
     fn macro_extra(&self) -> TokenStream {
-        quote!()
+        self.view_tokens()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -76,11 +64,11 @@ impl Macro for Enum {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
-            //     Trait::TypeView => node_traits::TypeViewTrait::tokens(self, t),
+            Trait::TypeView => node_traits::TypeViewTrait::tokens(self, t),
             Trait::ValidateAuto => node_traits::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => node_traits::VisitableTrait::tokens(self, t),
 
-            _ => node_traits::any(self, t),
+            _ => None,
         }
     }
 
@@ -92,19 +80,46 @@ impl Macro for Enum {
     }
 }
 
-impl Schemable for Enum {
+impl AsSchema for Enum {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let variants = quote_slice(&self.variants, EnumVariant::schema);
         let ty = &self.ty.schema();
 
         quote! {
-            ::mimic::schema::node::Schemable::Enum(::mimic::schema::node::Enum {
+            ::mimic::schema::node::SchemaNode::Enum(::mimic::schema::node::Enum {
                 def: #def,
                 variants: #variants,
                 ty: #ty,
             })
         }
+    }
+}
+
+impl AsType for Enum {
+    fn view(&self) -> TokenStream {
+        let view_ident = self.def.view_ident();
+        let view_variants = self.variants.iter().map(AsType::view);
+
+        quote! {
+            pub enum #view_ident {
+                #(#view_variants,)*
+            }
+        }
+    }
+}
+
+impl ToTokens for Enum {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Def { ident, .. } = &self.def;
+
+        // quote
+        let variants = &self.variants;
+        tokens.extend(quote! {
+            pub enum #ident {
+                #(#variants,)*
+            }
+        });
     }
 }
 
@@ -158,7 +173,7 @@ impl ToTokens for EnumVariant {
     }
 }
 
-impl Schemable for EnumVariant {
+impl AsSchema for EnumVariant {
     fn schema(&self) -> TokenStream {
         let Self {
             default,
@@ -177,6 +192,21 @@ impl Schemable for EnumVariant {
                 default: #default,
                 unspecified: #unspecified,
             }
+        }
+    }
+}
+
+impl AsType for EnumVariant {
+    fn view(&self) -> TokenStream {
+        let name = &self.name;
+
+        match &self.value {
+            Some(ty) => quote! {
+                #name(<#ty as ::mimic::core::traits::TypeView>::View)
+            },
+            None => quote! {
+                #name
+            },
         }
     }
 }

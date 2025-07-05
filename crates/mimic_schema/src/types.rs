@@ -10,24 +10,20 @@ use serde::{Deserialize, Serialize};
 ///
 
 #[derive(
-    CandidType,
-    Clone,
-    Copy,
-    Default,
-    Debug,
-    Deserialize,
-    Display,
-    Eq,
-    FromStr,
-    FromMeta,
-    PartialEq,
-    Serialize,
+    CandidType, Clone, Copy, Default, Debug, Deserialize, Display, Eq, FromStr, PartialEq, Serialize,
 )]
 pub enum Cardinality {
     #[default]
     One,
     Opt,
     Many,
+}
+
+impl FromMeta for Cardinality {
+    fn from_string(s: &str) -> Result<Self, darling::Error> {
+        s.parse::<Cardinality>()
+            .map_err(|_| darling::Error::unknown_value(s))
+    }
 }
 
 impl ToTokens for Cardinality {
@@ -42,7 +38,7 @@ impl ToTokens for Cardinality {
 /// ConstantType
 ///
 
-#[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, FromMeta, FromStr, Serialize)]
+#[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, FromStr, Serialize)]
 #[remain::sorted]
 pub enum ConstantType {
     Bool,
@@ -79,6 +75,13 @@ impl ConstantType {
     }
 }
 
+impl FromMeta for ConstantType {
+    fn from_string(s: &str) -> Result<Self, darling::Error> {
+        s.parse::<ConstantType>()
+            .map_err(|_| darling::Error::unknown_value(s))
+    }
+}
+
 impl ToTokens for ConstantType {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let ident = format_ident!("{}", self.to_string());
@@ -91,7 +94,7 @@ impl ToTokens for ConstantType {
 /// Primitive
 ///
 
-#[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, FromStr, FromMeta, Serialize)]
+#[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, FromStr, Serialize)]
 #[remain::sorted]
 pub enum Primitive {
     Account,
@@ -254,6 +257,13 @@ impl Primitive {
     }
 }
 
+impl FromMeta for Primitive {
+    fn from_string(s: &str) -> Result<Self, darling::Error> {
+        s.parse::<Primitive>()
+            .map_err(|_| darling::Error::unknown_value(s))
+    }
+}
+
 impl ToTokens for Primitive {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let ident = format_ident!("{}", self.to_string());
@@ -266,10 +276,17 @@ impl ToTokens for Primitive {
 /// StoreType
 ///
 
-#[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, FromStr, FromMeta, Serialize)]
+#[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, FromStr, Serialize)]
 pub enum StoreType {
     Data,
     Index,
+}
+
+impl FromMeta for StoreType {
+    fn from_string(s: &str) -> Result<Self, darling::Error> {
+        s.parse::<StoreType>()
+            .map_err(|_| darling::Error::unknown_value(s))
+    }
 }
 
 impl ToTokens for StoreType {

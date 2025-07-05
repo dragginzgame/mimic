@@ -1,6 +1,7 @@
 use crate::core::{
     traits::{
-        FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable,
+        FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto, ValidateCustom,
+        Visitable,
     },
     types::{Principal, Subaccount},
     value::Value,
@@ -114,6 +115,18 @@ impl PartialEq<WrappedAccount> for Account {
 }
 
 impl_storable_bounded!(Account, 63, true);
+
+impl TypeView for Account {
+    type View = WrappedAccount;
+
+    fn to_view(&self) -> Self::View {
+        self.0
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        Self(view)
+    }
+}
 
 impl ValidateAuto for Account {}
 

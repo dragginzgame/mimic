@@ -1,23 +1,26 @@
 use crate::{
-    node::Def,
-    node_traits::{self, Trait, Traits},
-    traits::{Macro, Schemable},
+    node::{Def, FieldList},
+    node_traits::{Trait, Traits},
+    traits::{AsMacro, AsSchema},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{ToTokens, quote};
 
 ///
 /// Validator
 ///
 
-#[derive(Clone, Debug, FromMeta)]
+#[derive(Debug, FromMeta)]
 pub struct Validator {
     #[darling(default, skip)]
     pub def: Def,
+
+    #[darling(default)]
+    pub fields: FieldList,
 }
 
-impl Macro for Validator {
+impl AsMacro for Validator {
     fn def(&self) -> &Def {
         &self.def
     }
@@ -28,20 +31,32 @@ impl Macro for Validator {
 
         traits
     }
+}
 
-    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
-        node_traits::any(self, t)
+impl AsSchema for Validator {
+    fn schema(&self) -> TokenStream {
+        let def = self.def.schema();
+        let fields = self.fields.schema();
+
+        quote! {
+            ::mimic::schema::node::SchemaNode::Validator(::mimic::schema::node::Validator {
+                def: #def,
+                fields: #fields,
+            })
+        }
     }
 }
 
-impl Schemable for Validator {
-    fn schema(&self) -> TokenStream {
-        let def = self.def.schema();
+impl ToTokens for Validator {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Self { fields, .. } = self;
+        let Def { ident, .. } = &self.def;
 
-        quote! {
-            ::mimic::schema::node::Schemable::Validator(::mimic::schema::node::Validator {
-                def: #def,
-            })
-        }
+        // quote
+        tokens.extend(quote! {
+            pub struct #ident {
+                #fields
+            }
+        });
     }
 }

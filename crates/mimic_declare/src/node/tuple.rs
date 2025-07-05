@@ -2,7 +2,7 @@ use crate::{
     helper::quote_slice,
     node::{Def, Type, Value},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{Macro, Schemable},
+    traits::{AsMacro, AsSchema},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -27,13 +27,9 @@ pub struct Tuple {
     pub traits: Traits,
 }
 
-impl Macro for Tuple {
+impl AsMacro for Tuple {
     fn def(&self) -> &Def {
         &self.def
-    }
-
-    fn macro_body(&self) -> TokenStream {
-        quote! { self }
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -46,21 +42,22 @@ impl Macro for Tuple {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
+            Trait::TypeView => node_traits::TypeViewTrait::tokens(self, t),
             Trait::Visitable => node_traits::VisitableTrait::tokens(self, t),
 
-            _ => node_traits::any(self, t),
+            _ => None,
         }
     }
 }
 
-impl Schemable for Tuple {
+impl AsSchema for Tuple {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let values = quote_slice(&self.values, Value::schema);
         let ty = &self.ty.schema();
 
         quote! {
-            ::mimic::schema::node::Schemable::Tuple(::mimic::schema::node::Tuple {
+            ::mimic::schema::node::SchemaNode::Tuple(::mimic::schema::node::Tuple {
                 def: #def,
                 values: #values,
                 ty: #ty,

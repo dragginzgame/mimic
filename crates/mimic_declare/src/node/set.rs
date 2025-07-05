@@ -1,7 +1,7 @@
 use crate::{
     node::{Def, Item, Type},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{Macro, Schemable},
+    traits::{AsMacro, AsSchema},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -25,13 +25,9 @@ pub struct Set {
     pub traits: Traits,
 }
 
-impl Macro for Set {
+impl AsMacro for Set {
     fn def(&self) -> &Def {
         &self.def
-    }
-
-    fn macro_body(&self) -> TokenStream {
-        quote! { self }
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -49,10 +45,11 @@ impl Macro for Set {
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
+            Trait::TypeView => node_traits::TypeViewTrait::tokens(self, t),
             Trait::ValidateAuto => node_traits::ValidateAutoTrait::tokens(self, t),
             Trait::Visitable => node_traits::VisitableTrait::tokens(self, t),
 
-            _ => node_traits::any(self, t),
+            _ => None,
         }
     }
 
@@ -61,14 +58,14 @@ impl Macro for Set {
     }
 }
 
-impl Schemable for Set {
+impl AsSchema for Set {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let item = self.item.schema();
         let ty = self.ty.schema();
 
         quote! {
-            ::mimic::schema::node::Schemable::Set(::mimic::schema::node::Set {
+            ::mimic::schema::node::SchemaNode::Set(::mimic::schema::node::Set {
                 def: #def,
                 item: #item,
                 ty: #ty,

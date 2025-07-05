@@ -3,8 +3,8 @@ use crate::{
     common::error::ErrorTree,
     core::{
         traits::{
-            FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, ValidateCustom,
-            Visitable,
+            FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto,
+            ValidateCustom, Visitable,
         },
         value::Value,
     },
@@ -151,6 +151,18 @@ impl PartialEq<Principal> for WrappedPrincipal {
 }
 
 impl_storable_bounded!(Principal, 30, true);
+
+impl TypeView for Principal {
+    type View = WrappedPrincipal;
+
+    fn to_view(&self) -> Self::View {
+        self.0
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        Self(view)
+    }
+}
 
 impl ValidateAuto for Principal {
     fn validate_self(&self) -> Result<(), ErrorTree> {

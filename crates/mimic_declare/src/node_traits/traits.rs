@@ -80,7 +80,7 @@ pub enum Trait {
 ///
 
 #[rustfmt::skip]
-static DEFAULT_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
+ static DEFAULT_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
     vec![
         Trait::Clone,
         Trait::Debug,
@@ -90,7 +90,6 @@ static DEFAULT_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
 
 static TYPE_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
     vec![
-        Trait::CandidType,
         Trait::Deserialize,
         Trait::FieldSearchable,
         Trait::FieldSortable,
@@ -103,6 +102,9 @@ static TYPE_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
         Trait::Visitable,
     ]
 });
+
+static VIEW_TRAITS: LazyLock<Vec<Trait>> =
+    LazyLock::new(|| vec![Trait::CandidType, Trait::Serialize, Trait::Deserialize]);
 
 // path_to_string
 #[must_use]
@@ -184,13 +186,13 @@ impl ToTokens for Trait {
 /// Traits
 ///
 
-#[derive(Clone, Debug, Default, FromMeta)]
+#[derive(Clone, Debug, FromMeta)]
 pub struct Traits {
     #[darling(default)]
-    pub add: TraitAdd,
+    pub add: TraitList,
 
     #[darling(default)]
-    pub remove: TraitRemove,
+    pub remove: TraitList,
 }
 
 impl Traits {
@@ -237,21 +239,47 @@ impl Traits {
     }
 }
 
-///
-/// TraitAdd
-/// defaults with the common types
-///
-
-#[derive(Clone, Debug, Deref, DerefMut)]
-pub struct TraitAdd(Vec<Trait>);
-
-impl Default for TraitAdd {
+impl Default for Traits {
     fn default() -> Self {
-        Self(DEFAULT_TRAITS.to_vec())
+        Self {
+            add: TraitList(DEFAULT_TRAITS.clone()),
+            remove: TraitList::default(),
+        }
     }
 }
 
-impl FromMeta for TraitAdd {
+///
+/// TraitList
+///
+
+#[derive(Clone, Debug, Default, Deref, DerefMut)]
+pub struct TraitList(pub Vec<Trait>);
+
+impl TraitList {
+    pub fn view_traits() -> Self {
+        Self(VIEW_TRAITS.clone())
+    }
+
+    pub fn to_derive_tokens(&self) -> TokenStream {
+        if self.0.is_empty() {
+            quote!()
+        } else {
+            let derive_paths = self.0.iter().filter_map(|tr| tr.derive_path());
+
+            quote! {
+                #[derive(#(#derive_paths),*)]
+            }
+        }
+    }
+}
+
+impl From<&[Trait]> for TraitList {
+    fn from(traits: &[Trait]) -> Self {
+        Self(traits.to_vec())
+    }
+}
+
+impl FromMeta for TraitList {
     fn from_list(items: &[NestedMeta]) -> Result<Self, DarlingError> {
         let mut traits = Self::default();
 
@@ -261,22 +289,5 @@ impl FromMeta for TraitAdd {
         }
 
         Ok(traits)
-    }
-}
-
-///
-/// TraitRemove
-///
-
-#[derive(Clone, Debug, Default, Deref, DerefMut)]
-pub struct TraitRemove(Vec<Trait>);
-
-impl FromMeta for TraitRemove {
-    fn from_list(items: &[NestedMeta]) -> Result<Self, DarlingError> {
-        items
-            .iter()
-            .map(Trait::from_nested_meta)
-            .collect::<Result<Vec<_>, _>>()
-            .map(Self)
     }
 }

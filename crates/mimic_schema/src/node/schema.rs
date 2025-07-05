@@ -14,12 +14,12 @@ use std::{
 };
 
 ///
-/// Schemable
+/// SchemaNode
 ///
 
 #[remain::sorted]
 #[derive(Clone, Debug, Serialize)]
-pub enum Schemable {
+pub enum SchemaNode {
     Canister(Canister),
     Constant(Constant),
     Entity(Entity),
@@ -36,7 +36,7 @@ pub enum Schemable {
     Validator(Validator),
 }
 
-impl Schemable {
+impl SchemaNode {
     #[must_use]
     pub fn get_type(&self) -> Option<Box<dyn TypeNode>> {
         match self {
@@ -54,7 +54,7 @@ impl Schemable {
     }
 }
 
-impl Schemable {
+impl SchemaNode {
     const fn def(&self) -> &Def {
         match self {
             Self::Canister(n) => &n.def,
@@ -75,7 +75,7 @@ impl Schemable {
     }
 }
 
-impl MacroNode for Schemable {
+impl MacroNode for SchemaNode {
     fn as_any(&self) -> &dyn Any {
         match self {
             Self::Canister(n) => n.as_any(),
@@ -96,9 +96,9 @@ impl MacroNode for Schemable {
     }
 }
 
-impl ValidateNode for Schemable {}
+impl ValidateNode for SchemaNode {}
 
-impl VisitableNode for Schemable {
+impl VisitableNode for SchemaNode {
     fn drive<V: Visitor>(&self, v: &mut V) {
         match self {
             Self::Canister(n) => n.accept(v),
@@ -125,7 +125,7 @@ impl VisitableNode for Schemable {
 
 #[derive(Clone, Debug, Serialize)]
 pub struct Schema {
-    pub nodes: BTreeMap<String, Schemable>,
+    pub nodes: BTreeMap<String, SchemaNode>,
     pub hash: &'static str,
     pub timestamp: u64,
 }
@@ -141,18 +141,18 @@ impl Schema {
     }
 
     // insert_node
-    pub fn insert_node(&mut self, node: Schemable) {
+    pub fn insert_node(&mut self, node: SchemaNode) {
         self.nodes.insert(node.def().path(), node);
     }
 
     // get_node
     #[must_use]
-    pub fn get_node<'a>(&'a self, path: &str) -> Option<&'a Schemable> {
+    pub fn get_node<'a>(&'a self, path: &str) -> Option<&'a SchemaNode> {
         self.nodes.get(path)
     }
 
     // try_get_node
-    pub fn try_get_node<'a>(&'a self, path: &str) -> Result<&'a Schemable, SchemaError> {
+    pub fn try_get_node<'a>(&'a self, path: &str) -> Result<&'a SchemaNode, SchemaError> {
         let node = self
             .get_node(path)
             .ok_or_else(|| NodeError::PathNotFound(path.to_string()))?;

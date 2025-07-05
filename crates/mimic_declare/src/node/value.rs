@@ -1,4 +1,4 @@
-use crate::{node::Item, traits::Schemable};
+use crate::{node::Item, traits::AsSchema};
 use darling::FromMeta;
 use mimic_schema::types::Cardinality;
 use proc_macro2::TokenStream;
@@ -31,7 +31,7 @@ impl Value {
     }
 }
 
-impl Schemable for Value {
+impl AsSchema for Value {
     fn schema(&self) -> TokenStream {
         let cardinality = &self.cardinality();
         let item = &self.item.schema();
@@ -49,10 +49,10 @@ impl ToTokens for Value {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let item = &self.item;
 
-        let q = match *self.cardinality() {
-            WCardinality::One => quote!(#item),
-            WCardinality::Opt => quote!(Option<#item>),
-            WCardinality::Many => {
+        let q = match self.cardinality() {
+            Cardinality::One => quote!(#item),
+            Cardinality::Opt => quote!(Option<#item>),
+            Cardinality::Many => {
                 if item.is_relation() {
                     quote!(::mimic::core::db::EntityKeys)
                 } else {
