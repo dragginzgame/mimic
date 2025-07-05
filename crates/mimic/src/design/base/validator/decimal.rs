@@ -5,10 +5,8 @@ use num_traits::NumCast;
 /// MaxDecimalPlaces
 ///
 
-#[validator]
-pub struct MaxDecimalPlaces {
-    pub target: u32,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Nat32")))))]
+pub struct MaxDecimalPlaces {}
 
 impl MaxDecimalPlaces {
     pub fn new<N: NumCast>(target: N) -> Self {

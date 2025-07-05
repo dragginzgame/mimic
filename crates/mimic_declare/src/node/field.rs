@@ -4,7 +4,6 @@ use crate::{
     traits::{AsSchema, AsType},
 };
 use darling::FromMeta;
-use mimic_schema::types::Cardinality;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use std::slice::Iter;
@@ -107,10 +106,10 @@ impl AsSchema for Field {
 impl AsType for Field {
     fn view(&self) -> TokenStream {
         let name = &self.name;
-        let ty = &self.value;
+        let value_view = AsType::view(&self.value);
 
         quote! {
-            #name: <#ty as ::mimic::core::traits::TypeView>::View
+            #name: #value_view
         }
     }
 }
@@ -120,19 +119,7 @@ impl ToTokens for Field {
         let name = &self.name;
         let value = &self.value;
 
-        // serde
-        let serde_attr = match value.cardinality() {
-            Cardinality::Opt => {
-                quote!(#[serde(default, skip_serializing_if = "Option::is_none")])
-            }
-            Cardinality::Many => {
-                quote!(#[serde(default, skip_serializing_if = "Vec::is_empty")])
-            }
-            Cardinality::One => quote!(),
-        };
-
         tokens.extend(quote! {
-            #serde_attr
             pub #name : #value
         });
     }

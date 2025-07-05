@@ -60,7 +60,6 @@ impl Imp<Enum> for VisitableTrait {
         let inner = quote! {
             match self {
                 #variant_tokens
-                _ => {},
             }
         };
 

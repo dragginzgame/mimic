@@ -17,7 +17,7 @@ fn truncate_string<S: ToString>(s: &S) -> String {
 /// Equal
 ///
 
-#[validator(fields(field(name = "target", value(item(prim = "Nat64")))))]
+#[validator(fields(field(name = "target", value(item(prim = "Nat32")))))]
 pub struct Equal {}
 
 impl Equal {
@@ -31,7 +31,7 @@ impl Equal {
 impl ValidatorString for Equal {
     fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
         let string = s.as_ref();
-        let len = string.len();
+        let len = string.len() as u32;
 
         if len == self.target {
             Ok(())
@@ -50,7 +50,7 @@ impl ValidatorString for Equal {
 /// Min
 ///
 
-#[validator(fields(field(name = "target", value(item(prim = "Nat64")))))]
+#[validator(fields(field(name = "target", value(item(prim = "Nat32")))))]
 pub struct Min {}
 
 impl Min {
@@ -64,7 +64,7 @@ impl Min {
 impl ValidatorString for Min {
     fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
         let string = s.as_ref();
-        let len = string.len();
+        let len = string.len() as u32;
 
         if len < self.target {
             Err(format!(
@@ -83,7 +83,7 @@ impl ValidatorString for Min {
 /// Max
 ///
 
-#[validator(fields(field(name = "target", value(item(prim = "Nat64")))))]
+#[validator(fields(field(name = "target", value(item(prim = "Nat32")))))]
 pub struct Max {}
 
 impl Max {
@@ -97,7 +97,7 @@ impl Max {
 impl ValidatorString for Max {
     fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
         let string = s.as_ref();
-        let len = string.len();
+        let len = string.len() as u32;
 
         if len > self.target {
             Err(format!(

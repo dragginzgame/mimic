@@ -1,7 +1,7 @@
 use crate::{
     node::{Def, Item, Type},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{AsMacro, AsSchema},
+    traits::{AsMacro, AsSchema, AsType},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -31,14 +31,7 @@ impl AsMacro for List {
     }
 
     fn macro_extra(&self) -> TokenStream {
-        let item = &self.item;
-        let view_ident = &self.def.view_ident();
-
-        quote! {
-            #[derive(CandidType)]
-            #[allow(non_camel_case_types)]
-            pub struct #view_ident(Vec<<#item as ::mimic::core::traits::TypeView>::View>);
-        }
+        self.view_tokens()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -92,6 +85,17 @@ impl AsSchema for List {
                 item: #item,
                 ty: #ty,
             })
+        }
+    }
+}
+
+impl AsType for List {
+    fn view(&self) -> TokenStream {
+        let view_ident = &self.def.view_ident();
+        let item_view = AsType::view(&self.item);
+
+        quote! {
+            pub struct #view_ident(Vec<#item_view>);
         }
     }
 }

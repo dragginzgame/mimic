@@ -1,6 +1,6 @@
 use crate::{
     node::Def,
-    node_traits::{self, Trait, Traits},
+    node_traits::{Trait, Traits},
     traits::{AsMacro, AsSchema},
 };
 use darling::FromMeta;

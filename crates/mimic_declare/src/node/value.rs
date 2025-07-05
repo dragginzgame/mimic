@@ -1,4 +1,7 @@
-use crate::{node::Item, traits::AsSchema};
+use crate::{
+    node::Item,
+    traits::{AsSchema, AsType},
+};
 use darling::FromMeta;
 use mimic_schema::types::Cardinality;
 use proc_macro2::TokenStream;
@@ -42,6 +45,25 @@ impl AsSchema for Value {
                 item: #item,
             }
         )
+    }
+}
+
+impl AsType for Value {
+    fn view(&self) -> TokenStream {
+        let item = &self.item;
+        let item_view = AsType::view(item);
+
+        match self.cardinality() {
+            Cardinality::One => quote!(#item_view),
+            Cardinality::Opt => quote!(Option<#item_view>),
+            Cardinality::Many => {
+                if item.is_relation() {
+                    quote!(::mimic::core::db::EntityKeys)
+                } else {
+                    quote!(Vec<#item_view>)
+                }
+            }
+        }
     }
 }
 

@@ -166,9 +166,9 @@ impl ToTokens for EnumVariant {
 
         // quote
         tokens.extend(if let Some(value) = &self.value {
-            quote! (#name(#value))
+            quote!(#name(#value))
         } else {
-            quote! (#name)
+            quote!(#name)
         });
     }
 }
@@ -201,9 +201,13 @@ impl AsType for EnumVariant {
         let name = &self.name;
 
         match &self.value {
-            Some(ty) => quote! {
-                #name(<#ty as ::mimic::core::traits::TypeView>::View)
-            },
+            Some(value) => {
+                let value_view = AsType::view(value);
+
+                quote! {
+                    #name(#value_view)
+                }
+            }
             None => quote! {
                 #name
             },

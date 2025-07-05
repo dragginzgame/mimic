@@ -1,5 +1,5 @@
 use crate::{
-    helper::{as_tokens, quote_one, quote_option, to_str_lit},
+    helper::{as_tokens, format_view_ident, quote_one, quote_option, to_str_lit},
     traits::AsSchema,
 };
 use proc_macro2::TokenStream;
@@ -22,7 +22,7 @@ pub struct Def {
 
 impl Def {
     pub fn view_ident(&self) -> Ident {
-        format_ident!("{}_View", self.ident)
+        format_view_ident(&self.ident)
     }
 }
 

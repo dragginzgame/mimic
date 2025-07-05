@@ -84,15 +84,12 @@ impl AsSchema for Map {
 impl AsType for Map {
     fn view(&self) -> TokenStream {
         let view_ident = self.def.view_ident();
-        let key = &self.key;
-        let value = &self.value;
+        let key_view = AsType::view(&self.key);
+        let value_view = AsType::view(&self.value);
 
         quote! {
             pub struct #view_ident(
-                ::std::collections::HashMap<
-                    <#key as ::mimic::core::traits::TypeView>::View,
-                    <#value as ::mimic::core::traits::TypeView>::View
-                >
+                ::std::collections::HashMap<#key_view, #value_view>
             );
         }
     }

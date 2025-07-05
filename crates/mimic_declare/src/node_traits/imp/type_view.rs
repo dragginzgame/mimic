@@ -101,12 +101,14 @@ impl Imp<Map> for TypeViewTrait {
             type View = #view_ident;
 
             fn to_view(&self) -> Self::View {
-                self.0.iter()
+                let inner = self.0.iter()
                     .map(|(k, v)| (
                         k.to_view(),
                         v.to_view()
                     ))
-                    .collect()
+                    .collect();
+
+                #view_ident(inner)
             }
 
             fn from_view(view: Self::View) -> Self {

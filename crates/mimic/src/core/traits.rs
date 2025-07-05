@@ -185,6 +185,42 @@ pub trait TypeView {
     fn from_view(view: Self::View) -> Self;
 }
 
+impl<T: TypeView> TypeView for Box<T> {
+    type View = Box<T::View>;
+
+    fn to_view(&self) -> Self::View {
+        Box::new((**self).to_view())
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        Box::new(T::from_view(*view))
+    }
+}
+
+impl<T: TypeView> TypeView for Option<T> {
+    type View = Option<T::View>;
+
+    fn to_view(&self) -> Self::View {
+        self.as_ref().map(|v| v.to_view())
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        view.map(T::from_view)
+    }
+}
+
+impl<T: TypeView> TypeView for Vec<T> {
+    type View = Vec<T::View>;
+
+    fn to_view(&self) -> Self::View {
+        self.iter().map(|v| v.to_view()).collect()
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        view.into_iter().map(T::from_view).collect()
+    }
+}
+
 impl TypeView for String {
     type View = String;
 

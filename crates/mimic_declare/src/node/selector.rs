@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_slice, to_path, to_str_lit},
     node::{Arg, Def},
-    node_traits::{self, Trait, Traits},
+    node_traits::{Trait, Traits},
     traits::{AsMacro, AsSchema},
 };
 use darling::FromMeta;

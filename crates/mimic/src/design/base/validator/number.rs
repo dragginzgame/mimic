@@ -198,11 +198,11 @@ impl ValidatorNumber for NotEqual {
 /// Range
 ///
 
-#[validator]
-pub struct Range {
-    pub min: f64,
-    pub max: f64,
-}
+#[validator(fields(
+    field(name = "min", value(item(prim = "Float64"))),
+    field(name = "max", value(item(prim = "Float64"))),
+))]
+pub struct Range {}
 
 impl Range {
     pub fn new<N>(min: N, max: N) -> Self
@@ -238,10 +238,8 @@ impl ValidatorNumber for Range {
 /// MultipleOf
 ///
 
-#[validator]
-pub struct MultipleOf {
-    pub target: i32,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Int32")))))]
+pub struct MultipleOf {}
 
 impl MultipleOf {
     pub fn new<N: NumCast>(target: N) -> Self {
@@ -275,10 +273,8 @@ impl ValidatorNumber for MultipleOf {
 /// InArray
 ///
 
-#[validator]
-pub struct InArray {
-    values: Vec<i32>,
-}
+#[validator(fields(field(name = "values", value(many, item(prim = "Int32")))))]
+pub struct InArray {}
 
 impl InArray {
     #[must_use]

@@ -1,7 +1,7 @@
 use crate::{
-    helper::{quote_one, quote_option, quote_slice, to_path},
+    helper::{format_view_ident, quote_one, quote_option, quote_slice, to_path},
     node::TypeValidator,
-    traits::AsSchema,
+    traits::{AsSchema, AsType},
 };
 use darling::FromMeta;
 use mimic_schema::types::Primitive;
@@ -68,6 +68,30 @@ impl AsSchema for Item {
                 validators: #validators,
                 indirect: #indirect,
                 todo: #todo,
+            }
+        }
+    }
+}
+
+impl AsType for Item {
+    fn view(&self) -> TokenStream {
+        match self.target() {
+            ItemTarget::Prim(prim) => {
+                let prim_ty = prim.as_type();
+
+                quote! {
+                    <#prim_ty as ::mimic::core::traits::TypeView>::View
+                }
+            }
+            other => {
+                let path = other.quoted_path();
+                let view_ident = format_view_ident(path);
+
+                if self.indirect {
+                    quote!(Box<#view_ident>)
+                } else {
+                    quote!(#view_ident)
+                }
             }
         }
     }

@@ -44,7 +44,7 @@ impl TypeView for Unit {
     type View = Self;
 
     fn to_view(&self) -> Self::View {
-        self.clone()
+        *self
     }
 
     fn from_view(view: Self::View) -> Self {

@@ -3,6 +3,16 @@ use quote::{ToTokens, format_ident, quote};
 use syn::Ident;
 
 ///
+/// IDENT
+///
+
+pub fn format_view_ident<T: ToString>(ty: T) -> Ident {
+    let base = ty.to_string();
+
+    format_ident!("{base}_View")
+}
+
+///
 /// QUOTING
 ///
 
