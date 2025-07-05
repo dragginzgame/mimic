@@ -2,7 +2,7 @@ use crate::{
     helper::quote_option,
     node::{Arg, Def, Item, Type},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{MacroNode, SchemaNode},
+    traits::{MacroNode, SchemaNode, TypeNode},
     types::BPrimitive,
 };
 use darling::FromMeta;
@@ -33,19 +33,33 @@ pub struct Newtype {
 
 impl ToTokens for Newtype {
     fn to_tokens(&self, tokens: &mut TokenStream) {
+        let schema = self.schema_tokens();
+        let ty = self.type_tokens();
+
+        tokens.extend(quote! {
+            #schema
+            #ty
+        });
+    }
+}
+
+impl TypeNode for Newtype {
+    fn main_tokens(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
         let item = &self.item;
 
-        // view
+        quote! {
+            pub struct #ident(#item);
+        }
+    }
+
+    fn view_tokens(&self) -> TokenStream {
         let view_ident = self.def.view_ident();
         let view_type = self.primitive.as_type();
 
-        tokens.extend(quote! {
-            pub struct #ident(#item);
-
-            #[derive(CandidType)]
+        quote! {
             pub struct #view_ident(#view_type);
-        });
+        }
     }
 }
 

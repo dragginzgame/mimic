@@ -14,10 +14,10 @@ pub struct Memo {}
 /// Payment
 ///
 
-#[record(
+#[record(fields(
     field(name = "recipient", value(item(prim = "Principal"))),
     field(name = "tokens", value(item(is = "Tokens")))
-)]
+))]
 pub struct Payment {}
 
 ///

@@ -7,13 +7,15 @@ use crate::prelude::*;
 #[entity(
     store = "crate::schema::FixtureStore",
     data_key(entity = "Filterable", field = "id"),
-    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-    field(name = "name", value(item(prim = "Text"))),
-    field(name = "category", value(item(prim = "Text"))),
-    field(name = "active", value(item(prim = "Bool"))),
-    field(name = "score", value(item(prim = "Float64"))),
-    field(name = "level", value(item(prim = "Nat8"))),
-    field(name = "offset", value(item(prim = "Int32"))),
+    fields(
+        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(name = "name", value(item(prim = "Text"))),
+        field(name = "category", value(item(prim = "Text"))),
+        field(name = "active", value(item(prim = "Bool"))),
+        field(name = "score", value(item(prim = "Float64"))),
+        field(name = "level", value(item(prim = "Nat8"))),
+        field(name = "offset", value(item(prim = "Int32"))),
+    ),
     traits(remove(EntityFixture))
 )]
 pub struct Filterable {}

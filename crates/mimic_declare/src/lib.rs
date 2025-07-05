@@ -13,7 +13,7 @@ use quote::quote;
 use syn::{Attribute, ItemStruct, LitStr, Visibility, parse_macro_input};
 
 ///
-/// Node Macro Macros
+/// Node Macros
 ///
 
 macro_rules! macro_node {
@@ -45,7 +45,6 @@ macro_rules! macro_node {
                     let mut node = <$node_type>::from_list(&args).unwrap();
                     node.def = Def {
                         comments,
-                        tokens,
                         ident: item.ident.clone(),
                         debug,
                     };
@@ -59,7 +58,6 @@ macro_rules! macro_node {
     };
 }
 
-// macro macros
 macro_node!(canister, node::Canister);
 macro_node!(constant, node::Constant);
 macro_node!(entity, node::Entity);
@@ -80,7 +78,10 @@ macro_node!(validator, node::Validator);
 /// Helper Functions
 ///
 
-// extract_comments
+/// Extracts and joins `///` doc comments from a list of attributes into a single `LitStr`.
+///
+/// Strips leading spaces from each doc line, trims surrounding newlines,
+/// and returns `None` if no doc comments are found.
 fn extract_comments(attrs: &[Attribute]) -> Option<LitStr> {
     let lines: Vec<String> = attrs
         .iter()

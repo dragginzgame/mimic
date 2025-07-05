@@ -1,7 +1,7 @@
 use crate::{
     node::{Def, Item, Type},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{MacroNode, SchemaNode},
+    traits::{MacroNode, SchemaNode, TypeNode},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -27,19 +27,33 @@ pub struct List {
 
 impl ToTokens for List {
     fn to_tokens(&self, tokens: &mut TokenStream) {
+        let schema = self.schema_tokens();
+        let ty = self.type_tokens();
+
+        tokens.extend(quote! {
+            #schema
+            #ty
+        });
+    }
+}
+
+impl TypeNode for List {
+    fn main_tokens(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
         let item = &self.item;
 
-        // view
+        quote! {
+            pub struct #ident(Vec<#item>);
+        }
+    }
+
+    fn view_tokens(&self) -> TokenStream {
+        let item = &self.item;
         let view_ident = &self.def.view_ident();
 
-        // quote
-        tokens.extend(quote! {
-            pub struct #ident(Vec<#item>);
-
-            #[derive(CandidType)]
+        quote! {
             pub struct #view_ident(Vec<<#item as ::mimic::core::traits::TypeView>::View>);
-        });
+        }
     }
 }
 

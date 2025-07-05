@@ -9,9 +9,11 @@ use crate::prelude::*;
     data_key(entity = "Index", field = "id"),
     index(store = "crate::schema::TestIndex", fields = "x"),
     index(store = "crate::schema::TestIndex", fields = "y", unique),
-    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-    field(name = "x", value(item(prim = "Int32"))),
-    field(name = "y", value(item(prim = "Int32")))
+    fields(
+        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(name = "x", value(item(prim = "Int32"))),
+        field(name = "y", value(item(prim = "Int32")))
+    )
 )]
 pub struct Index {}
 
@@ -33,15 +35,17 @@ impl Index {
 #[entity(
     store = "crate::schema::TestStore",
     data_key(entity = "IndexWithFixtures", field = "id"),
-    index(store = "crate::schema::TestIndex", fields = "x", unique),             // unique
-    index(store = "crate::schema::TestIndex", fields = "y"),                     // normal
-    index(store = "crate::schema::TestIndex", fields = "x, z"),                  // compound with opt
-    index(store = "crate::schema::TestIndex", fields = "y, z", unique),          // compound unique with opt
-    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-    field(name = "x", value(item(prim = "Int32"))),
-    field(name = "y", value(item(prim = "Int32"))),
-    field(name = "z", value(opt, item(prim = "Int32"))),
-    traits(remove(EntityFixture)),
+    index(store = "crate::schema::TestIndex", fields = "x", unique),
+    index(store = "crate::schema::TestIndex", fields = "y"),
+    index(store = "crate::schema::TestIndex", fields = "x, z"),
+    index(store = "crate::schema::TestIndex", fields = "y, z", unique),
+    fields(
+        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(name = "x", value(item(prim = "Int32"))),
+        field(name = "y", value(item(prim = "Int32"))),
+        field(name = "z", value(opt, item(prim = "Int32"))),
+    ),
+    traits(remove(EntityFixture))
 )]
 pub struct IndexWithFixtures {}
 
@@ -92,10 +96,12 @@ impl EntityFixture for IndexWithFixtures {
     store = "crate::schema::TestStore",
     data_key(entity = "IndexRelation", field = "id"),
     index(store = "crate::schema::TestIndex", fields = "rarity_key"),
-    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-    field(
-        name = "rarity_key",
-        value(item(rel = "crate::fixture::rarity::Rarity"))
+    fields(
+        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(
+            name = "rarity_key",
+            value(item(rel = "crate::fixture::rarity::Rarity"))
+        )
     )
 )]
 pub struct IndexRelation {}

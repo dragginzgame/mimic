@@ -16,7 +16,6 @@ use syn::{Ident, LitStr};
 #[derive(Clone, Debug)]
 pub struct Def {
     pub comments: Option<LitStr>,
-    pub tokens: TokenStream,
     pub ident: Ident,
     pub debug: bool,
 }
@@ -31,7 +30,6 @@ impl Default for Def {
     fn default() -> Self {
         Self {
             comments: None,
-            tokens: TokenStream::default(),
             ident: format_ident!("temp"),
             debug: false,
         }

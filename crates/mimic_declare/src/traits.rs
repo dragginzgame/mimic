@@ -41,13 +41,14 @@ pub struct TraitTokens {
 pub trait MacroNode: ToTokens {
     fn def(&self) -> &Def;
 
-    // macro_tokens
-    fn macro_tokens(&self) -> TokenStream {
+    // wrap_macro_tokens
+    // adds the derives and impls to any existing macro token stream
+    fn wrap_macro_tokens(&self, tokens: TokenStream) -> TokenStream {
         let TraitTokens { derive, impls } = self.trait_tokens();
 
         let q = quote! {
             #derive
-            #self
+            #tokens
             #impls
         };
 
@@ -123,7 +124,7 @@ pub trait MacroNode: ToTokens {
     // map_trait
     // if None is returned it means that this trait should be derived
     // otherwise it's the code for the implementation
-    fn map_trait(&self, t: crate::node_traits::Trait) -> Option<TokenStream> {
+    fn map_trait(&self, _: crate::node_traits::Trait) -> Option<TokenStream> {
         None
     }
 
@@ -135,15 +136,40 @@ pub trait MacroNode: ToTokens {
 }
 
 ///
+/// TypeNode
+///
+
+pub trait TypeNode: MacroNode {
+    fn type_tokens(&self) -> TokenStream {
+        let main_tokens = self.wrap_macro_tokens(self.main_tokens());
+        let view_tokens = self.view_tokens();
+
+        quote! {
+            // main type
+            #main_tokens
+
+            // view type
+            #[derive(CandidType)]
+            #[allow(non_camel_case_types)]
+            #view_tokens
+        }
+    }
+
+    fn main_tokens(&self) -> TokenStream;
+
+    fn view_tokens(&self) -> TokenStream;
+}
+
+///
 /// SchemaNode
 /// any node that can generate schema structure
 ///
 
 pub trait SchemaNode {
-    // wrapped_schema
+    // schema_tokens
     // generates the structure passed via ctor to the static schema
     #[must_use]
-    fn wrapped_schema(&self) -> TokenStream {
+    fn schema_tokens(&self) -> TokenStream {
         let mut rng = RNG.lock().expect("Failed to lock RNG");
         let ctor_fn = format_ident!("ctor_{}", rng.next_u32());
         let schema = self.schema();
