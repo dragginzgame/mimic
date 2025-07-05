@@ -1,10 +1,10 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_path},
     node::TypeValidator,
-    traits::SchemaNode,
-    types::{BPrimitive, Primitive},
+    traits::Schemable,
 };
 use darling::FromMeta;
+use mimic_schema::types::Primitive;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use syn::Path;
@@ -19,7 +19,7 @@ pub struct Item {
     pub is: Option<Path>,
 
     #[darling(default, rename = "prim")]
-    pub primitive: Option<BPrimitive>,
+    pub primitive: Option<Primitive>,
 
     #[darling(default, rename = "rel")]
     pub relation: Option<Path>,
@@ -43,7 +43,7 @@ impl Item {
             (Some(path), None, None) => ItemTarget::Is(path.clone()),
             (None, Some(prim), None) => ItemTarget::Prim(*prim),
             (None, None, Some(path)) => ItemTarget::Relation(path.clone()),
-            (None, None, None) => ItemTarget::Prim(BPrimitive(Primitive::Unit)),
+            (None, None, None) => ItemTarget::Prim(Primitive::Unit),
             _ => panic!("item should not have more than one target selected (is, prim, relation)"),
         }
     }
@@ -53,7 +53,7 @@ impl Item {
     }
 }
 
-impl SchemaNode for Item {
+impl Schemable for Item {
     fn schema(&self) -> TokenStream {
         let target = self.target().schema();
         let selector = quote_option(self.selector.as_ref(), to_path);
@@ -94,11 +94,7 @@ impl ToTokens for Item {
 pub enum ItemTarget {
     Is(Path),
     Relation(Path),
-    Prim(BPrimitive),
-}
-
-impl ToTokens for ItemTarget {
-    fn to_tokens(&self, _: &mut proc_macro2::TokenStream) {}
+    Prim(Primitive),
 }
 
 impl ItemTarget {
@@ -114,7 +110,7 @@ impl ItemTarget {
     }
 }
 
-impl SchemaNode for ItemTarget {
+impl Schemable for ItemTarget {
     fn schema(&self) -> TokenStream {
         match self {
             Self::Is(path) => {

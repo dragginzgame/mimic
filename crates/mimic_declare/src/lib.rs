@@ -4,12 +4,10 @@ mod helper;
 mod node;
 mod node_traits;
 mod traits;
-mod types;
 
-use crate::{node::Def, traits::MacroNode};
+use crate::{node::Def, traits::Macro};
 use darling::{Error as DarlingError, FromMeta, ast::NestedMeta};
 use proc_macro2::Span;
-use quote::quote;
 use syn::{Attribute, ItemStruct, LitStr, Visibility, parse_macro_input};
 
 ///
@@ -35,9 +33,6 @@ macro_rules! macro_node {
                         );
                     }
 
-                    // Save the struct's code as tokens
-                    let tokens = quote! { #item };
-
                     // Check if the `#[debug]` attribute is present
                     let debug = item.attrs.iter().any(|attr| attr.path().is_ident("debug"));
 
@@ -49,8 +44,8 @@ macro_rules! macro_node {
                         debug,
                     };
 
-                    // expand tokens
-                    MacroNode::macro_tokens(&node).into()
+                    // emit macro
+                    node.emit_macro().into()
                 }
                 Err(e) => proc_macro::TokenStream::from(DarlingError::from(e).write_errors()),
             }

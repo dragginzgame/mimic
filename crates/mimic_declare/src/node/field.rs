@@ -1,10 +1,10 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_str_lit},
     node::{Arg, Value},
-    traits::SchemaNode,
-    types::Cardinality,
+    traits::Schemable,
 };
 use darling::FromMeta;
+use mimic_schema::types::Cardinality;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use std::slice::Iter;
@@ -64,7 +64,7 @@ impl<'a> IntoIterator for &'a FieldList {
     }
 }
 
-impl SchemaNode for FieldList {
+impl Schemable for FieldList {
     fn schema(&self) -> TokenStream {
         let fields = quote_slice(&self.fields, Field::schema);
 
@@ -99,7 +99,7 @@ pub struct Field {
     pub default: Option<Arg>,
 }
 
-impl SchemaNode for Field {
+impl Schemable for Field {
     fn schema(&self) -> TokenStream {
         let name = quote_one(&self.name, to_str_lit);
         let value = self.value.schema();
@@ -121,7 +121,7 @@ impl ToTokens for Field {
         let value = &self.value;
 
         // serde
-        let serde_attr = match *value.cardinality() {
+        let serde_attr = match value.cardinality() {
             Cardinality::Opt => {
                 quote!(#[serde(default, skip_serializing_if = "Option::is_none")])
             }
@@ -131,7 +131,6 @@ impl ToTokens for Field {
             Cardinality::One => quote!(),
         };
 
-        // build struct field
         tokens.extend(quote! {
             #serde_attr
             pub #name : #value

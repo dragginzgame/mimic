@@ -1,8 +1,8 @@
 use crate::{
     node::{Entity, Enum, EnumVariant, FieldList, List, Map, Newtype, Record, Set, Tuple, Value},
     node_traits::{Imp, Implementor, Trait},
-    types::Cardinality,
 };
+use mimic_schema::types::Cardinality;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use syn::{Expr, Ident};
@@ -165,7 +165,7 @@ impl Imp<Tuple> for VisitableTrait {
             let key = format!("{i}");
             let var_expr: Expr = syn::parse_str(&var).expect("can parse");
 
-            inner.extend(quote_value(&var_expr, *value.cardinality(), &key));
+            inner.extend(quote_value(&var_expr, value.cardinality(), &key));
         }
         let q = drive_inner(&inner);
 
@@ -192,7 +192,7 @@ pub fn field_list(fields: &FieldList) -> TokenStream {
         let key = f.name.to_string();
         let var_expr: Expr = syn::parse_str(&var).expect("can parse");
 
-        inner.extend(quote_value(&var_expr, *f.value.cardinality(), &key));
+        inner.extend(quote_value(&var_expr, f.value.cardinality(), &key));
     }
 
     drive_inner(&inner)

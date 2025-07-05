@@ -1,9 +1,6 @@
-use crate::{
-    node::Item,
-    traits::SchemaNode,
-    types::{BCardinality, Cardinality},
-};
+use crate::{node::Item, traits::Schemable};
 use darling::FromMeta;
+use mimic_schema::types::Cardinality;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
@@ -24,19 +21,17 @@ pub struct Value {
 
 impl Value {
     // cardinality
-    pub fn cardinality(&self) -> BCardinality {
-        let cardinality = match (&self.opt, &self.many) {
+    pub fn cardinality(&self) -> Cardinality {
+        match (&self.opt, &self.many) {
             (false, false) => Cardinality::One,
             (true, false) => Cardinality::Opt,
             (false, true) => Cardinality::Many,
             (true, true) => panic!("cardinality cannot be opt and many"),
-        };
-
-        BCardinality(cardinality)
+        }
     }
 }
 
-impl SchemaNode for Value {
+impl Schemable for Value {
     fn schema(&self) -> TokenStream {
         let cardinality = &self.cardinality();
         let item = &self.item.schema();
@@ -55,9 +50,9 @@ impl ToTokens for Value {
         let item = &self.item;
 
         let q = match *self.cardinality() {
-            Cardinality::One => quote!(#item),
-            Cardinality::Opt => quote!(Option<#item>),
-            Cardinality::Many => {
+            WCardinality::One => quote!(#item),
+            WCardinality::Opt => quote!(Option<#item>),
+            WCardinality::Many => {
                 if item.is_relation() {
                     quote!(::mimic::core::db::EntityKeys)
                 } else {

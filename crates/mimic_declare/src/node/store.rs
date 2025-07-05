@@ -2,12 +2,12 @@ use crate::{
     helper::{quote_one, to_path, to_str_lit},
     node::Def,
     node_traits::{self, Trait, Traits},
-    traits::{MacroNode, SchemaNode},
-    types::BStoreType,
+    traits::{Macro, Schemable},
 };
 use darling::FromMeta;
+use mimic_schema::types::StoreType;
 use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
+use quote::quote;
 use syn::{Ident, Path};
 
 ///
@@ -20,22 +20,12 @@ pub struct Store {
     pub def: Def,
 
     pub ident: Ident,
-    pub ty: BStoreType,
+    pub ty: StoreType,
     pub canister: Path,
     pub memory_id: u8,
 }
 
-impl ToTokens for Store {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
-
-        tokens.extend(quote! {
-            pub struct #ident {}
-        });
-    }
-}
-
-impl MacroNode for Store {
+impl Macro for Store {
     fn def(&self) -> &Def {
         &self.def
     }
@@ -49,7 +39,7 @@ impl MacroNode for Store {
     }
 }
 
-impl SchemaNode for Store {
+impl Schemable for Store {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let ident = quote_one(&self.ident, to_str_lit);
@@ -58,7 +48,7 @@ impl SchemaNode for Store {
         let memory_id = &self.memory_id;
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Store(::mimic::schema::node::Store{
+            ::mimic::schema::node::Schemable::Store(::mimic::schema::node::Store{
                 def: #def,
                 ident: #ident,
                 ty: #ty,

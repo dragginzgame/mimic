@@ -2,7 +2,7 @@ use crate::{
     helper::quote_slice,
     node::{Def, Type, Value},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{MacroNode, SchemaNode},
+    traits::{Macro, Schemable},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -27,21 +27,13 @@ pub struct Tuple {
     pub traits: Traits,
 }
 
-impl ToTokens for Tuple {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
-        let values = &self.values;
-
-        // quote
-        tokens.extend(quote! {
-            pub struct #ident(pub (#(#values,)*));
-        });
-    }
-}
-
-impl MacroNode for Tuple {
+impl Macro for Tuple {
     fn def(&self) -> &Def {
         &self.def
+    }
+
+    fn macro_body(&self) -> TokenStream {
+        quote! { self }
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -61,18 +53,30 @@ impl MacroNode for Tuple {
     }
 }
 
-impl SchemaNode for Tuple {
+impl Schemable for Tuple {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let values = quote_slice(&self.values, Value::schema);
         let ty = &self.ty.schema();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Tuple(::mimic::schema::node::Tuple {
+            ::mimic::schema::node::Schemable::Tuple(::mimic::schema::node::Tuple {
                 def: #def,
                 values: #values,
                 ty: #ty,
             })
         }
+    }
+}
+
+impl ToTokens for Tuple {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Def { ident, .. } = &self.def;
+        let values = &self.values;
+
+        // quote
+        tokens.extend(quote! {
+            pub struct #ident(pub (#(#values,)*));
+        });
     }
 }

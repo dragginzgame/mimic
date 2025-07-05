@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_slice, to_path},
     node::Args,
-    traits::SchemaNode,
+    traits::Schemable,
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -21,7 +21,7 @@ pub struct Type {
     pub validators: Vec<TypeValidator>,
 }
 
-impl SchemaNode for Type {
+impl Schemable for Type {
     fn schema(&self) -> TokenStream {
         let validators = quote_slice(&self.validators, TypeValidator::schema);
         let todo = self.todo;
@@ -62,7 +62,7 @@ impl TypeValidator {
     }
 }
 
-impl SchemaNode for TypeValidator {
+impl Schemable for TypeValidator {
     fn schema(&self) -> TokenStream {
         let path = quote_one(&self.path, to_path);
         let args = &self.args.schema();

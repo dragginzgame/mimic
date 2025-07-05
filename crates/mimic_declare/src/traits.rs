@@ -1,6 +1,6 @@
 use crate::node::Def;
 use proc_macro2::TokenStream;
-use quote::{ToTokens, format_ident, quote};
+use quote::{format_ident, quote};
 use std::{
     sync::{LazyLock, Mutex},
     time::SystemTime,
@@ -18,7 +18,7 @@ use tinyrand::{Rand, Seeded, StdRand};
 /// Create a static, lazily-initialized StdRng instance wrapped in a Mutex
 ///
 
-static RNG: LazyLock<Mutex<StdRand>> = LazyLock::new(|| {
+pub(crate) static RNG: LazyLock<Mutex<StdRand>> = LazyLock::new(|| {
     let now = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .expect("time went backwards")
@@ -29,8 +29,8 @@ static RNG: LazyLock<Mutex<StdRand>> = LazyLock::new(|| {
 });
 
 ///
-/// MacroNode
-/// any node that's invoked from a crate macro
+/// Macro
+/// any schema element that's invoked from a crate macro
 ///
 
 pub struct TraitTokens {
@@ -38,18 +38,36 @@ pub struct TraitTokens {
     pub impls: TokenStream,
 }
 
-pub trait MacroNode: ToTokens {
+pub trait Macro {
     fn def(&self) -> &Def;
 
-    // wrap_macro_tokens
-    // adds the derives and impls to any existing macro token stream
-    fn wrap_macro_tokens(&self, tokens: TokenStream) -> TokenStream {
+    /// Returns the primary item to be wrapped by macro expansion —
+    /// this will be the struct definition that receives the derived traits
+    /// and additional `impl` blocks.
+    fn macro_body(&self) -> TokenStream {
+        let Def { ident, .. } = &self.def();
+
+        quote! {
+            pub struct #ident {}
+        }
+    }
+
+    /// Returns any extra tokens to emit *after* the main item and its impls.
+    fn macro_extra(&self) -> TokenStream {
+        quote!()
+    }
+
+    // emit_macro
+    fn emit_macro(&self) -> TokenStream {
         let TraitTokens { derive, impls } = self.trait_tokens();
+        let body = self.macro_body();
+        let extra = self.macro_extra();
 
         let q = quote! {
             #derive
-            #tokens
+            #body
             #impls
+            #extra
         };
 
         // debug
@@ -136,36 +154,20 @@ pub trait MacroNode: ToTokens {
 }
 
 ///
-/// TypeNode
+/// Renderable
+/// how this type is rendered within the code, ie a newtype within a struct
 ///
 
-pub trait TypeNode: MacroNode {
-    fn type_tokens(&self) -> TokenStream {
-        let main_tokens = self.wrap_macro_tokens(self.main_tokens());
-        let view_tokens = self.view_tokens();
-
-        quote! {
-            // main type
-            #main_tokens
-
-            // view type
-            #[derive(CandidType)]
-            #[allow(non_camel_case_types)]
-            #view_tokens
-        }
-    }
-
-    fn main_tokens(&self) -> TokenStream;
-
-    fn view_tokens(&self) -> TokenStream;
+pub trait Renderable {
+    fn render(&self) -> TokenStream;
 }
 
 ///
-/// SchemaNode
-/// any node that can generate schema structure
+/// Schemable
+/// an element that can generate schema tokens
 ///
 
-pub trait SchemaNode {
+pub trait Schemable {
     // schema_tokens
     // generates the structure passed via ctor to the static schema
     #[must_use]

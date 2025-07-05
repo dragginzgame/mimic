@@ -1,11 +1,11 @@
 use crate::{
     node::Def,
     node_traits::{self, Trait, Traits},
-    traits::{MacroNode, SchemaNode},
+    traits::{Macro, Schemable},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
+use quote::quote;
 
 ///
 /// Validator
@@ -17,18 +17,7 @@ pub struct Validator {
     pub def: Def,
 }
 
-impl ToTokens for Validator {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
-
-        // quote
-        tokens.extend(quote! {
-            pub struct #ident {}
-        });
-    }
-}
-
-impl MacroNode for Validator {
+impl Macro for Validator {
     fn def(&self) -> &Def {
         &self.def
     }
@@ -45,12 +34,12 @@ impl MacroNode for Validator {
     }
 }
 
-impl SchemaNode for Validator {
+impl Schemable for Validator {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Validator(::mimic::schema::node::Validator {
+            ::mimic::schema::node::Schemable::Validator(::mimic::schema::node::Validator {
                 def: #def,
             })
         }

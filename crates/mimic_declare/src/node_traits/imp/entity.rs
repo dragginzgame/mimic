@@ -1,9 +1,9 @@
 use crate::{
     node::Entity,
     node_traits::{Imp, Implementor, Trait},
-    traits::{MacroNode, SchemaNode},
-    types::Cardinality,
+    traits::{Macro, Schemable},
 };
+use mimic_schema::types::Cardinality;
 use proc_macro2::{Span, TokenStream};
 use quote::{ToTokens, format_ident, quote};
 use syn::LitStr;
@@ -22,7 +22,7 @@ impl Imp<Entity> for EntityKindTrait {
             .filter(|dk| dk.field.is_some())
             .count();
         let store = &node.store;
-        let defs = node.indexes.iter().map(SchemaNode::schema);
+        let defs = node.indexes.iter().map(Schemable::schema);
 
         // static definitions
         let mut q = quote! {
@@ -123,7 +123,7 @@ fn values(node: &Entity) -> TokenStream {
             let field_ident = &field.name;
             let field_lit = LitStr::new(&field_ident.to_string(), Span::call_site());
 
-            match *field.value.cardinality() {
+            match field.value.cardinality() {
                 Cardinality::One => Some(quote! {
                     map.insert(#field_lit, self.#field_ident.to_value());
                 }),
@@ -171,7 +171,7 @@ impl Imp<Entity> for EntitySearchTrait {
                 let name = &field.name;
                 let name_str = name.to_string();
 
-              match *field.value.cardinality() {
+              match field.value.cardinality() {
                     Cardinality::One => quote! {
                         ( #name_str, |s: &#ident, text|
                             ::mimic::core::traits::FieldSearchable::contains_text(&s.#name, text)
@@ -228,7 +228,7 @@ impl Imp<Entity> for EntitySortTrait {
         let mut match_arms = quote!();
 
         for field in &node.fields {
-            if *field.value.cardinality() == Cardinality::Many {
+            if field.value.cardinality() == Cardinality::Many {
                 continue;
             }
 

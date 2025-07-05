@@ -1,8 +1,8 @@
 use crate::{
     node::{Entity, FieldList, List, Map, Newtype, Record, Set, TypeValidator, Value},
     node_traits::ImpFn,
-    types::Cardinality,
 };
+use mimic_schema::types::Cardinality;
 use proc_macro2::TokenStream;
 use quote::quote;
 
@@ -182,7 +182,7 @@ fn generate_value_validation_inner(value: &Value, var_expr: TokenStream) -> Opti
         return None;
     }
 
-    let tokens = match *value.cardinality() {
+    let tokens = match value.cardinality() {
         Cardinality::One => {
             quote! {
                 {

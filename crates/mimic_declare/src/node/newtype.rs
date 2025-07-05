@@ -2,10 +2,10 @@ use crate::{
     helper::quote_option,
     node::{Arg, Def, Item, Type},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{MacroNode, SchemaNode, TypeNode},
-    types::BPrimitive,
+    traits::{Macro, Schemable},
 };
 use darling::FromMeta;
+use mimic_schema::types::Primitive;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
@@ -18,7 +18,7 @@ pub struct Newtype {
     #[darling(default, skip)]
     pub def: Def,
 
-    pub primitive: BPrimitive,
+    pub primitive: Primitive,
     pub item: Item,
 
     #[darling(default)]
@@ -31,41 +31,22 @@ pub struct Newtype {
     pub traits: Traits,
 }
 
-impl ToTokens for Newtype {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let schema = self.schema_tokens();
-        let ty = self.type_tokens();
-
-        tokens.extend(quote! {
-            #schema
-            #ty
-        });
-    }
-}
-
-impl TypeNode for Newtype {
-    fn main_tokens(&self) -> TokenStream {
-        let Def { ident, .. } = &self.def;
-        let item = &self.item;
-
-        quote! {
-            pub struct #ident(#item);
-        }
+impl Macro for Newtype {
+    fn def(&self) -> &Def {
+        &self.def
     }
 
-    fn view_tokens(&self) -> TokenStream {
+    fn macro_body(&self) -> TokenStream {
+        quote! { self }
+    }
+
+    fn macro_extra(&self) -> TokenStream {
         let view_ident = self.def.view_ident();
         let view_type = self.primitive.as_type();
 
         quote! {
             pub struct #view_ident(#view_type);
         }
-    }
-}
-
-impl MacroNode for Newtype {
-    fn def(&self) -> &Def {
-        &self.def
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -139,7 +120,18 @@ impl MacroNode for Newtype {
     }
 }
 
-impl SchemaNode for Newtype {
+impl ToTokens for Newtype {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Def { ident, .. } = &self.def;
+        let item = &self.item;
+
+        tokens.extend(quote! {
+            pub struct #ident(#item);
+        });
+    }
+}
+
+impl Schemable for Newtype {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let item = self.item.schema();
@@ -147,7 +139,7 @@ impl SchemaNode for Newtype {
         let ty = self.ty.schema();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Newtype(::mimic::schema::node::Newtype {
+            ::mimic::schema::node::Schemable::Newtype(::mimic::schema::node::Newtype {
                 def: #def,
                 item: #item,
                 default: #default,

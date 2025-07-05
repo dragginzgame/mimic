@@ -1,7 +1,7 @@
 use crate::{
     node::{Def, Item, Type},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{MacroNode, SchemaNode},
+    traits::{Macro, Schemable},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -25,21 +25,13 @@ pub struct Set {
     pub traits: Traits,
 }
 
-impl ToTokens for Set {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
-        let item = &self.item;
-
-        // quote
-        tokens.extend(quote! {
-            pub struct #ident(::std::collections::HashSet<#item>);
-        });
-    }
-}
-
-impl MacroNode for Set {
+impl Macro for Set {
     fn def(&self) -> &Def {
         &self.def
+    }
+
+    fn macro_body(&self) -> TokenStream {
+        quote! { self }
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -69,18 +61,30 @@ impl MacroNode for Set {
     }
 }
 
-impl SchemaNode for Set {
+impl Schemable for Set {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let item = self.item.schema();
         let ty = self.ty.schema();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Set(::mimic::schema::node::Set {
+            ::mimic::schema::node::Schemable::Set(::mimic::schema::node::Set {
                 def: #def,
                 item: #item,
                 ty: #ty,
             })
         }
+    }
+}
+
+impl ToTokens for Set {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Def { ident, .. } = &self.def;
+        let item = &self.item;
+
+        // quote
+        tokens.extend(quote! {
+            pub struct #ident(::std::collections::HashSet<#item>);
+        });
     }
 }

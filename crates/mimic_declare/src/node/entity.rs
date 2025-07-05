@@ -2,7 +2,7 @@ use crate::{
     helper::{quote_one, quote_slice, split_idents, to_path, to_str_lit},
     node::{DataKey, Def, FieldList, Type},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{MacroNode, SchemaNode},
+    traits::{Macro, Schemable},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -36,32 +36,22 @@ pub struct Entity {
     pub traits: Traits,
 }
 
-impl ToTokens for Entity {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Self { fields, .. } = self;
-        let Def { ident, .. } = &self.def;
+impl Macro for Entity {
+    fn def(&self) -> &Def {
+        &self.def
+    }
 
-        // view
+    fn macro_body(&self) -> TokenStream {
+        quote! { self }
+    }
+
+    fn macro_extra(&self) -> TokenStream {
         let view_ident = &self.def.view_ident();
         let view = self.fields.type_view_fields(view_ident);
 
-        // quote
-        tokens.extend(quote! {
-            // data model
-            #self
-            pub struct #ident {
-                #fields
-            }
-
-            // view
+        quote! {
             #view
-        });
-    }
-}
-
-impl MacroNode for Entity {
-    fn def(&self) -> &Def {
-        &self.def
+        }
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -101,7 +91,7 @@ impl MacroNode for Entity {
     }
 }
 
-impl SchemaNode for Entity {
+impl Schemable for Entity {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let store = quote_one(&self.store, to_path);
@@ -111,7 +101,7 @@ impl SchemaNode for Entity {
         let ty = &self.ty.schema();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Entity(::mimic::schema::node::Entity {
+            ::mimic::schema::node::Schemable::Entity(::mimic::schema::node::Entity {
                 def: #def,
                 store: #store,
                 data_keys: #data_keys,
@@ -120,6 +110,20 @@ impl SchemaNode for Entity {
                 ty: #ty,
             })
         }
+    }
+}
+
+impl ToTokens for Entity {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Self { fields, .. } = self;
+        let Def { ident, .. } = &self.def;
+
+        tokens.extend(quote! {
+            #self
+            pub struct #ident {
+                #fields
+            }
+        });
     }
 }
 
@@ -138,7 +142,7 @@ pub struct EntityIndex {
     pub store: Path,
 }
 
-impl SchemaNode for EntityIndex {
+impl Schemable for EntityIndex {
     fn schema(&self) -> TokenStream {
         let fields = quote_slice(&self.fields, to_str_lit);
         let unique = &self.unique;

@@ -20,7 +20,7 @@ pub use type_view::*;
 pub use validate::*;
 pub use visitable::*;
 
-use crate::{node_traits::Trait, traits::MacroNode};
+use crate::{node_traits::Trait, traits::Macro};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
@@ -31,7 +31,7 @@ use quote::{ToTokens, quote};
 /// that can be used by a Node of any type
 ///
 
-pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
+pub fn any<N: Macro>(node: &N, t: Trait) -> Option<TokenStream> {
     let def = node.def();
 
     match t {
@@ -62,7 +62,7 @@ pub fn any<N: MacroNode>(node: &N, t: Trait) -> Option<TokenStream> {
 /// Imp
 ///
 
-pub trait Imp<N: MacroNode> {
+pub trait Imp<N: Macro> {
     fn tokens(node: &N, t: Trait) -> Option<TokenStream>;
 }
 
@@ -71,6 +71,6 @@ pub trait Imp<N: MacroNode> {
 /// for breaking down traits even further
 ///
 
-pub trait ImpFn<N: MacroNode> {
+pub trait ImpFn<N: Macro> {
     fn tokens(node: &N) -> TokenStream;
 }

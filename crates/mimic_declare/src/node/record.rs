@@ -1,7 +1,7 @@
 use crate::{
     node::{Def, FieldList, Type},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{MacroNode, SchemaNode},
+    traits::{Macro, Schemable},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -46,7 +46,7 @@ impl ToTokens for Record {
     }
 }
 
-impl MacroNode for Record {
+impl Macro for Record {
     fn def(&self) -> &Def {
         &self.def
     }
@@ -79,14 +79,14 @@ impl MacroNode for Record {
     }
 }
 
-impl SchemaNode for Record {
+impl Schemable for Record {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let fields = self.fields.schema();
         let ty = self.ty.schema();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Record(::mimic::schema::node::Record {
+            ::mimic::schema::node::Schemable::Record(::mimic::schema::node::Record {
                 def: #def,
                 fields: #fields,
                 ty: #ty,

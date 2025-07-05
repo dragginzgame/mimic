@@ -2,7 +2,7 @@ use crate::{
     helper::{quote_one, quote_slice, to_path, to_str_lit},
     node::{Arg, Def},
     node_traits::{self, Trait, Traits},
-    traits::{MacroNode, SchemaNode},
+    traits::{Macro, Schemable},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -24,23 +24,13 @@ pub struct Selector {
     pub variants: Vec<SelectorVariant>,
 }
 
-impl ToTokens for Selector {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
-
-        // quote
-        let variants = &self.variants;
-        tokens.extend(quote! {
-            pub enum #ident {
-                #(#variants,)*
-            }
-        });
-    }
-}
-
-impl MacroNode for Selector {
+impl Macro for Selector {
     fn def(&self) -> &Def {
         &self.def
+    }
+
+    fn macro_body(&self) -> TokenStream {
+        quote! { self }
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -63,14 +53,28 @@ impl MacroNode for Selector {
     }
 }
 
-impl SchemaNode for Selector {
+impl ToTokens for Selector {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Def { ident, .. } = &self.def;
+        let variants = &self.variants;
+
+        // quote
+        tokens.extend(quote! {
+            pub enum #ident {
+                #(#variants,)*
+            }
+        });
+    }
+}
+
+impl Schemable for Selector {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let target = quote_one(&self.target, to_path);
         let variants = quote_slice(&self.variants, SelectorVariant::schema);
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Selector(
+            ::mimic::schema::node::Schemable::Selector(
                 ::mimic::schema::node::Selector{
                     def: #def,
                     target: #target,
@@ -98,16 +102,20 @@ impl ToTokens for SelectorVariant {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let name = &self.name;
 
-        // default
-        if self.default {
-            tokens.extend(quote!(#[default]));
-        }
+        let attr = if self.default {
+            quote!(#[default])
+        } else {
+            quote!()
+        };
 
-        tokens.extend(quote! (#name));
+        tokens.extend(quote! {
+            #attr
+            #name
+        });
     }
 }
 
-impl SchemaNode for SelectorVariant {
+impl Schemable for SelectorVariant {
     fn schema(&self) -> TokenStream {
         let name = quote_one(&self.name, to_str_lit);
         let value = self.value.schema();

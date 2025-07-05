@@ -2,7 +2,7 @@ use crate::{
     helper::{quote_one, quote_option, quote_slice, to_str_lit},
     node::{Def, Type, Value},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{MacroNode, SchemaNode},
+    traits::{Macro, Schemable},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -38,23 +38,25 @@ impl Enum {
     }
 }
 
-impl ToTokens for Enum {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl Macro for Enum {
+    fn def(&self) -> &Def {
+        &self.def
+    }
+
+    fn macro_body(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
 
         // quote
         let variants = &self.variants;
-        tokens.extend(quote! {
+        quote! {
             pub enum #ident {
                 #(#variants,)*
             }
-        });
+        }
     }
-}
 
-impl MacroNode for Enum {
-    fn def(&self) -> &Def {
-        &self.def
+    fn macro_extra(&self) -> TokenStream {
+        quote!()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -90,14 +92,14 @@ impl MacroNode for Enum {
     }
 }
 
-impl SchemaNode for Enum {
+impl Schemable for Enum {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let variants = quote_slice(&self.variants, EnumVariant::schema);
         let ty = &self.ty.schema();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Enum(::mimic::schema::node::Enum {
+            ::mimic::schema::node::Schemable::Enum(::mimic::schema::node::Enum {
                 def: #def,
                 variants: #variants,
                 ty: #ty,
@@ -156,7 +158,7 @@ impl ToTokens for EnumVariant {
     }
 }
 
-impl SchemaNode for EnumVariant {
+impl Schemable for EnumVariant {
     fn schema(&self) -> TokenStream {
         let Self {
             default,

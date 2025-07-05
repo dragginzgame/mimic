@@ -1,11 +1,11 @@
 use crate::{
     node::Def,
     node_traits::{self, Trait, Traits},
-    traits::MacroNode,
+    traits::Macro,
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
+use quote::quote;
 use syn::Ident;
 
 ///
@@ -24,22 +24,20 @@ pub struct EntityId {
     pub traits: Traits,
 }
 
-impl ToTokens for EntityId {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl Macro for EntityId {
+    fn def(&self) -> &Def {
+        &self.def
+    }
+
+    fn macro_body(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
         let keys = self.keys.iter().map(quote::ToTokens::to_token_stream);
 
-        tokens.extend(quote! {
+        quote! {
             pub enum #ident {
                 #(#keys,)*
             }
-        });
-    }
-}
-
-impl MacroNode for EntityId {
-    fn def(&self) -> &Def {
-        &self.def
+        }
     }
 
     fn traits(&self) -> Vec<Trait> {

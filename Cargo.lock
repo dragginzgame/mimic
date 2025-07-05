@@ -733,8 +733,11 @@ name = "mimic_schema"
 version = "0.6.0"
 dependencies = [
  "candid",
+ "darling",
  "derive_more",
  "mimic_common",
+ "proc-macro2",
+ "quote",
  "remain",
  "serde",
  "thiserror 2.0.12",

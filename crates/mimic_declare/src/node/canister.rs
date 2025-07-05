@@ -1,11 +1,11 @@
 use crate::{
     node::Def,
     node_traits::{self, Trait, Traits},
-    traits::{MacroNode, SchemaNode},
+    traits::{Macro, Schemable},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
+use quote::quote;
 
 ///
 /// Canister
@@ -18,17 +18,7 @@ pub struct Canister {
     pub def: Def,
 }
 
-impl ToTokens for Canister {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def();
-
-        tokens.extend(quote! {
-            pub struct #ident {}
-        });
-    }
-}
-
-impl MacroNode for Canister {
+impl Macro for Canister {
     fn def(&self) -> &Def {
         &self.def
     }
@@ -42,12 +32,12 @@ impl MacroNode for Canister {
     }
 }
 
-impl SchemaNode for Canister {
+impl Schemable for Canister {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Canister(::mimic::schema::node::Canister{
+            ::mimic::schema::node::Schemable::Canister(::mimic::schema::node::Canister{
                 def: #def,
             })
         }
