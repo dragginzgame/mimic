@@ -1,6 +1,6 @@
 use crate::{
     node::Def,
-    node_traits::{Trait, TraitList, Traits},
+    node_traits::{Trait, TraitList},
 };
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -46,7 +46,9 @@ pub trait AsMacro: AsSchema + quote::ToTokens {
 
     // traits
     // returns the list of traits for this type
-    fn traits(&self) -> Vec<Trait>;
+    fn traits(&self) -> Vec<Trait> {
+        Vec::new()
+    }
 
     // map_attribute
     // extra attributes for the derive
@@ -74,15 +76,21 @@ pub trait AsMacro: AsSchema + quote::ToTokens {
 
 pub trait AsSchema {
     // schema
-    fn schema(&self) -> TokenStream;
+    fn schema(&self) -> TokenStream {
+        quote!()
+    }
 
     // schema_tokens
     // generates the structure passed via ctor to the static schema
     #[must_use]
     fn schema_tokens(&self) -> TokenStream {
+        let schema = self.schema();
+        if schema.is_empty() {
+            return quote!();
+        }
+
         let mut rng = RNG.lock().expect("Failed to lock RNG");
         let ctor_fn = format_ident!("ctor_{}", rng.next_u32());
-        let schema = self.schema();
 
         quote! {
             #[cfg(not(target_arch = "wasm32"))]

@@ -196,6 +196,12 @@ pub struct Traits {
 }
 
 impl Traits {
+    // with_path_trait
+    pub fn with_path_trait(mut self) -> Self {
+        self.add(Trait::Path);
+        self
+    }
+
     // with_default_traits
     pub fn with_default_traits(mut self) -> Self {
         self.add.extend(DEFAULT_TRAITS.to_vec());

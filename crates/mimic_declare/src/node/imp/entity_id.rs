@@ -21,8 +21,8 @@ pub fn tokens(node: &EntityId) -> Option<TokenStream> {
 
     // into relation
     q.extend(quote! {
-        impl Into<Ulid> for #ident {
-            fn into(self) -> mimic::core::types::Ulid {
+        impl Into<EntityKey> for #ident {
+            fn into(self) -> mimic::core::db::EntityKey {
                 self.entity_key()
 
             }

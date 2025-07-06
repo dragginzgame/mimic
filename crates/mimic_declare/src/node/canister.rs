@@ -24,7 +24,7 @@ impl AsMacro for Canister {
     }
 
     fn traits(&self) -> Vec<Trait> {
-        Traits::default().with_default_traits().list()
+        Traits::default().with_path_trait().list()
     }
 }
 

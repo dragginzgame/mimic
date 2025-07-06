@@ -49,11 +49,7 @@ impl AsMacro for EntityId {
     }
 }
 
-impl AsSchema for EntityId {
-    fn schema(&self) -> TokenStream {
-        quote!()
-    }
-}
+impl AsSchema for EntityId {}
 
 impl ToTokens for EntityId {
     fn to_tokens(&self, tokens: &mut TokenStream) {
