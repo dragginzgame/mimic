@@ -36,23 +36,37 @@ impl Imp<Entity> for TypeViewTrait {
 
 impl Imp<Enum> for TypeViewTrait {
     fn tokens(node: &Enum, t: Trait) -> Option<TokenStream> {
-        let ident = &node.def.ident;
-        let view_ident = node.def.view_ident();
-
+        // to_view_arms
         let to_view_arms = node.variants.iter().map(|variant| {
             let variant_name = &variant.name;
-            quote! {
-                #ident::#variant_name(v) => Self::View::#variant_name(v.to_view())
+
+            if variant.value.is_some() {
+                quote! {
+                    Self::#variant_name(v) => Self::View::#variant_name(v.to_view())
+                }
+            } else {
+                quote! {
+                    Self::#variant_name => Self::View::#variant_name
+                }
             }
         });
 
+        // from_view_arms
         let from_view_arms = node.variants.iter().map(|variant| {
             let variant_name = &variant.name;
-            quote! {
-                Self::View::#variant_name(v) => #ident::#variant_name(::mimic::core::traits::TypeView::from_view(v))
+
+            if variant.value.is_some() {
+                quote! {
+                    Self::View::#variant_name(v) => Self::#variant_name(::mimic::core::traits::TypeView::from_view(v))
+                }
+            } else {
+                quote! {
+                    Self::View::#variant_name => Self::#variant_name
+                }
             }
         });
 
+        let view_ident = node.def.view_ident();
         let q = quote! {
                 type View = #view_ident;
 

@@ -30,7 +30,8 @@ impl AsMacro for EntityId {
     }
 
     fn traits(&self) -> Vec<Trait> {
-        let mut traits = self.traits.clone();
+        let mut traits = self.traits.clone().with_default_traits();
+
         traits.extend(vec![Trait::Copy, Trait::EntityIdKind]);
 
         traits.list()

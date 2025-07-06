@@ -48,8 +48,7 @@ impl AsMacro for Enum {
     }
 
     fn traits(&self) -> Vec<Trait> {
-        let mut traits = self.traits.clone();
-        traits.add_type_traits();
+        let mut traits = self.traits.clone().with_type_traits();
 
         // extra traits
         if self.is_unit_enum() {

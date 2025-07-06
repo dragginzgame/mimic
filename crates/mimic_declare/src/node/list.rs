@@ -35,8 +35,7 @@ impl AsMacro for List {
     }
 
     fn traits(&self) -> Vec<Trait> {
-        let mut traits = self.traits.clone();
-        traits.add_type_traits();
+        let mut traits = self.traits.clone().with_type_traits();
         traits.extend(vec![
             Trait::Default,
             Trait::Deref,

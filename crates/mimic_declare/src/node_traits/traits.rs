@@ -186,7 +186,7 @@ impl ToTokens for Trait {
 /// Traits
 ///
 
-#[derive(Clone, Debug, FromMeta)]
+#[derive(Clone, Debug, Default, FromMeta)]
 pub struct Traits {
     #[darling(default)]
     pub add: TraitList,
@@ -196,9 +196,17 @@ pub struct Traits {
 }
 
 impl Traits {
-    // add_type_traits
-    pub fn add_type_traits(&mut self) {
+    // with_default_traits
+    pub fn with_default_traits(mut self) -> Self {
+        self.add.extend(DEFAULT_TRAITS.to_vec());
+        self
+    }
+
+    // with_type_traits
+    pub fn with_type_traits(mut self) -> Self {
+        self.add.extend(DEFAULT_TRAITS.to_vec());
         self.add.extend(TYPE_TRAITS.to_vec());
+        self
     }
 
     // add
@@ -208,9 +216,7 @@ impl Traits {
 
     // extend
     pub fn extend(&mut self, traits: Vec<Trait>) {
-        for tr in traits {
-            self.add(tr);
-        }
+        self.add.extend(traits);
     }
 
     // list
@@ -236,15 +242,6 @@ impl Traits {
         sorted_traits.sort();
 
         sorted_traits
-    }
-}
-
-impl Default for Traits {
-    fn default() -> Self {
-        Self {
-            add: TraitList(DEFAULT_TRAITS.clone()),
-            remove: TraitList::default(),
-        }
     }
 }
 
