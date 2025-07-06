@@ -1,5 +1,6 @@
 use crate::{
     node::Def,
+    node_traits::{Trait, Traits},
     traits::{AsMacro, AsSchema},
 };
 use darling::FromMeta;
@@ -20,6 +21,10 @@ pub struct Canister {
 impl AsMacro for Canister {
     fn def(&self) -> &Def {
         &self.def
+    }
+
+    fn traits(&self) -> Vec<Trait> {
+        Traits::default().with_default_traits().list()
     }
 }
 

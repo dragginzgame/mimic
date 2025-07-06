@@ -1,9 +1,9 @@
 use crate::{
     node::Def,
-    node_traits::{Trait, TraitList},
+    node_traits::{Trait, TraitList, Traits},
 };
 use proc_macro2::TokenStream;
-use quote::{ToTokens, format_ident, quote};
+use quote::{format_ident, quote};
 use std::{
     sync::{LazyLock, Mutex},
     time::SystemTime,
@@ -46,9 +46,7 @@ pub trait AsMacro: AsSchema + quote::ToTokens {
 
     // traits
     // returns the list of traits for this type
-    fn traits(&self) -> Vec<Trait> {
-        Vec::new()
-    }
+    fn traits(&self) -> Vec<Trait>;
 
     // map_attribute
     // extra attributes for the derive

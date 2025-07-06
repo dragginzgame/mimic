@@ -211,7 +211,7 @@ pub fn enum_variant(variant: &EnumVariant) -> TokenStream {
 
             quote!(#inner)
         }
-        None => quote!(),
+        None => quote!(Self::#name => {}),
     }
 }
 

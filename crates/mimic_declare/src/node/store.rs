@@ -1,6 +1,7 @@
 use crate::{
     helper::{quote_one, to_path, to_str_lit},
     node::Def,
+    node_traits::{Trait, Traits},
     traits::{AsMacro, AsSchema},
 };
 use darling::FromMeta;
@@ -27,6 +28,10 @@ pub struct Store {
 impl AsMacro for Store {
     fn def(&self) -> &Def {
         &self.def
+    }
+
+    fn traits(&self) -> Vec<Trait> {
+        Traits::default().with_default_traits().list()
     }
 }
 

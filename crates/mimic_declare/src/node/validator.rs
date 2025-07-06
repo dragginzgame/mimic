@@ -26,10 +26,10 @@ impl AsMacro for Validator {
     }
 
     fn traits(&self) -> Vec<Trait> {
-        let mut traits = Traits::default().list();
-        traits.push(Trait::Default);
+        let mut traits = Traits::default().with_default_traits();
+        traits.add(Trait::Default);
 
-        traits
+        traits.list()
     }
 }
 

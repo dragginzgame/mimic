@@ -176,25 +176,22 @@ impl AsSchema for EnumVariant {
 
 impl AsType for EnumVariant {
     fn ty(&self) -> TokenStream {
-        let mut q = quote!();
-
-        // default
-        if self.default {
-            q.extend(quote!(#[default]));
-        }
-
-        // name
         let name = if self.unspecified {
             Self::unspecified_ident()
         } else {
             self.name.clone()
         };
 
-        // quote
-        if let Some(value) = &self.value {
-            quote!(#name(#value))
-        } else {
-            quote!(#name)
+        let default_attr = self.default.then(|| quote!(#[default]));
+
+        let body = match &self.value {
+            Some(value) => quote!(#name(#value)),
+            None => quote!(#name),
+        };
+
+        quote! {
+            #default_attr
+            #body
         }
     }
 

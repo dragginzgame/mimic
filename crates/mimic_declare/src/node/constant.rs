@@ -1,5 +1,6 @@
 use crate::{
     node::{Arg, Def},
+    node_traits::{Trait, Traits},
     traits::{AsMacro, AsSchema},
 };
 use darling::FromMeta;
@@ -23,6 +24,10 @@ pub struct Constant {
 impl AsMacro for Constant {
     fn def(&self) -> &Def {
         &self.def
+    }
+
+    fn traits(&self) -> Vec<Trait> {
+        Traits::default().with_default_traits().list()
     }
 }
 
