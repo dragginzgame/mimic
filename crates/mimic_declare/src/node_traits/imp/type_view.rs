@@ -1,7 +1,6 @@
 use crate::{
     node::{Entity, Enum, FieldList, List, Map, Newtype, Record, Set, Tuple},
     node_traits::{Imp, Implementor, Trait},
-    traits::AsType,
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -97,7 +96,31 @@ impl Imp<Enum> for TypeViewTrait {
 
 impl Imp<List> for TypeViewTrait {
     fn tokens(node: &List, t: Trait) -> Option<TokenStream> {
-        Some(quote!())
+        let view_ident = node.def.view_ident();
+
+        let q = quote! {
+            type View = #view_ident;
+
+            fn to_view(&self) -> Self::View {
+                let inner = self.0.iter()
+                    .map(|v| ::mimic::core::traits::TypeView::to_view(v))
+                    .collect();
+
+                #view_ident(inner)
+            }
+
+            fn from_view(view: Self::View) -> Self {
+                Self(view.0.into_iter()
+                    .map(|v| ::mimic::core::traits::TypeView::from_view(v))
+                    .collect())
+            }
+        };
+
+        Some(
+            Implementor::new(&node.def, t)
+                .set_tokens(q)
+                .to_token_stream(),
+        )
     }
 }
 

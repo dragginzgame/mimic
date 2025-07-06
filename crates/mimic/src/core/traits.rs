@@ -77,6 +77,11 @@ pub trait TypeKind:
 {
 }
 
+impl<T> TypeKind for T where
+    T: Kind + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq + TypeView
+{
+}
+
 ///
 /// EntityKind
 ///

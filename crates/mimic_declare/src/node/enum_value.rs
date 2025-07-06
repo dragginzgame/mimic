@@ -2,7 +2,7 @@ use crate::{
     helper::{quote_one, quote_slice, to_str_lit},
     node::{ArgNumber, Def, Type},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{AsMacro, AsSchema},
+    traits::{AsMacro, AsSchema, AsType},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -79,17 +79,34 @@ impl AsSchema for EnumValue {
     }
 }
 
-impl ToTokens for EnumValue {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl AsType for EnumValue {
+    fn ty(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
         let variants = &self.variants;
 
         // quote
-        tokens.extend(quote! {
+        quote! {
             pub enum #ident {
                 #(#variants,)*
             }
-        })
+        }
+    }
+
+    fn view(&self) -> TokenStream {
+        let view_ident = self.def.view_ident();
+        let view_variants = self.variants.iter().map(AsType::view);
+
+        quote! {
+            pub enum #view_ident {
+                #(#view_variants,)*
+            }
+        }
+    }
+}
+
+impl ToTokens for EnumValue {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.type_tokens())
     }
 }
 
@@ -117,24 +134,6 @@ impl EnumValueVariant {
     }
 }
 
-impl ToTokens for EnumValueVariant {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        // default
-        if self.default {
-            tokens.extend(quote!(#[default]));
-        }
-
-        // name
-        let name = if self.unspecified {
-            Self::unspecified_ident()
-        } else {
-            self.name.clone()
-        };
-
-        tokens.extend(quote! (#name));
-    }
-}
-
 impl AsSchema for EnumValueVariant {
     fn schema(&self) -> TokenStream {
         let Self {
@@ -155,5 +154,44 @@ impl AsSchema for EnumValueVariant {
                 unspecified: #unspecified,
             }
         }
+    }
+}
+
+impl AsType for EnumValueVariant {
+    fn ty(&self) -> TokenStream {
+        let name = if self.unspecified {
+            Self::unspecified_ident()
+        } else {
+            self.name.clone()
+        };
+
+        let default_attr = if self.default {
+            quote!(#[default])
+        } else {
+            quote!()
+        };
+
+        quote! {
+            #default_attr
+            #name
+        }
+    }
+
+    fn view(&self) -> TokenStream {
+        let name = if self.unspecified {
+            Self::unspecified_ident()
+        } else {
+            self.name.clone()
+        };
+
+        quote! {
+            #name
+        }
+    }
+}
+
+impl ToTokens for EnumValueVariant {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.type_tokens())
     }
 }

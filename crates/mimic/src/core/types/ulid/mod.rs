@@ -6,8 +6,8 @@ use crate::{
     core::{
         db::EntityKey,
         traits::{
-            FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, ValidateCustom,
-            Visitable,
+            FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto,
+            ValidateCustom, Visitable,
         },
         value::{IndexValue, Value},
     },
@@ -199,6 +199,18 @@ impl TryFrom<&EntityKey> for Ulid {
             [IndexValue::Ulid(id)] => Ok(*id),
             _ => Err("Expected single Ulid in EntityKey"),
         }
+    }
+}
+
+impl TypeView for Ulid {
+    type View = Self;
+
+    fn to_view(&self) -> Self::View {
+        *self
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        Self(*view)
     }
 }
 

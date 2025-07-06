@@ -2,7 +2,7 @@ use crate::{
     helper::quote_slice,
     node::{Def, Type, Value},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{AsMacro, AsSchema},
+    traits::{AsMacro, AsSchema, AsType},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -65,14 +65,30 @@ impl AsSchema for Tuple {
     }
 }
 
-impl ToTokens for Tuple {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl AsType for Tuple {
+    fn ty(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
         let values = &self.values;
 
         // quote
-        tokens.extend(quote! {
+        quote! {
             pub struct #ident(pub (#(#values,)*));
-        });
+        }
+    }
+
+    fn view(&self) -> TokenStream {
+        let view_ident = &self.def.view_ident();
+        let view_values = self.values.iter().map(AsType::view);
+
+        // quote
+        quote! {
+            pub struct #view_ident(pub (#(#view_values,)*));
+        }
+    }
+}
+
+impl ToTokens for Tuple {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.type_tokens())
     }
 }
