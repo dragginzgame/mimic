@@ -82,6 +82,16 @@ impl AsSchema for Map {
 }
 
 impl AsType for Map {
+    fn ty(&self) -> TokenStream {
+        let Def { ident, .. } = &self.def;
+        let key = &self.key;
+        let value = &self.value;
+
+        quote! {
+            pub struct #ident(::std::collections::HashMap<#key, #value>);
+        }
+    }
+
     fn view(&self) -> TokenStream {
         let view_ident = self.def.view_ident();
         let key_view = AsType::view(&self.key);
@@ -97,12 +107,6 @@ impl AsType for Map {
 
 impl ToTokens for Map {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
-        let key = &self.key;
-        let value = &self.value;
-
-        tokens.extend(quote! {
-            pub struct #ident(::std::collections::HashMap<#key, #value>);
-        });
+        tokens.extend(self.type_tokens())
     }
 }

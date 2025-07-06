@@ -8,9 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.6.0] - View Layer
 -
 
-
+- Complete rewrite of mimic_declare (formerly mimic_design) with much more sensible traits, and
+ToTokens derived for a specific purpose
 - FieldList has come back to consolidate logic over multiple Fields
-- Validator now has a FieldList
+- Validator now has a FieldList so the types used to validate are in the schema
 - optimised the mimic_declare macros as we don't need to pass through tokens any longer
 
 ## [0.5.5]

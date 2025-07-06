@@ -49,6 +49,22 @@ impl AsSchema for Value {
 }
 
 impl AsType for Value {
+    fn ty(&self) -> TokenStream {
+        let item = &self.item;
+
+        match self.cardinality() {
+            Cardinality::One => quote!(#item),
+            Cardinality::Opt => quote!(Option<#item>),
+            Cardinality::Many => {
+                if item.is_relation() {
+                    quote!(::mimic::core::db::EntityKeys)
+                } else {
+                    quote!(Vec<#item>)
+                }
+            }
+        }
+    }
+
     fn view(&self) -> TokenStream {
         let item = &self.item;
         let item_view = AsType::view(item);
@@ -69,20 +85,6 @@ impl AsType for Value {
 
 impl ToTokens for Value {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let item = &self.item;
-
-        let q = match self.cardinality() {
-            Cardinality::One => quote!(#item),
-            Cardinality::Opt => quote!(Option<#item>),
-            Cardinality::Many => {
-                if item.is_relation() {
-                    quote!(::mimic::core::db::EntityKeys)
-                } else {
-                    quote!(Vec<#item>)
-                }
-            }
-        };
-
-        tokens.extend(q);
+        tokens.extend(self.type_tokens())
     }
 }

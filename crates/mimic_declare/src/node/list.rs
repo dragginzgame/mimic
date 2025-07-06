@@ -62,17 +62,6 @@ impl AsMacro for List {
     }
 }
 
-impl ToTokens for List {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
-        let item = &self.item;
-
-        tokens.extend(quote! {
-            pub struct #ident(Vec<#item>);
-        });
-    }
-}
-
 impl AsSchema for List {
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
@@ -90,6 +79,15 @@ impl AsSchema for List {
 }
 
 impl AsType for List {
+    fn ty(&self) -> TokenStream {
+        let Def { ident, .. } = &self.def;
+        let item = &self.item;
+
+        quote! {
+            pub struct #ident(Vec<#item>);
+        }
+    }
+
     fn view(&self) -> TokenStream {
         let view_ident = &self.def.view_ident();
         let item_view = AsType::view(&self.item);
@@ -97,5 +95,11 @@ impl AsType for List {
         quote! {
             pub struct #view_ident(Vec<#item_view>);
         }
+    }
+}
+
+impl ToTokens for List {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.type_tokens())
     }
 }

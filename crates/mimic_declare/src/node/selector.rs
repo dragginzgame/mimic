@@ -45,20 +45,6 @@ impl AsMacro for Selector {
     }
 }
 
-impl ToTokens for Selector {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
-        let variants = &self.variants;
-
-        // quote
-        tokens.extend(quote! {
-            pub enum #ident {
-                #(#variants,)*
-            }
-        });
-    }
-}
-
 impl AsSchema for Selector {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
@@ -74,6 +60,20 @@ impl AsSchema for Selector {
                 }
             )
         }
+    }
+}
+
+impl ToTokens for Selector {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Def { ident, .. } = &self.def;
+        let variants = &self.variants;
+
+        // quote
+        tokens.extend(quote! {
+            pub enum #ident {
+                #(#variants,)*
+            }
+        });
     }
 }
 

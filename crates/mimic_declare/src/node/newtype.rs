@@ -130,6 +130,15 @@ impl AsSchema for Newtype {
 }
 
 impl AsType for Newtype {
+    fn ty(&self) -> TokenStream {
+        let Def { ident, .. } = &self.def;
+        let item = &self.item;
+
+        quote! {
+            pub struct #ident(#item);
+        }
+    }
+
     fn view(&self) -> TokenStream {
         let view_ident = self.def.view_ident();
         let view_type = self.primitive.as_type();
@@ -142,11 +151,6 @@ impl AsType for Newtype {
 
 impl ToTokens for Newtype {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
-        let item = &self.item;
-
-        tokens.extend(quote! {
-            pub struct #ident(#item);
-        });
+        tokens.extend(self.type_tokens())
     }
 }

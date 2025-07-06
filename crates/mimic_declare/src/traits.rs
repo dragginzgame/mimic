@@ -3,7 +3,7 @@ use crate::{
     node_traits::{Trait, TraitList},
 };
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::{ToTokens, format_ident, quote};
 use std::{
     sync::{LazyLock, Mutex},
     time::SystemTime,
@@ -104,6 +104,16 @@ pub trait AsSchema {
 ///
 
 pub trait AsType {
+    fn ty(&self) -> TokenStream;
+
+    fn type_tokens(&self) -> TokenStream {
+        let ty = self.ty();
+
+        quote! {
+            #ty
+        }
+    }
+
     fn view(&self) -> TokenStream;
 
     fn view_tokens(&self) -> TokenStream {

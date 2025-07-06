@@ -74,6 +74,16 @@ impl AsSchema for Item {
 }
 
 impl AsType for Item {
+    fn ty(&self) -> TokenStream {
+        let path = self.target().quoted_path();
+
+        if self.indirect {
+            quote!(Box<#path>)
+        } else {
+            quote!(#path)
+        }
+    }
+
     fn view(&self) -> TokenStream {
         match self.target() {
             ItemTarget::Prim(prim) => {
@@ -99,15 +109,7 @@ impl AsType for Item {
 
 impl ToTokens for Item {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let path = self.target().quoted_path();
-
-        let q = if self.indirect {
-            quote!(Box<#path>)
-        } else {
-            quote!(#path)
-        };
-
-        tokens.extend(q);
+        tokens.extend(self.type_tokens())
     }
 }
 

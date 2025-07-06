@@ -106,6 +106,17 @@ impl AsSchema for Entity {
 }
 
 impl AsType for Entity {
+    fn ty(&self) -> TokenStream {
+        let Self { fields, .. } = self;
+        let Def { ident, .. } = &self.def;
+
+        quote! {
+            pub struct #ident {
+                #fields
+            }
+        }
+    }
+
     fn view(&self) -> TokenStream {
         let view_ident = &self.def.view_ident();
         let view_field_list = AsType::view(&self.fields);
@@ -121,15 +132,7 @@ impl AsType for Entity {
 
 impl ToTokens for Entity {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Self { fields, .. } = self;
-        let Def { ident, .. } = &self.def;
-
-        tokens.extend(quote! {
-            #self
-            pub struct #ident {
-                #fields
-            }
-        });
+        tokens.extend(self.type_tokens());
     }
 }
 

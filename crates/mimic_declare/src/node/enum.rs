@@ -97,6 +97,18 @@ impl AsSchema for Enum {
 }
 
 impl AsType for Enum {
+    fn ty(&self) -> TokenStream {
+        let Def { ident, .. } = &self.def;
+
+        // quote
+        let variants = &self.variants;
+        quote! {
+            pub enum #ident {
+                #(#variants,)*
+            }
+        }
+    }
+
     fn view(&self) -> TokenStream {
         let view_ident = self.def.view_ident();
         let view_variants = self.variants.iter().map(AsType::view);
@@ -111,15 +123,7 @@ impl AsType for Enum {
 
 impl ToTokens for Enum {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
-
-        // quote
-        let variants = &self.variants;
-        tokens.extend(quote! {
-            pub enum #ident {
-                #(#variants,)*
-            }
-        });
+        tokens.extend(self.type_tokens())
     }
 }
 
@@ -148,31 +152,6 @@ impl EnumVariant {
     }
 }
 
-impl ToTokens for EnumVariant {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let mut q = quote!();
-
-        // default
-        if self.default {
-            q.extend(quote!(#[default]));
-        }
-
-        // name
-        let name = if self.unspecified {
-            Self::unspecified_ident()
-        } else {
-            self.name.clone()
-        };
-
-        // quote
-        tokens.extend(if let Some(value) = &self.value {
-            quote!(#name(#value))
-        } else {
-            quote!(#name)
-        });
-    }
-}
-
 impl AsSchema for EnumVariant {
     fn schema(&self) -> TokenStream {
         let Self {
@@ -197,6 +176,29 @@ impl AsSchema for EnumVariant {
 }
 
 impl AsType for EnumVariant {
+    fn ty(&self) -> TokenStream {
+        let mut q = quote!();
+
+        // default
+        if self.default {
+            q.extend(quote!(#[default]));
+        }
+
+        // name
+        let name = if self.unspecified {
+            Self::unspecified_ident()
+        } else {
+            self.name.clone()
+        };
+
+        // quote
+        if let Some(value) = &self.value {
+            quote!(#name(#value))
+        } else {
+            quote!(#name)
+        }
+    }
+
     fn view(&self) -> TokenStream {
         let name = &self.name;
 
@@ -212,5 +214,11 @@ impl AsType for EnumVariant {
                 #name
             },
         }
+    }
+}
+
+impl ToTokens for EnumVariant {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.type_tokens())
     }
 }
