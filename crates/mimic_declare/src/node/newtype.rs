@@ -143,7 +143,7 @@ impl AsType for Newtype {
         let view_type = self.primitive.as_type();
 
         quote! {
-            pub struct #view_ident(#view_type);
+            pub struct #view_ident(pub #view_type);
         }
     }
 }

@@ -93,7 +93,7 @@ impl AsType for Set {
         let item_view = AsType::view(&self.item);
 
         quote! {
-            pub struct #view_ident(Vec<#item_view>);
+            pub struct #view_ident(pub Vec<#item_view>);
         }
     }
 }

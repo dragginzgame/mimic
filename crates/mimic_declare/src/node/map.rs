@@ -98,7 +98,7 @@ impl AsType for Map {
 
         quote! {
             pub struct #view_ident(
-                Vec<(#key_view, #value_view)>
+                pub Vec<(#key_view, #value_view)>
             );
         }
     }
