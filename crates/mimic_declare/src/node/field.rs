@@ -122,7 +122,7 @@ impl AsType for Field {
         let value_view = AsType::view(&self.value);
 
         quote! {
-            #name: #value_view
+            pub #name: #value_view
         }
     }
 }
