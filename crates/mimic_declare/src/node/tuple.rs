@@ -37,10 +37,7 @@ impl AsMacro for Tuple {
     }
 
     fn traits(&self) -> Vec<Trait> {
-        let mut traits = self.traits.clone().with_type_traits();
-        traits.extend(vec![Trait::Deref, Trait::DerefMut]);
-
-        traits.list()
+        self.traits.clone().with_type_traits().list()
     }
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {

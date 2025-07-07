@@ -59,6 +59,7 @@ impl AsMacro for EnumValue {
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::EnumValueKind => node_traits::EnumValueTrait::tokens(self, t),
+            Trait::TypeView => node_traits::TypeViewTrait::tokens(self, t),
 
             _ => None,
         }

@@ -7,7 +7,7 @@ use crate::prelude::*;
 #[entity(
     store = "crate::schema::TestStore",
     data_key(entity = "CreateBasic", field = "id"),
-    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate")
+    fields(field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"))
 )]
 pub struct CreateBasic {}
 

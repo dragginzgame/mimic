@@ -75,37 +75,22 @@ impl AsSchema for Item {
 
 impl AsType for Item {
     fn ty(&self) -> TokenStream {
-        let path = self.target().quoted_path();
+        let ty = self.target().ty();
 
         if self.indirect {
-            quote!(Box<#path>)
+            quote!(Box<#ty>)
         } else {
-            quote!(#path)
+            quote!(#ty)
         }
     }
 
     fn view(&self) -> TokenStream {
-        match self.target() {
-            ItemTarget::Prim(prim) => {
-                let prim_ty = prim.as_type();
+        let view = self.target().view();
 
-                quote! {
-                    <#prim_ty as ::mimic::core::traits::TypeView>::View
-                }
-            }
-            ItemTarget::Relation(_) => {
-                quote!(::mimic::core::db::EntityKey)
-            }
-            other => {
-                let path = other.quoted_path();
-                let view_ident = format_view_path(path);
-
-                if self.indirect {
-                    quote!(Box<#view_ident>)
-                } else {
-                    quote!(#view_ident)
-                }
-            }
+        if self.indirect {
+            quote!(Box<#view>)
+        } else {
+            quote!(#view)
         }
     }
 }
@@ -124,19 +109,6 @@ pub enum ItemTarget {
     Is(Path),
     Relation(Path),
     Prim(Primitive),
-}
-
-impl ItemTarget {
-    pub fn quoted_path(&self) -> TokenStream {
-        match self {
-            Self::Is(path) => quote!(#path),
-            Self::Prim(prim) => {
-                let ty = prim.as_type();
-                quote!(#ty)
-            }
-            Self::Relation(_) => quote!(::mimic::core::db::EntityKey),
-        }
-    }
 }
 
 impl AsSchema for ItemTarget {
@@ -159,6 +131,33 @@ impl AsSchema for ItemTarget {
                     ::mimic::schema::node::ItemTarget::Relation(#path)
                 }
             }
+        }
+    }
+}
+
+impl AsType for ItemTarget {
+    fn ty(&self) -> TokenStream {
+        match self {
+            Self::Is(path) => quote!(#path),
+            Self::Prim(prim) => {
+                let ty = prim.as_type();
+                quote!(#ty)
+            }
+            Self::Relation(_) => quote!(::mimic::core::db::EntityKey),
+        }
+    }
+
+    fn view(&self) -> TokenStream {
+        match self {
+            Self::Is(path) => {
+                let view_path = format_view_path(path);
+                quote!(#view_path)
+            }
+            Self::Prim(prim) => {
+                let ty = prim.as_type();
+                quote!(<#ty as ::mimic::core::traits::TypeView>::View)
+            }
+            Self::Relation(_) => quote!(::mimic::core::db::EntityKey),
         }
     }
 }
