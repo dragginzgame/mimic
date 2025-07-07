@@ -106,6 +106,6 @@ impl AsType for Map {
 
 impl ToTokens for Map {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens())
+        tokens.extend(self.type_tokens());
     }
 }

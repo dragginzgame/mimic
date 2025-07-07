@@ -106,6 +106,6 @@ impl AsType for Record {
 
 impl ToTokens for Record {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens())
+        tokens.extend(self.type_tokens());
     }
 }

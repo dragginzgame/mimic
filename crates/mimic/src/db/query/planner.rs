@@ -91,7 +91,7 @@ pub struct QueryBound {
 
 impl QueryBound {
     #[must_use]
-    pub fn inclusive(key: EntityKey) -> Self {
+    pub const fn inclusive(key: EntityKey) -> Self {
         Self {
             key,
             kind: BoundKind::Inclusive,
@@ -99,7 +99,7 @@ impl QueryBound {
     }
 
     #[must_use]
-    pub fn exclusive(key: EntityKey) -> Self {
+    pub const fn exclusive(key: EntityKey) -> Self {
         Self {
             key,
             kind: BoundKind::Exclusive,

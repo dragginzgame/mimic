@@ -64,6 +64,7 @@ must-use-candidate = "warn"
 redundant_clone = "warn"
 
 # always allow
+derive_partial_eq_without_eq = "allow"
 doc_markdown = "allow"
 empty_line_after_doc_comments = "allow"
 missing_errors_doc = "allow"

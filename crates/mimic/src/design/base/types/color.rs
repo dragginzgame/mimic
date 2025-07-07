@@ -107,6 +107,7 @@ impl TryFrom<&str> for Rgba {
 pub struct RgbHex {}
 
 impl RgbHex {
+    #[must_use]
     pub fn from_hex_str(s: &str) -> Self {
         Self(normalize_rgb_hex(s))
     }
@@ -131,6 +132,7 @@ impl From<Rgb> for RgbHex {
 pub struct RgbaHex {}
 
 impl RgbaHex {
+    #[must_use]
     pub fn from_hex_str(s: &str) -> Self {
         Self(normalize_rgba_hex(s))
     }

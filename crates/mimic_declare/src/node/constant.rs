@@ -52,6 +52,6 @@ impl ToTokens for Constant {
 
         tokens.extend(quote! {
             pub const #ident: #ty = #value;
-        })
+        });
     }
 }

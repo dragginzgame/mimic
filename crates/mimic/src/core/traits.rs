@@ -198,7 +198,7 @@ impl<T: TypeView> TypeView for Box<T> {
     }
 
     fn from_view(view: Self::View) -> Self {
-        Box::new(T::from_view(*view))
+        Self::new(T::from_view(*view))
     }
 }
 
@@ -206,7 +206,7 @@ impl<T: TypeView> TypeView for Option<T> {
     type View = Option<T::View>;
 
     fn to_view(&self) -> Self::View {
-        self.as_ref().map(|v| v.to_view())
+        self.as_ref().map(TypeView::to_view)
     }
 
     fn from_view(view: Self::View) -> Self {
@@ -218,7 +218,7 @@ impl<T: TypeView> TypeView for Vec<T> {
     type View = Vec<T::View>;
 
     fn to_view(&self) -> Self::View {
-        self.iter().map(|v| v.to_view()).collect()
+        self.iter().map(TypeView::to_view).collect()
     }
 
     fn from_view(view: Self::View) -> Self {
@@ -227,7 +227,7 @@ impl<T: TypeView> TypeView for Vec<T> {
 }
 
 impl TypeView for String {
-    type View = String;
+    type View = Self;
 
     fn to_view(&self) -> Self::View {
         self.clone()

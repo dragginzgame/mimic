@@ -37,7 +37,7 @@ impl Selector {
     #[must_use]
     pub fn resolve(&self) -> ResolvedSelector {
         match self {
-            Selector::All => {
+            Self::All => {
                 let key = EntityKey::from_values(&[]);
 
                 let start = QueryBound {
@@ -52,13 +52,13 @@ impl Selector {
                 ResolvedSelector::Range(start, end)
             }
 
-            Selector::Only => ResolvedSelector::One(EntityKey::from_values(&[])),
+            Self::Only => ResolvedSelector::One(EntityKey::from_values(&[])),
 
-            Selector::One(key) => ResolvedSelector::One(key.clone()),
+            Self::One(key) => ResolvedSelector::One(key.clone()),
 
-            Selector::Many(keys) => ResolvedSelector::Many(keys.clone()),
+            Self::Many(keys) => ResolvedSelector::Many(keys.clone()),
 
-            Selector::Prefix(prefix) => {
+            Self::Prefix(prefix) => {
                 let start = QueryBound {
                     key: prefix.clone(),
                     kind: BoundKind::Inclusive,
@@ -70,7 +70,7 @@ impl Selector {
                 ResolvedSelector::Range(start, end)
             }
 
-            Selector::Range(start_key, end_key) => {
+            Self::Range(start_key, end_key) => {
                 let start = QueryBound {
                     key: start_key.clone(),
                     kind: BoundKind::Inclusive,

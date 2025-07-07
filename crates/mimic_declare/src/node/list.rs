@@ -99,6 +99,6 @@ impl AsType for List {
 
 impl ToTokens for List {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens())
+        tokens.extend(self.type_tokens());
     }
 }

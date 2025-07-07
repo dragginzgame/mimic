@@ -61,6 +61,6 @@ impl ToTokens for Store {
 
         tokens.extend(quote! {
             pub struct #ident {}
-        })
+        });
     }
 }

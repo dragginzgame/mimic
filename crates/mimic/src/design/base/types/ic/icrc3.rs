@@ -1,6 +1,5 @@
 use crate::design::prelude::*;
 
-/*
 ///
 /// Icrc3 Value
 /// Generic value in accordance with ICRC-3
@@ -30,7 +29,6 @@ pub mod value {
     /// Icrc3 Value Map
     ///
 
-    #[map(key(prim = "Text"), value(item(is = "Value", indirect)))]
+    #[map(key(prim = "Text"), value(item(is = "Value")))]
     pub struct Map {}
 }
-*/

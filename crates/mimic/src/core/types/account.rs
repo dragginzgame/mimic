@@ -150,10 +150,10 @@ mod tests {
 
     #[test]
     fn account_roundtrip() {
-        let p = Principal::anonymous();
-        let s = Some(Subaccount::new([1; 32]));
+        let pid = Principal::anonymous();
+        let sub = Some(Subaccount::new([1; 32]));
 
-        let a = Account::new(p, s);
+        let a = Account::new(pid, sub);
         let b = WrappedAccount::from(a);
         let c = Account::from(b);
 

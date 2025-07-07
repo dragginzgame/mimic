@@ -42,7 +42,7 @@ pub struct MacroHandler<'a, T: AsMacro> {
 }
 
 impl<'a, T: AsMacro> MacroHandler<'a, T> {
-    pub fn new(item: &'a T) -> Self {
+    pub const fn new(item: &'a T) -> Self {
         Self { item }
     }
 

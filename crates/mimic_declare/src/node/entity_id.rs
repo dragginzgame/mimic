@@ -60,6 +60,6 @@ impl ToTokens for EntityId {
             pub enum #ident {
                 #(#keys,)*
             }
-        })
+        });
     }
 }

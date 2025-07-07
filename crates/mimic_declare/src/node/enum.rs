@@ -122,7 +122,7 @@ impl AsType for Enum {
 
 impl ToTokens for Enum {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens())
+        tokens.extend(self.type_tokens());
     }
 }
 
@@ -215,6 +215,6 @@ impl AsType for EnumVariant {
 
 impl ToTokens for EnumVariant {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens())
+        tokens.extend(self.type_tokens());
     }
 }

@@ -74,7 +74,7 @@ impl AsType for FieldList {
 
 impl ToTokens for FieldList {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens())
+        tokens.extend(self.type_tokens());
     }
 }
 
@@ -129,6 +129,6 @@ impl AsType for Field {
 
 impl ToTokens for Field {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens())
+        tokens.extend(self.type_tokens());
     }
 }

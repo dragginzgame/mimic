@@ -186,10 +186,10 @@ impl ValidatorNumber for NotEqual {
     {
         let n_cast = cast_to_decimal(n)?;
 
-        if n_cast != self.target {
-            Ok(())
-        } else {
+        if n_cast == self.target {
             Err(format!("{n_cast} must not be equal to {}", self.target))
+        } else {
+            Ok(())
         }
     }
 }

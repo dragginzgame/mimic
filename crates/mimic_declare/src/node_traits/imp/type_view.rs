@@ -308,7 +308,7 @@ impl Imp<Tuple> for TypeViewTrait {
 
         // Create bindings: f0, f1, ...
         let field_idents: Vec<syn::Ident> = (0..values)
-            .map(|i| syn::Ident::new(&format!("f{}", i), proc_macro2::Span::call_site()))
+            .map(|i| syn::Ident::new(&format!("f{i}"), proc_macro2::Span::call_site()))
             .collect();
 
         // Accessor expressions: self.0, self.1, ...

@@ -102,7 +102,7 @@ impl ValidateNode for Entity {
                 // get field, and check relation
                 if let Some(field) = self.fields.get(field_name) {
                     if let ItemTarget::Relation(rel) = &field.value.item.target {
-                        if let Ok(entity) = schema.try_get_node_as::<Entity>(rel) {
+                        if let Ok(entity) = schema.try_get_node_as::<Self>(rel) {
                             if entity.data_keys.len() > 1 {
                                 errs.add(format!(
                                     "cannot index field '{}': related entity '{}' has multiple data keys (compound primary key)",

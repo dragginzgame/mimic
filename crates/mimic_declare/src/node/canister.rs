@@ -46,6 +46,6 @@ impl ToTokens for Canister {
 
         tokens.extend(quote! {
             pub struct #ident {}
-        })
+        });
     }
 }

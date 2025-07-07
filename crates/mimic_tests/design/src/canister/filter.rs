@@ -35,7 +35,7 @@ impl EntityFixture for Filterable {
             ("Kappa", "B", true, 50.0, 2, 3),
         ];
 
-        for (name, category, active, score, level, offset) in fixtures.iter() {
+        for (name, category, active, score, level, offset) in &fixtures {
             EntityService::save_fixture(
                 exec,
                 Self {

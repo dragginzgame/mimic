@@ -21,7 +21,7 @@ pub enum Cardinality {
 
 impl FromMeta for Cardinality {
     fn from_string(s: &str) -> Result<Self, darling::Error> {
-        s.parse::<Cardinality>()
+        s.parse::<Self>()
             .map_err(|_| darling::Error::unknown_value(s))
     }
 }
@@ -77,7 +77,7 @@ impl ConstantType {
 
 impl FromMeta for ConstantType {
     fn from_string(s: &str) -> Result<Self, darling::Error> {
-        s.parse::<ConstantType>()
+        s.parse::<Self>()
             .map_err(|_| darling::Error::unknown_value(s))
     }
 }
@@ -124,32 +124,32 @@ pub enum Primitive {
 
 impl Primitive {
     #[must_use]
-    pub fn supports_arithmetic(self) -> bool {
+    pub const fn supports_arithmetic(self) -> bool {
         self.is_int() || self.is_fixed_point() || self.is_decimal()
     }
 
     #[must_use]
-    pub fn supports_copy(self) -> bool {
+    pub const fn supports_copy(self) -> bool {
         matches!(self, Self::Bool | Self::Principal) || self.is_numeric()
     }
 
     #[must_use]
-    pub fn supports_display(self) -> bool {
+    pub const fn supports_display(self) -> bool {
         !matches!(self, Self::Blob | Self::Unit)
     }
 
     #[must_use]
-    pub fn supports_eq(self) -> bool {
+    pub const fn supports_eq(self) -> bool {
         !self.is_float()
     }
 
     #[must_use]
-    pub fn supports_hash(self) -> bool {
+    pub const fn supports_hash(self) -> bool {
         !(self.is_float() || matches!(self, Self::Blob))
     }
 
     #[must_use]
-    pub fn supports_num_cast(self) -> bool {
+    pub const fn supports_num_cast(self) -> bool {
         matches!(
             self,
             Self::Decimal
@@ -171,12 +171,12 @@ impl Primitive {
     }
 
     #[must_use]
-    pub fn supports_partial_ord(self) -> bool {
+    pub const fn supports_partial_ord(self) -> bool {
         !matches!(self, Self::Blob | Self::Unit)
     }
 
     #[must_use]
-    pub fn supports_total_ord(self) -> bool {
+    pub const fn supports_total_ord(self) -> bool {
         !matches!(
             self,
             Self::Blob | Self::Decimal | Self::Float32 | Self::Float64 | Self::Unit
@@ -188,24 +188,24 @@ impl Primitive {
     //
 
     #[must_use]
-    pub fn is_decimal(self) -> bool {
+    pub const fn is_decimal(self) -> bool {
         matches!(self, Self::Decimal)
     }
 
     // is_numeric
     // no floats, this is the check for all the arithmetic traits
     #[must_use]
-    pub fn is_numeric(self) -> bool {
+    pub const fn is_numeric(self) -> bool {
         self.is_int() || self.is_float() || self.is_fixed_point() || self.is_decimal()
     }
 
     #[must_use]
-    pub fn is_float(self) -> bool {
+    pub const fn is_float(self) -> bool {
         matches!(self, Self::Float32 | Self::Float64)
     }
 
     #[must_use]
-    pub fn is_signed_int(self) -> bool {
+    pub const fn is_signed_int(self) -> bool {
         matches!(
             self,
             Self::Int | Self::Int8 | Self::Int16 | Self::Int32 | Self::Int64
@@ -213,7 +213,7 @@ impl Primitive {
     }
 
     #[must_use]
-    pub fn is_unsigned_int(self) -> bool {
+    pub const fn is_unsigned_int(self) -> bool {
         matches!(
             self,
             Self::Nat | Self::Nat8 | Self::Nat16 | Self::Nat32 | Self::Nat64
@@ -221,12 +221,12 @@ impl Primitive {
     }
 
     #[must_use]
-    pub fn is_int(self) -> bool {
+    pub const fn is_int(self) -> bool {
         self.is_signed_int() || self.is_unsigned_int()
     }
 
     #[must_use]
-    pub fn is_fixed_point(self) -> bool {
+    pub const fn is_fixed_point(self) -> bool {
         matches!(self, Self::E8s | Self::E18s)
     }
 
@@ -259,7 +259,7 @@ impl Primitive {
 
 impl FromMeta for Primitive {
     fn from_string(s: &str) -> Result<Self, darling::Error> {
-        s.parse::<Primitive>()
+        s.parse::<Self>()
             .map_err(|_| darling::Error::unknown_value(s))
     }
 }
@@ -284,7 +284,7 @@ pub enum StoreType {
 
 impl FromMeta for StoreType {
     fn from_string(s: &str) -> Result<Self, darling::Error> {
-        s.parse::<StoreType>()
+        s.parse::<Self>()
             .map_err(|_| darling::Error::unknown_value(s))
     }
 }

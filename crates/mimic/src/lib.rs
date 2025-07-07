@@ -6,7 +6,6 @@
 pub mod core;
 pub mod db;
 pub mod design;
-pub mod dto;
 pub mod interface;
 pub mod macros;
 pub mod serialize;
@@ -55,7 +54,7 @@ pub mod prelude {
         MimicError,
         core::{
             db::{EntityKey, EntityKeys},
-            traits::{EntityFixture as _, EntityKind as _, Inner as _},
+            traits::{EntityFixture as _, EntityKind as _, Inner as _, TypeView as _},
             types::Ulid,
             value::IndexValue,
         },
@@ -85,9 +84,6 @@ use thiserror::Error as ThisError;
 #[derive(CandidType, Debug, Deserialize, Serialize, ThisError)]
 pub enum MimicError {
     #[error("{0}")]
-    Test(String), // probably dont need this
-
-    #[error("{0}")]
     CoreError(String),
 
     #[error("{0}")]
@@ -98,12 +94,6 @@ pub enum MimicError {
 
     #[error("{0}")]
     SerializeError(String),
-}
-
-impl MimicError {
-    pub fn test(s: &str) -> Self {
-        Self::Test(s.to_string())
-    }
 }
 
 macro_rules! from_to_string {

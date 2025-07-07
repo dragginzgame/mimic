@@ -147,7 +147,7 @@ mod tests {
 
     #[test]
     fn test_from_and_to_f64_round_trip() {
-        let original = 1.23456789;
+        let original = 1.234_567_89;
         let fixed = E8s::from_tokens(original).unwrap();
         let result = fixed.to_tokens();
         let diff = (original - result).abs();
@@ -173,7 +173,7 @@ mod tests {
 
     #[test]
     fn test_count_digits() {
-        let fixed = E8s::from_tokens(123.456789).unwrap();
+        let fixed = E8s::from_tokens(123.456_789).unwrap();
         let (int_digits, frac_digits) = fixed.count_digits();
         assert_eq!(int_digits, 3);
         assert_eq!(frac_digits, 6); // .456789

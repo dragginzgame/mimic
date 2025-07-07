@@ -97,7 +97,7 @@ impl AsType for Item {
 
 impl ToTokens for Item {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens())
+        tokens.extend(self.type_tokens());
     }
 }
 

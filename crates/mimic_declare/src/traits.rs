@@ -21,7 +21,7 @@ use tinyrand::{Rand, Seeded, StdRand};
 /// Create a static, lazily-initialized StdRng instance wrapped in a Mutex
 ///
 
-pub(crate) static RNG: LazyLock<Mutex<StdRand>> = LazyLock::new(|| {
+static RNG: LazyLock<Mutex<StdRand>> = LazyLock::new(|| {
     let now = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .expect("time went backwards")
