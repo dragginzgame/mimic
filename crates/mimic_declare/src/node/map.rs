@@ -98,7 +98,7 @@ impl AsType for Map {
 
         quote! {
             pub struct #view_ident(
-                ::std::collections::HashMap<#key_view, #value_view>
+                Vec<(#key_view, #value_view)>
             );
         }
     }
