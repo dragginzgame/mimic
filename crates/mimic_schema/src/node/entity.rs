@@ -1,7 +1,7 @@
 use crate::{
     build::schema_read,
     node::{
-        DataKey, Def, Field, ItemTarget, MacroNode, Store, Type, TypeNode, ValidateNode,
+        DataKey, Def, FieldList, ItemTarget, MacroNode, Store, Type, TypeNode, ValidateNode,
         VisitableNode,
     },
     types::StoreType,
@@ -26,16 +26,8 @@ pub struct Entity {
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub indexes: &'static [EntityIndex],
 
-    pub fields: &'static [Field],
+    pub fields: FieldList,
     pub ty: Type,
-}
-
-impl Entity {
-    // get_field
-    #[must_use]
-    pub fn get_field(&self, name: &str) -> Option<&Field> {
-        self.fields.iter().find(|f| f.name == name)
-    }
 }
 
 impl MacroNode for Entity {
@@ -82,7 +74,7 @@ impl ValidateNode for Entity {
 
             match &dk.field {
                 Some(field_name) => {
-                    match self.get_field(field_name) {
+                    match self.fields.get(field_name) {
                         Some(field) => {
                             // no relations
                             if field.value.item.is_relation() {
@@ -97,7 +89,7 @@ impl ValidateNode for Entity {
                     }
                 }
                 None => {
-                    if self.get_field("id").is_some() {
+                    if self.fields.get("id").is_some() {
                         errs.add("data key is missing a field, but entity has an 'id' field — you must specify it explicitly");
                     }
                 }
@@ -108,9 +100,9 @@ impl ValidateNode for Entity {
         for index in self.indexes {
             for field_name in index.fields {
                 // get field, and check relation
-                if let Some(field) = self.get_field(field_name) {
+                if let Some(field) = self.fields.get(field_name) {
                     if let ItemTarget::Relation(rel) = &field.value.item.target {
-                        if let Ok(entity) = schema.try_get_node_as::<Entity>(rel) {
+                        if let Ok(entity) = schema.try_get_node_as::<Self>(rel) {
                             if entity.data_keys.len() > 1 {
                                 errs.add(format!(
                                     "cannot index field '{}': related entity '{}' has multiple data keys (compound primary key)",
@@ -140,9 +132,7 @@ impl VisitableNode for Entity {
         for node in self.indexes {
             node.accept(v);
         }
-        for node in self.fields {
-            node.accept(v);
-        }
+        self.fields.accept(v);
         self.ty.accept(v);
     }
 }

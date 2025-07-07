@@ -175,7 +175,7 @@ impl FilterTester {
             .execute::<Filterable>(query)
             .unwrap()
             .entities();
-        assert!(results.iter().all(|e| e.name.starts_with("A")));
+        assert!(results.iter().all(|e| e.name.starts_with('A')));
     }
 
     fn filter_not_clause() {

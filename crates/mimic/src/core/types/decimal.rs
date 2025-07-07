@@ -41,12 +41,13 @@ use std::{
 pub struct Decimal(WrappedDecimal);
 
 impl Decimal {
+    pub const ZERO: Self = Self(WrappedDecimal::ZERO);
+
     #[must_use]
     pub fn new(num: i64, scale: u32) -> Self {
         Self(WrappedDecimal::new(num, scale))
     }
 
-    // count_digits
     #[must_use]
     pub fn count_digits(&self) -> (usize, usize) {
         let str = format!("{}", self.0.abs());
@@ -56,6 +57,10 @@ impl Decimal {
         let fd = if parts.len() > 1 { parts[1].len() } else { 0 };
 
         (id, fd)
+    }
+
+    pub fn checked_rem(self, rhs: Self) -> Option<Self> {
+        self.0.checked_rem(*rhs).map(Self)
     }
 }
 

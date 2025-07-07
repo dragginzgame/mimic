@@ -177,7 +177,7 @@ impl IndexValue {
 
     /// Returns the maximum possible index value for range upper bounds.
     #[must_use]
-    pub fn sentinel_max(&self) -> Self {
+    pub const fn sentinel_max(&self) -> Self {
         match self {
             Self::Int(_) => Self::Int(i64::MAX),
             Self::Nat(_) => Self::Nat(u64::MAX),
@@ -207,8 +207,8 @@ impl From<WrappedPrincipal> for IndexValue {
     }
 }
 
-impl From<[IndexValue; 1]> for IndexValue {
-    fn from(value: [IndexValue; 1]) -> Self {
+impl From<[Self; 1]> for IndexValue {
+    fn from(value: [Self; 1]) -> Self {
         value[0]
     }
 }

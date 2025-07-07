@@ -2,7 +2,7 @@ use crate::{
     MimicError,
     core::traits::EntityKind,
     db::{
-        DataError,
+        DbError,
         query::{DeleteQuery, QueryError, QueryPlan, QueryShape},
         response::{DeleteCollection, DeleteResponse, DeleteRow},
         store::{DataKey, DataKeyRange, DataStoreRegistry, IndexStoreRegistry},
@@ -64,7 +64,7 @@ impl DeleteExecutor {
     fn execute_internal<E: EntityKind>(
         &self,
         query: DeleteQuery,
-    ) -> Result<DeleteCollection, DataError> {
+    ) -> Result<DeleteCollection, DbError> {
         debug!(self.debug, "query.delete: query is {query:?}");
 
         let resolved = query.selector.resolve();
@@ -129,7 +129,7 @@ impl DeleteExecutor {
     }
 
     // remove_indexes
-    fn remove_indexes<E: EntityKind>(&self, entity: E) -> Result<(), DataError> {
+    fn remove_indexes<E: EntityKind>(&self, entity: E) -> Result<(), DbError> {
         let entity_key = entity.entity_key();
 
         for index in E::INDEXES {

@@ -1,6 +1,7 @@
 use crate::core::{
     traits::{
-        FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable,
+        FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto, ValidateCustom,
+        Visitable,
     },
     value::Value,
 };
@@ -118,6 +119,18 @@ impl Inner for E8s {
     }
 }
 
+impl TypeView for E8s {
+    type View = u64;
+
+    fn to_view(&self) -> Self::View {
+        self.0
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        Self(view)
+    }
+}
+
 impl ValidateAuto for E8s {}
 
 impl ValidateCustom for E8s {}
@@ -134,7 +147,7 @@ mod tests {
 
     #[test]
     fn test_from_and_to_f64_round_trip() {
-        let original = 1.23456789;
+        let original = 1.234_567_89;
         let fixed = E8s::from_tokens(original).unwrap();
         let result = fixed.to_tokens();
         let diff = (original - result).abs();
@@ -160,7 +173,7 @@ mod tests {
 
     #[test]
     fn test_count_digits() {
-        let fixed = E8s::from_tokens(123.456789).unwrap();
+        let fixed = E8s::from_tokens(123.456_789).unwrap();
         let (int_digits, frac_digits) = fixed.count_digits();
         assert_eq!(int_digits, 3);
         assert_eq!(frac_digits, 6); // .456789

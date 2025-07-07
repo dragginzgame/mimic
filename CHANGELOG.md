@@ -5,6 +5,15 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.6.0] - View Layer
+-
+
+- Complete rewrite of mimic_declare (formerly mimic_design) with much more sensible traits, and
+ToTokens derived for a specific purpose
+- FieldList has come back to consolidate logic over multiple Fields
+- Validator now has a FieldList so the types used to validate are in the schema
+- optimised the mimic_declare macros as we don't need to pass through tokens any longer
+
 ## [0.5.5]
 - IndexValue types (DataKey, IndexKey) are now Copy, so no Text keys
 - Every EntityKind has a PrimaryKey type [IndexValue; N].  Single PrimaryKeys can be flattened to use as an IndexValue

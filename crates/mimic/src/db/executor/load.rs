@@ -2,7 +2,7 @@ use crate::{
     MimicError,
     core::traits::EntityKind,
     db::{
-        DataError,
+        DbError,
         executor::FilterEvaluator,
         query::{FilterExpr, LoadFormat, LoadQuery, QueryPlan, QueryRange, QueryShape, Selector},
         response::{EntityRow, LoadCollection, LoadResponse},
@@ -69,7 +69,7 @@ impl LoadExecutor {
     fn execute_internal<E: EntityKind>(
         self,
         query: LoadQuery,
-    ) -> Result<LoadCollection<E>, DataError> {
+    ) -> Result<LoadCollection<E>, DbError> {
         debug!(self.debug, "query.load: {query:?}");
 
         // cast results to E
@@ -99,7 +99,7 @@ impl LoadExecutor {
         &self,
         selector: &Selector,
         filter: Option<&FilterExpr>,
-    ) -> Result<Vec<DataRow>, DataError> {
+    ) -> Result<Vec<DataRow>, DbError> {
         let resolved = selector.resolve();
         let plan = QueryPlan::from_resolved_selector(resolved, filter.cloned());
 
@@ -107,7 +107,7 @@ impl LoadExecutor {
     }
 
     // execute_plan
-    fn execute_plan<E: EntityKind>(&self, plan: QueryPlan) -> Result<Vec<DataRow>, DataError> {
+    fn execute_plan<E: EntityKind>(&self, plan: QueryPlan) -> Result<Vec<DataRow>, DbError> {
         let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
 
         let rows = match plan.shape {

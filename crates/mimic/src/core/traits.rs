@@ -1,6 +1,6 @@
 // re-exports of other traits
 // for the standard traits::X pattern
-pub use icu::ic::{candid::CandidType, structures::storable::Storable};
+pub use icu::ic::structures::storable::Storable;
 pub use num_traits::{FromPrimitive as NumFromPrimitive, NumCast, ToPrimitive as NumToPrimitive};
 pub use serde::{Deserialize, Serialize, de::DeserializeOwned};
 pub use std::{
@@ -69,16 +69,16 @@ impl<T> Kind for T where T: Path {}
 
 ///
 /// TypeKind
-/// a Meta that can act as a data type
+/// any data type
 ///
 
 pub trait TypeKind:
-    Kind + CandidType + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq
+    Kind + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq + TypeView
 {
 }
 
 impl<T> TypeKind for T where
-    T: Kind + CandidType + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq
+    T: Kind + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq + TypeView
 {
 }
 
@@ -180,6 +180,87 @@ impl<T: FieldValue + FieldSearchable + FieldSortable> FieldKind for T {}
 ///
 
 ///
+/// TypeView
+///
+
+pub trait TypeView {
+    type View;
+
+    fn to_view(&self) -> Self::View;
+    fn from_view(view: Self::View) -> Self;
+}
+
+impl<T: TypeView> TypeView for Box<T> {
+    type View = Box<T::View>;
+
+    fn to_view(&self) -> Self::View {
+        Box::new((**self).to_view())
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        Self::new(T::from_view(*view))
+    }
+}
+
+impl<T: TypeView> TypeView for Option<T> {
+    type View = Option<T::View>;
+
+    fn to_view(&self) -> Self::View {
+        self.as_ref().map(TypeView::to_view)
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        view.map(T::from_view)
+    }
+}
+
+impl<T: TypeView> TypeView for Vec<T> {
+    type View = Vec<T::View>;
+
+    fn to_view(&self) -> Self::View {
+        self.iter().map(TypeView::to_view).collect()
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        view.into_iter().map(T::from_view).collect()
+    }
+}
+
+impl TypeView for String {
+    type View = Self;
+
+    fn to_view(&self) -> Self::View {
+        self.clone()
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        view
+    }
+}
+
+// impl_primitive_type_view
+#[macro_export]
+macro_rules! impl_primitive_type_view {
+    ($($type:ty),*) => {
+        $(
+            impl TypeView for $type {
+                type View = $type;
+
+                fn to_view(&self) -> Self::View {
+                    *self
+                }
+
+                fn from_view(view: Self::View) -> Self {
+                    view
+                }
+            }
+        )*
+    };
+}
+
+impl_primitive_type_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
+
+///
 /// Path
 ///
 /// any node created via a macro has a Path
@@ -279,10 +360,6 @@ pub trait ValidatorString {
 }
 
 ///
-/// TYPE TRAITS
-///
-
-///
 /// FieldSearchable
 ///
 
@@ -297,6 +374,18 @@ pub trait FieldSearchable {
     fn contains_text(&self, s: &str) -> bool {
         self.to_searchable_string()
             .is_some_and(|val| val.to_lowercase().contains(&s.to_lowercase()))
+    }
+}
+
+impl<T: FieldSearchable> FieldSearchable for Option<T> {
+    fn contains_text(&self, text: &str) -> bool {
+        self.as_ref().is_some_and(|v| v.contains_text(text))
+    }
+}
+
+impl<T: FieldSearchable> FieldSearchable for Vec<T> {
+    fn contains_text(&self, text: &str) -> bool {
+        self.iter().any(|v| v.contains_text(text))
     }
 }
 
@@ -494,7 +583,10 @@ pub trait ValidateAuto {
     }
 }
 
+impl<T: ValidateAuto> ValidateAuto for Option<T> {}
+impl<T: ValidateAuto> ValidateAuto for Vec<T> {}
 impl<T: ValidateAuto> ValidateAuto for Box<T> {}
+
 impl_primitive!(ValidateAuto);
 
 ///
@@ -509,7 +601,10 @@ pub trait ValidateCustom {
     }
 }
 
+impl<T: ValidateCustom> ValidateCustom for Option<T> {}
+impl<T: ValidateCustom> ValidateCustom for Vec<T> {}
 impl<T: ValidateCustom> ValidateCustom for Box<T> {}
+
 impl_primitive!(ValidateCustom);
 
 ///
@@ -519,6 +614,23 @@ impl_primitive!(ValidateCustom);
 pub trait Visitable: Validate {
     fn drive(&self, _: &mut dyn Visitor) {}
     fn drive_mut(&mut self, _: &mut dyn Visitor) {}
+}
+
+impl<T: Visitable> Visitable for Option<T> {
+    fn drive(&self, visitor: &mut dyn crate::core::visit::Visitor) {
+        if let Some(value) = self {
+            crate::core::visit::perform_visit(visitor, value, "");
+        }
+    }
+}
+
+impl<T: Visitable> Visitable for Vec<T> {
+    fn drive(&self, visitor: &mut dyn crate::core::visit::Visitor) {
+        for (i, value) in self.iter().enumerate() {
+            let key = i.to_string();
+            crate::core::visit::perform_visit(visitor, value, &key);
+        }
+    }
 }
 
 impl<T: Visitable> Visitable for Box<T> {

@@ -1,5 +1,5 @@
 use crate::core::traits::{
-    FieldSortable, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable,
+    FieldSortable, FieldValue, Inner, TypeView, ValidateAuto, ValidateCustom, Visitable,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -9,7 +9,18 @@ use serde::{Deserialize, Serialize};
 ///
 
 #[derive(
-    CandidType, Clone, Debug, Default, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize,
+    CandidType,
+    Clone,
+    Copy,
+    Debug,
+    Default,
+    Eq,
+    PartialEq,
+    Hash,
+    Ord,
+    PartialOrd,
+    Serialize,
+    Deserialize,
 )]
 pub struct Unit();
 
@@ -26,6 +37,18 @@ impl Inner for Unit {
 
     fn into_inner(self) -> Self {
         self
+    }
+}
+
+impl TypeView for Unit {
+    type View = Self;
+
+    fn to_view(&self) -> Self::View {
+        *self
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        view
     }
 }
 

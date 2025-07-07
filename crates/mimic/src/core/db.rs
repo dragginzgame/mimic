@@ -1,7 +1,8 @@
 use crate::{
     core::{
         traits::{
-            FieldSearchable, FieldSortable, FieldValue, ValidateAuto, ValidateCustom, Visitable,
+            FieldSearchable, FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom,
+            Visitable,
         },
         types::Ulid,
         value::IndexValue,
@@ -135,6 +136,18 @@ where
     }
 }
 
+impl TypeView for EntityKey {
+    type View = Self;
+
+    fn to_view(&self) -> Self::View {
+        self.clone()
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        view
+    }
+}
+
 impl ValidateAuto for EntityKey {}
 
 impl ValidateCustom for EntityKey {}
@@ -187,6 +200,8 @@ impl Display for EntityKeys {
     }
 }
 
+impl FieldSearchable for EntityKeys {}
+
 impl<K: Into<EntityKey>> From<Vec<K>> for EntityKeys {
     fn from(vec: Vec<K>) -> Self {
         let keys = vec.into_iter().map(Into::into).collect();
@@ -203,3 +218,21 @@ impl<'a> IntoIterator for &'a EntityKeys {
         self.0.iter()
     }
 }
+
+impl TypeView for EntityKeys {
+    type View = Self;
+
+    fn to_view(&self) -> Self::View {
+        self.clone()
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        view
+    }
+}
+
+impl ValidateAuto for EntityKeys {}
+
+impl ValidateCustom for EntityKeys {}
+
+impl Visitable for EntityKeys {}

@@ -5,19 +5,14 @@ use crate::design::{base::validator, prelude::*};
 ///
 
 #[record(
-    field(name = "r", value(item(prim = "Nat8"))),
-    field(name = "g", value(item(prim = "Nat8"))),
-    field(name = "b", value(item(prim = "Nat8"))),
+    fields(
+        field(name = "r", value(item(prim = "Nat8"))),
+        field(name = "g", value(item(prim = "Nat8"))),
+        field(name = "b", value(item(prim = "Nat8"))),
+    ),
     traits(add(Default))
 )]
 pub struct Rgb {}
-
-impl Rgb {
-    #[must_use]
-    pub const fn new(r: u8, g: u8, b: u8) -> Self {
-        Self { r, g, b }
-    }
-}
 
 impl From<&RgbHex> for Rgb {
     fn from(hex: &RgbHex) -> Self {
@@ -51,10 +46,12 @@ impl TryFrom<&str> for Rgb {
 ///
 
 #[record(
-    field(name = "r", value(item(prim = "Nat8"))),
-    field(name = "g", value(item(prim = "Nat8"))),
-    field(name = "b", value(item(prim = "Nat8"))),
-    field(name = "a", value(item(prim = "Nat8"))),
+    fields(
+        field(name = "r", value(item(prim = "Nat8"))),
+        field(name = "g", value(item(prim = "Nat8"))),
+        field(name = "b", value(item(prim = "Nat8"))),
+        field(name = "a", value(item(prim = "Nat8"))),
+    ),
     traits(add(Default))
 )]
 pub struct Rgba {}
@@ -105,13 +102,13 @@ impl TryFrom<&str> for Rgba {
     primitive = "Text",
     item(prim = "Text"),
     default = "FFFFFF",
-    ty(validator(path = "validator::text::color::RgbHex")),
-    traits(remove(From))
+    ty(validator(path = "validator::text::color::RgbHex"))
 )]
 pub struct RgbHex {}
 
-impl From<&str> for RgbHex {
-    fn from(s: &str) -> Self {
+impl RgbHex {
+    #[must_use]
+    pub fn from_hex_str(s: &str) -> Self {
         Self(normalize_rgb_hex(s))
     }
 }
@@ -130,13 +127,13 @@ impl From<Rgb> for RgbHex {
     primitive = "Text",
     item(prim = "Text"),
     default = "FFFFFFFF",
-    ty(validator(path = "validator::text::color::RgbaHex")),
-    traits(remove(From))
+    ty(validator(path = "validator::text::color::RgbaHex"))
 )]
 pub struct RgbaHex {}
 
-impl From<&str> for RgbaHex {
-    fn from(s: &str) -> Self {
+impl RgbaHex {
+    #[must_use]
+    pub fn from_hex_str(s: &str) -> Self {
         Self(normalize_rgba_hex(s))
     }
 }

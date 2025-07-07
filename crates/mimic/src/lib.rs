@@ -6,7 +6,6 @@
 pub mod core;
 pub mod db;
 pub mod design;
-pub mod dto;
 pub mod interface;
 pub mod macros;
 pub mod serialize;
@@ -55,7 +54,7 @@ pub mod prelude {
         MimicError,
         core::{
             db::{EntityKey, EntityKeys},
-            traits::{EntityFixture as _, EntityKind as _, Inner as _},
+            traits::{EntityFixture as _, EntityKind as _, Inner as _, TypeView as _},
             types::Ulid,
             value::IndexValue,
         },
@@ -88,7 +87,7 @@ pub enum MimicError {
     CoreError(String),
 
     #[error("{0}")]
-    DataError(String),
+    DbError(String),
 
     #[error("{0}")]
     InterfaceError(String),
@@ -108,6 +107,6 @@ macro_rules! from_to_string {
 }
 
 from_to_string!(core::CoreError, CoreError);
-from_to_string!(db::DataError, DataError);
+from_to_string!(db::DbError, DbError);
 from_to_string!(interface::InterfaceError, InterfaceError);
 from_to_string!(serialize::SerializeError, SerializeError);

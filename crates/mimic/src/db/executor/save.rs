@@ -3,7 +3,7 @@ use crate::{
     common::utils::time,
     core::{traits::EntityKind, validate::validate},
     db::{
-        DataError,
+        DbError,
         executor::ExecutorError,
         query::{SaveMode, SaveQueryTyped},
         response::{EntityEntry, SaveCollection, SaveResponse, SaveRow},
@@ -65,7 +65,7 @@ impl SaveExecutor {
     fn execute_internal<E: EntityKind>(
         &self,
         query: SaveQueryTyped<E>,
-    ) -> Result<SaveCollection, DataError> {
+    ) -> Result<SaveCollection, DbError> {
         let mode = query.mode;
         let entity = query.entity;
         let bytes = serialize(&entity)?;
@@ -144,7 +144,7 @@ impl SaveExecutor {
     }
 
     // update_indexes
-    fn update_indexes<E: EntityKind>(&self, old: Option<&E>, new: &E) -> Result<(), DataError> {
+    fn update_indexes<E: EntityKind>(&self, old: Option<&E>, new: &E) -> Result<(), DbError> {
         for index in E::INDEXES {
             let index_store = self.indexes.with(|map| map.try_get_store(index.store))?;
 
@@ -153,7 +153,7 @@ impl SaveExecutor {
                 index_store.with_borrow_mut(|store| {
                     store.insert_index_entry(index, new_index_key.clone(), new.entity_key())?;
 
-                    Ok::<_, DataError>(())
+                    Ok::<_, DbError>(())
                 })?;
             }
 

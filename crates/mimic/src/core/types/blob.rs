@@ -1,5 +1,6 @@
 use crate::core::traits::{
-    FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable,
+    FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto, ValidateCustom,
+    Visitable,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
@@ -79,6 +80,18 @@ impl Inner for Blob {
 
     fn into_inner(self) -> Self::Primitive {
         self
+    }
+}
+
+impl TypeView for Blob {
+    type View = Self;
+
+    fn to_view(&self) -> Self::View {
+        self.clone()
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        view
     }
 }
 

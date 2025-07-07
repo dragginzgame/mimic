@@ -11,6 +11,33 @@ use mimic_common::{
 use serde::Serialize;
 
 ///
+/// FieldList
+///
+
+#[derive(Clone, Debug, Serialize)]
+pub struct FieldList {
+    pub fields: &'static [Field],
+}
+
+impl FieldList {
+    // get
+    #[must_use]
+    pub fn get(&self, name: &str) -> Option<&Field> {
+        self.fields.iter().find(|f| f.name == name)
+    }
+}
+
+impl ValidateNode for FieldList {}
+
+impl VisitableNode for FieldList {
+    fn drive<V: Visitor>(&self, v: &mut V) {
+        for node in self.fields {
+            node.accept(v);
+        }
+    }
+}
+
+///
 /// Field
 ///
 

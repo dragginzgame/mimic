@@ -1,6 +1,7 @@
 use crate::core::{
     traits::{
-        FieldSearchable, FieldSortable, FieldValue, Inner, ValidateAuto, ValidateCustom, Visitable,
+        FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto, ValidateCustom,
+        Visitable,
     },
     value::Value,
 };
@@ -127,6 +128,18 @@ impl Inner for E18s {
 
     fn into_inner(self) -> Self::Primitive {
         self
+    }
+}
+
+impl TypeView for E18s {
+    type View = u128;
+
+    fn to_view(&self) -> Self::View {
+        self.0
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        Self(view)
     }
 }
 

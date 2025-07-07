@@ -1,22 +1,20 @@
 use crate::{core::traits::ValidatorNumber, design::prelude::*};
-use num_traits::{NumCast, Zero};
+use num_traits::NumCast;
 
 ///
 /// Helper Functions
 ///
 
-fn cast_to_f64<N: Copy + NumCast>(n: &N) -> Result<f64, String> {
-    NumCast::from(*n).ok_or_else(|| "failed to cast value to f64".to_string())
+fn cast_to_decimal<N: Copy + NumCast>(n: &N) -> Result<Decimal, String> {
+    NumCast::from(*n).ok_or_else(|| "failed to cast value to decimal".to_string())
 }
 
 ///
 /// Lt
 ///
 
-#[validator]
-pub struct Lt {
-    pub target: f64,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Decimal")))))]
+pub struct Lt {}
 
 impl Lt {
     pub fn new<N: NumCast>(target: N) -> Self {
@@ -31,7 +29,7 @@ impl ValidatorNumber for Lt {
     where
         N: Copy + NumCast,
     {
-        let n_cast = cast_to_f64(n)?;
+        let n_cast = cast_to_decimal(n)?;
 
         if n_cast < self.target {
             Ok(())
@@ -45,10 +43,8 @@ impl ValidatorNumber for Lt {
 /// Gt
 ///
 
-#[validator]
-pub struct Gt {
-    pub target: f64,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Decimal")))))]
+pub struct Gt {}
 
 impl Gt {
     pub fn new<N: NumCast>(target: N) -> Self {
@@ -63,7 +59,7 @@ impl ValidatorNumber for Gt {
     where
         N: Copy + NumCast,
     {
-        let n_cast = cast_to_f64(n)?;
+        let n_cast = cast_to_decimal(n)?;
 
         if n_cast > self.target {
             Ok(())
@@ -77,10 +73,8 @@ impl ValidatorNumber for Gt {
 /// Ltoe
 ///
 
-#[validator]
-pub struct Ltoe {
-    pub target: f64,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Decimal")))))]
+pub struct Ltoe {}
 
 impl Ltoe {
     pub fn new<N: NumCast>(target: N) -> Self {
@@ -95,7 +89,7 @@ impl ValidatorNumber for Ltoe {
     where
         N: Copy + NumCast,
     {
-        let n_cast = cast_to_f64(n)?;
+        let n_cast = cast_to_decimal(n)?;
 
         if n_cast <= self.target {
             Ok(())
@@ -112,10 +106,8 @@ impl ValidatorNumber for Ltoe {
 /// Gtoe
 ///
 
-#[validator]
-pub struct Gtoe {
-    pub target: f64,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Decimal")))))]
+pub struct Gtoe {}
 
 impl Gtoe {
     pub fn new<N: NumCast>(target: N) -> Self {
@@ -130,7 +122,7 @@ impl ValidatorNumber for Gtoe {
     where
         N: Copy + NumCast,
     {
-        let n_cast = cast_to_f64(n)?;
+        let n_cast = cast_to_decimal(n)?;
 
         if n_cast >= self.target {
             Ok(())
@@ -147,10 +139,8 @@ impl ValidatorNumber for Gtoe {
 /// Equal
 ///
 
-#[validator]
-pub struct Equal {
-    pub target: f64,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Decimal")))))]
+pub struct Equal {}
 
 impl Equal {
     pub fn new<N: NumCast>(target: N) -> Self {
@@ -165,7 +155,7 @@ impl ValidatorNumber for Equal {
     where
         N: Copy + NumCast,
     {
-        let n_cast = cast_to_f64(n)?;
+        let n_cast = cast_to_decimal(n)?;
 
         if n_cast == self.target {
             Ok(())
@@ -179,10 +169,8 @@ impl ValidatorNumber for Equal {
 /// NotEqual
 ///
 
-#[validator]
-pub struct NotEqual {
-    pub target: f64,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Decimal")))))]
+pub struct NotEqual {}
 
 impl NotEqual {
     pub fn new<N: NumCast>(target: N) -> Self {
@@ -196,12 +184,12 @@ impl ValidatorNumber for NotEqual {
     where
         N: Copy + NumCast,
     {
-        let n_cast = cast_to_f64(n)?;
+        let n_cast = cast_to_decimal(n)?;
 
-        if n_cast != self.target {
-            Ok(())
-        } else {
+        if n_cast == self.target {
             Err(format!("{n_cast} must not be equal to {}", self.target))
+        } else {
+            Ok(())
         }
     }
 }
@@ -210,11 +198,11 @@ impl ValidatorNumber for NotEqual {
 /// Range
 ///
 
-#[validator]
-pub struct Range {
-    pub min: f64,
-    pub max: f64,
-}
+#[validator(fields(
+    field(name = "min", value(item(prim = "Decimal"))),
+    field(name = "max", value(item(prim = "Decimal"))),
+))]
+pub struct Range {}
 
 impl Range {
     pub fn new<N>(min: N, max: N) -> Self
@@ -233,7 +221,7 @@ impl ValidatorNumber for Range {
     where
         N: Copy + NumCast,
     {
-        let n_cast = cast_to_f64(n)?;
+        let n_cast = cast_to_decimal(n)?;
 
         if n_cast >= self.min && n_cast <= self.max {
             Ok(())
@@ -250,10 +238,8 @@ impl ValidatorNumber for Range {
 /// MultipleOf
 ///
 
-#[validator]
-pub struct MultipleOf {
-    pub target: i32,
-}
+#[validator(fields(field(name = "target", value(item(prim = "Decimal")))))]
+pub struct MultipleOf {}
 
 impl MultipleOf {
     pub fn new<N: NumCast>(target: N) -> Self {
@@ -268,14 +254,9 @@ impl ValidatorNumber for MultipleOf {
     where
         N: Copy + NumCast,
     {
-        // cast
-        let n_cast: i32 = match NumCast::from(*n) {
-            Some(val) => val,
-            None => return Err("failed to cast value to i32".to_string()),
-        };
+        let n_cast = cast_to_decimal(n)?;
 
-        // check
-        if n_cast.checked_rem(self.target) == Some(i32::zero()) {
+        if n_cast.checked_rem(self.target) == Some(Decimal::ZERO) {
             Ok(())
         } else {
             Err(format!("{n_cast} is not a multiple of {}", self.target))
@@ -287,10 +268,8 @@ impl ValidatorNumber for MultipleOf {
 /// InArray
 ///
 
-#[validator]
-pub struct InArray {
-    values: Vec<i32>,
-}
+#[validator(fields(field(name = "values", value(many, item(prim = "Int32")))))]
+pub struct InArray {}
 
 impl InArray {
     #[must_use]
