@@ -1,5 +1,5 @@
 use crate::{
-    helper::{format_view_ident, quote_one, quote_option, quote_slice, to_path},
+    helper::{format_view_path, quote_one, quote_option, quote_slice, to_path},
     node::TypeValidator,
     traits::{AsSchema, AsType},
 };
@@ -93,9 +93,12 @@ impl AsType for Item {
                     <#prim_ty as ::mimic::core::traits::TypeView>::View
                 }
             }
+            ItemTarget::Relation(_) => {
+                quote!(::mimic::core::db::EntityKey)
+            }
             other => {
                 let path = other.quoted_path();
-                let view_ident = format_view_ident(path);
+                let view_ident = format_view_path(path);
 
                 if self.indirect {
                     quote!(Box<#view_ident>)

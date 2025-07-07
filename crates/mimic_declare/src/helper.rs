@@ -1,23 +1,25 @@
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
-use syn::{Ident, Path};
+use syn::{Ident, Path, parse2};
 
 ///
 /// IDENT
 ///
 
-pub fn format_view_ident<T: ToString>(ty: T) -> Ident {
-    let base = ty.to_string();
+pub fn format_view_path<T: ToTokens>(base: T) -> Path {
+    let mut path: Path = parse2(base.into_token_stream()).expect("Expected a valid type path");
 
-    // Try parsing as a Rust path (like `types::bytes::Utf8`)
-    if let Ok(path) = syn::parse_str::<Path>(&base) {
-        if let Some(last) = path.segments.last() {
-            return format_ident!("{}_View", last.ident);
-        }
+    if let Some(last) = path.segments.last_mut() {
+        let new_ident = format_view_ident(&last.ident);
+        last.ident = new_ident;
     }
 
-    // Fallback: treat the whole thing as one identifier (only safe if no `::`)
-    format_ident!("{}_View", base.replace("::", "_"))
+    path
+}
+
+// formkat_view_ident
+pub fn format_view_ident(ident: &Ident) -> Ident {
+    format_ident!("{}_View", ident)
 }
 
 ///
