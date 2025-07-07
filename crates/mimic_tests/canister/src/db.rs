@@ -49,7 +49,10 @@ impl DbTester {
         // Insert rows
         for _ in 0..ROWS {
             let e = ContainsBlob::default();
-            db!().save().execute(query::create().entity(e)).unwrap();
+            db!()
+                .save()
+                .execute(query::create().from_entity(e))
+                .unwrap();
         }
 
         // Retrieve rows in B-Tree order
@@ -77,7 +80,10 @@ impl DbTester {
         use test_design::canister::db::CreateBasic;
 
         let e = CreateBasic::default();
-        db!().save().execute(query::create().entity(e)).unwrap();
+        db!()
+            .save()
+            .execute(query::create().from_entity(e))
+            .unwrap();
 
         // count keys
         let num_keys = db!()
@@ -89,7 +95,10 @@ impl DbTester {
 
         // insert another
         let e = CreateBasic::default();
-        db!().save().execute(query::create().entity(e)).unwrap();
+        db!()
+            .save()
+            .execute(query::create().from_entity(e))
+            .unwrap();
 
         // count keys
 
@@ -112,7 +121,7 @@ impl DbTester {
         db!()
             .save()
             .debug()
-            .execute(query::create().entity(e1.clone()))
+            .execute(query::create().from_entity(e1.clone()))
             .unwrap();
 
         // Step 2: Insert entity e2 with x=1 (non-unique), y=20 (unique)
@@ -120,7 +129,7 @@ impl DbTester {
         db!()
             .save()
             .debug()
-            .execute(query::create().entity(e2))
+            .execute(query::create().from_entity(e2))
             .unwrap();
 
         // Step 3: Attempt to insert another with duplicate y=10 (should fail)
@@ -128,7 +137,7 @@ impl DbTester {
         let result = db!()
             .save()
             .debug()
-            .execute(query::create().entity(e3.clone()));
+            .execute(query::create().from_entity(e3.clone()));
         assert!(result.is_err(), "expected unique index violation on y=10");
 
         // Step 4: Delete e1 (y=10)
@@ -139,7 +148,10 @@ impl DbTester {
             .unwrap();
 
         // Step 5: Try inserting e3 again (y=10 should now be free)
-        let result = db!().save().debug().execute(query::create().entity(e3));
+        let result = db!()
+            .save()
+            .debug()
+            .execute(query::create().from_entity(e3));
         assert!(
             result.is_ok(),
             "expected insert to succeed after y=10 was freed by delete"
@@ -163,7 +175,10 @@ impl DbTester {
         // insert rows
         for _ in 0..ROWS {
             let e = CreateBasic::default();
-            db!().save().execute(query::create().entity(e)).unwrap();
+            db!()
+                .save()
+                .execute(query::create().from_entity(e))
+                .unwrap();
         }
 
         // Retrieve the count from the store
@@ -189,7 +204,10 @@ impl DbTester {
                 bytes: vec![0u8; BLOB_SIZE].into(),
                 ..Default::default()
             };
-            db!().save().execute(query::create().entity(e)).unwrap();
+            db!()
+                .save()
+                .execute(query::create().from_entity(e))
+                .unwrap();
         }
 
         // Retrieve the count from the store
@@ -212,7 +230,10 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = DataKeyOrder::default();
-            db!().save().execute(query::create().entity(e)).unwrap();
+            db!()
+                .save()
+                .execute(query::create().from_entity(e))
+                .unwrap();
         }
 
         // Retrieve rows in B-Tree order
@@ -236,7 +257,10 @@ impl DbTester {
         // overwrite the ulid with replace()
         for value in 1..100 {
             let e = Limit { value };
-            db!().save().execute(query::replace().entity(e)).unwrap();
+            db!()
+                .save()
+                .execute(query::replace().from_entity(e))
+                .unwrap();
         }
 
         // Test various limits and offsets
@@ -265,7 +289,10 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = ContainsOpts::default();
-            db!().save().execute(query::create().entity(e)).unwrap();
+            db!()
+                .save()
+                .execute(query::create().from_entity(e))
+                .unwrap();
         }
 
         // Retrieve rows in B-Tree order
@@ -288,7 +315,10 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = ContainsManyRelations::default();
-            db!().save().execute(query::create().entity(e)).unwrap();
+            db!()
+                .save()
+                .execute(query::create().from_entity(e))
+                .unwrap();
         }
 
         // Retrieve rows in B-Tree order

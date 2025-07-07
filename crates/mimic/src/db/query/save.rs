@@ -1,6 +1,6 @@
 use crate::{
     MimicError,
-    core::traits::{EntityKind, TypeView},
+    core::traits::EntityKind,
     serialize::{deserialize, serialize},
 };
 use candid::CandidType;
@@ -44,16 +44,16 @@ impl SaveQueryBuilder {
         SaveQuery::new(self.mode, bytes)
     }
 
-    // entity
-    pub fn entity<E: EntityKind>(self, entity: E) -> Result<SaveQuery, MimicError> {
+    // from
+    pub fn from<E: EntityKind>(self, input: impl Into<E>) -> Result<SaveQuery, MimicError> {
+        let entity = input.into();
         let bytes = serialize(&entity)?;
 
         Ok(SaveQuery::new(self.mode, &bytes))
     }
 
-    // view
-    pub fn from<E: EntityKind>(self, input: impl Into<E>) -> Result<SaveQuery, MimicError> {
-        let entity = input.into();
+    // from_entity
+    pub fn from_entity<E: EntityKind>(self, entity: E) -> Result<SaveQuery, MimicError> {
         let bytes = serialize(&entity)?;
 
         Ok(SaveQuery::new(self.mode, &bytes))
@@ -106,15 +106,15 @@ impl SaveQueryTypedBuilder {
         Self { mode }
     }
 
-    // entity
-    pub const fn entity<E: EntityKind>(self, entity: E) -> SaveQueryTyped<E> {
-        SaveQueryTyped::new(self.mode, entity)
-    }
-
     // from
     pub fn from<E: EntityKind>(self, input: impl Into<E>) -> SaveQueryTyped<E> {
         let entity = input.into();
 
+        SaveQueryTyped::new(self.mode, entity)
+    }
+
+    // from_entity
+    pub const fn from_entity<E: EntityKind>(self, entity: E) -> SaveQueryTyped<E> {
         SaveQueryTyped::new(self.mode, entity)
     }
 }
