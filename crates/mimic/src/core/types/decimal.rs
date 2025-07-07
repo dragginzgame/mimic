@@ -210,14 +210,14 @@ impl ToPrimitive for Decimal {
 }
 
 impl TypeView for Decimal {
-    type View = WrappedDecimal;
+    type View = Self;
 
     fn to_view(&self) -> Self::View {
-        self.0
+        *self
     }
 
     fn from_view(view: Self::View) -> Self {
-        Self(view)
+        Self(*view)
     }
 }
 
