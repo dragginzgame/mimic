@@ -200,6 +200,8 @@ impl Display for EntityKeys {
     }
 }
 
+impl FieldSearchable for EntityKeys {}
+
 impl<K: Into<EntityKey>> From<Vec<K>> for EntityKeys {
     fn from(vec: Vec<K>) -> Self {
         let keys = vec.into_iter().map(Into::into).collect();

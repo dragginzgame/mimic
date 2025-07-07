@@ -6,7 +6,7 @@ mod validate;
 
 use icu::{ic::export_candid, prelude::*};
 use mimic::{MimicError, db::query, prelude::*};
-use test_design::fixture::rarity::{Rarity, Rarity_View};
+use test_design::fixture::rarity::{Rarity, RarityView};
 
 //
 // INIT
@@ -43,7 +43,7 @@ pub fn test() {
 
 // rarity
 #[query]
-pub fn rarity() -> Result<Vec<Rarity_View>, MimicError> {
+pub fn rarity() -> Result<Vec<RarityView>, MimicError> {
     perf_start!();
 
     let res = db!()

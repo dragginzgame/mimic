@@ -377,6 +377,18 @@ pub trait FieldSearchable {
     }
 }
 
+impl<T: FieldSearchable> FieldSearchable for Option<T> {
+    fn contains_text(&self, text: &str) -> bool {
+        self.as_ref().is_some_and(|v| v.contains_text(text))
+    }
+}
+
+impl<T: FieldSearchable> FieldSearchable for Vec<T> {
+    fn contains_text(&self, text: &str) -> bool {
+        self.iter().any(|v| v.contains_text(text))
+    }
+}
+
 // impl_primitive_field_search
 #[macro_export]
 macro_rules! impl_primitive_field_search {

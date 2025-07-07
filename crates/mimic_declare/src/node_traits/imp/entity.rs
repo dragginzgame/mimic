@@ -171,22 +171,10 @@ impl Imp<Entity> for EntitySearchTrait {
                 let name = &field.name;
                 let name_str = name.to_string();
 
-              match field.value.cardinality() {
-                    Cardinality::One => quote! {
-                        ( #name_str, |s: &#ident, text|
-                            ::mimic::core::traits::FieldSearchable::contains_text(&s.#name, text)
-                        )
-                    },
-                    Cardinality::Opt => quote! {
-                        ( #name_str, |s: &#ident, text|
-                            s.#name.as_ref().is_some_and(|v| ::mimic::core::traits::FieldSearchable::contains_text(v, text))
-                        )
-                    },
-                    Cardinality::Many => quote! {
-                        ( #name_str, |s: &#ident, text|
-                             s.#name.iter().any(|v| ::mimic::core::traits::FieldSearchable::contains_text(v, text))
-                        )
-                    },
+                quote! {
+                    ( #name_str, |s: &#ident, text| {
+                        ::mimic::core::traits::FieldSearchable::contains_text(&s.#name, text)
+                    })
                 }
             })
             .collect();

@@ -19,7 +19,7 @@ pub fn format_view_path<T: ToTokens>(base: T) -> Path {
 
 // formkat_view_ident
 pub fn format_view_ident(ident: &Ident) -> Ident {
-    format_ident!("{}_View", ident)
+    format_ident!("{}View", ident)
 }
 
 ///
