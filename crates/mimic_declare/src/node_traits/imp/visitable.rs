@@ -1,11 +1,10 @@
 use crate::{
-    node::{Entity, Enum, EnumVariant, FieldList, List, Map, Newtype, Record, Set, Tuple, Value},
+    node::{Entity, Enum, EnumVariant, FieldList, List, Map, Newtype, Record, Set, Tuple},
     node_traits::{Imp, Implementor, Trait},
 };
-use mimic_schema::types::Cardinality;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::{Expr, Ident};
+use syn::{Expr, parse_str};
 
 ///
 /// VisitableTrait
@@ -19,22 +18,6 @@ pub struct VisitableTrait {}
 
 impl Imp<Entity> for VisitableTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
-        let q = field_list(&node.fields);
-
-        let tokens = Implementor::new(&node.def, t)
-            .set_tokens(q)
-            .to_token_stream();
-
-        Some(tokens)
-    }
-}
-
-///
-/// Record
-///
-
-impl Imp<Record> for VisitableTrait {
-    fn tokens(node: &Record, t: Trait) -> Option<TokenStream> {
         let q = field_list(&node.fields);
 
         let tokens = Implementor::new(&node.def, t)
@@ -63,7 +46,7 @@ impl Imp<Enum> for VisitableTrait {
             }
         };
 
-        let q = drive_inner(&inner);
+        let q = quote_drive_method(&inner);
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
@@ -79,8 +62,15 @@ impl Imp<Enum> for VisitableTrait {
 
 impl Imp<List> for VisitableTrait {
     fn tokens(node: &List, t: Trait) -> Option<TokenStream> {
-        let inner = quote_value(&self0_expr(), Cardinality::Many, "");
-        let q = drive_inner(&inner);
+        let inner = quote! {
+            for (i, value) in self.0.iter().enumerate() {
+                let visitor_key = i.to_string();
+
+                ::mimic::core::visit::perform_visit(visitor, value, &visitor_key);
+            }
+        };
+
+        let q = quote_drive_method(&inner);
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
@@ -89,7 +79,6 @@ impl Imp<List> for VisitableTrait {
         Some(tokens)
     }
 }
-
 ///
 /// Map
 ///
@@ -99,11 +88,14 @@ impl Imp<Map> for VisitableTrait {
         let inner = quote! {
             for (k, v) in self.0.iter() {
                 let visitor_key = k.to_string();
-                ::mimic::core::visit::perform_visit(visitor, k, &visitor_key);
-                ::mimic::core::visit::perform_visit(visitor, v, &visitor_key);
+                let key_path = format!("{}:key", visitor_key);
+                let val_path = format!("{}:val", visitor_key);
+
+                ::mimic::core::visit::perform_visit(visitor, k, &key_path);
+                ::mimic::core::visit::perform_visit(visitor, v, &val_path);
             }
         };
-        let q = drive_inner(&inner);
+        let q = quote_drive_method(&inner);
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
@@ -119,8 +111,27 @@ impl Imp<Map> for VisitableTrait {
 
 impl Imp<Newtype> for VisitableTrait {
     fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
-        let inner = quote_value(&self0_expr(), Cardinality::One, "");
-        let q = drive_inner(&inner);
+        let inner = quote! {
+            ::mimic::core::visit::perform_visit(visitor, &self.0, "");
+        };
+
+        let q = quote_drive_method(&inner);
+
+        let tokens = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(tokens)
+    }
+}
+
+///
+/// Record
+///
+
+impl Imp<Record> for VisitableTrait {
+    fn tokens(node: &Record, t: Trait) -> Option<TokenStream> {
+        let q = field_list(&node.fields);
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
@@ -142,7 +153,7 @@ impl Imp<Set> for VisitableTrait {
                 ::mimic::core::visit::perform_visit(visitor, item, &visitor_key);
             }
         };
-        let q = drive_inner(&inner);
+        let q = quote_drive_method(&inner);
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
@@ -159,14 +170,18 @@ impl Imp<Set> for VisitableTrait {
 impl Imp<Tuple> for VisitableTrait {
     fn tokens(node: &Tuple, t: Trait) -> Option<TokenStream> {
         let mut inner = quote!();
-        for (i, value) in node.values.iter().enumerate() {
-            let var = format!("self.{i}");
-            let key = format!("{i}");
-            let var_expr: Expr = syn::parse_str(&var).expect("can parse");
 
-            inner.extend(quote_value(&var_expr, value.cardinality(), &key));
+        for (i, _) in node.values.iter().enumerate() {
+            let key = i.to_string();
+            let var: syn::Expr =
+                syn::parse_str(&format!("self.{i}")).expect("can parse tuple field");
+
+            inner.extend(quote! {
+                ::mimic::core::visit::perform_visit(visitor, &#var, #key);
+            });
         }
-        let q = drive_inner(&inner);
+
+        let q = quote_drive_method(&inner);
 
         let tokens = Implementor::new(&node.def, t)
             .set_tokens(q)
@@ -175,63 +190,43 @@ impl Imp<Tuple> for VisitableTrait {
         Some(tokens)
     }
 }
-
-//
-// FIELD TYPES
-//
-// Checks the cardinality of a value and prints out the corresponding
-// visitor code
-//
+///
+/// SUB TYPES
+///
+/// Checks the cardinality of a value and prints out the corresponding
+/// visitor code
+///
 
 // field_list
 pub fn field_list(fields: &FieldList) -> TokenStream {
     let mut inner = quote!();
-    for f in fields {
-        let var = format!("self.{}", f.name);
-        let key = f.name.to_string();
-        let var_expr: Expr = syn::parse_str(&var).expect("can parse");
 
-        inner.extend(quote_value(&var_expr, f.value.cardinality(), &key));
+    for f in fields {
+        let field_name = f.name.to_string();
+        let var_expr: Expr =
+            parse_str(&format!("self.{field_name}")).expect("can parse field access");
+
+        inner.extend(quote! {
+            ::mimic::core::visit::perform_visit(visitor, &#var_expr, #field_name);
+        });
     }
 
-    drive_inner(&inner)
+    quote_drive_method(&inner)
 }
-
-///
-/// VARIANT TYPES
-///
 
 // enum_variant
 pub fn enum_variant(variant: &EnumVariant) -> TokenStream {
     let name = &variant.name;
 
     match &variant.value {
-        Some(value) => {
-            let inner = quote_variant(value, name);
+        Some(_) => {
+            let name_string = name.to_string();
 
-            quote!(#inner)
+            quote! {
+                Self::#name(value) => ::mimic::core::visit::perform_visit(visitor, value, #name_string),
+            }
         }
         None => quote!(Self::#name => {}),
-    }
-}
-
-// quote_variant
-fn quote_variant(value: &Value, ident: &Ident) -> TokenStream {
-    let name = ident.to_string();
-    match value.cardinality() {
-        Cardinality::One => quote! {
-            Self::#ident(value) => ::mimic::core::visit::perform_visit(visitor, value, #name),
-        },
-        Cardinality::Opt => quote! {
-            Self::#ident(option_value) => if let Some(value) = option_value {
-                ::mimic::core::visit::perform_visit(visitor, value, #name);
-            },
-        },
-        Cardinality::Many => quote! {
-            Self::#ident(values) => for value in values.iter() {
-                ::mimic::core::visit::perform_visit(visitor, value, #name);
-            },
-        },
     }
 }
 
@@ -239,42 +234,12 @@ fn quote_variant(value: &Value, ident: &Ident) -> TokenStream {
 /// HELPERS
 ///
 
-// self0_expr
-fn self0_expr() -> Expr {
-    syn::parse_str("self.0").expect("Failed to parse 'self.0'")
-}
-
-// drive_inner
+// quote_drive_method
 // to eliminate a lot of repeating code shared between Node types
-fn drive_inner(inner: &TokenStream) -> TokenStream {
-    let visitor = if inner.is_empty() {
-        quote!(_)
-    } else {
-        quote!(visitor)
-    };
-
+fn quote_drive_method(inner: &TokenStream) -> TokenStream {
     quote! {
-        fn drive(&self, #visitor: &mut dyn ::mimic::core::visit::Visitor) {
+        fn drive(&self, visitor: &mut dyn ::mimic::core::visit::Visitor) {
             #inner
         }
-    }
-}
-
-// quote_value
-fn quote_value(var: &syn::Expr, cardinality: Cardinality, name: &str) -> TokenStream {
-    match cardinality {
-        Cardinality::One => quote! {
-            ::mimic::core::visit::perform_visit(visitor, &#var, #name);
-        },
-        Cardinality::Opt => quote! {
-            if let Some(value) = #var.as_ref() {
-                ::mimic::core::visit::perform_visit(visitor, value, #name);
-            }
-        },
-        Cardinality::Many => quote! {
-            for value in #var.iter() {
-                ::mimic::core::visit::perform_visit(visitor, value, #name);
-            }
-        },
     }
 }

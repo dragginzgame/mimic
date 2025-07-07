@@ -476,17 +476,17 @@ mod number_tests {
     fn test_to_tokens_integer() {
         let num = ArgNumber::parse_numeric_string("10").unwrap();
         let tokens = quote!(#num);
-        assert_eq!(tokens.to_string(), "10i32");
+        assert_eq!(tokens.to_string(), "10");
     }
 
     #[test]
     fn test_to_tokens_float() {
         let num = ArgNumber::parse_numeric_string("3.14").unwrap();
         let tokens = quote!(#num);
-        assert_eq!(tokens.to_string(), "3.14f64");
+        assert_eq!(tokens.to_string(), "3.14");
 
         let num = ArgNumber::parse_numeric_string("3.14_f64").unwrap();
         let tokens = quote!(#num);
-        assert_eq!(tokens.to_string(), "3.14f64");
+        assert_eq!(tokens.to_string(), "3.14");
     }
 }

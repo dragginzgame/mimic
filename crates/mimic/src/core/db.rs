@@ -228,3 +228,9 @@ impl TypeView for EntityKeys {
         view
     }
 }
+
+impl ValidateAuto for EntityKeys {}
+
+impl ValidateCustom for EntityKeys {}
+
+impl Visitable for EntityKeys {}

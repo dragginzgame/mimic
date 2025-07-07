@@ -571,7 +571,10 @@ pub trait ValidateAuto {
     }
 }
 
+impl<T: ValidateAuto> ValidateAuto for Option<T> {}
+impl<T: ValidateAuto> ValidateAuto for Vec<T> {}
 impl<T: ValidateAuto> ValidateAuto for Box<T> {}
+
 impl_primitive!(ValidateAuto);
 
 ///
@@ -586,7 +589,10 @@ pub trait ValidateCustom {
     }
 }
 
+impl<T: ValidateCustom> ValidateCustom for Option<T> {}
+impl<T: ValidateCustom> ValidateCustom for Vec<T> {}
 impl<T: ValidateCustom> ValidateCustom for Box<T> {}
+
 impl_primitive!(ValidateCustom);
 
 ///
@@ -596,6 +602,23 @@ impl_primitive!(ValidateCustom);
 pub trait Visitable: Validate {
     fn drive(&self, _: &mut dyn Visitor) {}
     fn drive_mut(&mut self, _: &mut dyn Visitor) {}
+}
+
+impl<T: Visitable> Visitable for Option<T> {
+    fn drive(&self, visitor: &mut dyn crate::core::visit::Visitor) {
+        if let Some(value) = self {
+            crate::core::visit::perform_visit(visitor, value, "");
+        }
+    }
+}
+
+impl<T: Visitable> Visitable for Vec<T> {
+    fn drive(&self, visitor: &mut dyn crate::core::visit::Visitor) {
+        for (i, value) in self.iter().enumerate() {
+            let key = i.to_string();
+            crate::core::visit::perform_visit(visitor, value, &key);
+        }
+    }
 }
 
 impl<T: Visitable> Visitable for Box<T> {
