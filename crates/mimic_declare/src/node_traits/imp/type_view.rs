@@ -2,6 +2,7 @@ use crate::{
     node::{Entity, Enum, EnumValue, FieldList, List, Map, Newtype, Record, Set, Tuple},
     node_traits::{Imp, Implementor, Trait},
 };
+use mimic_schema::types::Primitive;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use syn::Ident;
@@ -231,7 +232,18 @@ impl Imp<Newtype> for TypeViewTrait {
         let type_view = Implementor::new(&node.def, t)
             .set_tokens(q)
             .to_token_stream();
-        let conversions = quote_typeview_conversions(self_ident, view_ident);
+        let mut conversions = quote_typeview_conversions(self_ident, view_ident);
+
+        // &str fix
+        if matches!(node.primitive, Primitive::Text) {
+            conversions.extend(quote! {
+                impl From<&str> for #self_ident {
+                    fn from(s: &str) -> Self {
+                        Self(s.to_string())
+                    }
+                }
+            })
+        }
 
         Some(quote! {
             #type_view
@@ -385,12 +397,6 @@ fn quote_typeview_conversions(self_ty: &Ident, view_ty: &Ident) -> TokenStream {
     quote! {
         impl From<#self_ty> for #view_ty {
             fn from(value: #self_ty) -> Self {
-                value.to_view()
-            }
-        }
-
-        impl From<&#self_ty> for #view_ty {
-            fn from(value: &#self_ty) -> Self {
                 value.to_view()
             }
         }
