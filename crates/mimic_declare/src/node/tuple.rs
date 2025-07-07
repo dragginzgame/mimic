@@ -70,9 +70,8 @@ impl AsType for Tuple {
         let Def { ident, .. } = &self.def;
         let values = &self.values;
 
-        // quote
         quote! {
-            pub struct #ident(pub (#(#values,)*));
+            pub struct #ident(pub #(#values),*);
         }
     }
 
@@ -80,9 +79,8 @@ impl AsType for Tuple {
         let view_ident = &self.def.view_ident();
         let view_values = self.values.iter().map(AsType::view);
 
-        // quote
         quote! {
-            pub struct #view_ident(pub (#(#view_values,)*));
+            pub struct #view_ident(pub #(#view_values),*);
         }
     }
 }

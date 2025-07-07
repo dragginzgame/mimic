@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
-use syn::Ident;
+use syn::{Ident, Path};
 
 ///
 /// IDENT
@@ -9,7 +9,15 @@ use syn::Ident;
 pub fn format_view_ident<T: ToString>(ty: T) -> Ident {
     let base = ty.to_string();
 
-    format_ident!("{base}_View")
+    // Try parsing as a Rust path (like `types::bytes::Utf8`)
+    if let Ok(path) = syn::parse_str::<Path>(&base) {
+        if let Some(last) = path.segments.last() {
+            return format_ident!("{}_View", last.ident);
+        }
+    }
+
+    // Fallback: treat the whole thing as one identifier (only safe if no `::`)
+    format_ident!("{}_View", base.replace("::", "_"))
 }
 
 ///

@@ -160,7 +160,7 @@ impl Imp<Tuple> for VisitableTrait {
     fn tokens(node: &Tuple, t: Trait) -> Option<TokenStream> {
         let mut inner = quote!();
         for (i, value) in node.values.iter().enumerate() {
-            let var = format!("self.0.{i}");
+            let var = format!("self.{i}");
             let key = format!("{i}");
             let var_expr: Expr = syn::parse_str(&var).expect("can parse");
 
