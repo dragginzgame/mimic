@@ -36,7 +36,7 @@ impl AsMacro for Record {
     }
 
     fn traits(&self) -> Vec<Trait> {
-        let mut traits = self.traits.clone().with_type_traits();
+        let traits = self.traits.clone().with_type_traits();
 
         traits.list()
     }

@@ -1,7 +1,7 @@
 use crate::{
     node::{Def, Item, Type},
     node_traits::{self, Imp, Trait, Traits},
-    traits::{AsMacro, AsSchema},
+    traits::{AsMacro, AsSchema, AsType},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -28,6 +28,10 @@ pub struct Set {
 impl AsMacro for Set {
     fn def(&self) -> &Def {
         &self.def
+    }
+
+    fn macro_extra(&self) -> TokenStream {
+        self.view_tokens()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -73,14 +77,29 @@ impl AsSchema for Set {
     }
 }
 
-impl ToTokens for Set {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl AsType for Set {
+    fn ty(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
         let item = &self.item;
 
         // quote
-        tokens.extend(quote! {
+        quote! {
             pub struct #ident(::std::collections::HashSet<#item>);
-        });
+        }
+    }
+
+    fn view(&self) -> TokenStream {
+        let view_ident = &self.def.view_ident();
+        let item_view = AsType::view(&self.item);
+
+        quote! {
+            pub struct #view_ident(Vec<#item_view>);
+        }
+    }
+}
+
+impl ToTokens for Set {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.type_tokens())
     }
 }

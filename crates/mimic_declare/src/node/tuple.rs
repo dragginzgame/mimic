@@ -32,6 +32,10 @@ impl AsMacro for Tuple {
         &self.def
     }
 
+    fn macro_extra(&self) -> TokenStream {
+        self.view_tokens()
+    }
+
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone().with_type_traits();
         traits.extend(vec![Trait::Deref, Trait::DerefMut]);

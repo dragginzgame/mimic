@@ -1,7 +1,8 @@
 use crate::{
     core::{
         traits::{
-            FieldSearchable, FieldSortable, FieldValue, ValidateAuto, ValidateCustom, Visitable,
+            FieldSearchable, FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom,
+            Visitable,
         },
         types::Ulid,
         value::IndexValue,
@@ -135,6 +136,18 @@ where
     }
 }
 
+impl TypeView for EntityKey {
+    type View = Self;
+
+    fn to_view(&self) -> Self::View {
+        self.clone()
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        view
+    }
+}
+
 impl ValidateAuto for EntityKey {}
 
 impl ValidateCustom for EntityKey {}
@@ -201,5 +214,17 @@ impl<'a> IntoIterator for &'a EntityKeys {
 
     fn into_iter(self) -> Self::IntoIter {
         self.0.iter()
+    }
+}
+
+impl TypeView for EntityKeys {
+    type View = Self;
+
+    fn to_view(&self) -> Self::View {
+        self.clone()
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        view
     }
 }
