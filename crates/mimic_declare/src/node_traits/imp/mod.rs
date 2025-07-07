@@ -157,7 +157,7 @@ impl<'a, T: AsMacro> MacroHandler<'a, T> {
 /// Imp
 ///
 
-pub trait Imp<N: AsMacro> {
+pub trait Imp<N> {
     fn tokens(node: &N, t: Trait) -> Option<TokenStream>;
 }
 
@@ -166,6 +166,6 @@ pub trait Imp<N: AsMacro> {
 /// for breaking down traits even further
 ///
 
-pub trait ImpFn<N: AsMacro> {
+pub trait ImpFn<N> {
     fn tokens(node: &N) -> TokenStream;
 }

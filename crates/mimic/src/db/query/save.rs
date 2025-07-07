@@ -45,9 +45,11 @@ impl SaveQueryBuilder {
     }
 
     // entity
-    pub fn entity<E: EntityKind>(self, entity: E) -> Result<SaveQuery, MimicError> {
-        let bytes = serialize(&entity)?;
-
+    pub fn entity<E>(self, entity: impl Into<E>) -> Result<SaveQuery, MimicError>
+    where
+        E: EntityKind + serde::Serialize,
+    {
+        let bytes = serialize(&entity.into())?;
         Ok(SaveQuery::new(self.mode, &bytes))
     }
 }

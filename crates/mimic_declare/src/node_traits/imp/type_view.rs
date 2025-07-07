@@ -18,14 +18,20 @@ pub struct TypeViewTrait {}
 
 impl Imp<Entity> for TypeViewTrait {
     fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
-        let view_ident = node.def.view_ident();
-        let tokens = field_list(view_ident, &node.fields);
+        let self_ident = &node.def.ident;
+        let view_ident = &node.def.view_ident();
 
-        Some(
-            Implementor::new(&node.def, t)
-                .set_tokens(tokens)
-                .to_token_stream(),
-        )
+        // tokens
+        let q = field_list(view_ident, &node.fields);
+        let type_view = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+        let conversions = quote_typeview_conversions(self_ident, view_ident);
+
+        Some(quote! {
+            #type_view
+            #conversions
+        })
     }
 }
 
@@ -35,6 +41,9 @@ impl Imp<Entity> for TypeViewTrait {
 
 impl Imp<Enum> for TypeViewTrait {
     fn tokens(node: &Enum, t: Trait) -> Option<TokenStream> {
+        let self_ident = &node.def.ident;
+        let view_ident = &node.def.view_ident();
+
         // to_view_arms
         let to_view_arms = node.variants.iter().map(|variant| {
             let variant_name = &variant.name;
@@ -65,7 +74,6 @@ impl Imp<Enum> for TypeViewTrait {
             }
         });
 
-        let view_ident = node.def.view_ident();
         let q = quote! {
                 type View = #view_ident;
 
@@ -82,11 +90,16 @@ impl Imp<Enum> for TypeViewTrait {
                 }
         };
 
-        Some(
-            Implementor::new(&node.def, t)
-                .set_tokens(q)
-                .to_token_stream(),
-        )
+        // tokens
+        let type_view = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+        let conversions = quote_typeview_conversions(self_ident, view_ident);
+
+        Some(quote! {
+            #type_view
+            #conversions
+        })
     }
 }
 
@@ -96,6 +109,9 @@ impl Imp<Enum> for TypeViewTrait {
 
 impl Imp<EnumValue> for TypeViewTrait {
     fn tokens(node: &EnumValue, t: Trait) -> Option<TokenStream> {
+        let self_ident = &node.def.ident;
+        let view_ident = &node.def.view_ident();
+
         // to_view_arms
         let to_view_arms = node.variants.iter().map(|variant| {
             let variant_name = &variant.name;
@@ -114,7 +130,6 @@ impl Imp<EnumValue> for TypeViewTrait {
             }
         });
 
-        let view_ident = node.def.view_ident();
         let q = quote! {
                 type View = #view_ident;
 
@@ -131,11 +146,16 @@ impl Imp<EnumValue> for TypeViewTrait {
                 }
         };
 
-        Some(
-            Implementor::new(&node.def, t)
-                .set_tokens(q)
-                .to_token_stream(),
-        )
+        // tokens
+        let type_view = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+        let conversions = quote_typeview_conversions(self_ident, view_ident);
+
+        Some(quote! {
+            #type_view
+            #conversions
+        })
     }
 }
 
@@ -145,32 +165,45 @@ impl Imp<EnumValue> for TypeViewTrait {
 
 impl Imp<List> for TypeViewTrait {
     fn tokens(node: &List, t: Trait) -> Option<TokenStream> {
-        let view_ident = node.def.view_ident();
-        let q = quote_typeview_linear(&view_ident, quote!(Self));
+        let self_ident = &node.def.ident;
+        let view_ident = &node.def.view_ident();
 
-        Some(
-            Implementor::new(&node.def, t)
-                .set_tokens(q)
-                .to_token_stream(),
-        )
+        // tokens
+        let q = quote_typeview_linear(view_ident, quote!(Self));
+        let type_view = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+        let conversions = quote_typeview_conversions(self_ident, view_ident);
+
+        Some(quote! {
+            #type_view
+            #conversions
+        })
     }
 }
+
 ///
 /// Map
 ///
 
 impl Imp<Map> for TypeViewTrait {
     fn tokens(node: &Map, t: Trait) -> Option<TokenStream> {
-        let view_ident = node.def.view_ident();
+        let self_ident = &node.def.ident;
+        let view_ident = &node.def.view_ident();
         let key = &node.key;
         let value = &node.value;
-        let q = quote_typeview_map(&view_ident, &quote!(#key), &quote!(#value));
 
-        Some(
-            Implementor::new(&node.def, t)
-                .set_tokens(q)
-                .to_token_stream(),
-        )
+        // tokens
+        let q = quote_typeview_map(view_ident, &quote!(#key), &quote!(#value));
+        let type_view = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+        let conversions = quote_typeview_conversions(self_ident, view_ident);
+
+        Some(quote! {
+            #type_view
+            #conversions
+        })
     }
 }
 ///
@@ -179,7 +212,8 @@ impl Imp<Map> for TypeViewTrait {
 
 impl Imp<Newtype> for TypeViewTrait {
     fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
-        let view_ident = node.def.view_ident();
+        let self_ident = &node.def.ident;
+        let view_ident = &node.def.view_ident();
 
         let q = quote! {
             type View = #view_ident;
@@ -193,11 +227,16 @@ impl Imp<Newtype> for TypeViewTrait {
             }
         };
 
-        Some(
-            Implementor::new(&node.def, t)
-                .set_tokens(q)
-                .to_token_stream(),
-        )
+        // tokens
+        let type_view = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+        let conversions = quote_typeview_conversions(self_ident, view_ident);
+
+        Some(quote! {
+            #type_view
+            #conversions
+        })
     }
 }
 
@@ -207,14 +246,19 @@ impl Imp<Newtype> for TypeViewTrait {
 
 impl Imp<Record> for TypeViewTrait {
     fn tokens(node: &Record, t: Trait) -> Option<TokenStream> {
-        let view_ident = node.def.view_ident();
-        let tokens = field_list(view_ident, &node.fields);
+        let self_ident = &node.def.ident;
+        let view_ident = &node.def.view_ident();
+        let q = field_list(view_ident, &node.fields);
 
-        Some(
-            Implementor::new(&node.def, t)
-                .set_tokens(tokens)
-                .to_token_stream(),
-        )
+        let type_view = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+        let conversions = quote_typeview_conversions(self_ident, view_ident);
+
+        Some(quote! {
+            #type_view
+            #conversions
+        })
     }
 }
 
@@ -224,14 +268,20 @@ impl Imp<Record> for TypeViewTrait {
 
 impl Imp<Set> for TypeViewTrait {
     fn tokens(node: &Set, t: Trait) -> Option<TokenStream> {
-        let view_ident = node.def.view_ident();
-        let q = quote_typeview_linear(&view_ident, quote!(Self));
+        let self_ident = &node.def.ident;
+        let view_ident = &node.def.view_ident();
 
-        Some(
-            Implementor::new(&node.def, t)
-                .set_tokens(q)
-                .to_token_stream(),
-        )
+        let q = quote_typeview_linear(view_ident, quote!(Self));
+        let type_view = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+
+        let conversions = quote_typeview_conversions(self_ident, view_ident);
+
+        Some(quote! {
+            #type_view
+            #conversions
+        })
     }
 }
 
@@ -241,8 +291,8 @@ impl Imp<Set> for TypeViewTrait {
 
 impl Imp<Tuple> for TypeViewTrait {
     fn tokens(node: &Tuple, t: Trait) -> Option<TokenStream> {
-        let view_ident = node.def.view_ident();
         let self_ident = &node.def.ident;
+        let view_ident = &node.def.view_ident();
 
         // Number of tuple values
         let values = node.values.len();
@@ -285,19 +335,24 @@ impl Imp<Tuple> for TypeViewTrait {
             }
         };
 
-        Some(
-            Implementor::new(&node.def, t)
-                .set_tokens(q)
-                .to_token_stream(),
-        )
+        let type_view = Implementor::new(&node.def, t)
+            .set_tokens(q)
+            .to_token_stream();
+        let conversions = quote_typeview_conversions(self_ident, view_ident);
+
+        Some(quote! {
+            #type_view
+            #conversions
+        })
     }
 }
+
 ///
 /// Helpers
 ///
 
 // field_list
-fn field_list(view_ident: Ident, fields: &FieldList) -> TokenStream {
+fn field_list(view_ident: &Ident, fields: &FieldList) -> TokenStream {
     let to_pairs: Vec<_> = fields
         .iter()
         .map(|field| {
@@ -330,6 +385,28 @@ fn field_list(view_ident: Ident, fields: &FieldList) -> TokenStream {
         fn from_view(view: Self::View) -> Self {
             Self {
                 #(#from_pairs),*
+            }
+        }
+    }
+}
+
+fn quote_typeview_conversions(self_ty: &Ident, view_ty: &Ident) -> TokenStream {
+    quote! {
+        impl From<#self_ty> for #view_ty {
+            fn from(value: #self_ty) -> Self {
+                value.to_view()
+            }
+        }
+
+        impl From<&#self_ty> for #view_ty {
+            fn from(value: &#self_ty) -> Self {
+                value.to_view()
+            }
+        }
+
+        impl From<#view_ty> for #self_ty {
+            fn from(view: #view_ty) -> Self {
+                <#self_ty as ::mimic::core::traits::TypeView>::from_view(view)
             }
         }
     }
