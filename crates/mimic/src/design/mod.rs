@@ -14,7 +14,7 @@ pub mod prelude {
             db::{EntityKey, EntityKeys},
             traits::{
                 EntityFixture, EntityIdKind as _, EntityKind as _, Inner as _, NumCast, Path as _,
-                Serialize as _, Validate as _, ValidateCustom, ValidatorBytes as _,
+                Serialize as _, TypeView as _, Validate as _, ValidateCustom, ValidatorBytes as _,
                 ValidatorDecimal as _, ValidatorNumber as _, ValidatorString as _, Visitable as _,
             },
             types::*,

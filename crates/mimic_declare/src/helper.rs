@@ -1,23 +1,12 @@
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
-use syn::{Ident, Path, parse2};
+use syn::Ident;
 
 ///
 /// IDENT
 ///
 
-pub fn format_view_path<T: ToTokens>(base: T) -> Path {
-    let mut path: Path = parse2(base.into_token_stream()).expect("Expected a valid type path");
-
-    if let Some(last) = path.segments.last_mut() {
-        let new_ident = format_view_ident(&last.ident);
-        last.ident = new_ident;
-    }
-
-    path
-}
-
-// formkat_view_ident
+// format_view_ident
 pub fn format_view_ident(ident: &Ident) -> Ident {
     format_ident!("{}View", ident)
 }

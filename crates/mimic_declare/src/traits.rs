@@ -129,7 +129,6 @@ pub trait AsType {
 
         quote! {
             #derive
-            #[allow(non_camel_case_types)]
             #view
         }
     }

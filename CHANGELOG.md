@@ -6,8 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.6.0] - View Layer
--
-
+- All types now implement TypeView where Type::View is a simplified type that
+can be used in DTOs.
+- removed lots of boilerplate code for Option and Vec<T> by using traits instead
+(Visitable, EntitySearch etc.)
 - Complete rewrite of mimic_declare (formerly mimic_design) with much more sensible traits, and
 ToTokens derived for a specific purpose
 - FieldList has come back to consolidate logic over multiple Fields

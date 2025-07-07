@@ -1,5 +1,5 @@
 use crate::{
-    helper::{format_view_path, quote_one, quote_option, quote_slice, to_path},
+    helper::{quote_one, quote_option, quote_slice, to_path},
     node::TypeValidator,
     traits::{AsSchema, AsType},
 };
@@ -150,8 +150,7 @@ impl AsType for ItemTarget {
     fn view(&self) -> TokenStream {
         match self {
             Self::Is(path) => {
-                let view_path = format_view_path(path);
-                quote!(#view_path)
+                quote!(<#path as ::mimic::core::traits::TypeView>::View)
             }
             Self::Prim(prim) => {
                 let ty = prim.as_type();

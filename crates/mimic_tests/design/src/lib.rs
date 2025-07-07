@@ -1,5 +1,3 @@
-#![allow(non_camel_case_types)]
-
 pub mod admin;
 pub mod canister;
 pub mod fixture;
