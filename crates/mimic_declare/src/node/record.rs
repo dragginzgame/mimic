@@ -32,7 +32,7 @@ impl AsMacro for Record {
     }
 
     fn macro_extra(&self) -> TokenStream {
-        self.view_tokens()
+        self.as_view_type()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -79,7 +79,7 @@ impl AsSchema for Record {
 }
 
 impl AsType for Record {
-    fn ty(&self) -> TokenStream {
+    fn as_type(&self) -> TokenStream {
         let Self { fields, .. } = self;
         let Def { ident, .. } = &self.def;
 
@@ -91,12 +91,14 @@ impl AsType for Record {
         }
     }
 
-    fn view(&self) -> TokenStream {
+    fn as_view_type(&self) -> TokenStream {
         let view_ident = &self.def.view_ident();
-        let view_field_list = AsType::view(&self.fields);
+        let view_field_list = AsType::as_view_type(&self.fields);
+        let derives = Self::view_derives();
 
         // quote
         quote! {
+            #derives
             pub struct #view_ident {
                 #view_field_list
             }
@@ -106,6 +108,6 @@ impl AsType for Record {
 
 impl ToTokens for Record {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens());
+        tokens.extend(self.as_type());
     }
 }

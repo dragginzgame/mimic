@@ -31,7 +31,7 @@ impl AsMacro for Set {
     }
 
     fn macro_extra(&self) -> TokenStream {
-        self.view_tokens()
+        self.as_view_type()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -55,10 +55,6 @@ impl AsMacro for Set {
             _ => None,
         }
     }
-
-    fn custom_impl(&self) -> Option<TokenStream> {
-        crate::node::imp::set::tokens(self)
-    }
 }
 
 impl AsSchema for Set {
@@ -78,28 +74,27 @@ impl AsSchema for Set {
 }
 
 impl AsType for Set {
-    fn ty(&self) -> TokenStream {
+    fn as_type(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
         let item = &self.item;
 
-        // quote
         quote! {
             pub struct #ident(::std::collections::HashSet<#item>);
         }
     }
 
-    fn view(&self) -> TokenStream {
+    fn as_view_type(&self) -> TokenStream {
         let view_ident = &self.def.view_ident();
-        let item_view = AsType::view(&self.item);
+        let item_view = AsType::as_view_type(&self.item);
 
         quote! {
-            pub struct #view_ident(pub Vec<#item_view>);
+            pub type #view_ident = Vec<#item_view>;
         }
     }
 }
 
 impl ToTokens for Set {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens());
+        tokens.extend(self.as_type());
     }
 }

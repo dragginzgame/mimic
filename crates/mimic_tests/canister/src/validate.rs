@@ -1,4 +1,4 @@
-use mimic::core::validate::validate;
+use mimic::core::{types::Decimal, validate::validate};
 use test_design::canister::validate::*;
 
 ///
@@ -66,12 +66,12 @@ impl ValidateTester {
     // test_decimal
     fn test_decimal() {
         // OK
-        let d = DecimalMaxDp::from(1.2);
+        let d = DecimalMaxDp::from(Decimal::from(1.2));
         let res = validate(&d);
         assert!(res.is_ok(), "{res:?}");
 
         // ERR
-        let d = DecimalMaxDp::from(1.2453);
+        let d = DecimalMaxDp::from(Decimal::from(1.2453));
         let res = validate(&d);
         assert!(res.is_err(), "{res:?}");
     }

@@ -31,7 +31,7 @@ impl AsMacro for List {
     }
 
     fn macro_extra(&self) -> TokenStream {
-        self.view_tokens()
+        self.as_view_type()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -55,10 +55,6 @@ impl AsMacro for List {
             _ => None,
         }
     }
-
-    fn custom_impl(&self) -> Option<TokenStream> {
-        crate::node::imp::list::tokens(self)
-    }
 }
 
 impl AsSchema for List {
@@ -78,7 +74,7 @@ impl AsSchema for List {
 }
 
 impl AsType for List {
-    fn ty(&self) -> TokenStream {
+    fn as_type(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
         let item = &self.item;
 
@@ -87,18 +83,18 @@ impl AsType for List {
         }
     }
 
-    fn view(&self) -> TokenStream {
+    fn as_view_type(&self) -> TokenStream {
         let view_ident = &self.def.view_ident();
-        let item_view = AsType::view(&self.item);
+        let item_view = AsType::as_view_type(&self.item);
 
         quote! {
-            pub struct #view_ident(Vec<#item_view>);
+            pub type #view_ident = Vec<#item_view>;
         }
     }
 }
 
 impl ToTokens for List {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens());
+        tokens.extend(self.as_type());
     }
 }

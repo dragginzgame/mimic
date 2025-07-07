@@ -110,26 +110,17 @@ pub trait AsSchema {
 ///
 
 pub trait AsType {
-    fn ty(&self) -> TokenStream;
+    fn as_type(&self) -> TokenStream;
 
-    fn type_tokens(&self) -> TokenStream {
-        let ty = self.ty();
+    fn as_view_type(&self) -> TokenStream;
 
-        quote! {
-            #ty
-        }
-    }
+    fn view_derives() -> TokenStream {
+        let traits = TraitList::new(vec![
+            Trait::CandidType,
+            Trait::Serialize,
+            Trait::Deserialize,
+        ]);
 
-    fn view(&self) -> TokenStream;
-
-    fn view_tokens(&self) -> TokenStream {
-        let view = self.view();
-        let traits = TraitList::view_traits();
-        let derive = traits.to_derive_tokens();
-
-        quote! {
-            #derive
-            #view
-        }
+        traits.to_derive_tokens()
     }
 }

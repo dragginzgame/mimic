@@ -103,9 +103,6 @@ static TYPE_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
     ]
 });
 
-static VIEW_TRAITS: LazyLock<Vec<Trait>> =
-    LazyLock::new(|| vec![Trait::CandidType, Trait::Serialize, Trait::Deserialize]);
-
 // path_to_string
 #[must_use]
 pub fn path_to_string(path: &syn::Path) -> String {
@@ -259,8 +256,8 @@ impl Traits {
 pub struct TraitList(pub Vec<Trait>);
 
 impl TraitList {
-    pub fn view_traits() -> Self {
-        Self(VIEW_TRAITS.clone())
+    pub fn new(traits: Vec<Trait>) -> Self {
+        Self(traits)
     }
 
     pub fn to_derive_tokens(&self) -> TokenStream {
@@ -273,12 +270,6 @@ impl TraitList {
                 #[derive(#(#derive_paths),*)]
             }
         }
-    }
-}
-
-impl From<&[Trait]> for TraitList {
-    fn from(traits: &[Trait]) -> Self {
-        Self(traits.to_vec())
     }
 }
 

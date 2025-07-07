@@ -32,7 +32,7 @@ impl AsMacro for Map {
     }
 
     fn macro_extra(&self) -> TokenStream {
-        self.view_tokens()
+        self.as_view_type()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -56,10 +56,6 @@ impl AsMacro for Map {
             _ => None,
         }
     }
-
-    fn custom_impl(&self) -> Option<TokenStream> {
-        crate::node::imp::map::tokens(self)
-    }
 }
 
 impl AsSchema for Map {
@@ -81,7 +77,7 @@ impl AsSchema for Map {
 }
 
 impl AsType for Map {
-    fn ty(&self) -> TokenStream {
+    fn as_type(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
         let key = &self.key;
         let value = &self.value;
@@ -91,21 +87,19 @@ impl AsType for Map {
         }
     }
 
-    fn view(&self) -> TokenStream {
+    fn as_view_type(&self) -> TokenStream {
         let view_ident = self.def.view_ident();
-        let key_view = AsType::view(&self.key);
-        let value_view = AsType::view(&self.value);
+        let key_view = AsType::as_view_type(&self.key);
+        let value_view = AsType::as_view_type(&self.value);
 
         quote! {
-            pub struct #view_ident(
-                pub Vec<(#key_view, #value_view)>
-            );
+            pub type #view_ident = Vec<(#key_view, #value_view)>;
         }
     }
 }
 
 impl ToTokens for Map {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens());
+        tokens.extend(self.as_type());
     }
 }

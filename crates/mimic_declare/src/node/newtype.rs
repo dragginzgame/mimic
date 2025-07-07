@@ -37,7 +37,7 @@ impl AsMacro for Newtype {
     }
 
     fn macro_extra(&self) -> TokenStream {
-        self.view_tokens()
+        self.as_view_type()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -104,10 +104,6 @@ impl AsMacro for Newtype {
             _ => None,
         }
     }
-
-    fn custom_impl(&self) -> Option<TokenStream> {
-        crate::node::imp::newtype::tokens(self)
-    }
 }
 
 impl AsSchema for Newtype {
@@ -129,7 +125,7 @@ impl AsSchema for Newtype {
 }
 
 impl AsType for Newtype {
-    fn ty(&self) -> TokenStream {
+    fn as_type(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
         let item = &self.item;
 
@@ -138,18 +134,18 @@ impl AsType for Newtype {
         }
     }
 
-    fn view(&self) -> TokenStream {
+    fn as_view_type(&self) -> TokenStream {
         let view_ident = self.def.view_ident();
         let view_type = self.primitive.as_type();
 
         quote! {
-            pub struct #view_ident(pub #view_type);
+            pub type #view_ident = #view_type;
         }
     }
 }
 
 impl ToTokens for Newtype {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens());
+        tokens.extend(self.as_type());
     }
 }

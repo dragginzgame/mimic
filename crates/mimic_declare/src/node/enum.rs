@@ -44,7 +44,7 @@ impl AsMacro for Enum {
     }
 
     fn macro_extra(&self) -> TokenStream {
-        self.view_tokens()
+        self.as_view_type()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -96,11 +96,11 @@ impl AsSchema for Enum {
 }
 
 impl AsType for Enum {
-    fn ty(&self) -> TokenStream {
+    fn as_type(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
+        let variants = &self.variants;
 
         // quote
-        let variants = &self.variants;
         quote! {
             pub enum #ident {
                 #(#variants,)*
@@ -108,11 +108,13 @@ impl AsType for Enum {
         }
     }
 
-    fn view(&self) -> TokenStream {
+    fn as_view_type(&self) -> TokenStream {
         let view_ident = self.def.view_ident();
-        let view_variants = self.variants.iter().map(AsType::view);
+        let view_variants = self.variants.iter().map(AsType::as_view_type);
+        let derives = Self::view_derives();
 
         quote! {
+            #derives
             pub enum #view_ident {
                 #(#view_variants,)*
             }
@@ -122,7 +124,7 @@ impl AsType for Enum {
 
 impl ToTokens for Enum {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens());
+        tokens.extend(self.as_type());
     }
 }
 
@@ -175,7 +177,7 @@ impl AsSchema for EnumVariant {
 }
 
 impl AsType for EnumVariant {
-    fn ty(&self) -> TokenStream {
+    fn as_type(&self) -> TokenStream {
         let name = if self.unspecified {
             Self::unspecified_ident()
         } else {
@@ -195,12 +197,12 @@ impl AsType for EnumVariant {
         }
     }
 
-    fn view(&self) -> TokenStream {
+    fn as_view_type(&self) -> TokenStream {
         let name = &self.name;
 
         match &self.value {
             Some(value) => {
-                let value_view = AsType::view(value);
+                let value_view = AsType::as_view_type(value);
 
                 quote! {
                     #name(#value_view)
@@ -215,6 +217,6 @@ impl AsType for EnumVariant {
 
 impl ToTokens for EnumVariant {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens());
+        tokens.extend(self.as_type());
     }
 }

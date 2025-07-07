@@ -40,7 +40,7 @@ impl AsMacro for EnumValue {
     }
 
     fn macro_extra(&self) -> TokenStream {
-        self.view_tokens()
+        self.as_view_type()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -85,7 +85,7 @@ impl AsSchema for EnumValue {
 }
 
 impl AsType for EnumValue {
-    fn ty(&self) -> TokenStream {
+    fn as_type(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
         let variants = &self.variants;
 
@@ -97,9 +97,9 @@ impl AsType for EnumValue {
         }
     }
 
-    fn view(&self) -> TokenStream {
+    fn as_view_type(&self) -> TokenStream {
         let view_ident = self.def.view_ident();
-        let view_variants = self.variants.iter().map(AsType::view);
+        let view_variants = self.variants.iter().map(AsType::as_view_type);
 
         quote! {
             pub enum #view_ident {
@@ -111,7 +111,7 @@ impl AsType for EnumValue {
 
 impl ToTokens for EnumValue {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens());
+        tokens.extend(self.as_type());
     }
 }
 
@@ -163,7 +163,7 @@ impl AsSchema for EnumValueVariant {
 }
 
 impl AsType for EnumValueVariant {
-    fn ty(&self) -> TokenStream {
+    fn as_type(&self) -> TokenStream {
         let name = if self.unspecified {
             Self::unspecified_ident()
         } else {
@@ -182,7 +182,7 @@ impl AsType for EnumValueVariant {
         }
     }
 
-    fn view(&self) -> TokenStream {
+    fn as_view_type(&self) -> TokenStream {
         let name = if self.unspecified {
             Self::unspecified_ident()
         } else {
@@ -197,6 +197,6 @@ impl AsType for EnumValueVariant {
 
 impl ToTokens for EnumValueVariant {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens());
+        tokens.extend(self.as_type());
     }
 }

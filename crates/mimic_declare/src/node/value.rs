@@ -49,7 +49,7 @@ impl AsSchema for Value {
 }
 
 impl AsType for Value {
-    fn ty(&self) -> TokenStream {
+    fn as_type(&self) -> TokenStream {
         let item = &self.item;
 
         match self.cardinality() {
@@ -65,9 +65,9 @@ impl AsType for Value {
         }
     }
 
-    fn view(&self) -> TokenStream {
+    fn as_view_type(&self) -> TokenStream {
         let item = &self.item;
-        let item_view = AsType::view(item);
+        let item_view = AsType::as_view_type(item);
 
         match self.cardinality() {
             Cardinality::One => quote!(#item_view),
@@ -85,6 +85,6 @@ impl AsType for Value {
 
 impl ToTokens for Value {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens());
+        tokens.extend(self.as_type());
     }
 }

@@ -55,7 +55,7 @@ impl AsSchema for FieldList {
 }
 
 impl AsType for FieldList {
-    fn ty(&self) -> TokenStream {
+    fn as_type(&self) -> TokenStream {
         let fields = &self.fields;
 
         quote! {
@@ -63,8 +63,8 @@ impl AsType for FieldList {
         }
     }
 
-    fn view(&self) -> TokenStream {
-        let view_fields = self.fields.iter().map(AsType::view);
+    fn as_view_type(&self) -> TokenStream {
+        let view_fields = self.fields.iter().map(AsType::as_view_type);
 
         quote! {
             #(#view_fields,)*
@@ -74,7 +74,7 @@ impl AsType for FieldList {
 
 impl ToTokens for FieldList {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens());
+        tokens.extend(self.as_type());
     }
 }
 
@@ -108,7 +108,7 @@ impl AsSchema for Field {
 }
 
 impl AsType for Field {
-    fn ty(&self) -> TokenStream {
+    fn as_type(&self) -> TokenStream {
         let name = &self.name;
         let value = &self.value;
 
@@ -117,9 +117,9 @@ impl AsType for Field {
         }
     }
 
-    fn view(&self) -> TokenStream {
+    fn as_view_type(&self) -> TokenStream {
         let name = &self.name;
-        let value_view = AsType::view(&self.value);
+        let value_view = AsType::as_view_type(&self.value);
 
         quote! {
             pub #name: #value_view
@@ -129,6 +129,6 @@ impl AsType for Field {
 
 impl ToTokens for Field {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens());
+        tokens.extend(self.as_type());
     }
 }

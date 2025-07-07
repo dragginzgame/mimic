@@ -74,8 +74,8 @@ impl AsSchema for Item {
 }
 
 impl AsType for Item {
-    fn ty(&self) -> TokenStream {
-        let ty = self.target().ty();
+    fn as_type(&self) -> TokenStream {
+        let ty = self.target().as_type();
 
         if self.indirect {
             quote!(Box<#ty>)
@@ -84,8 +84,8 @@ impl AsType for Item {
         }
     }
 
-    fn view(&self) -> TokenStream {
-        let view = self.target().view();
+    fn as_view_type(&self) -> TokenStream {
+        let view = self.target().as_view_type();
 
         if self.indirect {
             quote!(Box<#view>)
@@ -97,7 +97,7 @@ impl AsType for Item {
 
 impl ToTokens for Item {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens());
+        tokens.extend(self.as_type());
     }
 }
 
@@ -136,7 +136,7 @@ impl AsSchema for ItemTarget {
 }
 
 impl AsType for ItemTarget {
-    fn ty(&self) -> TokenStream {
+    fn as_type(&self) -> TokenStream {
         match self {
             Self::Is(path) => quote!(#path),
             Self::Prim(prim) => {
@@ -147,7 +147,7 @@ impl AsType for ItemTarget {
         }
     }
 
-    fn view(&self) -> TokenStream {
+    fn as_view_type(&self) -> TokenStream {
         match self {
             Self::Is(path) => {
                 quote!(<#path as ::mimic::core::traits::TypeView>::View)

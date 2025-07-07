@@ -169,7 +169,7 @@ impl Imp<List> for TypeViewTrait {
         let view_ident = &node.def.view_ident();
 
         // tokens
-        let q = quote_typeview_linear(view_ident, quote!(Self));
+        let q = quote_typeview_linear(view_ident);
         let type_view = Implementor::new(&node.def, t)
             .set_tokens(q)
             .to_token_stream();
@@ -219,11 +219,11 @@ impl Imp<Newtype> for TypeViewTrait {
             type View = #view_ident;
 
             fn to_view(&self) -> Self::View {
-                #view_ident(self.inner())
+                self.inner()
             }
 
             fn from_view(view: Self::View) -> Self {
-                Self(view.0.into())
+                Self(view.into())
             }
         };
 
@@ -271,7 +271,7 @@ impl Imp<Set> for TypeViewTrait {
         let self_ident = &node.def.ident;
         let view_ident = &node.def.view_ident();
 
-        let q = quote_typeview_linear(view_ident, quote!(Self));
+        let q = quote_typeview_linear(view_ident);
         let type_view = Implementor::new(&node.def, t)
             .set_tokens(q)
             .to_token_stream();
@@ -294,43 +294,34 @@ impl Imp<Tuple> for TypeViewTrait {
         let self_ident = &node.def.ident;
         let view_ident = &node.def.view_ident();
 
-        // Number of tuple values
-        let values = node.values.len();
+        let indices: Vec<_> = (0..node.values.len()).collect();
 
-        // Create bindings: f0, f1, ...
-        let field_idents: Vec<syn::Ident> = (0..values)
-            .map(|i| syn::Ident::new(&format!("f{i}"), proc_macro2::Span::call_site()))
-            .collect();
+        let to_view_fields = indices.iter().map(|i| {
+            let index = syn::Index::from(*i);
+            quote! {
+                ::mimic::core::traits::TypeView::to_view(&self.#index)
+            }
+        });
 
-        // Accessor expressions: self.0, self.1, ...
-        let self_fields: Vec<proc_macro2::TokenStream> = (0..values)
-            .map(|i| {
-                let index = syn::Index::from(i);
-                quote! { ::mimic::core::traits::TypeView::to_view(&self.#index) }
-            })
-            .collect();
-
-        // Reverse conversion expressions
-        let view_fields: Vec<proc_macro2::TokenStream> = field_idents
-            .iter()
-            .map(|ident| {
-                quote! { ::mimic::core::traits::TypeView::from_view(#ident) }
-            })
-            .collect();
+        let from_view_fields = indices.iter().map(|i| {
+            let index = syn::Index::from(*i);
+            quote! {
+                ::mimic::core::traits::TypeView::from_view(view.#index)
+            }
+        });
 
         let q = quote! {
             type View = #view_ident;
 
             fn to_view(&self) -> Self::View {
-                #view_ident(
-                    #(#self_fields),*
+                (
+                    #(#to_view_fields),*
                 )
             }
 
             fn from_view(view: Self::View) -> Self {
-                let #view_ident( #(#field_idents),* ) = view;
                 #self_ident(
-                    #(#view_fields),*
+                    #(#from_view_fields),*
                 )
             }
         };
@@ -412,20 +403,18 @@ fn quote_typeview_conversions(self_ty: &Ident, view_ty: &Ident) -> TokenStream {
     }
 }
 
-fn quote_typeview_linear(view_ident: &Ident, wrap_self: TokenStream) -> TokenStream {
+fn quote_typeview_linear(view_ident: &Ident) -> TokenStream {
     quote! {
         type View = #view_ident;
 
         fn to_view(&self) -> Self::View {
-            let inner = self.0.iter()
+            self.iter()
                 .map(|v| ::mimic::core::traits::TypeView::to_view(v))
-                .collect();
-
-            #view_ident(inner)
+                .collect()
         }
 
         fn from_view(view: Self::View) -> Self {
-            #wrap_self(view.0.into_iter()
+            Self(view.into_iter()
                 .map(|v| ::mimic::core::traits::TypeView::from_view(v))
                 .collect())
         }
@@ -437,18 +426,16 @@ fn quote_typeview_map(view_ident: &Ident, key: &TokenStream, value: &TokenStream
         type View = #view_ident;
 
         fn to_view(&self) -> Self::View {
-            let inner = self.0.iter()
+         self.0.iter()
                 .map(|(k, v)| (
                     ::mimic::core::traits::TypeView::to_view(k),
                     ::mimic::core::traits::TypeView::to_view(v),
                 ))
-                .collect();
-
-            #view_ident(inner)
+                .collect()
         }
 
         fn from_view(view: Self::View) -> Self {
-            Self(view.0.into_iter()
+            Self(view.into_iter()
                 .map(|(k, v)| (
                     <#key as ::mimic::core::traits::TypeView>::from_view(k),
                     <#value as ::mimic::core::traits::TypeView>::from_view(v),

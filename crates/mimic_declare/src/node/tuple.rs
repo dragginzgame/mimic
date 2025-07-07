@@ -33,7 +33,7 @@ impl AsMacro for Tuple {
     }
 
     fn macro_extra(&self) -> TokenStream {
-        self.view_tokens()
+        self.as_view_type()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -67,7 +67,7 @@ impl AsSchema for Tuple {
 }
 
 impl AsType for Tuple {
-    fn ty(&self) -> TokenStream {
+    fn as_type(&self) -> TokenStream {
         let Def { ident, .. } = &self.def;
         let values = &self.values;
 
@@ -76,18 +76,18 @@ impl AsType for Tuple {
         }
     }
 
-    fn view(&self) -> TokenStream {
+    fn as_view_type(&self) -> TokenStream {
         let view_ident = &self.def.view_ident();
-        let view_values = self.values.iter().map(AsType::view);
+        let view_values = self.values.iter().map(AsType::as_view_type);
 
         quote! {
-            pub struct #view_ident(pub #(#view_values),*);
+            pub type #view_ident = (#(#view_values),*);
         }
     }
 }
 
 impl ToTokens for Tuple {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.type_tokens());
+        tokens.extend(self.as_type());
     }
 }

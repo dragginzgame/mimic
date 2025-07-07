@@ -3,7 +3,6 @@ pub mod canister;
 pub mod fixture;
 pub mod schema;
 pub mod simple;
-pub mod view;
 
 ///
 /// Prelude
