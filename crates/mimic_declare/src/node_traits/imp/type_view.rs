@@ -132,19 +132,19 @@ impl Imp<EnumValue> for TypeViewTrait {
         });
 
         let q = quote! {
-                type View = #view_ident;
+            type View = #view_ident;
 
-                fn to_view(&self) -> Self::View {
-                    match self {
-                        #(#to_view_arms,)*
-                    }
+            fn to_view(&self) -> Self::View {
+                match self {
+                    #(#to_view_arms,)*
                 }
+            }
 
-                fn from_view(view: Self::View) -> Self {
-                    match view {
-                        #(#from_view_arms,)*
-                    }
+            fn from_view(view: Self::View) -> Self {
+                match view {
+                    #(#from_view_arms,)*
                 }
+            }
         };
 
         // tokens
