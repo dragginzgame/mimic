@@ -107,18 +107,16 @@ impl Imp<Map> for FromTrait {
 impl Imp<Newtype> for FromTrait {
     fn tokens(node: &Newtype) -> Option<TokenStream> {
         let item = &node.item;
-        let primitive = &node.primitive;
-        let primitive_type = primitive.as_type();
 
         let q = quote! {
             fn from(t: T) -> Self {
-                Self(<#item as std::convert::From<#primitive_type>>::from(t.into()))
+                Self(t.into())
             }
         };
 
         let tokens = Implementor::new(&node.def, Trait::From)
             .set_tokens(q)
-            .add_impl_constraint(quote!(T: Into<#primitive_type>))
+            .add_impl_constraint(quote!(T: Into<#item>))
             .add_impl_generic(quote!(T))
             .add_trait_generic(quote!(T))
             .to_token_stream();
