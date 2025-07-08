@@ -132,8 +132,8 @@ impl From<EntityKey> for Value {
 }
 
 impl From<IndexValue> for Value {
-    fn from(iv: IndexValue) -> Self {
-        match iv {
+    fn from(value: IndexValue) -> Self {
+        match value {
             IndexValue::Int(v) => Self::Int(v),
             IndexValue::Nat(v) => Self::Nat(v),
             IndexValue::Principal(v) => Self::Principal(v),

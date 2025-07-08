@@ -30,7 +30,7 @@ impl AsMacro for Selector {
     }
 
     fn traits(&self) -> Vec<Trait> {
-        let mut traits = Traits::default();
+        let mut traits = Traits::new().with_default_traits();
         traits.add(Trait::Into);
 
         // add default if needed

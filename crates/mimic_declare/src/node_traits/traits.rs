@@ -196,6 +196,11 @@ pub struct Traits {
 }
 
 impl Traits {
+    // new
+    pub fn new() -> Self {
+        Self::default()
+    }
+
     // with_path_trait
     pub fn with_path_trait(mut self) -> Self {
         self.add(Trait::Path);
