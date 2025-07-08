@@ -46,7 +46,7 @@ impl AsMacro for Newtype {
             Trait::Default,
             Trait::Deref,
             Trait::DerefMut,
-            //         Trait::From,
+            Trait::From,
             Trait::Inner,
         ]);
 

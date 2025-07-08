@@ -41,7 +41,6 @@ impl AsMacro for Map {
             Trait::Default,
             Trait::Deref,
             Trait::DerefMut,
-            //          Trait::From,
             Trait::IntoIterator,
         ]);
 
