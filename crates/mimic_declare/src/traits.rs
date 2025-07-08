@@ -112,6 +112,7 @@ pub trait AsType {
     fn view_derives() -> TokenStream {
         let traits = TraitList::new(vec![
             Trait::CandidType,
+            Trait::Debug,
             Trait::Serialize,
             Trait::Deserialize,
         ]);
