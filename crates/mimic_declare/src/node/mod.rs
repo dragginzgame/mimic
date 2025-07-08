@@ -8,7 +8,6 @@ mod entity_id;
 mod r#enum;
 mod enum_value;
 mod field;
-mod imp;
 mod item;
 mod list;
 mod map;

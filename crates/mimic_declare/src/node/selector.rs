@@ -31,6 +31,7 @@ impl AsMacro for Selector {
 
     fn traits(&self) -> Vec<Trait> {
         let mut traits = Traits::default();
+        traits.add(Trait::Into);
 
         // add default if needed
         if self.variants.iter().any(|v| v.default) {
@@ -40,8 +41,14 @@ impl AsMacro for Selector {
         traits.list()
     }
 
-    fn custom_impl(&self) -> Option<TokenStream> {
-        crate::node::imp::selector::tokens(self)
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+        use crate::node_traits::*;
+
+        match t {
+            Trait::Into => IntoTrait::tokens(self),
+
+            _ => None,
+        }
     }
 }
 

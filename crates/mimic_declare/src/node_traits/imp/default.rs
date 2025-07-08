@@ -19,9 +19,9 @@ pub struct DefaultTrait {}
 ///
 
 impl Imp<Entity> for DefaultTrait {
-    fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Entity) -> Option<TokenStream> {
         let q = field_list(&node.fields);
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::Default)
             .set_tokens(q)
             .to_token_stream();
 
@@ -34,9 +34,9 @@ impl Imp<Entity> for DefaultTrait {
 ///
 
 impl Imp<Record> for DefaultTrait {
-    fn tokens(node: &Record, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Record) -> Option<TokenStream> {
         let q = field_list(&node.fields);
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::Default)
             .set_tokens(q)
             .to_token_stream();
 
@@ -46,29 +46,21 @@ impl Imp<Record> for DefaultTrait {
 
 // field_list
 fn field_list(fields: &FieldList) -> TokenStream {
-    // inner
-    let mut inner = quote!();
-    for field in fields {
+    let assignments = fields.iter().map(|field| {
         let name = &field.name;
+        let expr = match &field.default {
+            Some(default) => format_default(default),
+            None => quote!(Default::default()),
+        };
 
-        if let Some(default) = &field.default {
-            let arg = format_default(default);
+        quote! { #name: #expr }
+    });
 
-            inner.extend(quote! {
-                #name: #arg,
-            });
-        } else {
-            inner.extend(quote! {
-                #name: Default::default(),
-            });
-        }
-    }
-
-    // quote
     quote! {
+        #[allow(unused)]
         fn default() -> Self {
             Self {
-                #inner
+                #(#assignments),*
             }
         }
     }
@@ -79,10 +71,10 @@ fn field_list(fields: &FieldList) -> TokenStream {
 ///
 
 impl Imp<Newtype> for DefaultTrait {
-    fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Newtype) -> Option<TokenStream> {
         let inner = match &node.default {
             Some(arg) => format_default(arg),
-            None => panic!("default impl but no default"),
+            None => panic!("newtype {} is missing a default value", node.def.ident),
         };
 
         // quote
@@ -92,7 +84,7 @@ impl Imp<Newtype> for DefaultTrait {
             }
         };
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::Default)
             .set_tokens(q)
             .to_token_stream();
 

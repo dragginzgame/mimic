@@ -16,7 +16,7 @@ pub struct InnerTrait {}
 ///
 
 impl Imp<Newtype> for InnerTrait {
-    fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Newtype) -> Option<TokenStream> {
         let primitive = node.primitive.as_type();
 
         // quote
@@ -32,7 +32,7 @@ impl Imp<Newtype> for InnerTrait {
             }
         };
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::Inner)
             .set_tokens(q)
             .to_token_stream();
 

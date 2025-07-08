@@ -32,13 +32,19 @@ impl AsMacro for EntityId {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone().with_default_traits();
 
-        traits.extend(vec![Trait::Copy, Trait::EntityIdKind]);
+        traits.extend(vec![Trait::Copy, Trait::EntityIdKind, Trait::Into]);
 
         traits.list()
     }
 
-    fn custom_impl(&self) -> Option<TokenStream> {
-        crate::node::imp::entity_id::tokens(self)
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+        use crate::node_traits::*;
+
+        match t {
+            Trait::Into => IntoTrait::tokens(self),
+
+            _ => None,
+        }
     }
 
     fn map_attribute(&self, t: Trait) -> Option<TokenStream> {

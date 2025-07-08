@@ -2,8 +2,10 @@ mod default;
 mod entity;
 mod enum_value;
 mod field;
+mod from;
 mod implementor;
 mod inner;
+mod into;
 mod num;
 mod type_view;
 mod validate;
@@ -13,8 +15,10 @@ pub use default::*;
 pub use entity::*;
 pub use enum_value::*;
 pub use field::*;
+pub use from::*;
 pub use implementor::*;
 pub use inner::*;
+pub use into::*;
 pub use num::*;
 pub use type_view::*;
 pub use validate::*;
@@ -98,10 +102,6 @@ impl<'a, T: AsMacro> MacroHandler<'a, T> {
             }
         }
 
-        if let Some(custom) = self.item.custom_impl() {
-            impls.extend(custom);
-        }
-
         let mut derive = if derived_traits.is_empty() {
             quote!()
         } else {
@@ -158,7 +158,7 @@ impl<'a, T: AsMacro> MacroHandler<'a, T> {
 ///
 
 pub trait Imp<N> {
-    fn tokens(node: &N, t: Trait) -> Option<TokenStream>;
+    fn tokens(node: &N) -> Option<TokenStream>;
 }
 
 ///

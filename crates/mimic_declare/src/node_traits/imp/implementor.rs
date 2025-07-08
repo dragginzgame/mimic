@@ -1,7 +1,7 @@
 use crate::{node::Def, node_traits::Trait};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::Generics;
+use syn::{GenericParam, Generics, WherePredicate, parse2};
 
 ///
 /// Implementor
@@ -29,6 +29,27 @@ impl<'a> Implementor<'a> {
     //
     // Method Chains
     //
+
+    pub fn add_impl_constraint(mut self, tokens: TokenStream) -> Self {
+        let constraint: WherePredicate = parse2(tokens).expect("where predicate parses");
+        let where_clause = self.impl_generics.make_where_clause();
+        where_clause.predicates.push(constraint);
+
+        self
+    }
+
+    pub fn add_impl_generic(mut self, tokens: TokenStream) -> Self {
+        let generic_param = syn::parse2::<GenericParam>(tokens).expect("generic param parses");
+        self.impl_generics.params.push(generic_param);
+
+        self
+    }
+
+    pub fn add_trait_generic(mut self, tokens: TokenStream) -> Self {
+        self.trait_generics.push(tokens);
+
+        self
+    }
 
     pub fn set_tokens(mut self, tokens: TokenStream) -> Self {
         self.tokens = tokens;

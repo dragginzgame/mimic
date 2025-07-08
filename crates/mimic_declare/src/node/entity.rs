@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_slice, split_idents, to_path, to_str_lit},
     node::{DataKey, Def, FieldList, Type},
-    node_traits::{self, Imp, Trait, Traits},
+    node_traits::{Trait, Traits},
     traits::{AsMacro, AsSchema, AsType},
 };
 use darling::FromMeta;
@@ -60,16 +60,16 @@ impl AsMacro for Entity {
     }
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+        use crate::node_traits::*;
+
         match t {
-            Trait::Default if self.fields.has_default() => {
-                node_traits::DefaultTrait::tokens(self, t)
-            }
-            Trait::EntityKind => node_traits::EntityKindTrait::tokens(self, t),
-            Trait::EntitySearch => node_traits::EntitySearchTrait::tokens(self, t),
-            Trait::EntitySort => node_traits::EntitySortTrait::tokens(self, t),
-            Trait::TypeView => node_traits::TypeViewTrait::tokens(self, t),
-            Trait::ValidateAuto => node_traits::ValidateAutoTrait::tokens(self, t),
-            Trait::Visitable => node_traits::VisitableTrait::tokens(self, t),
+            Trait::Default if self.fields.has_default() => DefaultTrait::tokens(self),
+            Trait::EntityKind => EntityKindTrait::tokens(self),
+            Trait::EntitySearch => EntitySearchTrait::tokens(self),
+            Trait::EntitySort => EntitySortTrait::tokens(self),
+            Trait::TypeView => TypeViewTrait::tokens(self),
+            Trait::ValidateAuto => ValidateAutoTrait::tokens(self),
+            Trait::Visitable => VisitableTrait::tokens(self),
 
             _ => None,
         }

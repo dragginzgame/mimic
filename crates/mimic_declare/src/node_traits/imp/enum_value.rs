@@ -6,17 +6,17 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 ///
-/// EnumValueTrait
+/// EnumValueKindTrait
 ///
 
-pub struct EnumValueTrait {}
+pub struct EnumValueKindTrait {}
 
 ///
 /// EnumValue
 ///
 
-impl Imp<EnumValue> for EnumValueTrait {
-    fn tokens(node: &EnumValue, t: Trait) -> Option<TokenStream> {
+impl Imp<EnumValue> for EnumValueKindTrait {
+    fn tokens(node: &EnumValue) -> Option<TokenStream> {
         let mut inner = quote!();
 
         // iterate variants
@@ -38,7 +38,7 @@ impl Imp<EnumValue> for EnumValueTrait {
             }
         };
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::EnumValueKind)
             .set_tokens(q)
             .to_token_stream();
 

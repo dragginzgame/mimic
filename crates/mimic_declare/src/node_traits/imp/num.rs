@@ -16,7 +16,7 @@ pub struct NumCastTrait {}
 ///
 
 impl Imp<Newtype> for NumCastTrait {
-    fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Newtype) -> Option<TokenStream> {
         let num_fn = node.primitive.num_cast_fn();
         let to_method = format_ident!("to_{}", num_fn);
         let from_method = format_ident!("from_{}", num_fn);
@@ -28,7 +28,7 @@ impl Imp<Newtype> for NumCastTrait {
             }
         };
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::NumCast)
             .set_tokens(q)
             .to_token_stream();
 
@@ -47,7 +47,7 @@ pub struct NumFromPrimitiveTrait {}
 ///
 
 impl Imp<Newtype> for NumFromPrimitiveTrait {
-    fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Newtype) -> Option<TokenStream> {
         let item = &node.item;
 
         let mut q = quote! {
@@ -72,7 +72,7 @@ impl Imp<Newtype> for NumFromPrimitiveTrait {
             });
         }
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::NumFromPrimitive)
             .set_tokens(q)
             .to_token_stream();
 
@@ -91,7 +91,7 @@ pub struct NumToPrimitiveTrait {}
 ///
 
 impl Imp<Newtype> for NumToPrimitiveTrait {
-    fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Newtype) -> Option<TokenStream> {
         let q = quote! {
             fn to_i64(&self) -> Option<i64> {
                 ::mimic::export::num_traits::NumCast::from(self.0)
@@ -102,7 +102,7 @@ impl Imp<Newtype> for NumToPrimitiveTrait {
             }
         };
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::NumToPrimitive)
             .set_tokens(q)
             .to_token_stream();
 

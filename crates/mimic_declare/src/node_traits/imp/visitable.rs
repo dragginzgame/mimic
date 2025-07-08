@@ -17,10 +17,10 @@ pub struct VisitableTrait {}
 ///
 
 impl Imp<Entity> for VisitableTrait {
-    fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Entity) -> Option<TokenStream> {
         let q = field_list(&node.fields);
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -33,7 +33,7 @@ impl Imp<Entity> for VisitableTrait {
 ///
 
 impl Imp<Enum> for VisitableTrait {
-    fn tokens(node: &Enum, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Enum) -> Option<TokenStream> {
         // build inner
         let mut variant_tokens = quote!();
         for variant in &node.variants {
@@ -48,7 +48,7 @@ impl Imp<Enum> for VisitableTrait {
 
         let q = quote_drive_method(&inner);
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -61,7 +61,7 @@ impl Imp<Enum> for VisitableTrait {
 ///
 
 impl Imp<List> for VisitableTrait {
-    fn tokens(node: &List, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &List) -> Option<TokenStream> {
         let inner = quote! {
             for (i, value) in self.0.iter().enumerate() {
                 let visitor_key = i.to_string();
@@ -72,7 +72,7 @@ impl Imp<List> for VisitableTrait {
 
         let q = quote_drive_method(&inner);
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -84,7 +84,7 @@ impl Imp<List> for VisitableTrait {
 ///
 
 impl Imp<Map> for VisitableTrait {
-    fn tokens(node: &Map, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Map) -> Option<TokenStream> {
         let inner = quote! {
             for (k, v) in self.0.iter() {
                 let visitor_key = k.to_string();
@@ -97,7 +97,7 @@ impl Imp<Map> for VisitableTrait {
         };
         let q = quote_drive_method(&inner);
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -110,14 +110,14 @@ impl Imp<Map> for VisitableTrait {
 ///
 
 impl Imp<Newtype> for VisitableTrait {
-    fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Newtype) -> Option<TokenStream> {
         let inner = quote! {
             ::mimic::core::visit::perform_visit(visitor, &self.0, "");
         };
 
         let q = quote_drive_method(&inner);
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -130,10 +130,10 @@ impl Imp<Newtype> for VisitableTrait {
 ///
 
 impl Imp<Record> for VisitableTrait {
-    fn tokens(node: &Record, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Record) -> Option<TokenStream> {
         let q = field_list(&node.fields);
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -146,7 +146,7 @@ impl Imp<Record> for VisitableTrait {
 ///
 
 impl Imp<Set> for VisitableTrait {
-    fn tokens(node: &Set, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Set) -> Option<TokenStream> {
         let inner = quote! {
             for (i, item) in self.0.iter().enumerate() {
                 let visitor_key = i.to_string();
@@ -155,7 +155,7 @@ impl Imp<Set> for VisitableTrait {
         };
         let q = quote_drive_method(&inner);
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -168,7 +168,7 @@ impl Imp<Set> for VisitableTrait {
 ///
 
 impl Imp<Tuple> for VisitableTrait {
-    fn tokens(node: &Tuple, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Tuple) -> Option<TokenStream> {
         let mut inner = quote!();
 
         for (i, _) in node.values.iter().enumerate() {
@@ -183,7 +183,7 @@ impl Imp<Tuple> for VisitableTrait {
 
         let q = quote_drive_method(&inner);
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 

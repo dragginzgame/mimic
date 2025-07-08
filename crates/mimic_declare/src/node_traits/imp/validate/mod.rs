@@ -21,10 +21,10 @@ pub struct ValidateAutoTrait {}
 ///
 
 impl Imp<Entity> for ValidateAutoTrait {
-    fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Entity) -> Option<TokenStream> {
         let q = ValidateChildrenFunction::tokens(node);
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::ValidateAuto)
             .set_tokens(q)
             .to_token_stream();
 
@@ -37,10 +37,10 @@ impl Imp<Entity> for ValidateAutoTrait {
 ///
 
 impl Imp<Enum> for ValidateAutoTrait {
-    fn tokens(node: &Enum, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Enum) -> Option<TokenStream> {
         let q = ValidateSelfFunction::tokens(node);
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::ValidateAuto)
             .set_tokens(q)
             .to_token_stream();
 
@@ -53,10 +53,10 @@ impl Imp<Enum> for ValidateAutoTrait {
 ///
 
 impl Imp<List> for ValidateAutoTrait {
-    fn tokens(node: &List, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &List) -> Option<TokenStream> {
         let q = ValidateChildrenFunction::tokens(node);
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::ValidateAuto)
             .set_tokens(q)
             .to_token_stream();
 
@@ -69,10 +69,10 @@ impl Imp<List> for ValidateAutoTrait {
 ///
 
 impl Imp<Map> for ValidateAutoTrait {
-    fn tokens(node: &Map, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Map) -> Option<TokenStream> {
         let q = ValidateChildrenFunction::tokens(node);
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::ValidateAuto)
             .set_tokens(q)
             .to_token_stream();
 
@@ -85,10 +85,10 @@ impl Imp<Map> for ValidateAutoTrait {
 ///
 
 impl Imp<Newtype> for ValidateAutoTrait {
-    fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Newtype) -> Option<TokenStream> {
         let q = ValidateChildrenFunction::tokens(node);
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::ValidateAuto)
             .set_tokens(q)
             .to_token_stream();
 
@@ -101,10 +101,10 @@ impl Imp<Newtype> for ValidateAutoTrait {
 ///
 
 impl Imp<Record> for ValidateAutoTrait {
-    fn tokens(node: &Record, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Record) -> Option<TokenStream> {
         let q = ValidateChildrenFunction::tokens(node);
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::ValidateAuto)
             .set_tokens(q)
             .to_token_stream();
 
@@ -117,10 +117,10 @@ impl Imp<Record> for ValidateAutoTrait {
 ///
 
 impl Imp<Set> for ValidateAutoTrait {
-    fn tokens(node: &Set, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Set) -> Option<TokenStream> {
         let q = ValidateChildrenFunction::tokens(node);
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::ValidateAuto)
             .set_tokens(q)
             .to_token_stream();
 

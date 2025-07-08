@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_slice, to_str_lit},
     node::{ArgNumber, Def, Type},
-    node_traits::{self, Imp, Trait, Traits},
+    node_traits::{Trait, Traits},
     traits::{AsMacro, AsSchema, AsType},
 };
 use darling::FromMeta;
@@ -57,9 +57,11 @@ impl AsMacro for EnumValue {
     }
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+        use crate::node_traits::*;
+
         match t {
-            Trait::EnumValueKind => node_traits::EnumValueTrait::tokens(self, t),
-            Trait::TypeView => node_traits::TypeViewTrait::tokens(self, t),
+            Trait::EnumValueKind => EnumValueKindTrait::tokens(self),
+            Trait::TypeView => TypeViewTrait::tokens(self),
 
             _ => None,
         }

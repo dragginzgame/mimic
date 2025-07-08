@@ -16,14 +16,14 @@ pub struct FieldValueTrait {}
 ///
 
 impl Imp<Newtype> for FieldValueTrait {
-    fn tokens(node: &Newtype, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Newtype) -> Option<TokenStream> {
         let q = quote! {
             fn to_value(&self) -> ::mimic::core::value::Value {
                 self.0.to_value()
             }
         };
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::FieldValue)
             .set_tokens(q)
             .to_token_stream();
 

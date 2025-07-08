@@ -1,6 +1,6 @@
 use crate::{
     node::{Def, Item, Type},
-    node_traits::{self, Imp, Trait, Traits},
+    node_traits::{Trait, Traits},
     traits::{AsMacro, AsSchema, AsType},
 };
 use darling::FromMeta;
@@ -40,6 +40,7 @@ impl AsMacro for Set {
             Trait::Default,
             Trait::Deref,
             Trait::DerefMut,
+            //         Trait::From,
             Trait::IntoIterator,
         ]);
 
@@ -47,10 +48,13 @@ impl AsMacro for Set {
     }
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+        use crate::node_traits::*;
+
         match t {
-            Trait::TypeView => node_traits::TypeViewTrait::tokens(self, t),
-            Trait::ValidateAuto => node_traits::ValidateAutoTrait::tokens(self, t),
-            Trait::Visitable => node_traits::VisitableTrait::tokens(self, t),
+            Trait::From => FromTrait::tokens(self),
+            Trait::TypeView => TypeViewTrait::tokens(self),
+            Trait::ValidateAuto => ValidateAutoTrait::tokens(self),
+            Trait::Visitable => VisitableTrait::tokens(self),
 
             _ => None,
         }

@@ -15,7 +15,7 @@ use syn::LitStr;
 pub struct EntityKindTrait {}
 
 impl Imp<Entity> for EntityKindTrait {
-    fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Entity) -> Option<TokenStream> {
         let key_size = &node
             .data_keys
             .iter()
@@ -39,7 +39,7 @@ impl Imp<Entity> for EntityKindTrait {
         q.extend(build_data_key(node));
         q.extend(values(node));
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::EntityKind)
             .set_tokens(q)
             .to_token_stream();
 
@@ -161,7 +161,7 @@ fn values(node: &Entity) -> TokenStream {
 pub struct EntitySearchTrait {}
 
 impl Imp<Entity> for EntitySearchTrait {
-    fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Entity) -> Option<TokenStream> {
         let ident = &node.def.ident;
 
         let field_fns: Vec<_> = node
@@ -193,7 +193,7 @@ impl Imp<Entity> for EntitySearchTrait {
             }
         };
 
-        let tokens = Implementor::new(&node.def, t)
+        let tokens = Implementor::new(&node.def, Trait::EntitySearch)
             .set_tokens(q)
             .to_token_stream();
 
@@ -208,7 +208,7 @@ impl Imp<Entity> for EntitySearchTrait {
 pub struct EntitySortTrait {}
 
 impl Imp<Entity> for EntitySortTrait {
-    fn tokens(node: &Entity, t: Trait) -> Option<TokenStream> {
+    fn tokens(node: &Entity) -> Option<TokenStream> {
         let node_ident = &node.def.ident;
 
         let mut asc_fns = quote!();
@@ -271,7 +271,7 @@ impl Imp<Entity> for EntitySortTrait {
             }
         };
 
-        let tokens = Implementor::new(node.def(), t)
+        let tokens = Implementor::new(node.def(), Trait::EntitySort)
             .set_tokens(q)
             .to_token_stream();
 

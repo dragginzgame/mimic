@@ -1,7 +1,7 @@
 use crate::{
     helper::quote_option,
     node::{Arg, Def, Item, Type},
-    node_traits::{self, Imp, Trait, Traits},
+    node_traits::{Trait, Traits},
     traits::{AsMacro, AsSchema, AsType},
 };
 use darling::FromMeta;
@@ -46,6 +46,7 @@ impl AsMacro for Newtype {
             Trait::Default,
             Trait::Deref,
             Trait::DerefMut,
+            //         Trait::From,
             Trait::Inner,
         ]);
 
@@ -90,16 +91,19 @@ impl AsMacro for Newtype {
     }
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+        use crate::node_traits::*;
+
         match t {
-            Trait::Default if self.default.is_some() => node_traits::DefaultTrait::tokens(self, t),
-            Trait::FieldValue => node_traits::FieldValueTrait::tokens(self, t),
-            Trait::Inner => node_traits::InnerTrait::tokens(self, t),
-            Trait::NumCast => node_traits::NumCastTrait::tokens(self, t),
-            Trait::NumToPrimitive => node_traits::NumToPrimitiveTrait::tokens(self, t),
-            Trait::NumFromPrimitive => node_traits::NumFromPrimitiveTrait::tokens(self, t),
-            Trait::TypeView => node_traits::TypeViewTrait::tokens(self, t),
-            Trait::ValidateAuto => node_traits::ValidateAutoTrait::tokens(self, t),
-            Trait::Visitable => node_traits::VisitableTrait::tokens(self, t),
+            Trait::Default if self.default.is_some() => DefaultTrait::tokens(self),
+            Trait::FieldValue => FieldValueTrait::tokens(self),
+            Trait::From => FromTrait::tokens(self),
+            Trait::Inner => InnerTrait::tokens(self),
+            Trait::NumCast => NumCastTrait::tokens(self),
+            Trait::NumToPrimitive => NumToPrimitiveTrait::tokens(self),
+            Trait::NumFromPrimitive => NumFromPrimitiveTrait::tokens(self),
+            Trait::TypeView => TypeViewTrait::tokens(self),
+            Trait::ValidateAuto => ValidateAutoTrait::tokens(self),
+            Trait::Visitable => VisitableTrait::tokens(self),
 
             _ => None,
         }
@@ -130,6 +134,7 @@ impl AsType for Newtype {
         let item = &self.item;
 
         quote! {
+            #[repr(transparent)]
             pub struct #ident(#item);
         }
     }

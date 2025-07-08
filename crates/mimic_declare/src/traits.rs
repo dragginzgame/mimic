@@ -62,11 +62,6 @@ pub trait AsMacro: AsSchema + quote::ToTokens {
     fn map_trait(&self, _: Trait) -> Option<TokenStream> {
         None
     }
-
-    // custom_impl
-    fn custom_impl(&self) -> Option<TokenStream> {
-        None
-    }
 }
 
 ///
