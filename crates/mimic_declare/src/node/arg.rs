@@ -375,13 +375,23 @@ impl AsSchema for ArgNumber {
 }
 
 impl ToTokens for ArgNumber {
+    // this has to be done in this way so
+    // we get the _u8 suffix
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let s = self.to_string();
-        let stream: TokenStream = s
-            .parse()
-            .expect("Failed to parse ArgNumber into TokenStream");
+        let q = match self {
+            Self::Float32(v) => quote!(#v),
+            Self::Float64(v) => quote!(#v),
+            Self::Int8(v) => quote!(#v),
+            Self::Int16(v) => quote!(#v),
+            Self::Int32(v) => quote!(#v),
+            Self::Int64(v) => quote!(#v),
+            Self::Nat8(v) => quote!(#v),
+            Self::Nat16(v) => quote!(#v),
+            Self::Nat32(v) => quote!(#v),
+            Self::Nat64(v) => quote!(#v),
+        };
 
-        tokens.extend(stream);
+        tokens.extend(q);
     }
 }
 
@@ -476,17 +486,17 @@ mod number_tests {
     fn test_to_tokens_integer() {
         let num = ArgNumber::parse_numeric_string("10").unwrap();
         let tokens = quote!(#num);
-        assert_eq!(tokens.to_string(), "10");
+        assert_eq!(tokens.to_string(), "10i32");
     }
 
     #[test]
     fn test_to_tokens_float() {
         let num = ArgNumber::parse_numeric_string("3.14").unwrap();
         let tokens = quote!(#num);
-        assert_eq!(tokens.to_string(), "3.14");
+        assert_eq!(tokens.to_string(), "3.14f64");
 
         let num = ArgNumber::parse_numeric_string("3.14_f64").unwrap();
         let tokens = quote!(#num);
-        assert_eq!(tokens.to_string(), "3.14");
+        assert_eq!(tokens.to_string(), "3.14f64");
     }
 }
