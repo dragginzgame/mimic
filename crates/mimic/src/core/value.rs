@@ -82,10 +82,10 @@ impl Value {
     #[must_use]
     pub fn into_index_value(self) -> Option<IndexValue> {
         match self {
-            Self::Int(i) => Some(IndexValue::Int(i)),
-            Self::Nat(n) => Some(IndexValue::Nat(n)),
-            Self::Principal(p) => Some(IndexValue::Principal(p)),
-            Self::Ulid(u) => Some(IndexValue::Ulid(u)),
+            Self::Int(v) => Some(IndexValue::Int(v)),
+            Self::Nat(v) => Some(IndexValue::Nat(v)),
+            Self::Principal(v) => Some(IndexValue::Principal(v)),
+            Self::Ulid(v) => Some(IndexValue::Ulid(v)),
             _ => None,
         }
     }
@@ -123,6 +123,23 @@ impl_from_for! {
     u16 => Nat,
     u32 => Nat,
     u64 => Nat,
+}
+
+impl From<EntityKey> for Value {
+    fn from(value: EntityKey) -> Self {
+        value[0].into()
+    }
+}
+
+impl From<IndexValue> for Value {
+    fn from(iv: IndexValue) -> Self {
+        match iv {
+            IndexValue::Int(v) => Self::Int(v),
+            IndexValue::Nat(v) => Self::Nat(v),
+            IndexValue::Principal(v) => Self::Principal(v),
+            IndexValue::Ulid(v) => Self::Ulid(v),
+        }
+    }
 }
 
 impl From<WrappedPrincipal> for Value {
