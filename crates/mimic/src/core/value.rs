@@ -1,4 +1,7 @@
-use crate::core::types::{Decimal, E8s, E18s, Principal, Ulid};
+use crate::core::{
+    db::EntityKey,
+    types::{Decimal, E8s, E18s, Principal, Ulid},
+};
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut, Display};
 use serde::{Deserialize, Serialize};
@@ -199,6 +202,12 @@ impl_from_for! {
     u16 => Nat,
     u32 => Nat,
     u64 => Nat,
+}
+
+impl From<EntityKey> for IndexValue {
+    fn from(value: EntityKey) -> Self {
+        value[0]
+    }
 }
 
 impl From<WrappedPrincipal> for IndexValue {
