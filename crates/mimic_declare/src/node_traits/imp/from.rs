@@ -2,10 +2,8 @@ use crate::{
     node::{List, Map, Newtype, Set},
     node_traits::{Imp, Implementor, Trait},
 };
-use mimic_schema::types::Primitive;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::Ident;
 
 ///
 /// FromTrait
@@ -78,29 +76,24 @@ impl Imp<Map> for FromTrait {
 
 impl Imp<Newtype> for FromTrait {
     fn tokens(node: &Newtype) -> Option<TokenStream> {
-        let self_ident = &node.def.ident;
+        let item = &node.item;
         let primitive = &node.primitive;
-        let mut tokens = quote!();
+        let primitive_type = primitive.as_type();
 
-        // Specific impls
-        for q in primitive_from_variants(self_ident, primitive) {
-            tokens.extend(q);
-        }
+        let q = quote! {
+            fn from(t: T) -> Self {
+                Self(<#item as std::convert::From<#primitive_type>>::from(t.into()))
+            }
+        };
+
+        let tokens = Implementor::new(&node.def, Trait::From)
+            .set_tokens(q)
+            .add_impl_constraint(quote!(T: Into<#primitive_type>))
+            .add_impl_generic(quote!(T))
+            .add_trait_generic(quote!(T))
+            .to_token_stream();
 
         Some(tokens)
-    }
-}
-
-fn primitive_from_variants(ident: &Ident, primitive: &Primitive) -> Vec<TokenStream> {
-    match primitive {
-        Primitive::Text => vec![quote! {
-            impl From<&str> for #ident {
-                fn from(value: &str) -> Self {
-                    Self(value.into())
-                }
-            }
-        }],
-        _ => vec![],
     }
 }
 
