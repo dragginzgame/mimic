@@ -218,15 +218,14 @@ pub fn field_list(fields: &FieldList) -> TokenStream {
 pub fn enum_variant(variant: &EnumVariant) -> TokenStream {
     let name = &variant.name;
 
-    match &variant.value {
-        Some(_) => {
-            let name_string = name.to_string();
+    if variant.value.is_some() {
+        let name_string = name.to_string();
 
-            quote! {
-                Self::#name(value) => ::mimic::core::visit::perform_visit(visitor, value, #name_string),
-            }
+        quote! {
+            Self::#name(value) => ::mimic::core::visit::perform_visit(visitor, value, #name_string),
         }
-        None => quote!(Self::#name => {}),
+    } else {
+        quote!(Self::#name => {})
     }
 }
 

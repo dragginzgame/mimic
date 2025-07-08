@@ -259,7 +259,7 @@ impl Traits {
 pub struct TraitList(pub Vec<Trait>);
 
 impl TraitList {
-    pub fn new(traits: Vec<Trait>) -> Self {
+    pub const fn new(traits: Vec<Trait>) -> Self {
         Self(traits)
     }
 

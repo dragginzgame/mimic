@@ -18,7 +18,6 @@ pub struct TypeViewTrait {}
 
 impl Imp<Entity> for TypeViewTrait {
     fn tokens(node: &Entity) -> Option<TokenStream> {
-        let self_ident = &node.def.ident;
         let view_ident = &node.def.view_ident();
 
         // tokens
@@ -39,7 +38,6 @@ impl Imp<Entity> for TypeViewTrait {
 
 impl Imp<Enum> for TypeViewTrait {
     fn tokens(node: &Enum) -> Option<TokenStream> {
-        let self_ident = &node.def.ident;
         let view_ident = &node.def.view_ident();
 
         // to_view_arms
@@ -105,7 +103,6 @@ impl Imp<Enum> for TypeViewTrait {
 
 impl Imp<EnumValue> for TypeViewTrait {
     fn tokens(node: &EnumValue) -> Option<TokenStream> {
-        let self_ident = &node.def.ident;
         let view_ident = &node.def.view_ident();
 
         // to_view_arms
@@ -159,7 +156,6 @@ impl Imp<EnumValue> for TypeViewTrait {
 
 impl Imp<List> for TypeViewTrait {
     fn tokens(node: &List) -> Option<TokenStream> {
-        let self_ident = &node.def.ident;
         let view_ident = &node.def.view_ident();
 
         // tokens
@@ -180,7 +176,6 @@ impl Imp<List> for TypeViewTrait {
 
 impl Imp<Map> for TypeViewTrait {
     fn tokens(node: &Map) -> Option<TokenStream> {
-        let self_ident = &node.def.ident;
         let view_ident = &node.def.view_ident();
         let key = &node.key;
         let value = &node.value;
@@ -202,7 +197,6 @@ impl Imp<Map> for TypeViewTrait {
 
 impl Imp<Newtype> for TypeViewTrait {
     fn tokens(node: &Newtype) -> Option<TokenStream> {
-        let self_ident = &node.def.ident;
         let view_ident = &node.def.view_ident();
 
         let q = quote! {
@@ -234,7 +228,6 @@ impl Imp<Newtype> for TypeViewTrait {
 
 impl Imp<Record> for TypeViewTrait {
     fn tokens(node: &Record) -> Option<TokenStream> {
-        let self_ident = &node.def.ident;
         let view_ident = &node.def.view_ident();
         let q = field_list(view_ident, &node.fields);
 
@@ -254,7 +247,6 @@ impl Imp<Record> for TypeViewTrait {
 
 impl Imp<Set> for TypeViewTrait {
     fn tokens(node: &Set) -> Option<TokenStream> {
-        let self_ident = &node.def.ident;
         let view_ident = &node.def.view_ident();
 
         let q = quote_typeview_linear(view_ident);

@@ -189,9 +189,10 @@ impl AsType for EnumVariant {
 
         let default_attr = self.default.then(|| quote!(#[default]));
 
-        let body = match &self.value {
-            Some(value) => quote!(#name(#value)),
-            None => quote!(#name),
+        let body = if let Some(value) = &self.value {
+            quote!(#name(#value))
+        } else {
+            quote!(#name)
         };
 
         quote! {
@@ -203,17 +204,16 @@ impl AsType for EnumVariant {
     fn as_view_type(&self) -> TokenStream {
         let name = &self.name;
 
-        match &self.value {
-            Some(value) => {
-                let value_view = AsType::as_view_type(value);
+        if let Some(value) = &self.value {
+            let value_view = AsType::as_view_type(value);
 
-                quote! {
-                    #name(#value_view)
-                }
+            quote! {
+                #name(#value_view)
             }
-            None => quote! {
+        } else {
+            quote! {
                 #name
-            },
+            }
         }
     }
 }
