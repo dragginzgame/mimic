@@ -61,6 +61,7 @@ impl AsMacro for EnumValue {
 
         match t {
             Trait::EnumValueKind => EnumValueKindTrait::tokens(self),
+            Trait::From => FromTrait::tokens(self),
             Trait::TypeView => TypeViewTrait::tokens(self),
 
             _ => None,

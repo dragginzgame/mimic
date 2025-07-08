@@ -96,6 +96,7 @@ static TYPE_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
         Trait::FieldSearchable,
         Trait::FieldSortable,
         Trait::FieldValue,
+        Trait::From,
         Trait::PartialEq,
         Trait::Serialize,
         Trait::TypeView,

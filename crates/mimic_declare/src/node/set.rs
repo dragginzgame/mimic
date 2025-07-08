@@ -40,7 +40,6 @@ impl AsMacro for Set {
             Trait::Default,
             Trait::Deref,
             Trait::DerefMut,
-            Trait::From,
             Trait::IntoIterator,
         ]);
 

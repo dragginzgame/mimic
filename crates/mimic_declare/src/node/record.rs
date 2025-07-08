@@ -46,6 +46,7 @@ impl AsMacro for Record {
 
         match t {
             Trait::Default if self.fields.has_default() => DefaultTrait::tokens(self),
+            Trait::From => FromTrait::tokens(self),
             Trait::TypeView => TypeViewTrait::tokens(self),
             Trait::ValidateAuto => ValidateAutoTrait::tokens(self),
             Trait::Visitable => VisitableTrait::tokens(self),
@@ -57,6 +58,7 @@ impl AsMacro for Record {
     fn map_attribute(&self, t: Trait) -> Option<TokenStream> {
         match t {
             Trait::Default => Trait::Default.derive_attribute(),
+
             _ => None,
         }
     }

@@ -1,5 +1,5 @@
 use crate::{
-    node::{List, Map, Newtype, Set},
+    node::{Def, Entity, Enum, EnumValue, List, Map, Newtype, Record, Set, Tuple},
     node_traits::{Imp, Implementor, Trait},
 };
 use proc_macro2::TokenStream;
@@ -10,6 +10,36 @@ use quote::{ToTokens, quote};
 ///
 
 pub struct FromTrait {}
+
+///
+/// Entity
+///
+
+impl Imp<Entity> for FromTrait {
+    fn tokens(node: &Entity) -> Option<TokenStream> {
+        from_type_view(&node.def)
+    }
+}
+
+///
+/// Enum
+///
+
+impl Imp<Enum> for FromTrait {
+    fn tokens(node: &Enum) -> Option<TokenStream> {
+        from_type_view(&node.def)
+    }
+}
+
+///
+/// EnumValue
+///
+
+impl Imp<EnumValue> for FromTrait {
+    fn tokens(node: &EnumValue) -> Option<TokenStream> {
+        from_type_view(&node.def)
+    }
+}
 
 ///
 /// List
@@ -98,6 +128,16 @@ impl Imp<Newtype> for FromTrait {
 }
 
 ///
+/// Record
+///
+
+impl Imp<Record> for FromTrait {
+    fn tokens(node: &Record) -> Option<TokenStream> {
+        from_type_view(&node.def)
+    }
+}
+
+///
 /// Set
 ///
 
@@ -123,4 +163,33 @@ impl Imp<Set> for FromTrait {
 
         Some(tokens)
     }
+}
+
+///
+/// Tuple
+///
+
+impl Imp<Tuple> for FromTrait {
+    fn tokens(node: &Tuple) -> Option<TokenStream> {
+        from_type_view(&node.def)
+    }
+}
+
+/// from_type_view
+fn from_type_view(def: &Def) -> Option<TokenStream> {
+    let self_ident = &def.ident;
+    let view_ident = &def.view_ident();
+
+    let q = quote! {
+        fn from(view: #view_ident) -> Self {
+            <#self_ident as ::mimic::core::traits::TypeView>::from_view(view)
+        }
+    };
+
+    let tokens = Implementor::new(def, Trait::From)
+        .set_tokens(q)
+        .add_trait_generic(quote!(#view_ident))
+        .to_token_stream();
+
+    Some(tokens)
 }

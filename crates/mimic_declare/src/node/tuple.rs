@@ -44,6 +44,7 @@ impl AsMacro for Tuple {
         use crate::node_traits::*;
 
         match t {
+            Trait::From => FromTrait::tokens(self),
             Trait::TypeView => TypeViewTrait::tokens(self),
             Trait::Visitable => VisitableTrait::tokens(self),
 

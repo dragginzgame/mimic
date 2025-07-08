@@ -65,6 +65,7 @@ impl AsMacro for Enum {
         use crate::node_traits::*;
 
         match t {
+            Trait::From => FromTrait::tokens(self),
             Trait::TypeView => TypeViewTrait::tokens(self),
             Trait::ValidateAuto => ValidateAutoTrait::tokens(self),
             Trait::Visitable => VisitableTrait::tokens(self),

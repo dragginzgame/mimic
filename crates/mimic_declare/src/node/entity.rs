@@ -64,6 +64,7 @@ impl AsMacro for Entity {
 
         match t {
             Trait::Default if self.fields.has_default() => DefaultTrait::tokens(self),
+            Trait::From => FromTrait::tokens(self),
             Trait::EntityKind => EntityKindTrait::tokens(self),
             Trait::EntitySearch => EntitySearchTrait::tokens(self),
             Trait::EntitySort => EntitySortTrait::tokens(self),
