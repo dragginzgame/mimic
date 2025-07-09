@@ -99,6 +99,15 @@ impl FieldSortable for Reference {}
 
 impl FieldValue for Reference {}
 
+impl<K: Into<Key>> From<K> for Reference {
+    fn from(key: K) -> Self {
+        Self {
+            key: key.into(),
+            ..Default::default()
+        }
+    }
+}
+
 impl TypeView for Reference {
     type View = Self;
 
