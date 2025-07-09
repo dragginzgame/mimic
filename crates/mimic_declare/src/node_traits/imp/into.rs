@@ -22,17 +22,26 @@ impl Imp<EntityId> for IntoTrait {
 
         // into ulid
         q.extend(quote! {
-            impl Into<Ulid> for #ident {
-                fn into(self) -> mimic::core::types::Ulid {
+            impl Into<::mimic::core::types::Ulid> for #ident {
+                fn into(self) -> ::mimic::core::types::Ulid {
                     self.ulid()
                 }
             }
         });
 
-        // into relation
+        // into key
         q.extend(quote! {
-            impl Into<Key> for #ident {
-                fn into(self) -> mimic::core::Key {
+            impl Into<::mimic::core::Key> for #ident {
+                fn into(self) -> ::mimic::core::Key {
+                    self.ulid().into()
+                }
+            }
+        });
+
+        // into key
+        q.extend(quote! {
+            impl Into<::mimic::core::Reference> for #ident {
+                fn into(self) -> ::mimic::core::Reference {
                     self.ulid().into()
                 }
             }
