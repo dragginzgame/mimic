@@ -25,6 +25,11 @@ impl Reference {
         Self { key, canister_pid }
     }
 
+    #[must_use]
+    pub fn key(&self) -> Key {
+        self.key
+    }
+
     /*
     pub fn encode(&self) -> Principal {
         let mut array = Vec::new();
