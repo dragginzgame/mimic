@@ -42,6 +42,11 @@ use std::{
 pub struct Subaccount(WrappedSubaccount);
 
 impl Subaccount {
+    pub const STORABLE_MAX_SIZE: u32 = 72;
+
+    pub const MAX_SELF: Self = Self(WrappedSubaccount([0xFF; 32]));
+    pub const MAX_SIZE: u32 = 32;
+
     #[must_use]
     pub const fn new(bytes: [u8; 32]) -> Self {
         Self(WrappedSubaccount(bytes))
@@ -50,6 +55,11 @@ impl Subaccount {
     #[must_use]
     pub const fn to_bytes(self) -> [u8; 32] {
         self.0.0
+    }
+
+    #[must_use]
+    pub const fn max_self() -> Self {
+        Self(WrappedSubaccount([0xFF; 32]))
     }
 }
 
@@ -135,7 +145,7 @@ impl PartialEq<WrappedSubaccount> for Subaccount {
     }
 }
 
-impl_storable_bounded!(Subaccount, 32, true);
+impl_storable_bounded!(Subaccount, Subaccount::STORABLE_MAX_SIZE, true);
 
 impl TypeView for Subaccount {
     type View = WrappedSubaccount;
@@ -162,9 +172,14 @@ impl Visitable for Subaccount {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::core::traits::Storable;
 
     #[test]
-    fn subaccount_is_32_bytes() {
-        assert_eq!(std::mem::size_of::<Subaccount>(), 32);
+    fn subaccount_max_size_is_bounded() {
+        let subaccount = Subaccount::max_self();
+        let size = Storable::to_bytes(&subaccount).len() as u32;
+
+        println!("max serialized size = {size}");
+        assert!(size <= Subaccount::STORABLE_MAX_SIZE);
     }
 }

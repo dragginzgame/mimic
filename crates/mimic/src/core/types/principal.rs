@@ -53,8 +53,9 @@ pub enum PrincipalError {
 pub struct Principal(WrappedPrincipal);
 
 impl Principal {
-    pub const MIN: Self = Self(WrappedPrincipal::from_slice(&[0x00; 29]));
-    pub const MAX: Self = Self(WrappedPrincipal::from_slice(&[0xFF; 29]));
+    pub const STORABLE_MAX_SIZE: u32 = 32;
+    pub const MIN: Self = Self::from_slice(&[0x00; 29]);
+    pub const MAX: Self = Self::from_slice(&[0xFF; 29]);
 
     #[must_use]
     pub fn msg_caller() -> Self {
@@ -69,6 +70,11 @@ impl Principal {
     #[must_use]
     pub const fn anonymous() -> Self {
         Self(WrappedPrincipal::anonymous())
+    }
+
+    #[must_use]
+    pub fn max_self() -> Self {
+        Self::from_slice(&[0xFF; 29])
     }
 }
 
@@ -150,7 +156,7 @@ impl PartialEq<Principal> for WrappedPrincipal {
     }
 }
 
-impl_storable_bounded!(Principal, 30, true);
+impl_storable_bounded!(Principal, Principal::STORABLE_MAX_SIZE, true);
 
 impl TypeView for Principal {
     type View = WrappedPrincipal;
@@ -185,9 +191,14 @@ impl Visitable for Principal {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::core::traits::Storable;
 
     #[test]
-    fn principal_is_30_bytes() {
-        assert_eq!(std::mem::size_of::<Principal>(), 30);
+    fn principal_max_size_is_bounded() {
+        let principal = Principal::max_self();
+        let size = Storable::to_bytes(&principal).len() as u32;
+
+        println!("max serialized size = {size}");
+        assert!(size <= Principal::STORABLE_MAX_SIZE);
     }
 }

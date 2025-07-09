@@ -40,11 +40,18 @@ use std::cmp::Ordering;
 pub struct Account(WrappedAccount);
 
 impl Account {
+    pub const STORABLE_MAX_SIZE: u32 = 128;
+
     pub fn new(owner: Principal, subaccount: Option<Subaccount>) -> Self {
         Self(WrappedAccount {
             owner: *owner,
             subaccount: subaccount.map(Subaccount::to_bytes),
         })
+    }
+
+    #[must_use]
+    pub fn max_self() -> Self {
+        Self::new(Principal::max_self(), Some(Subaccount::max_self()))
     }
 }
 
@@ -114,7 +121,7 @@ impl PartialEq<WrappedAccount> for Account {
     }
 }
 
-impl_storable_bounded!(Account, 63, true);
+impl_storable_bounded!(Account, Self::STORABLE_MAX_SIZE, true);
 
 impl TypeView for Account {
     type View = WrappedAccount;
@@ -141,11 +148,15 @@ impl Visitable for Account {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::mem;
+    use crate::core::traits::Storable;
 
     #[test]
-    fn account_is_63_bytes() {
-        assert_eq!(mem::size_of::<Account>(), 63);
+    fn account_max_size_is_bounded() {
+        let key = Account::max_self();
+        let size = Storable::to_bytes(&key).len() as u32;
+
+        println!("max serialized size = {size}");
+        assert!(size <= Account::STORABLE_MAX_SIZE);
     }
 
     #[test]

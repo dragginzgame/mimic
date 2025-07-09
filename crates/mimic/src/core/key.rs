@@ -72,6 +72,9 @@ pub enum Key {
 impl Key {
     pub const MIN: Self = Self::Int(i64::MIN);
     pub const MAX: Self = Self::Ulid(Ulid::MAX);
+    // max serialized size is 42
+    // rounding it up to 48 to add a buffer
+    pub const STORABLE_MAX_SIZE: u32 = 48;
 
     const fn variant_rank(&self) -> u8 {
         match self {
@@ -93,6 +96,11 @@ impl Key {
             Self::Principal(_) => Self::Principal(Principal::MAX),
             Self::Ulid(_) => Self::Ulid(Ulid::MAX),
         }
+    }
+
+    #[must_use]
+    pub fn max_self() -> Self {
+        Self::Principal(Principal::MAX)
     }
 }
 
@@ -199,7 +207,7 @@ impl PartialOrd for Key {
     }
 }
 
-impl_storable_bounded!(Key, 30, false);
+impl_storable_bounded!(Key, Key::STORABLE_MAX_SIZE, false);
 
 impl TryFrom<Key> for u64 {
     type Error = KeyError;
@@ -270,10 +278,15 @@ impl Visitable for Key {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use mimic::core::traits::Storable;
 
     #[test]
-    fn key_is_32_bytes() {
-        assert_eq!(std::mem::size_of::<Key>(), 32);
+    fn key_max_size_is_bounded() {
+        let key = Key::max_self();
+        let size = Storable::to_bytes(&key).len() as u32;
+
+        println!("max serialized size = {size}");
+        assert!(size <= Key::STORABLE_MAX_SIZE);
     }
 
     #[test]

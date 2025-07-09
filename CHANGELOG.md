@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.7.0] - Removed Entity Nesting
 - Just wasn't working out, adding more complexity.  Much simplified now
 and 10% faster
+- Ulid storable now 16 bytes not 28
+- Added tests for all storable types to make sure we never get panics from ic stable structures
 
 ## [0.6.0] - View Layer
 - All types now implement TypeView where Type::View is a simplified type that

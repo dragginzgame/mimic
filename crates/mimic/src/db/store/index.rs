@@ -131,6 +131,8 @@ pub struct IndexKey {
 }
 
 impl IndexKey {
+    pub const STORABLE_MAX_SIZE: u32 = 256;
+
     #[must_use]
     pub fn new<E: EntityKind>(e: &E, fields: &[&str]) -> Self {
         // Construct a canonical string like: "my::Entity::field1,field2"
@@ -151,6 +153,15 @@ impl IndexKey {
             keys,
         }
     }
+
+    // max_self
+    #[must_use]
+    pub fn max_self() -> Self {
+        Self {
+            index_id: u64::MAX,
+            keys: [Key::max_self(), Key::max_self(), Key::max_self()].to_vec(),
+        }
+    }
 }
 
 impl Display for IndexKey {
@@ -159,7 +170,7 @@ impl Display for IndexKey {
     }
 }
 
-impl_storable_bounded!(IndexKey, 256, false);
+impl_storable_bounded!(IndexKey, IndexKey::STORABLE_MAX_SIZE, false);
 
 ///
 /// IndexEntry
@@ -231,3 +242,22 @@ impl IntoIterator for IndexEntry {
 }
 
 impl_storable_unbounded!(IndexEntry);
+
+///
+/// TESTS
+///
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::traits::Storable;
+
+    #[test]
+    fn index_key_max_size_is_bounded() {
+        let index_key = IndexKey::max_self();
+        let size = Storable::to_bytes(&index_key).len() as u32;
+
+        println!("max serialized size = {size}");
+        assert!(size <= IndexKey::STORABLE_MAX_SIZE);
+    }
+}

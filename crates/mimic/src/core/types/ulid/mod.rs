@@ -5,7 +5,7 @@ use crate::{
     ThisError,
     core::{
         traits::{
-            FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto,
+            FieldSearchable, FieldSortable, FieldValue, Inner, Storable, TypeView, ValidateAuto,
             ValidateCustom, Visitable,
         },
         value::Value,
@@ -14,9 +14,9 @@ use crate::{
 use ::ulid::Ulid as WrappedUlid;
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, Display, FromStr};
-use icu::impl_storable_bounded;
+use icu::ic::structures::storable::Bound;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::cmp::Ordering;
+use std::{borrow::Cow, cmp::Ordering};
 
 ///
 /// Error
@@ -56,6 +56,8 @@ impl From<::ulid::DecodeError> for UlidError {
 pub struct Ulid(WrappedUlid);
 
 impl Ulid {
+    pub const STORABLE_MAX_SIZE: u32 = 16;
+
     pub const MIN: Self = Self::from_bytes([0x00; 16]);
     pub const MAX: Self = Self::from_bytes([0xFF; 16]);
 
@@ -96,6 +98,11 @@ impl Ulid {
     #[must_use]
     pub const fn from_u128(n: u128) -> Self {
         Self(WrappedUlid::from_bytes(n.to_be_bytes()))
+    }
+
+    #[must_use]
+    pub fn max_self() -> Self {
+        Self::from_bytes([0xFF; 16])
     }
 }
 
@@ -178,7 +185,25 @@ impl<'de> Deserialize<'de> for Ulid {
     }
 }
 
-impl_storable_bounded!(Ulid, 16, true);
+impl Storable for Ulid {
+    const BOUND: Bound = Bound::Bounded {
+        max_size: Self::STORABLE_MAX_SIZE,
+        is_fixed_size: true,
+    };
+
+    fn to_bytes(&self) -> Cow<'_, [u8]> {
+        Cow::Owned(self.0.to_bytes().to_vec())
+    }
+
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        let array: [u8; 16] = bytes
+            .as_ref()
+            .try_into()
+            .expect("Ulid must be exactly 16 bytes");
+
+        Ulid::from_bytes(array)
+    }
+}
 
 impl TypeView for Ulid {
     type View = Self;
@@ -201,10 +226,15 @@ impl Visitable for Ulid {}
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::core::traits::Storable;
 
     #[test]
-    fn ulid_is_16_bytes() {
-        assert_eq!(std::mem::size_of::<Ulid>(), 16);
+    fn ulid_max_size_is_bounded() {
+        let ulid = Ulid::max_self();
+        let size = Storable::to_bytes(&ulid).len() as u32;
+
+        println!("max serialized size = {size}");
+        assert!(size <= Ulid::STORABLE_MAX_SIZE);
     }
 
     #[test]
