@@ -138,21 +138,9 @@ impl PartialEq<i64> for Key {
     }
 }
 
-impl PartialEq<Key> for i64 {
-    fn eq(&self, other: &Key) -> bool {
-        other == self
-    }
-}
-
 impl PartialEq<u64> for Key {
     fn eq(&self, other: &u64) -> bool {
         matches!(self, Key::Nat(val) if val == other)
-    }
-}
-
-impl PartialEq<Key> for u64 {
-    fn eq(&self, other: &Key) -> bool {
-        other == self
     }
 }
 
@@ -162,15 +150,27 @@ impl PartialEq<Ulid> for Key {
     }
 }
 
-impl PartialEq<Key> for Ulid {
+impl PartialEq<Principal> for Key {
+    fn eq(&self, other: &Principal) -> bool {
+        matches!(self, Key::Principal(val) if val == other)
+    }
+}
+
+impl PartialEq<Key> for i64 {
     fn eq(&self, other: &Key) -> bool {
         other == self
     }
 }
 
-impl PartialEq<Principal> for Key {
-    fn eq(&self, other: &Principal) -> bool {
-        matches!(self, Key::Principal(val) if val == other)
+impl PartialEq<Key> for u64 {
+    fn eq(&self, other: &Key) -> bool {
+        other == self
+    }
+}
+
+impl PartialEq<Key> for Ulid {
+    fn eq(&self, other: &Key) -> bool {
+        other == self
     }
 }
 

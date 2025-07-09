@@ -203,6 +203,11 @@ mod test {
     use super::*;
 
     #[test]
+    fn ulid_is_16_bytes() {
+        assert_eq!(std::mem::size_of::<Ulid>(), 16);
+    }
+
+    #[test]
     fn test_ulid_string_roundtrip() {
         let u1 = Ulid::generate();
         let u2 = Ulid::from_str(&u1.to_string()).unwrap();

@@ -2,6 +2,7 @@ use crate::{
     core::{
         Key,
         traits::{EntityKind, Storable},
+        types::Principal,
     },
     db::hasher::xx_hash_u64,
     ic::structures::{BTreeMap, DefaultMemory, storable::Bound},
@@ -86,6 +87,14 @@ impl DataKey {
     }
 
     #[must_use]
+    pub fn max() -> Self {
+        Self {
+            entity_id: u64::MAX,
+            key: Principal::MAX.into(),
+        }
+    }
+
+    #[must_use]
     pub const fn key(&self) -> Key {
         self.key
     }
@@ -103,7 +112,9 @@ impl From<DataKey> for Key {
     }
 }
 
-impl_storable_bounded!(DataKey, 64, false);
+// current max serialized size is 66 bytes
+// making it up to 72 to add a buffer
+impl_storable_bounded!(DataKey, 72, false);
 
 ///
 /// DataKeyRange
@@ -203,6 +214,20 @@ pub struct Metadata {
 mod tests {
     use super::*;
     use crate::core::types::Ulid;
+
+    #[test]
+    fn max_size_is_66_bytes() {
+        let key = DataKey::max();
+        let bytes = key.to_bytes();
+        println!("Storable serialized size: {}", bytes.len());
+
+        assert_eq!(bytes.len(), 66);
+    }
+
+    #[test]
+    fn data_key_is_48_bytes() {
+        assert_eq!(std::mem::size_of::<DataKey>(), 48);
+    }
 
     #[test]
     fn data_keys_with_identical_paths_and_values_are_equal() {
