@@ -3,19 +3,19 @@ use crate::{
     common::error::ErrorTree,
     core::{
         traits::{
-            FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto,
+            FieldSearchable, FieldSortable, FieldValue, Inner, Storable, TypeView, ValidateAuto,
             ValidateCustom, Visitable,
         },
         value::Value,
     },
 };
 use derive_more::{Deref, DerefMut, Display};
-use icu::{
-    ic::{api::msg_caller, candid::CandidType, principal::Principal as WrappedPrincipal},
-    impl_storable_bounded,
+use icu::ic::{
+    api::msg_caller, candid::CandidType, principal::Principal as WrappedPrincipal,
+    structures::storable::Bound,
 };
 use serde::{Deserialize, Serialize};
-use std::{cmp::Ordering, str::FromStr};
+use std::{borrow::Cow, cmp::Ordering, str::FromStr};
 
 ///
 /// PrincipalError
@@ -53,7 +53,7 @@ pub enum PrincipalError {
 pub struct Principal(WrappedPrincipal);
 
 impl Principal {
-    pub const STORABLE_MAX_SIZE: u32 = 32;
+    pub const STORABLE_MAX_SIZE: u32 = 29;
     pub const MIN: Self = Self::from_slice(&[0x00; 29]);
     pub const MAX: Self = Self::from_slice(&[0xFF; 29]);
 
@@ -156,7 +156,20 @@ impl PartialEq<Principal> for WrappedPrincipal {
     }
 }
 
-impl_storable_bounded!(Principal, Principal::STORABLE_MAX_SIZE, true);
+impl Storable for Principal {
+    const BOUND: Bound = Bound::Bounded {
+        max_size: Self::STORABLE_MAX_SIZE,
+        is_fixed_size: true,
+    };
+
+    fn to_bytes(&self) -> Cow<'_, [u8]> {
+        Cow::Owned(self.0.to_bytes().to_vec())
+    }
+
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        Principal::from_slice(bytes.as_ref())
+    }
+}
 
 impl TypeView for Principal {
     type View = WrappedPrincipal;

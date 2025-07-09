@@ -196,12 +196,14 @@ impl Storable for Ulid {
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        let array: [u8; 16] = bytes
-            .as_ref()
-            .try_into()
-            .expect("Ulid must be exactly 16 bytes");
+        if bytes.len() != 16 {
+            panic!("Invalid Ulid byte length: expected 16, got {}", bytes.len());
+        }
 
-        Ulid::from_bytes(array)
+        let mut array = [0u8; 16];
+        array.copy_from_slice(&bytes);
+
+        Self::from_bytes(array)
     }
 }
 

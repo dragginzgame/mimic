@@ -72,6 +72,7 @@ pub enum Key {
 impl Key {
     pub const MIN: Self = Self::Int(i64::MIN);
     pub const MAX: Self = Self::Ulid(Ulid::MAX);
+
     // max serialized size is 42
     // rounding it up to 48 to add a buffer
     pub const STORABLE_MAX_SIZE: u32 = 48;
