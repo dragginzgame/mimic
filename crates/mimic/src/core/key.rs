@@ -84,18 +84,6 @@ impl Key {
     }
 }
 
-impl From<WrappedPrincipal> for Key {
-    fn from(p: WrappedPrincipal) -> Self {
-        Self::Principal(p.into())
-    }
-}
-
-impl From<Ulid> for Key {
-    fn from(v: Ulid) -> Self {
-        Self::Ulid(v)
-    }
-}
-
 impl From<i32> for Key {
     fn from(v: i32) -> Self {
         Self::Int(v.into())
@@ -105,6 +93,72 @@ impl From<i32> for Key {
 impl From<u64> for Key {
     fn from(v: u64) -> Self {
         Self::Nat(v)
+    }
+}
+
+impl From<Ulid> for Key {
+    fn from(v: Ulid) -> Self {
+        Self::Ulid(v)
+    }
+}
+
+impl From<Principal> for Key {
+    fn from(p: Principal) -> Self {
+        Self::Principal(p)
+    }
+}
+
+impl From<WrappedPrincipal> for Key {
+    fn from(p: WrappedPrincipal) -> Self {
+        Self::Principal(p.into())
+    }
+}
+
+impl PartialEq<i64> for Key {
+    fn eq(&self, other: &i64) -> bool {
+        matches!(self, Key::Int(val) if val == other)
+    }
+}
+
+impl PartialEq<Key> for i64 {
+    fn eq(&self, other: &Key) -> bool {
+        other == self
+    }
+}
+
+impl PartialEq<u64> for Key {
+    fn eq(&self, other: &u64) -> bool {
+        matches!(self, Key::Nat(val) if val == other)
+    }
+}
+
+impl PartialEq<Key> for u64 {
+    fn eq(&self, other: &Key) -> bool {
+        other == self
+    }
+}
+
+impl PartialEq<Ulid> for Key {
+    fn eq(&self, other: &Ulid) -> bool {
+        matches!(self, Key::Ulid(val) if val == other)
+    }
+}
+
+impl PartialEq<Key> for Ulid {
+    fn eq(&self, other: &Key) -> bool {
+        other == self
+    }
+}
+
+impl PartialEq<Principal> for Key {
+    fn eq(&self, other: &Principal) -> bool {
+        matches!(self, Key::Principal(val) if val == other)
+    }
+}
+
+impl PartialEq<Key> for Principal {
+    fn eq(&self, other: &Key) -> bool {
+        other == self
     }
 }
 

@@ -4,8 +4,9 @@ use crate::core::{
         FieldSearchable, FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom,
         Visitable,
     },
+    types::{Principal, Ulid},
 };
-use candid::{CandidType, Principal};
+use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
 
@@ -104,10 +105,37 @@ impl FieldSortable for Reference {}
 
 impl FieldValue for Reference {}
 
-impl<K: Into<Key>> From<K> for Reference {
-    fn from(key: K) -> Self {
+impl From<i32> for Reference {
+    fn from(v: i32) -> Self {
         Self {
-            key: key.into(),
+            key: v.into(),
+            ..Default::default()
+        }
+    }
+}
+
+impl From<u64> for Reference {
+    fn from(v: u64) -> Self {
+        Self {
+            key: v.into(),
+            ..Default::default()
+        }
+    }
+}
+
+impl From<Principal> for Reference {
+    fn from(principal: Principal) -> Self {
+        Self {
+            key: principal.into(),
+            ..Default::default()
+        }
+    }
+}
+
+impl From<Ulid> for Reference {
+    fn from(ulid: Ulid) -> Self {
+        Self {
+            key: ulid.into(),
             ..Default::default()
         }
     }
