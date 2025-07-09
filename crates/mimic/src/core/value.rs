@@ -118,6 +118,7 @@ impl_from_for! {
 impl From<Key> for Value {
     fn from(value: Key) -> Self {
         match value {
+            Key::Invalid => Self::Unsupported,
             Key::Int(v) => Self::Int(v),
             Key::Nat(v) => Self::Nat(v),
             Key::Principal(v) => Self::Principal(v),

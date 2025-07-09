@@ -143,7 +143,7 @@ impl AsType for ItemTarget {
                 let ty = prim.as_type();
                 quote!(#ty)
             }
-            Self::Relation(_) => quote!(::mimic::core::Reference),
+            Self::Relation(_) => quote!(::mimic::core::Key),
         }
     }
 
@@ -156,7 +156,7 @@ impl AsType for ItemTarget {
                 let ty = prim.as_type();
                 quote!(<#ty as ::mimic::core::traits::TypeView>::View)
             }
-            Self::Relation(_) => quote!(::mimic::core::Reference),
+            Self::Relation(_) => quote!(::mimic::core::Key),
         }
     }
 }

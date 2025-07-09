@@ -1,5 +1,8 @@
 use crate::core::{
-    Reference,
+    traits::{
+        FieldSearchable, FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom,
+        Visitable,
+    },
     types::{Principal, Ulid},
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
@@ -54,8 +57,12 @@ impl Keys {
 /// Planning to enforce Copy semantics (i.e., fast, clean, safe)
 ///
 
-#[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, Eq, Hash, PartialEq, Serialize)]
+#[derive(
+    CandidType, Clone, Copy, Debug, Default, Deserialize, Display, Eq, Hash, PartialEq, Serialize,
+)]
 pub enum Key {
+    #[default]
+    Invalid,
     Int(i64),
     Nat(u64),
     Principal(Principal),
@@ -68,10 +75,11 @@ impl Key {
 
     const fn variant_rank(&self) -> u8 {
         match self {
-            Self::Int(_) => 0,
-            Self::Nat(_) => 1,
-            Self::Principal(_) => 2,
-            Self::Ulid(_) => 3,
+            Self::Invalid => 0,
+            Self::Int(_) => 1,
+            Self::Nat(_) => 2,
+            Self::Principal(_) => 3,
+            Self::Ulid(_) => 4,
         }
     }
 
@@ -79,6 +87,7 @@ impl Key {
     #[must_use]
     pub const fn sentinel_max(&self) -> Self {
         match self {
+            Self::Invalid => Self::Invalid,
             Self::Int(_) => Self::Int(i64::MAX),
             Self::Nat(_) => Self::Nat(u64::MAX),
             Self::Principal(_) => Self::Principal(Principal::MAX),
@@ -86,6 +95,12 @@ impl Key {
         }
     }
 }
+
+impl FieldSearchable for Key {}
+
+impl FieldSortable for Key {}
+
+impl FieldValue for Key {}
 
 impl From<i32> for Key {
     fn from(v: i32) -> Self {
@@ -114,12 +129,6 @@ impl From<Principal> for Key {
 impl From<WrappedPrincipal> for Key {
     fn from(p: WrappedPrincipal) -> Self {
         Self::Principal(p.into())
-    }
-}
-
-impl From<Reference> for Key {
-    fn from(reference: Reference) -> Key {
-        reference.key()
     }
 }
 
@@ -174,19 +183,19 @@ impl PartialEq<Key> for Principal {
 impl Ord for Key {
     fn cmp(&self, other: &Self) -> Ordering {
         match (self, other) {
-            (Self::Int(a), Self::Int(b)) => a.cmp(b),
-            (Self::Nat(a), Self::Nat(b)) => a.cmp(b),
-            (Self::Principal(a), Self::Principal(b)) => a.cmp(b),
-            (Self::Ulid(a), Self::Ulid(b)) => a.cmp(b),
+            (Self::Int(a), Self::Int(b)) => Ord::cmp(a, b),
+            (Self::Nat(a), Self::Nat(b)) => Ord::cmp(a, b),
+            (Self::Principal(a), Self::Principal(b)) => Ord::cmp(a, b),
+            (Self::Ulid(a), Self::Ulid(b)) => Ord::cmp(a, b),
 
-            _ => self.variant_rank().cmp(&other.variant_rank()), // fallback for cross-type comparison
+            _ => Ord::cmp(&self.variant_rank(), &other.variant_rank()), // fallback for cross-type comparison
         }
     }
 }
 
 impl PartialOrd for Key {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
+        Some(Ord::cmp(self, other))
     }
 }
 
@@ -235,6 +244,24 @@ impl TryFrom<Key> for Ulid {
         }
     }
 }
+
+impl TypeView for Key {
+    type View = Self;
+
+    fn to_view(&self) -> Self::View {
+        *self
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        view
+    }
+}
+
+impl ValidateAuto for Key {}
+
+impl ValidateCustom for Key {}
+
+impl Visitable for Key {}
 
 ///
 /// TESTS
