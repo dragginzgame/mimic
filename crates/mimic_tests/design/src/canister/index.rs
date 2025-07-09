@@ -6,7 +6,7 @@ use crate::prelude::*;
 
 #[entity(
     store = "crate::schema::TestStore",
-    primary_key = "id",
+    pk = "id",
     index(store = "crate::schema::TestIndex", fields = "x"),
     index(store = "crate::schema::TestIndex", fields = "y", unique),
     fields(
@@ -34,7 +34,7 @@ impl Index {
 
 #[entity(
     store = "crate::schema::TestStore",
-    primary_key = "id",
+    pk = "id",
     index(store = "crate::schema::TestIndex", fields = "x",),
     index(store = "crate::schema::TestIndex", fields = "y", unique),
     index(store = "crate::schema::TestIndex", fields = "x, z"),
@@ -95,7 +95,7 @@ impl EntityFixture for IndexWithFixtures {
 
 #[entity(
     store = "crate::schema::TestStore",
-    primary_key = "id",
+    pk = "id",
     index(store = "crate::schema::TestIndex", fields = "rarity_key"),
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),

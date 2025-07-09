@@ -19,6 +19,8 @@ pub struct Entity {
     pub def: Def,
 
     pub store: Path,
+
+    #[darling(rename = "pk")]
     pub primary_key: Ident,
 
     #[darling(multiple, rename = "index")]
