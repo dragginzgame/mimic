@@ -124,7 +124,7 @@ for IndexStores)
 - standardising with the ICRC standardisations.  Nat, Int, Nat8 etc.
 - lots more work on the RGBA types, thanks ChatGPT
 - Relations are now a whole sort key not a ulid
-- enforced _id, _ids, _key, _keys
+- enforced _id, _ids, _key, s
 - renamed the primitive type String to Text to match the Candid interface
 - fixed a bug where RelationSet wasn't being used (a HashSet of Relations)
 - fixed a bug where Opt/Many types with embedded validators wouldn't respect the cardinality

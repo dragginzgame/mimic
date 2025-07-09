@@ -96,11 +96,11 @@ impl EntityFixture for IndexWithFixtures {
 #[entity(
     store = "crate::schema::TestStore",
     pk = "id",
-    index(store = "crate::schema::TestIndex", fields = "rarity_key"),
+    index(store = "crate::schema::TestIndex", fields = "rarity_id"),
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(
-            name = "rarity_key",
+            name = "rarity_id",
             value(item(rel = "crate::fixture::rarity::Rarity"))
         )
     )

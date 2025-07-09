@@ -137,16 +137,16 @@ pub struct ContainsOpts {}
     pk = "id",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "a_keys", value(many, item(rel = "ContainsBlob"))),
-        field(name = "b_keys", value(many, item(rel = "ContainsBlob"))),
-        field(name = "c_keys", value(many, item(rel = "ContainsBlob"))),
-        field(name = "d_keys", value(many, item(rel = "ContainsBlob"))),
-        field(name = "e_keys", value(many, item(rel = "ContainsBlob"))),
-        field(name = "f_keys", value(many, item(rel = "ContainsBlob"))),
-        field(name = "g_keys", value(many, item(rel = "ContainsBlob"))),
-        field(name = "h_keys", value(many, item(rel = "ContainsBlob"))),
-        field(name = "i_keys", value(many, item(rel = "ContainsBlob"))),
-        field(name = "j_keys", value(many, item(rel = "ContainsBlob")))
+        field(name = "a_ids", value(many, item(rel = "ContainsBlob"))),
+        field(name = "b_ids", value(many, item(rel = "ContainsBlob"))),
+        field(name = "c_ids", value(many, item(rel = "ContainsBlob"))),
+        field(name = "d_ids", value(many, item(rel = "ContainsBlob"))),
+        field(name = "e_ids", value(many, item(rel = "ContainsBlob"))),
+        field(name = "f_ids", value(many, item(rel = "ContainsBlob"))),
+        field(name = "g_ids", value(many, item(rel = "ContainsBlob"))),
+        field(name = "h_ids", value(many, item(rel = "ContainsBlob"))),
+        field(name = "i_ids", value(many, item(rel = "ContainsBlob"))),
+        field(name = "j_ids", value(many, item(rel = "ContainsBlob")))
     )
 )]
 pub struct ContainsManyRelations {}

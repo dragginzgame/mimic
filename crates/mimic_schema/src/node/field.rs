@@ -66,15 +66,13 @@ impl ValidateNode for Field {
         // relation naming
         if self.value.item.is_relation() {
             match self.value.cardinality {
-                Cardinality::One | Cardinality::Opt if !ident.ends_with("key") => {
+                Cardinality::One | Cardinality::Opt if !ident.ends_with("id") => {
                     errs.add(format!(
-                        "one or optional relationship '{ident}' should end with 'key'"
+                        "one or optional relationship '{ident}' should end with 'id'"
                     ));
                 }
-                Cardinality::Many if !ident.ends_with("keys") => {
-                    errs.add(format!(
-                        "many relationship '{ident}' should end with 'keys'"
-                    ));
+                Cardinality::Many if !ident.ends_with("ids") => {
+                    errs.add(format!("many relationship '{ident}' should end with 'ids'"));
                 }
 
                 _ => {}
