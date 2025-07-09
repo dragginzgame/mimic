@@ -100,7 +100,7 @@ impl Key {
 
     #[must_use]
     pub fn max_self() -> Self {
-        Self::Principal(Principal::MAX)
+        Self::Principal(Principal::max_self())
     }
 }
 

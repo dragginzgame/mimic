@@ -69,7 +69,7 @@ pub struct DataKey {
 }
 
 impl DataKey {
-    pub const STORABLE_MAX_SIZE: u32 = 29;
+    pub const STORABLE_MAX_SIZE: u32 = 72;
 
     #[must_use]
     pub fn new(path: &str, key: impl Into<Key>) -> Self {
@@ -96,7 +96,7 @@ impl DataKey {
     pub fn max_self() -> Self {
         Self {
             entity_id: u64::MAX,
-            key: Key::MAX,
+            key: Key::max_self(),
         }
     }
 }
@@ -216,11 +216,11 @@ mod tests {
 
     #[test]
     fn data_key_max_size_is_bounded() {
-        let data_key = Key::max_self();
+        let data_key = DataKey::max_self();
         let size = Storable::to_bytes(&data_key).len() as u32;
 
         println!("max serialized size = {size}");
-        assert!(size <= Key::STORABLE_MAX_SIZE);
+        assert!(size <= DataKey::STORABLE_MAX_SIZE);
     }
 
     #[test]
