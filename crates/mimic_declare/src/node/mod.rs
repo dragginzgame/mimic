@@ -1,7 +1,6 @@
 mod arg;
 mod canister;
 mod constant;
-mod data_key;
 mod def;
 mod entity;
 mod entity_id;
@@ -25,7 +24,6 @@ mod value;
 pub use self::arg::*;
 pub use self::canister::*;
 pub use self::constant::*;
-pub use self::data_key::*;
 pub use self::def::*;
 pub use self::entity::*;
 pub use self::entity_id::*;

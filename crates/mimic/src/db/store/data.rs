@@ -1,5 +1,8 @@
 use crate::{
-    core::{traits::Storable, value::IndexValue},
+    core::{
+        Key,
+        traits::{EntityKind, Storable},
+    },
     db::hasher::xx_hash_u64,
     ic::structures::{BTreeMap, DefaultMemory, storable::Bound},
 };
@@ -58,48 +61,49 @@ impl DataRow {
 ///
 
 #[derive(
-    CandidType, Clone, Debug, Default, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize,
+    CandidType, Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize,
 )]
-pub struct DataKey(Vec<DataKeyPart>);
+pub struct DataKey {
+    entity_id: u64,
+    key: Key,
+}
 
 impl DataKey {
     #[must_use]
-    pub fn new(parts: Vec<(&str, Option<IndexValue>)>) -> Self {
-        let parts = parts
-            .into_iter()
-            .map(|(path, val)| DataKeyPart::new(path, val))
-            .collect();
-
-        Self(parts)
+    pub fn new(path: &str, key: impl Into<Key>) -> Self {
+        Self {
+            entity_id: xx_hash_u64(path),
+            key: key.into(),
+        }
     }
 
-    // parts
     #[must_use]
-    pub fn parts(&self) -> Vec<DataKeyPart> {
-        self.0.clone()
+    pub fn with_entity<E: EntityKind>(key: impl Into<Key>) -> Self {
+        Self {
+            entity_id: xx_hash_u64(E::PATH),
+            key: key.into(),
+        }
+    }
+
+    #[must_use]
+    pub const fn key(&self) -> Key {
+        self.key
     }
 }
 
 impl Display for DataKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let parts = self
-            .0
-            .iter()
-            .map(ToString::to_string)
-            .collect::<Vec<_>>()
-            .join(", ");
-
-        write!(f, "[{parts}]")
+        write!(f, "#{} ({})", self.entity_id, self.key)
     }
 }
 
-impl From<Vec<DataKeyPart>> for DataKey {
-    fn from(parts: Vec<DataKeyPart>) -> Self {
-        Self(parts)
+impl From<DataKey> for Key {
+    fn from(key: DataKey) -> Self {
+        key.key()
     }
 }
 
-impl_storable_bounded!(DataKey, 128, false);
+impl_storable_bounded!(DataKey, 64, false);
 
 ///
 /// DataKeyRange
@@ -111,37 +115,6 @@ pub enum DataKeyRange {
     Exclusive(Range<DataKey>),
     SkipFirstInclusive(RangeInclusive<DataKey>),
     SkipFirstExclusive(Range<DataKey>),
-}
-
-///
-/// DataKeyPart
-///
-
-#[derive(
-    CandidType, Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize,
-)]
-pub struct DataKeyPart {
-    pub entity_id: u64,
-    pub value: Option<IndexValue>,
-}
-
-impl DataKeyPart {
-    #[must_use]
-    pub fn new(path: &str, value: Option<IndexValue>) -> Self {
-        Self {
-            entity_id: xx_hash_u64(path),
-            value,
-        }
-    }
-}
-
-impl Display for DataKeyPart {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match &self.value {
-            Some(v) => write!(f, "#{} ({})", self.entity_id, v),
-            None => write!(f, "#{} (None)", self.entity_id),
-        }
-    }
 }
 
 ///
@@ -231,76 +204,35 @@ mod tests {
     use super::*;
     use crate::core::types::Ulid;
 
-    fn ulid(v: u128) -> IndexValue {
-        IndexValue::Ulid(Ulid::from_u128(v))
-    }
-
-    fn int(n: i64) -> IndexValue {
-        IndexValue::Int(n)
-    }
-
     #[test]
     fn data_keys_with_identical_paths_and_values_are_equal() {
-        let k1 = DataKey::new(vec![("my::Entity", Some(ulid(1)))]);
-        let k2 = DataKey::new(vec![("my::Entity", Some(ulid(1)))]);
+        let k1 = DataKey::new("my::Entity", 1);
+        let k2 = DataKey::new("my::Entity", 1);
 
         assert_eq!(k1, k2);
     }
 
     #[test]
     fn data_keys_with_different_paths_are_not_equal() {
-        let k1 = DataKey::new(vec![("a::Entity", Some(ulid(1)))]);
-        let k2 = DataKey::new(vec![("b::Entity", Some(ulid(1)))]);
+        let k1 = DataKey::new("a::Entity", Ulid::from_u128(1));
+        let k2 = DataKey::new("b::Entity", Ulid::from_u128(1));
 
         assert_ne!(k1, k2);
     }
 
     #[test]
     fn data_keys_with_different_values_are_not_equal() {
-        let k1 = DataKey::new(vec![("my::Entity", Some(ulid(1)))]);
-        let k2 = DataKey::new(vec![("my::Entity", Some(ulid(2)))]);
+        let k1 = DataKey::new("my::Entity", Ulid::from_u128(1));
+        let k2 = DataKey::new("my::Entity", Ulid::from_u128(2));
 
         assert_ne!(k1, k2);
-    }
-
-    #[test]
-    fn data_keys_with_none_and_some_are_different() {
-        let k1 = DataKey::new(vec![("my::Entity", None)]);
-        let k2 = DataKey::new(vec![("my::Entity", Some(ulid(1)))]);
-
-        assert_ne!(k1, k2);
-    }
-
-    #[test]
-    fn data_keys_with_additional_parts_are_different() {
-        let short = DataKey::new(vec![("my::Entity", Some(ulid(1)))]);
-        let long = DataKey::new(vec![
-            ("my::Entity", Some(ulid(1))),
-            ("my::Entity", Some(ulid(2))),
-        ]);
-
-        assert_ne!(short, long);
     }
 
     #[test]
     fn data_keys_are_stable_across_invocations() {
-        let k1 = DataKey::new(vec![("stable::Entity", Some(int(42)))]);
-        let k2 = DataKey::new(vec![("stable::Entity", Some(int(42)))]);
+        let k1 = DataKey::new("stable::Entity", 42);
+        let k2 = DataKey::new("stable::Entity", 42);
 
         assert_eq!(k1, k2);
-    }
-
-    #[test]
-    fn data_key_ordering_is_structural_only() {
-        let k1 = DataKey::new(vec![
-            ("x::Entity", Some(ulid(1))),
-            ("y::Entity", Some(ulid(1))),
-        ]);
-        let k2 = DataKey::new(vec![
-            ("x::Entity", Some(ulid(1))),
-            ("y::Entity", Some(ulid(2))),
-        ]);
-
-        assert_ne!(k1, k2);
     }
 }

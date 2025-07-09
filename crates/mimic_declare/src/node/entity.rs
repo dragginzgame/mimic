@@ -1,6 +1,6 @@
 use crate::{
     helper::{quote_one, quote_slice, split_idents, to_path, to_str_lit},
-    node::{DataKey, Def, FieldList, Type},
+    node::{Def, FieldList, Type},
     node_traits::{Trait, Traits},
     traits::{AsMacro, AsSchema, AsType},
 };
@@ -19,9 +19,7 @@ pub struct Entity {
     pub def: Def,
 
     pub store: Path,
-
-    #[darling(multiple, rename = "data_key")]
-    pub data_keys: Vec<DataKey>,
+    pub primary_key: Ident,
 
     #[darling(multiple, rename = "index")]
     pub indexes: Vec<EntityIndex>,
@@ -88,7 +86,7 @@ impl AsSchema for Entity {
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let store = quote_one(&self.store, to_path);
-        let data_keys = quote_slice(&self.data_keys, DataKey::schema);
+        let primary_key = quote_one(&self.primary_key, to_str_lit);
         let indexes = quote_slice(&self.indexes, EntityIndex::schema);
         let fields = &self.fields.schema();
         let ty = &self.ty.schema();
@@ -97,7 +95,7 @@ impl AsSchema for Entity {
             ::mimic::schema::node::SchemaNode::Entity(::mimic::schema::node::Entity {
                 def: #def,
                 store: #store,
-                data_keys: #data_keys,
+                primary_key: #primary_key,
                 indexes: #indexes,
                 fields: #fields,
                 ty: #ty,

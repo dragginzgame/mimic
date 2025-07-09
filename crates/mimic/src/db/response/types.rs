@@ -1,5 +1,5 @@
 use crate::{
-    core::{db::EntityKey, traits::Path},
+    core::{Key, traits::Path},
     db::store::{DataEntry, DataRow, Metadata},
     serialize::{SerializeError, deserialize, serialize},
 };
@@ -16,7 +16,7 @@ pub struct EntityRow<E>
 where
     E: DeserializeOwned,
 {
-    pub key: EntityKey,
+    pub key: Key,
     pub entry: EntityEntry<E>,
 }
 
@@ -24,7 +24,7 @@ impl<E> EntityRow<E>
 where
     E: DeserializeOwned,
 {
-    pub const fn new(key: EntityKey, entry: EntityEntry<E>) -> Self {
+    pub const fn new(key: Key, entry: EntityEntry<E>) -> Self {
         Self { key, entry }
     }
 }
@@ -37,7 +37,7 @@ where
 
     fn try_from(row: DataRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            key: row.key.into(),
+            key: row.key.key(),
             entry: row.entry.try_into()?,
         })
     }

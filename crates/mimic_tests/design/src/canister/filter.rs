@@ -6,7 +6,7 @@ use crate::prelude::*;
 
 #[entity(
     store = "crate::schema::FixtureStore",
-    data_key(entity = "Filterable", field = "id"),
+    primary_key = "id",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(name = "name", value(item(prim = "Text"))),

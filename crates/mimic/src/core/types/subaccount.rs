@@ -162,10 +162,9 @@ impl Visitable for Subaccount {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::mem;
 
     #[test]
     fn subaccount_is_32_bytes() {
-        assert_eq!(mem::size_of::<Subaccount>(), 32);
+        assert_eq!(std::mem::size_of::<Subaccount>(), 32);
     }
 }

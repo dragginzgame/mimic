@@ -5,7 +5,7 @@ use crate::{
         DbError,
         query::{DeleteQuery, QueryError, QueryPlan, QueryShape},
         response::{DeleteCollection, DeleteResponse, DeleteRow},
-        store::{DataKey, DataKeyRange, DataStoreRegistry, IndexStoreRegistry},
+        store::{DataKey, DataKeyRange, DataStoreRegistry, IndexKey, IndexStoreRegistry},
     },
     debug,
     serialize::deserialize,
@@ -67,19 +67,18 @@ impl DeleteExecutor {
     ) -> Result<DeleteCollection, DbError> {
         debug!(self.debug, "query.delete: query is {query:?}");
 
-        let resolved = query.selector.resolve();
-        let plan = QueryPlan::from_resolved_selector(resolved, None);
+        let shape = query.selector.resolve::<E>();
+        let plan = QueryPlan::new(shape, None);
 
         // get store
         let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
 
         // resolver
         let data_keys: Vec<DataKey> = match plan.shape {
-            QueryShape::Single(entity_key) => vec![E::build_data_key(&entity_key)],
-            QueryShape::Many(entity_keys) => entity_keys
-                .into_iter()
-                .map(|key| E::build_data_key(&key))
-                .collect(),
+            QueryShape::One(key) => vec![key],
+
+            QueryShape::Many(entity_keys) => entity_keys,
+
             QueryShape::Range(range) => {
                 let data_range = range.to_data_key_range::<E>();
 
@@ -98,8 +97,8 @@ impl DeleteExecutor {
                     }
                 })
             }
-            QueryShape::FullScan => {
-                return Err(QueryError::SelectorNotSupported)?; // Optional: implement full delete
+            QueryShape::All => {
+                return Err(QueryError::SelectorNotSupported)?;
             }
         };
 
@@ -112,14 +111,14 @@ impl DeleteExecutor {
 
             // deserialize and remove indexes
             let entity: E = deserialize(&data_value.bytes)?;
-            self.remove_indexes::<E>(entity)?;
+            self.remove_indexes::<E>(&entity)?;
 
             // delete
             store.with_borrow_mut(|s| {
                 s.remove(&dk);
             });
 
-            deleted_rows.push(DeleteRow::new(dk.into()));
+            deleted_rows.push(DeleteRow::new(dk.key()));
         }
 
         // debug
@@ -129,21 +128,21 @@ impl DeleteExecutor {
     }
 
     // remove_indexes
-    fn remove_indexes<E: EntityKind>(&self, entity: E) -> Result<(), DbError> {
-        let entity_key = entity.entity_key();
+    fn remove_indexes<E: EntityKind>(&self, entity: &E) -> Result<(), DbError> {
+        let key = entity.key();
 
         for index in E::INDEXES {
             // resolve index key
-            if let Some(index_key) = entity.index_key(index.fields) {
-                // remove if found
-                let index_store = self
-                    .index_registry
-                    .with(|ix| ix.try_get_store(index.store))?;
+            let index_key = IndexKey::new(entity, index.fields);
 
-                index_store.with_borrow_mut(|store| {
-                    store.remove_index_entry(&index_key, &entity_key);
-                });
-            }
+            // remove if found
+            let index_store = self
+                .index_registry
+                .with(|ix| ix.try_get_store(index.store))?;
+
+            index_store.with_borrow_mut(|store| {
+                store.remove_index_entry(&index_key, &key);
+            });
         }
 
         Ok(())

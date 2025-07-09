@@ -7,7 +7,7 @@ use crate::{
         executor::ExecutorError,
         query::{SaveMode, SaveQueryTyped},
         response::{EntityEntry, SaveCollection, SaveResponse, SaveRow},
-        store::{DataEntry, DataStoreRegistry, IndexStoreRegistry, Metadata},
+        store::{DataEntry, DataKey, DataStoreRegistry, IndexKey, IndexStoreRegistry, Metadata},
     },
     debug,
     serialize::serialize,
@@ -74,11 +74,11 @@ impl SaveExecutor {
         validate(&entity)?;
 
         // resolve - get schema data
-        let dk = entity.data_key();
+        let key = entity.key();
         let store = self.data.with(|data| data.try_get_store(E::STORE))?;
 
         // debug
-        debug!(self.debug, "query.{mode}: {} ({dk}) ", E::PATH);
+        debug!(self.debug, "query.{mode}: {} ({key}) ", E::PATH);
 
         //
         // match save mode
@@ -86,14 +86,15 @@ impl SaveExecutor {
         //
 
         let now = time::now_secs();
-        let old_result = store.with_borrow(|store| store.get(&dk));
+        let data_key = DataKey::with_entity::<E>(key);
+        let old_result = store.with_borrow(|store| store.get(&data_key));
 
         // did anything change?
 
         let (created, modified, old) = match (mode, old_result) {
-            (SaveMode::Create, Some(_)) => return Err(ExecutorError::KeyExists(dk))?,
+            (SaveMode::Create, Some(_)) => return Err(ExecutorError::KeyExists(data_key))?,
             (SaveMode::Create | SaveMode::Replace, None) => (now, now, None),
-            (SaveMode::Update, None) => return Err(ExecutorError::KeyNotFound(dk))?,
+            (SaveMode::Update, None) => return Err(ExecutorError::KeyNotFound(data_key))?,
 
             (SaveMode::Update | SaveMode::Replace, Some(old_data_value)) => {
                 let old_entity_value: EntityEntry<E> = old_data_value.try_into()?;
@@ -102,11 +103,11 @@ impl SaveExecutor {
                 if entity == old_entity_value.entity {
                     debug!(
                         self.debug,
-                        "query.{mode}: no changes for {dk}, skipping save"
+                        "query.{mode}: no changes for {data_key}, skipping save"
                     );
 
                     return Ok(SaveCollection(vec![SaveRow {
-                        key: dk.into(),
+                        key: data_key.into(),
                         created: old_entity_value.metadata.created,
                         modified: old_entity_value.metadata.modified,
                     }]));
@@ -132,12 +133,12 @@ impl SaveExecutor {
 
         // insert data row
         store.with_borrow_mut(|store| {
-            store.insert(dk.clone(), entry);
+            store.insert(data_key.clone(), entry);
         });
 
         // return a collection
         Ok(SaveCollection(vec![SaveRow {
-            key: dk.into(),
+            key: data_key.into(),
             created,
             modified,
         }]))
@@ -149,21 +150,20 @@ impl SaveExecutor {
             let index_store = self.indexes.with(|map| map.try_get_store(index.store))?;
 
             // ✅ Insert new index entry first - fail early if conflict
-            if let Some(new_index_key) = new.index_key(index.fields) {
-                index_store.with_borrow_mut(|store| {
-                    store.insert_index_entry(index, new_index_key.clone(), new.entity_key())?;
+            let new_index_key = IndexKey::new(new, index.fields);
+            index_store.with_borrow_mut(|store| {
+                store.insert_index_entry(index, new_index_key.clone(), new.key())?;
 
-                    Ok::<_, DbError>(())
-                })?;
-            }
+                Ok::<_, DbError>(())
+            })?;
 
-            // 🔁 Remove old index value (if present and resolvable)
+            // 🔁 Remove old index value (if present)
             if let Some(old) = old {
-                if let Some(old_index_key) = old.index_key(index.fields) {
-                    index_store.with_borrow_mut(|store| {
-                        store.remove_index_entry(&old_index_key, &old.entity_key());
-                    });
-                }
+                let old_index_key = IndexKey::new(old, index.fields);
+
+                index_store.with_borrow_mut(|store| {
+                    store.remove_index_entry(&old_index_key, &old.key());
+                });
             }
         }
 

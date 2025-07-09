@@ -1,4 +1,4 @@
-use crate::core::db::EntityKey;
+use crate::core::Key;
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
@@ -22,12 +22,12 @@ pub struct DeleteResponse(pub Vec<DeleteRow>);
 
 #[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
 pub struct DeleteRow {
-    pub key: EntityKey,
+    pub key: Key,
 }
 
 impl DeleteRow {
     #[must_use]
-    pub const fn new(key: EntityKey) -> Self {
+    pub const fn new(key: Key) -> Self {
         Self { key }
     }
 }

@@ -55,13 +55,7 @@ impl AsType for Value {
         match self.cardinality() {
             Cardinality::One => quote!(#item),
             Cardinality::Opt => quote!(Option<#item>),
-            Cardinality::Many => {
-                if item.is_relation() {
-                    quote!(::mimic::core::db::EntityKeys)
-                } else {
-                    quote!(Vec<#item>)
-                }
-            }
+            Cardinality::Many => quote!(Vec<#item>),
         }
     }
 
@@ -72,13 +66,7 @@ impl AsType for Value {
         match self.cardinality() {
             Cardinality::One => quote!(#item_view),
             Cardinality::Opt => quote!(Option<#item_view>),
-            Cardinality::Many => {
-                if item.is_relation() {
-                    quote!(::mimic::core::db::EntityKeys)
-                } else {
-                    quote!(Vec<#item_view>)
-                }
-            }
+            Cardinality::Many => quote!(Vec<#item_view>),
         }
     }
 }

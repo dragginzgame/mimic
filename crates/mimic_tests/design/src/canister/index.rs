@@ -6,7 +6,7 @@ use crate::prelude::*;
 
 #[entity(
     store = "crate::schema::TestStore",
-    data_key(entity = "Index", field = "id"),
+    primary_key = "id",
     index(store = "crate::schema::TestIndex", fields = "x"),
     index(store = "crate::schema::TestIndex", fields = "y", unique),
     fields(
@@ -34,11 +34,10 @@ impl Index {
 
 #[entity(
     store = "crate::schema::TestStore",
-    data_key(entity = "IndexWithFixtures", field = "id"),
-    index(store = "crate::schema::TestIndex", fields = "x", unique),
-    index(store = "crate::schema::TestIndex", fields = "y"),
+    primary_key = "id",
+    index(store = "crate::schema::TestIndex", fields = "x",),
+    index(store = "crate::schema::TestIndex", fields = "y", unique),
     index(store = "crate::schema::TestIndex", fields = "x, z"),
-    index(store = "crate::schema::TestIndex", fields = "y, z", unique),
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(name = "x", value(item(prim = "Int32"))),
@@ -51,31 +50,33 @@ pub struct IndexWithFixtures {}
 
 impl EntityFixture for IndexWithFixtures {
     fn insert_fixtures(exec: &mut SaveExecutor) {
+        // First 40 entries: unique y, non-unique x, z = None
         for i in 0..40 {
             EntityService::save_fixture(
                 exec,
                 Self {
                     id: Ulid::generate(),
-                    x: i,
-                    y: i % 10,
+                    x: i % 10, // allow x to repeat
+                    y: i,      // y is unique
                     z: None,
                 },
             );
         }
 
+        // Next 40 entries: continue unique y, z = Some(...)
         for i in 40..80 {
             EntityService::save_fixture(
                 exec,
                 Self {
                     id: Ulid::generate(),
-                    x: i,           // unique x
-                    y: i,           // repeat y (non-unique index)
-                    z: Some(i + 1), // y+z is a unique
+                    x: i % 5,       // again allow x to repeat
+                    y: i,           // still unique
+                    z: Some(i * 2), // arbitrary, safe unique-ish z
                 },
             );
         }
 
-        // edge cases
+        // Final edge case: y is still unique, z doesn't conflict
         EntityService::save_fixture(
             exec,
             Self {
@@ -94,7 +95,7 @@ impl EntityFixture for IndexWithFixtures {
 
 #[entity(
     store = "crate::schema::TestStore",
-    data_key(entity = "IndexRelation", field = "id"),
+    primary_key = "id",
     index(store = "crate::schema::TestIndex", fields = "rarity_key"),
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),

@@ -1,22 +1,10 @@
 use crate::{
-    core::{db::EntityKey, traits::EntityKind},
+    core::traits::EntityKind,
     db::{
-        query::{FilterExpr, ResolvedSelector},
-        store::DataKeyRange,
+        query::FilterExpr,
+        store::{DataKey, DataKeyRange},
     },
 };
-
-///
-/// QueryShape
-///
-
-#[derive(Debug)]
-pub enum QueryShape {
-    Single(EntityKey),
-    Many(Vec<EntityKey>),
-    Range(QueryRange),
-    FullScan,
-}
 
 ///
 /// QueryPlan
@@ -29,25 +17,22 @@ pub struct QueryPlan {
 }
 
 impl QueryPlan {
-    /// For prefix scans or open-ended range creation
     #[must_use]
-    pub fn range_from_prefix(prefix: &EntityKey) -> QueryRange {
-        QueryRange {
-            start: QueryBound::inclusive_lower_from(prefix),
-            end: QueryBound::exclusive_upper_from(prefix),
-        }
-    }
-
-    #[must_use]
-    pub fn from_resolved_selector(selector: ResolvedSelector, filter: Option<FilterExpr>) -> Self {
-        let shape = match selector {
-            ResolvedSelector::One(key) => QueryShape::Single(key),
-            ResolvedSelector::Many(keys) => QueryShape::Many(keys),
-            ResolvedSelector::Range(start, end) => QueryShape::Range(QueryRange { start, end }),
-        };
-
+    pub const fn new(shape: QueryShape, filter: Option<FilterExpr>) -> Self {
         Self { shape, filter }
     }
+}
+
+///
+/// QueryShape
+///
+
+#[derive(Debug)]
+pub enum QueryShape {
+    All,
+    One(DataKey),
+    Many(Vec<DataKey>),
+    Range(QueryRange),
 }
 
 ///
@@ -62,9 +47,14 @@ pub struct QueryRange {
 
 impl QueryRange {
     #[must_use]
-    pub fn to_data_key_range<E: EntityKind>(&self) -> DataKeyRange {
-        let start = E::build_data_key(&self.start.key);
-        let end = E::build_data_key(&self.end.key);
+    pub const fn new(start: QueryBound, end: QueryBound) -> Self {
+        Self { start, end }
+    }
+
+    #[must_use]
+    pub const fn to_data_key_range<E: EntityKind>(self) -> DataKeyRange {
+        let start = self.start.key;
+        let end = self.end.key;
 
         match (self.start.kind, self.end.kind) {
             (BoundKind::Inclusive, BoundKind::Inclusive) => DataKeyRange::Inclusive(start..=end),
@@ -85,13 +75,13 @@ impl QueryRange {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct QueryBound {
-    pub key: EntityKey,
+    pub key: DataKey,
     pub kind: BoundKind,
 }
 
 impl QueryBound {
     #[must_use]
-    pub const fn inclusive(key: EntityKey) -> Self {
+    pub const fn inclusive(key: DataKey) -> Self {
         Self {
             key,
             kind: BoundKind::Inclusive,
@@ -99,27 +89,9 @@ impl QueryBound {
     }
 
     #[must_use]
-    pub const fn exclusive(key: EntityKey) -> Self {
+    pub const fn exclusive(key: DataKey) -> Self {
         Self {
             key,
-            kind: BoundKind::Exclusive,
-        }
-    }
-
-    /// Helper to produce an exclusive lower bound from a prefix key
-    #[must_use]
-    pub fn inclusive_lower_from(prefix: &EntityKey) -> Self {
-        Self {
-            key: prefix.clone(),
-            kind: BoundKind::Inclusive,
-        }
-    }
-
-    /// Helper to produce an exclusive upper bound from a prefix key
-    #[must_use]
-    pub fn exclusive_upper_from(prefix: &EntityKey) -> Self {
-        Self {
-            key: prefix.clone(),
             kind: BoundKind::Exclusive,
         }
     }
