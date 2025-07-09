@@ -214,4 +214,34 @@ mod tests {
         println!("max serialized size = {size}");
         assert!(size <= Principal::STORABLE_MAX_SIZE);
     }
+
+    #[test]
+    fn principal_storable_roundtrip() {
+        let inputs = vec![
+            Principal::anonymous(),
+            Principal::from_slice(&[1, 2, 3, 4]),
+            Principal::from_slice(&[0xFF; 29]),
+        ];
+
+        for original in inputs {
+            let bytes = original.to_bytes();
+            let decoded = Principal::from_bytes(bytes);
+            assert_eq!(decoded, original, "Roundtrip failed for {original:?}");
+        }
+    }
+
+    #[test]
+    fn principal_serialized_size_is_within_bounds() {
+        for len in 0..=Principal::STORABLE_MAX_SIZE {
+            let bytes: Vec<u8> = (0..len).map(|i| i as u8).collect();
+            let principal = Principal::from_slice(&bytes);
+            let encoded = principal.to_bytes();
+            assert!(
+                encoded.len() <= Principal::STORABLE_MAX_SIZE as usize,
+                "Encoded size {} exceeded max {}",
+                encoded.len(),
+                Principal::STORABLE_MAX_SIZE
+            );
+        }
+    }
 }
