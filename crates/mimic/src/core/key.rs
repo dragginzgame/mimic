@@ -1,4 +1,7 @@
-use crate::core::types::{Principal, Ulid};
+use crate::core::{
+    Reference,
+    types::{Principal, Ulid},
+};
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut, Display};
 use icu::impl_storable_bounded;
@@ -111,6 +114,12 @@ impl From<Principal> for Key {
 impl From<WrappedPrincipal> for Key {
     fn from(p: WrappedPrincipal) -> Self {
         Self::Principal(p.into())
+    }
+}
+
+impl From<Reference> for Key {
+    fn from(reference: Reference) -> Key {
+        reference.key()
     }
 }
 
