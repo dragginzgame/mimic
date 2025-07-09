@@ -11,7 +11,7 @@ use crate::prelude::*;
 
 #[entity(
     store = "crate::schema::TestStore",
-    data_key(entity = "ComplexEntity", field = "id"),
+    primary_key = "id",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(name = "string_test", value(item(prim = "Text"))),
@@ -59,7 +59,7 @@ pub struct ComplexEntity {}
 
 #[entity(
     store = "crate::schema::TestStore",
-    data_key(entity = "AdminEntity", field = "id"),
+    primary_key = "id",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(name = "simple_text", value(item(prim = "Text"))),
@@ -86,7 +86,7 @@ pub struct AdminEntity {}
 
 #[entity(
     store = "crate::schema::TestStore",
-    data_key(entity = "RelatedEntity", field = "id"),
+    primary_key = "id",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(name = "simple_key", value(item(rel = "SimpleEntity"))),
@@ -97,23 +97,12 @@ pub struct AdminEntity {}
 pub struct RelatedEntity {}
 
 ///
-/// EntityNoId
-///
-
-#[entity(
-    store = "crate::schema::TestStore",
-    data_key(entity = "EntityNoId"),
-    fields(field(name = "value", value(item(prim = "Nat8"))))
-)]
-pub struct EntityNoId {}
-
-///
 /// SimpleEntity
 ///
 
 #[entity(
     store = "crate::schema::TestStore",
-    data_key(entity = "SimpleEntity", field = "id"),
+    primary_key = "id",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(name = "name", value(item(prim = "Text")))

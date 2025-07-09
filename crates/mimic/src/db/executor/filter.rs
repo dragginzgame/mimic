@@ -1,5 +1,5 @@
 use crate::{
-    core::value::{Value, Values},
+    core::value::{Value, ValueMap},
     db::query::{Cmp, FilterClause, FilterExpr},
 };
 
@@ -8,12 +8,12 @@ use crate::{
 ///
 
 pub struct FilterEvaluator<'a> {
-    values: &'a Values,
+    values: &'a ValueMap,
 }
 
 impl<'a> FilterEvaluator<'a> {
     #[must_use]
-    pub const fn new(values: &'a Values) -> Self {
+    pub const fn new(values: &'a ValueMap) -> Self {
         Self { values }
     }
 

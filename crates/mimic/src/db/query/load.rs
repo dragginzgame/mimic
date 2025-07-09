@@ -1,6 +1,6 @@
 #![allow(clippy::type_complexity)]
 use crate::{
-    core::{db::EntityKey, value::Value},
+    core::{Key, value::Value},
     db::query::{Cmp, FilterBuilder, FilterClause, FilterExpr, Selector, SortDirection},
 };
 use candid::CandidType;
@@ -43,14 +43,8 @@ impl LoadQueryBuilder {
         LoadQuery::new(Selector::All)
     }
 
-    // only
-    #[must_use]
-    pub fn only(self) -> LoadQuery {
-        LoadQuery::new(Selector::Only)
-    }
-
     // one
-    pub fn one<K: Into<EntityKey>>(self, key: K) -> LoadQuery {
+    pub fn one<K: Into<Key>>(self, key: K) -> LoadQuery {
         let selector = Selector::One(key.into());
 
         LoadQuery::new(selector)
@@ -60,7 +54,7 @@ impl LoadQueryBuilder {
     #[must_use]
     pub fn many<K>(self, keys: &[K]) -> LoadQuery
     where
-        K: Clone + Into<EntityKey>,
+        K: Clone + Into<Key>,
     {
         let keys = keys.iter().cloned().map(Into::into).collect();
         let selector = Selector::Many(keys);
@@ -69,15 +63,8 @@ impl LoadQueryBuilder {
     }
 
     // range
-    pub fn range<K: Into<EntityKey>>(self, start: K, end: K) -> LoadQuery {
+    pub fn range<K: Into<Key>>(self, start: K, end: K) -> LoadQuery {
         let selector = Selector::Range(start.into(), end.into());
-
-        LoadQuery::new(selector)
-    }
-
-    // prefix
-    pub fn prefix<K: Into<EntityKey>>(self, prefix: K) -> LoadQuery {
-        let selector = Selector::Prefix(prefix.into());
 
         LoadQuery::new(selector)
     }

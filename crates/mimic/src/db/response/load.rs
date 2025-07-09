@@ -1,7 +1,7 @@
 #![allow(clippy::type_complexity)]
 use crate::{
     MimicError,
-    core::{db::EntityKey, traits::EntityKind},
+    core::{Key, traits::EntityKind},
     db::{
         DbError,
         response::{EntityRow, ResponseError},
@@ -18,7 +18,7 @@ use std::{borrow::Borrow, collections::HashMap};
 
 #[derive(CandidType, Debug, Deserialize, Serialize)]
 pub enum LoadResponse {
-    Keys(Vec<EntityKey>),
+    Keys(Vec<Key>),
     Count(u32),
 }
 
@@ -42,13 +42,13 @@ where
 
     // key
     #[must_use]
-    pub fn key(self) -> Option<EntityKey> {
+    pub fn key(self) -> Option<Key> {
         self.0.into_iter().next().map(|row| row.key)
     }
 
     // keys
     #[must_use]
-    pub fn keys(self) -> Vec<EntityKey> {
+    pub fn keys(self) -> Vec<Key> {
         self.0.into_iter().map(|row| row.key).collect()
     }
 
@@ -117,28 +117,28 @@ impl<E: EntityKind> IntoIterator for LoadCollection<E> {
 ///
 
 #[derive(Debug, Deref)]
-pub struct LoadMap<T>(HashMap<EntityKey, T>);
+pub struct LoadMap<T>(HashMap<Key, T>);
 
 impl<T> LoadMap<T> {
     // from_pairs
     pub fn from_pairs<I>(pairs: I) -> Self
     where
-        I: IntoIterator<Item = (EntityKey, T)>,
+        I: IntoIterator<Item = (Key, T)>,
     {
-        let map: HashMap<EntityKey, T> = pairs.into_iter().collect();
+        let map: HashMap<Key, T> = pairs.into_iter().collect();
 
         Self(map)
     }
 
     // get
-    pub fn get<K: Borrow<EntityKey>>(&self, k: K) -> Option<&T> {
+    pub fn get<K: Borrow<Key>>(&self, k: K) -> Option<&T> {
         self.0.get(k.borrow())
     }
 
     // get_many
     pub fn get_many<K, I>(&self, keys: I) -> Vec<&T>
     where
-        K: Borrow<EntityKey>,
+        K: Borrow<Key>,
         I: IntoIterator<Item = K>,
     {
         keys.into_iter()

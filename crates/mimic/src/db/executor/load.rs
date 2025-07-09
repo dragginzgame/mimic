@@ -100,8 +100,7 @@ impl LoadExecutor {
         selector: &Selector,
         filter: Option<&FilterExpr>,
     ) -> Result<Vec<DataRow>, DbError> {
-        let resolved = selector.resolve();
-        let plan = QueryPlan::from_resolved_selector(resolved, filter.cloned());
+        let plan = QueryPlan::new(selector.resolve::<E>(), filter.cloned());
 
         self.execute_plan::<E>(plan)
     }
@@ -111,19 +110,16 @@ impl LoadExecutor {
         let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
 
         let rows = match plan.shape {
-            QueryShape::Single(key) => Self::load_one(store, E::build_data_key(&key))
-                .into_iter()
-                .collect(),
+            QueryShape::One(key) => Self::load_one(store, key).into_iter().collect(),
 
             QueryShape::Many(keys) => keys
                 .into_iter()
-                .map(|key| E::build_data_key(&key))
-                .filter_map(|dk| Self::load_one(store, dk))
+                .filter_map(|key| Self::load_one(store, key))
                 .collect(),
 
             QueryShape::Range(range) => Self::load_range_with_bounds::<E>(store, range),
 
-            QueryShape::FullScan => store.with_borrow(|this| {
+            QueryShape::All => store.with_borrow(|this| {
                 this.iter()
                     .map(|(key, entry)| DataRow { key, entry })
                     .collect()

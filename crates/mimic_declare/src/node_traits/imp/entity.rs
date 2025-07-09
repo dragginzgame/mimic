@@ -16,18 +16,11 @@ pub struct EntityKindTrait {}
 
 impl Imp<Entity> for EntityKindTrait {
     fn tokens(node: &Entity) -> Option<TokenStream> {
-        let key_size = &node
-            .data_keys
-            .iter()
-            .filter(|dk| dk.field.is_some())
-            .count();
         let store = &node.store;
         let defs = node.indexes.iter().map(AsSchema::schema);
 
         // static definitions
         let mut q = quote! {
-            type PrimaryKey = [::mimic::core::value::IndexValue; #key_size];
-
             const STORE: &'static str = #store::PATH;
             const INDEXES: &'static [::mimic::schema::node::EntityIndex] = &[
                 #(#defs),*
@@ -35,8 +28,7 @@ impl Imp<Entity> for EntityKindTrait {
         };
 
         // impls
-        q.extend(primary_key(node));
-        q.extend(build_data_key(node));
+        q.extend(key(node));
         q.extend(values(node));
 
         let tokens = Implementor::new(&node.def, Trait::EntityKind)
@@ -47,69 +39,18 @@ impl Imp<Entity> for EntityKindTrait {
     }
 }
 
-// primary_key
-fn primary_key(node: &Entity) -> TokenStream {
-    let fields: Vec<_> = node.data_keys.iter().filter_map(|dk| {
-        dk.field.as_ref().map(|field| {
-            let field_ident = field;
-
-            quote! {
-                self.#field_ident.to_value().into_index_value().expect("primary key field must be indexable")
-            }
-        })
-    }).collect();
+// key
+fn key(node: &Entity) -> TokenStream {
+    let primary_key = &node.primary_key;
 
     quote! {
-        fn primary_key(&self) -> Self::PrimaryKey {
+        fn key(&self) -> Key {
             use ::mimic::core::traits::FieldValue;
 
-            [
-                #(#fields),*
-            ]
-        }
-    }
-}
-
-// build_data_key
-fn build_data_key(node: &Entity) -> TokenStream {
-    let mut value_index: usize = 0;
-
-    let parts = node.data_keys.iter().map(|data_key| {
-        let entity = &data_key.entity;
-
-        if data_key.field.is_some() {
-            let idx = value_index;
-            value_index += 1;
-
-            quote! {
-                ::mimic::db::store::DataKeyPart::new(
-                    #entity::PATH,
-                    Some(values[#idx]),
-                )
-            }
-        } else {
-            quote! {
-                ::mimic::db::store::DataKeyPart::new(
-                    #entity::PATH,
-                    None,
-                )
-            }
-        }
-    });
-
-    quote! {
-        fn build_data_key(values: &[::mimic::core::value::IndexValue]) -> ::mimic::db::store::DataKey {
-
-            // Ensure at least one part if none were provided
-            if values.is_empty() {
-                return vec![::mimic::db::store::DataKeyPart::new(Self::PATH, None)].into();
-            }
-
-            let parts = vec![
-                #(#parts),*
-            ];
-
-            parts.into()
+            self.#primary_key
+                .to_value()
+                .into_key()
+                .expect("primary key field must be indexable")
         }
     }
 }
@@ -143,13 +84,13 @@ fn values(node: &Entity) -> TokenStream {
 
     let cap = inserts.len();
     quote! {
-        fn values(&self) -> ::mimic::core::value::Values {
+        fn values(&self) -> ::mimic::core::value::ValueMap {
             use ::mimic::core::traits::FieldValue;
 
             let mut map = ::std::collections::HashMap::with_capacity(#cap);
             #(#inserts)*
 
-            ::mimic::core::value::Values(map)
+            ::mimic::core::ValueMap(map)
         }
     }
 }

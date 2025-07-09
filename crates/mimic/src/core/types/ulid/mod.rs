@@ -4,12 +4,11 @@ pub mod generator;
 use crate::{
     ThisError,
     core::{
-        db::EntityKey,
         traits::{
             FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto,
             ValidateCustom, Visitable,
         },
-        value::{IndexValue, Value},
+        value::Value,
     },
 };
 use ::ulid::Ulid as WrappedUlid;
@@ -57,6 +56,7 @@ impl From<::ulid::DecodeError> for UlidError {
 pub struct Ulid(WrappedUlid);
 
 impl Ulid {
+    pub const MIN: Self = Self::from_bytes([0x00; 16]);
     pub const MAX: Self = Self::from_bytes([0xFF; 16]);
 
     /// nil
@@ -179,28 +179,6 @@ impl<'de> Deserialize<'de> for Ulid {
 }
 
 impl_storable_bounded!(Ulid, 16, true);
-
-impl TryFrom<EntityKey> for Ulid {
-    type Error = &'static str;
-
-    fn try_from(key: EntityKey) -> Result<Self, Self::Error> {
-        match key.as_slice() {
-            [IndexValue::Ulid(id)] => Ok(*id),
-            _ => Err("Expected single Ulid in EntityKey"),
-        }
-    }
-}
-
-impl TryFrom<&EntityKey> for Ulid {
-    type Error = &'static str;
-
-    fn try_from(key: &EntityKey) -> Result<Self, Self::Error> {
-        match key.as_slice() {
-            [IndexValue::Ulid(id)] => Ok(*id),
-            _ => Err("Expected single Ulid in EntityKey"),
-        }
-    }
-}
 
 impl TypeView for Ulid {
     type View = Self;

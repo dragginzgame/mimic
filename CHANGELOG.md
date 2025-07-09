@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.7.0] - Removed Entity Nesting
+- Just wasn't working out, adding more complexity.  Much simplified now
+and 10% faster
+
 ## [0.6.0] - View Layer
 - All types now implement TypeView where Type::View is a simplified type that
 can be used in DTOs.

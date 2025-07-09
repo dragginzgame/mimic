@@ -51,6 +51,7 @@ impl E8s {
         if value.is_nan() || value.is_infinite() {
             return None;
         }
+
         Some(Self((value * SCALE as f64).round() as u64))
     }
 

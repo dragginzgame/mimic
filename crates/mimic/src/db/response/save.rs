@@ -1,4 +1,4 @@
-use crate::core::db::EntityKey;
+use crate::core::Key;
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
@@ -22,7 +22,7 @@ pub struct SaveResponse(pub Vec<SaveRow>);
 
 #[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
 pub struct SaveRow {
-    pub key: EntityKey,
+    pub key: Key,
     pub created: u64,
     pub modified: u64,
 }

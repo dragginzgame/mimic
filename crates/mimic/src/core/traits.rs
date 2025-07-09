@@ -18,16 +18,11 @@ pub use std::{
 use crate::{
     common::error::ErrorTree,
     core::{
-        db::EntityKey,
+        Key, Value, ValueMap,
         types::{Decimal, Ulid},
-        value::{IndexValue, Value, Values},
         visit::Visitor,
     },
-    db::{
-        executor::SaveExecutor,
-        query::SortDirection,
-        store::{DataKey, IndexKey},
-    },
+    db::{executor::SaveExecutor, query::SortDirection},
     schema::node::EntityIndex,
 };
 
@@ -87,56 +82,12 @@ impl<T> TypeKind for T where
 ///
 
 pub trait EntityKind: TypeKind + EntitySearch + EntitySort {
-    type PrimaryKey: AsRef<[IndexValue]> + Copy;
-
     const STORE: &'static str;
     const INDEXES: &'static [EntityIndex];
 
-    // values
-    fn values(&self) -> Values;
+    fn key(&self) -> Key;
 
-    // primary_key
-    // returns the current primary key (a slice of IndexValues)
-    fn primary_key(&self) -> Self::PrimaryKey;
-
-    // entity_key
-    // the runtime EntityKey is the PrimaryKey as a vector
-    fn entity_key(&self) -> ::mimic::core::db::EntityKey {
-        ::mimic::core::db::EntityKey(self.primary_key().as_ref().to_vec())
-    }
-
-    // data_key
-    // builds the data key using the current primary key
-    fn data_key(&self) -> DataKey {
-        Self::build_data_key(self.primary_key().as_ref())
-    }
-
-    // build_data_key
-    fn build_data_key(values: &[IndexValue]) -> DataKey;
-
-    // build_index_key
-    // returns the current index key for specific fields, ie [V::Nat32(0), V::Nat32(16)]
-    fn index_key(&self, fields: &[&str]) -> Option<IndexKey> {
-        let index_values: Vec<IndexValue> = self
-            .values()
-            .collect_all(fields)
-            .into_iter()
-            .filter_map(Value::into_index_value)
-            .collect();
-
-        IndexKey::build(Self::PATH, fields, &index_values)
-    }
-
-    // ✅ default method to flatten the primary key
-    fn flatten_primary_key(pk: Self::PrimaryKey) -> Option<IndexValue> {
-        let slice = pk.as_ref();
-
-        if slice.len() == 1 {
-            Some(slice[0])
-        } else {
-            None
-        }
-    }
+    fn values(&self) -> ValueMap;
 }
 
 ///
@@ -151,12 +102,10 @@ pub trait EntityIdKind: Kind + std::fmt::Debug {
         Ulid::from_string_digest(&digest)
     }
 
-    // entity_key
+    // key
     #[must_use]
-    fn entity_key(&self) -> EntityKey {
-        let iv = self.ulid().into();
-
-        EntityKey(vec![iv])
+    fn key(&self) -> Key {
+        self.ulid().into()
     }
 }
 

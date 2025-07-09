@@ -31,9 +31,9 @@ impl Imp<EntityId> for IntoTrait {
 
         // into relation
         q.extend(quote! {
-            impl Into<EntityKey> for #ident {
-                fn into(self) -> mimic::core::db::EntityKey {
-                    self.entity_key()
+            impl Into<Key> for #ident {
+                fn into(self) -> mimic::core::Key {
+                    self.ulid().into()
                 }
             }
         });

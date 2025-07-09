@@ -53,7 +53,7 @@ pub enum PrincipalError {
 pub struct Principal(WrappedPrincipal);
 
 impl Principal {
-    // MAX - for comparison in IndexKey
+    pub const MIN: Self = Self(WrappedPrincipal::from_slice(&[0x00; 29]));
     pub const MAX: Self = Self(WrappedPrincipal::from_slice(&[0xFF; 29]));
 
     #[must_use]
@@ -185,10 +185,9 @@ impl Visitable for Principal {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::mem;
 
     #[test]
     fn principal_is_30_bytes() {
-        assert_eq!(mem::size_of::<Principal>(), 30);
+        assert_eq!(std::mem::size_of::<Principal>(), 30);
     }
 }
