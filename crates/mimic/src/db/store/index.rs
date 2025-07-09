@@ -203,7 +203,7 @@ impl IndexEntry {
     /// Returns keys as a sorted `Vec<Key>` (useful for serialization/debug).
     #[must_use]
     pub fn to_sorted_vec(&self) -> Vec<Key> {
-        let mut keys: Vec<_> = self.0.iter().cloned().collect();
+        let mut keys: Vec<_> = self.0.iter().copied().collect();
         keys.sort_unstable(); // uses Ord, fast
         keys
     }
@@ -211,7 +211,7 @@ impl IndexEntry {
 
 impl From<Key> for IndexEntry {
     fn from(key: Key) -> Self {
-        IndexEntry::from_key(key)
+        Self::from_key(key)
     }
 }
 
