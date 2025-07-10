@@ -14,7 +14,7 @@ use std::fmt::{self, Display};
 /// Reference
 ///
 
-#[derive(Clone, Debug, CandidType, Serialize, Deserialize, Eq, PartialEq, Hash)]
+#[derive(CandidType, Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub struct Reference {
     key: Key,
     canister_pid: Principal,

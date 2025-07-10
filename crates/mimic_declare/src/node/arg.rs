@@ -50,6 +50,7 @@ impl FromMeta for Arg {
                     Ok(Self::String(lit.clone()))
                 }
             }
+
             _ => Err(DarlingError::custom(format!(
                 "Unsupported literal type: {value:?}",
             ))),
@@ -333,6 +334,12 @@ impl FromMeta for ArgNumber {
                 .base10_parse::<f64>()
                 .map(Self::Float64)
                 .map_err(|_| DarlingError::custom("invalid float literal")),
+
+            // Support string form: "-3", "1.5f32"
+            Lit::Str(s) => {
+                let inner = s.value();
+                Self::parse_numeric_string(&inner)
+            }
 
             _ => Err(DarlingError::custom("expected numeric literal")),
         }

@@ -76,3 +76,15 @@ pub struct TodoTarget {}
 
 #[newtype(ty(todo), item(prim = "Nat8"), primitive = "Nat8")]
 pub struct Todo {}
+
+///
+/// Negative
+/// (just to check on the rust-analyzer error)
+///
+
+#[newtype(
+    primitive = "Int8",
+    item(prim = "Int8"),
+    ty(validator(path = "validator::number::Range", args(-1, 3)))
+)]
+pub struct Negative {}

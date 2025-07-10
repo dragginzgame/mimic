@@ -176,7 +176,7 @@ impl_storable_bounded!(IndexKey, IndexKey::STORABLE_MAX_SIZE, false);
 /// IndexEntry
 ///
 
-#[derive(CandidType, Clone, Debug, Deref, DerefMut, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Deref, DerefMut, Deserialize, Serialize)]
 pub struct IndexEntry(HashSet<Key>);
 
 impl IndexEntry {

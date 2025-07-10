@@ -45,6 +45,6 @@ pub struct EntityB {}
 #[entity(
     store = "crate::schema::FixtureStore",
     pk = "id",
-    fields(field(name = "id", value(item(prim = "Principal"))),)
+    fields(field(name = "id", value(item(prim = "Principal"))))
 )]
 pub struct EntityC {}

@@ -199,6 +199,12 @@ impl Imp<Newtype> for TypeViewTrait {
     fn tokens(node: &Newtype) -> Option<TokenStream> {
         let view_ident = &node.def.view_ident();
 
+        let from_view = if node.item.is_primitive() {
+            quote!(Self(view))
+        } else {
+            quote!(Self(view.into()))
+        };
+
         let q = quote! {
             type View = #view_ident;
 
@@ -207,7 +213,7 @@ impl Imp<Newtype> for TypeViewTrait {
             }
 
             fn from_view(view: Self::View) -> Self {
-                Self(view.into())
+                #from_view
             }
         };
 

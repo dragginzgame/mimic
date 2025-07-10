@@ -66,7 +66,7 @@ impl ValidateNode for Item {
                 }
             }
 
-            ItemTarget::Prim(_) => {}
+            ItemTarget::Primitive(_) => {}
         }
 
         // relation
@@ -119,8 +119,8 @@ impl VisitableNode for Item {
 /// ItemTarget
 ///
 
-#[derive(Clone, Debug, Serialize, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub enum ItemTarget {
     Is(&'static str),
-    Prim(Primitive),
+    Primitive(Primitive),
 }

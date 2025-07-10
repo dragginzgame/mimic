@@ -42,15 +42,19 @@ impl Item {
     pub fn target(&self) -> ItemTarget {
         match (&self.is, &self.primitive, &self.relation) {
             (Some(path), None, _) => ItemTarget::Is(path.clone()),
-            (None, Some(prim), _) => ItemTarget::Prim(*prim),
-            (None, None, Some(_)) => ItemTarget::Prim(Primitive::Ulid),
-            (None, None, None) => ItemTarget::Prim(Primitive::Unit),
+            (None, Some(prim), _) => ItemTarget::Primitive(*prim),
+            (None, None, Some(_)) => ItemTarget::Primitive(Primitive::Ulid),
+            (None, None, None) => ItemTarget::Primitive(Primitive::Unit),
             _ => panic!("item should not have more than one target selected (is, prim, relation)"),
         }
     }
 
     pub const fn is_relation(&self) -> bool {
         self.relation.is_some()
+    }
+
+    pub fn is_primitive(&self) -> bool {
+        self.primitive.is_some()
     }
 }
 
@@ -110,7 +114,7 @@ impl ToTokens for Item {
 
 pub enum ItemTarget {
     Is(Path),
-    Prim(Primitive),
+    Primitive(Primitive),
 }
 
 impl AsSchema for ItemTarget {
@@ -122,9 +126,9 @@ impl AsSchema for ItemTarget {
                     ::mimic::schema::node::ItemTarget::Is(#path)
                 }
             }
-            Self::Prim(prim) => {
+            Self::Primitive(prim) => {
                 quote! {
-                    ::mimic::schema::node::ItemTarget::Prim(#prim)
+                    ::mimic::schema::node::ItemTarget::Primitive(#prim)
                 }
             }
         }
@@ -135,7 +139,7 @@ impl AsType for ItemTarget {
     fn as_type(&self) -> TokenStream {
         match self {
             Self::Is(path) => quote!(#path),
-            Self::Prim(prim) => {
+            Self::Primitive(prim) => {
                 let ty = prim.as_type();
                 quote!(#ty)
             }
@@ -147,7 +151,7 @@ impl AsType for ItemTarget {
             Self::Is(path) => {
                 quote!(<#path as ::mimic::core::traits::TypeView>::View)
             }
-            Self::Prim(prim) => {
+            Self::Primitive(prim) => {
                 let ty = prim.as_type();
                 quote!(<#ty as ::mimic::core::traits::TypeView>::View)
             }
