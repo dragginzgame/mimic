@@ -1,13 +1,6 @@
-use crate::core::{
-    traits::{
-        FieldSearchable, FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom,
-        Visitable,
-    },
-    types::{Principal, Ulid},
-};
+use crate::core::types::{Principal, Ulid};
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::{Deref, DerefMut, Display};
-use icu::impl_storable_bounded;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use thiserror::Error as ThisError;
@@ -104,12 +97,6 @@ impl Key {
         Self::Principal(Principal::max_self())
     }
 }
-
-impl FieldSearchable for Key {}
-
-impl FieldSortable for Key {}
-
-impl FieldValue for Key {}
 
 impl From<i32> for Key {
     fn from(v: i32) -> Self {
@@ -208,8 +195,6 @@ impl PartialOrd for Key {
     }
 }
 
-impl_storable_bounded!(Key, Key::STORABLE_MAX_SIZE, false);
-
 impl TryFrom<Key> for u64 {
     type Error = KeyError;
 
@@ -254,24 +239,6 @@ impl TryFrom<Key> for Ulid {
     }
 }
 
-impl TypeView for Key {
-    type View = Self;
-
-    fn to_view(&self) -> Self::View {
-        *self
-    }
-
-    fn from_view(view: Self::View) -> Self {
-        view
-    }
-}
-
-impl ValidateAuto for Key {}
-
-impl ValidateCustom for Key {}
-
-impl Visitable for Key {}
-
 ///
 /// TESTS
 ///
@@ -279,16 +246,6 @@ impl Visitable for Key {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use mimic::core::traits::Storable;
-
-    #[test]
-    fn key_max_size_is_bounded() {
-        let key = Key::max_self();
-        let size = Storable::to_bytes(&key).len() as u32;
-
-        println!("max serialized size = {size}");
-        assert!(size <= Key::STORABLE_MAX_SIZE);
-    }
 
     #[test]
     fn ulid_min_is_lowest_key() {
