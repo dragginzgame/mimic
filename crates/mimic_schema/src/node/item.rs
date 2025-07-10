@@ -17,6 +17,9 @@ pub struct Item {
     pub target: ItemTarget,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub relation: Option<&'static str>,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub selector: Option<&'static str>,
 
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
@@ -32,7 +35,7 @@ pub struct Item {
 impl Item {
     #[must_use]
     pub const fn is_relation(&self) -> bool {
-        matches!(self.target, ItemTarget::Relation(_))
+        self.relation.is_some()
     }
 }
 
@@ -42,15 +45,6 @@ impl ValidateNode for Item {
         let schema = schema_read();
 
         match &self.target {
-            ItemTarget::Relation(rel) => {
-                if self.indirect {
-                    errs.add("relations cannot be set to indirect");
-                }
-
-                // has to be an entity
-                errs.add_result(schema.check_node_as::<Entity>(rel));
-            }
-
             ItemTarget::Is(path) => {
                 // cannot be an entity
                 if schema.check_node_as::<Entity>(path).is_ok() {
@@ -73,6 +67,33 @@ impl ValidateNode for Item {
             }
 
             ItemTarget::Prim(_) => {}
+        }
+
+        // relation
+        if let Some(relation) = &self.relation {
+            if self.indirect {
+                errs.add("relations cannot be set to indirect");
+            }
+
+            // Step 1: Ensure the relation path exists and is an Entity
+            match schema.get_node_as::<Entity>(relation) {
+                Some(entity) => {
+                    // Step 2: Get target of the relation entity (usually from its primary key field)
+                    let primary_field = entity.get_pk_field();
+                    let relation_target = &primary_field.value.item.target;
+
+                    // Step 3: Compare to self.target()
+                    if &self.target != relation_target {
+                        errs.add(format!(
+                            "relation target type mismatch: expected {:?}, found {:?}",
+                            relation_target, self.target
+                        ));
+                    }
+                }
+                None => {
+                    errs.add(format!("relation entity '{relation}' not found"));
+                }
+            }
         }
 
         // selector
@@ -98,9 +119,8 @@ impl VisitableNode for Item {
 /// ItemTarget
 ///
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Eq, PartialEq)]
 pub enum ItemTarget {
     Is(&'static str),
-    Relation(&'static str),
     Prim(Primitive),
 }

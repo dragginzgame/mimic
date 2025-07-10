@@ -1,5 +1,5 @@
 pub mod newtype;
-pub mod sorted;
+pub mod relation;
 
 use crate::prelude::*;
 
@@ -42,6 +42,19 @@ pub struct CONSTANT {}
 
 #[entity_id(key = "Test")]
 pub struct EntityIdTest {}
+
+///
+/// SortedEnum
+///
+
+#[enum_(
+    variant(name = "A"),
+    variant(name = "B"),
+    variant(name = "C"),
+    variant(name = "D"),
+    traits(add(Sorted))
+)]
+pub struct SortedEnum {}
 
 ///
 /// TodoUnit

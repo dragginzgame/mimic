@@ -42,7 +42,7 @@ impl Item {
     pub fn target(&self) -> ItemTarget {
         match (&self.is, &self.primitive, &self.relation) {
             (Some(path), None, _) => ItemTarget::Is(path.clone()),
-            (None, Some(prim), None) => ItemTarget::Prim(*prim),
+            (None, Some(prim), _) => ItemTarget::Prim(*prim),
             (None, None, Some(_)) => ItemTarget::Prim(Primitive::Ulid),
             (None, None, None) => ItemTarget::Prim(Primitive::Unit),
             _ => panic!("item should not have more than one target selected (is, prim, relation)"),
@@ -57,6 +57,7 @@ impl Item {
 impl AsSchema for Item {
     fn schema(&self) -> TokenStream {
         let target = self.target().schema();
+        let relation = quote_option(self.relation.as_ref(), to_path);
         let selector = quote_option(self.selector.as_ref(), to_path);
         let validators = quote_slice(&self.validators, TypeValidator::schema);
         let indirect = self.indirect;
@@ -65,6 +66,7 @@ impl AsSchema for Item {
         quote! {
             ::mimic::schema::node::Item{
                 target: #target,
+                relation: #relation,
                 selector: #selector,
                 validators: #validators,
                 indirect: #indirect,

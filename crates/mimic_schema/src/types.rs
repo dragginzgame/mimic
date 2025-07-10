@@ -94,7 +94,9 @@ impl ToTokens for ConstantType {
 /// Primitive
 ///
 
-#[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, FromStr, Serialize)]
+#[derive(
+    CandidType, Clone, Copy, Debug, Deserialize, Display, Eq, PartialEq, FromStr, Serialize,
+)]
 #[remain::sorted]
 pub enum Primitive {
     Account,

@@ -1,6 +1,6 @@
 use crate::{
     build::schema_read,
-    node::{Def, FieldList, MacroNode, Store, Type, TypeNode, ValidateNode, VisitableNode},
+    node::{Def, Field, FieldList, MacroNode, Store, Type, TypeNode, ValidateNode, VisitableNode},
     types::StoreType,
     visit::Visitor,
 };
@@ -23,6 +23,13 @@ pub struct Entity {
 
     pub fields: FieldList,
     pub ty: Type,
+}
+
+impl Entity {
+    #[must_use]
+    pub fn get_pk_field(&self) -> &Field {
+        self.fields.get(self.primary_key).expect("pk field exists")
+    }
 }
 
 impl MacroNode for Entity {
