@@ -38,11 +38,12 @@ pub struct Item {
 }
 
 impl Item {
+    // if relation is Some and no type is set, we default to Ulid
     pub fn target(&self) -> ItemTarget {
         match (&self.is, &self.primitive, &self.relation) {
-            (Some(path), None, None) => ItemTarget::Is(path.clone()),
+            (Some(path), None, _) => ItemTarget::Is(path.clone()),
             (None, Some(prim), None) => ItemTarget::Prim(*prim),
-            (None, None, Some(path)) => ItemTarget::Relation(path.clone()),
+            (None, None, Some(_)) => ItemTarget::Prim(Primitive::Ulid),
             (None, None, None) => ItemTarget::Prim(Primitive::Unit),
             _ => panic!("item should not have more than one target selected (is, prim, relation)"),
         }
@@ -107,7 +108,6 @@ impl ToTokens for Item {
 
 pub enum ItemTarget {
     Is(Path),
-    Relation(Path),
     Prim(Primitive),
 }
 
@@ -125,12 +125,6 @@ impl AsSchema for ItemTarget {
                     ::mimic::schema::node::ItemTarget::Prim(#prim)
                 }
             }
-            Self::Relation(path) => {
-                let path = quote_one(path, to_path);
-                quote! {
-                    ::mimic::schema::node::ItemTarget::Relation(#path)
-                }
-            }
         }
     }
 }
@@ -143,7 +137,6 @@ impl AsType for ItemTarget {
                 let ty = prim.as_type();
                 quote!(#ty)
             }
-            Self::Relation(_) => quote!(::mimic::core::Key),
         }
     }
 
@@ -156,7 +149,6 @@ impl AsType for ItemTarget {
                 let ty = prim.as_type();
                 quote!(<#ty as ::mimic::core::traits::TypeView>::View)
             }
-            Self::Relation(_) => quote!(::mimic::core::Key),
         }
     }
 }

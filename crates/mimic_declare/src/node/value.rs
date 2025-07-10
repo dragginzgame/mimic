@@ -60,8 +60,7 @@ impl AsType for Value {
     }
 
     fn as_view_type(&self) -> TokenStream {
-        let item = &self.item;
-        let item_view = AsType::as_view_type(item);
+        let item_view = AsType::as_view_type(&self.item);
 
         match self.cardinality() {
             Cardinality::One => quote!(#item_view),
