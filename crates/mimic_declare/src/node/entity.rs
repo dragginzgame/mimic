@@ -121,7 +121,7 @@ impl AsType for Entity {
     fn as_view_type(&self) -> TokenStream {
         let view_ident = &self.def.view_ident();
         let view_field_list = AsType::as_view_type(&self.fields);
-        let derives = Self::view_derives();
+        let derives = Self::basic_derives();
 
         // quote
         quote! {

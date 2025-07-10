@@ -15,10 +15,11 @@ impl DbTester {
         let tests: Vec<(&str, fn())> = vec![
             ("blob", Self::blob),
             ("create", Self::create),
-            ("create_and_delete_index", Self::create_and_delete_index),
             ("create_lots", Self::create_lots),
             ("create_lots_blob", Self::create_lots_blob),
             ("data_key_order", Self::data_key_order),
+            ("index_create_and_delete", Self::index_create_and_delete),
+            ("index_option", Self::index_option),
             ("limit_query", Self::limit_query),
             ("perf_options", Self::perf_options),
             ("perf_many_relations", Self::perf_many_relations),
@@ -112,61 +113,6 @@ impl DbTester {
         );
     }
 
-    // create_and_delete_index
-    fn create_and_delete_index() {
-        use test_design::canister::index::Index;
-
-        // Step 1: Insert entity e1 with x=1, y=10
-        let e1 = Index::new(1, 10);
-        db!()
-            .save()
-            .debug()
-            .execute(query::create().from_entity(e1.clone()))
-            .unwrap();
-
-        // Step 2: Insert entity e2 with x=1 (non-unique), y=20 (unique)
-        let e2 = Index::new(1, 20);
-        db!()
-            .save()
-            .debug()
-            .execute(query::create().from_entity(e2))
-            .unwrap();
-
-        // Step 3: Attempt to insert another with duplicate y=10 (should fail)
-        let e3 = Index::new(2, 10);
-        let result = db!()
-            .save()
-            .debug()
-            .execute(query::create().from_entity(e3.clone()));
-        assert!(result.is_err(), "expected unique index violation on y=10");
-
-        // Step 4: Delete e1 (y=10)
-        db!()
-            .delete()
-            .debug()
-            .execute::<Index>(query::delete().one(e1.id))
-            .unwrap();
-
-        // Step 5: Try inserting e3 again (y=10 should now be free)
-        let result = db!()
-            .save()
-            .debug()
-            .execute(query::create().from_entity(e3));
-        assert!(
-            result.is_ok(),
-            "expected insert to succeed after y=10 was freed by delete"
-        );
-
-        // Step 6: Confirm only 2 entities remain
-        let all = db!()
-            .load()
-            .debug()
-            .execute::<Index>(query::load().all())
-            .unwrap();
-
-        assert_eq!(all.count(), 2);
-    }
-
     // create_lots
     fn create_lots() {
         use test_design::canister::db::CreateBasic;
@@ -249,7 +195,144 @@ impl DbTester {
         }
     }
 
-    // limit_query
+    // index_create_and_delete
+    fn index_create_and_delete() {
+        use test_design::canister::index::Index;
+
+        // Step 1: Insert entity e1 with x=1, y=10
+        let e1 = Index::new(1, 10);
+        db!()
+            .save()
+            .debug()
+            .execute(query::create().from_entity(e1.clone()))
+            .unwrap();
+
+        // Step 2: Insert entity e2 with x=1 (non-unique), y=20 (unique)
+        let e2 = Index::new(1, 20);
+        db!()
+            .save()
+            .debug()
+            .execute(query::create().from_entity(e2))
+            .unwrap();
+
+        // Step 3: Attempt to insert another with duplicate y=10 (should fail)
+        let e3 = Index::new(2, 10);
+        let result = db!()
+            .save()
+            .debug()
+            .execute(query::create().from_entity(e3.clone()));
+        assert!(result.is_err(), "expected unique index violation on y=10");
+
+        // Step 4: Delete e1 (y=10)
+        db!()
+            .delete()
+            .debug()
+            .execute::<Index>(query::delete().one(e1.id))
+            .unwrap();
+
+        // Step 5: Try inserting e3 again (y=10 should now be free)
+        let result = db!()
+            .save()
+            .debug()
+            .execute(query::create().from_entity(e3));
+        assert!(
+            result.is_ok(),
+            "expected insert to succeed after y=10 was freed by delete"
+        );
+
+        // Step 6: Confirm only 2 entities remain
+        let all = db!()
+            .load()
+            .debug()
+            .execute::<Index>(query::load().all())
+            .unwrap();
+
+        assert_eq!(all.count(), 2);
+    }
+
+    fn index_option() {
+        use test_design::canister::index::IndexUniqueOptional;
+
+        // Insert entity with Some(10)
+        let e1 = IndexUniqueOptional {
+            id: Ulid::generate(),
+            value: Some(10),
+        };
+        db!()
+            .save()
+            .execute(query::create().from_entity(e1.clone()))
+            .unwrap();
+
+        // Insert entity with Some(20)
+        let e2 = IndexUniqueOptional {
+            id: Ulid::generate(),
+            value: Some(20),
+        };
+        db!()
+            .save()
+            .execute(query::create().from_entity(e2))
+            .unwrap();
+
+        // Insert entity with None (should not conflict with anything)
+        let e3 = IndexUniqueOptional {
+            id: Ulid::generate(),
+            value: None,
+        };
+        db!()
+            .save()
+            .execute(query::create().from_entity(e3.clone()))
+            .unwrap();
+
+        // Insert duplicate Some(10) — should fail (if index is unique)
+        let e4 = IndexUniqueOptional {
+            id: Ulid::generate(),
+            value: Some(10),
+        };
+        let result = db!()
+            .save()
+            .execute(query::create().from_entity(e4.clone()));
+        assert!(
+            result.is_err(),
+            "Expected duplicate index error on Some(10)"
+        );
+
+        // Delete e1 (frees up Some(10))
+        db!()
+            .delete()
+            .execute::<IndexUniqueOptional>(query::delete().one(e1.id))
+            .unwrap();
+
+        // Retry insert of e4 — should now succeed
+        let result = db!().save().execute(query::create().from_entity(e4));
+        assert!(
+            result.is_ok(),
+            "Expected insert to succeed after deleting conflicting index"
+        );
+
+        // Delete e3 (value = None)
+        db!()
+            .delete()
+            .execute::<IndexUniqueOptional>(query::delete().one(e3.id))
+            .unwrap();
+
+        // Insert another entity with value = None — should be fine (no uniqueness enforced)
+        let e5 = IndexUniqueOptional {
+            id: Ulid::generate(),
+            value: None,
+        };
+        db!()
+            .save()
+            .execute(query::create().from_entity(e5))
+            .unwrap();
+
+        // Confirm only 3 entities now exist
+        let all = db!()
+            .load()
+            .execute::<IndexUniqueOptional>(query::load().all())
+            .unwrap();
+        assert_eq!(all.count(), 3);
+    }
+
     fn limit_query() {
         use test_design::canister::db::Limit;
 
@@ -280,7 +363,6 @@ impl DbTester {
         }
     }
 
-    // perf_options
     fn perf_options() {
         use test_design::canister::db::ContainsOpts;
 
@@ -306,7 +388,6 @@ impl DbTester {
         let _ = keys.len();
     }
 
-    // perf_many_relations
     fn perf_many_relations() {
         use test_design::canister::db::ContainsManyRelations;
 

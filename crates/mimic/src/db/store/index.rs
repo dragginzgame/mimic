@@ -134,24 +134,29 @@ impl IndexKey {
     pub const STORABLE_MAX_SIZE: u32 = 256;
 
     #[must_use]
-    pub fn new<E: EntityKind>(e: &E, fields: &[&str]) -> Self {
+    pub fn build<E: EntityKind>(e: &E, fields: &[&str]) -> Option<Self> {
+        // Pull the values from the entity
+        let values = e.values().collect_all(fields);
+
+        // Early exit: if any value is null or fails to convert into a key
+        let mut keys = Vec::with_capacity(values.len());
+        for v in values {
+            if matches!(v, Value::Null) {
+                return None;
+            }
+            match v.into_key() {
+                Some(k) => keys.push(k),
+                None => return None,
+            }
+        }
+
         // Construct a canonical string like: "my::Entity::field1,field2"
         let full_key = format!("{}::{}", E::PATH, fields.join(","));
 
-        // pull the values that match the index fields from the entity
-        let keys = e
-            .values()
-            .collect_all(fields)
-            .into_iter()
-            .filter_map(Value::into_key)
-            .collect();
-
-        // debug!(true, "create index key - {:?}", fields);
-
-        Self {
+        Some(Self {
             index_id: xx_hash_u64(&full_key),
             keys,
-        }
+        })
     }
 
     // max_self

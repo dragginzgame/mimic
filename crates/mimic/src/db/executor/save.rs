@@ -150,20 +150,21 @@ impl SaveExecutor {
             let index_store = self.indexes.with(|map| map.try_get_store(index.store))?;
 
             // ✅ Insert new index entry first - fail early if conflict
-            let new_index_key = IndexKey::new(new, index.fields);
-            index_store.with_borrow_mut(|store| {
-                store.insert_index_entry(index, new_index_key.clone(), new.key())?;
+            if let Some(new_index_key) = IndexKey::build(new, index.fields) {
+                index_store.with_borrow_mut(|store| {
+                    store.insert_index_entry(index, new_index_key.clone(), new.key())?;
 
-                Ok::<_, DbError>(())
-            })?;
+                    Ok::<_, DbError>(())
+                })?;
+            }
 
             // 🔁 Remove old index value (if present)
             if let Some(old) = old {
-                let old_index_key = IndexKey::new(old, index.fields);
-
-                index_store.with_borrow_mut(|store| {
-                    store.remove_index_entry(&old_index_key, &old.key());
-                });
+                if let Some(old_index_key) = IndexKey::build(old, index.fields) {
+                    index_store.with_borrow_mut(|store| {
+                        store.remove_index_entry(&old_index_key, &old.key());
+                    });
+                }
             }
         }
 

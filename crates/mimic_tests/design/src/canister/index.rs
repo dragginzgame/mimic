@@ -106,3 +106,18 @@ impl EntityFixture for IndexWithFixtures {
     )
 )]
 pub struct IndexRelation {}
+
+///
+/// IndexUniqueOptional
+///
+
+#[entity(
+    store = "crate::schema::TestStore",
+    pk = "id",
+    index(store = "crate::schema::TestIndex", fields = "value", unique),
+    fields(
+        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(name = "value", value(opt, item(prim = "Nat8")))
+    )
+)]
+pub struct IndexUniqueOptional {}

@@ -264,10 +264,6 @@ impl Traits {
 pub struct TraitList(pub Vec<Trait>);
 
 impl TraitList {
-    pub const fn new(traits: Vec<Trait>) -> Self {
-        Self(traits)
-    }
-
     pub fn to_derive_tokens(&self) -> TokenStream {
         if self.0.is_empty() {
             quote!()
@@ -278,6 +274,12 @@ impl TraitList {
                 #[derive(#(#derive_paths),*)]
             }
         }
+    }
+}
+
+impl From<&[Trait]> for TraitList {
+    fn from(traits: &[Trait]) -> Self {
+        Self(traits.to_vec())
     }
 }
 

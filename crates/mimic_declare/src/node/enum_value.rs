@@ -103,7 +103,7 @@ impl AsType for EnumValue {
     fn as_view_type(&self) -> TokenStream {
         let view_ident = self.def.view_ident();
         let view_variants = self.variants.iter().map(AsType::as_view_type);
-        let derives = Self::view_derives();
+        let derives = Self::basic_derives();
 
         quote! {
             #derives

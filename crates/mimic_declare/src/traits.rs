@@ -109,14 +109,13 @@ pub trait AsType {
 
     fn as_view_type(&self) -> TokenStream;
 
-    fn view_derives() -> TokenStream {
-        let traits = TraitList::new(vec![
+    fn basic_derives() -> TokenStream {
+        TraitList(vec![
             Trait::CandidType,
             Trait::Debug,
             Trait::Serialize,
             Trait::Deserialize,
-        ]);
-
-        traits.to_derive_tokens()
+        ])
+        .to_derive_tokens()
     }
 }

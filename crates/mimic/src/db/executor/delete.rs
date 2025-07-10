@@ -132,17 +132,16 @@ impl DeleteExecutor {
         let key = entity.key();
 
         for index in E::INDEXES {
-            // resolve index key
-            let index_key = IndexKey::new(entity, index.fields);
+            // remove index if found
+            if let Some(index_key) = IndexKey::build(entity, index.fields) {
+                let index_store = self
+                    .index_registry
+                    .with(|ix| ix.try_get_store(index.store))?;
 
-            // remove if found
-            let index_store = self
-                .index_registry
-                .with(|ix| ix.try_get_store(index.store))?;
-
-            index_store.with_borrow_mut(|store| {
-                store.remove_index_entry(&index_key, &key);
-            });
+                index_store.with_borrow_mut(|store| {
+                    store.remove_index_entry(&index_key, &key);
+                });
+            }
         }
 
         Ok(())
