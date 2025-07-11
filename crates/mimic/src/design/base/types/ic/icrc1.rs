@@ -1,6 +1,13 @@
 use crate::design::prelude::*;
 
 ///
+/// Icrc1 PaymentList
+///
+
+#[list(item(is = "Payment"))]
+pub struct PaymentList {}
+
+///
 /// Icrc1 Payment
 ///
 
@@ -9,6 +16,13 @@ use crate::design::prelude::*;
     field(name = "tokens", value(item(is = "Tokens")))
 ))]
 pub struct Payment {}
+
+///
+/// Icrc1 TokenList
+///
+
+#[list(item(is = "Payment"))]
+pub struct TokenList {}
 
 ///
 /// Icrc1 Tokens
