@@ -114,6 +114,7 @@ pub trait AsType {
     fn basic_derives() -> TokenStream {
         TraitList(vec![
             Trait::CandidType,
+            Trait::Clone,
             Trait::Debug,
             Trait::Serialize,
             Trait::Deserialize,
