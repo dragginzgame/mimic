@@ -6,11 +6,12 @@ pub mod service;
 pub mod store;
 
 use crate::{
-    core::validate::ValidateError,
+    MimicError,
+    core::{Key, traits::EntityKind, validate::ValidateError},
     db::{
         executor::{DeleteExecutor, ExecutorError, LoadExecutor, SaveExecutor},
         query::QueryError,
-        response::ResponseError,
+        response::{LoadCollection, ResponseError},
         store::{DataStoreRegistry, IndexStoreRegistry, StoreError},
     },
     serialize::SerializeError,
@@ -71,5 +72,16 @@ impl Db {
     #[must_use]
     pub const fn delete(&self) -> DeleteExecutor {
         DeleteExecutor::new(self.data, self.index)
+    }
+
+    //
+    // HELPERS
+    //
+
+    pub fn load_one<E: EntityKind, K: Into<Key>>(
+        &self,
+        k: K,
+    ) -> Result<LoadCollection<E>, MimicError> {
+        LoadExecutor::new(self.data, self.index).execute(query::load().one(k))
     }
 }
