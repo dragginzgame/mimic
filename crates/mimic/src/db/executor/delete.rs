@@ -15,6 +15,7 @@ use crate::{
 /// DeleteExecutor
 ///
 
+#[derive(Clone, Copy, Debug)]
 pub struct DeleteExecutor {
     data_registry: DataStoreRegistry,
     index_registry: IndexStoreRegistry,

@@ -17,7 +17,7 @@ use crate::{
 /// LoadExecutor
 ///
 
-#[allow(clippy::type_complexity)]
+#[derive(Clone, Copy, Debug)]
 pub struct LoadExecutor {
     data_registry: DataStoreRegistry,
     index_registry: IndexStoreRegistry,

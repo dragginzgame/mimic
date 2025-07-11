@@ -17,6 +17,7 @@ use crate::{
 /// SaveExecutor
 ///
 
+#[derive(Clone, Copy, Debug)]
 pub struct SaveExecutor {
     data: DataStoreRegistry,
     indexes: IndexStoreRegistry,
