@@ -11,6 +11,13 @@ use crate::design::prelude::*;
 pub struct Memo {}
 
 ///
+/// Icrc1 PaymentList
+///
+
+#[list(item(is = "Payment"))]
+pub struct PaymentList {}
+
+///
 /// Payment
 ///
 
