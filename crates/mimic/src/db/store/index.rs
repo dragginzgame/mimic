@@ -112,11 +112,52 @@ impl IndexStore {
         }
     }
 }
+
 ///
 /// IndexStoreLocal
 ///
 
 pub type IndexStoreLocal = &'static LocalKey<RefCell<IndexStore>>;
+
+///
+/// IndexId
+///
+
+#[derive(
+    Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, CandidType, Serialize, Deserialize,
+)]
+pub struct IndexId {
+    pub entity_hash: u64,
+    pub fields: Vec<String>,
+}
+
+impl IndexId {
+    pub fn new(entity_path: &str, fields: &[&str]) -> Self {
+        Self {
+            entity_hash: xx_hash_u64(entity_path),
+            fields: fields.iter().map(ToString::to_string).collect(),
+        }
+    }
+
+    #[must_use]
+    pub fn max_storable() -> Self {
+        Self::new(
+            "path::to::long::entity::name::Entity",
+            &[
+                "long_field_one",
+                "long_field_two",
+                "long_field_three",
+                "long_field_four",
+            ],
+        )
+    }
+}
+
+impl Display for IndexId {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({} [{:?}])", self.entity_hash, self.fields)
+    }
+}
 
 ///
 /// IndexKey
@@ -126,12 +167,12 @@ pub type IndexStoreLocal = &'static LocalKey<RefCell<IndexStore>>;
     CandidType, Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize,
 )]
 pub struct IndexKey {
-    pub index_id: u64, // hash of the entity path plus fields
+    pub index_id: IndexId,
     pub keys: Vec<Key>,
 }
 
 impl IndexKey {
-    pub const STORABLE_MAX_SIZE: u32 = 256;
+    pub const STORABLE_MAX_SIZE: u32 = 512;
 
     #[must_use]
     pub fn build<E: EntityKind>(e: &E, fields: &[&str]) -> Option<Self> {
@@ -150,21 +191,24 @@ impl IndexKey {
             }
         }
 
-        // Construct a canonical string like: "my::Entity::field1,field2"
-        let full_key = format!("{}::{}", E::PATH, fields.join(","));
-
         Some(Self {
-            index_id: xx_hash_u64(&full_key),
+            index_id: IndexId::new(E::PATH, fields),
             keys,
         })
     }
 
-    // max_self
+    // max_storable
     #[must_use]
-    pub fn max_self() -> Self {
+    pub fn max_storable() -> Self {
         Self {
-            index_id: u64::MAX,
-            keys: [Key::max_self(), Key::max_self(), Key::max_self()].to_vec(),
+            index_id: IndexId::max_storable(),
+            keys: [
+                Key::max_storable(),
+                Key::max_storable(),
+                Key::max_storable(),
+                Key::max_storable(),
+            ]
+            .to_vec(),
         }
     }
 }
@@ -259,7 +303,7 @@ mod tests {
 
     #[test]
     fn index_key_max_size_is_bounded() {
-        let index_key = IndexKey::max_self();
+        let index_key = IndexKey::max_storable();
         let size = Storable::to_bytes(&index_key).len() as u32;
 
         println!("max serialized size = {size}");

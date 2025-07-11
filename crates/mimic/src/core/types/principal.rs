@@ -73,7 +73,7 @@ impl Principal {
     }
 
     #[must_use]
-    pub fn max_self() -> Self {
+    pub fn max_storable() -> Self {
         Self::from_slice(&[0xFF; 29])
     }
 }
@@ -208,7 +208,7 @@ mod tests {
 
     #[test]
     fn principal_max_size_is_bounded() {
-        let principal = Principal::max_self();
+        let principal = Principal::max_storable();
         let size = Storable::to_bytes(&principal).len() as u32;
 
         println!("max serialized size = {size}");

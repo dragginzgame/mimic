@@ -100,6 +100,16 @@ impl AsType for Item {
             quote!(#view)
         }
     }
+
+    fn view_default(&self) -> TokenStream {
+        let view_default = self.target().view_default();
+
+        if self.indirect {
+            quote!(Box<#view_default>)
+        } else {
+            quote!(#view_default)
+        }
+    }
 }
 
 impl ToTokens for Item {
@@ -154,6 +164,23 @@ impl AsType for ItemTarget {
             Self::Primitive(prim) => {
                 let ty = prim.as_type();
                 quote!(<#ty as ::mimic::core::traits::TypeView>::View)
+            }
+        }
+    }
+
+    fn view_default(&self) -> TokenStream {
+        match self {
+            Self::Is(path) => {
+                quote!(<#path as ::mimic::core::traits::TypeView>::View::default())
+            }
+            Self::Primitive(prim) => {
+                let ty = prim.as_type();
+
+                if matches!(prim, Primitive::Principal) {
+                    quote!(<#ty as ::mimic::core::traits::TypeView>::View::anonymous())
+                } else {
+                    quote!(<#ty as ::mimic::core::traits::TypeView>::View::default())
+                }
             }
         }
     }

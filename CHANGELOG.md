@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.7.1] - Split Type and Relation
 - now you can specify rel= and is/prim= at the item level, so the actual
 type (Ulid/Principal, not Key) is used in the struct
+- view now derives Default, good for endpoint code, but really hard to implement
+as Principal doesn't derive Default
 
 ## [0.7.0] - Removed Entity Nesting
 - Just wasn't working out, adding more complexity.  Much simplified now

@@ -146,6 +146,14 @@ impl AsType for Newtype {
             pub type #view_ident = #view_type;
         }
     }
+
+    fn view_default(&self) -> TokenStream {
+        let view_type = self.primitive.as_type();
+
+        quote! {
+            #view_type::default()
+        }
+    }
 }
 
 impl ToTokens for Newtype {

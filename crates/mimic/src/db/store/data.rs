@@ -93,10 +93,10 @@ impl DataKey {
     }
 
     #[must_use]
-    pub fn max_self() -> Self {
+    pub fn max_storable() -> Self {
         Self {
             entity_id: u64::MAX,
-            key: Key::max_self(),
+            key: Key::max_storable(),
         }
     }
 }
@@ -216,7 +216,7 @@ mod tests {
 
     #[test]
     fn data_key_max_size_is_bounded() {
-        let data_key = DataKey::max_self();
+        let data_key = DataKey::max_storable();
         let size = Storable::to_bytes(&data_key).len() as u32;
 
         println!("max serialized size = {size}");

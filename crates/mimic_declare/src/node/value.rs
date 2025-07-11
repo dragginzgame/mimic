@@ -68,6 +68,16 @@ impl AsType for Value {
             Cardinality::Many => quote!(Vec<#item_view>),
         }
     }
+
+    fn view_default(&self) -> TokenStream {
+        let view_default = AsType::view_default(&self.item);
+
+        match self.cardinality() {
+            Cardinality::One => quote!(#view_default),
+            Cardinality::Opt => quote!(None),
+            Cardinality::Many => quote!(Vec::new()),
+        }
+    }
 }
 
 impl ToTokens for Value {

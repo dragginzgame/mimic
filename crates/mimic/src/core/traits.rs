@@ -139,6 +139,8 @@ pub trait TypeView {
     fn from_view(view: Self::View) -> Self;
 }
 
+pub type View<T> = <T as TypeView>::View;
+
 impl<T: TypeView> TypeView for Box<T> {
     type View = Box<T::View>;
 

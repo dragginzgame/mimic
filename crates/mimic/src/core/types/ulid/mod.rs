@@ -101,7 +101,7 @@ impl Ulid {
     }
 
     #[must_use]
-    pub fn max_self() -> Self {
+    pub fn max_storable() -> Self {
         Self::from_bytes([0xFF; 16])
     }
 }
@@ -232,7 +232,7 @@ mod test {
 
     #[test]
     fn ulid_max_size_is_bounded() {
-        let ulid = Ulid::max_self();
+        let ulid = Ulid::max_storable();
         let size = Storable::to_bytes(&ulid).len() as u32;
 
         println!("max serialized size = {size}");

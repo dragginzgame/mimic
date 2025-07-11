@@ -44,9 +44,6 @@ pub struct Subaccount(WrappedSubaccount);
 impl Subaccount {
     pub const STORABLE_MAX_SIZE: u32 = 72;
 
-    pub const MAX_SELF: Self = Self(WrappedSubaccount([0xFF; 32]));
-    pub const MAX_SIZE: u32 = 32;
-
     #[must_use]
     pub const fn new(bytes: [u8; 32]) -> Self {
         Self(WrappedSubaccount(bytes))
@@ -58,7 +55,7 @@ impl Subaccount {
     }
 
     #[must_use]
-    pub const fn max_self() -> Self {
+    pub const fn max_storable() -> Self {
         Self(WrappedSubaccount([0xFF; 32]))
     }
 }
@@ -176,7 +173,7 @@ mod tests {
 
     #[test]
     fn subaccount_max_size_is_bounded() {
-        let subaccount = Subaccount::max_self();
+        let subaccount = Subaccount::max_storable();
         let size = Storable::to_bytes(&subaccount).len() as u32;
 
         println!("max serialized size = {size}");

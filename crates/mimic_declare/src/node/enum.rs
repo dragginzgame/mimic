@@ -33,6 +33,10 @@ impl Enum {
         self.variants.iter().any(|v| v.default)
     }
 
+    pub fn get_default_variant(&self) -> Option<&EnumVariant> {
+        self.variants.iter().find(|v| v.default)
+    }
+
     pub fn is_unit_enum(&self) -> bool {
         self.variants.iter().all(|v| v.value.is_none())
     }
@@ -115,12 +119,32 @@ impl AsType for Enum {
         let view_ident = self.def.view_ident();
         let view_variants = self.variants.iter().map(AsType::as_view_type);
         let derives = Self::basic_derives();
+        let view_default = self.view_default();
 
         quote! {
             #derives
             pub enum #view_ident {
                 #(#view_variants,)*
             }
+            #view_default
+        }
+    }
+
+    fn view_default(&self) -> TokenStream {
+        let view_ident = self.def.view_ident();
+
+        if let Some(variant) = self.get_default_variant() {
+            let view_default = variant.view_default();
+
+            quote! {
+                impl Default for #view_ident {
+                    fn default() -> Self {
+                        Self::#view_default
+                    }
+                }
+            }
+        } else {
+            quote!()
         }
     }
 }
@@ -209,6 +233,22 @@ impl AsType for EnumVariant {
 
             quote! {
                 #name(#value_view)
+            }
+        } else {
+            quote! {
+                #name
+            }
+        }
+    }
+
+    fn view_default(&self) -> TokenStream {
+        let name = &self.name;
+
+        if let Some(value) = &self.value {
+            let value_default = AsType::view_default(value);
+
+            quote! {
+                #name(#value_default)
             }
         } else {
             quote! {

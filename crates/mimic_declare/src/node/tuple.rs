@@ -87,6 +87,12 @@ impl AsType for Tuple {
             pub type #view_ident = (#(#view_values),*);
         }
     }
+
+    fn view_default(&self) -> TokenStream {
+        quote! {
+            Vec::new()
+        }
+    }
 }
 
 impl ToTokens for Tuple {

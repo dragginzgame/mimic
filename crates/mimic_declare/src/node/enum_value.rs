@@ -112,6 +112,17 @@ impl AsType for EnumValue {
             }
         }
     }
+
+    fn view_default(&self) -> TokenStream {
+        let view_ident = self.def.view_ident();
+        let view_defaults = self.variants.iter().map(AsType::as_view_type);
+
+        quote! {
+            pub enum #view_ident {
+                #(#view_defaults,)*
+            }
+        }
+    }
 }
 
 impl ToTokens for EnumValue {
@@ -188,6 +199,18 @@ impl AsType for EnumValueVariant {
     }
 
     fn as_view_type(&self) -> TokenStream {
+        let name = if self.unspecified {
+            Self::unspecified_ident()
+        } else {
+            self.name.clone()
+        };
+
+        quote! {
+            #name
+        }
+    }
+
+    fn view_default(&self) -> TokenStream {
         let name = if self.unspecified {
             Self::unspecified_ident()
         } else {

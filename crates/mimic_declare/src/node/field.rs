@@ -70,6 +70,14 @@ impl AsType for FieldList {
             #(#view_fields,)*
         }
     }
+
+    fn view_default(&self) -> TokenStream {
+        let view_defaults = self.fields.iter().map(AsType::view_default);
+
+        quote! {
+            #(#view_defaults,)*
+        }
+    }
 }
 
 impl ToTokens for FieldList {
@@ -123,6 +131,15 @@ impl AsType for Field {
 
         quote! {
             pub #name: #value_view
+        }
+    }
+
+    fn view_default(&self) -> TokenStream {
+        let name = &self.name;
+        let value_default = AsType::view_default(&self.value);
+
+        quote! {
+            #name: #value_default
         }
     }
 }

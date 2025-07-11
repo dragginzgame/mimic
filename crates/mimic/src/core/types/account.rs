@@ -50,8 +50,8 @@ impl Account {
     }
 
     #[must_use]
-    pub fn max_self() -> Self {
-        Self::new(Principal::max_self(), Some(Subaccount::max_self()))
+    pub fn max_storable() -> Self {
+        Self::new(Principal::max_storable(), Some(Subaccount::max_storable()))
     }
 }
 
@@ -152,7 +152,7 @@ mod tests {
 
     #[test]
     fn account_max_size_is_bounded() {
-        let key = Account::max_self();
+        let key = Account::max_storable();
         let size = Storable::to_bytes(&key).len() as u32;
 
         println!("max serialized size = {size}");

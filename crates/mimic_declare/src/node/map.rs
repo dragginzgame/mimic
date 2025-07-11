@@ -99,6 +99,12 @@ impl AsType for Map {
             pub type #view_ident = Vec<(#key_view, #value_view)>;
         }
     }
+
+    fn view_default(&self) -> TokenStream {
+        quote! {
+            Vec::new()
+        }
+    }
 }
 
 impl ToTokens for Map {

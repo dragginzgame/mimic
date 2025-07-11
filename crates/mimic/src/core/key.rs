@@ -93,8 +93,8 @@ impl Key {
     }
 
     #[must_use]
-    pub fn max_self() -> Self {
-        Self::Principal(Principal::max_self())
+    pub fn max_storable() -> Self {
+        Self::Principal(Principal::max_storable())
     }
 }
 

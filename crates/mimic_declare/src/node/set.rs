@@ -94,6 +94,12 @@ impl AsType for Set {
             pub type #view_ident = Vec<#item_view>;
         }
     }
+
+    fn view_default(&self) -> TokenStream {
+        quote! {
+            Vec::new()
+        }
+    }
 }
 
 impl ToTokens for Set {
