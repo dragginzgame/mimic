@@ -78,9 +78,9 @@ impl Db {
     // HELPERS
     //
 
-    pub fn load_one<E: EntityKind, K: Into<Key>>(
+    pub fn load_one<E: EntityKind>(
         &self,
-        k: K,
+        k: impl Into<Key>,
     ) -> Result<LoadCollection<E>, MimicError> {
         LoadExecutor::new(self.data, self.index).execute(query::load().one(k))
     }
