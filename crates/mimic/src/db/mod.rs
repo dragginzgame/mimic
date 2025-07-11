@@ -78,6 +78,10 @@ impl Db {
     // HELPERS
     //
 
+    pub fn load_all<E: EntityKind>(&self) -> Result<LoadCollection<E>, MimicError> {
+        LoadExecutor::new(self.data, self.index).execute(query::load().all())
+    }
+
     pub fn load_one<E: EntityKind>(
         &self,
         k: impl Into<Key>,
