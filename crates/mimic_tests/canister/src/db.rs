@@ -251,10 +251,10 @@ impl DbTester {
     }
 
     fn index_option() {
-        use test_design::canister::index::IndexUniqueOptional;
+        use test_design::canister::index::IndexUniqueOpt;
 
         // Insert entity with Some(10)
-        let e1 = IndexUniqueOptional {
+        let e1 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: Some(10),
         };
@@ -264,7 +264,7 @@ impl DbTester {
             .unwrap();
 
         // Insert entity with Some(20)
-        let e2 = IndexUniqueOptional {
+        let e2 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: Some(20),
         };
@@ -274,7 +274,7 @@ impl DbTester {
             .unwrap();
 
         // Insert entity with None (should not conflict with anything)
-        let e3 = IndexUniqueOptional {
+        let e3 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: None,
         };
@@ -284,7 +284,7 @@ impl DbTester {
             .unwrap();
 
         // Insert duplicate Some(10) — should fail (if index is unique)
-        let e4 = IndexUniqueOptional {
+        let e4 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: Some(10),
         };
@@ -299,7 +299,7 @@ impl DbTester {
         // Delete e1 (frees up Some(10))
         db!()
             .delete()
-            .execute::<IndexUniqueOptional>(query::delete().one(e1.id))
+            .execute::<IndexUniqueOpt>(query::delete().one(e1.id))
             .unwrap();
 
         // Retry insert of e4 — should now succeed
@@ -312,11 +312,11 @@ impl DbTester {
         // Delete e3 (value = None)
         db!()
             .delete()
-            .execute::<IndexUniqueOptional>(query::delete().one(e3.id))
+            .execute::<IndexUniqueOpt>(query::delete().one(e3.id))
             .unwrap();
 
         // Insert another entity with value = None — should be fine (no uniqueness enforced)
-        let e5 = IndexUniqueOptional {
+        let e5 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: None,
         };
@@ -328,7 +328,7 @@ impl DbTester {
         // Confirm only 3 entities now exist
         let all = db!()
             .load()
-            .execute::<IndexUniqueOptional>(query::load().all())
+            .execute::<IndexUniqueOpt>(query::load().all())
             .unwrap();
         assert_eq!(all.count(), 3);
     }

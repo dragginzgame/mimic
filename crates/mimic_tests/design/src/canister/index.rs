@@ -108,7 +108,7 @@ impl EntityFixture for IndexWithFixtures {
 pub struct IndexRelation {}
 
 ///
-/// IndexUniqueOptional
+/// IndexUniqueOpt
 ///
 
 #[entity(
@@ -120,4 +120,4 @@ pub struct IndexRelation {}
         field(name = "value", value(opt, item(prim = "Nat8")))
     )
 )]
-pub struct IndexUniqueOptional {}
+pub struct IndexUniqueOpt {}

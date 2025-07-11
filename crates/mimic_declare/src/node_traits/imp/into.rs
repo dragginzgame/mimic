@@ -38,15 +38,6 @@ impl Imp<EntityId> for IntoTrait {
             }
         });
 
-        // into key
-        q.extend(quote! {
-            impl Into<::mimic::core::Reference> for #ident {
-                fn into(self) -> ::mimic::core::Reference {
-                    self.ulid().into()
-                }
-            }
-        });
-
         Some(q)
     }
 }
