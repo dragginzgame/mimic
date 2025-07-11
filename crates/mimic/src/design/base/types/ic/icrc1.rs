@@ -13,23 +13,23 @@ pub struct PaymentList {}
 
 #[record(fields(
     field(name = "recipient", value(item(prim = "Principal"))),
-    field(name = "tokens", value(item(is = "Tokens")))
+    field(name = "tokens", value(item(is = "TokenAmount")))
 ))]
 pub struct Payment {}
 
 ///
-/// Icrc1 TokenList
+/// Icrc1 TokenAmountList
 ///
 
-#[list(item(is = "Payment"))]
-pub struct TokenList {}
+#[list(item(is = "TokenAmount"))]
+pub struct TokenAmountList {}
 
 ///
-/// Icrc1 Tokens
+/// Icrc1 TokenAmount
 ///
 
 #[record(fields(
     field(name = "ledger_canister", value(item(prim = "Principal"))),
     field(name = "tokens", value(item(prim = "Nat64")))
 ))]
-pub struct Tokens {}
+pub struct TokenAmount {}
