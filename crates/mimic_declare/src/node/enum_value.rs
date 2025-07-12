@@ -28,12 +28,6 @@ pub struct EnumValue {
     pub traits: Traits,
 }
 
-impl EnumValue {
-    pub fn has_default(&self) -> bool {
-        self.variants.iter().any(|v| v.default)
-    }
-}
-
 impl AsMacro for EnumValue {
     fn def(&self) -> &Def {
         &self.def
@@ -45,13 +39,7 @@ impl AsMacro for EnumValue {
 
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone().with_type_traits();
-
         traits.extend(vec![Trait::Copy, Trait::EnumValueKind, Trait::Hash]);
-
-        // extra traits
-        if self.has_default() {
-            traits.add(Trait::Default);
-        }
 
         traits.list()
     }
@@ -101,6 +89,7 @@ impl AsType for EnumValue {
     }
 
     fn as_view_type(&self) -> TokenStream {
+        let Def { ident, .. } = &self.def;
         let view_ident = self.def.view_ident();
         let view_variants = self.variants.iter().map(AsType::as_view_type);
         let derives = Self::basic_derives();
@@ -110,16 +99,11 @@ impl AsType for EnumValue {
             pub enum #view_ident {
                 #(#view_variants,)*
             }
-        }
-    }
 
-    fn view_default(&self) -> TokenStream {
-        let view_ident = self.def.view_ident();
-        let view_defaults = self.variants.iter().map(AsType::as_view_type);
-
-        quote! {
-            pub enum #view_ident {
-                #(#view_defaults,)*
+            impl Default for #view_ident {
+                fn default() -> Self {
+                    #ident::default().to_view()
+                }
             }
         }
     }
@@ -199,18 +183,6 @@ impl AsType for EnumValueVariant {
     }
 
     fn as_view_type(&self) -> TokenStream {
-        let name = if self.unspecified {
-            Self::unspecified_ident()
-        } else {
-            self.name.clone()
-        };
-
-        quote! {
-            #name
-        }
-    }
-
-    fn view_default(&self) -> TokenStream {
         let name = if self.unspecified {
             Self::unspecified_ident()
         } else {

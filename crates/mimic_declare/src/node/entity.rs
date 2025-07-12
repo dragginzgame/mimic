@@ -49,7 +49,6 @@ impl AsMacro for Entity {
         let mut traits = self.traits.clone().with_type_traits();
 
         traits.extend(vec![
-            Trait::Default,
             Trait::EntityKind,
             Trait::EntityFixture,
             Trait::EntitySearch,
@@ -119,10 +118,10 @@ impl AsType for Entity {
     }
 
     fn as_view_type(&self) -> TokenStream {
+        let Def { ident, .. } = &self.def;
         let derives = Self::basic_derives();
         let view_ident = &self.def.view_ident();
         let view_field_list = AsType::as_view_type(&self.fields);
-        let view_default = self.view_default();
 
         // quote
         quote! {
@@ -130,20 +129,10 @@ impl AsType for Entity {
             pub struct #view_ident {
                 #view_field_list
             }
-            #view_default
-        }
-    }
 
-    fn view_default(&self) -> TokenStream {
-        let view_ident = &self.def.view_ident();
-        let view_defaults = self.fields.view_default();
-
-        quote! {
             impl Default for #view_ident {
                 fn default() -> Self {
-                    Self {
-                        #view_defaults
-                    }
+                    #ident::default().to_view()
                 }
             }
         }

@@ -109,8 +109,6 @@ pub trait AsType {
 
     fn as_view_type(&self) -> TokenStream;
 
-    fn view_default(&self) -> TokenStream;
-
     fn basic_derives() -> TokenStream {
         TraitList(vec![
             Trait::CandidType,

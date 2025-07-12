@@ -37,12 +37,7 @@ impl AsMacro for Map {
 
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone().with_type_traits();
-        traits.extend(vec![
-            Trait::Default,
-            Trait::Deref,
-            Trait::DerefMut,
-            Trait::IntoIterator,
-        ]);
+        traits.extend(vec![Trait::Deref, Trait::DerefMut, Trait::IntoIterator]);
 
         traits.list()
     }
@@ -97,12 +92,6 @@ impl AsType for Map {
 
         quote! {
             pub type #view_ident = Vec<(#key_view, #value_view)>;
-        }
-    }
-
-    fn view_default(&self) -> TokenStream {
-        quote! {
-            Vec::new()
         }
     }
 }

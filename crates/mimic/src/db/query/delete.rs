@@ -16,18 +16,15 @@ pub struct DeleteQuery {
 }
 
 impl DeleteQuery {
-    // new
     #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
 
-    // one
     pub fn one<E: EntityKind>(self, value: impl Into<Value>) -> Self {
         self.filter_eq(E::PRIMARY_KEY, value.into())
     }
 
-    // many
     pub fn many<E, V>(self, values: &[V]) -> Self
     where
         E: EntityKind,
@@ -42,6 +39,7 @@ impl DeleteQuery {
         self.filter_in(E::PRIMARY_KEY, Value::List(list))
     }
 
+    // filter_in
     pub fn filter_in<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
         let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::In, value));
 

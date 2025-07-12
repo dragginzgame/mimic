@@ -44,7 +44,7 @@ pub struct PercentModifier {}
         field(name = "min", value(item(prim = "Decimal"))),
         field(name = "max", value(item(prim = "Decimal"))),
     ),
-    traits(add(Default), remove(ValidateCustom))
+    traits(remove(ValidateCustom))
 )]
 pub struct DecimalRange {}
 
@@ -72,7 +72,7 @@ impl ValidateCustom for DecimalRange {
         field(name = "min", value(item(prim = "Int32"))),
         field(name = "max", value(item(prim = "Int32"))),
     ),
-    traits(add(Default), remove(ValidateCustom))
+    traits(remove(ValidateCustom))
 )]
 pub struct Int32Range {}
 
@@ -100,7 +100,7 @@ impl ValidateCustom for Int32Range {
         field(name = "min", value(item(prim = "Nat32"))),
         field(name = "max", value(item(prim = "Nat32"))),
     ),
-    traits(add(Default), remove(ValidateCustom))
+    traits(remove(ValidateCustom))
 )]
 pub struct Nat32Range {}
 

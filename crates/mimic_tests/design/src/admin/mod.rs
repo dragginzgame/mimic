@@ -114,14 +114,11 @@ pub struct SimpleEntity {}
 /// RecordA
 ///
 
-#[record(
-    fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "variant_a", value(item(is = "EnumA"))),
-        field(name = "description", value(item(prim = "Text"))),
-    ),
-    traits(add(Default))
-)]
+#[record(fields(
+    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+    field(name = "variant_a", value(item(is = "EnumA"))),
+    field(name = "description", value(item(prim = "Text"))),
+))]
 pub struct RecordA {}
 
 ///
@@ -165,6 +162,7 @@ pub struct EnumB {}
 ///
 
 #[enum_(
+    variant(unspecified, default),
     variant(name = "F", value(item(prim = "Text"))),
     variant(name = "I", value(item(is = "RecordB")))
 )]
@@ -175,7 +173,7 @@ pub struct EnumC {}
 ///
 
 #[enum_value(
-    variant(name = "M6", value = 1),
+    variant(name = "M6", value = 1, default),
     variant(name = "Y1", value = 5),
     variant(name = "Y2", value = 10),
     variant(name = "Y3", value = 10)
@@ -214,9 +212,5 @@ pub struct Newtype {}
 /// Tuple
 ///
 
-#[tuple(
-    value(item(prim = "Text")),
-    value(item(prim = "Text")),
-    traits(add(Default))
-)]
+#[tuple(value(item(prim = "Text")), value(item(prim = "Text")))]
 pub struct Tuple {}

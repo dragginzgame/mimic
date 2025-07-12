@@ -29,14 +29,6 @@ pub struct Enum {
 }
 
 impl Enum {
-    pub fn has_default(&self) -> bool {
-        self.variants.iter().any(|v| v.default)
-    }
-
-    pub fn get_default_variant(&self) -> Option<&EnumVariant> {
-        self.variants.iter().find(|v| v.default)
-    }
-
     pub fn is_unit_enum(&self) -> bool {
         self.variants.iter().all(|v| v.value.is_none())
     }
@@ -57,9 +49,6 @@ impl AsMacro for Enum {
         // extra traits
         if self.is_unit_enum() {
             traits.extend(vec![Trait::Copy, Trait::Hash, Trait::PartialOrd]);
-        }
-        if self.has_default() {
-            traits.add(Trait::Default);
         }
 
         traits.list()
@@ -116,35 +105,22 @@ impl AsType for Enum {
     }
 
     fn as_view_type(&self) -> TokenStream {
+        let Def { ident, .. } = &self.def;
         let view_ident = self.def.view_ident();
         let view_variants = self.variants.iter().map(AsType::as_view_type);
         let derives = Self::basic_derives();
-        let view_default = self.view_default();
 
         quote! {
             #derives
             pub enum #view_ident {
                 #(#view_variants,)*
             }
-            #view_default
-        }
-    }
 
-    fn view_default(&self) -> TokenStream {
-        let view_ident = self.def.view_ident();
-
-        if let Some(variant) = self.get_default_variant() {
-            let view_default = variant.view_default();
-
-            quote! {
-                impl Default for #view_ident {
-                    fn default() -> Self {
-                        Self::#view_default
-                    }
+            impl Default for #view_ident {
+                fn default() -> Self {
+                    #ident::default().to_view()
                 }
             }
-        } else {
-            quote!()
         }
     }
 }
@@ -233,22 +209,6 @@ impl AsType for EnumVariant {
 
             quote! {
                 #name(#value_view)
-            }
-        } else {
-            quote! {
-                #name
-            }
-        }
-    }
-
-    fn view_default(&self) -> TokenStream {
-        let name = &self.name;
-
-        if let Some(value) = &self.value {
-            let value_default = AsType::view_default(value);
-
-            quote! {
-                #name(#value_default)
             }
         } else {
             quote! {

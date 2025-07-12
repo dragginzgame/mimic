@@ -6,6 +6,7 @@ use crate::design::prelude::*;
 ///
 
 #[enum_(
+    variant(unspecified, default),
     variant(name = "Array", value(many, item(is = "Value", indirect))),
     variant(name = "Blob", value(item(prim = "Blob"))),
     variant(name = "Int", value(item(prim = "Int64"))),

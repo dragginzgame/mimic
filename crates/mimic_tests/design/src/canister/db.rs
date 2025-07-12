@@ -66,27 +66,21 @@ pub struct DataKeyOrder {}
 /// MissingFieldSmall
 ///
 
-#[record(
-    fields(
-        field(name = "a_id", value(item(prim = "Ulid"))),
-        field(name = "b_id", value(item(prim = "Ulid"))),
-    ),
-    traits(add(Default))
-)]
+#[record(fields(
+    field(name = "a_id", value(item(prim = "Ulid"))),
+    field(name = "b_id", value(item(prim = "Ulid"))),
+))]
 pub struct MissingFieldSmall {}
 
 ///
 /// MissingFieldLarge
 ///
 
-#[record(
-    fields(
-        field(name = "a_id", value(item(prim = "Ulid"))),
-        field(name = "b_id", value(item(prim = "Ulid"))),
-        field(name = "c_id", value(item(prim = "Ulid"))),
-    ),
-    traits(add(Default))
-)]
+#[record(fields(
+    field(name = "a_id", value(item(prim = "Ulid"))),
+    field(name = "b_id", value(item(prim = "Ulid"))),
+    field(name = "c_id", value(item(prim = "Ulid"))),
+))]
 pub struct MissingFieldLarge {}
 
 ///

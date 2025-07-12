@@ -48,7 +48,7 @@ pub struct EntityIdTest {}
 ///
 
 #[enum_(
-    variant(name = "A"),
+    variant(name = "A", default),
     variant(name = "B"),
     variant(name = "C"),
     variant(name = "D"),

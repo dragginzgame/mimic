@@ -42,12 +42,7 @@ impl AsMacro for Newtype {
 
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone().with_type_traits();
-        traits.extend(vec![
-            Trait::Default,
-            Trait::Deref,
-            Trait::DerefMut,
-            Trait::Inner,
-        ]);
+        traits.extend(vec![Trait::Deref, Trait::DerefMut, Trait::Inner]);
 
         // primitive traits
         if self.primitive.supports_arithmetic() {
@@ -93,7 +88,6 @@ impl AsMacro for Newtype {
         use crate::node_traits::*;
 
         match t {
-            Trait::Default if self.default.is_some() => DefaultTrait::tokens(self),
             Trait::FieldValue => FieldValueTrait::tokens(self),
             Trait::From => FromTrait::tokens(self),
             Trait::Inner => InnerTrait::tokens(self),
@@ -144,14 +138,6 @@ impl AsType for Newtype {
 
         quote! {
             pub type #view_ident = #view_type;
-        }
-    }
-
-    fn view_default(&self) -> TokenStream {
-        let view_type = self.primitive.as_type();
-
-        quote! {
-            #view_type::default()
         }
     }
 }

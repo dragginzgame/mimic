@@ -92,6 +92,7 @@ pub enum Trait {
 
 static TYPE_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
     vec![
+        Trait::Default,
         Trait::Deserialize,
         Trait::FieldSearchable,
         Trait::FieldSortable,

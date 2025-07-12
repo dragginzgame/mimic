@@ -33,11 +33,6 @@ impl AsMacro for Selector {
         let mut traits = Traits::new().with_default_traits();
         traits.add(Trait::Into);
 
-        // add default if needed
-        if self.variants.iter().any(|v| v.default) {
-            traits.add(Trait::Default);
-        }
-
         traits.list()
     }
 

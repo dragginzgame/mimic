@@ -36,12 +36,7 @@ impl AsMacro for List {
 
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone().with_type_traits();
-        traits.extend(vec![
-            Trait::Default,
-            Trait::Deref,
-            Trait::DerefMut,
-            Trait::IntoIterator,
-        ]);
+        traits.extend(vec![Trait::Deref, Trait::DerefMut, Trait::IntoIterator]);
 
         traits.list()
     }
@@ -92,12 +87,6 @@ impl AsType for List {
 
         quote! {
             pub type #view_ident = Vec<#item_view>;
-        }
-    }
-
-    fn view_default(&self) -> TokenStream {
-        quote! {
-            Vec::new()
         }
     }
 }
