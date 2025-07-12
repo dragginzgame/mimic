@@ -59,6 +59,11 @@ impl DeleteExecutor {
         self.execute::<E>(DeleteQuery::new().many::<E, V>(values))
     }
 
+    // all
+    pub fn all<E: EntityKind>(&self) -> Result<DeleteCollection, MimicError> {
+        self.execute::<E>(DeleteQuery::new())
+    }
+
     // execute
     pub fn execute<E: EntityKind>(
         self,

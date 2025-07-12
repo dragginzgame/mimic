@@ -58,6 +58,12 @@ impl LoadExecutor {
             .map(|res| res.entities().to_vec())
     }
 
+    // all
+    pub fn all<E: EntityKind>(&self) -> Result<Vec<E>, MimicError> {
+        self.execute::<E>(LoadQuery::new())
+            .map(|res| res.entities().to_vec())
+    }
+
     // execute
     pub fn execute<E: EntityKind>(self, query: LoadQuery) -> Result<LoadCollection<E>, MimicError> {
         let cl = self.execute_internal::<E>(query)?;
