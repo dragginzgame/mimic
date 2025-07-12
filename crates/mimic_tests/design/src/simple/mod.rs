@@ -44,7 +44,7 @@ pub struct CONSTANT {}
 pub struct EntityIdTest {}
 
 ///
-/// SortedEnum
+/// EnumSorted
 ///
 
 #[enum_(
@@ -54,7 +54,20 @@ pub struct EntityIdTest {}
     variant(name = "D"),
     traits(add(Sorted))
 )]
-pub struct SortedEnum {}
+pub struct EnumSorted {}
+
+///
+/// EnumUnspecified
+///
+
+#[enum_(
+    variant(unspecified, default),
+    variant(name = "A"),
+    variant(name = "B"),
+    variant(name = "C"),
+    variant(name = "D")
+)]
+pub struct EnumUnspecified {}
 
 ///
 /// TodoUnit

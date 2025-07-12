@@ -12,6 +12,34 @@ use crate::design::{base::validator, prelude::*};
 pub struct Degrees {}
 
 ///
+/// Int32Range
+///
+
+#[record(
+    fields(
+        field(name = "min", value(item(prim = "Int32"))),
+        field(name = "max", value(item(prim = "Int32"))),
+    ),
+    traits(remove(ValidateCustom))
+)]
+pub struct Int32Range {}
+
+impl Int32Range {
+    #[must_use]
+    pub fn new(min: i32, max: i32) -> Self {
+        Self { min, max }
+    }
+}
+
+impl ValidateCustom for Int32Range {
+    fn validate_custom(&self) -> Result<(), ErrorTree> {
+        validator::number::Ltoe::new(self.max)
+            .validate(&self.min)
+            .map_err(ErrorTree::from)
+    }
+}
+
+///
 /// Percent
 ///
 /// basic percentage as an integer
