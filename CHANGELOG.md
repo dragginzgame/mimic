@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 type (Ulid/Principal, not Key) is used in the struct
 - view now derives Default, good for endpoint code, but really hard to implement
 as Principal doesn't derive Default
+- added checking for redundant indexes
 
 ## [0.7.0] - Removed Entity Nesting
 - Just wasn't working out, adding more complexity.  Much simplified now

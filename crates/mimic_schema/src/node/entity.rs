@@ -56,6 +56,33 @@ impl ValidateNode for Entity {
             Err(e) => errs.add(e),
         }
 
+        // indexes
+        let len = self.indexes.len();
+        for i in 0..len {
+            let a = &self.indexes[i];
+
+            for j in i + 1..len {
+                let b = &self.indexes[j];
+
+                // Only consider redundant if:
+                // - a is a prefix of b
+                // - AND both are either unique OR both are not unique
+                if a.unique == b.unique {
+                    if a.is_prefix_of(b) {
+                        errs.add(format!(
+                            "index {:?} is redundant (prefix of {:?})",
+                            a.fields, b.fields
+                        ));
+                    } else if b.is_prefix_of(a) {
+                        errs.add(format!(
+                            "index {:?} is redundant (prefix of {:?})",
+                            b.fields, a.fields
+                        ));
+                    }
+                }
+            }
+        }
+
         errs.result()
     }
 }
@@ -87,6 +114,12 @@ pub struct EntityIndex {
     pub unique: bool,
 
     pub store: &'static str,
+}
+
+impl EntityIndex {
+    fn is_prefix_of(&self, other: &EntityIndex) -> bool {
+        self.fields.len() < other.fields.len() && other.fields.starts_with(self.fields)
+    }
 }
 
 impl ValidateNode for EntityIndex {

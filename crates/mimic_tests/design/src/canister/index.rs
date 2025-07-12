@@ -35,9 +35,8 @@ impl Index {
 #[entity(
     store = "crate::schema::TestStore",
     pk = "id",
-    index(store = "crate::schema::TestIndex", fields = "x",),
+    index(store = "crate::schema::TestIndex", fields = "x"),
     index(store = "crate::schema::TestIndex", fields = "y", unique),
-    index(store = "crate::schema::TestIndex", fields = "x, z"),
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(name = "x", value(item(prim = "Int32"))),
