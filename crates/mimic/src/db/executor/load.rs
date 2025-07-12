@@ -68,10 +68,7 @@ impl LoadExecutor {
         self,
         query: LoadQuery,
     ) -> Result<LoadCollection<E>, DbError> {
-        debug!(self.debug, "query.load: {query:?}");
-
         let plan = QueryPlan::new(&query.range, &query.filter);
-        debug!(self.debug, "query.load: plan is {plan:?}");
 
         // cast results to E
         let mut rows = self
@@ -104,7 +101,10 @@ impl LoadExecutor {
     fn execute_plan<E: EntityKind>(&self, plan: &QueryPlan) -> Result<Vec<DataRow>, DbError> {
         let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
 
-        let rows = match plan.shape::<E>() {
+        let shape = plan.shape::<E>();
+        debug!(self.debug, "query.load: {plan:?} shape is {shape:?}");
+
+        let rows = match shape {
             QueryShape::All => store.with_borrow(|this| {
                 this.iter()
                     .map(|(key, entry)| DataRow { key, entry })

@@ -134,6 +134,12 @@ impl From<WrappedPrincipal> for Value {
     }
 }
 
+impl From<Vec<Value>> for Value {
+    fn from(vec: Vec<Value>) -> Self {
+        Value::List(vec.into_iter().map(Box::new).collect())
+    }
+}
+
 impl PartialOrd for Value {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         match (self, other) {

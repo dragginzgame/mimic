@@ -1,6 +1,6 @@
 #![allow(clippy::type_complexity)]
 use crate::{
-    core::{Key, value::Value},
+    core::{Key, Value, traits::EntityKind},
     db::query::{Cmp, FilterBuilder, FilterClause, FilterExpr, RangeExpr, SortDirection, SortExpr},
 };
 use candid::CandidType;
@@ -45,24 +45,26 @@ impl LoadQuery {
     }
 
     // one
-    pub fn one<K: Into<Key>>(self, key: K) -> Self {
-        self.filter_eq("id", key.into())
+    pub fn one<E: EntityKind>(self, key: impl Into<Key>) -> Self {
+        self.filter_eq(E::PRIMARY_KEY, key.into())
     }
 
     // many
-    /*
-    pub fn many<K>(mut self, keys: &[K]) -> Self
+    pub fn many<E: EntityKind, K>(self, keys: &[K]) -> Self
     where
-        K: Into<Value> + Clone,
+        K: Into<Key> + Clone,
     {
-        let values: Vec<Value> = keys.iter().cloned().map(Into::into).collect();
-        let clause = Filter::Clause(FilterClause::new("id", Cmp::Contains, values));
+        let list = keys
+            .iter()
+            .cloned()
+            .map(|k| Box::new(Value::from(k.into())))
+            .collect::<Vec<_>>();
 
-        self.filter = Some(clause.and_option(self.filter.take()));
+        let value = Value::List(list);
+        let clause = FilterExpr::Clause(FilterClause::new(E::PRIMARY_KEY, Cmp::In, value));
 
-        self
+        self.merge_filter(clause)
     }
-    */
 
     // with_filter
     // use an external builder to replace the current Filter
@@ -76,18 +78,29 @@ impl LoadQuery {
     }
 
     #[must_use]
+    pub fn filter_eq<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
+        let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::Eq, value));
+
+        self.merge_filter(clause)
+    }
+
+    #[must_use]
+    pub fn filter_in<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
+        let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::In, value));
+
+        self.merge_filter(clause)
+    }
+
+    #[must_use]
     pub fn set_filter(mut self, expr: FilterExpr) -> Self {
         self.filter = Some(expr);
         self
     }
 
-    // filter_eq
-    #[must_use]
-    pub fn filter_eq<F: Into<String>, V: Into<Value>>(mut self, field: F, value: V) -> Self {
-        let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::Eq, value));
+    fn merge_filter(mut self, new: FilterExpr) -> Self {
         self.filter = Some(match self.filter.take() {
-            Some(existing) => existing.and(clause),
-            None => clause,
+            Some(existing) => existing.and(new),
+            None => new,
         });
 
         self

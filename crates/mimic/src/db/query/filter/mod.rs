@@ -84,6 +84,14 @@ impl FilterExpr {
         }
     }
 
+    #[must_use]
+    pub fn or_option(self, other: Option<FilterExpr>) -> Self {
+        match other {
+            Some(f) => self.or(f),
+            None => self,
+        }
+    }
+
     /// Simplifies the logical expression recursively, applying rules like:
     /// - Eliminate double negation `NOT NOT x` -> `x`
     /// - Apply De Morgan's laws:
@@ -226,6 +234,11 @@ pub enum Cmp {
     Lte,
     Gt,
     Gte,
+
+    // array matching
+    In,
+    AllIn,
+    AnyIn,
 
     // text matching
     Contains,

@@ -21,6 +21,7 @@ impl DbTester {
             ("index_create_and_delete", Self::index_create_and_delete),
             ("index_option", Self::index_option),
             ("limit_query", Self::limit_query),
+            ("load_one", Self::load_one),
             ("perf_options", Self::perf_options),
             ("perf_many_relations", Self::perf_many_relations),
         ];
@@ -363,6 +364,30 @@ impl DbTester {
         }
     }
 
+    fn load_one() {
+        use test_design::canister::db::CreateBasic;
+
+        let e = CreateBasic::default();
+        let id = db!()
+            .save()
+            .execute(query::replace().from_entity(e.clone()))
+            .unwrap()
+            .0
+            .first()
+            .unwrap()
+            .key;
+
+        let loaded = db!()
+            .load()
+            .debug()
+            .execute::<CreateBasic>(query::load().one::<CreateBasic>(id))
+            .unwrap()
+            .try_entity()
+            .unwrap();
+
+        assert_eq!(loaded.id, e.id);
+    }
+
     fn perf_options() {
         use test_design::canister::db::ContainsOpts;
 
@@ -380,7 +405,6 @@ impl DbTester {
         // Retrieve rows in B-Tree order
         let keys = db!()
             .load()
-            .debug()
             .execute::<ContainsOpts>(query::load())
             .unwrap()
             .keys();
@@ -405,7 +429,6 @@ impl DbTester {
         // Retrieve rows in B-Tree order
         let keys = db!()
             .load()
-            .debug()
             .execute::<ContainsManyRelations>(query::load())
             .unwrap()
             .keys();

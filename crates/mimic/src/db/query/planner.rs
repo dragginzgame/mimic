@@ -66,6 +66,7 @@ impl QueryPlan {
 /// QueryShape
 ///
 
+#[derive(Debug)]
 pub enum QueryShape {
     All,
     One(DataKey),
