@@ -1,5 +1,5 @@
 use crate::{
-    core::{Key, Value},
+    core::Value,
     db::query::{Cmp, FilterClause, FilterExpr, RangeExpr},
 };
 use candid::CandidType;

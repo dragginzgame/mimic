@@ -48,11 +48,20 @@ impl LoadExecutor {
     }
 
     // many
-    pub fn many<E: EntityKind>(&self, values: &[Value]) -> Result<Vec<E>, MimicError> {
-        let list = values.iter().cloned().map(Box::new).collect();
+    pub fn many<E, V>(&self, values: &[V]) -> Result<Vec<E>, MimicError>
+    where
+        E: EntityKind,
+        V: Clone + Into<Value>,
+    {
+        let list = values
+            .iter()
+            .cloned()
+            .map(|v| Box::new(v.into()))
+            .collect::<Vec<_>>();
+
         let value = Value::List(list);
 
-        self.execute::<E>(LoadQuery::new().filter_in(E::PRIMARY_KEY, value))
+        self.execute::<E>(LoadQuery::default().filter_in(E::PRIMARY_KEY, value))
             .map(|res| res.entities().to_vec())
     }
 
