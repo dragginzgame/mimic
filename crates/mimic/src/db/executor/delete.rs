@@ -41,12 +41,22 @@ impl DeleteExecutor {
     }
 
     // one
-    // helper method
+    // helper method, creates query
     pub fn one<E: EntityKind>(
         &self,
         value: impl Into<Value>,
     ) -> Result<DeleteCollection, MimicError> {
-        self.execute::<E>(DeleteQuery::new().filter_eq(E::PRIMARY_KEY, value))
+        self.execute::<E>(DeleteQuery::new().one::<E>(value))
+    }
+
+    // many
+    // helper method, creates query
+    pub fn many<E, V>(&self, values: &[V]) -> Result<DeleteCollection, MimicError>
+    where
+        E: EntityKind,
+        V: Clone + Into<Value>,
+    {
+        self.execute::<E>(DeleteQuery::new().many::<E, V>(values))
     }
 
     // execute

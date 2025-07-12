@@ -1,5 +1,5 @@
 use crate::{
-    core::Value,
+    core::{Value, traits::EntityKind},
     db::query::{Cmp, FilterClause, FilterExpr, RangeExpr},
 };
 use candid::CandidType;
@@ -22,30 +22,45 @@ impl DeleteQuery {
         Self::default()
     }
 
+    // one
+    pub fn one<E: EntityKind>(self, value: impl Into<Value>) -> Self {
+        self.filter_eq(E::PRIMARY_KEY, value.into())
+    }
+
+    // many
+    pub fn many<E, V>(self, values: &[V]) -> Self
+    where
+        E: EntityKind,
+        V: Clone + Into<Value>,
+    {
+        let list = values
+            .iter()
+            .cloned()
+            .map(|v| Box::new(v.into()))
+            .collect::<Vec<_>>();
+
+        self.filter_in(E::PRIMARY_KEY, Value::List(list))
+    }
+
+    pub fn filter_in<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
+        let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::In, value));
+
+        self.merge_filter(clause)
+    }
+
     // filter_eq
-    #[must_use]
-    pub fn filter_eq<F: Into<String>, V: Into<Value>>(mut self, field: F, value: V) -> Self {
+    pub fn filter_eq<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
         let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::Eq, value));
+
+        self.merge_filter(clause)
+    }
+
+    fn merge_filter(mut self, new: FilterExpr) -> Self {
         self.filter = Some(match self.filter.take() {
-            Some(existing) => existing.and(clause),
-            None => clause,
+            Some(existing) => existing.and(new),
+            None => new,
         });
 
         self
     }
-
-    // many
-    /*
-        pub fn many<K>(mut self, keys: &[K]) -> Self
-        where
-            K: Into<Value> + Clone,
-        {
-            let values: Vec<Value> = keys.iter().cloned().map(Into::into).collect();
-            let clause = Filter::Clause(FilterClause::new("id", Cmp::Contains, values));
-
-            self.filter = Some(clause.and_option(self.filter.take()));
-
-            self
-        }
-    */
 }

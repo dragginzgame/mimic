@@ -1,6 +1,6 @@
 #![allow(clippy::type_complexity)]
 use crate::{
-    core::Value,
+    core::{Value, traits::EntityKind},
     db::query::{Cmp, FilterBuilder, FilterClause, FilterExpr, RangeExpr, SortDirection, SortExpr},
 };
 use candid::CandidType;
@@ -42,6 +42,26 @@ impl LoadQuery {
     pub const fn format(mut self, format: LoadFormat) -> Self {
         self.format = format;
         self
+    }
+
+    // one
+    pub fn one<E: EntityKind>(self, value: impl Into<Value>) -> Self {
+        self.filter_eq(E::PRIMARY_KEY, value.into())
+    }
+
+    // many
+    pub fn many<E, V>(self, values: &[V]) -> Self
+    where
+        E: EntityKind,
+        V: Clone + Into<Value>,
+    {
+        let list = values
+            .iter()
+            .cloned()
+            .map(|v| Box::new(v.into()))
+            .collect::<Vec<_>>();
+
+        self.filter_in(E::PRIMARY_KEY, Value::List(list))
     }
 
     // with_filter

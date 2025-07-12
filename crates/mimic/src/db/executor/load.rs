@@ -41,27 +41,20 @@ impl LoadExecutor {
     }
 
     // one
-    // helper method
+    // helper method, creates query
     pub fn one<E: EntityKind>(&self, value: impl Into<Value>) -> Result<E, MimicError> {
-        self.execute::<E>(LoadQuery::new().filter_eq(E::PRIMARY_KEY, value))
+        self.execute::<E>(LoadQuery::new().one::<E>(value))
             .and_then(|res| res.try_entity())
     }
 
     // many
+    // helper method, creates query
     pub fn many<E, V>(&self, values: &[V]) -> Result<Vec<E>, MimicError>
     where
         E: EntityKind,
         V: Clone + Into<Value>,
     {
-        let list = values
-            .iter()
-            .cloned()
-            .map(|v| Box::new(v.into()))
-            .collect::<Vec<_>>();
-
-        let value = Value::List(list);
-
-        self.execute::<E>(LoadQuery::default().filter_in(E::PRIMARY_KEY, value))
+        self.execute::<E>(LoadQuery::new().many::<E, V>(values))
             .map(|res| res.entities().to_vec())
     }
 
