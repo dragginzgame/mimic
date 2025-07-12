@@ -13,6 +13,7 @@ use crate::prelude::*;
         field(name = "name", value(item(prim = "Text"))),
         field(name = "description", value(item(prim = "Text"))),
         field(name = "level", value(item(prim = "Nat8"))),
+        field(name = "color", value(item(is = "types::color::RgbHex"))),
     ),
     traits(remove(EntityFixture))
 )]
@@ -23,22 +24,23 @@ impl EntityFixture for Rarity {
         use RarityId as Id;
 
         let data = [
-            (Id::Common, "Common", 1),
-            (Id::Uncommon, "Uncommon", 2),
-            (Id::Rare, "Rare", 3),
-            (Id::Epic, "Epic", 4),
-            (Id::Legendary, "Legendary", 5),
-            (Id::Mythical, "Mythical", 6),
-            (Id::Inconceivable, "Inconceivable", 7),
+            (Id::Common, "Common", 1, "111111"),
+            (Id::Uncommon, "Uncommon", 2, "222222"),
+            (Id::Rare, "Rare", 3, "333333"),
+            (Id::Epic, "Epic", 4, "444444"),
+            (Id::Legendary, "Legendary", 5, "555555"),
+            (Id::Mythical, "Mythical", 6, "666666"),
+            (Id::Inconceivable, "Inconceivable", 7, "777777"),
         ];
 
-        for (id, name, level) in data {
+        for (id, name, level, color) in data {
             EntityService::save_fixture(
                 exec,
                 Self {
                     id: id.into(),
                     name: name.into(),
                     level,
+                    color: color.into(),
                     ..Default::default()
                 },
             );

@@ -53,9 +53,9 @@ impl<'a> FilterEvaluator<'a> {
             Cmp::Eq => actual == expected,
             Cmp::Ne => actual != expected,
             Cmp::Lt => actual < expected,
-            Cmp::Ltoe => actual <= expected,
+            Cmp::Lte => actual <= expected,
             Cmp::Gt => actual > expected,
-            Cmp::Gtoe => actual >= expected,
+            Cmp::Gte => actual >= expected,
 
             _ => false, // should only be text ops here, already handled
         }

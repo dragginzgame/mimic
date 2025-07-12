@@ -11,8 +11,8 @@ use crate::prelude::*;
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(name = "multiple_ten", value(item(is = "MultipleTenType"))),
         field(
-            name = "ltoe_ten",
-            value(item(prim = "Nat8", validator(path = "validator::number::Ltoe", args(10)))),
+            name = "lte_ten",
+            value(item(prim = "Nat8", validator(path = "validator::number::Lte", args(10)))),
         ),
         field(
             name = "gt_fifty",

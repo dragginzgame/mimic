@@ -1,5 +1,5 @@
 use crate::{
-    core::{Key, Value, traits::EntityKind},
+    core::{Key, traits::EntityKind},
     db::{executor::ExecutorError, hasher::xx_hash_u64},
     debug,
     ic::structures::{BTreeMap, DefaultMemory},
@@ -182,10 +182,7 @@ impl IndexKey {
         // Early exit: if any value is null or fails to convert into a key
         let mut keys = Vec::with_capacity(values.len());
         for v in values {
-            if matches!(v, Value::Null) {
-                return None;
-            }
-            match v.into_key() {
+            match v.as_key() {
                 Some(k) => keys.push(k),
                 None => return None,
             }

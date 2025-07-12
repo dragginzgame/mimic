@@ -83,7 +83,6 @@ where
 
         Ok(Self {
             bytes,
-            path: E::path(),
             metadata: value.metadata,
         })
     }

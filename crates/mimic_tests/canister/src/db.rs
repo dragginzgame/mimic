@@ -60,7 +60,7 @@ impl DbTester {
         let keys = db!()
             .load()
             .debug()
-            .execute::<ContainsBlob>(query::load().all().sort_field("id", SortDirection::Asc))
+            .execute::<ContainsBlob>(query::load().sort_field("id", SortDirection::Asc))
             .unwrap()
             .keys();
 
@@ -89,7 +89,7 @@ impl DbTester {
         // count keys
         let num_keys = db!()
             .load()
-            .execute::<CreateBasic>(query::load().all())
+            .execute::<CreateBasic>(query::load())
             .unwrap()
             .count();
         assert_eq!(num_keys, 1);
@@ -106,7 +106,7 @@ impl DbTester {
         assert_eq!(
             db!()
                 .load()
-                .execute::<CreateBasic>(query::load().all())
+                .execute::<CreateBasic>(query::load())
                 .unwrap()
                 .count(),
             2
@@ -130,7 +130,7 @@ impl DbTester {
         // Retrieve the count from the store
         let count = db!()
             .load()
-            .execute::<CreateBasic>(query::load().all())
+            .execute::<CreateBasic>(query::load())
             .unwrap()
             .count();
 
@@ -159,7 +159,7 @@ impl DbTester {
         // Retrieve the count from the store
         let count = db!()
             .load()
-            .execute::<CreateBlob>(query::load().all())
+            .execute::<CreateBlob>(query::load())
             .unwrap()
             .count();
 
@@ -185,7 +185,7 @@ impl DbTester {
         // Retrieve rows in B-Tree order
         let keys = db!()
             .load()
-            .execute::<DataKeyOrder>(query::load().all().sort([("id", SortDirection::Asc)]))
+            .execute::<DataKeyOrder>(query::load().sort([("id", SortDirection::Asc)]))
             .unwrap()
             .keys();
 
@@ -244,7 +244,7 @@ impl DbTester {
         let all = db!()
             .load()
             .debug()
-            .execute::<Index>(query::load().all())
+            .execute::<Index>(query::load())
             .unwrap();
 
         assert_eq!(all.count(), 2);
@@ -328,7 +328,7 @@ impl DbTester {
         // Confirm only 3 entities now exist
         let all = db!()
             .load()
-            .execute::<IndexUniqueOpt>(query::load().all())
+            .execute::<IndexUniqueOpt>(query::load())
             .unwrap();
         assert_eq!(all.count(), 3);
     }
@@ -351,7 +351,7 @@ impl DbTester {
             for offset in [0, 5, 10] {
                 let count = db!()
                     .load()
-                    .execute::<Limit>(query::load().all().offset(offset).limit(limit))
+                    .execute::<Limit>(query::load().offset(offset).limit(limit))
                     .unwrap()
                     .count();
 
@@ -381,7 +381,7 @@ impl DbTester {
         let keys = db!()
             .load()
             .debug()
-            .execute::<ContainsOpts>(query::load().all())
+            .execute::<ContainsOpts>(query::load())
             .unwrap()
             .keys();
 
@@ -406,7 +406,7 @@ impl DbTester {
         let keys = db!()
             .load()
             .debug()
-            .execute::<ContainsManyRelations>(query::load().all())
+            .execute::<ContainsManyRelations>(query::load())
             .unwrap()
             .keys();
 

@@ -49,9 +49,7 @@ impl FilterTester {
 
     // filter
     fn filter_eq_string() {
-        let query = query::load()
-            .all()
-            .with_filter(|f| f.filter("category", Cmp::Eq, "A"));
+        let query = query::load().with_filter(|f| f.filter("category", Cmp::Eq, "A"));
 
         let results = db!()
             .load()
@@ -62,9 +60,7 @@ impl FilterTester {
     }
 
     fn filter_eq_bool() {
-        let query = query::load()
-            .all()
-            .with_filter(|f| f.filter("active", Cmp::Eq, true));
+        let query = query::load().with_filter(|f| f.filter("active", Cmp::Eq, true));
 
         let results = db!()
             .load()
@@ -75,9 +71,7 @@ impl FilterTester {
     }
 
     fn filter_gt_score() {
-        let query = query::load()
-            .all()
-            .with_filter(|f| f.filter("score", Cmp::Gt, 80.0));
+        let query = query::load().with_filter(|f| f.filter("score", Cmp::Gt, 80.0));
 
         let results = db!()
             .load()
@@ -88,9 +82,7 @@ impl FilterTester {
     }
 
     fn filter_le_level() {
-        let query = query::load()
-            .all()
-            .with_filter(|f| f.filter("level", Cmp::Ltoe, 3));
+        let query = query::load().with_filter(|f| f.filter("level", Cmp::Lte, 3));
 
         let results = db!()
             .load()
@@ -101,9 +93,7 @@ impl FilterTester {
     }
 
     fn filter_ne_category() {
-        let query = query::load()
-            .all()
-            .with_filter(|f| f.filter("category", Cmp::Ne, "B"));
+        let query = query::load().with_filter(|f| f.filter("category", Cmp::Ne, "B"));
 
         let results = db!()
             .load()
@@ -114,10 +104,10 @@ impl FilterTester {
     }
 
     fn filter_and_group() {
-        let query = query::load().all().with_filter(|f| {
+        let query = query::load().with_filter(|f| {
             f.filter_group(|b| {
-                b.filter("score", Cmp::Gtoe, 60.0)
-                    .filter("level", Cmp::Gtoe, 2)
+                b.filter("score", Cmp::Gte, 60.0)
+                    .filter("level", Cmp::Gte, 2)
             })
         });
 
@@ -130,7 +120,7 @@ impl FilterTester {
     }
 
     fn filter_or_group() {
-        let query = query::load().all().with_filter(|f| {
+        let query = query::load().with_filter(|f| {
             f.or_filter_group(|b| {
                 b.filter("category", Cmp::Eq, "A")
                     .filter("category", Cmp::Eq, "C")
@@ -150,7 +140,7 @@ impl FilterTester {
     }
 
     fn filter_nested_groups() {
-        let query = query::load().all().with_filter(|f| {
+        let query = query::load().with_filter(|f| {
             f.filter("active", Cmp::Eq, true).or_filter_group(|b| {
                 b.filter_group(|b| b.filter("score", Cmp::Lt, 40.0))
                     .or_filter("offset", Cmp::Lt, 0)
@@ -166,9 +156,7 @@ impl FilterTester {
     }
 
     fn filter_startswith_name() {
-        let query = query::load()
-            .all()
-            .with_filter(|f| f.filter("name", Cmp::StartsWith, "A"));
+        let query = query::load().with_filter(|f| f.filter("name", Cmp::StartsWith, "A"));
 
         let results = db!()
             .load()
@@ -180,7 +168,7 @@ impl FilterTester {
 
     fn filter_not_clause() {
         let expr = FilterExpr::Clause(FilterClause::new("category", Cmp::Eq, "C")).not();
-        let query = query::load().all().set_filter(Some(expr));
+        let query = query::load().set_filter(expr);
 
         let results = db!()
             .load()
@@ -191,7 +179,7 @@ impl FilterTester {
     }
 
     fn filter_true_short_circuit() {
-        let query = query::load().all().set_filter(Some(FilterExpr::True));
+        let query = query::load().set_filter(FilterExpr::True);
         let results = db!()
             .load()
             .execute::<Filterable>(query)
@@ -202,10 +190,9 @@ impl FilterTester {
     }
 
     fn filter_false_short_circuit() {
-        let query = query::load().all().set_filter(Some(FilterExpr::False));
         let results = db!()
             .load()
-            .execute::<Filterable>(query)
+            .execute::<Filterable>(query::load().set_filter(FilterExpr::False))
             .unwrap()
             .entities();
 
@@ -213,9 +200,7 @@ impl FilterTester {
     }
 
     fn filter_empty_result() {
-        let query = query::load()
-            .all()
-            .with_filter(|f| f.filter("category", Cmp::Eq, "Nonexistent"));
+        let query = query::load().with_filter(|f| f.filter("category", Cmp::Eq, "Nonexistent"));
 
         let results = db!()
             .load()

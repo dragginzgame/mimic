@@ -14,7 +14,6 @@ use std::{
     borrow::Cow,
     cell::RefCell,
     fmt::{self, Display},
-    ops::{Range, RangeInclusive},
     thread::LocalKey,
 };
 
@@ -116,18 +115,6 @@ impl From<DataKey> for Key {
 impl_storable_bounded!(DataKey, Self::STORABLE_MAX_SIZE, false);
 
 ///
-/// DataKeyRange
-///
-
-#[derive(Debug)]
-pub enum DataKeyRange {
-    Inclusive(RangeInclusive<DataKey>),
-    Exclusive(Range<DataKey>),
-    SkipFirstInclusive(RangeInclusive<DataKey>),
-    SkipFirstExclusive(Range<DataKey>),
-}
-
-///
 /// DataEntry
 ///
 /// custom implementation of Storable because all data goes through this
@@ -137,7 +124,6 @@ pub enum DataKeyRange {
 #[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
 pub struct DataEntry {
     pub bytes: Vec<u8>,
-    pub path: String,
     pub metadata: Metadata,
 }
 
@@ -151,9 +137,6 @@ impl Storable for DataEntry {
         let blob_bytes = self.bytes.to_bytes();
         write_chunk(&mut out, &blob_bytes);
 
-        // write path
-        write_chunk(&mut out, self.path.as_bytes());
-
         // write metadata
         let meta_bytes = Encode!(&self.metadata).expect("encode metadata");
         write_chunk(&mut out, &meta_bytes);
@@ -165,15 +148,10 @@ impl Storable for DataEntry {
         let mut cursor = &bytes[..];
 
         let bytes = read_chunk(&mut cursor);
-        let path = String::from_utf8(read_chunk(&mut cursor)).expect("invalid utf-8 path");
         let metadata_buf = read_chunk(&mut cursor);
         let metadata = Decode!(&metadata_buf, Metadata).expect("decode metadata");
 
-        Self {
-            bytes,
-            path,
-            metadata,
-        }
+        Self { bytes, metadata }
     }
 }
 

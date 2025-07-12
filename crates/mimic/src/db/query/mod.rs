@@ -2,15 +2,17 @@ mod delete;
 mod filter;
 mod load;
 mod planner;
+mod range;
 mod save;
-mod selector;
+mod sort;
 
 pub use delete::*;
 pub use filter::*;
 pub use load::*;
 pub use planner::*;
+pub use range::*;
 pub use save::*;
-pub use selector::*;
+pub use sort::*;
 
 use thiserror::Error as ThisError;
 
@@ -20,20 +22,20 @@ use thiserror::Error as ThisError;
 
 #[derive(Debug, ThisError)]
 pub enum QueryError {
-    #[error("selector not suppoorted")]
+    #[error("selector not supported")]
     SelectorNotSupported,
 }
 
 // load
 #[must_use]
-pub fn load() -> LoadQueryBuilder {
-    LoadQueryBuilder::new()
+pub fn load() -> LoadQuery {
+    LoadQuery::new()
 }
 
 // delete
 #[must_use]
-pub fn delete() -> DeleteQueryBuilder {
-    DeleteQueryBuilder::new()
+pub fn delete() -> DeleteQuery {
+    DeleteQuery::new()
 }
 
 // create

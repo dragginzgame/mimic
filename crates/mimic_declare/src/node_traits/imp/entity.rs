@@ -17,11 +17,13 @@ pub struct EntityKindTrait {}
 impl Imp<Entity> for EntityKindTrait {
     fn tokens(node: &Entity) -> Option<TokenStream> {
         let store = &node.store;
+        let primary_key = &node.primary_key.to_string();
         let defs = node.indexes.iter().map(AsSchema::schema);
 
         // static definitions
         let mut q = quote! {
             const STORE: &'static str = #store::PATH;
+            const PRIMARY_KEY: &'static str = #primary_key;
             const INDEXES: &'static [::mimic::schema::node::EntityIndex] = &[
                 #(#defs),*
             ];
@@ -49,7 +51,7 @@ fn key(node: &Entity) -> TokenStream {
 
             self.#primary_key
                 .to_value()
-                .into_key()
+                .as_key()
                 .expect("primary key field must be indexable")
         }
     }
@@ -60,7 +62,7 @@ fn values(node: &Entity) -> TokenStream {
     let inserts = &node
         .fields
         .iter()
-        .filter_map(|field| {
+        .map(|field| {
             let field_ident = &field.name;
             let field_lit = LitStr::new(&field_ident.to_string(), Span::call_site());
 
@@ -73,11 +75,19 @@ fn values(node: &Entity) -> TokenStream {
                     map.insert(#field_lit,
                         self.#field_ident
                             .as_ref()
-                            .map_or(::mimic::core::value::Value::Null, FieldValue::to_value)
+                            .map(|v| v.to_value())
+                            .unwrap_or(::mimic::core::value::Value::None)
                     );
                 }),
 
-                Cardinality::Many => None, // Optionally: serialize Vec<T> if needed
+                Cardinality::Many => Some(quote! {
+                    let list = self.#field_ident
+                        .iter()
+                        .map(|v| Box::new(v.to_value()))
+                        .collect::<Vec<_>>();
+
+                    map.insert(#field_lit, ::mimic::core::value::Value::List(list));
+                }),
             }
         })
         .collect::<Vec<_>>();
@@ -185,7 +195,7 @@ impl Imp<Entity> for EntitySortTrait {
         }
 
         let q = quote! {
-            fn sort(order: &[(String, ::mimic::db::query::SortDirection)])
+            fn sort(expr: &::mimic::db::query::SortExpr)
                 -> Box<dyn Fn(&#node_ident, &#node_ident) -> ::std::cmp::Ordering>
             {
                 #asc_fns
@@ -193,7 +203,7 @@ impl Imp<Entity> for EntitySortTrait {
 
                 let mut comps: Vec<fn(&#node_ident, &#node_ident) -> ::std::cmp::Ordering> = Vec::new();
 
-                for (field, dir) in order {
+                for (field, dir) in expr.iter() {
                     match (field.as_str(), dir) {
                         #match_arms
                         _ => {}

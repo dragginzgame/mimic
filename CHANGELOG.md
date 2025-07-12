@@ -5,6 +5,9 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.7.2] - Range and Filter
+-
+
 ## [0.7.1] - Split Type and Relation
 - now you can specify rel= and is/prim= at the item level, so the actual
 type (Ulid/Principal, not Key) is used in the struct

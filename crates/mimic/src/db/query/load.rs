@@ -1,7 +1,7 @@
 #![allow(clippy::type_complexity)]
 use crate::{
     core::{Key, value::Value},
-    db::query::{Cmp, FilterBuilder, FilterClause, FilterExpr, Selector, SortDirection},
+    db::query::{Cmp, FilterBuilder, FilterClause, FilterExpr, RangeExpr, SortDirection, SortExpr},
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -18,80 +18,23 @@ pub enum LoadFormat {
 }
 
 ///
-/// LoadQueryBuilder
-///
-
-#[derive(Debug, Default)]
-pub struct LoadQueryBuilder {}
-
-impl LoadQueryBuilder {
-    // new
-    #[must_use]
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    // selector
-    #[must_use]
-    pub fn selector(self, selector: Selector) -> LoadQuery {
-        LoadQuery::new(selector)
-    }
-
-    // all
-    #[must_use]
-    pub fn all(self) -> LoadQuery {
-        LoadQuery::new(Selector::All)
-    }
-
-    // one
-    pub fn one<K: Into<Key>>(self, key: K) -> LoadQuery {
-        let selector = Selector::One(key.into());
-
-        LoadQuery::new(selector)
-    }
-
-    // many
-    #[must_use]
-    pub fn many<K>(self, keys: &[K]) -> LoadQuery
-    where
-        K: Clone + Into<Key>,
-    {
-        let keys = keys.iter().cloned().map(Into::into).collect();
-        let selector = Selector::Many(keys);
-
-        LoadQuery::new(selector)
-    }
-
-    // range
-    pub fn range<K: Into<Key>>(self, start: K, end: K) -> LoadQuery {
-        let selector = Selector::Range(start.into(), end.into());
-
-        LoadQuery::new(selector)
-    }
-}
-
-///
 /// LoadQuery
-/// fluent methods are handled in LoadQueryInternal
 ///
 
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct LoadQuery {
-    pub selector: Selector,
     pub format: LoadFormat,
     pub filter: Option<FilterExpr>,
+    pub range: Option<RangeExpr>,
     pub limit: Option<u32>,
     pub offset: u32,
-    pub sort: Vec<(String, SortDirection)>,
+    pub sort: Option<SortExpr>,
 }
 
 impl LoadQuery {
     #[must_use]
-    pub fn new(selector: Selector) -> Self {
-        Self {
-            selector,
-            ..Default::default()
-        }
+    pub fn new() -> Self {
+        Self::default()
     }
 
     // format
@@ -100,6 +43,26 @@ impl LoadQuery {
         self.format = format;
         self
     }
+
+    // one
+    pub fn one<K: Into<Key>>(self, key: K) -> Self {
+        self.filter_eq("id", key.into())
+    }
+
+    // many
+    /*
+    pub fn many<K>(mut self, keys: &[K]) -> Self
+    where
+        K: Into<Value> + Clone,
+    {
+        let values: Vec<Value> = keys.iter().cloned().map(Into::into).collect();
+        let clause = Filter::Clause(FilterClause::new("id", Cmp::Contains, values));
+
+        self.filter = Some(clause.and_option(self.filter.take()));
+
+        self
+    }
+    */
 
     // with_filter
     // use an external builder to replace the current Filter
@@ -113,8 +76,8 @@ impl LoadQuery {
     }
 
     #[must_use]
-    pub fn set_filter(mut self, expr: Option<FilterExpr>) -> Self {
-        self.filter = expr;
+    pub fn set_filter(mut self, expr: FilterExpr) -> Self {
+        self.filter = Some(expr);
         self
     }
 
@@ -158,7 +121,12 @@ impl LoadQuery {
         T: Into<String>,
         I: IntoIterator<Item = (T, SortDirection)>,
     {
-        self.sort = sort.into_iter().map(|(f, d)| (f.into(), d)).collect();
+        if let Some(expr) = &mut self.sort {
+            expr.extend(sort);
+        } else {
+            self.sort = Some(SortExpr::from_iter(sort));
+        }
+
         self
     }
 

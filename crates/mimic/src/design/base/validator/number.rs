@@ -70,13 +70,13 @@ impl ValidatorNumber for Gt {
 }
 
 ///
-/// Ltoe
+/// Lte
 ///
 
 #[validator(fields(field(name = "target", value(item(prim = "Decimal")))))]
-pub struct Ltoe {}
+pub struct Lte {}
 
-impl Ltoe {
+impl Lte {
     pub fn new<N: NumCast>(target: N) -> Self {
         Self {
             target: NumCast::from(target).unwrap(),
@@ -84,7 +84,7 @@ impl Ltoe {
     }
 }
 
-impl ValidatorNumber for Ltoe {
+impl ValidatorNumber for Lte {
     fn validate<N>(&self, n: &N) -> Result<(), String>
     where
         N: Copy + NumCast,

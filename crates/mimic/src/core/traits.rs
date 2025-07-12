@@ -22,7 +22,7 @@ use crate::{
         types::{Decimal, Ulid},
         visit::Visitor,
     },
-    db::{executor::SaveExecutor, query::SortDirection},
+    db::{executor::SaveExecutor, query::SortExpr},
     schema::node::EntityIndex,
 };
 
@@ -83,6 +83,7 @@ impl<T> TypeKind for T where
 
 pub trait EntityKind: TypeKind + EntitySearch + EntitySort {
     const STORE: &'static str;
+    const PRIMARY_KEY: &'static str;
     const INDEXES: &'static [EntityIndex];
 
     fn key(&self) -> Key;
@@ -272,9 +273,10 @@ pub trait EntitySearch {
 type EntitySortFn<E> = dyn Fn(&E, &E) -> Ordering;
 
 pub trait EntitySort {
-    fn sort(order: &[(String, SortDirection)]) -> Box<EntitySortFn<Self>>;
+    fn sort(expr: &SortExpr) -> Box<EntitySortFn<Self>>
+    where
+        Self: Sized;
 }
-
 ///
 /// Validator
 /// allows a node to validate different types of primitives

@@ -64,18 +64,19 @@ pub enum Value {
     Principal(Principal),
     Text(String),
     Ulid(Ulid),
-    Null,
+    List(Vec<Box<Value>>),
+    None,
     Unsupported,
 }
 
 impl Value {
     #[must_use]
-    pub fn into_key(self) -> Option<Key> {
+    pub fn as_key(&self) -> Option<Key> {
         match self {
-            Self::Int(v) => Some(Key::Int(v)),
-            Self::Nat(v) => Some(Key::Nat(v)),
-            Self::Principal(v) => Some(Key::Principal(v)),
-            Self::Ulid(v) => Some(Key::Ulid(v)),
+            Self::Int(v) => Some(Key::Int(*v)),
+            Self::Nat(v) => Some(Key::Nat(*v)),
+            Self::Principal(v) => Some(Key::Principal(*v)),
+            Self::Ulid(v) => Some(Key::Ulid(*v)),
             _ => None,
         }
     }

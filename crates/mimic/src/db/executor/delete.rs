@@ -5,7 +5,7 @@ use crate::{
         DbError,
         query::{DeleteQuery, QueryError, QueryPlan, QueryShape},
         response::{DeleteCollection, DeleteResponse, DeleteRow},
-        store::{DataKey, DataKeyRange, DataStoreRegistry, IndexKey, IndexStoreRegistry},
+        store::{DataKey, DataStoreRegistry, IndexKey, IndexStoreRegistry},
     },
     debug,
     serialize::deserialize,
@@ -68,39 +68,18 @@ impl DeleteExecutor {
     ) -> Result<DeleteCollection, DbError> {
         debug!(self.debug, "query.delete: query is {query:?}");
 
-        let shape = query.selector.resolve::<E>();
-        let plan = QueryPlan::new(shape, None);
+        let plan = QueryPlan::new(&query.range, &query.filter);
 
         // get store
         let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
 
         // resolver
-        let data_keys: Vec<DataKey> = match plan.shape {
+        let data_keys: Vec<DataKey> = match plan.shape::<E>() {
             QueryShape::One(key) => vec![key],
 
             QueryShape::Many(entity_keys) => entity_keys,
 
-            QueryShape::Range(range) => {
-                let data_range = range.to_data_key_range::<E>();
-
-                store.with_borrow(|s| match data_range {
-                    DataKeyRange::Inclusive(r) => s.range(r).map(|(k, _)| k).collect(),
-                    DataKeyRange::Exclusive(r) => s.range(r).map(|(k, _)| k).collect(),
-                    DataKeyRange::SkipFirstInclusive(r) => {
-                        let mut it = s.range(r);
-                        it.next();
-                        it.map(|(k, _)| k).collect()
-                    }
-                    DataKeyRange::SkipFirstExclusive(r) => {
-                        let mut it = s.range(r);
-                        it.next();
-                        it.map(|(k, _)| k).collect()
-                    }
-                })
-            }
-            QueryShape::All => {
-                return Err(QueryError::SelectorNotSupported)?;
-            }
+            _ => return Err(QueryError::SelectorNotSupported)?,
         };
 
         // execute for every different key

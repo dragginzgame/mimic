@@ -128,7 +128,6 @@ impl SaveExecutor {
         // prepare data
         let entry = DataEntry {
             bytes,
-            path: E::path(),
             metadata: Metadata { created, modified },
         };
 

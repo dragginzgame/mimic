@@ -4,11 +4,9 @@ use crate::{
     db::{
         DbError,
         executor::FilterEvaluator,
-        query::{FilterExpr, LoadFormat, LoadQuery, QueryPlan, QueryRange, QueryShape, Selector},
+        query::{FilterExpr, LoadFormat, LoadQuery, QueryPlan, QueryShape, RangeExpr, SortExpr},
         response::{EntityRow, LoadCollection, LoadResponse},
-        store::{
-            DataKey, DataKeyRange, DataRow, DataStoreLocal, DataStoreRegistry, IndexStoreRegistry,
-        },
+        store::{DataKey, DataRow, DataStoreLocal, DataStoreRegistry, IndexStoreRegistry},
     },
     debug,
 };
@@ -72,17 +70,25 @@ impl LoadExecutor {
     ) -> Result<LoadCollection<E>, DbError> {
         debug!(self.debug, "query.load: {query:?}");
 
+        let plan = QueryPlan::new(&query.range, &query.filter);
+        debug!(self.debug, "query.load: plan is {plan:?}");
+
         // cast results to E
-        let rows = self
-            .load::<E>(&query.selector, query.filter.as_ref())?
+        let mut rows = self
+            .execute_plan::<E>(&plan)?
             .into_iter()
-            .filter(|row| row.entry.path == E::PATH)
             .map(TryFrom::try_from)
             .collect::<Result<Vec<EntityRow<E>>, _>>()?;
 
-        // post filters
-        let mut rows = Self::apply_filter(rows, &query);
-        Self::apply_sort(&mut rows, &query);
+        // filter
+        if let Some(filter) = &query.filter {
+            rows = Self::apply_filter(rows, filter);
+        }
+
+        // sort
+        if let Some(sort) = &query.sort {
+            Self::apply_sort(&mut rows, sort);
+        }
 
         // paginate
         rows = rows
@@ -94,22 +100,17 @@ impl LoadExecutor {
         Ok(LoadCollection(rows))
     }
 
-    // load
-    pub fn load<E: EntityKind>(
-        &self,
-        selector: &Selector,
-        filter: Option<&FilterExpr>,
-    ) -> Result<Vec<DataRow>, DbError> {
-        let plan = QueryPlan::new(selector.resolve::<E>(), filter.cloned());
-
-        self.execute_plan::<E>(plan)
-    }
-
     // execute_plan
-    fn execute_plan<E: EntityKind>(&self, plan: QueryPlan) -> Result<Vec<DataRow>, DbError> {
+    fn execute_plan<E: EntityKind>(&self, plan: &QueryPlan) -> Result<Vec<DataRow>, DbError> {
         let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
 
-        let rows = match plan.shape {
+        let rows = match plan.shape::<E>() {
+            QueryShape::All => store.with_borrow(|this| {
+                this.iter()
+                    .map(|(key, entry)| DataRow { key, entry })
+                    .collect()
+            }),
+
             QueryShape::One(key) => Self::load_one(store, key).into_iter().collect(),
 
             QueryShape::Many(keys) => keys
@@ -117,13 +118,7 @@ impl LoadExecutor {
                 .filter_map(|key| Self::load_one(store, key))
                 .collect(),
 
-            QueryShape::Range(range) => Self::load_range_with_bounds::<E>(store, range),
-
-            QueryShape::All => store.with_borrow(|this| {
-                this.iter()
-                    .map(|(key, entry)| DataRow { key, entry })
-                    .collect()
-            }),
+            QueryShape::Range(range) => Self::load_range(store, range),
         };
 
         Ok(rows)
@@ -139,56 +134,33 @@ impl LoadExecutor {
         })
     }
 
-    // load_range_with_bounds
-    fn load_range_with_bounds<E: EntityKind>(
-        store: DataStoreLocal,
-        range: QueryRange,
-    ) -> Vec<DataRow> {
-        let data_range = range.to_data_key_range::<E>();
-
-        store.with_borrow(|this| match data_range {
-            DataKeyRange::Inclusive(r) => this.range(r).map(|(k, v)| DataRow::new(k, v)).collect(),
-            DataKeyRange::Exclusive(r) => this.range(r).map(|(k, v)| DataRow::new(k, v)).collect(),
-
-            DataKeyRange::SkipFirstInclusive(r) => this
-                .range(r)
-                .skip(1)
-                .map(|(k, v)| DataRow::new(k, v))
-                .collect(),
-
-            DataKeyRange::SkipFirstExclusive(r) => this
-                .range(r)
-                .skip(1)
-                .map(|(k, v)| DataRow::new(k, v))
-                .collect(),
+    // load_range
+    fn load_range(store: DataStoreLocal, range: RangeExpr) -> Vec<DataRow> {
+        store.with_borrow(|this| {
+            this.range(range.start..range.end)
+                .map(|(key, entry)| DataRow { key, entry })
+                .collect()
         })
     }
 
     // apply_filter
     fn apply_filter<E: EntityKind>(
         rows: Vec<EntityRow<E>>,
-        query: &LoadQuery,
+        filter: &FilterExpr,
     ) -> Vec<EntityRow<E>> {
-        match &query.filter {
-            Some(expr_raw) => {
-                let expr = expr_raw.clone().simplify(); // ⬅️ done once
+        let filter_simple = filter.clone().simplify(); // ⬅️ done once
 
-                rows.into_iter()
-                    .filter(|row| {
-                        let values = row.entry.entity.values();
-                        FilterEvaluator::new(&values).eval(&expr)
-                    })
-                    .collect()
-            }
-            None => rows,
-        }
+        rows.into_iter()
+            .filter(|row| {
+                let values = row.entry.entity.values();
+                FilterEvaluator::new(&values).eval(&filter_simple)
+            })
+            .collect()
     }
 
     // apply_sort
-    fn apply_sort<E: EntityKind>(rows: &mut [EntityRow<E>], query: &LoadQuery) {
-        if !query.sort.is_empty() {
-            let sorter = E::sort(&query.sort);
-            rows.sort_by(|a, b| sorter(&a.entry.entity, &b.entry.entity));
-        }
+    fn apply_sort<E: EntityKind>(rows: &mut [EntityRow<E>], sort: &SortExpr) {
+        let sorter = E::sort(sort);
+        rows.sort_by(|a, b| sorter(&a.entry.entity, &b.entry.entity));
     }
 }

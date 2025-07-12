@@ -51,11 +51,9 @@ pub fn rarity() -> Result<Vec<RarityView>, MimicError> {
         .debug()
         .execute::<Rarity>(
             query::load()
-                .all()
                 .with_filter(|f| {
                     f.or_filter_group(|f| {
-                        f.filter("level", Cmp::Gtoe, 2)
-                            .filter("level", Cmp::Ltoe, 4)
+                        f.filter("level", Cmp::Gte, 2).filter("level", Cmp::Lte, 4)
                     })
                     .or_filter_group(|f| f.filter("name", Cmp::Contains, "incon"))
                 })
