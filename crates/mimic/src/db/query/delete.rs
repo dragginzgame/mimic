@@ -22,11 +22,6 @@ impl DeleteQuery {
         Self::default()
     }
 
-    // one
-    pub fn one<K: Into<Key>>(self, key: K) -> Self {
-        self.filter_eq("id", key.into())
-    }
-
     // filter_eq
     #[must_use]
     pub fn filter_eq<F: Into<String>, V: Into<Value>>(mut self, field: F, value: V) -> Self {

@@ -1,6 +1,6 @@
 use crate::{
     MimicError,
-    core::traits::EntityKind,
+    core::{Value, traits::EntityKind},
     db::{
         DbError,
         executor::FilterEvaluator,
@@ -38,6 +38,22 @@ impl LoadExecutor {
     pub const fn debug(mut self) -> Self {
         self.debug = true;
         self
+    }
+
+    // one
+    // helper method
+    pub fn one<E: EntityKind>(&self, value: impl Into<Value>) -> Result<E, MimicError> {
+        self.execute::<E>(LoadQuery::new().filter_eq(E::PRIMARY_KEY, value))
+            .and_then(|res| res.try_entity())
+    }
+
+    // many
+    pub fn many<E: EntityKind>(&self, values: &[Value]) -> Result<Vec<E>, MimicError> {
+        let list = values.iter().cloned().map(Box::new).collect();
+        let value = Value::List(list);
+
+        self.execute::<E>(LoadQuery::new().filter_in(E::PRIMARY_KEY, value))
+            .map(|res| res.entities().to_vec())
     }
 
     // execute

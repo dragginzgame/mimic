@@ -1,6 +1,6 @@
 use crate::{
     MimicError,
-    core::traits::EntityKind,
+    core::{Value, traits::EntityKind},
     db::{
         DbError,
         query::{DeleteQuery, QueryError, QueryPlan, QueryShape},
@@ -38,6 +38,15 @@ impl DeleteExecutor {
     pub const fn debug(mut self) -> Self {
         self.debug = true;
         self
+    }
+
+    // one
+    // helper method
+    pub fn one<E: EntityKind>(
+        &self,
+        value: impl Into<Value>,
+    ) -> Result<DeleteCollection, MimicError> {
+        self.execute::<E>(DeleteQuery::new().filter_eq(E::PRIMARY_KEY, value))
     }
 
     // execute

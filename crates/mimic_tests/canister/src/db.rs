@@ -225,11 +225,7 @@ impl DbTester {
         assert!(result.is_err(), "expected unique index violation on y=10");
 
         // Step 4: Delete e1 (y=10)
-        db!()
-            .delete()
-            .debug()
-            .execute::<Index>(query::delete().one(e1.id))
-            .unwrap();
+        db!().delete().one::<Index>(e1.id).unwrap();
 
         // Step 5: Try inserting e3 again (y=10 should now be free)
         let result = db!()
@@ -298,10 +294,7 @@ impl DbTester {
         );
 
         // Delete e1 (frees up Some(10))
-        db!()
-            .delete()
-            .execute::<IndexUniqueOpt>(query::delete().one(e1.id))
-            .unwrap();
+        db!().delete().one::<IndexUniqueOpt>(e1.id).unwrap();
 
         // Retry insert of e4 — should now succeed
         let result = db!().save().execute(query::create().from_entity(e4));
@@ -311,10 +304,7 @@ impl DbTester {
         );
 
         // Delete e3 (value = None)
-        db!()
-            .delete()
-            .execute::<IndexUniqueOpt>(query::delete().one(e3.id))
-            .unwrap();
+        db!().delete().one::<IndexUniqueOpt>(e3.id).unwrap();
 
         // Insert another entity with value = None — should be fine (no uniqueness enforced)
         let e5 = IndexUniqueOpt {
@@ -377,13 +367,7 @@ impl DbTester {
             .unwrap()
             .key;
 
-        let loaded = db!()
-            .load()
-            .debug()
-            .execute::<CreateBasic>(query::load().one::<CreateBasic>(id))
-            .unwrap()
-            .try_entity()
-            .unwrap();
+        let loaded = db!().load().debug().one::<CreateBasic>(id).unwrap();
 
         assert_eq!(loaded.id, e.id);
     }
