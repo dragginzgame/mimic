@@ -20,7 +20,7 @@ pub struct Degrees {}
         field(name = "min", value(item(prim = "Int32"))),
         field(name = "max", value(item(prim = "Int32"))),
     ),
-    traits(remove(ValidateCustom))
+    traits(add(Default), remove(ValidateCustom))
 )]
 pub struct Int32Range {}
 
