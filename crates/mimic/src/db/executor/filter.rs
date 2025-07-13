@@ -37,25 +37,46 @@ impl<'a> FilterEvaluator<'a> {
     }
 
     // compare
-    fn compare(actual: &Value, cmp: Cmp, expected: &Value) -> bool {
+    fn compare(left: &Value, cmp: Cmp, right: &Value) -> bool {
         // 1. Try numeric/structural coercions first
-        if let Some(res) = Self::coerce_match(actual, expected, cmp) {
+        if let Some(res) = Self::coerce_match(left, right, cmp) {
             return res;
         }
 
         // 2. Try text-based coercion
-        if let Some(res) = Self::coerce_text_match(actual, expected, cmp) {
+        if let Some(res) = Self::coerce_text_match(left, right, cmp) {
             return res;
         }
 
         // 3. Fall back to strict comparison
         match cmp {
-            Cmp::Eq => actual == expected,
-            Cmp::Ne => actual != expected,
-            Cmp::Lt => actual < expected,
-            Cmp::Lte => actual <= expected,
-            Cmp::Gt => actual > expected,
-            Cmp::Gte => actual >= expected,
+            // values
+            Cmp::Eq => left == right,
+            Cmp::Ne => left != right,
+            Cmp::Lt => left < right,
+            Cmp::Lte => left <= right,
+            Cmp::Gt => left > right,
+            Cmp::Gte => left >= right,
+
+            // lists
+            Cmp::In => match right {
+                Value::List(items) => items.iter().any(|v| v.as_ref() == left),
+                _ => false,
+            },
+
+            Cmp::AllIn => match (left, right) {
+                (Value::List(left_items), Value::List(right_items)) => right_items
+                    .iter()
+                    .all(|r| left_items.iter().any(|l| l == r)),
+                _ => false,
+            },
+
+            Cmp::AnyIn => match (left, right) {
+                (Value::List(left_items), Value::List(right_items)) => right_items
+                    .iter()
+                    .any(|r| left_items.iter().any(|l| l == r)),
+                _ => false,
+            },
 
             _ => false, // should only be text ops here, already handled
         }

@@ -1,5 +1,5 @@
 use crate::{
-    core::traits::EntityKind,
+    core::{Value, traits::EntityKind},
     db::{
         query::{Cmp, FilterExpr, RangeExpr},
         store::DataKey,
@@ -33,6 +33,7 @@ impl QueryPlan {
         }
 
         // If filter is a primary key match
+        // this would handle One and Many queries
         if let Some(shape) = self.extract_primary_key_shape::<E>() {
             return shape;
         }
@@ -41,21 +42,37 @@ impl QueryPlan {
         QueryShape::Range(RangeExpr::from_entity::<E>())
     }
 
+    // extract_primary_key_shape
     fn extract_primary_key_shape<E: EntityKind>(&self) -> Option<QueryShape> {
         let filter = self.filter.as_ref()?;
 
         match filter {
-            FilterExpr::Clause(clause)
-                if clause.field == E::PRIMARY_KEY && clause.cmp == Cmp::Eq =>
-            {
-                if let Some(key) = clause.value.as_key() {
-                    let data_key = DataKey::new(E::PATH, key);
+            FilterExpr::Clause(clause) if clause.field == E::PRIMARY_KEY => match clause.cmp {
+                Cmp::Eq => clause
+                    .value
+                    .as_key()
+                    .map(|key| QueryShape::One(DataKey::new(E::PATH, key))),
 
-                    Some(QueryShape::One(data_key))
-                } else {
-                    None
+                Cmp::In => {
+                    if let Value::List(values) = &clause.value {
+                        let keys = values
+                            .iter()
+                            .filter_map(|v| v.as_ref().as_key())
+                            .map(|key| DataKey::new(E::PATH, key))
+                            .collect::<Vec<_>>();
+
+                        if !keys.is_empty() {
+                            Some(QueryShape::Many(keys))
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    }
                 }
-            }
+
+                _ => None,
+            },
 
             _ => None,
         }

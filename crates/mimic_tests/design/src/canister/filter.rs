@@ -15,6 +15,7 @@ use crate::prelude::*;
         field(name = "score", value(item(prim = "Float64"))),
         field(name = "level", value(item(prim = "Nat8"))),
         field(name = "offset", value(item(prim = "Int32"))),
+        field(name = "tags", value(many, item(prim = "Text"))),
     ),
     traits(remove(EntityFixture))
 )]
@@ -23,19 +24,18 @@ pub struct Filterable {}
 impl EntityFixture for Filterable {
     fn insert_fixtures(exec: &mut SaveExecutor) {
         let fixtures = [
-            ("Alpha", "A", true, 87.2, 1, -10),
-            ("Beta", "B", false, 65.1, 2, 0),
-            ("Gamma", "C", true, 92.5, 3, 10),
-            ("Delta", "B", false, 15.3, 2, 5),
-            ("Epsilon", "A", true, 75.0, 4, -5),
-            ("Zeta", "C", false, 88.8, 5, 15),
-            ("Eta", "B", true, 30.5, 1, 8),
-            ("Theta", "A", true, 99.9, 6, -20),
-            ("Iota", "C", false, 42.0, 3, 0),
-            ("Kappa", "B", true, 50.0, 2, 3),
+            ("Alpha", "A", true, 87.2, 1, -10, vec!["red", "blue"]),
+            ("Beta", "B", false, 65.1, 2, 0, vec!["green"]),
+            ("Gamma", "C", true, 92.5, 3, 10, vec!["red", "yellow"]),
+            ("Delta", "B", false, 15.3, 2, 5, vec![]),
+            ("Epsilon", "A", true, 75.0, 4, -5, vec!["green", "blue"]),
+            ("Zeta", "C", false, 88.8, 5, 15, vec!["purple"]),
+            ("Eta", "B", true, 30.5, 1, 8, vec!["red"]),
+            ("Theta", "A", true, 99.9, 6, -20, vec!["blue", "green"]),
+            ("Iota", "C", false, 42.0, 3, 0, vec!["yellow", "red"]),
+            ("Kappa", "B", true, 50.0, 2, 3, vec!["green", "blue"]),
         ];
-
-        for (name, category, active, score, level, offset) in &fixtures {
+        for (name, category, active, score, level, offset, tags) in &fixtures {
             EntityService::save_fixture(
                 exec,
                 Self {
@@ -45,6 +45,7 @@ impl EntityFixture for Filterable {
                     score: *score,
                     level: *level,
                     offset: *offset,
+                    tags: tags.iter().map(|s| s.to_string()).collect(),
                     ..Default::default()
                 },
             );

@@ -1,13 +1,16 @@
 use crate::core::Key;
 use candid::CandidType;
+use derive_more::Deref;
 use serde::{Deserialize, Serialize};
 
 ///
 /// DeleteCollection
 ///
 
-#[derive(Debug)]
+#[derive(Debug, Deref)]
 pub struct DeleteCollection(pub Vec<DeleteRow>);
+
+impl DeleteCollection {}
 
 ///
 /// DeleteResponse

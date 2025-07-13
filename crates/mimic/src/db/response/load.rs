@@ -26,24 +26,27 @@ pub enum LoadResponse {
 /// LoadCollection
 ///
 
-#[derive(Debug)]
+#[derive(Debug, Deref)]
 pub struct LoadCollection<E: EntityKind>(pub Vec<EntityRow<E>>);
 
 impl<E> LoadCollection<E>
 where
     E: EntityKind,
 {
-    // count
-    #[must_use]
-    #[allow(clippy::cast_possible_truncation)]
-    pub const fn count(&self) -> u32 {
-        self.0.len() as u32
-    }
-
     // key
     #[must_use]
     pub fn key(self) -> Option<Key> {
         self.0.into_iter().next().map(|row| row.key)
+    }
+
+    // try_key
+    pub fn try_key(self) -> Result<Key, MimicError> {
+        let key = self
+            .key()
+            .ok_or(ResponseError::EmptyCollection)
+            .map_err(DbError::from)?;
+
+        Ok(key)
     }
 
     // keys
@@ -67,10 +70,7 @@ where
     // try_entity
     pub fn try_entity(self) -> Result<E, MimicError> {
         let res = self
-            .0
-            .into_iter()
-            .next()
-            .map(|row| row.entry.entity)
+            .entity()
             .ok_or(ResponseError::EmptyCollection)
             .map_err(DbError::from)?;
 
@@ -92,6 +92,16 @@ where
     #[must_use]
     pub fn entity_row(self) -> Option<EntityRow<E>> {
         self.0.into_iter().next()
+    }
+
+    // try_entity_row
+    pub fn try_entity_row(self) -> Result<EntityRow<E>, MimicError> {
+        let row = self
+            .entity_row()
+            .ok_or(ResponseError::EmptyCollection)
+            .map_err(DbError::from)?;
+
+        Ok(row)
     }
 
     // entity_rows

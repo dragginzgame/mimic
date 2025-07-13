@@ -201,8 +201,10 @@ impl FilterExpr {
 }
 
 ///
-/// FilterClause represents a basic comparison expression: `field cmp value`
+/// FilterClause
+/// represents a basic comparison expression: `field cmp value`
 ///
+
 #[derive(CandidType, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct FilterClause {
     pub field: String,

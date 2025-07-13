@@ -22,6 +22,7 @@ impl DbTester {
             ("index_option", Self::index_option),
             ("limit_query", Self::limit_query),
             ("load_one", Self::load_one),
+            ("load_many", Self::load_many),
             ("perf_options", Self::perf_options),
             ("perf_many_relations", Self::perf_many_relations),
         ];
@@ -86,7 +87,7 @@ impl DbTester {
             .load()
             .execute::<CreateBasic>(query::load())
             .unwrap()
-            .count();
+            .len();
         assert_eq!(num_keys, 1);
 
         // insert another
@@ -100,7 +101,7 @@ impl DbTester {
                 .load()
                 .execute::<CreateBasic>(query::load())
                 .unwrap()
-                .count(),
+                .len(),
             2
         );
     }
@@ -108,7 +109,7 @@ impl DbTester {
     // create_lots
     fn create_lots() {
         use test_design::canister::db::CreateBasic;
-        const ROWS: u32 = 1_000;
+        const ROWS: usize = 1_000;
 
         // insert rows
         for _ in 0..ROWS {
@@ -117,11 +118,7 @@ impl DbTester {
         }
 
         // Retrieve the count from the store
-        let count = db!()
-            .load()
-            .execute::<CreateBasic>(query::load())
-            .unwrap()
-            .count();
+        let count = db!().load().all::<CreateBasic>().unwrap().len();
 
         // Assert that the count matches the expected number
         assert_eq!(count, ROWS, "Expected {ROWS} keys in the store");
@@ -130,7 +127,7 @@ impl DbTester {
     // create_lots_blob
     fn create_lots_blob() {
         use test_design::canister::db::CreateBlob;
-        const ROWS: u32 = 500;
+        const ROWS: usize = 500;
         const BLOB_SIZE: usize = 1024 * 2;
 
         // insert rows
@@ -148,7 +145,7 @@ impl DbTester {
             .load()
             .execute::<CreateBlob>(query::load())
             .unwrap()
-            .count();
+            .len();
 
         // Assert that the count matches the expected number
         assert_eq!(count, ROWS, "Expected {ROWS} keys in the store");
@@ -289,9 +286,9 @@ impl DbTester {
                     .load()
                     .execute::<Limit>(query::load().offset(offset).limit(limit))
                     .unwrap()
-                    .count();
+                    .len();
 
-                assert_eq!(count, limit, "{limit} not equal to {count}");
+                assert_eq!(count as u32, limit, "{limit} not equal to {count}");
                 //    if !results.is_empty() {
                 //        assert_eq!(results[0].value, offset + 1);
                 //    }
@@ -302,12 +299,31 @@ impl DbTester {
     fn load_one() {
         use test_design::canister::db::CreateBasic;
 
-        let e = CreateBasic::default();
-        let id = db!().save().replace(e.clone()).unwrap();
+        let id = db!().save().create(CreateBasic::default()).unwrap();
 
         let loaded = db!().load().debug().one::<CreateBasic>(id).unwrap();
 
-        assert_eq!(loaded.id, e.id);
+        assert_eq!(loaded.key().unwrap(), id);
+    }
+
+    fn load_many() {
+        use test_design::canister::db::CreateBasic;
+
+        let id1 = db!().save().create(CreateBasic::default()).unwrap();
+        let id2 = db!().save().create(CreateBasic::default()).unwrap();
+        let id3 = db!().save().create(CreateBasic::default()).unwrap();
+
+        // Pass a slice of IDs
+        let ids = vec![id1, id2, id3];
+        let loaded = db!().load().many::<CreateBasic, _>(&ids).unwrap();
+
+        // Assert correct count
+        assert_eq!(loaded.len(), 3);
+
+        // Optionally assert that each loaded item has a matching ID
+        for key in loaded.keys() {
+            assert!(ids.contains(&key));
+        }
     }
 
     fn perf_options() {

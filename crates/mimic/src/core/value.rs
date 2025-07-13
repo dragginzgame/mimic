@@ -92,6 +92,11 @@ impl Value {
             _ => None,
         }
     }
+
+    // list
+    pub fn list<T: Into<Value> + Clone>(items: &[T]) -> Value {
+        Value::List(items.iter().cloned().map(|v| Box::new(v.into())).collect())
+    }
 }
 
 impl_from_for! {

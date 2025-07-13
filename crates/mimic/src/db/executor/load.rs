@@ -42,26 +42,26 @@ impl LoadExecutor {
 
     // one
     // helper method, creates query
-    pub fn one<E: EntityKind>(&self, value: impl Into<Value>) -> Result<E, MimicError> {
+    pub fn one<E: EntityKind>(
+        &self,
+        value: impl Into<Value>,
+    ) -> Result<LoadCollection<E>, MimicError> {
         self.execute::<E>(LoadQuery::new().one::<E>(value))
-            .and_then(|res| res.try_entity())
     }
 
     // many
     // helper method, creates query
-    pub fn many<E, V>(&self, values: &[V]) -> Result<Vec<E>, MimicError>
+    pub fn many<E, V>(&self, values: &[V]) -> Result<LoadCollection<E>, MimicError>
     where
         E: EntityKind,
         V: Clone + Into<Value>,
     {
         self.execute::<E>(LoadQuery::new().many::<E, V>(values))
-            .map(|res| res.entities())
     }
 
     // all
-    pub fn all<E: EntityKind>(&self) -> Result<Vec<E>, MimicError> {
+    pub fn all<E: EntityKind>(&self) -> Result<LoadCollection<E>, MimicError> {
         self.execute::<E>(LoadQuery::new())
-            .map(|res| res.entities())
     }
 
     // execute
@@ -81,7 +81,7 @@ impl LoadExecutor {
 
         let resp = match format {
             LoadFormat::Keys => LoadResponse::Keys(cl.keys()),
-            LoadFormat::Count => LoadResponse::Count(cl.count()),
+            LoadFormat::Count => LoadResponse::Count(cl.len() as u32),
         };
 
         Ok(resp)
