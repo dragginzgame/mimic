@@ -8,6 +8,6 @@ pub struct EntityService {}
 
 impl EntityService {
     pub fn save_fixture<E: EntityKind>(exec: &mut SaveExecutor, entity: E) {
-        exec.replace(entity).unwrap();
+        exec.replace::<E>(entity).unwrap();
     }
 }

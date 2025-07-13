@@ -58,6 +58,14 @@ impl SaveExecutor {
         Ok(key)
     }
 
+    // create_from_view
+    pub fn create_from_view<E: EntityKind>(&self, view: &E::View) -> Result<Key, MimicError>
+    where
+        E::View: Clone + Into<E>,
+    {
+        self.create(view.clone().into())
+    }
+
     // update
     pub fn update<E: EntityKind>(&self, entity: E) -> Result<Key, MimicError> {
         let key = self.execute_internal::<E>(SaveMode::Update, entity)?;
