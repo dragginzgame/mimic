@@ -19,4 +19,5 @@ cargo update --verbose
 cargo sort-derives --check || cargo sort-derives
 
 # dfx
+dfxvm self update
 dfxvm update

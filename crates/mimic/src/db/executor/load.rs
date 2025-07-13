@@ -40,6 +40,14 @@ impl LoadExecutor {
         self
     }
 
+    // count
+    // helper method, creates query
+    pub fn count<E: EntityKind>(&self) -> Result<usize, MimicError> {
+        let count = self.execute::<E>(LoadQuery::new())?.len();
+
+        Ok(count)
+    }
+
     // one
     // helper method, creates query
     pub fn one<E: EntityKind>(
