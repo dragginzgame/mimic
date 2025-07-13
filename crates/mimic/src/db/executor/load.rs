@@ -40,6 +40,11 @@ impl LoadExecutor {
         self
     }
 
+    //
+    // HELPER METHODS
+    // these will create a query on the fly
+    //
+
     // count
     // helper method, creates query
     pub fn count<E: EntityKind>(&self) -> Result<usize, MimicError> {
@@ -49,16 +54,12 @@ impl LoadExecutor {
     }
 
     // one
-    // helper method, creates query
-    pub fn one<E: EntityKind>(
-        &self,
-        value: impl Into<Value>,
-    ) -> Result<LoadCollection<E>, MimicError> {
-        self.execute::<E>(LoadQuery::new().one::<E>(value))
+    pub fn one<E: EntityKind>(&self, value: impl Into<Value>) -> Result<E, MimicError> {
+        self.execute::<E>(LoadQuery::new().one::<E>(value))?
+            .try_entity()
     }
 
     // many
-    // helper method, creates query
     pub fn many<E, V>(&self, values: &[V]) -> Result<LoadCollection<E>, MimicError>
     where
         E: EntityKind,
@@ -71,6 +72,10 @@ impl LoadExecutor {
     pub fn all<E: EntityKind>(&self) -> Result<LoadCollection<E>, MimicError> {
         self.execute::<E>(LoadQuery::new())
     }
+
+    //
+    // EXECUTION LOGIC
+    //
 
     // execute
     pub fn execute<E: EntityKind>(self, query: LoadQuery) -> Result<LoadCollection<E>, MimicError> {
