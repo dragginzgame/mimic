@@ -48,7 +48,7 @@ impl FilterExpr {
     }
 
     #[must_use]
-    pub fn and_option(self, other: Option<FilterExpr>) -> Self {
+    pub fn and_option(self, other: Option<Self>) -> Self {
         match other {
             Some(f) => self.and(f),
             None => self,
@@ -85,7 +85,7 @@ impl FilterExpr {
     }
 
     #[must_use]
-    pub fn or_option(self, other: Option<FilterExpr>) -> Self {
+    pub fn or_option(self, other: Option<Self>) -> Self {
         match other {
             Some(f) => self.or(f),
             None => self,

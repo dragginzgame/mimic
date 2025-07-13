@@ -50,7 +50,7 @@ pub struct DecimalRange {}
 
 impl DecimalRange {
     #[must_use]
-    pub fn new(min: Decimal, max: Decimal) -> Self {
+    pub const fn new(min: Decimal, max: Decimal) -> Self {
         Self { min, max }
     }
 }
@@ -78,7 +78,7 @@ pub struct Int32Range {}
 
 impl Int32Range {
     #[must_use]
-    pub fn new(min: i32, max: i32) -> Self {
+    pub const fn new(min: i32, max: i32) -> Self {
         Self { min, max }
     }
 }
@@ -106,7 +106,7 @@ pub struct Nat32Range {}
 
 impl Nat32Range {
     #[must_use]
-    pub fn new(min: u32, max: u32) -> Self {
+    pub const fn new(min: u32, max: u32) -> Self {
         Self { min, max }
     }
 }

@@ -73,7 +73,7 @@ impl Principal {
     }
 
     #[must_use]
-    pub fn max_storable() -> Self {
+    pub const fn max_storable() -> Self {
         Self::from_slice(&[0xFF; 29])
     }
 }
@@ -167,7 +167,7 @@ impl Storable for Principal {
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        Principal::from_slice(bytes.as_ref())
+        Self::from_slice(bytes.as_ref())
     }
 }
 

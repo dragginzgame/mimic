@@ -90,7 +90,7 @@ impl SaveExecutor {
         validate(&entity)?;
 
         // debug
-        debug!(self.debug, "query.{mode}: {} ({key}) ", E::PATH);
+        debug!(self.debug, "query.{mode}: {} ({key:?}) ", E::PATH);
 
         //
         // match save mode

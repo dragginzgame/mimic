@@ -24,7 +24,7 @@ impl SortExpr {
     }
 
     #[must_use]
-    pub fn is_empty(&self) -> bool {
+    pub const fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 
@@ -38,7 +38,7 @@ where
     T: Into<String>,
 {
     fn from_iter<I: IntoIterator<Item = (T, SortDirection)>>(iter: I) -> Self {
-        SortExpr(iter.into_iter().map(|(f, d)| (f.into(), d)).collect())
+        Self(iter.into_iter().map(|(f, d)| (f.into(), d)).collect())
     }
 }
 

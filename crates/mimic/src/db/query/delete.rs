@@ -21,10 +21,12 @@ impl DeleteQuery {
         Self::default()
     }
 
+    #[must_use]
     pub fn one<E: EntityKind>(self, value: impl Into<Value>) -> Self {
         self.filter_eq(E::PRIMARY_KEY, value.into())
     }
 
+    #[must_use]
     pub fn many<E, V>(self, values: &[V]) -> Self
     where
         E: EntityKind,
@@ -40,6 +42,7 @@ impl DeleteQuery {
     }
 
     // filter_in
+    #[must_use]
     pub fn filter_in<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
         let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::In, value));
 
@@ -47,6 +50,7 @@ impl DeleteQuery {
     }
 
     // filter_eq
+    #[must_use]
     pub fn filter_eq<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
         let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::Eq, value));
 

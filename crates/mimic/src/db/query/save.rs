@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 /// Update  : will only change an existing row
 ///
 
-#[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, Default, Serialize)]
+#[derive(CandidType, Clone, Copy, Debug, Default, Deserialize, Display, Serialize)]
 pub enum SaveMode {
     #[default]
     Create,
@@ -23,7 +23,7 @@ pub enum SaveMode {
 /// SaveQuery
 ///
 
-#[derive(CandidType, Clone, Debug, Deserialize, Default, Serialize)]
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct SaveQuery {
     pub mode: SaveMode,
     pub bytes: Vec<u8>,

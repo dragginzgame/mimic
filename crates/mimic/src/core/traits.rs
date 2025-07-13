@@ -82,10 +82,13 @@ impl<T> TypeKind for T where
 ///
 
 pub trait EntityKind: TypeKind + EntitySearch + EntitySort {
+    type PrimaryKey: Copy + Clone;
+
     const STORE: &'static str;
     const PRIMARY_KEY: &'static str;
     const INDEXES: &'static [EntityIndex];
 
+    fn primary_key(&self) -> Self::PrimaryKey;
     fn key(&self) -> Key;
 
     fn values(&self) -> ValueMap;

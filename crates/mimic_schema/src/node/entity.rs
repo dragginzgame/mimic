@@ -117,7 +117,7 @@ pub struct EntityIndex {
 }
 
 impl EntityIndex {
-    fn is_prefix_of(&self, other: &EntityIndex) -> bool {
+    fn is_prefix_of(&self, other: &Self) -> bool {
         self.fields.len() < other.fields.len() && other.fields.starts_with(self.fields)
     }
 }

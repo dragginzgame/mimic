@@ -71,7 +71,7 @@ pub enum Value {
 
 impl Value {
     #[must_use]
-    pub fn as_key(&self) -> Option<Key> {
+    pub const fn as_key(&self) -> Option<Key> {
         match self {
             Self::Int(v) => Some(Key::Int(*v)),
             Self::Nat(v) => Some(Key::Nat(*v)),
@@ -134,9 +134,9 @@ impl From<WrappedPrincipal> for Value {
     }
 }
 
-impl From<Vec<Value>> for Value {
-    fn from(vec: Vec<Value>) -> Self {
-        Value::List(vec.into_iter().map(Box::new).collect())
+impl From<Vec<Self>> for Value {
+    fn from(vec: Vec<Self>) -> Self {
+        Self::List(vec.into_iter().map(Box::new).collect())
     }
 }
 

@@ -53,7 +53,7 @@ impl Item {
         self.relation.is_some()
     }
 
-    pub fn is_primitive(&self) -> bool {
+    pub const fn is_primitive(&self) -> bool {
         self.primitive.is_some()
     }
 }

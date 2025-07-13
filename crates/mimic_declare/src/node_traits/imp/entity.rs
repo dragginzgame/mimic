@@ -17,19 +17,23 @@ pub struct EntityKindTrait {}
 impl Imp<Entity> for EntityKindTrait {
     fn tokens(node: &Entity) -> Option<TokenStream> {
         let store = &node.store;
-        let primary_key = &node.primary_key.to_string();
+        let pk_type = &node.fields.get(&node.primary_key).unwrap().value;
+        let pk_field = &node.primary_key.to_string();
         let defs = node.indexes.iter().map(AsSchema::schema);
 
         // static definitions
         let mut q = quote! {
+            type PrimaryKey = #pk_type;
+
             const STORE: &'static str = #store::PATH;
-            const PRIMARY_KEY: &'static str = #primary_key;
+            const PRIMARY_KEY: &'static str = #pk_field;
             const INDEXES: &'static [::mimic::schema::node::EntityIndex] = &[
                 #(#defs),*
             ];
         };
 
         // impls
+        q.extend(primary_key(node));
         q.extend(key(node));
         q.extend(values(node));
 
@@ -38,6 +42,17 @@ impl Imp<Entity> for EntityKindTrait {
             .to_token_stream();
 
         Some(tokens)
+    }
+}
+
+// primary_key
+fn primary_key(node: &Entity) -> TokenStream {
+    let primary_key = &node.primary_key;
+
+    quote! {
+        fn primary_key(&self) -> Self::PrimaryKey {
+            self.#primary_key
+        }
     }
 }
 

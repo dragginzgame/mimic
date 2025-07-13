@@ -92,7 +92,7 @@ impl DataKey {
     }
 
     #[must_use]
-    pub fn max_storable() -> Self {
+    pub const fn max_storable() -> Self {
         Self {
             entity_id: u64::MAX,
             key: Key::max_storable(),

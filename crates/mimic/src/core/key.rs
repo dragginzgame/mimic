@@ -1,6 +1,6 @@
 use crate::core::types::{Principal, Ulid};
 use candid::{CandidType, Principal as WrappedPrincipal};
-use derive_more::{Deref, DerefMut, Display};
+use derive_more::Display;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use thiserror::Error as ThisError;
@@ -13,33 +13,6 @@ use thiserror::Error as ThisError;
 pub enum KeyError {
     #[error("key conversion failed")]
     KeyConversion,
-}
-
-///
-/// Keys
-///
-
-#[derive(
-    CandidType,
-    Clone,
-    Debug,
-    Default,
-    Deref,
-    DerefMut,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize,
-)]
-pub struct Keys(pub Vec<Key>);
-
-impl Keys {
-    pub fn iter(&self) -> impl Iterator<Item = &Key> {
-        self.0.iter()
-    }
 }
 
 ///
@@ -93,7 +66,7 @@ impl Key {
     }
 
     #[must_use]
-    pub fn max_storable() -> Self {
+    pub const fn max_storable() -> Self {
         Self::Principal(Principal::max_storable())
     }
 }
@@ -101,6 +74,24 @@ impl Key {
 impl From<i32> for Key {
     fn from(v: i32) -> Self {
         Self::Int(v.into())
+    }
+}
+
+impl From<u8> for Key {
+    fn from(v: u8) -> Self {
+        Self::Nat(v.into())
+    }
+}
+
+impl From<u16> for Key {
+    fn from(v: u16) -> Self {
+        Self::Nat(v.into())
+    }
+}
+
+impl From<u32> for Key {
+    fn from(v: u32) -> Self {
+        Self::Nat(v.into())
     }
 }
 
@@ -130,25 +121,25 @@ impl From<WrappedPrincipal> for Key {
 
 impl PartialEq<i64> for Key {
     fn eq(&self, other: &i64) -> bool {
-        matches!(self, Key::Int(val) if val == other)
+        matches!(self, Self::Int(val) if val == other)
     }
 }
 
 impl PartialEq<u64> for Key {
     fn eq(&self, other: &u64) -> bool {
-        matches!(self, Key::Nat(val) if val == other)
+        matches!(self, Self::Nat(val) if val == other)
     }
 }
 
 impl PartialEq<Ulid> for Key {
     fn eq(&self, other: &Ulid) -> bool {
-        matches!(self, Key::Ulid(val) if val == other)
+        matches!(self, Self::Ulid(val) if val == other)
     }
 }
 
 impl PartialEq<Principal> for Key {
     fn eq(&self, other: &Principal) -> bool {
-        matches!(self, Key::Principal(val) if val == other)
+        matches!(self, Self::Principal(val) if val == other)
     }
 }
 

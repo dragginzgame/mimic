@@ -20,6 +20,10 @@ pub struct FieldList {
 }
 
 impl FieldList {
+    pub fn get(&self, name: &Ident) -> Option<&Field> {
+        self.fields.iter().find(|f| f.name == *name)
+    }
+
     pub fn iter(&self) -> std::slice::Iter<'_, Field> {
         self.fields.iter()
     }

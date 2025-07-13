@@ -101,7 +101,7 @@ impl Ulid {
     }
 
     #[must_use]
-    pub fn max_storable() -> Self {
+    pub const fn max_storable() -> Self {
         Self::from_bytes([0xFF; 16])
     }
 }
@@ -196,9 +196,11 @@ impl Storable for Ulid {
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        if bytes.len() != 16 {
-            panic!("Invalid Ulid byte length: expected 16, got {}", bytes.len());
-        }
+        assert!(
+            bytes.len() == 16,
+            "Invalid Ulid byte length: expected 16, got {}",
+            bytes.len()
+        );
 
         let mut array = [0u8; 16];
         array.copy_from_slice(&bytes);

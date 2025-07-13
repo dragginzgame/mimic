@@ -45,11 +45,13 @@ impl LoadQuery {
     }
 
     // one
+    #[must_use]
     pub fn one<E: EntityKind>(self, value: impl Into<Value>) -> Self {
         self.filter_eq(E::PRIMARY_KEY, value.into())
     }
 
     // many
+    #[must_use]
     pub fn many<E, V>(self, values: &[V]) -> Self
     where
         E: EntityKind,

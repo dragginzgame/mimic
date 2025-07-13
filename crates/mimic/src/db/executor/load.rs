@@ -55,13 +55,13 @@ impl LoadExecutor {
         V: Clone + Into<Value>,
     {
         self.execute::<E>(LoadQuery::new().many::<E, V>(values))
-            .map(|res| res.entities().to_vec())
+            .map(|res| res.entities())
     }
 
     // all
     pub fn all<E: EntityKind>(&self) -> Result<Vec<E>, MimicError> {
         self.execute::<E>(LoadQuery::new())
-            .map(|res| res.entities().to_vec())
+            .map(|res| res.entities())
     }
 
     // execute
