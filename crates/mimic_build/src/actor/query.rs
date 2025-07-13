@@ -43,14 +43,11 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
                 QueryKind::Load => quote! {
                     #entity_path => db!().load().execute_response::<#ty>(query)
                 },
-                QueryKind::Save => quote! {
-                    #entity_path => {
-                        let qt : ::mimic::db::query::SaveQueryTyped<#ty> = query.try_into()?;
-                        db!().save().execute_response::<#ty>(qt)
-                    }
-                },
                 QueryKind::Delete => quote! {
                     #entity_path => db!().delete().execute_response::<#ty>(query)
+                },
+                QueryKind::Save => quote! {
+                    #entity_path =>  db!().save().execute::<#ty>(query)
                 },
             }
         });
@@ -82,7 +79,7 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
             pub fn #fn_name(
                 path: String,
                 query: ::mimic::db::query::SaveQuery,
-            ) -> Result<::mimic::db::response::SaveResponse, ::mimic::MimicError>
+            ) -> Result<::mimic::core::Key, ::mimic::MimicError>
         },
 
         QueryKind::Delete => quote! {

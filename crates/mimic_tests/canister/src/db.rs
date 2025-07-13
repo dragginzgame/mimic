@@ -51,10 +51,7 @@ impl DbTester {
         // Insert rows
         for _ in 0..ROWS {
             let e = ContainsBlob::default();
-            db!()
-                .save()
-                .execute(query::create().from_entity(e))
-                .unwrap();
+            db!().save().create(e).unwrap();
         }
 
         // Retrieve rows in B-Tree order
@@ -82,10 +79,7 @@ impl DbTester {
         use test_design::canister::db::CreateBasic;
 
         let e = CreateBasic::default();
-        db!()
-            .save()
-            .execute(query::create().from_entity(e))
-            .unwrap();
+        db!().save().create(e).unwrap();
 
         // count keys
         let num_keys = db!()
@@ -97,10 +91,7 @@ impl DbTester {
 
         // insert another
         let e = CreateBasic::default();
-        db!()
-            .save()
-            .execute(query::create().from_entity(e))
-            .unwrap();
+        db!().save().create(e).unwrap();
 
         // count keys
 
@@ -122,10 +113,7 @@ impl DbTester {
         // insert rows
         for _ in 0..ROWS {
             let e = CreateBasic::default();
-            db!()
-                .save()
-                .execute(query::create().from_entity(e))
-                .unwrap();
+            db!().save().create(e).unwrap();
         }
 
         // Retrieve the count from the store
@@ -151,10 +139,8 @@ impl DbTester {
                 bytes: vec![0u8; BLOB_SIZE].into(),
                 ..Default::default()
             };
-            db!()
-                .save()
-                .execute(query::create().from_entity(e))
-                .unwrap();
+
+            db!().save().create(e).unwrap();
         }
 
         // Retrieve the count from the store
@@ -177,10 +163,7 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = DataKeyOrder::default();
-            db!()
-                .save()
-                .execute(query::create().from_entity(e))
-                .unwrap();
+            db!().save().create(e).unwrap();
         }
 
         // Retrieve rows in B-Tree order
@@ -202,49 +185,31 @@ impl DbTester {
 
         // Step 1: Insert entity e1 with x=1, y=10
         let e1 = Index::new(1, 10);
-        db!()
-            .save()
-            .debug()
-            .execute(query::create().from_entity(e1.clone()))
-            .unwrap();
+        let id1 = db!().save().create(e1).unwrap();
 
         // Step 2: Insert entity e2 with x=1 (non-unique), y=20 (unique)
         let e2 = Index::new(1, 20);
-        db!()
-            .save()
-            .debug()
-            .execute(query::create().from_entity(e2))
-            .unwrap();
+        db!().save().create(e2).unwrap();
 
         // Step 3: Attempt to insert another with duplicate y=10 (should fail)
         let e3 = Index::new(2, 10);
-        let result = db!()
-            .save()
-            .debug()
-            .execute(query::create().from_entity(e3.clone()));
+        let result = db!().save().create(e3.clone());
         assert!(result.is_err(), "expected unique index violation on y=10");
 
         // Step 4: Delete e1 (y=10)
-        db!().delete().one::<Index>(e1.id).unwrap();
+        db!().delete().one::<Index>(id1).unwrap();
 
         // Step 5: Try inserting e3 again (y=10 should now be free)
-        let result = db!()
-            .save()
-            .debug()
-            .execute(query::create().from_entity(e3));
+        let result = db!().save().create(e3);
         assert!(
             result.is_ok(),
             "expected insert to succeed after y=10 was freed by delete"
         );
 
         // Step 6: Confirm only 2 entities remain
-        let all = db!()
-            .load()
-            .debug()
-            .execute::<Index>(query::load())
-            .unwrap();
+        let all = db!().load().all::<Index>().unwrap();
 
-        assert_eq!(all.count(), 2);
+        assert_eq!(all.len(), 2);
     }
 
     fn index_option() {
@@ -255,73 +220,56 @@ impl DbTester {
             id: Ulid::generate(),
             value: Some(10),
         };
-        db!()
-            .save()
-            .execute(query::create().from_entity(e1.clone()))
-            .unwrap();
+        let id1 = db!().save().create(e1).unwrap();
 
         // Insert entity with Some(20)
         let e2 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: Some(20),
         };
-        db!()
-            .save()
-            .execute(query::create().from_entity(e2))
-            .unwrap();
+        db!().save().create(e2).unwrap();
 
         // Insert entity with None (should not conflict with anything)
         let e3 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: None,
         };
-        db!()
-            .save()
-            .execute(query::create().from_entity(e3.clone()))
-            .unwrap();
+        let id3 = db!().save().create(e3).unwrap();
 
         // Insert duplicate Some(10) — should fail (if index is unique)
         let e4 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: Some(10),
         };
-        let result = db!()
-            .save()
-            .execute(query::create().from_entity(e4.clone()));
+        let result = db!().save().create(e4.clone());
         assert!(
             result.is_err(),
             "Expected duplicate index error on Some(10)"
         );
 
         // Delete e1 (frees up Some(10))
-        db!().delete().one::<IndexUniqueOpt>(e1.id).unwrap();
+        db!().delete().one::<IndexUniqueOpt>(id1).unwrap();
 
         // Retry insert of e4 — should now succeed
-        let result = db!().save().execute(query::create().from_entity(e4));
+        let result = db!().save().create(e4);
         assert!(
             result.is_ok(),
             "Expected insert to succeed after deleting conflicting index"
         );
 
         // Delete e3 (value = None)
-        db!().delete().one::<IndexUniqueOpt>(e3.id).unwrap();
+        db!().delete().one::<IndexUniqueOpt>(id3).unwrap();
 
         // Insert another entity with value = None — should be fine (no uniqueness enforced)
         let e5 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: None,
         };
-        db!()
-            .save()
-            .execute(query::create().from_entity(e5))
-            .unwrap();
+        db!().save().create(e5).unwrap();
 
         // Confirm only 3 entities now exist
-        let all = db!()
-            .load()
-            .execute::<IndexUniqueOpt>(query::load())
-            .unwrap();
-        assert_eq!(all.count(), 3);
+        let all = db!().load().all::<IndexUniqueOpt>().unwrap();
+        assert_eq!(all.len(), 3);
     }
 
     fn limit_query() {
@@ -331,10 +279,7 @@ impl DbTester {
         // overwrite the ulid with replace()
         for value in 1..100 {
             let e = Limit { value };
-            db!()
-                .save()
-                .execute(query::replace().from_entity(e))
-                .unwrap();
+            db!().save().replace(e).unwrap();
         }
 
         // Test various limits and offsets
@@ -358,14 +303,7 @@ impl DbTester {
         use test_design::canister::db::CreateBasic;
 
         let e = CreateBasic::default();
-        let id = db!()
-            .save()
-            .execute(query::replace().from_entity(e.clone()))
-            .unwrap()
-            .0
-            .first()
-            .unwrap()
-            .key;
+        let id = db!().save().replace(e.clone()).unwrap();
 
         let loaded = db!().load().debug().one::<CreateBasic>(id).unwrap();
 
@@ -380,10 +318,7 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = ContainsOpts::default();
-            db!()
-                .save()
-                .execute(query::create().from_entity(e))
-                .unwrap();
+            db!().save().create(e).unwrap();
         }
 
         // Retrieve rows in B-Tree order
@@ -404,19 +339,12 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = ContainsManyRelations::default();
-            db!()
-                .save()
-                .execute(query::create().from_entity(e))
-                .unwrap();
+            db!().save().create(e).unwrap();
         }
 
         // Retrieve rows in B-Tree order
-        let keys = db!()
-            .load()
-            .execute::<ContainsManyRelations>(query::load())
-            .unwrap()
-            .keys();
+        let rows = db!().load().all::<ContainsManyRelations>().unwrap();
 
-        let _ = keys.len();
+        let _ = rows.len();
     }
 }

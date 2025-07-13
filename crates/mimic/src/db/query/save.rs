@@ -1,8 +1,4 @@
-use crate::{
-    MimicError,
-    core::traits::EntityKind,
-    serialize::{deserialize, serialize},
-};
+use crate::{MimicError, core::traits::EntityKind, serialize::serialize};
 use candid::CandidType;
 use derive_more::Display;
 use serde::{Deserialize, Serialize};
@@ -15,56 +11,19 @@ use serde::{Deserialize, Serialize};
 /// Update  : will only change an existing row
 ///
 
-#[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, Serialize)]
+#[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, Default, Serialize)]
 pub enum SaveMode {
+    #[default]
     Create,
     Replace,
     Update,
 }
 
 ///
-/// SaveQueryBuilder
-///
-
-#[derive(Debug)]
-pub struct SaveQueryBuilder {
-    mode: SaveMode,
-}
-
-impl SaveQueryBuilder {
-    // new
-    #[must_use]
-    pub const fn new(mode: SaveMode) -> Self {
-        Self { mode }
-    }
-
-    // bytes
-    #[must_use]
-    pub fn bytes(self, bytes: &[u8]) -> SaveQuery {
-        SaveQuery::new(self.mode, bytes)
-    }
-
-    // from
-    pub fn from<E: EntityKind>(self, input: impl Into<E>) -> Result<SaveQuery, MimicError> {
-        let entity = input.into();
-        let bytes = serialize(&entity)?;
-
-        Ok(SaveQuery::new(self.mode, &bytes))
-    }
-
-    // from_entity
-    pub fn from_entity<E: EntityKind>(self, entity: E) -> Result<SaveQuery, MimicError> {
-        let bytes = serialize(&entity)?;
-
-        Ok(SaveQuery::new(self.mode, &bytes))
-    }
-}
-
-///
 /// SaveQuery
 ///
 
-#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
+#[derive(CandidType, Clone, Debug, Deserialize, Default, Serialize)]
 pub struct SaveQuery {
     pub mode: SaveMode,
     pub bytes: Vec<u8>,
@@ -72,69 +31,32 @@ pub struct SaveQuery {
 
 impl SaveQuery {
     #[must_use]
-    pub fn new(mode: SaveMode, bytes: &[u8]) -> Self {
+    pub fn new(mode: SaveMode) -> Self {
         Self {
             mode,
-            bytes: bytes.to_vec(),
+            ..Default::default()
         }
-    }
-}
-
-impl<E: EntityKind> TryInto<SaveQueryTyped<E>> for SaveQuery {
-    type Error = MimicError;
-
-    fn try_into(self) -> Result<SaveQueryTyped<E>, Self::Error> {
-        let entity = deserialize::<E>(&self.bytes)?;
-
-        Ok(SaveQueryTyped::new(self.mode, entity))
-    }
-}
-
-///
-/// SaveQueryTypedBuilder
-///
-
-#[derive(Debug)]
-pub struct SaveQueryTypedBuilder {
-    mode: SaveMode,
-}
-
-impl SaveQueryTypedBuilder {
-    // new
-    #[must_use]
-    pub const fn new(mode: SaveMode) -> Self {
-        Self { mode }
     }
 
     // from
-    pub fn from<E: EntityKind>(self, input: impl Into<E>) -> SaveQueryTyped<E> {
+    pub fn from<E: EntityKind>(mut self, input: impl Into<E>) -> Result<Self, MimicError> {
         let entity = input.into();
+        self.bytes = serialize(&entity)?;
 
-        SaveQueryTyped::new(self.mode, entity)
+        Ok(self)
+    }
+
+    // from_bytes
+    #[must_use]
+    pub fn from_bytes(mut self, bytes: &[u8]) -> Self {
+        self.bytes = bytes.to_vec();
+        self
     }
 
     // from_entity
-    pub const fn from_entity<E: EntityKind>(self, entity: E) -> SaveQueryTyped<E> {
-        SaveQueryTyped::new(self.mode, entity)
-    }
-}
+    pub fn from_entity<E: EntityKind>(mut self, entity: E) -> Result<Self, MimicError> {
+        self.bytes = serialize(&entity)?;
 
-///
-/// SaveQueryTyped
-///
-
-#[derive(CandidType, Clone, Debug)]
-pub struct SaveQueryTyped<E: EntityKind> {
-    pub mode: SaveMode,
-    pub entity: E,
-}
-
-impl<E> SaveQueryTyped<E>
-where
-    E: EntityKind,
-{
-    #[must_use]
-    pub const fn new(mode: SaveMode, entity: E) -> Self {
-        Self { mode, entity }
+        Ok(self)
     }
 }

@@ -1,16 +1,16 @@
 use crate::{
     MimicError,
     common::utils::time,
-    core::{traits::EntityKind, validate::validate},
+    core::{Key, traits::EntityKind, validate::validate},
     db::{
         DbError,
         executor::ExecutorError,
-        query::{SaveMode, SaveQueryTyped},
-        response::{EntityEntry, SaveCollection, SaveResponse, SaveRow},
+        query::{SaveMode, SaveQuery},
+        response::EntityEntry,
         store::{DataEntry, DataKey, DataStoreRegistry, IndexKey, IndexStoreRegistry, Metadata},
     },
     debug,
-    serialize::serialize,
+    serialize::{deserialize, serialize},
 };
 
 ///
@@ -43,40 +43,43 @@ impl SaveExecutor {
     }
 
     // execute
-    pub fn execute<E: EntityKind>(
-        &self,
-        query: SaveQueryTyped<E>,
-    ) -> Result<SaveCollection, MimicError> {
-        let res = self.execute_internal(query)?;
+    // serializes the save query to pass to execute_internal
+    pub fn execute<E: EntityKind>(&self, query: SaveQuery) -> Result<Key, MimicError> {
+        let bytes: E = deserialize(&query.bytes)?;
+        let key = self.execute_internal::<E>(query.mode, bytes)?;
 
-        Ok(res)
+        Ok(key)
     }
 
-    // for when we have to return to the front end
-    pub fn execute_response<E: EntityKind>(
-        self,
-        query: SaveQueryTyped<E>,
-    ) -> Result<SaveResponse, MimicError> {
-        let res = self.execute_internal(query)?;
+    // create
+    pub fn create<E: EntityKind>(&self, entity: E) -> Result<Key, MimicError> {
+        let key = self.execute_internal::<E>(SaveMode::Create, entity)?;
 
-        Ok(SaveResponse(res.0))
+        Ok(key)
+    }
+
+    // update
+    pub fn update<E: EntityKind>(&self, entity: E) -> Result<Key, MimicError> {
+        let key = self.execute_internal::<E>(SaveMode::Update, entity)?;
+
+        Ok(key)
+    }
+
+    // replace
+    pub fn replace<E: EntityKind>(&self, entity: E) -> Result<Key, MimicError> {
+        let key = self.execute_internal::<E>(SaveMode::Replace, entity)?;
+
+        Ok(key)
     }
 
     // execute_internal
-    fn execute_internal<E: EntityKind>(
-        &self,
-        query: SaveQueryTyped<E>,
-    ) -> Result<SaveCollection, DbError> {
-        let mode = query.mode;
-        let entity = query.entity;
+    fn execute_internal<E: EntityKind>(&self, mode: SaveMode, entity: E) -> Result<Key, DbError> {
+        let key = entity.key();
+        let store = self.data.with(|data| data.try_get_store(E::STORE))?;
         let bytes = serialize(&entity)?;
 
         // validate
         validate(&entity)?;
-
-        // resolve - get schema data
-        let key = entity.key();
-        let store = self.data.with(|data| data.try_get_store(E::STORE))?;
 
         // debug
         debug!(self.debug, "query.{mode}: {} ({key}) ", E::PATH);
@@ -91,7 +94,6 @@ impl SaveExecutor {
         let old_result = store.with_borrow(|store| store.get(&data_key));
 
         // did anything change?
-
         let (created, modified, old) = match (mode, old_result) {
             (SaveMode::Create, Some(_)) => return Err(ExecutorError::KeyExists(data_key))?,
             (SaveMode::Create | SaveMode::Replace, None) => (now, now, None),
@@ -107,11 +109,7 @@ impl SaveExecutor {
                         "query.{mode}: no changes for {data_key}, skipping save"
                     );
 
-                    return Ok(SaveCollection(vec![SaveRow {
-                        key: data_key.into(),
-                        created: old_entity_value.metadata.created,
-                        modified: old_entity_value.metadata.modified,
-                    }]));
+                    return Ok(key);
                 }
 
                 (
@@ -136,12 +134,7 @@ impl SaveExecutor {
             store.insert(data_key.clone(), entry);
         });
 
-        // return a collection
-        Ok(SaveCollection(vec![SaveRow {
-            key: data_key.into(),
-            created,
-            modified,
-        }]))
+        Ok(key)
     }
 
     // update_indexes

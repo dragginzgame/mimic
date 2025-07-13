@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.7.2] - Range and Filter
--
+- we're now using a QueryPlanner that analyses the indexes
+- changed View::default() so it's much leaner and works better
+- every type now has an enforced default
+- redid savequery and reduced a lot of code and bloat, save now returns the key
 
 ## [0.7.1] - Split Type and Relation
 - now you can specify rel= and is/prim= at the item level, so the actual

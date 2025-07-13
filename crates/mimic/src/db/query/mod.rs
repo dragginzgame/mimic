@@ -40,18 +40,18 @@ pub fn delete() -> DeleteQuery {
 
 // create
 #[must_use]
-pub const fn create() -> SaveQueryTypedBuilder {
-    SaveQueryTypedBuilder::new(SaveMode::Create)
+pub fn create() -> SaveQuery {
+    SaveQuery::new(SaveMode::Create)
 }
 
 // update
 #[must_use]
-pub const fn update() -> SaveQueryTypedBuilder {
-    SaveQueryTypedBuilder::new(SaveMode::Update)
+pub fn update() -> SaveQuery {
+    SaveQuery::new(SaveMode::Update)
 }
 
 // replace
 #[must_use]
-pub const fn replace() -> SaveQueryTypedBuilder {
-    SaveQueryTypedBuilder::new(SaveMode::Replace)
+pub fn replace() -> SaveQuery {
+    SaveQuery::new(SaveMode::Replace)
 }

@@ -1,8 +1,9 @@
 use crate::{
     MimicError,
+    core::Key,
     db::{
         query::{DeleteQuery, LoadQuery, SaveQuery},
-        response::{DeleteResponse, LoadResponse, SaveResponse},
+        response::{DeleteResponse, LoadResponse},
     },
     interface::InterfaceError,
 };
@@ -28,7 +29,7 @@ pub async fn query_load(pid: Principal, query: LoadQuery) -> Result<LoadResponse
 }
 
 // query_save
-pub async fn query_save(pid: Principal, query: SaveQuery) -> Result<SaveResponse, MimicError> {
+pub async fn query_save(pid: Principal, query: SaveQuery) -> Result<Key, MimicError> {
     query_call(pid, "mimic_query_save", &query).await
 }
 

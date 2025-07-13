@@ -72,4 +72,10 @@ impl Db {
     pub const fn delete(&self) -> DeleteExecutor {
         DeleteExecutor::new(self.data, self.index)
     }
+
+    // specific save queries
+    #[must_use]
+    pub const fn create(&self) -> SaveExecutor {
+        SaveExecutor::new(self.data, self.index)
+    }
 }
