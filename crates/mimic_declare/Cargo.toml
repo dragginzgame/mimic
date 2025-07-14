@@ -15,7 +15,6 @@ mimic_schema = { workspace = true }
 proc-macro2 = { workspace = true }
 quote = { workspace = true }
 remain = { workspace = true }
-rust_decimal = { workspace = true }
 serde = { workspace = true }
 syn = { workspace = true }
 tinyrand = { workspace = true }

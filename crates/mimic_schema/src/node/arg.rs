@@ -47,7 +47,6 @@ impl ValidateNode for Args {}
 
 #[derive(Clone, Debug, Display, Serialize)]
 pub enum ArgNumber {
-    Decimal(String),
     Float32(f32),
     Float64(f64),
     Int8(i8),

@@ -4,9 +4,8 @@ use crate::{
 };
 use darling::{Error as DarlingError, FromMeta, ast::NestedMeta};
 use derive_more::Deref;
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use std::fmt::{self, Display};
 use syn::{Lit, LitStr, Path};
 
 ///
@@ -188,7 +187,6 @@ mod arg_tests {
 
 #[derive(Clone, Debug)]
 pub enum ArgNumber {
-    Decimal(String),
     Float32(f32),
     Float64(f64),
     Int8(i8),
@@ -267,8 +265,8 @@ impl ArgNumber {
 
         // 2. Unsuffixed: first try integers
         if s.contains('.') {
-            // 3. Unsuffixed float, treat as Decimal
-            return Ok(Self::Decimal(s));
+            // 3. Unsuffixed float, treat as Decimal (as LitStr)
+            return Ok(Self::Float64(s.parse::<f64>().unwrap()));
         } else {
             macro_rules! try_parse {
                 ($($ty:ty => $variant:ident),*) => {
@@ -297,24 +295,6 @@ impl ArgNumber {
         Err(DarlingError::custom(format!(
             "invalid or unsupported numeric literal '{s}'"
         )))
-    }
-}
-
-impl Display for ArgNumber {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Decimal(v) => write!(f, "{v}"),
-            Self::Float32(v) => write!(f, "{v}"),
-            Self::Float64(v) => write!(f, "{v}"),
-            Self::Int8(v) => write!(f, "{v}"),
-            Self::Int16(v) => write!(f, "{v}"),
-            Self::Int32(v) => write!(f, "{v}"),
-            Self::Int64(v) => write!(f, "{v}"),
-            Self::Nat8(v) => write!(f, "{v}"),
-            Self::Nat16(v) => write!(f, "{v}"),
-            Self::Nat32(v) => write!(f, "{v}"),
-            Self::Nat64(v) => write!(f, "{v}"),
-        }
     }
 }
 
@@ -347,7 +327,6 @@ impl FromMeta for ArgNumber {
 impl PartialEq for ArgNumber {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (Self::Decimal(a), Self::Decimal(b)) => a == b,
             (Self::Float64(a), Self::Float64(b)) => a.to_bits() == b.to_bits(),
             (Self::Float32(a), Self::Float32(b)) => a.to_bits() == b.to_bits(),
             (Self::Int8(a), Self::Int8(b)) => a == b,
@@ -366,7 +345,6 @@ impl PartialEq for ArgNumber {
 impl AsSchema for ArgNumber {
     fn schema(&self) -> TokenStream {
         match self {
-            Self::Decimal(v) => quote!(::mimic::schema::node::ArgNumber::Decimal(#v)),
             Self::Float32(v) => quote!(::mimic::schema::node::ArgNumber::Float32(#v)),
             Self::Float64(v) => quote!(::mimic::schema::node::ArgNumber::Float64(#v)),
             Self::Int8(v) => quote!(::mimic::schema::node::ArgNumber::Int8(#v)),
@@ -386,7 +364,6 @@ impl ToTokens for ArgNumber {
     // we get the _u8 suffix
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let q = match self {
-            Self::Decimal(v) => quote!(#v),
             Self::Float32(v) => quote!(#v),
             Self::Float64(v) => quote!(#v),
             Self::Int8(v) => quote!(#v),

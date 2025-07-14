@@ -70,6 +70,13 @@ pub struct EnumSorted {}
 pub struct EnumUnspecified {}
 
 ///
+/// DecimalNewtype
+///
+
+#[newtype(item(prim = "Decimal"), primitive = "Decimal")]
+pub struct DecimalNewtype {}
+
+///
 /// TodoUnit
 ///
 
@@ -101,3 +108,26 @@ pub struct Todo {}
     ty(validator(path = "validator::number::Range", args(-1, 3)))
 )]
 pub struct Negative {}
+
+///
+/// Selector
+///
+
+#[selector(
+    target = "DecimalNewtype",
+    variant(name = "Cm50", value = 0.5),
+    variant(name = "Metre1", value = 1.0),
+    variant(name = "Meter10", value = 10.0)
+)]
+pub struct Selector {}
+
+///
+/// NewtypeValidated
+///
+
+#[newtype(
+    primitive = "Decimal",
+    item(prim = "Decimal"),
+    ty(validator(path = "validator::number::Lte", args(5.0)))
+)]
+pub struct NewtypeValidated {}
