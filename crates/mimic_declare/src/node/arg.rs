@@ -328,10 +328,10 @@ impl FromMeta for ArgNumber {
             }
 
             // Float
-            Lit::Float(lit) => lit
-                .base10_parse::<f64>()
-                .map(Self::Float64)
-                .map_err(|_| DarlingError::custom("invalid float literal")),
+            Lit::Float(lit) => {
+                let s = lit.to_string();
+                Self::parse_numeric_string(&s)
+            }
 
             // Support string form: "-3", "1.5f32"
             Lit::Str(s) => {
@@ -347,6 +347,7 @@ impl FromMeta for ArgNumber {
 impl PartialEq for ArgNumber {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
+            (Self::Decimal(a), Self::Decimal(b)) => a == b,
             (Self::Float64(a), Self::Float64(b)) => a.to_bits() == b.to_bits(),
             (Self::Float32(a), Self::Float32(b)) => a.to_bits() == b.to_bits(),
             (Self::Int8(a), Self::Int8(b)) => a == b,
