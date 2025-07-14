@@ -209,10 +209,10 @@ mod tests {
     #[test]
     fn principal_max_size_is_bounded() {
         let principal = Principal::max_storable();
-        let size = Storable::to_bytes(&principal).len() as u32;
+        let size = Storable::to_bytes(&principal).len();
 
         println!("max serialized size = {size}");
-        assert!(size <= Principal::STORABLE_MAX_SIZE);
+        assert!(size <= Principal::STORABLE_MAX_SIZE as usize);
     }
 
     #[test]
@@ -233,7 +233,7 @@ mod tests {
     #[test]
     fn principal_serialized_size_is_within_bounds() {
         for len in 0..=Principal::STORABLE_MAX_SIZE {
-            let bytes: Vec<u8> = (0..len).map(|i| i as u8).collect();
+            let bytes: Vec<u8> = (0..len).map(u8::try_from).map(Result::unwrap).collect();
             let principal = Principal::from_slice(&bytes);
             let encoded = principal.to_bytes();
             assert!(

@@ -3,17 +3,6 @@ use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::Display;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
-use thiserror::Error as ThisError;
-
-///
-/// KeyError
-///
-
-#[derive(Debug, ThisError)]
-pub enum KeyError {
-    #[error("key conversion failed")]
-    KeyConversion,
-}
 
 ///
 /// Key
@@ -183,50 +172,6 @@ impl Ord for Key {
 impl PartialOrd for Key {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(Ord::cmp(self, other))
-    }
-}
-
-impl TryFrom<Key> for u64 {
-    type Error = KeyError;
-
-    fn try_from(value: Key) -> Result<Self, Self::Error> {
-        match value {
-            Key::Nat(n) => Ok(n),
-            _ => Err(KeyError::KeyConversion),
-        }
-    }
-}
-
-impl TryFrom<Key> for i64 {
-    type Error = KeyError;
-
-    fn try_from(value: Key) -> Result<Self, Self::Error> {
-        match value {
-            Key::Int(i) => Ok(i),
-            _ => Err(KeyError::KeyConversion),
-        }
-    }
-}
-
-impl TryFrom<Key> for Principal {
-    type Error = KeyError;
-
-    fn try_from(value: Key) -> Result<Self, Self::Error> {
-        match value {
-            Key::Principal(p) => Ok(p),
-            _ => Err(KeyError::KeyConversion),
-        }
-    }
-}
-
-impl TryFrom<Key> for Ulid {
-    type Error = KeyError;
-
-    fn try_from(value: Key) -> Result<Self, Self::Error> {
-        match value {
-            Key::Ulid(id) => Ok(id),
-            _ => Err(KeyError::KeyConversion),
-        }
     }
 }
 

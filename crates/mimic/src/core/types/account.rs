@@ -153,10 +153,10 @@ mod tests {
     #[test]
     fn account_max_size_is_bounded() {
         let key = Account::max_storable();
-        let size = Storable::to_bytes(&key).len() as u32;
+        let size = Storable::to_bytes(&key).len();
 
         println!("max serialized size = {size}");
-        assert!(size <= Account::STORABLE_MAX_SIZE);
+        assert!(size <= Account::STORABLE_MAX_SIZE as usize);
     }
 
     #[test]

@@ -235,10 +235,10 @@ mod test {
     #[test]
     fn ulid_max_size_is_bounded() {
         let ulid = Ulid::max_storable();
-        let size = Storable::to_bytes(&ulid).len() as u32;
+        let size = Storable::to_bytes(&ulid).len();
 
         println!("max serialized size = {size}");
-        assert!(size <= Ulid::STORABLE_MAX_SIZE);
+        assert!(size <= Ulid::STORABLE_MAX_SIZE as usize);
     }
 
     #[test]

@@ -31,9 +31,9 @@ impl Equal {
 impl ValidatorString for Equal {
     fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
         let string = s.as_ref();
-        let len = string.len() as u32;
+        let len = string.len();
 
-        if len == self.target {
+        if len == self.target as usize {
             Ok(())
         } else {
             Err(format!(
@@ -64,9 +64,9 @@ impl Min {
 impl ValidatorString for Min {
     fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
         let string = s.as_ref();
-        let len = string.len() as u32;
+        let len = string.len();
 
-        if len < self.target {
+        if len < self.target as usize {
             Err(format!(
                 "length of '{}' ({}) is lower than minimum of {}",
                 truncate_string(&string),
@@ -97,9 +97,9 @@ impl Max {
 impl ValidatorString for Max {
     fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
         let string = s.as_ref();
-        let len = string.len() as u32;
+        let len = string.len();
 
-        if len > self.target {
+        if len > self.target as usize {
             Err(format!(
                 "length of '{}' ({}) is greater than maximum of {}",
                 truncate_string(&string),

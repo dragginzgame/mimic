@@ -174,9 +174,9 @@ mod tests {
     #[test]
     fn subaccount_max_size_is_bounded() {
         let subaccount = Subaccount::max_storable();
-        let size = Storable::to_bytes(&subaccount).len() as u32;
+        let size = Storable::to_bytes(&subaccount).len();
 
         println!("max serialized size = {size}");
-        assert!(size <= Subaccount::STORABLE_MAX_SIZE);
+        assert!(size <= Subaccount::STORABLE_MAX_SIZE as usize);
     }
 }

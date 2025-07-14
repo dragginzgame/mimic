@@ -167,7 +167,7 @@ fn read_chunk(buf: &mut &[u8]) -> Vec<u8> {
 // write_chunk
 #[allow(clippy::cast_possible_truncation)]
 fn write_chunk(buf: &mut Vec<u8>, data: &[u8]) {
-    let len = data.len() as u32;
+    let len = data.len();
     buf.extend(&len.to_le_bytes());
 
     buf.extend(data);
@@ -195,10 +195,10 @@ mod tests {
     #[test]
     fn data_key_max_size_is_bounded() {
         let data_key = DataKey::max_storable();
-        let size = Storable::to_bytes(&data_key).len() as u32;
+        let size = Storable::to_bytes(&data_key).len();
 
         println!("max serialized size = {size}");
-        assert!(size <= DataKey::STORABLE_MAX_SIZE);
+        assert!(size <= DataKey::STORABLE_MAX_SIZE as usize);
     }
 
     #[test]

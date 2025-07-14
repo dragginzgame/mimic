@@ -45,7 +45,7 @@ impl EntityFixture for Filterable {
                     score: *score,
                     level: *level,
                     offset: *offset,
-                    tags: tags.iter().map(|s| s.to_string()).collect(),
+                    tags: tags.iter().map(ToString::to_string).collect(),
                     ..Default::default()
                 },
             );

@@ -61,10 +61,10 @@ impl QueryPlan {
                             .map(|key| DataKey::new(E::PATH, key))
                             .collect::<Vec<_>>();
 
-                        if !keys.is_empty() {
-                            Some(QueryShape::Many(keys))
-                        } else {
+                        if keys.is_empty() {
                             None
+                        } else {
+                            Some(QueryShape::Many(keys))
                         }
                     } else {
                         None

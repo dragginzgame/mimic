@@ -3,10 +3,12 @@ use crate::core::{
         FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto, ValidateCustom,
         Visitable,
     },
+    types::Decimal,
     value::Value,
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
+use num_traits::ToPrimitive;
 use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,
@@ -47,7 +49,18 @@ pub struct E8s(u64);
 
 impl E8s {
     #[must_use]
-    pub fn from_tokens(value: f64) -> Option<Self> {
+    pub fn from_decimal(value: Decimal) -> Option<Self> {
+        let d = value * SCALE;
+
+        Some(Self(d.to_u64()?))
+    }
+
+    #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
+    #[allow(clippy::cast_precision_loss)]
+    #[allow(clippy::cast_sign_loss)]
+    #[doc = "⚠️ Use only for non-critical float conversions. Prefer from_decimal."]
+    pub fn from_f64(value: f64) -> Option<Self> {
         if value.is_nan() || value.is_infinite() {
             return None;
         }
@@ -56,8 +69,8 @@ impl E8s {
     }
 
     #[must_use]
-    pub fn to_tokens(self) -> f64 {
-        self.0 as f64 / SCALE as f64
+    pub fn to_tokens(self) -> Decimal {
+        Decimal::from(self.0) / Decimal::from(SCALE)
     }
 
     #[must_use]
@@ -145,27 +158,20 @@ impl Visitable for E8s {}
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_from_and_to_f64_round_trip() {
-        let original = 1.234_567_89;
-        let fixed = E8s::from_tokens(original).unwrap();
-        let result = fixed.to_tokens();
-        let diff = (original - result).abs();
-        assert!(diff < 1e-8, "round-trip error too large: {diff}");
-    }
+    use std::str::FromStr;
 
     #[test]
     fn test_display_formatting() {
-        let fixed = E8s::from_tokens(42.5).unwrap();
-        assert_eq!("42.50000000".to_string(), fixed.to_string());
+        let dec = Decimal::from_str("42.5").unwrap();
+        let fixed = E8s::from_decimal(dec).unwrap();
+        assert_eq!(fixed.to_string(), "42.50000000");
     }
 
     #[test]
     fn test_equality_and_ordering() {
-        let a = E8s::from_tokens(10.0).unwrap();
-        let b = E8s::from_tokens(20.0).unwrap();
-        let c = E8s::from_tokens(10.0).unwrap();
+        let a = E8s::from_decimal(Decimal::from_str("10.0").unwrap()).unwrap();
+        let b = E8s::from_decimal(Decimal::from_str("20.0").unwrap()).unwrap();
+        let c = E8s::from_decimal(Decimal::from_str("10.0").unwrap()).unwrap();
 
         assert!(a < b);
         assert!(b > a);
@@ -174,7 +180,8 @@ mod tests {
 
     #[test]
     fn test_count_digits() {
-        let fixed = E8s::from_tokens(123.456_789).unwrap();
+        let dec = Decimal::from_str("123.456789").unwrap();
+        let fixed = E8s::from_decimal(dec).unwrap();
         let (int_digits, frac_digits) = fixed.count_digits();
         assert_eq!(int_digits, 3);
         assert_eq!(frac_digits, 6); // .456789
@@ -182,27 +189,39 @@ mod tests {
 
     #[test]
     fn test_to_searchable_string() {
-        let fixed = E8s::from_tokens(3.17).unwrap();
+        let dec = Decimal::from_str("3.17").unwrap();
+        let fixed = E8s::from_decimal(dec).unwrap();
         let search = fixed.to_searchable_string().unwrap();
         assert_eq!(search, "3.17000000");
     }
 
     #[test]
     fn test_from_u64() {
-        let fixed = E8s::from_tokens(42.0);
-        assert_eq!(fixed.unwrap().to_tokens(), 42.0);
+        let fixed = E8s::from_decimal(Decimal::from(42)).unwrap();
+        assert_eq!(fixed.to_tokens(), Decimal::from(42));
     }
 
     #[test]
     fn test_default_is_zero() {
         let fixed = E8s::default();
-        assert_eq!(fixed.to_tokens(), 0.0);
+        assert_eq!(fixed.to_tokens(), Decimal::ZERO);
     }
 
     #[test]
-    fn test_nan_and_infinity_rejection() {
-        assert!(E8s::from_tokens(f64::NAN).is_none());
-        assert!(E8s::from_tokens(f64::INFINITY).is_none());
-        assert!(E8s::from_tokens(f64::NEG_INFINITY).is_none());
+    fn test_nan_and_infinity_rejection_from_f64() {
+        assert!(E8s::from_f64(f64::NAN).is_none());
+        assert!(E8s::from_f64(f64::INFINITY).is_none());
+        assert!(E8s::from_f64(f64::NEG_INFINITY).is_none());
+    }
+
+    #[test]
+    fn test_from_f64_accuracy_and_rounding() {
+        let val = 0.000_000_004_9_f64;
+        let e = E8s::from_f64(val).unwrap();
+        assert_eq!(e.0, 0);
+
+        let val = 0.000_000_005_1_f64;
+        let e = E8s::from_f64(val).unwrap();
+        assert_eq!(e.0, 1);
     }
 }

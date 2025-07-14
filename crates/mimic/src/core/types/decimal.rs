@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize, ser::Error};
 use std::{
     cmp::Ordering,
     fmt::{self, Display},
+    ops::{Div, Mul},
 };
 
 ///
@@ -89,6 +90,15 @@ impl Display for Decimal {
     }
 }
 
+impl<D: Into<Self>> Div<D> for Decimal {
+    type Output = Self;
+
+    fn div(self, d: D) -> Self::Output {
+        let rhs: Self = d.into();
+        Self(self.0 / rhs.0)
+    }
+}
+
 impl FieldSortable for Decimal {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
@@ -107,47 +117,9 @@ impl FieldValue for Decimal {
     }
 }
 
-impl From<i32> for Decimal {
-    fn from(n: i32) -> Self {
-        Self(n.into())
-    }
-}
-
-impl From<i64> for Decimal {
-    fn from(n: i64) -> Self {
-        Self(n.into())
-    }
-}
-
-impl From<isize> for Decimal {
-    fn from(n: isize) -> Self {
-        Self(n.into())
-    }
-}
-
-#[allow(clippy::fallible_impl_from)]
-impl From<f32> for Decimal {
-    fn from(n: f32) -> Self {
-        Self(WrappedDecimal::from_f32(n).unwrap())
-    }
-}
-
-#[allow(clippy::fallible_impl_from)]
-impl From<f64> for Decimal {
-    fn from(n: f64) -> Self {
-        Self(WrappedDecimal::from_f64(n).unwrap())
-    }
-}
-
-impl From<WrappedDecimal> for Decimal {
-    fn from(d: WrappedDecimal) -> Self {
-        Self(d)
-    }
-}
-
-impl From<Decimal> for WrappedDecimal {
-    fn from(d: Decimal) -> Self {
-        *d
+impl<D: Into<WrappedDecimal>> From<D> for Decimal {
+    fn from(d: D) -> Self {
+        Self(d.into())
     }
 }
 
@@ -181,6 +153,15 @@ impl Inner for Decimal {
     }
 }
 
+impl<D: Into<Self>> Mul<D> for Decimal {
+    type Output = Self;
+
+    fn mul(self, d: D) -> Self::Output {
+        let rhs: Self = d.into();
+        Self(self.0 * rhs.0)
+    }
+}
+
 impl NumCast for Decimal {
     fn from<T: ToPrimitive>(n: T) -> Option<Self> {
         WrappedDecimal::from_f64(n.to_f64()?).map(Decimal)
@@ -198,6 +179,10 @@ impl ToPrimitive for Decimal {
 
     fn to_u64(&self) -> Option<u64> {
         self.0.to_u64()
+    }
+
+    fn to_u128(&self) -> Option<u128> {
+        self.0.to_u128()
     }
 
     fn to_f32(&self) -> Option<f32> {

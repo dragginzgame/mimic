@@ -137,8 +137,8 @@ impl LoadExecutor {
     // execute_plan
     fn execute_plan<E: EntityKind>(&self, plan: &QueryPlan) -> Result<Vec<DataRow>, DbError> {
         let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
-
         let shape = plan.shape::<E>();
+
         debug!(self.debug, "query.load: {plan:?} shape is {shape:?}");
 
         let rows = match shape {

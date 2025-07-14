@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.7.3]
 - shortcut methods for create, update and replace
 - In, AllIn and AnyIn now should work in queries
+- mul and div for decimal
+- e8s and e18s a lot more stable with more tests, from Decimal etc.
 
 ## [0.7.2] - Range and Filter
 - we're now using a QueryPlanner that analyses the indexes

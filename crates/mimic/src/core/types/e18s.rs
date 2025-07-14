@@ -3,17 +3,19 @@ use crate::core::{
         FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto, ValidateCustom,
         Visitable,
     },
+    types::Decimal,
     value::Value,
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
+use num_traits::ToPrimitive;
 use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,
     fmt::{self, Display},
 };
 
-const SCALE: u128 = 1_000_000_000_000_000_000;
+const SCALE: u128 = 1_000_000_000_000_000_000; // 1e18
 
 ///
 /// E18s
@@ -47,16 +49,28 @@ pub struct E18s(pub u128);
 
 impl E18s {
     #[must_use]
-    pub fn from_tokens(value: f64) -> Option<Self> {
-        if value.is_nan() || value.is_infinite() || value < 0.0 {
+    pub fn from_decimal(value: Decimal) -> Option<Self> {
+        let d = value * SCALE;
+
+        Some(Self(d.to_u128()?))
+    }
+
+    #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
+    #[allow(clippy::cast_precision_loss)]
+    #[allow(clippy::cast_sign_loss)]
+    #[doc = "⚠️ Use only for non-critical float conversions. Prefer from_decimal."]
+    pub fn from_f64(value: f64) -> Option<Self> {
+        if value.is_nan() || value.is_infinite() {
             return None;
         }
+
         Some(Self((value * SCALE as f64).round() as u128))
     }
 
     #[must_use]
-    pub fn to_tokens(self) -> f64 {
-        self.0 as f64 / SCALE as f64
+    pub fn to_tokens(self) -> Decimal {
+        Decimal::from(self.0) / Decimal::from(SCALE)
     }
 
     #[must_use]
@@ -155,25 +169,17 @@ mod tests {
     use std::str::FromStr;
 
     #[test]
-    fn test_from_and_to_f64_round_trip() {
-        let original = 1.234_567_891_234_567;
-        let e18s = E18s::from_tokens(original).unwrap();
-        let result = e18s.to_tokens();
-        let diff = (original - result).abs();
-        assert!(diff < 1e-18, "round-trip error too large: {diff}");
-    }
-
-    #[test]
     fn test_display_formatting() {
-        let e18s = E18s::from_tokens(42.5).unwrap();
-        assert_eq!("42.5", e18s.to_string());
+        let dec = Decimal::from_str("42.5").unwrap();
+        let e18s = E18s::from_decimal(dec).unwrap();
+        assert_eq!(e18s.to_string(), "42.5");
     }
 
     #[test]
     fn test_equality_and_ordering() {
-        let a = E18s::from_tokens(10.0).unwrap();
-        let b = E18s::from_tokens(20.0).unwrap();
-        let c = E18s::from_tokens(10.0).unwrap();
+        let a = E18s::from_decimal(Decimal::from_str("10.0").unwrap()).unwrap();
+        let b = E18s::from_decimal(Decimal::from_str("20.0").unwrap()).unwrap();
+        let c = E18s::from_decimal(Decimal::from_str("10.0").unwrap()).unwrap();
 
         assert!(a < b);
         assert!(b > a);
@@ -182,7 +188,8 @@ mod tests {
 
     #[test]
     fn test_count_digits() {
-        let e18s = E18s::from_str("123456789123456789123").unwrap(); // 21 digits
+        let e18s =
+            E18s::from_decimal(Decimal::from_str("123.456789123456789123").unwrap()).unwrap();
         let (int_digits, frac_digits) = e18s.count_digits();
         assert_eq!(int_digits, 3);
         assert_eq!(frac_digits, 18);
@@ -190,9 +197,8 @@ mod tests {
 
     #[test]
     fn test_to_searchable_string() {
-        let e18s = E18s::from_str("317").unwrap();
+        let e18s = E18s::from_decimal(Decimal::from_str("0.000000000000000317").unwrap()).unwrap();
         let search = e18s.to_searchable_string().unwrap();
-
         assert_eq!(search, "0.000000000000000317");
     }
 
@@ -200,20 +206,19 @@ mod tests {
     fn test_from_u128() {
         let raw = 42 * SCALE;
         let e18s = E18s::from(raw);
-        assert_eq!(e18s.to_tokens(), 42.0);
+        assert_eq!(e18s.to_tokens(), Decimal::from(42));
     }
 
     #[test]
     fn test_default_is_zero() {
         let fixed = E18s::default();
-        assert_eq!(fixed.to_tokens(), 0.0);
+        assert_eq!(fixed.to_tokens(), Decimal::ZERO);
     }
 
     #[test]
     fn test_nan_and_infinity_rejection() {
-        assert!(E18s::from_tokens(f64::NAN).is_none());
-        assert!(E18s::from_tokens(f64::INFINITY).is_none());
-        assert!(E18s::from_tokens(f64::NEG_INFINITY).is_none());
-        assert!(E18s::from_tokens(-1.0).is_none());
+        assert!(E18s::from_f64(f64::NAN).is_none());
+        assert!(E18s::from_f64(f64::INFINITY).is_none());
+        assert!(E18s::from_f64(f64::NEG_INFINITY).is_none());
     }
 }

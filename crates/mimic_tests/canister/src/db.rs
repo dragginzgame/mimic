@@ -58,7 +58,6 @@ impl DbTester {
         // Retrieve rows in B-Tree order
         let keys = db!()
             .load()
-            .debug()
             .execute::<ContainsBlob>(query::load().sort_field("id", SortDirection::Asc))
             .unwrap()
             .keys();
@@ -288,7 +287,7 @@ impl DbTester {
                     .unwrap()
                     .len();
 
-                assert_eq!(count as u32, limit, "{limit} not equal to {count}");
+                assert_eq!(count, limit as usize, "{limit} not equal to {count}");
                 //    if !results.is_empty() {
                 //        assert_eq!(results[0].value, offset + 1);
                 //    }
@@ -301,28 +300,28 @@ impl DbTester {
 
         let id = db!().save().create(CreateBasic::default()).unwrap();
 
-        let loaded = db!().load().debug().one::<CreateBasic>(id).unwrap();
+        let loaded = db!().load().one::<CreateBasic>(id).unwrap();
 
-        assert_eq!(loaded.key().unwrap(), id);
+        assert_eq!(loaded.key(), id);
     }
 
     fn load_many() {
         use test_design::canister::db::CreateBasic;
 
-        let id1 = db!().save().create(CreateBasic::default()).unwrap();
-        let id2 = db!().save().create(CreateBasic::default()).unwrap();
-        let id3 = db!().save().create(CreateBasic::default()).unwrap();
+        let key1 = db!().save().create(CreateBasic::default()).unwrap();
+        let key2 = db!().save().create(CreateBasic::default()).unwrap();
+        let key3 = db!().save().create(CreateBasic::default()).unwrap();
 
         // Pass a slice of IDs
-        let ids = vec![id1, id2, id3];
-        let loaded = db!().load().many::<CreateBasic, _>(&ids).unwrap();
+        let many_keys = vec![key1, key2, key3];
+        let loaded = db!().load().many::<CreateBasic, _>(&many_keys).unwrap();
 
         // Assert correct count
         assert_eq!(loaded.len(), 3);
 
         // Optionally assert that each loaded item has a matching ID
         for key in loaded.keys() {
-            assert!(ids.contains(&key));
+            assert!(many_keys.contains(&key));
         }
     }
 

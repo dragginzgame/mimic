@@ -161,9 +161,9 @@ dependencies = [
 
 [[package]]
 name = "crc32fast"
-version = "1.4.2"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a97769d94ddab943e4510d138150169a2758b5ef3eb191a9ee688de3e23ef7b3"
+checksum = "9481c1c90cbf2ac953f07c8d4a58aa3945c425b7185c9154d67a65e4230da511"
 dependencies = [
  "cfg-if",
 ]
@@ -617,7 +617,7 @@ dependencies = [
 [[package]]
 name = "icu"
 version = "0.1.7"
-source = "git+https://github.com/dragginzgame/icu#30b05ff878ae8ef2171897ad22b31048da7bfeba"
+source = "git+https://github.com/dragginzgame/icu#c8792645971e7f668b40053e84632f11eaf2a05f"
 dependencies = [
  "candid",
  "defer",

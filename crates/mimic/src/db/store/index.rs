@@ -301,9 +301,9 @@ mod tests {
     #[test]
     fn index_key_max_size_is_bounded() {
         let index_key = IndexKey::max_storable();
-        let size = Storable::to_bytes(&index_key).len() as u32;
+        let size = Storable::to_bytes(&index_key).len();
 
         println!("max serialized size = {size}");
-        assert!(size <= IndexKey::STORABLE_MAX_SIZE);
+        assert!(size <= IndexKey::STORABLE_MAX_SIZE as usize);
     }
 }
