@@ -40,37 +40,35 @@ impl IndexStore {
     ) -> Result<(), ExecutorError> {
         let debug = false;
 
-        match self.get(&index_key) {
-            Some(existing) => {
-                let mut updated = existing;
+        if let Some(existing) = self.get(&index_key) {
+            let mut updated = existing;
 
-                if index.unique {
-                    if !updated.contains(&key) && !updated.is_empty() {
-                        debug!(debug, "index.insert: unique violation at {index_key}");
-                        return Err(ExecutorError::IndexViolation(index_key));
-                    }
-
-                    self.insert(index_key.clone(), IndexEntry::from(key));
-                    debug!(
-                        debug,
-                        "index.insert: unique index updated {index_key} -> {key}"
-                    );
-                } else {
-                    let inserted = updated.insert(key);
-                    self.insert(index_key.clone(), updated);
-                    debug!(
-                        debug,
-                        "index.insert: added {key} to {index_key} (new? {inserted})"
-                    );
+            if index.unique {
+                if !updated.contains(&key) && !updated.is_empty() {
+                    debug!(debug, "index.insert: unique violation at {index_key}");
+                    return Err(ExecutorError::IndexViolation(index_key));
                 }
-            }
-            None => {
+
                 self.insert(index_key.clone(), IndexEntry::from(key));
                 debug!(
                     debug,
-                    "index.insert: created new entry {index_key} -> {key}"
+                    "index.insert: unique index updated {index_key} -> {key}"
+                );
+            } else {
+                let inserted = updated.insert(key);
+                self.insert(index_key.clone(), updated);
+
+                debug!(
+                    debug,
+                    "index.insert: added {key} to {index_key} (new? {inserted})"
                 );
             }
+        } else {
+            self.insert(index_key.clone(), IndexEntry::from(key));
+            debug!(
+                debug,
+                "index.insert: created new entry {index_key} -> {key}"
+            );
         }
 
         Ok(())
@@ -81,34 +79,33 @@ impl IndexStore {
     pub fn remove_index_entry(&mut self, index_key: &IndexKey, key: &Key) -> Option<IndexEntry> {
         let debug = false;
 
-        match self.get(index_key) {
-            Some(existing) => {
-                let mut updated = existing;
-                let removed = updated.remove(key);
+        if let Some(existing) = self.get(index_key) {
+            let mut updated = existing;
+            let removed = updated.remove(key);
+            debug!(
+                debug,
+                "index.remove: removed {key} from {index_key} (was present? {removed})"
+            );
+
+            if updated.is_empty() {
                 debug!(
                     debug,
-                    "index.remove: removed {key} from {index_key} (was present? {removed})"
+                    "index.remove: entry at {index_key} is now empty — removing"
+                );
+                self.remove(index_key)
+            } else {
+                self.insert(index_key.clone(), updated.clone());
+                debug!(
+                    debug,
+                    "index.remove: updated entry at {index_key} -> {updated:?}"
                 );
 
-                if updated.is_empty() {
-                    debug!(
-                        debug,
-                        "index.remove: entry at {index_key} is now empty — removing"
-                    );
-                    self.remove(index_key)
-                } else {
-                    self.insert(index_key.clone(), updated.clone());
-                    debug!(
-                        debug,
-                        "index.remove: updated entry at {index_key} -> {updated:?}"
-                    );
-                    Some(updated)
-                }
+                Some(updated)
             }
-            None => {
-                debug!(debug, "index.remove: no entry found for {index_key}");
-                None
-            }
+        } else {
+            debug!(debug, "index.remove: no entry found for {index_key}");
+
+            None
         }
     }
 }

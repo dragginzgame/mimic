@@ -1,4 +1,3 @@
-use crate::{DATA_REGISTRY, INDEX_REGISTRY};
 use mimic::{core::traits::Path, db::query, prelude::*};
 use test_design::schema::TestStore;
 
@@ -29,7 +28,7 @@ impl DbTester {
 
         for (name, test_fn) in tests {
             println!("clearing db");
-            DATA_REGISTRY.with(|reg| {
+            crate::DATA_REGISTRY.with(|reg| {
                 reg.with_store_mut(TestStore::PATH, |store| store.clear())
                     .ok();
             });

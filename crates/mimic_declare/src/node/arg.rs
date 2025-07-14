@@ -4,7 +4,7 @@ use crate::{
 };
 use darling::{Error as DarlingError, FromMeta, ast::NestedMeta};
 use derive_more::Deref;
-use proc_macro2::TokenStream;
+use proc_macro2::{Span, TokenStream};
 use quote::{ToTokens, quote};
 use std::fmt::{self, Display};
 use syn::{Lit, LitStr, Path};
@@ -188,6 +188,7 @@ mod arg_tests {
 
 #[derive(Clone, Debug)]
 pub enum ArgNumber {
+    Decimal(String),
     Float32(f32),
     Float64(f64),
     Int8(i8),
@@ -213,8 +214,6 @@ macro_rules! impl_from_for_numeric_value {
 }
 
 impl_from_for_numeric_value! {
-    f32 => Float32,
-    f64 => Float64,
     i8 => Int8,
     i16 => Int16,
     i32 => Int32,
@@ -268,10 +267,8 @@ impl ArgNumber {
 
         // 2. Unsuffixed: first try integers
         if s.contains('.') {
-            // 3. Unsuffixed float, just do f64 as easier
-            if let Ok(f) = s.parse::<f64>() {
-                return Ok(Self::Float64(f));
-            }
+            // 3. Unsuffixed float, treat as Decimal
+            return Ok(Self::Decimal(s));
         } else {
             macro_rules! try_parse {
                 ($($ty:ty => $variant:ident),*) => {
@@ -306,6 +303,7 @@ impl ArgNumber {
 impl Display for ArgNumber {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::Decimal(v) => write!(f, "{v}"),
             Self::Float32(v) => write!(f, "{v}"),
             Self::Float64(v) => write!(f, "{v}"),
             Self::Int8(v) => write!(f, "{v}"),
@@ -367,6 +365,10 @@ impl PartialEq for ArgNumber {
 impl AsSchema for ArgNumber {
     fn schema(&self) -> TokenStream {
         match self {
+            Self::Decimal(v) => {
+                let lit_str = syn::LitStr::new(v, Span::call_site());
+                quote!(::mimic::schema::node::ArgNumber::Decimal(#lit_str))
+            }
             Self::Float32(v) => quote!(::mimic::schema::node::ArgNumber::Float32(#v)),
             Self::Float64(v) => quote!(::mimic::schema::node::ArgNumber::Float64(#v)),
             Self::Int8(v) => quote!(::mimic::schema::node::ArgNumber::Int8(#v)),
@@ -386,6 +388,10 @@ impl ToTokens for ArgNumber {
     // we get the _u8 suffix
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let q = match self {
+            Self::Decimal(v) => {
+                let lit_str = syn::LitStr::new(v, Span::call_site());
+                quote!(::mimic::schema::node::ArgNumber::Decimal(#lit_str))
+            }
             Self::Float32(v) => quote!(#v),
             Self::Float64(v) => quote!(#v),
             Self::Int8(v) => quote!(#v),

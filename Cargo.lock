@@ -758,6 +758,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "remain",
+ "rust_decimal",
  "serde",
  "syn 2.0.104",
  "tinyrand",

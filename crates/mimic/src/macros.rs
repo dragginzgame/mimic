@@ -61,6 +61,11 @@ macro_rules! debug {
 
 // db
 #[macro_export]
+#[allow(clippy::crate_in_macro_def)]
 macro_rules! db {
-    () => {{ ::mimic::db::Db::new(&DATA_REGISTRY, &INDEX_REGISTRY) }};
+    () => {{
+        use crate::{DATA_REGISTRY, INDEX_REGISTRY};
+
+        ::mimic::db::Db::new(&DATA_REGISTRY, &INDEX_REGISTRY)
+    }};
 }
