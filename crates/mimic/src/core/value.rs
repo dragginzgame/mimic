@@ -94,7 +94,7 @@ impl Value {
     }
 
     // list
-    pub fn list<T: Into<Self> + Clone>(items: &[T]) -> Self {
+    pub fn list<T: Into<Self> + Clone>(items: &[T]) -> Value {
         Self::List(items.iter().cloned().map(|v| Box::new(v.into())).collect())
     }
 }

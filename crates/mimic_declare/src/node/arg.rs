@@ -366,10 +366,7 @@ impl PartialEq for ArgNumber {
 impl AsSchema for ArgNumber {
     fn schema(&self) -> TokenStream {
         match self {
-            Self::Decimal(v) => {
-                let lit_str = syn::LitStr::new(v, Span::call_site());
-                quote!(::mimic::schema::node::ArgNumber::Decimal(#lit_str))
-            }
+            Self::Decimal(v) => quote!(::mimic::schema::node::ArgNumber::Decimal(#v)),
             Self::Float32(v) => quote!(::mimic::schema::node::ArgNumber::Float32(#v)),
             Self::Float64(v) => quote!(::mimic::schema::node::ArgNumber::Float64(#v)),
             Self::Int8(v) => quote!(::mimic::schema::node::ArgNumber::Int8(#v)),
@@ -389,10 +386,7 @@ impl ToTokens for ArgNumber {
     // we get the _u8 suffix
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let q = match self {
-            Self::Decimal(v) => {
-                let lit_str = syn::LitStr::new(v, Span::call_site());
-                quote!(::mimic::schema::node::ArgNumber::Decimal(#lit_str))
-            }
+            Self::Decimal(v) => quote!(#v),
             Self::Float32(v) => quote!(#v),
             Self::Float64(v) => quote!(#v),
             Self::Int8(v) => quote!(#v),
