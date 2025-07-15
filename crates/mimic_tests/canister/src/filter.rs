@@ -12,8 +12,6 @@ use test_design::{canister::filter::Filterable, schema::TestStore};
 pub struct FilterTester {}
 
 impl FilterTester {
-    // test
-    // best if these are kept in code order so we can see where it failed
     pub fn test() {
         let tests: Vec<(&str, fn())> = vec![
             ("filter_eq_string", Self::filter_eq_string),
@@ -108,7 +106,7 @@ impl FilterTester {
 
     fn filter_and_group() {
         let query = query::load().with_filter(|f| {
-            f.filter_group(|b| {
+            f.and_group(|b| {
                 b.filter("score", Cmp::Gte, 60.0)
                     .filter("level", Cmp::Gte, 2)
             })
@@ -124,7 +122,7 @@ impl FilterTester {
 
     fn filter_or_group() {
         let query = query::load().with_filter(|f| {
-            f.or_filter_group(|b| {
+            f.or_group(|b| {
                 b.filter("category", Cmp::Eq, "A")
                     .filter("category", Cmp::Eq, "C")
             })
@@ -144,9 +142,9 @@ impl FilterTester {
 
     fn filter_nested_groups() {
         let query = query::load().with_filter(|f| {
-            f.filter("active", Cmp::Eq, true).or_filter_group(|b| {
-                b.filter_group(|b| b.filter("score", Cmp::Lt, 40.0))
-                    .or_filter("offset", Cmp::Lt, 0)
+            f.filter("active", Cmp::Eq, true).or_group(|b| {
+                b.and_group(|b| b.filter("score", Cmp::Lt, 40.0))
+                    .or("offset", Cmp::Lt, 0)
             })
         });
 

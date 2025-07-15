@@ -13,6 +13,15 @@ use crate::design::prelude::*;
 ))]
 pub struct Account {}
 
+impl Account {
+    pub fn new<P: Into<Principal>, S: Into<Subaccount>>(p: P, s: S) -> Self {
+        Self {
+            owner: p.into(),
+            subaccount: s.into(),
+        }
+    }
+}
+
 ///
 /// Memo
 ///

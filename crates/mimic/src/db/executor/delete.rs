@@ -90,21 +90,24 @@ impl DeleteExecutor {
         &self,
         query: DeleteQuery,
     ) -> Result<DeleteCollection, DbError> {
-        debug!(self.debug, "query.delete: query is {query:?}");
-
         let plan = QueryPlan::new(&query.filter);
+        let shape = plan.shape::<E>();
 
-        // get store
-        let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
+        debug!(
+            self.debug,
+            "query.delete: query is {query:?}, shape is {shape:?}"
+        );
 
-        // resolver
-        let data_keys: Vec<DataKey> = match plan.shape::<E>() {
+        // resolve shape
+        let data_keys: Vec<DataKey> = match shape {
             QueryShape::One(key) => vec![key],
-
             QueryShape::Many(entity_keys) => entity_keys,
 
             _ => return Err(ExecutorError::ShapeNotSupported)?,
         };
+
+        // get store
+        let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
 
         // execute for every different key
         let mut deleted_rows = Vec::new();

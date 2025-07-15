@@ -2,7 +2,7 @@ use crate::{
     MimicError,
     core::{Value, traits::EntityKind},
     db::{
-        DbError,
+        DbError, ExecutorError,
         executor::FilterEvaluator,
         query::{FilterExpr, LoadFormat, LoadQuery, QueryPlan, QueryShape, SortExpr},
         response::{EntityRow, LoadCollection, LoadResponse},
@@ -156,6 +156,8 @@ impl LoadExecutor {
                 .collect(),
 
             QueryShape::Range(start, end) => Self::load_range(store, start, end),
+
+            _ => return Err(ExecutorError::ShapeNotSupported)?,
         };
 
         Ok(rows)

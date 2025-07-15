@@ -4,6 +4,7 @@ use crate::{
         query::{Cmp, FilterExpr},
         store::DataKey,
     },
+    schema::node::EntityIndex,
 };
 
 ///
@@ -29,6 +30,11 @@ impl QueryPlan {
         // this would handle One and Many queries
         if let Some(shape) = self.extract_primary_key_shape::<E>() {
             return shape;
+        }
+
+        // check for index matches
+        if let Some(index_shape) = self.extract_index_shape::<E>() {
+            return index_shape;
         }
 
         // default to the range of the current entity
@@ -73,6 +79,47 @@ impl QueryPlan {
             _ => None,
         }
     }
+
+    fn extract_index_shape<E: EntityKind>(&self) -> Option<QueryShape> {
+        let filter = self.filter.as_ref()?;
+        let mut best_match: Option<(EntityIndex, Vec<Key>)> = None;
+
+        for index in E::INDEXES {
+            let mut matched_keys = vec![];
+
+            for &field in index.fields {
+                match Self::find_eq_clause(filter, field) {
+                    Some(v) => match v.as_key() {
+                        Some(k) => matched_keys.push(k),
+                        None => break,
+                    },
+                    None => break,
+                }
+            }
+
+            if matched_keys.is_empty() {
+                continue; // skip this index entirely
+            }
+
+            if let Some((_, best_keys)) = &best_match {
+                if matched_keys.len() > best_keys.len() {
+                    best_match = Some((index.clone(), matched_keys));
+                }
+            } else {
+                best_match = Some((index.clone(), matched_keys));
+            }
+        }
+
+        best_match.map(|(index, keys)| QueryShape::Index { index, keys })
+    }
+
+    fn find_eq_clause<'a>(filter: &'a FilterExpr, field: &str) -> Option<&'a Value> {
+        match filter {
+            FilterExpr::Clause(c) if c.field == field && matches!(c.cmp, Cmp::Eq) => Some(&c.value),
+            FilterExpr::And(list) => list.iter().find_map(|f| Self::find_eq_clause(f, field)),
+            _ => None,
+        }
+    }
 }
 
 ///
@@ -85,4 +132,5 @@ pub enum QueryShape {
     One(DataKey),
     Many(Vec<DataKey>),
     Range(DataKey, DataKey),
+    Index { index: EntityIndex, keys: Vec<Key> },
 }

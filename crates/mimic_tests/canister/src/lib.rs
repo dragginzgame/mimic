@@ -1,6 +1,7 @@
 mod db;
 mod default;
 mod filter;
+mod index;
 mod ops;
 mod validate;
 
@@ -25,6 +26,7 @@ pub fn test() {
     default::DefaultTester::test();
     db::DbTester::test();
     filter::FilterTester::test();
+    index::IndexTester::test();
     ops::OpsTester::test();
     validate::ValidateTester::test();
 
@@ -52,10 +54,8 @@ pub fn rarity() -> Result<Vec<RarityView>, MimicError> {
         .execute::<Rarity>(
             query::load()
                 .with_filter(|f| {
-                    f.or_filter_group(|f| {
-                        f.filter("level", Cmp::Gte, 2).filter("level", Cmp::Lte, 4)
-                    })
-                    .or_filter_group(|f| f.filter("name", Cmp::Contains, "incon"))
+                    f.or_group(|f| f.filter("level", Cmp::Gte, 2).filter("level", Cmp::Lte, 4))
+                        .or_group(|f| f.filter("name", Cmp::Contains, "incon"))
                 })
                 .sort([("level", SortDirection::Desc)]),
         )?

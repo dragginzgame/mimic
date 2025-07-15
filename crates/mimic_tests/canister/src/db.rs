@@ -8,8 +8,6 @@ use test_design::schema::TestStore;
 pub struct DbTester {}
 
 impl DbTester {
-    // test
-    // best if these are kept in code order so we can see where it failed
     pub fn test() {
         let tests: Vec<(&str, fn())> = vec![
             ("blob", Self::blob),
@@ -176,7 +174,7 @@ impl DbTester {
 
     // index_create_and_delete
     fn index_create_and_delete() {
-        use test_design::canister::index::Index;
+        use test_design::canister::db::Index;
 
         // Step 1: Insert entity e1 with x=1, y=10
         let e1 = Index::new(1, 10);
@@ -208,7 +206,7 @@ impl DbTester {
     }
 
     fn index_option() {
-        use test_design::canister::index::IndexUniqueOpt;
+        use test_design::canister::db::IndexUniqueOpt;
 
         // Insert entity with Some(10)
         let e1 = IndexUniqueOpt {

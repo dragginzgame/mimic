@@ -4,10 +4,19 @@ use crate::{
 };
 
 ///
+/// Logic
+///
+
+pub enum Logic {
+    And,
+    Or,
+}
+
+///
 /// FilterBuilder
 ///
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct FilterBuilder {
     pub filter: Option<FilterExpr>,
 }
@@ -47,66 +56,155 @@ pub struct FilterBuilder {
 /// - See `filter_opt` if you’re adding dynamic/optional filters based on user input.
 /// - Tests live alongside and verify grouping, flattening, and common construction patterns.
 ///
+
 impl FilterBuilder {
     #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
 
-    // combine
-    fn combine(mut self, expr: FilterExpr, use_or: bool) -> Self {
-        self.filter = Some(match self.filter.take() {
-            Some(existing) if use_or => existing.or(expr),
-            Some(existing) => existing.and(expr),
-            None => expr,
+    // add_expr
+    fn add_expr(mut self, expr: FilterExpr, logic: Logic) -> Self {
+        self.filter = Some(match (self.filter.take(), logic) {
+            (Some(existing), Logic::Or) => existing.or(expr),
+            (Some(existing), Logic::And) => existing.and(expr),
+            (None, _) => expr,
         });
-
         self
     }
 
+    ///
+    /// AND
+    ///
+
     #[must_use]
     pub fn filter<F: Into<String>, V: Into<Value>>(self, field: F, cmp: Cmp, value: V) -> Self {
+        self.and(field, cmp, value)
+    }
+
+    #[must_use]
+    pub fn and<F: Into<String>, V: Into<Value>>(self, field: F, cmp: Cmp, value: V) -> Self {
         let clause = FilterExpr::Clause(FilterClause::new(field, cmp, value));
 
-        self.combine(clause, false)
+        self.add_expr(clause, Logic::And)
     }
 
     #[must_use]
-    pub fn or_filter<F: Into<String>, V: Into<Value>>(self, field: F, cmp: Cmp, value: V) -> Self {
-        let clause = FilterExpr::Clause(FilterClause::new(field, cmp, value));
-
-        self.combine(clause, true)
+    pub fn and_expr(self, expr: FilterExpr) -> Self {
+        self.add_expr(expr, Logic::And)
     }
 
     #[must_use]
-    pub fn filter_expr(self, expr: FilterExpr) -> Self {
-        self.combine(expr, false)
-    }
-
-    #[must_use]
-    pub fn or_filter_expr(self, expr: FilterExpr) -> Self {
-        self.combine(expr, true)
-    }
-
-    #[must_use]
-    pub fn filter_group<F: FnOnce(Self) -> Self>(self, f: F) -> Self {
-        match f(Self::new()).build() {
-            Some(expr) => self.combine(expr, false),
+    pub fn and_opt<F: Into<String>, V: Into<Value>>(
+        self,
+        field: F,
+        cmp: Cmp,
+        value: Option<V>,
+    ) -> Self {
+        match value {
+            Some(v) => self.and(field, cmp, v),
             None => self,
         }
     }
 
     #[must_use]
-    pub fn or_filter_group<F: FnOnce(Self) -> Self>(self, f: F) -> Self {
+    pub fn and_group<F: FnOnce(Self) -> Self>(self, f: F) -> Self {
         match f(Self::new()).build() {
-            Some(expr) => self.combine(expr, true),
+            Some(expr) => self.add_expr(expr, Logic::And),
             None => self,
         }
+    }
+
+    ///
+    /// OR
+    ///
+
+    #[must_use]
+    pub fn or<F: Into<String>, V: Into<Value>>(self, field: F, cmp: Cmp, value: V) -> Self {
+        let clause = FilterExpr::Clause(FilterClause::new(field, cmp, value));
+
+        self.add_expr(clause, Logic::Or)
+    }
+
+    #[must_use]
+    pub fn or_expr(self, expr: FilterExpr) -> Self {
+        self.add_expr(expr, Logic::Or)
+    }
+
+    #[must_use]
+    pub fn or_opt<F: Into<String>, V: Into<Value>>(
+        self,
+        field: F,
+        cmp: Cmp,
+        value: Option<V>,
+    ) -> Self {
+        match value {
+            Some(v) => self.or(field, cmp, v),
+            None => self,
+        }
+    }
+
+    #[must_use]
+    pub fn or_group<F: FnOnce(Self) -> Self>(self, f: F) -> Self {
+        match f(Self::new()).build() {
+            Some(expr) => self.add_expr(expr, Logic::Or),
+            None => self,
+        }
+    }
+
+    ///
+    /// NOT
+    ///
+
+    #[must_use]
+    pub fn not<F: Into<String>, V: Into<Value>>(self, field: F, cmp: Cmp, value: V) -> Self {
+        let clause = FilterExpr::Clause(FilterClause::new(field, cmp, value));
+        self.not_expr(clause)
+    }
+
+    #[must_use]
+    pub fn not_expr(self, expr: FilterExpr) -> Self {
+        self.and_expr(FilterExpr::Not(Box::new(expr)))
+    }
+
+    #[must_use]
+    pub fn not_group(self, f: impl FnOnce(Self) -> Self) -> Self {
+        match f(Self::new()).build() {
+            Some(expr) => self.and_expr(FilterExpr::Not(Box::new(expr))),
+            None => self,
+        }
+    }
+
+    #[must_use]
+    pub fn not_opt<F: Into<String>, V: Into<Value>>(
+        self,
+        field: F,
+        cmp: Cmp,
+        value: Option<V>,
+    ) -> Self {
+        match value {
+            Some(v) => self.not(field, cmp, v),
+            None => self,
+        }
+    }
+
+    ///
+    /// OTHER
+    ///
+
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.filter.is_none()
     }
 
     #[must_use]
     pub fn build(self) -> Option<FilterExpr> {
         self.filter
+    }
+
+    #[must_use]
+    pub fn build_and_simplify(self) -> Option<FilterExpr> {
+        self.build().map(|f| f.simplify())
     }
 
     #[must_use]
@@ -137,10 +235,7 @@ mod tests {
 
     #[test]
     fn builds_single_clause() {
-        let filter = FilterBuilder::new()
-            .filter("a", Cmp::Eq, 42)
-            .build()
-            .unwrap();
+        let filter = FilterBuilder::new().and("a", Cmp::Eq, 42).build().unwrap();
 
         match filter {
             FilterExpr::Clause(c) => {
@@ -155,8 +250,8 @@ mod tests {
     #[test]
     fn chains_and_clauses() {
         let filter = FilterBuilder::new()
-            .filter("a", Cmp::Eq, 1)
-            .filter("b", Cmp::Eq, 2)
+            .and("a", Cmp::Eq, 1)
+            .and("b", Cmp::Eq, 2)
             .build()
             .unwrap();
 
@@ -171,8 +266,8 @@ mod tests {
     #[test]
     fn chains_or_clauses() {
         let filter = FilterBuilder::new()
-            .filter("a", Cmp::Eq, 1)
-            .or_filter("b", Cmp::Eq, 2)
+            .and("a", Cmp::Eq, 1)
+            .or("b", Cmp::Eq, 2)
             .build()
             .unwrap();
 
@@ -187,8 +282,8 @@ mod tests {
     #[test]
     fn groups_and_or_mixed() {
         let filter = FilterBuilder::new()
-            .filter("top", Cmp::Eq, true)
-            .or_filter_group(|b| b.filter("x", Cmp::Eq, "A").filter("y", Cmp::Eq, "B"))
+            .and("top", Cmp::Eq, true)
+            .or_group(|b| b.and("x", Cmp::Eq, "A").and("y", Cmp::Eq, "B"))
             .build()
             .unwrap();
 
@@ -214,7 +309,7 @@ mod tests {
 
     #[test]
     fn clear_resets_filter() {
-        let builder = FilterBuilder::new().filter("x", Cmp::Eq, 1).clear();
+        let builder = FilterBuilder::new().and("x", Cmp::Eq, 1).clear();
 
         assert_eq!(builder.build(), None);
     }
@@ -228,8 +323,8 @@ mod tests {
     #[test]
     fn simplify_built_expr() {
         let expr = FilterBuilder::new()
-            .filter("a", Cmp::Eq, 1)
-            .filter_expr(FilterExpr::True)
+            .and("a", Cmp::Eq, 1)
+            .and_expr(FilterExpr::True)
             .build()
             .unwrap()
             .simplify();
@@ -243,9 +338,9 @@ mod tests {
     #[test]
     fn nested_groups_flatten() {
         let filter = FilterBuilder::new()
-            .filter_group(|b| {
-                b.filter("a", Cmp::Eq, 1)
-                    .filter_group(|b| b.filter("b", Cmp::Eq, 2).filter("c", Cmp::Eq, 3))
+            .and_group(|b| {
+                b.and("a", Cmp::Eq, 1)
+                    .and_group(|b| b.and("b", Cmp::Eq, 2).and("c", Cmp::Eq, 3))
             })
             .build()
             .unwrap()
@@ -257,5 +352,112 @@ mod tests {
             }
             _ => panic!("Expected flattened And"),
         }
+    }
+
+    #[test]
+    fn not_clause_works() {
+        let filter = FilterBuilder::new()
+            .not("active", Cmp::Eq, false)
+            .build()
+            .unwrap();
+
+        match filter {
+            FilterExpr::Not(inner) => match *inner {
+                FilterExpr::Clause(c) => {
+                    assert_eq!(c.field, "active");
+                    assert_eq!(c.cmp, Cmp::Eq);
+                    assert_eq!(c.value, Value::from(false));
+                }
+                _ => panic!("Expected Clause inside Not"),
+            },
+            _ => panic!("Expected Not expression"),
+        }
+    }
+
+    #[test]
+    fn not_group_combines_multiple_clauses() {
+        let filter = FilterBuilder::new()
+            .not_group(|b| b.and("x", Cmp::Eq, 1).and("y", Cmp::Eq, 2))
+            .build()
+            .unwrap();
+
+        match filter {
+            FilterExpr::Not(inner) => match *inner {
+                FilterExpr::And(children) => {
+                    assert_eq!(children.len(), 2);
+                }
+                _ => panic!("Expected And inside Not"),
+            },
+            _ => panic!("Expected Not at root"),
+        }
+    }
+
+    #[test]
+    fn and_opt_includes_only_some() {
+        let filter = FilterBuilder::new()
+            .and_opt("a", Cmp::Eq, Some(1))
+            .and_opt("b", Cmp::Eq, Option::<i32>::None)
+            .build()
+            .unwrap();
+
+        match filter {
+            FilterExpr::Clause(c) => {
+                assert_eq!(c.field, "a");
+            }
+            _ => panic!("Expected single Clause"),
+        }
+    }
+
+    #[test]
+    fn or_opt_combines_optional() {
+        let filter = FilterBuilder::new()
+            .or("x", Cmp::Eq, 1)
+            .or_opt("y", Cmp::Eq, Some(2))
+            .build()
+            .unwrap();
+
+        match filter {
+            FilterExpr::Or(children) => {
+                assert_eq!(children.len(), 2);
+            }
+            _ => panic!("Expected Or"),
+        }
+    }
+
+    #[test]
+    fn not_opt_skips_none() {
+        let filter = FilterBuilder::new()
+            .not_opt("a", Cmp::Eq, Option::<i32>::None)
+            .build();
+
+        assert_eq!(filter, None);
+    }
+
+    #[test]
+    fn build_and_simplify_removes_true() {
+        let filter = FilterBuilder::new()
+            .and_expr(FilterExpr::True)
+            .and("a", Cmp::Eq, 1)
+            .build_and_simplify()
+            .unwrap();
+
+        match filter {
+            FilterExpr::Clause(c) => {
+                assert_eq!(c.field, "a");
+            }
+            _ => panic!("Expected Clause after simplification"),
+        }
+    }
+
+    #[test]
+    fn is_empty_true_on_new() {
+        let builder = FilterBuilder::new();
+        assert!(builder.is_empty());
+    }
+
+    #[test]
+    fn is_empty_false_when_clause_added() {
+        let builder = FilterBuilder::new().filter("a", Cmp::Eq, 1);
+        assert!(!builder.is_empty());
     }
 }
