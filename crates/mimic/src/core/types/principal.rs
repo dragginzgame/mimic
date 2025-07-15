@@ -156,6 +156,18 @@ impl PartialEq<Principal> for WrappedPrincipal {
     }
 }
 
+impl PartialEq<&WrappedPrincipal> for Principal {
+    fn eq(&self, other: &&WrappedPrincipal) -> bool {
+        self.0 == **other
+    }
+}
+
+impl PartialEq<&Principal> for WrappedPrincipal {
+    fn eq(&self, other: &&Principal) -> bool {
+        *self == other.0
+    }
+}
+
 impl Storable for Principal {
     const BOUND: Bound = Bound::Bounded {
         max_size: Self::STORABLE_MAX_SIZE,

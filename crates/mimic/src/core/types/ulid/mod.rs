@@ -161,6 +161,30 @@ impl<T: Into<WrappedUlid>> From<T> for Ulid {
     }
 }
 
+impl PartialEq<WrappedUlid> for Ulid {
+    fn eq(&self, other: &WrappedUlid) -> bool {
+        self.0 == *other
+    }
+}
+
+impl PartialEq<Ulid> for WrappedUlid {
+    fn eq(&self, other: &Ulid) -> bool {
+        *self == other.0
+    }
+}
+
+impl PartialEq<&WrappedUlid> for Ulid {
+    fn eq(&self, other: &&WrappedUlid) -> bool {
+        self.0 == **other
+    }
+}
+
+impl PartialEq<&Ulid> for WrappedUlid {
+    fn eq(&self, other: &&Ulid) -> bool {
+        *self == other.0
+    }
+}
+
 // Serialize and Deserialize from the ulid crate just don't compile
 impl Serialize for Ulid {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
