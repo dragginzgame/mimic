@@ -4,6 +4,16 @@ pub mod icrc3;
 use crate::design::prelude::*;
 
 ///
+/// Account
+///
+
+#[record(fields(
+    field(name = "owner", value(item(prim = "Principal"))),
+    field(name = "subaccount", value(item(prim = "Subaccount")))
+))]
+pub struct Account {}
+
+///
 /// Memo
 ///
 

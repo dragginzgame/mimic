@@ -1,4 +1,3 @@
-mod account;
 mod blob;
 mod decimal;
 mod e18s;
@@ -10,7 +9,6 @@ mod subaccount;
 mod ulid;
 mod unit;
 
-pub use account::*;
 pub use blob::*;
 pub use decimal::*;
 pub use e8s::*;
