@@ -9,15 +9,15 @@ fn create_data_key(bench: &mut Bencher) {
     let key = Key::Int(345_345);
 
     bench.iter(|| {
-        let data_key = DataKey::new(path, key);
+        let data_key = DataKey::from_path(path, key);
         std::hint::black_box(data_key);
     });
 }
 
 // compare_data_key
 fn compare_data_key(bench: &mut Bencher) {
-    let a = DataKey::new("field_abc", 3);
-    let b = DataKey::new("field_abc", 4);
+    let a = DataKey::from_path("field_abc", 3);
+    let b = DataKey::from_path("field_abc", 4);
 
     bench.iter(|| {
         let result = std::cmp::PartialEq::eq(&a, &b);

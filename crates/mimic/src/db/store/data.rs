@@ -71,17 +71,14 @@ impl DataKey {
     pub const STORABLE_MAX_SIZE: u32 = 72;
 
     #[must_use]
-    pub fn new(path: &str, key: impl Into<Key>) -> Self {
-        Self {
-            entity_id: xx_hash_u64(path),
-            key: key.into(),
-        }
+    pub fn new<E: EntityKind>(key: impl Into<Key>) -> Self {
+        Self::from_path(E::PATH, key)
     }
 
     #[must_use]
-    pub fn with_entity<E: EntityKind>(key: impl Into<Key>) -> Self {
+    pub fn from_path(path: &str, key: impl Into<Key>) -> Self {
         Self {
-            entity_id: xx_hash_u64(E::PATH),
+            entity_id: xx_hash_u64(path),
             key: key.into(),
         }
     }
@@ -203,32 +200,32 @@ mod tests {
 
     #[test]
     fn data_keys_with_identical_paths_and_values_are_equal() {
-        let k1 = DataKey::new("my::Entity", 1);
-        let k2 = DataKey::new("my::Entity", 1);
+        let k1 = DataKey::from_path("my::Entity", 1);
+        let k2 = DataKey::from_path("my::Entity", 1);
 
         assert_eq!(k1, k2);
     }
 
     #[test]
     fn data_keys_with_different_paths_are_not_equal() {
-        let k1 = DataKey::new("a::Entity", Ulid::from_u128(1));
-        let k2 = DataKey::new("b::Entity", Ulid::from_u128(1));
+        let k1 = DataKey::from_path("a::Entity", Ulid::from_u128(1));
+        let k2 = DataKey::from_path("b::Entity", Ulid::from_u128(1));
 
         assert_ne!(k1, k2);
     }
 
     #[test]
     fn data_keys_with_different_values_are_not_equal() {
-        let k1 = DataKey::new("my::Entity", Ulid::from_u128(1));
-        let k2 = DataKey::new("my::Entity", Ulid::from_u128(2));
+        let k1 = DataKey::from_path("my::Entity", Ulid::from_u128(1));
+        let k2 = DataKey::from_path("my::Entity", Ulid::from_u128(2));
 
         assert_ne!(k1, k2);
     }
 
     #[test]
     fn data_keys_are_stable_across_invocations() {
-        let k1 = DataKey::new("stable::Entity", 42);
-        let k2 = DataKey::new("stable::Entity", 42);
+        let k1 = DataKey::from_path("stable::Entity", 42);
+        let k2 = DataKey::from_path("stable::Entity", 42);
 
         assert_eq!(k1, k2);
     }

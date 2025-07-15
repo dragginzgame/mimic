@@ -3,12 +3,11 @@ use crate::prelude::*;
 #[entity(
     store = "crate::schema::TestStore",
     pk = "id",
-    index(store = "crate::schema::TestIndex", fields = "group, kind, score"),
+    index(store = "crate::schema::TestIndex", fields = "pid, ulid, score"),
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "group", value(item(prim = "Text"))),
-        field(name = "kind", value(item(prim = "Text"))),
-        field(name = "status", value(item(prim = "Bool"))),
+        field(name = "pid", value(item(prim = "Principal"))),
+        field(name = "ulid", value(item(prim = "Ulid"))),
         field(name = "score", value(item(prim = "Nat32"))),
     ),
     traits(remove(EntityFixture))
@@ -17,28 +16,31 @@ pub struct Indexable {}
 
 impl EntityFixture for Indexable {
     fn insert_fixtures(exec: &mut SaveExecutor) {
-        let fixtures = [
-            ("alpha", "A", true, 10),
-            ("alpha", "B", false, 20),
-            ("beta", "A", true, 15),
-            ("beta", "C", false, 25),
-            ("gamma", "B", true, 30),
-            ("gamma", "C", false, 5),
-            ("alpha", "A", false, 50),
-            ("beta", "B", true, 60),
+        let principals = [
+            Principal::anonymous(),
+            Principal::from_slice(&[1; 29]),
+            Principal::from_slice(&[2; 29]),
         ];
 
-        for (group, kind, status, score) in &fixtures {
-            EntityService::save_fixture(
-                exec,
-                Self {
-                    group: (*group).into(),
-                    kind: (*kind).into(),
-                    status: *status,
-                    score: *score,
-                    ..Default::default()
-                },
-            );
+        let ulids = [Ulid::from_u128(1), Ulid::from_u128(2), Ulid::from_u128(3)];
+
+        let scores = [10, 20, 30, 40, 50, 60];
+
+        // Create combinations of principal × ulid × score
+        for (i, principal) in principals.iter().enumerate() {
+            for (j, ulid) in ulids.iter().enumerate() {
+                let score = scores[(i + j) % scores.len()];
+
+                EntityService::save_fixture(
+                    exec,
+                    Indexable {
+                        pid: *principal,
+                        ulid: *ulid,
+                        score,
+                        ..Default::default()
+                    },
+                );
+            }
         }
     }
 }

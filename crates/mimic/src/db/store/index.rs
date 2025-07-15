@@ -108,6 +108,20 @@ impl IndexStore {
             None
         }
     }
+
+    pub fn range_with_prefix<'a>(
+        &'a self,
+        index_id: &'a IndexId,
+        prefix: &'a [Key],
+    ) -> impl Iterator<Item = (IndexKey, IndexEntry)> + 'a {
+        self.range(
+            IndexKey {
+                index_id: index_id.clone(),
+                keys: prefix.to_vec(),
+            }..,
+        )
+        .take_while(move |(k, _)| k.index_id == *index_id && k.keys.starts_with(prefix))
+    }
 }
 
 ///
@@ -129,16 +143,21 @@ pub struct IndexId {
 }
 
 impl IndexId {
-    pub fn new(entity_path: &str, fields: &[&str]) -> Self {
+    #[must_use]
+    pub fn new<E: EntityKind>(fields: &[&str]) -> Self {
+        Self::from_path(E::PATH, fields)
+    }
+
+    pub fn from_path(path: &str, fields: &[&str]) -> Self {
         Self {
-            entity_hash: xx_hash_u64(entity_path),
+            entity_hash: xx_hash_u64(path),
             fields: fields.iter().map(ToString::to_string).collect(),
         }
     }
 
     #[must_use]
     pub fn max_storable() -> Self {
-        Self::new(
+        Self::from_path(
             "path::to::long::entity::name::Entity",
             &[
                 "long_field_one",
@@ -186,7 +205,7 @@ impl IndexKey {
         }
 
         Some(Self {
-            index_id: IndexId::new(E::PATH, fields),
+            index_id: IndexId::new::<E>(fields),
             keys,
         })
     }

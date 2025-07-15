@@ -56,7 +56,16 @@ impl ValidateNode for Entity {
             Err(e) => errs.add(e),
         }
 
-        // indexes
+        // index fields
+        for index in self.indexes {
+            for field in index.fields {
+                if self.fields.get(field).is_none() {
+                    errs.add(format!("index field '{field}' not found"));
+                }
+            }
+        }
+
+        // index redundancy
         let len = self.indexes.len();
         for i in 0..len {
             let a = &self.indexes[i];

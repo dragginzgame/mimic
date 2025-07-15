@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.8.0] - Feature Complete?
+- the query planner is now resolving indexes and hitting the IndexStore to get the keys
+it needs, this means mimic is pretty much feature complete (for now).  Now comes a lot of testing!
+
 ## [0.7.3]
 - shortcut methods for create, update and replace
 - In, AllIn and AnyIn now should work in queries

@@ -98,7 +98,7 @@ impl SaveExecutor {
         //
 
         let now = time::now_secs();
-        let data_key = DataKey::with_entity::<E>(key);
+        let data_key = DataKey::new::<E>(key);
         let old_result = store.with_borrow(|store| store.get(&data_key));
 
         // did anything change?

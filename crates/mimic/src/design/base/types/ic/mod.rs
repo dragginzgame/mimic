@@ -23,7 +23,7 @@ impl Account {
     }
 
     #[must_use]
-    pub fn to_account(&self) -> WrappedAccount {
+    pub fn to_icrc(&self) -> WrappedAccount {
         WrappedAccount {
             owner: *self.owner,
             subaccount: self.subaccount.map(|s| s.to_bytes()),

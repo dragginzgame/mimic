@@ -1,12 +1,12 @@
 use crate::{
     MimicError,
-    core::{Value, traits::EntityKind},
+    core::{Key, Value, traits::EntityKind},
     db::{
-        DbError, ExecutorError,
+        DbError,
         executor::FilterEvaluator,
         query::{FilterExpr, LoadFormat, LoadQuery, QueryPlan, QueryShape, SortExpr},
         response::{EntityRow, LoadCollection, LoadResponse},
-        store::{DataKey, DataRow, DataStoreLocal, DataStoreRegistry, IndexStoreRegistry},
+        store::{DataKey, DataRow, DataStoreLocal, DataStoreRegistry, IndexId, IndexStoreRegistry},
     },
     debug,
 };
@@ -136,7 +136,7 @@ impl LoadExecutor {
 
     // execute_plan
     fn execute_plan<E: EntityKind>(&self, plan: &QueryPlan) -> Result<Vec<DataRow>, DbError> {
-        let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
+        let store = self.data_registry.with(|reg| reg.try_get_store(E::STORE))?;
         let shape = plan.shape::<E>();
 
         debug!(self.debug, "query.load: {plan:?} shape is {shape:?}");
@@ -157,7 +157,23 @@ impl LoadExecutor {
 
             QueryShape::Range(start, end) => Self::load_range(store, start, end),
 
-            _ => return Err(ExecutorError::ShapeNotSupported)?,
+            QueryShape::Index { index, keys } => {
+                let index_store = self
+                    .index_registry
+                    .with(|reg| reg.try_get_store(index.store))?;
+
+                let index_id = IndexId::new::<E>(index.fields);
+                let keys: Vec<Key> = index_store.with_borrow(|store| {
+                    store
+                        .range_with_prefix(&index_id, &keys)
+                        .flat_map(|(_, entry)| entry.iter().copied().collect::<Vec<_>>())
+                        .collect()
+                });
+
+                keys.into_iter()
+                    .filter_map(|key| Self::load_one(store, DataKey::new::<E>(key)))
+                    .collect()
+            }
         };
 
         Ok(rows)
