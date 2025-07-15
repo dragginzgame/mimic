@@ -50,6 +50,7 @@ pub enum PrincipalError {
     Serialize,
     Deserialize,
 )]
+#[repr(transparent)]
 pub struct Principal(WrappedPrincipal);
 
 impl Principal {
@@ -152,18 +153,6 @@ impl PartialEq<WrappedPrincipal> for Principal {
 
 impl PartialEq<Principal> for WrappedPrincipal {
     fn eq(&self, other: &Principal) -> bool {
-        *self == other.0
-    }
-}
-
-impl PartialEq<&WrappedPrincipal> for Principal {
-    fn eq(&self, other: &&WrappedPrincipal) -> bool {
-        self.0 == **other
-    }
-}
-
-impl PartialEq<&Principal> for WrappedPrincipal {
-    fn eq(&self, other: &&Principal) -> bool {
         *self == other.0
     }
 }

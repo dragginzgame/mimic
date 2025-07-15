@@ -53,6 +53,7 @@ impl From<::ulid::DecodeError> for UlidError {
 #[derive(
     Clone, Copy, Debug, Deref, DerefMut, Display, Eq, FromStr, Hash, Ord, PartialEq, PartialOrd,
 )]
+#[repr(transparent)]
 pub struct Ulid(WrappedUlid);
 
 impl Ulid {
@@ -169,18 +170,6 @@ impl PartialEq<WrappedUlid> for Ulid {
 
 impl PartialEq<Ulid> for WrappedUlid {
     fn eq(&self, other: &Ulid) -> bool {
-        *self == other.0
-    }
-}
-
-impl PartialEq<&WrappedUlid> for Ulid {
-    fn eq(&self, other: &&WrappedUlid) -> bool {
-        self.0 == **other
-    }
-}
-
-impl PartialEq<&Ulid> for WrappedUlid {
-    fn eq(&self, other: &&Ulid) -> bool {
         *self == other.0
     }
 }
