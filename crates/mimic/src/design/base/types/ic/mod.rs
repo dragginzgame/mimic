@@ -9,15 +9,15 @@ use crate::design::prelude::*;
 
 #[record(fields(
     field(name = "owner", value(item(prim = "Principal"))),
-    field(name = "subaccount", value(item(prim = "Subaccount")))
+    field(name = "subaccount", value(opt, item(prim = "Subaccount")))
 ))]
 pub struct Account {}
 
 impl Account {
-    pub fn new<P: Into<Principal>, S: Into<Subaccount>>(p: P, s: S) -> Self {
+    pub fn new<P: Into<Principal>, S: Into<Subaccount>>(p: P, s: Option<S>) -> Self {
         Self {
             owner: p.into(),
-            subaccount: s.into(),
+            subaccount: s.map(Into::into),
         }
     }
 }
