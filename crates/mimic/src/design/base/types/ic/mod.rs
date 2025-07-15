@@ -2,6 +2,7 @@ pub mod icrc1;
 pub mod icrc3;
 
 use crate::design::prelude::*;
+use icu::ic::icrc_ledger_types::icrc1::account::Account as WrappedAccount;
 
 ///
 /// Account
@@ -18,6 +19,14 @@ impl Account {
         Self {
             owner: p.into(),
             subaccount: s.map(Into::into),
+        }
+    }
+
+    #[must_use]
+    pub fn to_account(&self) -> WrappedAccount {
+        WrappedAccount {
+            owner: *self.owner,
+            subaccount: self.subaccount.map(|s| s.to_bytes()),
         }
     }
 }
