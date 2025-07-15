@@ -9,7 +9,6 @@ use crate::{
     core::validate::ValidateError,
     db::{
         executor::{DeleteExecutor, ExecutorError, LoadExecutor, SaveExecutor},
-        query::QueryError,
         response::ResponseError,
         store::{DataStoreRegistry, IndexStoreRegistry, StoreError},
     },
@@ -25,9 +24,6 @@ use thiserror::Error as ThisError;
 pub enum DbError {
     #[error(transparent)]
     ExecutorError(#[from] ExecutorError),
-
-    #[error(transparent)]
-    QueryError(#[from] QueryError),
 
     #[error(transparent)]
     ResponseError(#[from] ResponseError),

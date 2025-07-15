@@ -1,7 +1,7 @@
 use crate::{
-    core::{Value, traits::EntityKind},
+    core::{Key, Value, traits::EntityKind},
     db::{
-        query::{Cmp, FilterExpr, RangeExpr},
+        query::{Cmp, FilterExpr},
         store::DataKey,
     },
 };
@@ -12,26 +12,19 @@ use crate::{
 
 #[derive(Debug)]
 pub struct QueryPlan {
-    pub range: Option<RangeExpr>,
     pub filter: Option<FilterExpr>,
 }
 
 impl QueryPlan {
     #[must_use]
-    pub fn new(range: &Option<RangeExpr>, filter: &Option<FilterExpr>) -> Self {
+    pub fn new(filter: &Option<FilterExpr>) -> Self {
         Self {
-            range: range.clone(),
             filter: filter.clone(),
         }
     }
 
     #[must_use]
     pub fn shape<E: EntityKind>(&self) -> QueryShape {
-        // If a full range is specified
-        if let Some(range) = &self.range {
-            return QueryShape::Range(range.clone());
-        }
-
         // If filter is a primary key match
         // this would handle One and Many queries
         if let Some(shape) = self.extract_primary_key_shape::<E>() {
@@ -39,7 +32,10 @@ impl QueryPlan {
         }
 
         // default to the range of the current entity
-        QueryShape::Range(RangeExpr::from_entity::<E>())
+        let start = DataKey::new(E::PATH, Key::MIN);
+        let end = DataKey::new(E::PATH, Key::MAX);
+
+        QueryShape::Range(start, end)
     }
 
     // extract_primary_key_shape
@@ -88,5 +84,5 @@ pub enum QueryShape {
     All,
     One(DataKey),
     Many(Vec<DataKey>),
-    Range(RangeExpr),
+    Range(DataKey, DataKey),
 }

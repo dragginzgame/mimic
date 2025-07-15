@@ -2,8 +2,8 @@ use crate::{
     MimicError,
     core::{Value, traits::EntityKind},
     db::{
-        DbError,
-        query::{DeleteQuery, QueryError, QueryPlan, QueryShape},
+        DbError, ExecutorError,
+        query::{DeleteQuery, QueryPlan, QueryShape},
         response::{DeleteCollection, DeleteResponse, DeleteRow},
         store::{DataKey, DataStoreRegistry, IndexKey, IndexStoreRegistry},
     },
@@ -92,7 +92,7 @@ impl DeleteExecutor {
     ) -> Result<DeleteCollection, DbError> {
         debug!(self.debug, "query.delete: query is {query:?}");
 
-        let plan = QueryPlan::new(&query.range, &query.filter);
+        let plan = QueryPlan::new(&query.filter);
 
         // get store
         let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
@@ -103,7 +103,7 @@ impl DeleteExecutor {
 
             QueryShape::Many(entity_keys) => entity_keys,
 
-            _ => return Err(QueryError::SelectorNotSupported)?,
+            _ => return Err(ExecutorError::ShapeNotSupported)?,
         };
 
         // execute for every different key

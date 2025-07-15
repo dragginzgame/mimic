@@ -1,6 +1,6 @@
 use crate::{
     core::{Value, traits::EntityKind},
-    db::query::{Cmp, FilterClause, FilterExpr, RangeExpr},
+    db::query::{Cmp, FilterClause, FilterExpr},
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -11,7 +11,6 @@ use serde::{Deserialize, Serialize};
 
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct DeleteQuery {
-    pub range: Option<RangeExpr>,
     pub filter: Option<FilterExpr>,
 }
 

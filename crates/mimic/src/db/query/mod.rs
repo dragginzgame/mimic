@@ -1,30 +1,16 @@
 mod delete;
 mod filter;
 mod load;
-mod planner;
-mod range;
+mod plan;
 mod save;
 mod sort;
 
 pub use delete::*;
 pub use filter::*;
 pub use load::*;
-pub use planner::*;
-pub use range::*;
+pub use plan::*;
 pub use save::*;
 pub use sort::*;
-
-use thiserror::Error as ThisError;
-
-///
-/// QueryError
-///
-
-#[derive(Debug, ThisError)]
-pub enum QueryError {
-    #[error("selector not supported")]
-    SelectorNotSupported,
-}
 
 // load
 #[must_use]

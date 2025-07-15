@@ -4,7 +4,7 @@ use crate::{
     db::{
         DbError,
         executor::FilterEvaluator,
-        query::{FilterExpr, LoadFormat, LoadQuery, QueryPlan, QueryShape, RangeExpr, SortExpr},
+        query::{FilterExpr, LoadFormat, LoadQuery, QueryPlan, QueryShape, SortExpr},
         response::{EntityRow, LoadCollection, LoadResponse},
         store::{DataKey, DataRow, DataStoreLocal, DataStoreRegistry, IndexStoreRegistry},
     },
@@ -105,7 +105,7 @@ impl LoadExecutor {
         self,
         query: LoadQuery,
     ) -> Result<LoadCollection<E>, DbError> {
-        let plan = QueryPlan::new(&query.range, &query.filter);
+        let plan = QueryPlan::new(&query.filter);
 
         // cast results to E
         let mut rows = self
@@ -155,7 +155,7 @@ impl LoadExecutor {
                 .filter_map(|key| Self::load_one(store, key))
                 .collect(),
 
-            QueryShape::Range(range) => Self::load_range(store, range),
+            QueryShape::Range(start, end) => Self::load_range(store, start, end),
         };
 
         Ok(rows)
@@ -172,9 +172,9 @@ impl LoadExecutor {
     }
 
     // load_range
-    fn load_range(store: DataStoreLocal, range: RangeExpr) -> Vec<DataRow> {
+    fn load_range(store: DataStoreLocal, start: DataKey, end: DataKey) -> Vec<DataRow> {
         store.with_borrow(|this| {
-            this.range(range.start..range.end)
+            this.range(start..=end)
                 .map(|(key, entry)| DataRow { key, entry })
                 .collect()
         })

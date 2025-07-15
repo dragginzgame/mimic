@@ -1,7 +1,7 @@
 #![allow(clippy::type_complexity)]
 use crate::{
     core::{Value, traits::EntityKind},
-    db::query::{Cmp, FilterBuilder, FilterClause, FilterExpr, RangeExpr, SortDirection, SortExpr},
+    db::query::{Cmp, FilterBuilder, FilterClause, FilterExpr, SortDirection, SortExpr},
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -25,7 +25,6 @@ pub enum LoadFormat {
 pub struct LoadQuery {
     pub format: LoadFormat,
     pub filter: Option<FilterExpr>,
-    pub range: Option<RangeExpr>,
     pub limit: Option<u32>,
     pub offset: u32,
     pub sort: Option<SortExpr>,
