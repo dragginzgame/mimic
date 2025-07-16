@@ -25,10 +25,8 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
             // Index store
             index_defs.extend(quote! {
                 static #cell_ident: ::std::cell::RefCell<::mimic::db::store::IndexStore> =
-                    ::std::cell::RefCell::new(::icu::icu_register_memory!(
-                        ::mimic::db::store::IndexStore,
-                        #memory_id,
-                        ::mimic::db::store::IndexStore::init
+                    ::std::cell::RefCell::new(::mimic::db::store::IndexStore::init(
+                        ::icu::icu_register_memory!(::mimic::db::store::IndexStore, #memory_id)
                     ));
             });
 
@@ -39,10 +37,8 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
             // Data store
             data_defs.extend(quote! {
                 static #cell_ident: ::std::cell::RefCell<::mimic::db::store::DataStore> =
-                    ::std::cell::RefCell::new(::icu::icu_register_memory!(
-                        ::mimic::db::store::DataStore,
-                        #memory_id,
-                        ::mimic::db::store::DataStore::init
+                    ::std::cell::RefCell::new(::mimic::db::store::DataStore::init(
+                        ::icu::icu_register_memory!(::mimic::db::store::DataStore, #memory_id)
                     ));
             });
 

@@ -26,7 +26,7 @@ pub enum ExecutorError {
     #[error("index execution not yet supported")]
     IndexNotSupported,
 
-    #[error("execution shape not supported")]
+    #[error("query shape not supported")]
     ShapeNotSupported,
 
     #[error("index constraint violation for index: {0:?}")]
