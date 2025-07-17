@@ -1,7 +1,7 @@
 #![allow(clippy::type_complexity)]
 use crate::{
     core::{Value, traits::EntityKind},
-    db::query::{Cmp, FilterBuilder, FilterClause, FilterExpr, SortDirection, SortExpr},
+    db::query::{Cmp, FilterBuilder, FilterExpr, SortDirection, SortExpr},
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -78,30 +78,25 @@ impl LoadQuery {
 
     #[must_use]
     pub fn filter_eq<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
-        let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::Eq, value));
+        self.with_filter(|f| f.eq(field, value))
+    }
 
-        self.merge_filter(clause)
+    pub fn filter_eq_opt<F: Into<String>, V: Into<Value>>(
+        self,
+        field: F,
+        value: Option<V>,
+    ) -> Self {
+        self.with_filter(|f| f.eq_opt(field, value))
     }
 
     #[must_use]
     pub fn filter_in<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
-        let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::In, value));
-
-        self.merge_filter(clause)
+        self.with_filter(|f| f.filter(field, Cmp::In, value))
     }
 
     #[must_use]
     pub fn set_filter(mut self, expr: FilterExpr) -> Self {
         self.filter = Some(expr);
-        self
-    }
-
-    fn merge_filter(mut self, new: FilterExpr) -> Self {
-        self.filter = Some(match self.filter.take() {
-            Some(existing) => existing.and(new),
-            None => new,
-        });
-
         self
     }
 

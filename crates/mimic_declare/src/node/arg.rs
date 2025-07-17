@@ -268,6 +268,7 @@ impl ArgNumber {
             // 3. Unsuffixed float, treat as Decimal (as LitStr)
             return Ok(Self::Float64(s.parse::<f64>().unwrap()));
         }
+
         macro_rules! try_parse {
                 ($($ty:ty => $variant:ident),*) => {
                     $(
@@ -278,14 +279,10 @@ impl ArgNumber {
                 };
             }
 
-        // Try smallest fitting signed int
+        // Try smallest fitting signed int, then unsigned
         try_parse!(
             i32 => Int32,
-            i64 => Int64
-        );
-
-        // Try smallest fitting unsigned int
-        try_parse!(
+            i64 => Int64,
             u32 => Nat32,
             u64 => Nat64
         );

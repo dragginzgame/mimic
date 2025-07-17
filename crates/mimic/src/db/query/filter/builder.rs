@@ -74,6 +74,26 @@ impl FilterBuilder {
     }
 
     ///
+    /// COMPARISONS
+    ///
+
+    #[must_use]
+    pub fn eq<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
+        let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::Eq, value));
+
+        self.add_expr(clause, Logic::And)
+    }
+
+    #[must_use]
+    pub fn eq_opt<F: Into<String>, V: Into<Value>>(self, field: F, value: Option<V>) -> Self {
+        if let Some(val) = value {
+            self.eq(field, val)
+        } else {
+            self.eq(field, Value::None)
+        }
+    }
+
+    ///
     /// AND
     ///
 
