@@ -63,7 +63,7 @@ nursery = { level = "allow", priority = -1 }
 must-use-candidate = "warn"
 redundant_clone = "warn"
 
-# always allow
+# always allowx`
 derive_partial_eq_without_eq = "allow"
 doc_markdown = "allow"
 empty_line_after_doc_comments = "allow"

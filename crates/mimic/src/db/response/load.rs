@@ -33,6 +33,18 @@ impl<E> LoadCollection<E>
 where
     E: EntityKind,
 {
+    // len
+    #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
+    pub const fn len(&self) -> u32 {
+        self.0.len() as u32
+    }
+
+    #[must_use]
+    pub const fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
     // key
     #[must_use]
     pub fn key(self) -> Option<Key> {

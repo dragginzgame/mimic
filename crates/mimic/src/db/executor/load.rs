@@ -47,7 +47,7 @@ impl LoadExecutor {
 
     // count
     // helper method, creates query
-    pub fn count<E: EntityKind>(&self) -> Result<usize, MimicError> {
+    pub fn count<E: EntityKind>(&self) -> Result<u32, MimicError> {
         let count = self.execute::<E>(LoadQuery::new())?.len();
 
         Ok(count)
@@ -94,7 +94,7 @@ impl LoadExecutor {
 
         let resp = match format {
             LoadFormat::Keys => LoadResponse::Keys(cl.keys()),
-            LoadFormat::Count => LoadResponse::Count(cl.len() as u32),
+            LoadFormat::Count => LoadResponse::Count(cl.len()),
         };
 
         Ok(resp)

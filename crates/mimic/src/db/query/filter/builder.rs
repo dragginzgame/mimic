@@ -193,7 +193,7 @@ impl FilterBuilder {
     ///
 
     #[must_use]
-    pub fn is_empty(&self) -> bool {
+    pub const fn is_empty(&self) -> bool {
         self.filter.is_none()
     }
 
@@ -204,7 +204,7 @@ impl FilterBuilder {
 
     #[must_use]
     pub fn build_and_simplify(self) -> Option<FilterExpr> {
-        self.build().map(|f| f.simplify())
+        self.build().map(FilterExpr::simplify)
     }
 
     #[must_use]

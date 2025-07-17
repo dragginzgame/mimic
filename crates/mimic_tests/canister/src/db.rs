@@ -105,7 +105,7 @@ impl DbTester {
     // create_lots
     fn create_lots() {
         use test_design::canister::db::CreateBasic;
-        const ROWS: usize = 1_000;
+        const ROWS: u32 = 1_000;
 
         // insert rows
         for _ in 0..ROWS {
@@ -123,7 +123,7 @@ impl DbTester {
     // create_lots_blob
     fn create_lots_blob() {
         use test_design::canister::db::CreateBlob;
-        const ROWS: usize = 500;
+        const ROWS: u32 = 500;
         const BLOB_SIZE: usize = 1024 * 2;
 
         // insert rows
@@ -284,7 +284,7 @@ impl DbTester {
                     .unwrap()
                     .len();
 
-                assert_eq!(count, limit as usize, "{limit} not equal to {count}");
+                assert_eq!(count, limit, "{limit} not equal to {count}");
                 //    if !results.is_empty() {
                 //        assert_eq!(results[0].value, offset + 1);
                 //    }

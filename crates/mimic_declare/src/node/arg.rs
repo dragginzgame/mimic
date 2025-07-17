@@ -267,8 +267,8 @@ impl ArgNumber {
         if s.contains('.') {
             // 3. Unsuffixed float, treat as Decimal (as LitStr)
             return Ok(Self::Float64(s.parse::<f64>().unwrap()));
-        } else {
-            macro_rules! try_parse {
+        }
+        macro_rules! try_parse {
                 ($($ty:ty => $variant:ident),*) => {
                     $(
                         if let Ok(value) = s.parse::<$ty>() {
@@ -278,18 +278,17 @@ impl ArgNumber {
                 };
             }
 
-            // Try smallest fitting signed int
-            try_parse!(
-                i32 => Int32,
-                i64 => Int64
-            );
+        // Try smallest fitting signed int
+        try_parse!(
+            i32 => Int32,
+            i64 => Int64
+        );
 
-            // Try smallest fitting unsigned int
-            try_parse!(
-                u32 => Nat32,
-                u64 => Nat64
-            );
-        }
+        // Try smallest fitting unsigned int
+        try_parse!(
+            u32 => Nat32,
+            u64 => Nat64
+        );
 
         // Return error if no match found
         Err(DarlingError::custom(format!(

@@ -33,7 +33,7 @@ impl EntityFixture for Indexable {
 
                 EntityService::save_fixture(
                     exec,
-                    Indexable {
+                    Self {
                         pid: *principal,
                         ulid: *ulid,
                         score,
