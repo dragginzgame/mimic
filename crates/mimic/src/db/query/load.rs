@@ -65,20 +65,9 @@ impl LoadQuery {
         self.filter_in(E::PRIMARY_KEY, Value::List(list))
     }
 
-    // with_filter
-    // use an external builder to replace the current Filter
-    #[must_use]
-    pub fn with_filter(mut self, f: impl FnOnce(FilterBuilder) -> FilterBuilder) -> Self {
-        if let Some(expr) = f(FilterBuilder::new()).build() {
-            self.filter = Some(expr);
-        }
-
-        self
-    }
-
     #[must_use]
     pub fn filter_eq<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
-        self.with_filter(|f| f.eq(field, value))
+        self.filter(|f| f.eq(field, value))
     }
 
     pub fn filter_eq_opt<F: Into<String>, V: Into<Value>>(
@@ -86,17 +75,32 @@ impl LoadQuery {
         field: F,
         value: Option<V>,
     ) -> Self {
-        self.with_filter(|f| f.eq_opt(field, value))
+        self.filter(|f| f.eq_opt(field, value))
     }
 
     #[must_use]
     pub fn filter_in<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
-        self.with_filter(|f| f.filter(field, Cmp::In, value))
+        self.filter(|f| f.filter(field, Cmp::In, value))
     }
 
     #[must_use]
     pub fn set_filter(mut self, expr: FilterExpr) -> Self {
         self.filter = Some(expr);
+        self
+    }
+
+    // filter
+    #[must_use]
+    pub fn filter(mut self, f: impl FnOnce(FilterBuilder) -> FilterBuilder) -> Self {
+        let builder = match self.filter.take() {
+            Some(existing) => FilterBuilder::from(existing),
+            None => FilterBuilder::new(),
+        };
+
+        if let Some(expr) = f(builder).build() {
+            self.filter = Some(expr);
+        }
+
         self
     }
 

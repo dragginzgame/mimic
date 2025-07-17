@@ -50,7 +50,7 @@ impl FilterTester {
 
     // filter
     fn filter_eq_string() {
-        let query = query::load().with_filter(|f| f.filter("category", Cmp::Eq, "A"));
+        let query = query::load().filter(|f| f.filter("category", Cmp::Eq, "A"));
 
         let results = db!()
             .load()
@@ -61,7 +61,7 @@ impl FilterTester {
     }
 
     fn filter_eq_bool() {
-        let query = query::load().with_filter(|f| f.filter("active", Cmp::Eq, true));
+        let query = query::load().filter(|f| f.filter("active", Cmp::Eq, true));
 
         let results = db!()
             .load()
@@ -72,7 +72,7 @@ impl FilterTester {
     }
 
     fn filter_gt_score() {
-        let query = query::load().with_filter(|f| f.filter("score", Cmp::Gt, 80.0));
+        let query = query::load().filter(|f| f.filter("score", Cmp::Gt, 80.0));
 
         let results = db!()
             .load()
@@ -83,7 +83,7 @@ impl FilterTester {
     }
 
     fn filter_le_level() {
-        let query = query::load().with_filter(|f| f.filter("level", Cmp::Lte, 3));
+        let query = query::load().filter(|f| f.filter("level", Cmp::Lte, 3));
 
         let results = db!()
             .load()
@@ -94,7 +94,7 @@ impl FilterTester {
     }
 
     fn filter_ne_category() {
-        let query = query::load().with_filter(|f| f.filter("category", Cmp::Ne, "B"));
+        let query = query::load().filter(|f| f.filter("category", Cmp::Ne, "B"));
 
         let results = db!()
             .load()
@@ -105,7 +105,7 @@ impl FilterTester {
     }
 
     fn filter_and_group() {
-        let query = query::load().with_filter(|f| {
+        let query = query::load().filter(|f| {
             f.and_group(|b| {
                 b.filter("score", Cmp::Gte, 60.0)
                     .filter("level", Cmp::Gte, 2)
@@ -121,7 +121,7 @@ impl FilterTester {
     }
 
     fn filter_or_group() {
-        let query = query::load().with_filter(|f| {
+        let query = query::load().filter(|f| {
             f.or_group(|b| {
                 b.filter("category", Cmp::Eq, "A")
                     .filter("category", Cmp::Eq, "C")
@@ -141,7 +141,7 @@ impl FilterTester {
     }
 
     fn filter_nested_groups() {
-        let query = query::load().with_filter(|f| {
+        let query = query::load().filter(|f| {
             f.filter("active", Cmp::Eq, true).or_group(|b| {
                 b.and_group(|b| b.filter("score", Cmp::Lt, 40.0))
                     .or("offset", Cmp::Lt, 0)
@@ -157,7 +157,7 @@ impl FilterTester {
     }
 
     fn filter_startswith_name() {
-        let query = query::load().with_filter(|f| f.filter("name", Cmp::StartsWith, "A"));
+        let query = query::load().filter(|f| f.filter("name", Cmp::StartsWith, "A"));
 
         let results = db!()
             .load()
@@ -201,7 +201,7 @@ impl FilterTester {
     }
 
     fn filter_empty_result() {
-        let query = query::load().with_filter(|f| f.filter("category", Cmp::Eq, "Nonexistent"));
+        let query = query::load().filter(|f| f.filter("category", Cmp::Eq, "Nonexistent"));
 
         let results = db!()
             .load()
@@ -213,7 +213,7 @@ impl FilterTester {
 
     fn filter_in_category() {
         let query =
-            query::load().with_filter(|f| f.filter("category", Cmp::In, Value::list(&["A", "C"])));
+            query::load().filter(|f| f.filter("category", Cmp::In, Value::list(&["A", "C"])));
 
         let results = db!()
             .load()
@@ -234,8 +234,8 @@ impl FilterTester {
     }
 
     fn filter_allin_tags() {
-        let query = query::load()
-            .with_filter(|f| f.filter("tags", Cmp::AllIn, Value::list(&["blue", "green"])));
+        let query =
+            query::load().filter(|f| f.filter("tags", Cmp::AllIn, Value::list(&["blue", "green"])));
 
         let results = db!()
             .load()
@@ -254,8 +254,8 @@ impl FilterTester {
     }
 
     fn filter_anyin_tags() {
-        let query = query::load()
-            .with_filter(|f| f.filter("tags", Cmp::AnyIn, Value::list(&["blue", "green"])));
+        let query =
+            query::load().filter(|f| f.filter("tags", Cmp::AnyIn, Value::list(&["blue", "green"])));
 
         let results = db!()
             .load()
@@ -278,7 +278,7 @@ impl FilterTester {
     }
 
     fn filter_contains_tag() {
-        let query = query::load().with_filter(|f| f.filter("tags", Cmp::Contains, "green"));
+        let query = query::load().filter(|f| f.filter("tags", Cmp::Contains, "green"));
 
         let results = db!()
             .load()

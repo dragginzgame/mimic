@@ -33,7 +33,7 @@ impl IndexTester {
 
     fn index_on_principal() {
         let pid = Principal::from_slice(&[1; 29]);
-        let query = query::load().with_filter(|f| f.filter("pid", Cmp::Eq, pid));
+        let query = query::load().filter(|f| f.filter("pid", Cmp::Eq, pid));
 
         assert_uses_index::<Indexable>(&query);
 
@@ -45,8 +45,8 @@ impl IndexTester {
     fn index_on_principal_ulid() {
         let pid = Principal::from_slice(&[1; 29]);
         let ulid = Ulid::from_u128(1);
-        let query = query::load()
-            .with_filter(|f| f.filter("pid", Cmp::Eq, pid).filter("ulid", Cmp::Eq, ulid));
+        let query =
+            query::load().filter(|f| f.filter("pid", Cmp::Eq, pid).filter("ulid", Cmp::Eq, ulid));
 
         assert_uses_index::<Indexable>(&query);
 
@@ -60,7 +60,7 @@ impl IndexTester {
         let ulid = Ulid::from_u128(1);
         let score = 10u32;
 
-        let query = query::load().with_filter(|f| {
+        let query = query::load().filter(|f| {
             f.filter("pid", Cmp::Eq, pid)
                 .filter("ulid", Cmp::Eq, ulid)
                 .filter("score", Cmp::Eq, score)
@@ -78,7 +78,7 @@ impl IndexTester {
     }
 
     fn fallback_to_range() {
-        let query = query::load().with_filter(|f| f.filter("score", Cmp::Gt, 50));
+        let query = query::load().filter(|f| f.filter("score", Cmp::Gt, 50));
 
         let plan = QueryPlan::new(&query.filter);
         let shape = plan.shape::<Indexable>();
