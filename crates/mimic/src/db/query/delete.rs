@@ -26,14 +26,14 @@ impl DeleteQuery {
     }
 
     #[must_use]
-    pub fn many<E, V>(self, values: &[V]) -> Self
+    pub fn many<E, I>(self, values: I) -> Self
     where
         E: EntityKind,
-        V: Clone + Into<Value>,
+        I: IntoIterator,
+        I::Item: Into<Value>,
     {
         let list = values
-            .iter()
-            .cloned()
+            .into_iter()
             .map(|v| Box::new(v.into()))
             .collect::<Vec<_>>();
 
