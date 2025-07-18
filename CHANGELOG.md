@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.8.0] - Feature Complete?
 - the query planner is now resolving indexes and hitting the IndexStore to get the keys
 it needs, this means mimic is pretty much feature complete (for now).  Now comes a lot of testing!
+- added count and count_all which take advantage of the new lazy evaluation on stable structures
+BTreeMap
 
 ## [0.7.3]
 - shortcut methods for create, update and replace

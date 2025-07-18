@@ -92,7 +92,14 @@ impl DbTester {
 
         // count keys
 
-        assert_eq!(db!().load().count::<CreateBasic>(query::load()).unwrap(), 2);
+        assert_eq!(
+            db!()
+                .load()
+                .execute::<CreateBasic>(query::load())
+                .unwrap()
+                .len(),
+            2
+        );
     }
 
     // create_lots
