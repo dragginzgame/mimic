@@ -1,4 +1,3 @@
-#![allow(clippy::type_complexity)]
 use crate::{
     core::{Value, traits::EntityKind},
     db::query::{Cmp, FilterBuilder, FilterExpr, SortDirection, SortExpr},
@@ -7,23 +6,11 @@ use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
 ///
-/// LoadFormat
-///
-
-#[derive(CandidType, Clone, Copy, Debug, Default, Deserialize, Serialize)]
-pub enum LoadFormat {
-    #[default]
-    Keys,
-    Count,
-}
-
-///
 /// LoadQuery
 ///
 
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct LoadQuery {
-    pub format: LoadFormat,
     pub filter: Option<FilterExpr>,
     pub limit: Option<u32>,
     pub offset: u32,
@@ -34,13 +21,6 @@ impl LoadQuery {
     #[must_use]
     pub fn new() -> Self {
         Self::default()
-    }
-
-    // format
-    #[must_use]
-    pub const fn format(mut self, format: LoadFormat) -> Self {
-        self.format = format;
-        self
     }
 
     // one

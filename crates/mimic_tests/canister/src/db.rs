@@ -92,14 +92,7 @@ impl DbTester {
 
         // count keys
 
-        assert_eq!(
-            db!()
-                .load()
-                .execute::<CreateBasic>(query::load())
-                .unwrap()
-                .len(),
-            2
-        );
+        assert_eq!(db!().load().count::<CreateBasic>(query::load()).unwrap(), 2);
     }
 
     // create_lots
@@ -114,7 +107,7 @@ impl DbTester {
         }
 
         // Retrieve the count from the store
-        let count = db!().load().all::<CreateBasic>().unwrap().len();
+        let count = db!().load().count::<CreateBasic>(query::load()).unwrap();
 
         // Assert that the count matches the expected number
         assert_eq!(count, ROWS, "Expected {ROWS} keys in the store");
@@ -137,11 +130,7 @@ impl DbTester {
         }
 
         // Retrieve the count from the store
-        let count = db!()
-            .load()
-            .execute::<CreateBlob>(query::load())
-            .unwrap()
-            .len();
+        let count = db!().load().count::<CreateBlob>(query::load()).unwrap();
 
         // Assert that the count matches the expected number
         assert_eq!(count, ROWS, "Expected {ROWS} keys in the store");
@@ -200,9 +189,9 @@ impl DbTester {
         );
 
         // Step 6: Confirm only 2 entities remain
-        let all = db!().load().all::<Index>().unwrap();
+        let rows = db!().load().count::<Index>(query::load()).unwrap();
 
-        assert_eq!(all.len(), 2);
+        assert_eq!(rows, 2);
     }
 
     fn index_option() {
@@ -261,8 +250,8 @@ impl DbTester {
         db!().save().create(e5).unwrap();
 
         // Confirm only 3 entities now exist
-        let all = db!().load().all::<IndexUniqueOpt>().unwrap();
-        assert_eq!(all.len(), 3);
+        let rows = db!().load().count::<IndexUniqueOpt>(query::load()).unwrap();
+        assert_eq!(rows, 3);
     }
 
     fn limit_query() {

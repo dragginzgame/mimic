@@ -41,10 +41,10 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
 
             match kind {
                 QueryKind::Load => quote! {
-                    #entity_path => db!().load().execute_response::<#ty>(query)
+                    #entity_path => db!().load().response::<#ty>(query)
                 },
                 QueryKind::Delete => quote! {
-                    #entity_path => db!().delete().execute_response::<#ty>(query)
+                    #entity_path => db!().delete().response::<#ty>(query)
                 },
                 QueryKind::Save => quote! {
                     #entity_path =>  db!().save().execute::<#ty>(query)

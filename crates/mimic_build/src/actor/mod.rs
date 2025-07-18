@@ -50,7 +50,7 @@ impl ActorBuilder {
         // shared between all canisters
         tokens.extend(db::generate(&self));
         tokens.extend(fixtures::generate(&self));
-        tokens.extend(query::generate(&self));
+        //   tokens.extend(query::generate(&self));
 
         quote! {
             #tokens

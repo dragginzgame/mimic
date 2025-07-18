@@ -4,8 +4,8 @@ use crate::{
     db::{
         DbError,
         executor::FilterEvaluator,
-        query::{FilterExpr, LoadFormat, LoadQuery, QueryPlan, QueryShape, SortExpr},
-        response::{EntityRow, LoadCollection, LoadResponse},
+        query::{FilterExpr, LoadQuery, QueryPlan, QueryShape, SortExpr},
+        response::{EntityRow, LoadCollection},
         store::{DataKey, DataRow, DataStoreLocal, DataStoreRegistry, IndexId, IndexStoreRegistry},
     },
     debug,
@@ -45,14 +45,6 @@ impl LoadExecutor {
     // these will create a query on the fly
     //
 
-    // count
-    // helper method, creates query
-    pub fn count<E: EntityKind>(&self) -> Result<u32, MimicError> {
-        let count = self.execute::<E>(LoadQuery::new())?.len();
-
-        Ok(count)
-    }
-
     // one
     pub fn one<E: EntityKind>(&self, value: impl Into<Value>) -> Result<E, MimicError> {
         self.execute::<E>(LoadQuery::new().one::<E>(value))?
@@ -83,64 +75,73 @@ impl LoadExecutor {
     // EXECUTION LOGIC
     //
 
-    // execute
+    /// Execute a full query and return a collection of entities.
     pub fn execute<E: EntityKind>(self, query: LoadQuery) -> Result<LoadCollection<E>, MimicError> {
         let cl = self.execute_internal::<E>(query)?;
 
         Ok(cl)
     }
 
-    // execute_response
-    pub fn execute_response<E: EntityKind>(
-        self,
-        query: LoadQuery,
-    ) -> Result<LoadResponse, MimicError> {
-        let format = query.format;
-        let cl = self.execute_internal::<E>(query)?;
+    /// Count matching entities using lazy iteration without full deserialization.
+    pub fn count<E: EntityKind>(self, query: LoadQuery) -> Result<u32, MimicError> {
+        let rows = self.execute_plan::<E>(&QueryPlan::new(&query.filter))?;
 
-        let resp = match format {
-            LoadFormat::Keys => LoadResponse::Keys(cl.keys()),
-            LoadFormat::Count => LoadResponse::Count(cl.len()),
+        // Filtering only
+        let filtered = if let Some(filter) = &query.filter {
+            Self::apply_filter::<E>(
+                rows.into_iter()
+                    .map(TryFrom::try_from)
+                    .collect::<Result<Vec<_>, _>>()?,
+                filter,
+            )
+        } else {
+            rows.into_iter()
+                .map(TryFrom::try_from)
+                .collect::<Result<Vec<_>, _>>()?
         };
 
-        Ok(resp)
+        Ok(filtered.len() as u32)
     }
 
-    // execute_internal
+    /// Internal query executor: handles plan → data rows → filtering/sorting/pagination
     fn execute_internal<E: EntityKind>(
-        self,
+        &self,
         query: LoadQuery,
     ) -> Result<LoadCollection<E>, DbError> {
-        let plan = QueryPlan::new(&query.filter);
+        let rows = self.execute_plan::<E>(&QueryPlan::new(&query.filter))?;
+        let entities = Self::finalize_rows::<E>(rows, &query)?;
 
-        // cast results to E
-        let mut rows = self
-            .execute_plan::<E>(&plan)?
+        Ok(LoadCollection(entities))
+    }
+
+    fn finalize_rows<E: EntityKind>(
+        rows: Vec<DataRow>,
+        query: &LoadQuery,
+    ) -> Result<Vec<EntityRow<E>>, DbError> {
+        let mut entities = rows
             .into_iter()
             .map(TryFrom::try_from)
             .collect::<Result<Vec<EntityRow<E>>, _>>()?;
 
         // filter
         if let Some(filter) = &query.filter {
-            rows = Self::apply_filter(rows, filter);
+            entities = Self::apply_filter(entities, filter);
         }
 
         // sort
         if let Some(sort) = &query.sort {
-            Self::apply_sort(&mut rows, sort);
+            Self::apply_sort(&mut entities, sort);
         }
 
         // paginate
-        rows = rows
+        Ok(entities
             .into_iter()
             .skip(query.offset as usize)
             .take(query.limit.unwrap_or(u32::MAX) as usize)
-            .collect::<Vec<_>>();
-
-        Ok(LoadCollection(rows))
+            .collect())
     }
 
-    // execute_plan
+    /// Execute only the raw data plan (no filters/sort/pagination yet)
     fn execute_plan<E: EntityKind>(&self, plan: &QueryPlan) -> Result<Vec<DataRow>, DbError> {
         let store = self.data_registry.with(|reg| reg.try_get_store(E::STORE))?;
         let shape = plan.shape::<E>();
@@ -167,8 +168,8 @@ impl LoadExecutor {
                 let index_store = self
                     .index_registry
                     .with(|reg| reg.try_get_store(index.store))?;
-
                 let index_id = IndexId::new::<E>(index.fields);
+
                 let keys: Vec<Key> = index_store.with_borrow(|store| {
                     store
                         .range_with_prefix(&index_id, &keys)

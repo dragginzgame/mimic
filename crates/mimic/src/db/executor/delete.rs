@@ -4,7 +4,7 @@ use crate::{
     db::{
         DbError, ExecutorError,
         query::{DeleteQuery, QueryPlan, QueryShape},
-        response::{DeleteCollection, DeleteResponse, DeleteRow},
+        response::{DeleteCollection, DeleteRow},
         store::{DataKey, DataStoreRegistry, IndexKey, IndexStoreRegistry},
     },
     debug,
@@ -73,17 +73,6 @@ impl DeleteExecutor {
         let res = self.execute_internal::<E>(query)?;
 
         Ok(res)
-    }
-
-    // execute_response
-    // for when we have to return to the front end
-    pub fn execute_response<E: EntityKind>(
-        self,
-        query: DeleteQuery,
-    ) -> Result<DeleteResponse, MimicError> {
-        let res = self.execute_internal::<E>(query)?;
-
-        Ok(DeleteResponse(res.0))
     }
 
     // execute_internal

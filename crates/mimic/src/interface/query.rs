@@ -1,10 +1,7 @@
 use crate::{
     MimicError,
     core::Key,
-    db::{
-        query::{DeleteQuery, LoadQuery, SaveQuery},
-        response::{DeleteResponse, LoadResponse},
-    },
+    db::query::{DeleteQuery, SaveQuery},
     interface::InterfaceError,
 };
 use icu::ic::{call::Call, principal::Principal};
@@ -24,10 +21,11 @@ pub enum QueryError {
 }
 
 // query_load
-pub async fn query_load(pid: Principal, query: LoadQuery) -> Result<LoadResponse, MimicError> {
-    query_call(pid, "mimic_query_load", &query).await
-}
+//pub async fn query_load(pid: Principal, query: LoadQuery) -> Result<LoadResponse, MimicError> {
+//    query_call(pid, "mimic_query_load", &query).await
+//}
 
+/*
 // query_save
 pub async fn query_save(pid: Principal, query: SaveQuery) -> Result<Key, MimicError> {
     query_call(pid, "mimic_query_save", &query).await
@@ -61,3 +59,5 @@ async fn query_call<T: candid::CandidType + for<'de> candid::Deserialize<'de>>(
 
     Ok(response)
 }
+
+*/

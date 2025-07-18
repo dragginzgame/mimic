@@ -13,13 +13,6 @@ pub struct DeleteCollection(pub Vec<DeleteRow>);
 impl DeleteCollection {}
 
 ///
-/// DeleteResponse
-///
-
-#[derive(CandidType, Debug, Deserialize, Serialize)]
-pub struct DeleteResponse(pub Vec<DeleteRow>);
-
-///
 /// DeleteRow
 ///
 

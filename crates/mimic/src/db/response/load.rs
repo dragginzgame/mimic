@@ -7,20 +7,8 @@ use crate::{
         response::{EntityRow, ResponseError},
     },
 };
-use candid::CandidType;
 use derive_more::Deref;
-use serde::{Deserialize, Serialize};
 use std::{borrow::Borrow, collections::HashMap};
-
-///
-/// LoadResponse
-///
-
-#[derive(CandidType, Debug, Deserialize, Serialize)]
-pub enum LoadResponse {
-    Keys(Vec<Key>),
-    Count(u32),
-}
 
 ///
 /// LoadCollection
