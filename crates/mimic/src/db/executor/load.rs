@@ -103,6 +103,10 @@ impl LoadExecutor {
         Ok(filtered.len() as u32)
     }
 
+    pub fn count_all<E: EntityKind>(self) -> Result<u32, MimicError> {
+        self.count::<E>(LoadQuery::new())
+    }
+
     /// Internal query executor: handles plan → data rows → filtering/sorting/pagination
     fn execute_internal<E: EntityKind>(
         &self,
