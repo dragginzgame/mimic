@@ -120,7 +120,11 @@ impl IndexStore {
                 keys: prefix.to_vec(),
             }..,
         )
-        .take_while(move |(k, _)| k.index_id == *index_id && k.keys.starts_with(prefix))
+        .take_while(move |entry| {
+            let k = entry.key();
+            k.index_id == *index_id && k.keys.starts_with(prefix)
+        })
+        .map(|entry| (entry.key().clone(), entry.value()))
     }
 }
 

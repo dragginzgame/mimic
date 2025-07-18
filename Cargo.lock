@@ -119,9 +119,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.29"
+version = "1.2.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5c1599538de2394445747c8cf7935946e3cc27e9625f889d979bfb2aaf569362"
+checksum = "deec109607ca693028562ed836a5f1c4b8bd77755c4e132fc5ce11b0b6211ae7"
 dependencies = [
  "shlex",
 ]
@@ -560,6 +560,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ic-stable-structures"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e54aeb082293c69def5ab34c70593ba85ff000386f7d0eacdf73514daaeca031"
+dependencies = [
+ "ic_principal",
+]
+
+[[package]]
 name = "ic0"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -600,7 +609,7 @@ dependencies = [
  "candid",
  "crc32fast",
  "hex",
- "ic-stable-structures",
+ "ic-stable-structures 0.6.9",
  "icrc-cbor",
  "itertools",
  "minicbor 0.19.1",
@@ -617,7 +626,7 @@ dependencies = [
 [[package]]
 name = "icu"
 version = "0.1.8"
-source = "git+https://github.com/dragginzgame/icu#66cb5eeeb7b09f697b6a378e7db779bd01cdfdcc"
+source = "git+https://github.com/dragginzgame/icu#fca92acbd2469be03692034e12b83e6d8200203a"
 dependencies = [
  "candid",
  "defer",
@@ -626,7 +635,7 @@ dependencies = [
  "ic-cdk-timers",
  "ic-ledger-types",
  "ic-management-canister-types",
- "ic-stable-structures",
+ "ic-stable-structures 0.7.0",
  "ic_principal",
  "icrc-ledger-types",
  "minicbor-serde",

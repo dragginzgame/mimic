@@ -124,21 +124,30 @@ pub struct DataEntry {
     pub metadata: Metadata,
 }
 
+impl DataEntry {
+    #[inline(always)]
+    fn encode_into_vec(&self) -> Vec<u8> {
+        let mut out = Vec::new();
+
+        let blob_bytes = self.bytes.to_bytes();
+        write_chunk(&mut out, &blob_bytes);
+
+        let meta_bytes = Encode!(&self.metadata).expect("encode metadata");
+        write_chunk(&mut out, &meta_bytes);
+
+        out
+    }
+}
+
 impl Storable for DataEntry {
     const BOUND: Bound = Bound::Unbounded;
 
     fn to_bytes(&self) -> Cow<'_, [u8]> {
-        let mut out = Vec::new();
+        Cow::Owned(self.encode_into_vec())
+    }
 
-        // write blob
-        let blob_bytes = self.bytes.to_bytes();
-        write_chunk(&mut out, &blob_bytes);
-
-        // write metadata
-        let meta_bytes = Encode!(&self.metadata).expect("encode metadata");
-        write_chunk(&mut out, &meta_bytes);
-
-        Cow::Owned(out)
+    fn into_bytes(self) -> Vec<u8> {
+        self.encode_into_vec()
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {

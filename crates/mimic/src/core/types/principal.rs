@@ -163,8 +163,12 @@ impl Storable for Principal {
         is_fixed_size: true,
     };
 
+    fn into_bytes(self) -> Vec<u8> {
+        self.0.to_bytes().to_vec()
+    }
+
     fn to_bytes(&self) -> Cow<'_, [u8]> {
-        Cow::Owned(self.0.to_bytes().to_vec())
+        Cow::Borrowed(self.0.as_slice())
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {

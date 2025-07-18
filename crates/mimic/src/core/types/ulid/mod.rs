@@ -208,6 +208,10 @@ impl Storable for Ulid {
         Cow::Owned(self.0.to_bytes().to_vec())
     }
 
+    fn into_bytes(self) -> Vec<u8> {
+        self.0.to_bytes().to_vec()
+    }
+
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
         assert!(
             bytes.len() == 16,

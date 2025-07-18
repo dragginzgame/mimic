@@ -143,7 +143,7 @@ impl LoadExecutor {
 
         let rows = match shape {
             QueryShape::All => store.with_borrow(|this| {
-                this.iter()
+                this.iter_pairs()
                     .map(|(key, entry)| DataRow { key, entry })
                     .collect()
             }),
@@ -192,7 +192,7 @@ impl LoadExecutor {
     // load_range
     fn load_range(store: DataStoreLocal, start: DataKey, end: DataKey) -> Vec<DataRow> {
         store.with_borrow(|this| {
-            this.range(start..=end)
+            this.range_pairs(start..=end)
                 .map(|(key, entry)| DataRow { key, entry })
                 .collect()
         })
