@@ -54,7 +54,7 @@ impl LoadQuery {
     pub fn many<E, V>(self, values: &[V]) -> Self
     where
         E: EntityKind,
-        V: Clone + Into<Value>,
+        V: Into<Value> + Clone,
     {
         let list = values
             .iter()

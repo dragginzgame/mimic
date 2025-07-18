@@ -73,6 +73,11 @@ impl LoadExecutor {
         self.execute::<E>(LoadQuery::new())
     }
 
+    // filter
+    pub fn filter<E: EntityKind>(&self) -> Result<LoadCollection<E>, MimicError> {
+        self.execute::<E>(LoadQuery::new())
+    }
+
     //
     // EXECUTION LOGIC
     //
