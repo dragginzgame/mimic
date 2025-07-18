@@ -51,14 +51,14 @@ impl LoadQuery {
 
     // many
     #[must_use]
-    pub fn many<E, V>(self, values: &[V]) -> Self
+    pub fn many<E, I>(self, values: I) -> Self
     where
         E: EntityKind,
-        V: Into<Value> + Clone,
+        I: IntoIterator,
+        I::Item: Into<Value>,
     {
         let list = values
-            .iter()
-            .cloned()
+            .into_iter()
             .map(|v| Box::new(v.into()))
             .collect::<Vec<_>>();
 
