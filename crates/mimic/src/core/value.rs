@@ -139,6 +139,12 @@ impl From<&Key> for Value {
     }
 }
 
+impl From<&Ulid> for Value {
+    fn from(value: &Ulid) -> Self {
+        (*value).into()
+    }
+}
+
 impl From<WrappedPrincipal> for Value {
     fn from(v: WrappedPrincipal) -> Self {
         Self::Principal(v.into())
