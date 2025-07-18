@@ -125,7 +125,6 @@ pub struct DataEntry {
 }
 
 impl DataEntry {
-    #[inline(always)]
     fn encode_into_vec(&self) -> Vec<u8> {
         let mut out = Vec::new();
 

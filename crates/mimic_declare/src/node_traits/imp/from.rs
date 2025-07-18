@@ -174,6 +174,7 @@ impl Imp<Tuple> for FromTrait {
 }
 
 /// from_type_view
+#[allow(clippy::unnecessary_wraps)]
 fn from_type_view(def: &Def) -> Option<TokenStream> {
     let self_ident = &def.ident;
     let view_ident = &def.view_ident();

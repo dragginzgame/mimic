@@ -70,6 +70,7 @@ impl LoadQuery {
         self.filter(|f| f.eq(field, value))
     }
 
+    #[must_use]
     pub fn filter_eq_opt<F: Into<String>, V: Into<Value>>(
         self,
         field: F,
