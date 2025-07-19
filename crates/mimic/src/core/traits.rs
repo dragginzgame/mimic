@@ -443,6 +443,7 @@ macro_rules! impl_primitive_field_orderable {
 impl_primitive_field_orderable!(bool, i8, i16, i32, i64, String, u8, u16, u32, u64);
 
 impl<T: FieldSortable> FieldSortable for Box<T> {}
+impl<T: FieldSortable> FieldSortable for Vec<T> {}
 
 impl<T: FieldSortable> FieldSortable for Option<T> {
     fn cmp(&self, other: &Self) -> Ordering {

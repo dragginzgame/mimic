@@ -166,14 +166,8 @@ impl<T> MacroEmitter for T where T: AsMacro {}
 /// an element that can generate schema tokens
 ///
 
-pub enum SchemaKind {
-    None,
-    Fragment,
-    Full,
-}
-
 pub trait AsSchema {
-    const KIND: SchemaKind;
+    const EMIT_SCHEMA: bool;
 
     // returns the schema fragment
     fn schema(&self) -> TokenStream {
@@ -183,25 +177,23 @@ pub trait AsSchema {
     // schema_tokens
     // generates the structure passed via ctor to the static schema
     fn schema_tokens(&self) -> Option<TokenStream> {
-        match Self::KIND {
-            SchemaKind::None => None,
-            SchemaKind::Fragment => Some(self.schema()),
-            SchemaKind::Full => {
-                let schema = self.schema();
-                let mut rng = RNG.lock().expect("Failed to lock RNG");
-                let ctor_fn = format_ident!("ctor_{}", rng.next_u32());
-
-                Some(quote! {
-                    #[cfg(not(target_arch = "wasm32"))]
-                    #[::mimic::export::ctor::ctor]
-                    fn #ctor_fn() {
-                        ::mimic::schema::build::schema_write().insert_node(
-                            #schema
-                        );
-                    }
-                })
-            }
+        if !Self::EMIT_SCHEMA {
+            return None;
         }
+
+        let schema = self.schema();
+        let mut rng = RNG.lock().expect("Failed to lock RNG");
+        let ctor_fn = format_ident!("ctor_{}", rng.next_u32());
+
+        Some(quote! {
+            #[cfg(not(target_arch = "wasm32"))]
+            #[::mimic::export::ctor::ctor]
+            fn #ctor_fn() {
+                ::mimic::schema::build::schema_write().insert_node(
+                    #schema
+                );
+            }
+        })
     }
 }
 

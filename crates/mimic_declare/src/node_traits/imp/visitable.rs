@@ -203,12 +203,12 @@ pub fn field_list(fields: &FieldList) -> TokenStream {
     let mut inner = quote!();
 
     for f in fields {
-        let field_name = f.name.to_string();
+        let field_ident = f.ident.to_string();
         let var_expr: Expr =
-            parse_str(&format!("self.{field_name}")).expect("can parse field access");
+            parse_str(&format!("self.{field_ident}")).expect("can parse field access");
 
         inner.extend(quote! {
-            ::mimic::core::visit::perform_visit(visitor, &#var_expr, #field_name);
+            ::mimic::core::visit::perform_visit(visitor, &#var_expr, #field_ident);
         });
     }
 

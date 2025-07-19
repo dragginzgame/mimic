@@ -2,7 +2,7 @@ use crate::{
     helper::quote_option,
     node::{Arg, Def, Item, Type},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter, SchemaKind},
+    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
 };
 use darling::FromMeta;
 use mimic_schema::types::Primitive;
@@ -101,7 +101,7 @@ impl AsMacro for Newtype {
 }
 
 impl AsSchema for Newtype {
-    const KIND: SchemaKind = SchemaKind::Full;
+    const EMIT_SCHEMA: bool = true;
 
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();

@@ -1,7 +1,7 @@
 use crate::{
     node::{Def, Item, Type},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter, SchemaKind},
+    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -53,7 +53,7 @@ impl AsMacro for List {
 }
 
 impl AsSchema for List {
-    const KIND: SchemaKind = SchemaKind::Full;
+    const EMIT_SCHEMA: bool = true;
 
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();

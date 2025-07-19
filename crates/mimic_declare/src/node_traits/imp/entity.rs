@@ -76,7 +76,7 @@ fn values(node: &Entity) -> TokenStream {
         .fields
         .iter()
         .map(|field| {
-            let field_ident = &field.name;
+            let field_ident = &field.ident;
             let field_lit = LitStr::new(&field_ident.to_string(), Span::call_site());
 
             match field.value.cardinality() {
@@ -131,7 +131,7 @@ impl Imp<Entity> for EntityAccessorTrait {
         let mut field_accessors = Vec::new();
 
         for field in &node.fields {
-            let field_ident = &field.name; // e.g., `id`
+            let field_ident = &field.ident;
             let field_str = field_ident.to_string();
             let field_ty = &field.value;
 

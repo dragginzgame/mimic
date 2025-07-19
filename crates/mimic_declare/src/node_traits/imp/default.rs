@@ -48,14 +48,14 @@ impl Imp<Record> for DefaultTrait {
 // field_list
 fn field_list(fields: &FieldList) -> TokenStream {
     let assignments = fields.iter().map(|field| {
-        let name = &field.name;
+        let ident = &field.ident;
         let expr = if let Some(default) = &field.default {
             format_default(default)
         } else {
             quote!(Default::default())
         };
 
-        quote! { #name: #expr }
+        quote! { #ident: #expr }
     });
 
     quote! {

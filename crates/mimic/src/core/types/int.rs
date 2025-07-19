@@ -1,5 +1,6 @@
 use crate::core::traits::{
-    FieldSearchable, FieldValue, Inner, TypeView, ValidateAuto, ValidateCustom, Visitable,
+    FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto, ValidateCustom,
+    Visitable,
 };
 use candid::{CandidType, Int as WrappedInt};
 use derive_more::{Deref, DerefMut, Display, FromStr};
@@ -33,6 +34,12 @@ pub struct Int(WrappedInt);
 impl FieldSearchable for Int {
     fn to_searchable_string(&self) -> Option<String> {
         Some(self.to_string())
+    }
+}
+
+impl FieldSortable for Int {
+    fn cmp(&self, other: &Self) -> Ordering {
+        Ord::cmp(self, other)
     }
 }
 

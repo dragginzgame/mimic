@@ -1,6 +1,6 @@
 use crate::{
     node::{Arg, Def},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter, SchemaKind},
+    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
 };
 use darling::FromMeta;
 use mimic_schema::types::ConstantType;
@@ -28,7 +28,7 @@ impl AsMacro for Constant {
 }
 
 impl AsSchema for Constant {
-    const KIND: SchemaKind = SchemaKind::Full;
+    const EMIT_SCHEMA: bool = true;
 
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();

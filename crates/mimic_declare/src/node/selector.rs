@@ -2,7 +2,7 @@ use crate::{
     helper::{quote_one, quote_slice, to_path, to_str_lit},
     node::{Arg, Def},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter, SchemaKind},
+    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -35,7 +35,7 @@ impl AsMacro for Selector {
 }
 
 impl AsSchema for Selector {
-    const KIND: SchemaKind = SchemaKind::Full;
+    const EMIT_SCHEMA: bool = true;
 
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
@@ -105,7 +105,7 @@ impl ToTokens for SelectorVariant {
 }
 
 impl AsSchema for SelectorVariant {
-    const KIND: SchemaKind = SchemaKind::Fragment;
+    const EMIT_SCHEMA: bool = false;
 
     fn schema(&self) -> TokenStream {
         let name = quote_one(&self.name, to_str_lit);

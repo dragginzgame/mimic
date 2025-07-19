@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_path},
     node::TypeValidator,
-    traits::{AsSchema, AsType, SchemaKind},
+    traits::{AsSchema, AsType},
 };
 use darling::FromMeta;
 use mimic_schema::types::Primitive;
@@ -59,7 +59,7 @@ impl Item {
 }
 
 impl AsSchema for Item {
-    const KIND: SchemaKind = SchemaKind::Fragment;
+    const EMIT_SCHEMA: bool = false;
 
     fn schema(&self) -> TokenStream {
         let target = self.target().schema();
@@ -124,7 +124,7 @@ pub enum ItemTarget {
 }
 
 impl AsSchema for ItemTarget {
-    const KIND: SchemaKind = SchemaKind::Fragment;
+    const EMIT_SCHEMA: bool = false;
 
     fn schema(&self) -> TokenStream {
         match self {

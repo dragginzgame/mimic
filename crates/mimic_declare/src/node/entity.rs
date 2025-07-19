@@ -2,7 +2,7 @@ use crate::{
     helper::{quote_one, quote_slice, split_idents, to_path, to_str_lit},
     node::{Def, FieldList, Type},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter, SchemaKind},
+    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -83,7 +83,7 @@ impl AsMacro for Entity {
 }
 
 impl AsSchema for Entity {
-    const KIND: SchemaKind = SchemaKind::Full;
+    const EMIT_SCHEMA: bool = true;
 
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
@@ -151,7 +151,8 @@ impl ToTokens for Entity {
 
 #[derive(Debug, FromMeta)]
 pub struct EntityIndex {
-    pub name: Ident,
+    #[darling(rename = "name")]
+    pub ident: Ident,
 
     #[darling(default, map = "split_idents")]
     pub fields: Vec<Ident>,
@@ -164,7 +165,7 @@ pub struct EntityIndex {
 
 impl AsMacro for EntityIndex {
     fn ident(&self) -> Ident {
-        self.name.clone()
+        self.ident.clone()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -185,7 +186,7 @@ impl AsMacro for EntityIndex {
 }
 
 impl AsSchema for EntityIndex {
-    const KIND: SchemaKind = SchemaKind::Fragment;
+    const EMIT_SCHEMA: bool = false;
 
     fn schema(&self) -> TokenStream {
         let fields = quote_slice(&self.fields, to_str_lit);
@@ -214,10 +215,6 @@ impl AsType for EntityIndex {
 
 impl ToTokens for EntityIndex {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = self.ident();
-
-        tokens.extend(quote! {
-            pub struct #ident {}
-        });
+        tokens.extend(self.all_tokens())
     }
 }

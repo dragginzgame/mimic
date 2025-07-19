@@ -124,7 +124,7 @@ fn field_list(fields: &FieldList) -> Option<TokenStream> {
     let field_validations: Vec<TokenStream> = fields
         .iter()
         .filter_map(|field| {
-            let field_ident = &field.name;
+            let field_ident = &field.ident;
             generate_value_validation_inner(&field.value, quote!(&self.#field_ident))
         })
         .collect();

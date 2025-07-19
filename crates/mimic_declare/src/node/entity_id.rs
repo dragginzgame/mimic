@@ -1,7 +1,7 @@
 use crate::{
     node::Def,
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter, SchemaKind},
+    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -55,7 +55,7 @@ impl AsMacro for EntityId {
 }
 
 impl AsSchema for EntityId {
-    const KIND: SchemaKind = SchemaKind::None;
+    const EMIT_SCHEMA: bool = false;
 }
 
 impl AsType for EntityId {

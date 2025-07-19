@@ -1,6 +1,6 @@
 use crate::{
     node::Item,
-    traits::{AsSchema, AsType, SchemaKind},
+    traits::{AsSchema, AsType},
 };
 use darling::FromMeta;
 use mimic_schema::types::Cardinality;
@@ -35,7 +35,7 @@ impl Value {
 }
 
 impl AsSchema for Value {
-    const KIND: SchemaKind = SchemaKind::Fragment;
+    const EMIT_SCHEMA: bool = false;
 
     fn schema(&self) -> TokenStream {
         let cardinality = &self.cardinality();

@@ -152,7 +152,7 @@ pub struct ContainsManyRelations {}
 #[entity(
     store = "crate::schema::TestStore",
     pk = "id",
-    index(store = "crate::schema::TestIndex", fields = "x"),
+    index(name = "sd", store = "crate::schema::TestIndex", fields = "x"),
     index(store = "crate::schema::TestIndex", fields = "y", unique),
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
@@ -180,8 +180,8 @@ impl Index {
 #[entity(
     store = "crate::schema::TestStore",
     pk = "id",
-    index(store = "crate::schema::TestIndex", fields = "x"),
-    index(store = "crate::schema::TestIndex", fields = "y", unique),
+    index(name = "x", store = "crate::schema::TestIndex", fields = "x"),
+    index(name = "y", store = "crate::schema::TestIndex", fields = "y", unique),
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(name = "x", value(item(prim = "Int32"))),

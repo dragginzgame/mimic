@@ -2,7 +2,7 @@ use crate::{
     helper::{quote_one, quote_option, quote_slice, to_str_lit},
     node::{Def, Type, Value},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter, SchemaKind},
+    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -72,7 +72,7 @@ impl AsMacro for Enum {
 }
 
 impl AsSchema for Enum {
-    const KIND: SchemaKind = SchemaKind::Full;
+    const EMIT_SCHEMA: bool = true;
 
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
@@ -154,7 +154,7 @@ impl EnumVariant {
 }
 
 impl AsSchema for EnumVariant {
-    const KIND: SchemaKind = SchemaKind::Fragment;
+    const EMIT_SCHEMA: bool = false;
 
     fn schema(&self) -> TokenStream {
         let Self {

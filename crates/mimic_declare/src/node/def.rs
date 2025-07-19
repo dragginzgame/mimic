@@ -1,6 +1,6 @@
 use crate::{
     helper::{as_tokens, quote_one, quote_option, to_str_lit},
-    traits::{AsSchema, SchemaKind},
+    traits::AsSchema,
 };
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -29,7 +29,7 @@ impl Default for Def {
 }
 
 impl AsSchema for Def {
-    const KIND: SchemaKind = SchemaKind::Fragment;
+    const EMIT_SCHEMA: bool = false;
 
     fn schema(&self) -> TokenStream {
         let comments = quote_option(self.comments.as_ref(), as_tokens);

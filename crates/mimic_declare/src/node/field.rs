@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_str_lit},
     node::{Arg, Value},
-    traits::{AsSchema, AsType, SchemaKind},
+    traits::{AsSchema, AsType},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -20,8 +20,8 @@ pub struct FieldList {
 }
 
 impl FieldList {
-    pub fn get(&self, name: &Ident) -> Option<&Field> {
-        self.fields.iter().find(|f| f.name == *name)
+    pub fn get(&self, ident: &Ident) -> Option<&Field> {
+        self.fields.iter().find(|f| f.ident == *ident)
     }
 
     pub fn iter(&self) -> std::slice::Iter<'_, Field> {
@@ -47,7 +47,7 @@ impl<'a> IntoIterator for &'a FieldList {
 }
 
 impl AsSchema for FieldList {
-    const KIND: SchemaKind = SchemaKind::Fragment;
+    const EMIT_SCHEMA: bool = false;
 
     fn schema(&self) -> TokenStream {
         let fields = quote_slice(&self.fields, Field::schema);
@@ -90,7 +90,9 @@ impl ToTokens for FieldList {
 
 #[derive(Clone, Debug, FromMeta)]
 pub struct Field {
-    pub name: Ident,
+    #[darling(rename = "name")]
+    pub ident: Ident,
+
     pub value: Value,
 
     #[darling(default)]
@@ -98,10 +100,10 @@ pub struct Field {
 }
 
 impl AsSchema for Field {
-    const KIND: SchemaKind = SchemaKind::Fragment;
+    const EMIT_SCHEMA: bool = false;
 
     fn schema(&self) -> TokenStream {
-        let name = quote_one(&self.name, to_str_lit);
+        let name = quote_one(&self.ident, to_str_lit);
         let value = self.value.schema();
         let default = quote_option(self.default.as_ref(), Arg::schema);
 
@@ -117,20 +119,20 @@ impl AsSchema for Field {
 
 impl AsType for Field {
     fn as_type(&self) -> Option<TokenStream> {
-        let name = &self.name;
+        let ident = &self.ident;
         let value = &self.value;
 
         Some(quote! {
-            pub #name: #value
+            pub #ident: #value
         })
     }
 
     fn as_view_type(&self) -> Option<TokenStream> {
-        let name = &self.name;
+        let ident = &self.ident;
         let value_view = AsType::as_view_type(&self.value);
 
         Some(quote! {
-            pub #name: #value_view
+            pub #ident: #value_view
         })
     }
 }

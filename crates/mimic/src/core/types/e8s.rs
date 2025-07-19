@@ -1,6 +1,7 @@
 use crate::core::{
     traits::{
-        FieldSearchable, FieldValue, Inner, TypeView, ValidateAuto, ValidateCustom, Visitable,
+        FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto, ValidateCustom,
+        Visitable,
     },
     types::Decimal,
     value::Value,
@@ -99,6 +100,12 @@ impl Display for E8s {
 impl FieldSearchable for E8s {
     fn to_searchable_string(&self) -> Option<String> {
         Some(self.to_string())
+    }
+}
+
+impl FieldSortable for E8s {
+    fn cmp(&self, other: &Self) -> Ordering {
+        Ord::cmp(self, other)
     }
 }
 
