@@ -151,9 +151,6 @@ impl ToTokens for Entity {
 
 #[derive(Debug, FromMeta)]
 pub struct EntityIndex {
-    #[darling(rename = "name")]
-    pub ident: Ident,
-
     #[darling(default, map = "split_idents")]
     pub fields: Vec<Ident>,
 
@@ -165,7 +162,7 @@ pub struct EntityIndex {
 
 impl AsMacro for EntityIndex {
     fn ident(&self) -> Ident {
-        self.ident.clone()
+        generate_index_ident(self)
     }
 
     fn traits(&self) -> Vec<Trait> {
