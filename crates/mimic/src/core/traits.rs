@@ -22,7 +22,10 @@ use crate::{
         types::{Decimal, Ulid},
         visit::Visitor,
     },
-    db::{executor::SaveExecutor, query::SortExpr},
+    db::{
+        executor::SaveExecutor,
+        query::{SortDirection, SortExpr},
+    },
     schema::node::EntityIndex,
 };
 
@@ -63,28 +66,18 @@ pub trait Kind: Path {}
 impl<T> Kind for T where T: Path {}
 
 ///
-/// TypeKind
-/// any data type
+/// CanisterKind
 ///
 
-pub trait TypeKind:
-    Kind + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq + TypeView
-{
-}
-
-impl<T> TypeKind for T where
-    T: Kind + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq + TypeView
-{
-}
+pub trait CanisterKind: Kind {}
 
 ///
 /// EntityKind
 ///
 
-pub trait EntityKind: TypeKind + EntitySearch + EntitySort {
+pub trait EntityKind: Kind + TypeKind + EntitySearchable + EntitySortable + HasStore {
     type PrimaryKey: Copy + Clone;
 
-    const STORE: &'static str;
     const PRIMARY_KEY: &'static str;
     const INDEXES: &'static [EntityIndex];
 
@@ -117,7 +110,7 @@ pub trait EntityIdKind: Kind + std::fmt::Debug {
 /// EnumValueKind
 ///
 
-pub trait EnumValueKind {
+pub trait EnumValueKind: Kind {
     fn value(&self) -> i32;
 }
 
@@ -125,12 +118,57 @@ pub trait EnumValueKind {
 /// FieldKind
 ///
 
-pub trait FieldKind: FieldValue + FieldSearchable + FieldSortable {}
-impl<T: FieldValue + FieldSearchable + FieldSortable> FieldKind for T {}
+pub trait FieldKind: Kind + FieldValue + FieldSearchable + FieldSortable {}
+impl<T: Kind + FieldValue + FieldSearchable + FieldSortable> FieldKind for T {}
+
+///
+/// GROUPED KIND TRAITS
+///
+
+///
+/// TypeKind
+/// any data type
+///
+
+pub trait TypeKind:
+    Kind + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq + TypeView
+{
+}
+
+impl<T> TypeKind for T where
+    T: Kind + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq + TypeView
+{
+}
 
 ///
 /// ANY KIND TRAITS
 ///
+
+///
+/// HasStore
+///
+
+pub trait HasStore {
+    type Store: Kind;
+}
+
+///
+/// Path
+///
+/// any node created via a macro has a Path
+/// ie. design::game::rarity::Rarity
+///
+/// primitives are used unwrapped so we can't declare the impl anywhere else
+///
+
+pub trait Path {
+    const PATH: &'static str;
+
+    #[must_use]
+    fn path() -> String {
+        Self::PATH.to_string()
+    }
+}
 
 ///
 /// TypeView
@@ -216,26 +254,25 @@ macro_rules! impl_primitive_type_view {
 impl_primitive_type_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
 
 ///
-/// Path
-///
-/// any node created via a macro has a Path
-/// ie. design::game::rarity::Rarity
-///
-/// primitives are used unwrapped so we can't declare the impl anywhere else
-///
-
-pub trait Path {
-    const PATH: &'static str;
-
-    #[must_use]
-    fn path() -> String {
-        Self::PATH.to_string()
-    }
-}
-
-///
 /// SINGLE KIND TRAITS
 ///
+
+///
+/// EntityAccessor
+///
+
+pub trait EntityAccessor: EntityKind {
+    fn fields() -> &'static [FieldAccessor<Self>];
+}
+
+pub struct FieldAccessor<E>
+where
+    E: EntityKind,
+{
+    pub name: &'static str,
+    pub search: Option<fn(&E, &str) -> bool>,
+    pub cmp: Option<fn(&E, &E) -> std::cmp::Ordering>,
+}
 
 ///
 /// EntityFixture
@@ -249,10 +286,10 @@ pub trait EntityFixture {
 }
 
 ///
-/// EntitySearch
+/// EntitySearchable
 ///
 
-pub trait EntitySearch {
+pub trait EntitySearchable {
     fn search_field(&self, field: &str, text: &str) -> bool;
 
     // search_fields
@@ -268,50 +305,62 @@ pub trait EntitySearch {
     }
 }
 
+impl<E> EntitySearchable for E
+where
+    E: EntityAccessor + 'static,
+{
+    fn search_field(&self, field: &str, text: &str) -> bool {
+        E::fields()
+            .iter()
+            .find(|f| f.name == field)
+            .and_then(|f| f.search)
+            .map(|search_fn| search_fn(self, text))
+            .unwrap_or(false)
+    }
+}
+
 ///
-/// EntitySort
+/// EntitySortable
 /// allows anything with a collection of fields to be sorted
 ///
 
-type EntitySortFn<E> = dyn Fn(&E, &E) -> Ordering;
+pub type EntitySortableFn<E> = dyn Fn(&E, &E) -> std::cmp::Ordering;
 
-pub trait EntitySort {
-    fn sort(expr: &SortExpr) -> Box<EntitySortFn<Self>>
+pub trait EntitySortable {
+    fn sort(expr: &SortExpr) -> Box<EntitySortableFn<Self>>
     where
         Self: Sized;
 }
-///
-/// Validator
-/// allows a node to validate different types of primitives
-///
 
-pub trait ValidatorBytes {
-    fn validate(&self, _: &[u8]) -> Result<(), String> {
-        Ok(())
-    }
-}
+impl<E> EntitySortable for E
+where
+    E: EntityAccessor + 'static,
+{
+    fn sort(expr: &SortExpr) -> Box<EntitySortableFn<Self>> {
+        let mut comparators = vec![];
 
-pub trait ValidatorDecimal {
-    fn validate(&self, _: &Decimal) -> Result<(), String> {
-        Ok(())
-    }
-}
+        for (field_name, dir) in expr.iter() {
+            if let Some(accessor) = E::fields().iter().find(|f| f.name == field_name) {
+                if let Some(cmp) = accessor.cmp {
+                    let cmp_fn: Box<EntitySortableFn<E>> = match dir {
+                        SortDirection::Asc => Box::new(cmp),
+                        SortDirection::Desc => Box::new(move |a, b| cmp(b, a)),
+                    };
+                    comparators.push(cmp_fn);
+                }
+            }
+        }
 
-pub trait ValidatorNumber {
-    fn validate<T>(&self, _: &T) -> Result<(), String>
-    where
-        T: Copy + NumCast,
-    {
-        Ok(())
-    }
-}
+        Box::new(move |a, b| {
+            for cmp in &comparators {
+                let ord = cmp(a, b);
+                if ord != std::cmp::Ordering::Equal {
+                    return ord;
+                }
+            }
 
-pub trait ValidatorString {
-    fn validate<S>(&self, _: S) -> Result<(), String>
-    where
-        S: AsRef<str>,
-    {
-        Ok(())
+            std::cmp::Ordering::Equal
+        })
     }
 }
 
@@ -562,6 +611,41 @@ impl<T: ValidateCustom> ValidateCustom for Vec<T> {}
 impl<T: ValidateCustom> ValidateCustom for Box<T> {}
 
 impl_primitive!(ValidateCustom);
+
+///
+/// Validator
+/// allows a node to validate different types of primitives
+///
+
+pub trait ValidatorBytes {
+    fn validate(&self, _: &[u8]) -> Result<(), String> {
+        Ok(())
+    }
+}
+
+pub trait ValidatorDecimal {
+    fn validate(&self, _: &Decimal) -> Result<(), String> {
+        Ok(())
+    }
+}
+
+pub trait ValidatorNumber {
+    fn validate<T>(&self, _: &T) -> Result<(), String>
+    where
+        T: Copy + NumCast,
+    {
+        Ok(())
+    }
+}
+
+pub trait ValidatorString {
+    fn validate<S>(&self, _: S) -> Result<(), String>
+    where
+        S: AsRef<str>,
+    {
+        Ok(())
+    }
+}
 
 ///
 /// Visitable

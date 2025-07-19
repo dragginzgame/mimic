@@ -1,6 +1,7 @@
 use crate::{
     node::Newtype,
     node_traits::{Imp, Implementor, Trait},
+    traits::AsMacro,
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
@@ -28,7 +29,7 @@ impl Imp<Newtype> for NumCastTrait {
             }
         };
 
-        let tokens = Implementor::new(&node.def, Trait::NumCast)
+        let tokens = Implementor::new(node.ident(), Trait::NumCast)
             .set_tokens(q)
             .to_token_stream();
 
@@ -72,7 +73,7 @@ impl Imp<Newtype> for NumFromPrimitiveTrait {
             });
         }
 
-        let tokens = Implementor::new(&node.def, Trait::NumFromPrimitive)
+        let tokens = Implementor::new(node.ident(), Trait::NumFromPrimitive)
             .set_tokens(q)
             .to_token_stream();
 
@@ -102,7 +103,7 @@ impl Imp<Newtype> for NumToPrimitiveTrait {
             }
         };
 
-        let tokens = Implementor::new(&node.def, Trait::NumToPrimitive)
+        let tokens = Implementor::new(node.ident(), Trait::NumToPrimitive)
             .set_tokens(q)
             .to_token_stream();
 

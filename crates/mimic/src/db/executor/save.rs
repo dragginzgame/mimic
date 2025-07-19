@@ -7,7 +7,9 @@ use crate::{
         executor::ExecutorError,
         query::{SaveMode, SaveQuery},
         response::EntityEntry,
-        store::{DataEntry, DataKey, DataStoreRegistry, IndexKey, IndexStoreRegistry, Metadata},
+        store::{
+            DataEntry, DataKey, DataStoreRegistryLocal, IndexKey, IndexStoreRegistryLocal, Metadata,
+        },
     },
     debug,
     serialize::{deserialize, serialize},
@@ -19,15 +21,15 @@ use crate::{
 
 #[derive(Clone, Copy, Debug)]
 pub struct SaveExecutor {
-    data: DataStoreRegistry,
-    indexes: IndexStoreRegistry,
+    data: DataStoreRegistryLocal,
+    indexes: IndexStoreRegistryLocal,
     debug: bool,
 }
 
 impl SaveExecutor {
     // new
     #[must_use]
-    pub const fn new(data: DataStoreRegistry, indexes: IndexStoreRegistry) -> Self {
+    pub const fn new(data: DataStoreRegistryLocal, indexes: IndexStoreRegistryLocal) -> Self {
         Self {
             data,
             indexes,
@@ -83,7 +85,7 @@ impl SaveExecutor {
     // execute_internal
     fn execute_internal<E: EntityKind>(&self, mode: SaveMode, entity: E) -> Result<Key, DbError> {
         let key = entity.key();
-        let store = self.data.with(|data| data.try_get_store(E::STORE))?;
+        let store = self.data.with(|data| data.get_store::<E>());
         let bytes = serialize(&entity)?;
 
         // validate
@@ -147,27 +149,29 @@ impl SaveExecutor {
 
     // update_indexes
     fn update_indexes<E: EntityKind>(&self, old: Option<&E>, new: &E) -> Result<(), DbError> {
-        for index in E::INDEXES {
-            let index_store = self.indexes.with(|map| map.try_get_store(index.store))?;
+        /*
+                for index in E::INDEXES {
+                    let index_store = self.indexes.with(|map| map.get_store(index.store))?;
 
-            // ✅ Insert new index entry first - fail early if conflict
-            if let Some(new_index_key) = IndexKey::build(new, index.fields) {
-                index_store.with_borrow_mut(|store| {
-                    store.insert_index_entry(index, new_index_key.clone(), new.key())?;
+                    // ✅ Insert new index entry first - fail early if conflict
+                    if let Some(new_index_key) = IndexKey::build(new, index.fields) {
+                        index_store.with_borrow_mut(|store| {
+                            store.insert_index_entry(index, new_index_key.clone(), new.key())?;
 
-                    Ok::<_, DbError>(())
-                })?;
-            }
+                            Ok::<_, DbError>(())
+                        })?;
+                    }
 
-            // 🔁 Remove old index value (if present)
-            if let Some(old) = old {
-                if let Some(old_index_key) = IndexKey::build(old, index.fields) {
-                    index_store.with_borrow_mut(|store| {
-                        store.remove_index_entry(&old_index_key, &old.key());
-                    });
+                    // 🔁 Remove old index value (if present)
+                    if let Some(old) = old {
+                        if let Some(old_index_key) = IndexKey::build(old, index.fields) {
+                            index_store.with_borrow_mut(|store| {
+                                store.remove_index_entry(&old_index_key, &old.key());
+                            });
+                        }
+                    }
                 }
-            }
-        }
+        */
 
         Ok(())
     }

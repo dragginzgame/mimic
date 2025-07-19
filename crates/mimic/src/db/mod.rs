@@ -10,7 +10,7 @@ use crate::{
     db::{
         executor::{DeleteExecutor, ExecutorError, LoadExecutor, SaveExecutor},
         response::ResponseError,
-        store::{DataStoreRegistry, IndexStoreRegistry, StoreError},
+        store::{DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
     serialize::SerializeError,
 };
@@ -29,9 +29,6 @@ pub enum DbError {
     ResponseError(#[from] ResponseError),
 
     #[error(transparent)]
-    StoreError(#[from] StoreError),
-
-    #[error(transparent)]
     SerializeError(#[from] SerializeError),
 
     #[error(transparent)]
@@ -44,13 +41,13 @@ pub enum DbError {
 ///
 
 pub struct Db {
-    data: DataStoreRegistry,
-    index: IndexStoreRegistry,
+    data: DataStoreRegistryLocal,
+    index: IndexStoreRegistryLocal,
 }
 
 impl Db {
     #[must_use]
-    pub const fn new(data: DataStoreRegistry, index: IndexStoreRegistry) -> Self {
+    pub const fn new(data: DataStoreRegistryLocal, index: IndexStoreRegistryLocal) -> Self {
         Self { data, index }
     }
 

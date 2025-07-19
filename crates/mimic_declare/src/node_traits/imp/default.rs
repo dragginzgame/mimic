@@ -4,6 +4,7 @@ use crate::{
         Trait,
         imp::{Imp, Implementor},
     },
+    traits::AsMacro,
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -21,7 +22,7 @@ pub struct DefaultTrait {}
 impl Imp<Entity> for DefaultTrait {
     fn tokens(node: &Entity) -> Option<TokenStream> {
         let q = field_list(&node.fields);
-        let tokens = Implementor::new(&node.def, Trait::Default)
+        let tokens = Implementor::new(node.ident(), Trait::Default)
             .set_tokens(q)
             .to_token_stream();
 
@@ -36,7 +37,7 @@ impl Imp<Entity> for DefaultTrait {
 impl Imp<Record> for DefaultTrait {
     fn tokens(node: &Record) -> Option<TokenStream> {
         let q = field_list(&node.fields);
-        let tokens = Implementor::new(&node.def, Trait::Default)
+        let tokens = Implementor::new(node.ident(), Trait::Default)
             .set_tokens(q)
             .to_token_stream();
 
@@ -85,7 +86,7 @@ impl Imp<Newtype> for DefaultTrait {
             }
         };
 
-        let tokens = Implementor::new(&node.def, Trait::Default)
+        let tokens = Implementor::new(node.ident(), Trait::Default)
             .set_tokens(q)
             .to_token_stream();
 

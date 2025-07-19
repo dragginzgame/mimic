@@ -1,24 +1,24 @@
-use crate::{node::Def, node_traits::Trait};
+use crate::node_traits::Trait;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::{GenericParam, Generics, WherePredicate, parse2};
+use syn::{GenericParam, Generics, Ident, WherePredicate, parse2};
 
 ///
 /// Implementor
 ///
 
-pub struct Implementor<'a> {
-    def: &'a Def,
+pub struct Implementor {
+    ident: Ident,
     trait_: Trait,
     impl_generics: Generics,
     trait_generics: Vec<TokenStream>,
     tokens: TokenStream,
 }
 
-impl<'a> Implementor<'a> {
-    pub fn new(def: &'a Def, trait_: Trait) -> Self {
+impl Implementor {
+    pub fn new(ident: Ident, trait_: Trait) -> Self {
         Self {
-            def,
+            ident,
             trait_,
             impl_generics: Generics::default(),
             trait_generics: Vec::new(),
@@ -58,10 +58,9 @@ impl<'a> Implementor<'a> {
     }
 }
 
-impl ToTokens for Implementor<'_> {
+impl ToTokens for Implementor {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        // vars
-        let ident = &self.def.ident;
+        let ident = &self.ident;
         let inner_tokens = &self.tokens;
         let trait_ = &self.trait_;
         let trait_generics = &self.trait_generics;

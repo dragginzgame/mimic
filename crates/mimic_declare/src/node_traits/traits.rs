@@ -57,13 +57,13 @@ pub enum Trait {
     PrimitiveKind,
 
     // orm
+    EntityAccessor,
     EntityFixture,
-    EntitySearch,
-    EntitySort,
     FieldSearchable,
     FieldSortable,
     FieldValue,
     From,
+    HasStore,
     Inner,
     Into,
     NumCast,

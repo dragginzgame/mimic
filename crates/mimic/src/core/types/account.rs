@@ -61,12 +61,6 @@ impl FieldSearchable for Account {
     }
 }
 
-impl FieldSortable for Account {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
-    }
-}
-
 impl FieldValue for Account {
     fn to_value(&self) -> Value {
         Value::Text(self.to_string())

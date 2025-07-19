@@ -16,7 +16,6 @@ pub struct EntityKindTrait {}
 
 impl Imp<Entity> for EntityKindTrait {
     fn tokens(node: &Entity) -> Option<TokenStream> {
-        let store = &node.store;
         let pk_type = &node.fields.get(&node.primary_key).unwrap().value;
         let pk_field = &node.primary_key.to_string();
         let defs = node.indexes.iter().map(AsSchema::schema);
@@ -25,7 +24,6 @@ impl Imp<Entity> for EntityKindTrait {
         let mut q = quote! {
             type PrimaryKey = #pk_type;
 
-            const STORE: &'static str = #store::PATH;
             const PRIMARY_KEY: &'static str = #pk_field;
             const INDEXES: &'static [::mimic::schema::node::EntityIndex] = &[
                 #(#defs),*
@@ -37,7 +35,7 @@ impl Imp<Entity> for EntityKindTrait {
         q.extend(key(node));
         q.extend(values(node));
 
-        let tokens = Implementor::new(&node.def, Trait::EntityKind)
+        let tokens = Implementor::new(node.ident(), Trait::EntityKind)
             .set_tokens(q)
             .to_token_stream();
 
@@ -121,125 +119,55 @@ fn values(node: &Entity) -> TokenStream {
 }
 
 ///
-/// EntitySearchTrait
+/// EntityAccessorTrait
 ///
 
-pub struct EntitySearchTrait {}
+pub struct EntityAccessorTrait {}
 
-impl Imp<Entity> for EntitySearchTrait {
+impl Imp<Entity> for EntityAccessorTrait {
     fn tokens(node: &Entity) -> Option<TokenStream> {
-        let ident = &node.def.ident;
+        let ident = node.ident(); // e.g., `Indexable`
 
-        let field_fns: Vec<_> = node
-            .fields
-            .iter()
-            .map(|field| {
-                let name = &field.name;
-                let name_str = name.to_string();
-
-                quote! {
-                    ( #name_str, |s: &#ident, text| {
-                        ::mimic::core::traits::FieldSearchable::contains_text(&s.#name, text)
-                    })
-                }
-            })
-            .collect();
-
-        let q = quote! {
-            fn search_field(&self, field: &str, text: &str) -> bool {
-                static SEARCH_FIELDS: &[(&str, fn(&#ident, &str) -> bool)] = &[
-                    #(#field_fns),*
-                ];
-
-                SEARCH_FIELDS
-                    .iter()
-                    .find(|(name, _)| *name == field)
-                    .map(|(_, f)| f(self, text))
-                    .unwrap_or(false)
-            }
-        };
-
-        let tokens = Implementor::new(&node.def, Trait::EntitySearch)
-            .set_tokens(q)
-            .to_token_stream();
-
-        Some(tokens)
-    }
-}
-
-///
-/// EntitySortTrait
-///
-
-pub struct EntitySortTrait {}
-
-impl Imp<Entity> for EntitySortTrait {
-    fn tokens(node: &Entity) -> Option<TokenStream> {
-        let node_ident = &node.def.ident;
-
-        let mut asc_fns = quote!();
-        let mut desc_fns = quote!();
-        let mut match_arms = quote!();
+        let mut field_accessors = Vec::new();
 
         for field in &node.fields {
-            if field.value.cardinality() == Cardinality::Many {
-                continue;
-            }
-
-            let field_ident = &field.name;
+            let field_ident = &field.name; // e.g., `id`
             let field_str = field_ident.to_string();
-            let asc_fn = format_ident!("asc_{field_ident}");
-            let desc_fn = format_ident!("desc_{field_ident}");
+            let field_ty = &field.value;
 
-            asc_fns.extend(quote! {
-                fn #asc_fn(a: &#node_ident, b: &#node_ident) -> ::std::cmp::Ordering {
-                    ::mimic::core::traits::FieldSortable::cmp(&a.#field_ident, &b.#field_ident)
+            field_accessors.push(quote! {
+                ::mimic::core::traits::FieldAccessor {
+                    name: #field_str,
+                    search: Some(|x, text|
+                        <#field_ty as ::mimic::core::traits::FieldSearchable>::contains_text(&x.#field_ident, text)
+                    ),
+                    cmp: Some(|a, b|
+                        <#field_ty as ::mimic::core::traits::FieldSortable>::cmp(&a.#field_ident, &b.#field_ident)
+                    ),
                 }
-            });
-
-            desc_fns.extend(quote! {
-                fn #desc_fn(a: &#node_ident, b: &#node_ident) -> ::std::cmp::Ordering {
-                    ::mimic::core::traits::FieldSortable::cmp(&b.#field_ident, &a.#field_ident)
-                }
-            });
-
-            match_arms.extend(quote! {
-                (#field_str, ::mimic::db::query::SortDirection::Asc) => comps.push(#asc_fn),
-                (#field_str, ::mimic::db::query::SortDirection::Desc) => comps.push(#desc_fn),
             });
         }
 
+        // static tokens
+        let static_name = format_ident!("{}_FIELDS", ident.to_string().to_uppercase());
+        let mut tokens = quote! {
+            static #static_name: &[::mimic::core::traits::FieldAccessor<#ident>] = &[
+                #(#field_accessors),*
+            ];
+        };
+
+        // trait
         let q = quote! {
-            fn sort(expr: &::mimic::db::query::SortExpr)
-                -> Box<dyn Fn(&#node_ident, &#node_ident) -> ::std::cmp::Ordering>
-            {
-                #asc_fns
-                #desc_fns
-
-                let mut comps: Vec<fn(&#node_ident, &#node_ident) -> ::std::cmp::Ordering> = Vec::new();
-
-                for (field, dir) in expr.iter() {
-                    match (field.as_str(), dir) {
-                        #match_arms
-                        _ => {}
-                    }
-                }
-
-                Box::new(move |a, b| {
-                    for cmp in &comps {
-                        let ord = cmp(a, b);
-                        if ord != ::std::cmp::Ordering::Equal {
-                            return ord;
-                        }
-                    }
-                    ::std::cmp::Ordering::Equal
-                })
+            fn fields() -> &'static [::mimic::core::traits::FieldAccessor<Self>] {
+                #static_name
             }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::EntitySort)
-            .set_tokens(q)
-            .to_token_stream();
+        tokens.extend(
+            Implementor::new(ident, Trait::EntityAccessor)
+                .set_tokens(q)
+                .to_token_stream(),
+        );
 
         Some(tokens)
     }

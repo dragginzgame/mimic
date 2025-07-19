@@ -1,11 +1,12 @@
 use crate::{
     node::{Arg, Def},
-    traits::{AsMacro, AsSchema},
+    traits::{AsMacro, AsSchema, AsType, MacroEmitter, SchemaKind},
 };
 use darling::FromMeta;
 use mimic_schema::types::ConstantType;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
+use syn::Ident;
 
 ///
 /// Constant
@@ -21,12 +22,14 @@ pub struct Constant {
 }
 
 impl AsMacro for Constant {
-    fn def(&self) -> &Def {
-        &self.def
+    fn ident(&self) -> Ident {
+        self.def.ident.clone()
     }
 }
 
 impl AsSchema for Constant {
+    const KIND: SchemaKind = SchemaKind::Full;
+
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let ty = &self.ty;
@@ -42,16 +45,20 @@ impl AsSchema for Constant {
     }
 }
 
-impl ToTokens for Constant {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
-
-        // quote
+impl AsType for Constant {
+    fn as_type(&self) -> Option<TokenStream> {
+        let ident = self.ident();
         let ty = &self.ty.as_type();
         let value = &self.value;
 
-        tokens.extend(quote! {
+        Some(quote! {
             pub const #ident: #ty = #value;
-        });
+        })
+    }
+}
+
+impl ToTokens for Constant {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.all_tokens())
     }
 }

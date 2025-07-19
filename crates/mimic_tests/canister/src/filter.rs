@@ -38,10 +38,7 @@ impl FilterTester {
 
         for (name, test_fn) in tests {
             println!("clearing db");
-            crate::DATA_REGISTRY.with(|reg| {
-                reg.with_store_mut(TestStore::PATH, |store| store.clear())
-                    .ok();
-            });
+            crate::DATA_REGISTRY.with(|reg| reg.with_store_mut::<TestStore>(|store| store.clear()));
 
             println!("Running test: {name}");
             test_fn();

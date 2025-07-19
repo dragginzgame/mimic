@@ -3,17 +3,23 @@ use crate::{
     db::{executor::ExecutorError, hasher::xx_hash_u64},
     debug,
     ic::structures::{BTreeMap, DefaultMemory},
-    schema::node::EntityIndex,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use icu::{impl_storable_bounded, impl_storable_unbounded};
+use mimic_schema::node::EntityIndex;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashSet,
     fmt::{self, Display},
     {cell::RefCell, thread::LocalKey},
 };
+
+///
+/// IndexStoreLocal
+///
+
+pub type IndexStoreLocal = &'static LocalKey<RefCell<IndexStore>>;
 
 ///
 /// IndexStore
@@ -75,7 +81,6 @@ impl IndexStore {
     }
 
     // remove_index_entry
-    // remove_index_entry
     pub fn remove_index_entry(&mut self, index_key: &IndexKey, key: &Key) -> Option<IndexEntry> {
         let debug = false;
 
@@ -127,12 +132,6 @@ impl IndexStore {
         .map(|entry| (entry.key().clone(), entry.value()))
     }
 }
-
-///
-/// IndexStoreLocal
-///
-
-pub type IndexStoreLocal = &'static LocalKey<RefCell<IndexStore>>;
 
 ///
 /// IndexId

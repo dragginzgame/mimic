@@ -1,6 +1,6 @@
 use crate::{
     helper::{quote_one, quote_slice, to_str_lit},
-    traits::AsSchema,
+    traits::{AsSchema, SchemaKind},
 };
 use darling::{Error as DarlingError, FromMeta, ast::NestedMeta};
 use derive_more::Deref;
@@ -58,6 +58,8 @@ impl FromMeta for Arg {
 }
 
 impl AsSchema for Arg {
+    const KIND: SchemaKind = SchemaKind::Fragment;
+
     fn schema(&self) -> TokenStream {
         match self {
             Self::Bool(v) => quote!(::mimic::schema::node::Arg::Bool(#v)),
@@ -109,6 +111,8 @@ impl FromMeta for Args {
 }
 
 impl AsSchema for Args {
+    const KIND: SchemaKind = SchemaKind::Fragment;
+
     fn schema(&self) -> TokenStream {
         let args = quote_slice(&self.0, Arg::schema);
 
@@ -339,6 +343,8 @@ impl PartialEq for ArgNumber {
 }
 
 impl AsSchema for ArgNumber {
+    const KIND: SchemaKind = SchemaKind::Fragment;
+
     fn schema(&self) -> TokenStream {
         match self {
             Self::Float32(v) => quote!(::mimic::schema::node::ArgNumber::Float32(#v)),

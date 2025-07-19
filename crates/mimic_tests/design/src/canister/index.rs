@@ -3,7 +3,11 @@ use crate::prelude::*;
 #[entity(
     store = "crate::schema::TestStore",
     pk = "id",
-    index(store = "crate::schema::TestIndex", fields = "pid, ulid, score"),
+    index(
+        name = "IndexA",
+        store = "crate::schema::TestIndex",
+        fields = "pid, ulid, score"
+    ),
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(name = "pid", value(item(prim = "Principal"))),

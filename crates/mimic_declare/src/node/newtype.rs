@@ -2,12 +2,13 @@ use crate::{
     helper::quote_option,
     node::{Arg, Def, Item, Type},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType},
+    traits::{AsMacro, AsSchema, AsType, MacroEmitter, SchemaKind},
 };
 use darling::FromMeta;
 use mimic_schema::types::Primitive;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
+use syn::Ident;
 
 ///
 /// Newtype
@@ -32,12 +33,8 @@ pub struct Newtype {
 }
 
 impl AsMacro for Newtype {
-    fn def(&self) -> &Def {
-        &self.def
-    }
-
-    fn macro_extra(&self) -> TokenStream {
-        self.as_view_type()
+    fn ident(&self) -> Ident {
+        self.def.ident.clone()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -104,6 +101,8 @@ impl AsMacro for Newtype {
 }
 
 impl AsSchema for Newtype {
+    const KIND: SchemaKind = SchemaKind::Full;
+
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let item = self.item.schema();
@@ -122,28 +121,28 @@ impl AsSchema for Newtype {
 }
 
 impl AsType for Newtype {
-    fn as_type(&self) -> TokenStream {
-        let Def { ident, .. } = &self.def;
+    fn as_type(&self) -> Option<TokenStream> {
+        let ident = self.ident();
         let item = &self.item;
 
-        quote! {
+        Some(quote! {
             #[repr(transparent)]
             pub struct #ident(#item);
-        }
+        })
     }
 
-    fn as_view_type(&self) -> TokenStream {
-        let view_ident = self.def.view_ident();
+    fn as_view_type(&self) -> Option<TokenStream> {
+        let view_ident = self.view_ident();
         let view_type = self.primitive.as_type();
 
-        quote! {
+        Some(quote! {
             pub type #view_ident = #view_type;
-        }
+        })
     }
 }
 
 impl ToTokens for Newtype {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.as_type());
+        tokens.extend(self.all_tokens());
     }
 }

@@ -1,11 +1,12 @@
 use crate::{
     node::{Def, FieldList},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema},
+    traits::{AsMacro, AsSchema, AsType, MacroEmitter, SchemaKind},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
+use syn::Ident;
 
 ///
 /// Validator
@@ -21,8 +22,8 @@ pub struct Validator {
 }
 
 impl AsMacro for Validator {
-    fn def(&self) -> &Def {
-        &self.def
+    fn ident(&self) -> Ident {
+        self.def.ident.clone()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -34,6 +35,8 @@ impl AsMacro for Validator {
 }
 
 impl AsSchema for Validator {
+    const KIND: SchemaKind = SchemaKind::Full;
+
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let fields = self.fields.schema();
@@ -47,16 +50,21 @@ impl AsSchema for Validator {
     }
 }
 
-impl ToTokens for Validator {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Self { fields, .. } = self;
+impl AsType for Validator {
+    fn as_type(&self) -> Option<TokenStream> {
         let Def { ident, .. } = &self.def;
+        let fields = &self.fields;
 
-        // quote
-        tokens.extend(quote! {
+        Some(quote! {
             pub struct #ident {
                 #fields
             }
-        });
+        })
+    }
+}
+
+impl ToTokens for Validator {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.all_tokens());
     }
 }

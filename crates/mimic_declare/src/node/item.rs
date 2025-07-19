@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_path},
     node::TypeValidator,
-    traits::{AsSchema, AsType},
+    traits::{AsSchema, AsType, SchemaKind},
 };
 use darling::FromMeta;
 use mimic_schema::types::Primitive;
@@ -59,6 +59,8 @@ impl Item {
 }
 
 impl AsSchema for Item {
+    const KIND: SchemaKind = SchemaKind::Fragment;
+
     fn schema(&self) -> TokenStream {
         let target = self.target().schema();
         let relation = quote_option(self.relation.as_ref(), to_path);
@@ -81,24 +83,28 @@ impl AsSchema for Item {
 }
 
 impl AsType for Item {
-    fn as_type(&self) -> TokenStream {
+    fn as_type(&self) -> Option<TokenStream> {
         let ty = self.target().as_type();
 
-        if self.indirect {
+        let q = if self.indirect {
             quote!(Box<#ty>)
         } else {
             quote!(#ty)
-        }
+        };
+
+        Some(q)
     }
 
-    fn as_view_type(&self) -> TokenStream {
+    fn as_view_type(&self) -> Option<TokenStream> {
         let view = self.target().as_view_type();
 
-        if self.indirect {
+        let q = if self.indirect {
             quote!(Box<#view>)
         } else {
             quote!(#view)
-        }
+        };
+
+        Some(q)
     }
 }
 
@@ -118,6 +124,8 @@ pub enum ItemTarget {
 }
 
 impl AsSchema for ItemTarget {
+    const KIND: SchemaKind = SchemaKind::Fragment;
+
     fn schema(&self) -> TokenStream {
         match self {
             Self::Is(path) => {
@@ -136,18 +144,20 @@ impl AsSchema for ItemTarget {
 }
 
 impl AsType for ItemTarget {
-    fn as_type(&self) -> TokenStream {
-        match self {
+    fn as_type(&self) -> Option<TokenStream> {
+        let q = match self {
             Self::Is(path) => quote!(#path),
             Self::Primitive(prim) => {
                 let ty = prim.as_type();
                 quote!(#ty)
             }
-        }
+        };
+
+        Some(q)
     }
 
-    fn as_view_type(&self) -> TokenStream {
-        match self {
+    fn as_view_type(&self) -> Option<TokenStream> {
+        let q = match self {
             Self::Is(path) => {
                 quote!(<#path as ::mimic::core::traits::TypeView>::View)
             }
@@ -155,6 +165,8 @@ impl AsType for ItemTarget {
                 let ty = prim.as_type();
                 quote!(<#ty as ::mimic::core::traits::TypeView>::View)
             }
-        }
+        };
+
+        Some(q)
     }
 }

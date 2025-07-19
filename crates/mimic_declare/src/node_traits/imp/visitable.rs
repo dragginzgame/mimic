@@ -1,6 +1,7 @@
 use crate::{
     node::{Entity, Enum, EnumVariant, FieldList, List, Map, Newtype, Record, Set, Tuple},
     node_traits::{Imp, Implementor, Trait},
+    traits::AsMacro,
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -20,7 +21,7 @@ impl Imp<Entity> for VisitableTrait {
     fn tokens(node: &Entity) -> Option<TokenStream> {
         let q = field_list(&node.fields);
 
-        let tokens = Implementor::new(&node.def, Trait::Visitable)
+        let tokens = Implementor::new(node.ident(), Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -48,7 +49,7 @@ impl Imp<Enum> for VisitableTrait {
 
         let q = quote_drive_method(&inner);
 
-        let tokens = Implementor::new(&node.def, Trait::Visitable)
+        let tokens = Implementor::new(node.ident(), Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -72,7 +73,7 @@ impl Imp<List> for VisitableTrait {
 
         let q = quote_drive_method(&inner);
 
-        let tokens = Implementor::new(&node.def, Trait::Visitable)
+        let tokens = Implementor::new(node.ident(), Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -97,7 +98,7 @@ impl Imp<Map> for VisitableTrait {
         };
         let q = quote_drive_method(&inner);
 
-        let tokens = Implementor::new(&node.def, Trait::Visitable)
+        let tokens = Implementor::new(node.ident(), Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -117,7 +118,7 @@ impl Imp<Newtype> for VisitableTrait {
 
         let q = quote_drive_method(&inner);
 
-        let tokens = Implementor::new(&node.def, Trait::Visitable)
+        let tokens = Implementor::new(node.ident(), Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -133,7 +134,7 @@ impl Imp<Record> for VisitableTrait {
     fn tokens(node: &Record) -> Option<TokenStream> {
         let q = field_list(&node.fields);
 
-        let tokens = Implementor::new(&node.def, Trait::Visitable)
+        let tokens = Implementor::new(node.ident(), Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -155,7 +156,7 @@ impl Imp<Set> for VisitableTrait {
         };
         let q = quote_drive_method(&inner);
 
-        let tokens = Implementor::new(&node.def, Trait::Visitable)
+        let tokens = Implementor::new(node.ident(), Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -183,7 +184,7 @@ impl Imp<Tuple> for VisitableTrait {
 
         let q = quote_drive_method(&inner);
 
-        let tokens = Implementor::new(&node.def, Trait::Visitable)
+        let tokens = Implementor::new(node.ident(), Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 

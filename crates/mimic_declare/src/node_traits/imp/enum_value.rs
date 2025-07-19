@@ -1,6 +1,7 @@
 use crate::{
     node::EnumValue,
     node_traits::{Imp, Implementor, Trait},
+    traits::AsMacro,
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -38,7 +39,7 @@ impl Imp<EnumValue> for EnumValueKindTrait {
             }
         };
 
-        let tokens = Implementor::new(&node.def, Trait::EnumValueKind)
+        let tokens = Implementor::new(node.ident(), Trait::EnumValueKind)
             .set_tokens(q)
             .to_token_stream();
 

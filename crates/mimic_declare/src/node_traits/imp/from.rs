@@ -1,6 +1,7 @@
 use crate::{
-    node::{Def, Entity, Enum, EnumValue, List, Map, Newtype, Record, Set, Tuple},
+    node::{Entity, Enum, EnumValue, List, Map, Newtype, Record, Set, Tuple},
     node_traits::{Imp, Implementor, Trait},
+    traits::AsMacro,
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -17,7 +18,7 @@ pub struct FromTrait {}
 
 impl Imp<Entity> for FromTrait {
     fn tokens(node: &Entity) -> Option<TokenStream> {
-        from_type_view(&node.def)
+        from_type_view(node)
     }
 }
 
@@ -27,7 +28,7 @@ impl Imp<Entity> for FromTrait {
 
 impl Imp<Enum> for FromTrait {
     fn tokens(node: &Enum) -> Option<TokenStream> {
-        from_type_view(&node.def)
+        from_type_view(node)
     }
 }
 
@@ -37,7 +38,7 @@ impl Imp<Enum> for FromTrait {
 
 impl Imp<EnumValue> for FromTrait {
     fn tokens(node: &EnumValue) -> Option<TokenStream> {
-        from_type_view(&node.def)
+        from_type_view(node)
     }
 }
 
@@ -58,7 +59,7 @@ impl Imp<List> for FromTrait {
             }
         };
 
-        let tokens = Implementor::new(&node.def, Trait::From)
+        let tokens = Implementor::new(node.ident(), Trait::From)
             .set_tokens(q)
             .add_impl_constraint(quote!(I: Into<#item>))
             .add_impl_generic(quote!(I))
@@ -87,7 +88,7 @@ impl Imp<Map> for FromTrait {
             }
         };
 
-        let tokens = Implementor::new(&node.def, Trait::From)
+        let tokens = Implementor::new(node.ident(), Trait::From)
             .set_tokens(q)
             .add_impl_constraint(quote!(IK: Into<#key>))
             .add_impl_constraint(quote!(IV: Into<#value>))
@@ -114,7 +115,7 @@ impl Imp<Newtype> for FromTrait {
             }
         };
 
-        let tokens = Implementor::new(&node.def, Trait::From)
+        let tokens = Implementor::new(node.ident(), Trait::From)
             .set_tokens(q)
             .add_impl_constraint(quote!(T: Into<#item>))
             .add_impl_generic(quote!(T))
@@ -131,7 +132,7 @@ impl Imp<Newtype> for FromTrait {
 
 impl Imp<Record> for FromTrait {
     fn tokens(node: &Record) -> Option<TokenStream> {
-        from_type_view(&node.def)
+        from_type_view(node)
     }
 }
 
@@ -152,7 +153,7 @@ impl Imp<Set> for FromTrait {
             }
         };
 
-        let tokens = Implementor::new(&node.def, Trait::From)
+        let tokens = Implementor::new(node.ident(), Trait::From)
             .set_tokens(q)
             .add_impl_constraint(quote!(I: Into<#item>))
             .add_impl_generic(quote!(I))
@@ -169,23 +170,23 @@ impl Imp<Set> for FromTrait {
 
 impl Imp<Tuple> for FromTrait {
     fn tokens(node: &Tuple) -> Option<TokenStream> {
-        from_type_view(&node.def)
+        from_type_view(node)
     }
 }
 
 /// from_type_view
 #[allow(clippy::unnecessary_wraps)]
-fn from_type_view(def: &Def) -> Option<TokenStream> {
-    let self_ident = &def.ident;
-    let view_ident = &def.view_ident();
+fn from_type_view(m: &impl AsMacro) -> Option<TokenStream> {
+    let ident = m.ident();
+    let view_ident = m.view_ident();
 
     let q = quote! {
         fn from(view: #view_ident) -> Self {
-            <#self_ident as ::mimic::core::traits::TypeView>::from_view(view)
+            <#ident as ::mimic::core::traits::TypeView>::from_view(view)
         }
     };
 
-    let tokens = Implementor::new(def, Trait::From)
+    let tokens = Implementor::new(ident, Trait::From)
         .set_tokens(q)
         .add_trait_generic(quote!(#view_ident))
         .to_token_stream();

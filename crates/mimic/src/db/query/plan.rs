@@ -11,7 +11,7 @@ use crate::{
 /// QueryPlan
 ///
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct QueryPlan {
     pub filter: Option<FilterExpr>,
 }

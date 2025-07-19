@@ -1,6 +1,6 @@
 use crate::{
     node::Item,
-    traits::{AsSchema, AsType},
+    traits::{AsSchema, AsType, SchemaKind},
 };
 use darling::FromMeta;
 use mimic_schema::types::Cardinality;
@@ -35,6 +35,8 @@ impl Value {
 }
 
 impl AsSchema for Value {
+    const KIND: SchemaKind = SchemaKind::Fragment;
+
     fn schema(&self) -> TokenStream {
         let cardinality = &self.cardinality();
         let item = &self.item.schema();
@@ -49,24 +51,28 @@ impl AsSchema for Value {
 }
 
 impl AsType for Value {
-    fn as_type(&self) -> TokenStream {
+    fn as_type(&self) -> Option<TokenStream> {
         let item = &self.item;
 
-        match self.cardinality() {
+        let q = match self.cardinality() {
             Cardinality::One => quote!(#item),
             Cardinality::Opt => quote!(Option<#item>),
             Cardinality::Many => quote!(Vec<#item>),
-        }
+        };
+
+        Some(q)
     }
 
-    fn as_view_type(&self) -> TokenStream {
+    fn as_view_type(&self) -> Option<TokenStream> {
         let item_view = AsType::as_view_type(&self.item);
 
-        match self.cardinality() {
+        let q = match self.cardinality() {
             Cardinality::One => quote!(#item_view),
             Cardinality::Opt => quote!(Option<#item_view>),
             Cardinality::Many => quote!(Vec<#item_view>),
-        }
+        };
+
+        Some(q)
     }
 }
 

@@ -5,7 +5,7 @@ use crate::{
         DbError, ExecutorError,
         query::{DeleteQuery, QueryPlan, QueryShape},
         response::{DeleteCollection, DeleteRow},
-        store::{DataKey, DataStoreRegistry, IndexKey, IndexStoreRegistry},
+        store::{DataKey, DataStoreRegistryLocal, IndexKey, IndexStoreRegistryLocal},
     },
     debug,
     serialize::deserialize,
@@ -17,15 +17,18 @@ use crate::{
 
 #[derive(Clone, Copy, Debug)]
 pub struct DeleteExecutor {
-    data_registry: DataStoreRegistry,
-    index_registry: IndexStoreRegistry,
+    data_registry: DataStoreRegistryLocal,
+    index_registry: IndexStoreRegistryLocal,
     debug: bool,
 }
 
 impl DeleteExecutor {
     // new
     #[must_use]
-    pub const fn new(data_registry: DataStoreRegistry, index_registry: IndexStoreRegistry) -> Self {
+    pub const fn new(
+        data_registry: DataStoreRegistryLocal,
+        index_registry: IndexStoreRegistryLocal,
+    ) -> Self {
         Self {
             data_registry,
             index_registry,
@@ -97,7 +100,7 @@ impl DeleteExecutor {
         };
 
         // get store
-        let store = self.data_registry.with(|db| db.try_get_store(E::STORE))?;
+        let store = self.data_registry.with(|db| db.get_store::<E>());
 
         // execute for every different key
         let mut deleted_rows = Vec::new();
@@ -126,20 +129,20 @@ impl DeleteExecutor {
 
     // remove_indexes
     fn remove_indexes<E: EntityKind>(&self, entity: &E) -> Result<(), DbError> {
-        let key = entity.key();
+        /*
+                let key = entity.key();
 
-        for index in E::INDEXES {
-            // remove index if found
-            if let Some(index_key) = IndexKey::build(entity, index.fields) {
-                let index_store = self
-                    .index_registry
-                    .with(|ix| ix.try_get_store(index.store))?;
+                for index in E::INDEXES {
+                    // remove index if found
+                    if let Some(index_key) = IndexKey::build(entity, index.fields) {
+                        let index_store = self.index_registry.with(|ix| ix.get_store(index.store));
 
-                index_store.with_borrow_mut(|store| {
-                    store.remove_index_entry(&index_key, &key);
-                });
-            }
-        }
+                        index_store.with_borrow_mut(|store| {
+                            store.remove_index_entry(&index_key, &key);
+                        });
+                    }
+                }
+        */
 
         Ok(())
     }

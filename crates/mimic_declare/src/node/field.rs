@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_str_lit},
     node::{Arg, Value},
-    traits::{AsSchema, AsType},
+    traits::{AsSchema, AsType, SchemaKind},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -47,6 +47,8 @@ impl<'a> IntoIterator for &'a FieldList {
 }
 
 impl AsSchema for FieldList {
+    const KIND: SchemaKind = SchemaKind::Fragment;
+
     fn schema(&self) -> TokenStream {
         let fields = quote_slice(&self.fields, Field::schema);
 
@@ -59,20 +61,20 @@ impl AsSchema for FieldList {
 }
 
 impl AsType for FieldList {
-    fn as_type(&self) -> TokenStream {
+    fn as_type(&self) -> Option<TokenStream> {
         let fields = &self.fields;
 
-        quote! {
+        Some(quote! {
             #(#fields,)*
-        }
+        })
     }
 
-    fn as_view_type(&self) -> TokenStream {
+    fn as_view_type(&self) -> Option<TokenStream> {
         let view_fields = self.fields.iter().map(AsType::as_view_type);
 
-        quote! {
+        Some(quote! {
             #(#view_fields,)*
-        }
+        })
     }
 }
 
@@ -96,6 +98,8 @@ pub struct Field {
 }
 
 impl AsSchema for Field {
+    const KIND: SchemaKind = SchemaKind::Fragment;
+
     fn schema(&self) -> TokenStream {
         let name = quote_one(&self.name, to_str_lit);
         let value = self.value.schema();
@@ -112,22 +116,22 @@ impl AsSchema for Field {
 }
 
 impl AsType for Field {
-    fn as_type(&self) -> TokenStream {
+    fn as_type(&self) -> Option<TokenStream> {
         let name = &self.name;
         let value = &self.value;
 
-        quote! {
-            pub #name : #value
-        }
+        Some(quote! {
+            pub #name: #value
+        })
     }
 
-    fn as_view_type(&self) -> TokenStream {
+    fn as_view_type(&self) -> Option<TokenStream> {
         let name = &self.name;
         let value_view = AsType::as_view_type(&self.value);
 
-        quote! {
+        Some(quote! {
             pub #name: #value_view
-        }
+        })
     }
 }
 
