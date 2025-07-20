@@ -54,6 +54,7 @@ pub enum Trait {
     EntityKind,
     EntityIdKind,
     EnumValueKind,
+    IndexKind,
     PrimitiveKind,
 
     // orm
@@ -63,6 +64,7 @@ pub enum Trait {
     FieldSortable,
     FieldValue,
     From,
+    HasIndexes,
     HasStore,
     Inner,
     Into,

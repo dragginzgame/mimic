@@ -120,6 +120,17 @@ pub trait FieldKind: Kind + FieldValue + FieldSearchable + FieldSortable {}
 impl<T: Kind + FieldValue + FieldSearchable + FieldSortable> FieldKind for T {}
 
 ///
+/// IndexKind
+///
+
+pub trait IndexKind: Kind + HasStore {
+    type Entity: EntityKind;
+
+    const FIELDS: &'static [&'static str];
+    const UNIQUE: bool;
+}
+
+///
 /// GROUPED KIND TRAITS
 ///
 
@@ -141,6 +152,33 @@ impl<T> TypeKind for T where
 ///
 /// ANY KIND TRAITS
 ///
+
+///
+/// HasIndexes
+///
+
+pub trait HasIndexes {
+    type Indexes: IndexTypeTuple;
+}
+
+pub trait IndexTypeFn {
+    fn call<I: IndexKind>();
+}
+
+pub trait IndexTypeTuple {
+    fn for_each<F: IndexTypeFn>();
+}
+
+impl IndexTypeTuple for () {
+    fn for_each<F: IndexTypeFn>() {}
+}
+
+impl<I: IndexKind, Rest: IndexTypeTuple> IndexTypeTuple for (I, Rest) {
+    fn for_each<F: IndexTypeFn>() {
+        F::call::<I>();
+        Rest::for_each::<F>();
+    }
+}
 
 ///
 /// HasStore

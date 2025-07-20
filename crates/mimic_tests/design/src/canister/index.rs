@@ -1,5 +1,9 @@
 use crate::prelude::*;
 
+///
+/// Indexable
+///
+
 #[entity(
     store = "TestDataStore",
     pk = "id",

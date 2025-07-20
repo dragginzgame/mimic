@@ -35,7 +35,7 @@ impl AsMacro for Index {
 
     fn traits(&self) -> Vec<Trait> {
         let mut traits = Traits::default().with_path_trait();
-        traits.extend(vec![Trait::HasStore]);
+        traits.extend(vec![Trait::HasStore, Trait::IndexKind]);
 
         traits.list()
     }
@@ -45,6 +45,7 @@ impl AsMacro for Index {
 
         match t {
             Trait::HasStore => HasStoreTrait::tokens(self),
+            Trait::IndexKind => IndexKindTrait::tokens(self),
             _ => None,
         }
     }

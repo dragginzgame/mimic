@@ -47,6 +47,7 @@ impl AsMacro for Entity {
             Trait::EntityAccessor,
             Trait::EntityKind,
             Trait::EntityFixture,
+            Trait::HasIndexes,
             Trait::HasStore,
         ]);
 
@@ -61,6 +62,7 @@ impl AsMacro for Entity {
             Trait::From => FromTrait::tokens(self),
             Trait::EntityAccessor => EntityAccessorTrait::tokens(self),
             Trait::EntityKind => EntityKindTrait::tokens(self),
+            Trait::HasIndexes => HasIndexesTrait::tokens(self),
             Trait::HasStore => HasStoreTrait::tokens(self),
             Trait::TypeView => TypeViewTrait::tokens(self),
             Trait::ValidateAuto => ValidateAutoTrait::tokens(self),

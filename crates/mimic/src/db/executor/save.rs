@@ -149,29 +149,27 @@ impl SaveExecutor {
 
     // update_indexes
     fn update_indexes<E: EntityKind>(&self, old: Option<&E>, new: &E) -> Result<(), DbError> {
-        /*
-                for index in E::INDEXES {
-                    let index_store = self.indexes.with(|map| map.get_store(index.store))?;
+        for index in E::Indexes {
+            let index_store = self.indexes.with(|map| map.get_store(index.store))?;
 
-                    // ✅ Insert new index entry first - fail early if conflict
-                    if let Some(new_index_key) = IndexKey::build(new, index.fields) {
-                        index_store.with_borrow_mut(|store| {
-                            store.insert_index_entry(index, new_index_key.clone(), new.key())?;
+            // ✅ Insert new index entry first - fail early if conflict
+            if let Some(new_index_key) = IndexKey::build(new, index.fields) {
+                index_store.with_borrow_mut(|store| {
+                    store.insert_index_entry(index, new_index_key.clone(), new.key())?;
 
-                            Ok::<_, DbError>(())
-                        })?;
-                    }
+                    Ok::<_, DbError>(())
+                })?;
+            }
 
-                    // 🔁 Remove old index value (if present)
-                    if let Some(old) = old {
-                        if let Some(old_index_key) = IndexKey::build(old, index.fields) {
-                            index_store.with_borrow_mut(|store| {
-                                store.remove_index_entry(&old_index_key, &old.key());
-                            });
-                        }
-                    }
+            // 🔁 Remove old index value (if present)
+            if let Some(old) = old {
+                if let Some(old_index_key) = IndexKey::build(old, index.fields) {
+                    index_store.with_borrow_mut(|store| {
+                        store.remove_index_entry(&old_index_key, &old.key());
+                    });
                 }
-        */
+            }
+        }
 
         Ok(())
     }
