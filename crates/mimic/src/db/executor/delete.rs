@@ -87,16 +87,16 @@ impl DeleteExecutor {
         &self,
         query: DeleteQuery,
     ) -> Result<DeleteCollection, DbError> {
-        let plan = QueryPlanner::new(query.filter.as_ref(), self.index_registry);
-        let shape = plan.shape::<E>();
+        let planner = QueryPlanner::new(query.filter.as_ref());
+        let plan = planner.plan_with_registry::<E>(self.index_registry);
 
         debug!(
             self.debug,
-            "query.delete: query is {query:?}, shape is {shape:?}"
+            "query.delete: query is {query:?}, plan is {plan:?}"
         );
 
         // resolve shape
-        let data_keys: Vec<DataKey> = match shape {
+        let data_keys: Vec<DataKey> = match plan.shape {
             QueryShape::One(key) => vec![key],
             QueryShape::Many(entity_keys) => entity_keys,
 

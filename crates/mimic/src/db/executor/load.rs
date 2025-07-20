@@ -133,14 +133,14 @@ impl LoadExecutor {
     /// Execute only the raw data plan (no filters/sort/pagination yet)
     fn execute_plan<E: EntityKind>(&self, filter: Option<&FilterExpr>) -> Vec<DataRow> {
         // create planner
-        let planner = QueryPlanner::new(filter, self.index_registry);
-        let shape = planner.shape::<E>();
+        let planner = QueryPlanner::new(filter);
+        let plan = planner.plan_with_registry::<E>(self.index_registry);
 
-        debug!(self.debug, "query.load: shape: {shape:?}");
+        debug!(self.debug, "query.load: plan: {plan:?}");
 
         let store = self.data_registry.with(|reg| reg.get_store::<E::Store>());
 
-        match shape {
+        match plan.shape {
             QueryShape::All => store.with_borrow(|this| {
                 this.iter_pairs()
                     .map(|(key, entry)| DataRow { key, entry })
@@ -184,14 +184,6 @@ impl LoadExecutor {
         Ok(entities)
     }
 
-    // apply_pagination
-    fn apply_pagination<T>(rows: Vec<T>, offset: u32, limit: Option<u32>) -> Vec<T> {
-        rows.into_iter()
-            .skip(offset as usize)
-            .take(limit.unwrap_or(u32::MAX) as usize)
-            .collect()
-    }
-
     // load_one
     fn load_one(store: DataStoreLocal, key: &DataKey) -> Option<DataRow> {
         store.with_borrow(|this| {
@@ -230,5 +222,13 @@ impl LoadExecutor {
     fn apply_sort<E: EntityKind>(rows: &mut [EntityRow<E>], sort: &SortExpr) {
         let sorter = E::sort(sort);
         rows.sort_by(|a, b| sorter(&a.entry.entity, &b.entry.entity));
+    }
+
+    // apply_pagination
+    fn apply_pagination<T>(rows: Vec<T>, offset: u32, limit: Option<u32>) -> Vec<T> {
+        rows.into_iter()
+            .skip(offset as usize)
+            .take(limit.unwrap_or(u32::MAX) as usize)
+            .collect()
     }
 }

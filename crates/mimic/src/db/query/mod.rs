@@ -1,14 +1,14 @@
 mod delete;
 mod filter;
 mod load;
-mod plan;
+mod planner;
 mod save;
 mod sort;
 
 pub use delete::*;
 pub use filter::*;
 pub use load::*;
-pub use plan::*;
+pub use planner::*;
 pub use save::*;
 pub use sort::*;
 

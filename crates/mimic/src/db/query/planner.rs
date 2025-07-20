@@ -10,6 +10,28 @@ use crate::{
 };
 
 ///
+/// QueryPlan
+///
+
+#[derive(Debug)]
+pub struct QueryPlan {
+    pub shape: QueryShape,
+    pub index_used: Option<IndexId>,
+    pub matched_keys: usize,
+}
+
+impl QueryPlan {
+    #[must_use]
+    pub fn from_shape(shape: QueryShape) -> Self {
+        Self {
+            shape,
+            index_used: None,
+            matched_keys: 0,
+        }
+    }
+}
+
+///
 /// QueryShape
 ///
 
@@ -28,41 +50,43 @@ pub enum QueryShape {
 #[derive(Debug)]
 pub struct QueryPlanner {
     pub filter: Option<FilterExpr>,
-    pub index_registry: IndexStoreRegistryLocal,
 }
 
 impl QueryPlanner {
     #[must_use]
-    pub fn new(filter: Option<&FilterExpr>, index_registry: IndexStoreRegistryLocal) -> Self {
+    pub fn new(filter: Option<&FilterExpr>) -> Self {
         Self {
             filter: filter.cloned(),
-            index_registry,
         }
     }
 
     #[must_use]
-    pub fn shape<E: EntityKind>(&self) -> QueryShape {
+    pub fn plan_with_registry<E: EntityKind>(
+        &self,
+        registry: IndexStoreRegistryLocal,
+    ) -> QueryPlan {
         // If filter is a primary key match
         // this would handle One and Many queries
-        if let Some(shape) = self.extract_pk_shape::<E>() {
-            return shape;
+        if let Some(shape) = self.extract_shape::<E>() {
+            return QueryPlan::from_shape(shape);
         }
 
         // check for index matches
         // THIS WILL DO THE INDEX LOOKUPS
-        if let Some(shape) = self.extract_index_shape::<E>() {
-            return shape;
+        if let Some(plan) = self.extract_index_plan::<E>(registry) {
+            return plan;
         }
 
         // default to the range of the current entity
         let start = DataKey::new::<E>(Key::MIN);
         let end = DataKey::new::<E>(Key::MAX);
 
-        QueryShape::Range(start, end)
+        QueryPlan::from_shape(QueryShape::Range(start, end))
     }
 
-    // extract_pk_shape
-    fn extract_pk_shape<E: EntityKind>(&self) -> Option<QueryShape> {
+    // extract_shape
+    // currently using primary key lookups
+    fn extract_shape<E: EntityKind>(&self) -> Option<QueryShape> {
         let filter = self.filter.as_ref()?;
 
         match filter {
@@ -97,7 +121,11 @@ impl QueryPlanner {
         }
     }
 
-    fn extract_index_shape<E: EntityKind>(&self) -> Option<QueryShape> {
+    // extract_index_plan
+    fn extract_index_plan<E: EntityKind>(
+        &self,
+        registry: IndexStoreRegistryLocal,
+    ) -> Option<QueryPlan> {
         let filter = self.filter.as_ref()?;
 
         let mut matcher = IndexMatcher::new(filter);
@@ -106,9 +134,7 @@ impl QueryPlanner {
 
         matcher.best_match.map(|matched| {
             let index_id = IndexId::new(&matched.index_path, matched.fields);
-            let index_store = self
-                .index_registry
-                .with(|reg| reg.get_store_by_path(&matched.store_path));
+            let index_store = registry.with(|reg| reg.get_store_by_path(&matched.store_path));
 
             let keys: Vec<Key> = index_store.with_borrow(|store| {
                 store
@@ -117,15 +143,18 @@ impl QueryPlanner {
                     .collect()
             });
 
-            match keys.len() {
-                0 => None,
-                1 => Some(QueryShape::One(DataKey::new::<E>(
-                    keys.into_iter().next().unwrap(),
-                ))),
-                _ => Some(QueryShape::Many(
-                    keys.into_iter().map(DataKey::new::<E>).collect(),
-                )),
-            }
+            let matched_keys = keys.len();
+            let shape = match &matched_keys {
+                0 => return None,
+                1 => QueryShape::One(DataKey::new::<E>(keys.into_iter().next().unwrap())),
+                _ => QueryShape::Many(keys.into_iter().map(DataKey::new::<E>).collect()),
+            };
+
+            Some(QueryPlan {
+                shape,
+                index_used: Some(index_id),
+                matched_keys,
+            })
         })?
     }
 }
