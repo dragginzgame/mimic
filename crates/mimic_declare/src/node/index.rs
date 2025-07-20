@@ -35,7 +35,7 @@ impl AsMacro for Index {
 
     fn traits(&self) -> Vec<Trait> {
         let mut traits = Traits::default().with_path_trait();
-        traits.extend(vec![Trait::HasStore, Trait::IndexKind]);
+        traits.extend(vec![Trait::IndexKind]);
 
         traits.list()
     }
@@ -44,7 +44,6 @@ impl AsMacro for Index {
         use crate::node_traits::*;
 
         match t {
-            Trait::HasStore => HasStoreTrait::tokens(self),
             Trait::IndexKind => IndexKindTrait::tokens(self),
             _ => None,
         }
@@ -52,21 +51,23 @@ impl AsMacro for Index {
 }
 
 impl AsSchema for Index {
-    const EMIT_SCHEMA: bool = false;
+    const EMIT_SCHEMA: bool = true;
 
     fn schema(&self) -> TokenStream {
+        let def = self.def.schema();
+        let store = quote_one(&self.store, to_path);
         let entity = quote_one(&self.entity, to_path);
         let fields = quote_slice(&self.fields, to_str_lit);
-        let store = quote_one(&self.store, to_path);
         let unique = &self.unique;
 
         quote! {
-            ::mimic::schema::node::Index {
+            ::mimic::schema::node::SchemaNode::Index(::mimic::schema::node::Index {
+                def: #def,
                 store: #store,
                 entity: #entity,
                 fields: #fields,
                 unique: #unique,
-            }
+            })
         }
     }
 }

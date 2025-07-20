@@ -1,15 +1,17 @@
 use crate::{
     MimicError,
     common::utils::time,
-    core::{Key, traits::EntityKind, validate::validate},
+    core::{
+        Key,
+        traits::{EntityKind, IndexKindTuple},
+        validate::validate,
+    },
     db::{
         DbError,
-        executor::ExecutorError,
+        executor::{ExecutorError, IndexAction},
         query::{SaveMode, SaveQuery},
         response::EntityEntry,
-        store::{
-            DataEntry, DataKey, DataStoreRegistryLocal, IndexKey, IndexStoreRegistryLocal, Metadata,
-        },
+        store::{DataEntry, DataKey, DataStoreRegistryLocal, IndexStoreRegistryLocal, Metadata},
     },
     debug,
     serialize::{deserialize, serialize},
@@ -85,7 +87,7 @@ impl SaveExecutor {
     // execute_internal
     fn execute_internal<E: EntityKind>(&self, mode: SaveMode, entity: E) -> Result<Key, DbError> {
         let key = entity.key();
-        let store = self.data.with(|data| data.get_store::<E>());
+        let store = self.data.with(|data| data.get_store::<E::Store>());
         let bytes = serialize(&entity)?;
 
         // validate
@@ -149,28 +151,12 @@ impl SaveExecutor {
 
     // update_indexes
     fn update_indexes<E: EntityKind>(&self, old: Option<&E>, new: &E) -> Result<(), DbError> {
-        for index in E::Indexes {
-            let index_store = self.indexes.with(|map| map.get_store(index.store))?;
+        let mut action = IndexAction::Update {
+            old,
+            new,
+            registry: &self.indexes,
+        };
 
-            // ✅ Insert new index entry first - fail early if conflict
-            if let Some(new_index_key) = IndexKey::build(new, index.fields) {
-                index_store.with_borrow_mut(|store| {
-                    store.insert_index_entry(index, new_index_key.clone(), new.key())?;
-
-                    Ok::<_, DbError>(())
-                })?;
-            }
-
-            // 🔁 Remove old index value (if present)
-            if let Some(old) = old {
-                if let Some(old_index_key) = IndexKey::build(old, index.fields) {
-                    index_store.with_borrow_mut(|store| {
-                        store.remove_index_entry(&old_index_key, &old.key());
-                    });
-                }
-            }
-        }
-
-        Ok(())
+        E::Indexes::for_each(&mut action).map_err(DbError::from)
     }
 }

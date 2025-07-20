@@ -4,7 +4,7 @@ mod index;
 pub use data::*;
 pub use index::*;
 
-use crate::core::traits::{HasStore, Path};
+use crate::core::traits::StoreKind;
 use std::{cell::RefCell, collections::HashMap, rc::Rc, thread::LocalKey};
 
 ///
@@ -29,13 +29,22 @@ impl<T: 'static> StoreRegistry<T> {
         Self(HashMap::new())
     }
 
+    // get_store_by_path
+    #[must_use]
+    pub fn get_store_by_path(&self, path: &str) -> &'static LocalKey<RefCell<T>> {
+        self.0
+            .get(path)
+            .copied()
+            .unwrap_or_else(|| panic!("store '{path}' not found"))
+    }
+
     // get_store
     #[must_use]
-    pub fn get_store<H: HasStore>(&self) -> &'static LocalKey<RefCell<T>> {
+    pub fn get_store<S: StoreKind>(&self) -> &'static LocalKey<RefCell<T>> {
         self.0
-            .get(H::Store::PATH)
+            .get(S::PATH)
             .copied()
-            .unwrap_or_else(|| panic!("store '{}' not found", H::Store::PATH))
+            .unwrap_or_else(|| panic!("store '{}' not found", S::PATH))
     }
 
     // register
@@ -44,23 +53,21 @@ impl<T: 'static> StoreRegistry<T> {
     }
 
     // with_store
-    pub fn with_store<H, F, R>(&self, f: F) -> R
+    pub fn with_store<S, R>(&self, f: impl FnOnce(&T) -> R) -> R
     where
-        F: FnOnce(&T) -> R,
-        H: HasStore,
+        S: StoreKind,
     {
-        let store = self.get_store::<H>();
+        let store = self.get_store::<S>();
 
         store.with_borrow(|s| f(s))
     }
 
     // with_store_mut
-    pub fn with_store_mut<H, F, R>(&self, f: F) -> R
+    pub fn with_store_mut<S, R>(&self, f: impl FnOnce(&mut T) -> R) -> R
     where
-        F: FnOnce(&mut T) -> R,
-        H: HasStore,
+        S: StoreKind,
     {
-        let store = self.get_store::<H>();
+        let store = self.get_store::<S>();
 
         store.with_borrow_mut(|s| f(s))
     }

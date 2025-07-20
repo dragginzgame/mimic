@@ -1,11 +1,15 @@
 use crate::{
     MimicError,
-    core::{Value, traits::EntityKind},
+    core::{
+        Value,
+        traits::{EntityKind, IndexKindTuple},
+    },
     db::{
         DbError, ExecutorError,
-        query::{DeleteQuery, QueryPlan, QueryShape},
+        executor::IndexAction,
+        query::{DeleteQuery, QueryPlanner, QueryShape},
         response::{DeleteCollection, DeleteRow},
-        store::{DataKey, DataStoreRegistryLocal, IndexKey, IndexStoreRegistryLocal},
+        store::{DataKey, DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
     debug,
     serialize::deserialize,
@@ -83,7 +87,7 @@ impl DeleteExecutor {
         &self,
         query: DeleteQuery,
     ) -> Result<DeleteCollection, DbError> {
-        let plan = QueryPlan::new(&query.filter);
+        let plan = QueryPlanner::new(&query.filter, self.index_registry);
         let shape = plan.shape::<E>();
 
         debug!(
@@ -100,7 +104,7 @@ impl DeleteExecutor {
         };
 
         // get store
-        let store = self.data_registry.with(|db| db.get_store::<E>());
+        let store = self.data_registry.with(|db| db.get_store::<E::Store>());
 
         // execute for every different key
         let mut deleted_rows = Vec::new();
@@ -129,21 +133,11 @@ impl DeleteExecutor {
 
     // remove_indexes
     fn remove_indexes<E: EntityKind>(&self, entity: &E) -> Result<(), DbError> {
-        /*
-                let key = entity.key();
+        let mut action = IndexAction::Remove {
+            entity,
+            registry: &self.index_registry,
+        };
 
-                for index in E::INDEXES {
-                    // remove index if found
-                    if let Some(index_key) = IndexKey::build(entity, index.fields) {
-                        let index_store = self.index_registry.with(|ix| ix.get_store(index.store));
-
-                        index_store.with_borrow_mut(|store| {
-                            store.remove_index_entry(&index_key, &key);
-                        });
-                    }
-                }
-        */
-
-        Ok(())
+        E::Indexes::for_each(&mut action).map_err(DbError::from)
     }
 }

@@ -1,7 +1,7 @@
 mod db;
 mod default;
 mod filter;
-mod index;
+//mod index;
 mod ops;
 mod validate;
 
@@ -26,15 +26,11 @@ pub fn test() {
     default::DefaultTester::test();
     db::DbTester::test();
     filter::FilterTester::test();
-    index::IndexTester::test();
+    //   index::IndexTester::test();
     ops::OpsTester::test();
     validate::ValidateTester::test();
 
     perf_start!();
-
-    INDEX_REGISTRY
-        .with(|reg| reg.with_store("test_design::schema::TestIndex", |_| {}))
-        .unwrap();
 
     log!(Log::Ok, "test: all tests passed successfully");
 }

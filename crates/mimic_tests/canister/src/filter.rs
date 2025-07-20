@@ -1,9 +1,8 @@
 use mimic::{
-    core::traits::Path,
     db::query::{self, FilterClause, FilterExpr},
     prelude::*,
 };
-use test_design::{canister::filter::Filterable, schema::TestStore};
+use test_design::{canister::filter::Filterable, schema::TestDataStore};
 
 ///
 /// FilterTester
@@ -38,7 +37,8 @@ impl FilterTester {
 
         for (name, test_fn) in tests {
             println!("clearing db");
-            crate::DATA_REGISTRY.with(|reg| reg.with_store_mut::<TestStore>(|store| store.clear()));
+            crate::DATA_REGISTRY
+                .with(|reg| reg.with_store_mut::<TestDataStore, _>(|store| store.clear()));
 
             println!("Running test: {name}");
             test_fn();

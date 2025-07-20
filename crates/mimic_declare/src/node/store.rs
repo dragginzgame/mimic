@@ -31,7 +31,19 @@ impl AsMacro for Store {
     }
 
     fn traits(&self) -> Vec<Trait> {
-        Traits::default().with_path_trait().list()
+        let mut traits = Traits::default().with_path_trait();
+        traits.add(Trait::StoreKind);
+
+        traits.list()
+    }
+
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+        use crate::node_traits::*;
+
+        match t {
+            Trait::StoreKind => StoreKindTrait::tokens(self),
+            _ => None,
+        }
     }
 }
 

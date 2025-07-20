@@ -16,12 +16,16 @@ pub struct EntityKindTrait {}
 
 impl Imp<Entity> for EntityKindTrait {
     fn tokens(node: &Entity) -> Option<TokenStream> {
+        let store = &node.store;
         let pk_type = &node.fields.get(&node.primary_key).unwrap().value;
         let pk_field = &node.primary_key.to_string();
+        let index_idents = &node.indexes;
 
         // static definitions
         let mut q = quote! {
+            type Store = #store;
             type PrimaryKey = #pk_type;
+            type Indexes = (#(#index_idents),*);
 
             const PRIMARY_KEY: &'static str = #pk_field;
         };

@@ -25,7 +25,19 @@ impl AsMacro for Canister {
     }
 
     fn traits(&self) -> Vec<Trait> {
-        Traits::default().with_path_trait().list()
+        let mut traits = Traits::default().with_path_trait();
+        traits.add(Trait::CanisterKind);
+
+        traits.list()
+    }
+
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+        use crate::node_traits::*;
+
+        match t {
+            Trait::CanisterKind => CanisterKindTrait::tokens(self),
+            _ => None,
+        }
     }
 }
 

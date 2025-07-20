@@ -22,8 +22,7 @@ impl IndexTester {
         for (name, test_fn) in tests {
             println!("Clearing DB...");
             crate::DATA_REGISTRY.with(|reg| {
-                reg.with_store_mut(TestStore::PATH, |store| store.clear())
-                    .ok();
+                reg.with_store_mut::<TestStore>(|store| store.clear()).ok();
             });
 
             println!("Running test: {name}");

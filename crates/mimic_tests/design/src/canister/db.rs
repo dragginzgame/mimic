@@ -270,7 +270,7 @@ pub struct IndexRelation {}
 
 #[index(
     store = "TestIndexStore",
-    entity = "IndexRelationA",
+    entity = "IndexRelation",
     fields = "rarity_id"
 )]
 pub struct IndexRelationA {}

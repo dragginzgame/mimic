@@ -15,6 +15,7 @@ pub struct IndexKindTrait {}
 
 impl Imp<Index> for IndexKindTrait {
     fn tokens(node: &Index) -> Option<TokenStream> {
+        let store = &node.store;
         let entity = &node.entity;
         let unique = node.unique;
         let field_lits: Vec<LitStr> = node
@@ -25,6 +26,7 @@ impl Imp<Index> for IndexKindTrait {
 
         // static definitions
         let q = quote! {
+            type Store = #store;
             type Entity = #entity;
 
             const FIELDS: &'static [&'static str] = &[#(#field_lits),*];
