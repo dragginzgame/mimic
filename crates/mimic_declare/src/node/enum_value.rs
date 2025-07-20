@@ -2,7 +2,7 @@ use crate::{
     helper::{quote_one, quote_slice, to_str_lit},
     node::{ArgNumber, Def, Type},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType},
+    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -29,12 +29,8 @@ pub struct EnumValue {
 }
 
 impl AsMacro for EnumValue {
-    fn def(&self) -> &Def {
-        &self.def
-    }
-
-    fn macro_extra(&self) -> TokenStream {
-        self.as_view_type()
+    fn ident(&self) -> Ident {
+        self.def.ident.clone()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -58,6 +54,8 @@ impl AsMacro for EnumValue {
 }
 
 impl AsSchema for EnumValue {
+    const EMIT_SCHEMA: bool = true;
+
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let variants = quote_slice(&self.variants, EnumValueVariant::schema);
@@ -76,25 +74,24 @@ impl AsSchema for EnumValue {
 }
 
 impl AsType for EnumValue {
-    fn as_type(&self) -> TokenStream {
-        let Def { ident, .. } = &self.def;
+    fn as_type(&self) -> Option<TokenStream> {
+        let ident = self.ident();
         let variants = &self.variants;
 
-        // quote
-        quote! {
+        Some(quote! {
             pub enum #ident {
                 #(#variants,)*
             }
-        }
+        })
     }
 
-    fn as_view_type(&self) -> TokenStream {
-        let Def { ident, .. } = &self.def;
-        let view_ident = self.def.view_ident();
+    fn as_view_type(&self) -> Option<TokenStream> {
+        let ident = self.ident();
+        let view_ident = self.view_ident();
         let view_variants = self.variants.iter().map(AsType::as_view_type);
-        let derives = Self::basic_derives();
+        let derives = Self::view_derives();
 
-        quote! {
+        Some(quote! {
             #derives
             pub enum #view_ident {
                 #(#view_variants,)*
@@ -105,13 +102,13 @@ impl AsType for EnumValue {
                     #ident::default().to_view()
                 }
             }
-        }
+        })
     }
 }
 
 impl ToTokens for EnumValue {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.as_type());
+        tokens.extend(self.all_tokens());
     }
 }
 
@@ -140,6 +137,8 @@ impl EnumValueVariant {
 }
 
 impl AsSchema for EnumValueVariant {
+    const EMIT_SCHEMA: bool = false;
+
     fn schema(&self) -> TokenStream {
         let Self {
             default,
@@ -163,7 +162,7 @@ impl AsSchema for EnumValueVariant {
 }
 
 impl AsType for EnumValueVariant {
-    fn as_type(&self) -> TokenStream {
+    fn as_type(&self) -> Option<TokenStream> {
         let name = if self.unspecified {
             Self::unspecified_ident()
         } else {
@@ -176,22 +175,22 @@ impl AsType for EnumValueVariant {
             quote!()
         };
 
-        quote! {
+        Some(quote! {
             #default_attr
             #name
-        }
+        })
     }
 
-    fn as_view_type(&self) -> TokenStream {
+    fn as_view_type(&self) -> Option<TokenStream> {
         let name = if self.unspecified {
             Self::unspecified_ident()
         } else {
             self.name.clone()
         };
 
-        quote! {
+        Some(quote! {
             #name
-        }
+        })
     }
 }
 

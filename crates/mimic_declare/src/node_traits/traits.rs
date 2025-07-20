@@ -51,15 +51,17 @@ pub enum Trait {
 
     // kind
     // traits for the implementation of specific Schema Nodes
+    CanisterKind,
     EntityKind,
     EntityIdKind,
     EnumValueKind,
+    IndexKind,
     PrimitiveKind,
+    StoreKind,
 
     // orm
+    EntityAccessor,
     EntityFixture,
-    EntitySearch,
-    EntitySort,
     FieldSearchable,
     FieldSortable,
     FieldValue,

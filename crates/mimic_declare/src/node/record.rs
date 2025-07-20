@@ -1,11 +1,12 @@
 use crate::{
     node::{Def, FieldList, Type},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType},
+    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
+use syn::Ident;
 
 ///
 /// Record
@@ -27,12 +28,8 @@ pub struct Record {
 }
 
 impl AsMacro for Record {
-    fn def(&self) -> &Def {
-        &self.def
-    }
-
-    fn macro_extra(&self) -> TokenStream {
-        self.as_view_type()
+    fn ident(&self) -> Ident {
+        self.def.ident.clone()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -65,6 +62,8 @@ impl AsMacro for Record {
 }
 
 impl AsSchema for Record {
+    const EMIT_SCHEMA: bool = true;
+
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let fields = self.fields.schema();
@@ -81,26 +80,26 @@ impl AsSchema for Record {
 }
 
 impl AsType for Record {
-    fn as_type(&self) -> TokenStream {
+    fn as_type(&self) -> Option<TokenStream> {
+        let ident = self.ident();
         let Self { fields, .. } = self;
-        let Def { ident, .. } = &self.def;
 
         // quote
-        quote! {
+        Some(quote! {
             pub struct #ident {
                 #fields
             }
-        }
+        })
     }
 
-    fn as_view_type(&self) -> TokenStream {
-        let Def { ident, .. } = &self.def;
-        let derives = Self::basic_derives();
-        let view_ident = &self.def.view_ident();
+    fn as_view_type(&self) -> Option<TokenStream> {
+        let ident = self.ident();
+        let view_ident = self.view_ident();
+        let derives = Self::view_derives();
         let view_field_list = AsType::as_view_type(&self.fields);
 
         // quote
-        quote! {
+        Some(quote! {
             #derives
             pub struct #view_ident {
                 #view_field_list
@@ -111,12 +110,12 @@ impl AsType for Record {
                     #ident::default().to_view()
                 }
             }
-        }
+        })
     }
 }
 
 impl ToTokens for Record {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.as_type());
+        tokens.extend(self.all_tokens());
     }
 }

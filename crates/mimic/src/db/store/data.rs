@@ -18,6 +18,12 @@ use std::{
 };
 
 ///
+/// DataStoreLocal
+///
+
+pub type DataStoreLocal = &'static LocalKey<RefCell<DataStore>>;
+
+///
 /// DataStore
 ///
 
@@ -30,12 +36,6 @@ impl DataStore {
         Self(BTreeMap::init(memory))
     }
 }
-
-///
-/// DataStoreLocal
-///
-
-pub type DataStoreLocal = &'static LocalKey<RefCell<DataStore>>;
 
 ///
 /// DataRow

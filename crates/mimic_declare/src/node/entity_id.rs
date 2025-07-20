@@ -1,7 +1,7 @@
 use crate::{
     node::Def,
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema},
+    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -25,13 +25,12 @@ pub struct EntityId {
 }
 
 impl AsMacro for EntityId {
-    fn def(&self) -> &Def {
-        &self.def
+    fn ident(&self) -> Ident {
+        self.def.ident.clone()
     }
 
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone().with_default_traits();
-
         traits.extend(vec![Trait::Copy, Trait::EntityIdKind, Trait::Into]);
 
         traits.list()
@@ -55,17 +54,25 @@ impl AsMacro for EntityId {
     }
 }
 
-impl AsSchema for EntityId {}
+impl AsSchema for EntityId {
+    const EMIT_SCHEMA: bool = false;
+}
 
-impl ToTokens for EntityId {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
+impl AsType for EntityId {
+    fn as_type(&self) -> Option<TokenStream> {
+        let ident = self.ident();
         let keys = self.keys.iter().map(quote::ToTokens::to_token_stream);
 
-        tokens.extend(quote! {
+        Some(quote! {
             pub enum #ident {
                 #(#keys,)*
             }
-        });
+        })
+    }
+}
+
+impl ToTokens for EntityId {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.all_tokens());
     }
 }

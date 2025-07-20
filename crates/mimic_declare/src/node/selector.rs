@@ -2,7 +2,7 @@ use crate::{
     helper::{quote_one, quote_slice, to_path, to_str_lit},
     node::{Arg, Def},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema},
+    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -25,8 +25,8 @@ pub struct Selector {
 }
 
 impl AsMacro for Selector {
-    fn def(&self) -> &Def {
-        &self.def
+    fn ident(&self) -> Ident {
+        self.def.ident.clone()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -35,6 +35,8 @@ impl AsMacro for Selector {
 }
 
 impl AsSchema for Selector {
+    const EMIT_SCHEMA: bool = true;
+
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let target = quote_one(&self.target, to_path);
@@ -52,17 +54,23 @@ impl AsSchema for Selector {
     }
 }
 
-impl ToTokens for Selector {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
+impl AsType for Selector {
+    fn as_type(&self) -> Option<TokenStream> {
+        let ident = self.ident();
         let variants = &self.variants;
 
         // quote
-        tokens.extend(quote! {
+        Some(quote! {
             pub enum #ident {
                 #(#variants,)*
             }
-        });
+        })
+    }
+}
+
+impl ToTokens for Selector {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.all_tokens());
     }
 }
 
@@ -97,6 +105,8 @@ impl ToTokens for SelectorVariant {
 }
 
 impl AsSchema for SelectorVariant {
+    const EMIT_SCHEMA: bool = false;
+
     fn schema(&self) -> TokenStream {
         let name = quote_one(&self.name, to_str_lit);
         let value = self.value.schema();

@@ -1,6 +1,7 @@
 use crate::{
     node::Newtype,
     node_traits::{Imp, Implementor, Trait},
+    traits::AsMacro,
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -23,7 +24,7 @@ impl Imp<Newtype> for FieldValueTrait {
             }
         };
 
-        let tokens = Implementor::new(&node.def, Trait::FieldValue)
+        let tokens = Implementor::new(node.ident(), Trait::FieldValue)
             .set_tokens(q)
             .to_token_stream();
 

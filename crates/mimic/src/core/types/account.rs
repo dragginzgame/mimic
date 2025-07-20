@@ -15,7 +15,6 @@ use icu::{
     impl_storable_bounded,
 };
 use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
 
 ///
 /// Account
@@ -61,11 +60,7 @@ impl FieldSearchable for Account {
     }
 }
 
-impl FieldSortable for Account {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
-    }
-}
+impl FieldSortable for Account {}
 
 impl FieldValue for Account {
     fn to_value(&self) -> Value {

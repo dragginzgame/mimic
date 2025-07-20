@@ -1,19 +1,24 @@
 use crate::{
-    node::Def,
-    node_traits::{Trait, TraitList},
+    helper::format_view_ident,
+    node_traits::{Implementor, Trait, TraitList},
 };
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::{ToTokens, format_ident, quote};
 use std::{
     sync::{LazyLock, Mutex},
     time::SystemTime,
 };
+use syn::Ident;
 use tinyrand::{Rand, Seeded, StdRand};
 
 ///
-/// TRAITS
-/// (Node Traits)
+/// TraitTokens
 ///
+
+pub struct TraitTokens {
+    pub derive: TokenStream,
+    pub impls: TokenStream,
+}
 
 ///
 /// RNG
@@ -36,33 +41,132 @@ static RNG: LazyLock<Mutex<StdRand>> = LazyLock::new(|| {
 /// any schema element that's invoked from a crate macro
 ///
 
-pub trait AsMacro: AsSchema + quote::ToTokens {
-    fn def(&self) -> &Def;
+pub trait AsMacro: AsSchema + AsType + quote::ToTokens {
+    /// Returns the primary identifier for the item
+    fn ident(&self) -> Ident;
 
-    /// Returns any extra tokens to emit *after* the main item and its impls.
-    fn macro_extra(&self) -> TokenStream {
-        quote!()
+    /// Returns the derived view struct name
+    fn view_ident(&self) -> Ident {
+        format_view_ident(&self.ident())
     }
 
-    // traits
-    // returns the list of traits for this type
+    /// Returns a list of traits to implement
     fn traits(&self) -> Vec<Trait> {
-        Vec::new()
+        vec![]
     }
 
-    // map_attribute
-    // extra attributes for the derive
+    /// Maps a trait to its token implementation
+    fn map_trait(&self, _: Trait) -> Option<TokenStream> {
+        None
+    }
+
+    /// Maps a trait to its attribute-level implementation
     fn map_attribute(&self, _: Trait) -> Option<TokenStream> {
         None
     }
 
-    // map_trait
-    // if None is returned it means that this trait should be derived
-    // otherwise it's the code for the implementation
-    fn map_trait(&self, _: Trait) -> Option<TokenStream> {
-        None
+    /// Resolves a trait using map_trait or a default implementation
+    fn resolve_trait(&self, tr: Trait) -> Option<TokenStream> {
+        self.map_trait(tr).or_else(|| self.default_trait(tr))
+    }
+
+    /// Provides a default implementation for built-in traits
+    fn default_trait(&self, tr: Trait) -> Option<TokenStream> {
+        let ident = self.ident();
+
+        match tr {
+            // Generates a `const PATH` string pointing to the module + type name
+            Trait::Path => {
+                let ident_str = format!("{ident}");
+                let q = quote! {
+                    const PATH: &'static str = concat!(module_path!(), "::", #ident_str);
+                };
+                Some(Implementor::new(ident, tr).set_tokens(q).to_token_stream())
+            }
+
+            // Generate empty impl blocks for marker traits
+            Trait::EntityFixture
+            | Trait::EntityIdKind
+            | Trait::FieldSearchable
+            | Trait::FieldSortable
+            | Trait::FieldValue
+            | Trait::ValidateAuto
+            | Trait::ValidateCustom
+            | Trait::Visitable => Some(Implementor::new(ident, tr).to_token_stream()),
+
+            // All others fallback to None
+            _ => None,
+        }
     }
 }
+
+///
+/// MacroEmitter
+///
+
+pub trait MacroEmitter: AsMacro {
+    fn all_tokens(&self) -> TokenStream {
+        let schema = self.schema_tokens();
+        let main_type = self.as_type();
+        let view_type = self.as_view_type();
+
+        let TraitTokens { derive, impls } = self.resolve_trait_tokens();
+
+        quote! {
+            #schema
+            #derive
+            #main_type
+            #view_type
+            #impls
+        }
+    }
+
+    fn resolve_trait_tokens(&self) -> TraitTokens {
+        let mut derived_traits = Vec::new();
+        let mut attrs = Vec::new();
+        let mut impls = quote!();
+
+        for tr in self.traits() {
+            let impl_block = self.resolve_trait(tr);
+            let attr = self.map_attribute(tr);
+
+            match (impl_block, attr) {
+                (Some(t), Some(a)) => {
+                    impls.extend(t);
+                    attrs.push(a);
+                }
+                (Some(t), None) => {
+                    impls.extend(t);
+                }
+                (None, Some(a)) => {
+                    if let Some(path) = tr.derive_path() {
+                        derived_traits.push(path);
+                    }
+                    attrs.push(a);
+                }
+                (None, None) => {
+                    // Enforce that at least one strategy is defined
+                    derived_traits.push(tr.derive_path().unwrap_or_else(|| {
+                        panic!("trait '{tr}' has no derive, impl, or attributes")
+                    }));
+                }
+            }
+        }
+
+        let mut derive = if derived_traits.is_empty() {
+            quote!()
+        } else {
+            quote! {
+                #[derive(#(#derived_traits),*)]
+            }
+        };
+        derive.extend(attrs);
+
+        TraitTokens { derive, impls }
+    }
+}
+
+impl<T> MacroEmitter for T where T: AsMacro {}
 
 ///
 /// AsSchema
@@ -70,24 +174,25 @@ pub trait AsMacro: AsSchema + quote::ToTokens {
 ///
 
 pub trait AsSchema {
-    // schema
+    const EMIT_SCHEMA: bool;
+
+    // returns the schema fragment
     fn schema(&self) -> TokenStream {
         quote!()
     }
 
     // schema_tokens
     // generates the structure passed via ctor to the static schema
-    #[must_use]
-    fn schema_tokens(&self) -> TokenStream {
-        let schema = self.schema();
-        if schema.is_empty() {
-            return quote!();
+    fn schema_tokens(&self) -> Option<TokenStream> {
+        if !Self::EMIT_SCHEMA {
+            return None;
         }
 
+        let schema = self.schema();
         let mut rng = RNG.lock().expect("Failed to lock RNG");
         let ctor_fn = format_ident!("ctor_{}", rng.next_u32());
 
-        quote! {
+        Some(quote! {
             #[cfg(not(target_arch = "wasm32"))]
             #[::mimic::export::ctor::ctor]
             fn #ctor_fn() {
@@ -95,7 +200,7 @@ pub trait AsSchema {
                     #schema
                 );
             }
-        }
+        })
     }
 }
 
@@ -105,11 +210,15 @@ pub trait AsSchema {
 ///
 
 pub trait AsType {
-    fn as_type(&self) -> TokenStream;
+    fn as_type(&self) -> Option<TokenStream> {
+        None
+    }
 
-    fn as_view_type(&self) -> TokenStream;
+    fn as_view_type(&self) -> Option<TokenStream> {
+        None
+    }
 
-    fn basic_derives() -> TokenStream {
+    fn view_derives() -> TokenStream {
         TraitList(vec![
             Trait::CandidType,
             Trait::Clone,

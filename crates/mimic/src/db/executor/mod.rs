@@ -1,10 +1,12 @@
 mod delete;
 mod filter;
+mod index;
 mod load;
 mod save;
 
 pub use delete::*;
 pub use filter::*;
+pub use index::*;
 pub use load::*;
 pub use save::*;
 

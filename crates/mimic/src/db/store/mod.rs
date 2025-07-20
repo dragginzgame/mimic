@@ -4,18 +4,16 @@ mod index;
 pub use data::*;
 pub use index::*;
 
+use crate::core::traits::StoreKind;
 use std::{cell::RefCell, collections::HashMap, rc::Rc, thread::LocalKey};
-use thiserror::Error as ThisError;
 
 ///
-/// StoreError
+/// StoreRegistryLocal
 ///
 
-#[derive(Debug, ThisError)]
-pub enum StoreError {
-    #[error("store not found: {0}")]
-    StoreNotFound(String),
-}
+pub type DataStoreRegistryLocal = &'static LocalKey<Rc<StoreRegistry<DataStore>>>;
+
+pub type IndexStoreRegistryLocal = &'static LocalKey<Rc<StoreRegistry<IndexStore>>>;
 
 ///
 /// StoreRegistry
@@ -31,12 +29,22 @@ impl<T: 'static> StoreRegistry<T> {
         Self(HashMap::new())
     }
 
-    // try_get_store
-    pub fn try_get_store(&self, name: &str) -> Result<&'static LocalKey<RefCell<T>>, StoreError> {
+    // get_store_by_path
+    #[must_use]
+    pub fn get_store_by_path(&self, path: &str) -> &'static LocalKey<RefCell<T>> {
         self.0
-            .get(name)
+            .get(path)
             .copied()
-            .ok_or_else(|| StoreError::StoreNotFound(name.to_string()))
+            .unwrap_or_else(|| panic!("store '{path}' not found"))
+    }
+
+    // get_store
+    #[must_use]
+    pub fn get_store<S: StoreKind>(&self) -> &'static LocalKey<RefCell<T>> {
+        self.0
+            .get(S::PATH)
+            .copied()
+            .unwrap_or_else(|| panic!("store '{}' not found", S::PATH))
     }
 
     // register
@@ -45,30 +53,22 @@ impl<T: 'static> StoreRegistry<T> {
     }
 
     // with_store
-    pub fn with_store<F, R>(&self, name: &str, f: F) -> Result<R, StoreError>
+    pub fn with_store<S, R>(&self, f: impl FnOnce(&T) -> R) -> R
     where
-        F: FnOnce(&T) -> R,
+        S: StoreKind,
     {
-        let store = self.try_get_store(name)?;
+        let store = self.get_store::<S>();
 
-        Ok(store.with_borrow(|s| f(s)))
+        store.with_borrow(|s| f(s))
     }
 
     // with_store_mut
-    pub fn with_store_mut<F, R>(&self, name: &str, f: F) -> Result<R, StoreError>
+    pub fn with_store_mut<S, R>(&self, f: impl FnOnce(&mut T) -> R) -> R
     where
-        F: FnOnce(&mut T) -> R,
+        S: StoreKind,
     {
-        let store = self.try_get_store(name)?;
+        let store = self.get_store::<S>();
 
-        Ok(store.with_borrow_mut(|s| f(s)))
+        store.with_borrow_mut(|s| f(s))
     }
 }
-
-///
-/// Local Variables
-///
-
-pub type DataStoreRegistry = &'static LocalKey<Rc<StoreRegistry<DataStore>>>;
-
-pub type IndexStoreRegistry = &'static LocalKey<Rc<StoreRegistry<IndexStore>>>;

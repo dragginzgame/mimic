@@ -1,9 +1,11 @@
 use crate::{
-    core::{Key, traits::EntityKind},
+    core::{
+        Key,
+        traits::{EntityKind, IndexKind},
+    },
     db::{executor::ExecutorError, hasher::xx_hash_u64},
     debug,
     ic::structures::{BTreeMap, DefaultMemory},
-    schema::node::EntityIndex,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
@@ -14,6 +16,12 @@ use std::{
     fmt::{self, Display},
     {cell::RefCell, thread::LocalKey},
 };
+
+///
+/// IndexStoreLocal
+///
+
+pub type IndexStoreLocal = &'static LocalKey<RefCell<IndexStore>>;
 
 ///
 /// IndexStore
@@ -28,22 +36,25 @@ impl IndexStore {
         Self(BTreeMap::init(memory))
     }
 
-    // insert_index_entry
-    // we pass in the actual index to look for uniqueness
-
-    // insert_index_entry
-    pub fn insert_index_entry(
+    /// Inserts the given entity into the index defined by `I`.
+    /// - If `I::UNIQUE`, insertion will fail if a conflicting entry already exists.
+    /// - If the entity is missing required fields for this index, insertion is skipped.
+    pub fn insert_index_entry<I: IndexKind>(
         &mut self,
-        index: &EntityIndex,
-        index_key: IndexKey,
-        key: Key,
+        entity: &impl EntityKind,
     ) -> Result<(), ExecutorError> {
         let debug = false;
+
+        // Skip if index key can't be built (e.g. optional fields missing)
+        let Some(index_key) = IndexKey::build::<I>(entity) else {
+            return Ok(());
+        };
+        let key = entity.key();
 
         if let Some(existing) = self.get(&index_key) {
             let mut updated = existing;
 
-            if index.unique {
+            if I::UNIQUE {
                 if !updated.contains(&key) && !updated.is_empty() {
                     debug!(debug, "index.insert: unique violation at {index_key}");
                     return Err(ExecutorError::IndexViolation(index_key));
@@ -75,30 +86,30 @@ impl IndexStore {
     }
 
     // remove_index_entry
-    // remove_index_entry
-    pub fn remove_index_entry(&mut self, index_key: &IndexKey, key: &Key) -> Option<IndexEntry> {
+    pub fn remove_index_entry<I: IndexKind>(
+        &mut self,
+        entity: &impl EntityKind,
+    ) -> Option<IndexEntry> {
         let debug = false;
 
-        if let Some(existing) = self.get(index_key) {
+        // Skip if index key can't be built (e.g. optional fields missing)
+        let index_key = IndexKey::build::<I>(entity)?;
+        let key = entity.key();
+
+        if let Some(existing) = self.get(&index_key) {
             let mut updated = existing;
-            let removed = updated.remove(key);
+            let removed = updated.remove(&key);
             debug!(
                 debug,
                 "index.remove: removed {key} from {index_key} (was present? {removed})"
             );
 
             if updated.is_empty() {
-                debug!(
-                    debug,
-                    "index.remove: entry at {index_key} is now empty — removing"
-                );
-                self.remove(index_key)
+                debug!(debug, "index.remove: {index_key} is empty — removing");
+                self.remove(&index_key)
             } else {
                 self.insert(index_key.clone(), updated.clone());
-                debug!(
-                    debug,
-                    "index.remove: updated entry at {index_key} -> {updated:?}"
-                );
+                debug!(debug, "index.remove: updating {index_key} -> {updated:?}");
 
                 Some(updated)
             }
@@ -129,12 +140,6 @@ impl IndexStore {
 }
 
 ///
-/// IndexStoreLocal
-///
-
-pub type IndexStoreLocal = &'static LocalKey<RefCell<IndexStore>>;
-
-///
 /// IndexId
 ///
 
@@ -148,11 +153,7 @@ pub struct IndexId {
 
 impl IndexId {
     #[must_use]
-    pub fn new<E: EntityKind>(fields: &[&str]) -> Self {
-        Self::from_path(E::PATH, fields)
-    }
-
-    pub fn from_path(path: &str, fields: &[&str]) -> Self {
+    pub fn new(path: &str, fields: &[&str]) -> Self {
         Self {
             entity_hash: xx_hash_u64(path),
             fields: fields.iter().map(ToString::to_string).collect(),
@@ -160,8 +161,13 @@ impl IndexId {
     }
 
     #[must_use]
+    pub fn from_index<I: IndexKind>() -> Self {
+        Self::new(I::PATH, I::FIELDS)
+    }
+
+    #[must_use]
     pub fn max_storable() -> Self {
-        Self::from_path(
+        Self::new(
             "path::to::long::entity::name::Entity",
             &[
                 "long_field_one",
@@ -195,9 +201,12 @@ impl IndexKey {
     pub const STORABLE_MAX_SIZE: u32 = 512;
 
     #[must_use]
-    pub fn build<E: EntityKind>(e: &E, fields: &[&str]) -> Option<Self> {
+    pub fn build<I>(entity: &impl EntityKind) -> Option<Self>
+    where
+        I: IndexKind,
+    {
         // Pull the values from the entity
-        let values = e.values().collect_all(fields);
+        let values = entity.values().collect_all(I::FIELDS);
 
         // Early exit: if any value is null or fails to convert into a key
         let mut keys = Vec::with_capacity(values.len());
@@ -209,7 +218,7 @@ impl IndexKey {
         }
 
         Some(Self {
-            index_id: IndexId::new::<E>(fields),
+            index_id: IndexId::from_index::<I>(),
             keys,
         })
     }

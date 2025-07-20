@@ -2,7 +2,7 @@ use crate::{
     helper::{quote_one, to_path, to_str_lit},
     node::Def,
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema},
+    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
 };
 use darling::FromMeta;
 use mimic_schema::types::StoreType;
@@ -26,16 +26,30 @@ pub struct Store {
 }
 
 impl AsMacro for Store {
-    fn def(&self) -> &Def {
-        &self.def
+    fn ident(&self) -> Ident {
+        self.def.ident.clone()
     }
 
     fn traits(&self) -> Vec<Trait> {
-        Traits::default().with_path_trait().list()
+        let mut traits = Traits::default().with_path_trait();
+        traits.add(Trait::StoreKind);
+
+        traits.list()
+    }
+
+    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+        use crate::node_traits::*;
+
+        match t {
+            Trait::StoreKind => StoreKindTrait::tokens(self),
+            _ => None,
+        }
     }
 }
 
 impl AsSchema for Store {
+    const EMIT_SCHEMA: bool = true;
+
     fn schema(&self) -> TokenStream {
         let def = &self.def.schema();
         let ident = quote_one(&self.ident, to_str_lit);
@@ -55,12 +69,18 @@ impl AsSchema for Store {
     }
 }
 
+impl AsType for Store {
+    fn as_type(&self) -> Option<TokenStream> {
+        let ident = self.ident();
+
+        Some(quote! {
+            pub struct #ident {}
+        })
+    }
+}
+
 impl ToTokens for Store {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Def { ident, .. } = &self.def;
-
-        tokens.extend(quote! {
-            pub struct #ident {}
-        });
+        tokens.extend(self.all_tokens());
     }
 }

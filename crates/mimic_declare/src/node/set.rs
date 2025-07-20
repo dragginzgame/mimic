@@ -1,11 +1,12 @@
 use crate::{
     node::{Def, Item, Type},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType},
+    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
+use syn::Ident;
 
 ///
 /// Set
@@ -26,12 +27,8 @@ pub struct Set {
 }
 
 impl AsMacro for Set {
-    fn def(&self) -> &Def {
-        &self.def
-    }
-
-    fn macro_extra(&self) -> TokenStream {
-        self.as_view_type()
+    fn ident(&self) -> Ident {
+        self.def.ident.clone()
     }
 
     fn traits(&self) -> Vec<Trait> {
@@ -56,6 +53,8 @@ impl AsMacro for Set {
 }
 
 impl AsSchema for Set {
+    const EMIT_SCHEMA: bool = true;
+
     fn schema(&self) -> TokenStream {
         let def = self.def.schema();
         let item = self.item.schema();
@@ -72,27 +71,27 @@ impl AsSchema for Set {
 }
 
 impl AsType for Set {
-    fn as_type(&self) -> TokenStream {
-        let Def { ident, .. } = &self.def;
+    fn as_type(&self) -> Option<TokenStream> {
+        let ident = self.ident();
         let item = &self.item;
 
-        quote! {
+        Some(quote! {
             pub struct #ident(::std::collections::HashSet<#item>);
-        }
+        })
     }
 
-    fn as_view_type(&self) -> TokenStream {
-        let view_ident = &self.def.view_ident();
+    fn as_view_type(&self) -> Option<TokenStream> {
+        let view_ident = &self.view_ident();
         let item_view = AsType::as_view_type(&self.item);
 
-        quote! {
+        Some(quote! {
             pub type #view_ident = Vec<#item_view>;
-        }
+        })
     }
 }
 
 impl ToTokens for Set {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.as_type());
+        tokens.extend(self.all_tokens());
     }
 }

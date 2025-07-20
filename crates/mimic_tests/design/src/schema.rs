@@ -8,28 +8,28 @@ pub use crate::prelude::*;
 pub struct Canister {}
 
 ///
-/// TestStore
+/// TestDataStore
 ///
 
 #[store(
-    ident = "TEST_STORE",
+    ident = "TEST_DATA_STORE",
     ty = "Data",
     canister = "Canister",
     memory_id = 20
 )]
-pub struct TestStore {}
+pub struct TestDataStore {}
 
 ///
-/// TestIndex
+/// TestIndexStore
 ///
 
 #[store(
-    ident = "TEST_INDEX",
+    ident = "TEST_INDEX_STORE",
     ty = "Index",
     canister = "Canister",
     memory_id = 21
 )]
-pub struct TestIndex {}
+pub struct TestIndexStore {}
 
 ///
 /// FixtureStore

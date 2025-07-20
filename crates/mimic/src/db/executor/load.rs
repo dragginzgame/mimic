@@ -1,12 +1,14 @@
 use crate::{
     MimicError,
-    core::{Key, Value, traits::EntityKind},
+    core::{Value, traits::EntityKind},
     db::{
         DbError,
         executor::FilterEvaluator,
-        query::{FilterExpr, LoadQuery, QueryPlan, QueryShape, SortExpr},
+        query::{FilterExpr, LoadQuery, QueryPlanner, QueryShape, SortExpr},
         response::{EntityRow, LoadCollection},
-        store::{DataKey, DataRow, DataStoreLocal, DataStoreRegistry, IndexId, IndexStoreRegistry},
+        store::{
+            DataKey, DataRow, DataStoreLocal, DataStoreRegistryLocal, IndexStoreRegistryLocal,
+        },
     },
     debug,
 };
@@ -17,15 +19,18 @@ use crate::{
 
 #[derive(Clone, Copy, Debug)]
 pub struct LoadExecutor {
-    data_registry: DataStoreRegistry,
-    index_registry: IndexStoreRegistry,
+    data_registry: DataStoreRegistryLocal,
+    index_registry: IndexStoreRegistryLocal,
     debug: bool,
 }
 
 impl LoadExecutor {
     // new
     #[must_use]
-    pub const fn new(data_registry: DataStoreRegistry, index_registry: IndexStoreRegistry) -> Self {
+    pub const fn new(
+        data_registry: DataStoreRegistryLocal,
+        index_registry: IndexStoreRegistryLocal,
+    ) -> Self {
         Self {
             data_registry,
             index_registry,
@@ -77,34 +82,41 @@ impl LoadExecutor {
 
     /// Execute a full query and return a collection of entities.
     pub fn execute<E: EntityKind>(self, query: LoadQuery) -> Result<LoadCollection<E>, MimicError> {
-        let cl = self.execute_internal::<E>(query)?;
+        let collection = self.execute_internal::<E>(query)?;
 
-        Ok(cl)
+        Ok(collection)
     }
 
     /// Count matching entities using lazy iteration without full deserialization.
+    #[allow(clippy::cast_possible_truncation)]
     pub fn count<E: EntityKind>(self, query: LoadQuery) -> Result<u32, MimicError> {
-        let rows = self.execute_plan::<E>(&QueryPlan::new(&query.filter))?;
+        // Only takes filter into account
+        let rows = self.execute_plan::<E>(query.filter.as_ref());
 
-        // Filtering only
-        let filtered = if let Some(filter) = &query.filter {
-            Self::apply_filter::<E>(
+        // filter or not?
+        let count = if let Some(filter) = &query.filter {
+            let filtered = Self::apply_filter::<E>(
                 rows.into_iter()
                     .map(TryFrom::try_from)
                     .collect::<Result<Vec<_>, _>>()?,
                 filter,
-            )
+            );
+
+            filtered.len() as u32
         } else {
-            rows.into_iter()
-                .map(TryFrom::try_from)
-                .collect::<Result<Vec<_>, _>>()?
+            rows.len() as u32
         };
 
-        Ok(filtered.len() as u32)
+        Ok(count)
     }
 
-    pub fn count_all<E: EntityKind>(self) -> Result<u32, MimicError> {
-        self.count::<E>(LoadQuery::new())
+    /// count_all
+    #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
+    pub fn count_all<E: EntityKind>(self) -> u32 {
+        let rows = self.execute_plan::<E>(None);
+
+        rows.len() as u32
     }
 
     /// Internal query executor: handles plan → data rows → filtering/sorting/pagination
@@ -112,12 +124,41 @@ impl LoadExecutor {
         &self,
         query: LoadQuery,
     ) -> Result<LoadCollection<E>, DbError> {
-        let rows = self.execute_plan::<E>(&QueryPlan::new(&query.filter))?;
+        let rows = self.execute_plan::<E>(query.filter.as_ref());
         let entities = Self::finalize_rows::<E>(rows, &query)?;
 
         Ok(LoadCollection(entities))
     }
 
+    /// Execute only the raw data plan (no filters/sort/pagination yet)
+    fn execute_plan<E: EntityKind>(&self, filter: Option<&FilterExpr>) -> Vec<DataRow> {
+        // create planner
+        let planner = QueryPlanner::new(filter, self.index_registry);
+        let shape = planner.shape::<E>();
+
+        debug!(self.debug, "query.load: shape: {shape:?}");
+
+        let store = self.data_registry.with(|reg| reg.get_store::<E::Store>());
+
+        match shape {
+            QueryShape::All => store.with_borrow(|this| {
+                this.iter_pairs()
+                    .map(|(key, entry)| DataRow { key, entry })
+                    .collect()
+            }),
+
+            QueryShape::One(key) => Self::load_one(store, &key).into_iter().collect(),
+
+            QueryShape::Many(keys) => keys
+                .into_iter()
+                .filter_map(|key| Self::load_one(store, &key))
+                .collect(),
+
+            QueryShape::Range(start, end) => Self::load_range(store, &start, &end),
+        }
+    }
+
+    // finalize_rows
     fn finalize_rows<E: EntityKind>(
         rows: Vec<DataRow>,
         query: &LoadQuery,
@@ -138,62 +179,23 @@ impl LoadExecutor {
         }
 
         // paginate
-        Ok(entities
-            .into_iter()
-            .skip(query.offset as usize)
-            .take(query.limit.unwrap_or(u32::MAX) as usize)
-            .collect())
+        entities = Self::apply_pagination(entities, query.offset, query.limit);
+
+        Ok(entities)
     }
 
-    /// Execute only the raw data plan (no filters/sort/pagination yet)
-    fn execute_plan<E: EntityKind>(&self, plan: &QueryPlan) -> Result<Vec<DataRow>, DbError> {
-        let store = self.data_registry.with(|reg| reg.try_get_store(E::STORE))?;
-        let shape = plan.shape::<E>();
-
-        debug!(self.debug, "query.load: {plan:?} shape is {shape:?}");
-
-        let rows = match shape {
-            QueryShape::All => store.with_borrow(|this| {
-                this.iter_pairs()
-                    .map(|(key, entry)| DataRow { key, entry })
-                    .collect()
-            }),
-
-            QueryShape::One(key) => Self::load_one(store, key).into_iter().collect(),
-
-            QueryShape::Many(keys) => keys
-                .into_iter()
-                .filter_map(|key| Self::load_one(store, key))
-                .collect(),
-
-            QueryShape::Range(start, end) => Self::load_range(store, start, end),
-
-            QueryShape::Index { index, keys } => {
-                let index_store = self
-                    .index_registry
-                    .with(|reg| reg.try_get_store(index.store))?;
-                let index_id = IndexId::new::<E>(index.fields);
-
-                let keys: Vec<Key> = index_store.with_borrow(|store| {
-                    store
-                        .range_with_prefix(&index_id, &keys)
-                        .flat_map(|(_, entry)| entry.iter().copied().collect::<Vec<_>>())
-                        .collect()
-                });
-
-                keys.into_iter()
-                    .filter_map(|key| Self::load_one(store, DataKey::new::<E>(key)))
-                    .collect()
-            }
-        };
-
-        Ok(rows)
+    // apply_pagination
+    fn apply_pagination<T>(rows: Vec<T>, offset: u32, limit: Option<u32>) -> Vec<T> {
+        rows.into_iter()
+            .skip(offset as usize)
+            .take(limit.unwrap_or(u32::MAX) as usize)
+            .collect()
     }
 
     // load_one
-    fn load_one(store: DataStoreLocal, key: DataKey) -> Option<DataRow> {
+    fn load_one(store: DataStoreLocal, key: &DataKey) -> Option<DataRow> {
         store.with_borrow(|this| {
-            this.get(&key).map(|entry| DataRow {
+            this.get(key).map(|entry| DataRow {
                 key: key.clone(),
                 entry,
             })
@@ -201,7 +203,7 @@ impl LoadExecutor {
     }
 
     // load_range
-    fn load_range(store: DataStoreLocal, start: DataKey, end: DataKey) -> Vec<DataRow> {
+    fn load_range(store: DataStoreLocal, start: &DataKey, end: &DataKey) -> Vec<DataRow> {
         store.with_borrow(|this| {
             this.range_pairs(start..=end)
                 .map(|(key, entry)| DataRow { key, entry })

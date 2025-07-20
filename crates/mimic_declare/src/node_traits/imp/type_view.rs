@@ -1,6 +1,7 @@
 use crate::{
     node::{Entity, Enum, EnumValue, FieldList, List, Map, Newtype, Record, Set, Tuple},
     node_traits::{Imp, Implementor, Trait},
+    traits::AsMacro,
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -18,11 +19,11 @@ pub struct TypeViewTrait {}
 
 impl Imp<Entity> for TypeViewTrait {
     fn tokens(node: &Entity) -> Option<TokenStream> {
-        let view_ident = &node.def.view_ident();
+        let view_ident = &node.view_ident();
 
         // tokens
         let q = field_list(view_ident, &node.fields);
-        let type_view = Implementor::new(&node.def, Trait::TypeView)
+        let type_view = Implementor::new(node.ident(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
@@ -38,7 +39,7 @@ impl Imp<Entity> for TypeViewTrait {
 
 impl Imp<Enum> for TypeViewTrait {
     fn tokens(node: &Enum) -> Option<TokenStream> {
-        let view_ident = &node.def.view_ident();
+        let view_ident = &node.view_ident();
 
         // to_view_arms
         let to_view_arms = node.variants.iter().map(|variant| {
@@ -87,7 +88,7 @@ impl Imp<Enum> for TypeViewTrait {
         };
 
         // tokens
-        let type_view = Implementor::new(&node.def, Trait::TypeView)
+        let type_view = Implementor::new(node.ident(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
@@ -103,7 +104,7 @@ impl Imp<Enum> for TypeViewTrait {
 
 impl Imp<EnumValue> for TypeViewTrait {
     fn tokens(node: &EnumValue) -> Option<TokenStream> {
-        let view_ident = &node.def.view_ident();
+        let view_ident = node.view_ident();
 
         // to_view_arms
         let to_view_arms = node.variants.iter().map(|variant| {
@@ -140,7 +141,7 @@ impl Imp<EnumValue> for TypeViewTrait {
         };
 
         // tokens
-        let type_view = Implementor::new(&node.def, Trait::TypeView)
+        let type_view = Implementor::new(node.ident(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
@@ -156,11 +157,11 @@ impl Imp<EnumValue> for TypeViewTrait {
 
 impl Imp<List> for TypeViewTrait {
     fn tokens(node: &List) -> Option<TokenStream> {
-        let view_ident = &node.def.view_ident();
+        let view_ident = &node.view_ident();
 
         // tokens
         let q = quote_typeview_linear(view_ident);
-        let type_view = Implementor::new(&node.def, Trait::TypeView)
+        let type_view = Implementor::new(node.ident(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
@@ -176,13 +177,13 @@ impl Imp<List> for TypeViewTrait {
 
 impl Imp<Map> for TypeViewTrait {
     fn tokens(node: &Map) -> Option<TokenStream> {
-        let view_ident = &node.def.view_ident();
+        let view_ident = &node.view_ident();
         let key = &node.key;
         let value = &node.value;
 
         // tokens
         let q = quote_typeview_map(view_ident, &quote!(#key), &quote!(#value));
-        let type_view = Implementor::new(&node.def, Trait::TypeView)
+        let type_view = Implementor::new(node.ident(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
@@ -197,7 +198,7 @@ impl Imp<Map> for TypeViewTrait {
 
 impl Imp<Newtype> for TypeViewTrait {
     fn tokens(node: &Newtype) -> Option<TokenStream> {
-        let view_ident = &node.def.view_ident();
+        let view_ident = &node.view_ident();
 
         let from_view = if node.item.is_primitive() {
             quote!(Self(view))
@@ -218,7 +219,7 @@ impl Imp<Newtype> for TypeViewTrait {
         };
 
         // tokens
-        let type_view = Implementor::new(&node.def, Trait::TypeView)
+        let type_view = Implementor::new(node.ident(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
@@ -234,10 +235,10 @@ impl Imp<Newtype> for TypeViewTrait {
 
 impl Imp<Record> for TypeViewTrait {
     fn tokens(node: &Record) -> Option<TokenStream> {
-        let view_ident = &node.def.view_ident();
+        let view_ident = &node.view_ident();
         let q = field_list(view_ident, &node.fields);
 
-        let type_view = Implementor::new(&node.def, Trait::TypeView)
+        let type_view = Implementor::new(node.ident(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
@@ -253,10 +254,10 @@ impl Imp<Record> for TypeViewTrait {
 
 impl Imp<Set> for TypeViewTrait {
     fn tokens(node: &Set) -> Option<TokenStream> {
-        let view_ident = &node.def.view_ident();
+        let view_ident = &node.view_ident();
 
         let q = quote_typeview_linear(view_ident);
-        let type_view = Implementor::new(&node.def, Trait::TypeView)
+        let type_view = Implementor::new(node.ident(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
@@ -272,8 +273,8 @@ impl Imp<Set> for TypeViewTrait {
 
 impl Imp<Tuple> for TypeViewTrait {
     fn tokens(node: &Tuple) -> Option<TokenStream> {
-        let self_ident = &node.def.ident;
-        let view_ident = &node.def.view_ident();
+        let ident = node.ident();
+        let view_ident = node.view_ident();
 
         let indices: Vec<_> = (0..node.values.len()).collect();
 
@@ -301,13 +302,13 @@ impl Imp<Tuple> for TypeViewTrait {
             }
 
             fn from_view(view: Self::View) -> Self {
-                #self_ident(
+                #ident(
                     #(#from_view_fields),*
                 )
             }
         };
 
-        let type_view = Implementor::new(&node.def, Trait::TypeView)
+        let type_view = Implementor::new(ident, Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
@@ -326,9 +327,9 @@ fn field_list(view_ident: &Ident, fields: &FieldList) -> TokenStream {
     let to_pairs: Vec<_> = fields
         .iter()
         .map(|field| {
-            let name = &field.name;
+            let ident = &field.ident;
             quote! {
-                #name: ::mimic::core::traits::TypeView::to_view(&self.#name)
+                #ident: ::mimic::core::traits::TypeView::to_view(&self.#ident)
             }
         })
         .collect();
@@ -336,9 +337,9 @@ fn field_list(view_ident: &Ident, fields: &FieldList) -> TokenStream {
     let from_pairs: Vec<_> = fields
         .iter()
         .map(|field| {
-            let name = &field.name;
+            let ident = &field.ident;
             quote! {
-                #name: ::mimic::core::traits::TypeView::from_view(view.#name)
+                #ident: ::mimic::core::traits::TypeView::from_view(view.#ident)
             }
         })
         .collect();

@@ -1,5 +1,5 @@
 use crate::{
-    helper::{as_tokens, format_view_ident, quote_one, quote_option, to_str_lit},
+    helper::{as_tokens, quote_one, quote_option, to_str_lit},
     traits::AsSchema,
 };
 use proc_macro2::TokenStream;
@@ -17,13 +17,6 @@ use syn::{Ident, LitStr};
 pub struct Def {
     pub comments: Option<LitStr>,
     pub ident: Ident,
-    pub debug: bool,
-}
-
-impl Def {
-    pub fn view_ident(&self) -> Ident {
-        format_view_ident(&self.ident)
-    }
 }
 
 impl Default for Def {
@@ -31,12 +24,13 @@ impl Default for Def {
         Self {
             comments: None,
             ident: format_ident!("temp"),
-            debug: false,
         }
     }
 }
 
 impl AsSchema for Def {
+    const EMIT_SCHEMA: bool = false;
+
     fn schema(&self) -> TokenStream {
         let comments = quote_option(self.comments.as_ref(), as_tokens);
         let ident = quote_one(&self.ident, to_str_lit);

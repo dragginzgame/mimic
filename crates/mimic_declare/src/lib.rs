@@ -5,9 +5,10 @@ mod node;
 mod node_traits;
 mod traits;
 
-use crate::{node::Def, node_traits::MacroHandler};
+use crate::node::Def;
 use darling::{Error as DarlingError, FromMeta, ast::NestedMeta};
 use proc_macro2::Span;
+use quote::quote;
 use syn::{Attribute, ItemStruct, LitStr, Visibility, parse_macro_input};
 
 ///
@@ -33,19 +34,26 @@ macro_rules! macro_node {
                         );
                     }
 
-                    // Check if the `#[debug]` attribute is present
-                    let debug = item.attrs.iter().any(|attr| attr.path().is_ident("debug"));
-
                     // build def
                     let mut node = <$node_type>::from_list(&args).unwrap();
                     node.def = Def {
                         comments,
                         ident: item.ident.clone(),
-                        debug,
                     };
 
-                    // macro tokens
-                    MacroHandler::new(&node).macro_tokens().into()
+                    // quote
+                    let q = quote!(#node);
+
+                    // Check if the `#[debug]` attribute is present
+                    let debug = item.attrs.iter().any(|attr| attr.path().is_ident("debug"));
+                    if debug {
+                        quote! {
+                            compile_error!(stringify! { #q });
+                        }
+                    } else {
+                        q
+                    }
+                    .into()
                 }
                 Err(e) => proc_macro::TokenStream::from(DarlingError::from(e).write_errors()),
             }
@@ -59,6 +67,7 @@ macro_node!(entity, node::Entity);
 macro_node!(entity_id, node::EntityId);
 macro_node!(enum_, node::Enum);
 macro_node!(enum_value, node::EnumValue);
+macro_node!(index, node::Index);
 macro_node!(list, node::List);
 macro_node!(map, node::Map);
 macro_node!(newtype, node::Newtype);
