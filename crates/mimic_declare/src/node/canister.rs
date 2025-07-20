@@ -67,6 +67,6 @@ impl AsType for Canister {
 
 impl ToTokens for Canister {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.all_tokens())
+        tokens.extend(self.all_tokens());
     }
 }

@@ -33,9 +33,9 @@ pub struct QueryPlanner {
 
 impl QueryPlanner {
     #[must_use]
-    pub fn new(filter: &Option<FilterExpr>, index_registry: IndexStoreRegistryLocal) -> Self {
+    pub fn new(filter: Option<&FilterExpr>, index_registry: IndexStoreRegistryLocal) -> Self {
         Self {
-            filter: filter.clone(),
+            filter: filter.cloned(),
             index_registry,
         }
     }
@@ -143,6 +143,18 @@ struct IndexMatch {
     pub fields_matched: usize,
 }
 
+impl IndexMatch {
+    fn new<I: IndexKind>(keys: Vec<Key>) -> Self {
+        Self {
+            store_path: I::Store::path(),
+            index_path: I::path(),
+            fields: I::FIELDS,
+            fields_matched: keys.len(),
+            keys,
+        }
+    }
+}
+
 ///
 /// IndexMatcher
 ///
@@ -184,14 +196,9 @@ impl IndexKindFn for IndexMatcher {
             }
         }
 
+        // set the match
         let fields_matched = keys.len();
-        let new = IndexMatch {
-            store_path: I::Store::path(),
-            index_path: I::path(),
-            fields: I::FIELDS,
-            keys,
-            fields_matched,
-        };
+        let new = IndexMatch::new::<I>(keys);
 
         match &self.best_match {
             Some(existing) if existing.fields_matched >= fields_matched => {} // existing is better

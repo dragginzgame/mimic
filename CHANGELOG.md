@@ -5,6 +5,13 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.8.1] - Internal Changes
+- added CanisterKind, StoreKind, IndexKind so that we can declare the static types
+- Entity::Indexes are now type tuples (IndexA, IndexB)
+- #[index] is used to declare an index
+- completely rewrote the AsMacro, AsType, AsSchema code
+- EntitySearchable and EntitySortable reduced dramatically in size using a shared helper
+
 ## [0.8.0] - Feature Complete?
 - the query planner is now resolving indexes and hitting the IndexStore to get the keys
 it needs, this means mimic is pretty much feature complete (for now).  Now comes a lot of testing!

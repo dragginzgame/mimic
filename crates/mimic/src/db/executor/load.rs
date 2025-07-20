@@ -82,15 +82,16 @@ impl LoadExecutor {
 
     /// Execute a full query and return a collection of entities.
     pub fn execute<E: EntityKind>(self, query: LoadQuery) -> Result<LoadCollection<E>, MimicError> {
-        let cl = self.execute_internal::<E>(query)?;
+        let collection = self.execute_internal::<E>(query)?;
 
-        Ok(cl)
+        Ok(collection)
     }
 
     /// Count matching entities using lazy iteration without full deserialization.
+    #[allow(clippy::cast_possible_truncation)]
     pub fn count<E: EntityKind>(self, query: LoadQuery) -> Result<u32, MimicError> {
         // Only takes filter into account
-        let rows = self.execute_plan::<E>(&query.filter);
+        let rows = self.execute_plan::<E>(query.filter.as_ref());
 
         // filter or not?
         let count = if let Some(filter) = &query.filter {
@@ -111,8 +112,9 @@ impl LoadExecutor {
 
     /// count_all
     #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
     pub fn count_all<E: EntityKind>(self) -> u32 {
-        let rows = self.execute_plan::<E>(&None);
+        let rows = self.execute_plan::<E>(None);
 
         rows.len() as u32
     }
@@ -122,14 +124,14 @@ impl LoadExecutor {
         &self,
         query: LoadQuery,
     ) -> Result<LoadCollection<E>, DbError> {
-        let rows = self.execute_plan::<E>(&query.filter);
+        let rows = self.execute_plan::<E>(query.filter.as_ref());
         let entities = Self::finalize_rows::<E>(rows, &query)?;
 
         Ok(LoadCollection(entities))
     }
 
     /// Execute only the raw data plan (no filters/sort/pagination yet)
-    fn execute_plan<E: EntityKind>(&self, filter: &Option<FilterExpr>) -> Vec<DataRow> {
+    fn execute_plan<E: EntityKind>(&self, filter: Option<&FilterExpr>) -> Vec<DataRow> {
         // create planner
         let planner = QueryPlanner::new(filter, self.index_registry);
         let shape = planner.shape::<E>();
@@ -156,6 +158,7 @@ impl LoadExecutor {
         }
     }
 
+    // finalize_rows
     fn finalize_rows<E: EntityKind>(
         rows: Vec<DataRow>,
         query: &LoadQuery,
@@ -176,17 +179,23 @@ impl LoadExecutor {
         }
 
         // paginate
-        Ok(entities
-            .into_iter()
-            .skip(query.offset as usize)
-            .take(query.limit.unwrap_or(u32::MAX) as usize)
-            .collect())
+        entities = Self::apply_pagination(entities, query.offset, query.limit);
+
+        Ok(entities)
+    }
+
+    // apply_pagination
+    fn apply_pagination<T>(rows: Vec<T>, offset: u32, limit: Option<u32>) -> Vec<T> {
+        rows.into_iter()
+            .skip(offset as usize)
+            .take(limit.unwrap_or(u32::MAX) as usize)
+            .collect()
     }
 
     // load_one
     fn load_one(store: DataStoreLocal, key: &DataKey) -> Option<DataRow> {
         store.with_borrow(|this| {
-            this.get(&key).map(|entry| DataRow {
+            this.get(key).map(|entry| DataRow {
                 key: key.clone(),
                 entry,
             })

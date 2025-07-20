@@ -84,6 +84,6 @@ impl AsType for Index {
 
 impl ToTokens for Index {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.all_tokens())
+        tokens.extend(self.all_tokens());
     }
 }

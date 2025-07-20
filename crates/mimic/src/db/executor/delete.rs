@@ -87,7 +87,7 @@ impl DeleteExecutor {
         &self,
         query: DeleteQuery,
     ) -> Result<DeleteCollection, DbError> {
-        let plan = QueryPlanner::new(&query.filter, self.index_registry);
+        let plan = QueryPlanner::new(query.filter.as_ref(), self.index_registry);
         let shape = plan.shape::<E>();
 
         debug!(

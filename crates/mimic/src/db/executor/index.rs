@@ -23,7 +23,7 @@ pub enum IndexAction<'a, E: EntityKind> {
     },
 }
 
-impl<'a, E: EntityKind> IndexKindFn for IndexAction<'a, E> {
+impl<E: EntityKind> IndexKindFn for IndexAction<'_, E> {
     type Error = ExecutorError;
 
     fn apply<I: IndexKind>(&mut self) -> Result<(), Self::Error> {
@@ -34,7 +34,7 @@ impl<'a, E: EntityKind> IndexKindFn for IndexAction<'a, E> {
                     store.insert_index_entry::<I>(entity)?;
 
                     Ok(())
-                })?
+                })?;
             }
 
             IndexAction::Remove { entity, registry } => {
@@ -43,7 +43,7 @@ impl<'a, E: EntityKind> IndexKindFn for IndexAction<'a, E> {
                     store.remove_index_entry::<I>(entity);
 
                     Ok(())
-                })?
+                })?;
             }
 
             IndexAction::Update { old, new, registry } => {
@@ -56,7 +56,7 @@ impl<'a, E: EntityKind> IndexKindFn for IndexAction<'a, E> {
                     }
 
                     Ok(())
-                })?
+                })?;
             }
         }
 

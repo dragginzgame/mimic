@@ -359,8 +359,7 @@ where
             .iter()
             .find(|f| f.name == field)
             .and_then(|f| f.search)
-            .map(|search_fn| search_fn(self, text))
-            .unwrap_or(false)
+            .is_some_and(|search_fn| search_fn(self, text))
     }
 }
 

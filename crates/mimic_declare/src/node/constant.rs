@@ -59,6 +59,6 @@ impl AsType for Constant {
 
 impl ToTokens for Constant {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.all_tokens())
+        tokens.extend(self.all_tokens());
     }
 }
