@@ -42,41 +42,49 @@ static RNG: LazyLock<Mutex<StdRand>> = LazyLock::new(|| {
 ///
 
 pub trait AsMacro: AsSchema + AsType + quote::ToTokens {
+    /// Returns the primary identifier for the item
     fn ident(&self) -> Ident;
+
+    /// Returns the derived view struct name
     fn view_ident(&self) -> Ident {
         format_view_ident(&self.ident())
     }
-    fn macro_children(&self) -> Vec<TokenStream> {
-        vec![]
-    }
+
+    /// Returns a list of traits to implement
     fn traits(&self) -> Vec<Trait> {
         vec![]
     }
+
+    /// Maps a trait to its token implementation
     fn map_trait(&self, _: Trait) -> Option<TokenStream> {
         None
     }
+
+    /// Maps a trait to its attribute-level implementation
     fn map_attribute(&self, _: Trait) -> Option<TokenStream> {
         None
     }
+
+    /// Resolves a trait using map_trait or a default implementation
     fn resolve_trait(&self, tr: Trait) -> Option<TokenStream> {
         self.map_trait(tr).or_else(|| self.default_trait(tr))
     }
 
-    // default_trait
+    /// Provides a default implementation for built-in traits
     fn default_trait(&self, tr: Trait) -> Option<TokenStream> {
         let ident = self.ident();
 
         match tr {
+            // Generates a `const PATH` string pointing to the module + type name
             Trait::Path => {
                 let ident_str = format!("{ident}");
                 let q = quote! {
                     const PATH: &'static str = concat!(module_path!(), "::", #ident_str);
                 };
-
                 Some(Implementor::new(ident, tr).set_tokens(q).to_token_stream())
             }
 
-            // empty implementations are generated for these traits
+            // Generate empty impl blocks for marker traits
             Trait::EntityFixture
             | Trait::EntityIdKind
             | Trait::FieldSearchable
@@ -86,6 +94,7 @@ pub trait AsMacro: AsSchema + AsType + quote::ToTokens {
             | Trait::ValidateCustom
             | Trait::Visitable => Some(Implementor::new(ident, tr).to_token_stream()),
 
+            // All others fallback to None
             _ => None,
         }
     }
@@ -100,7 +109,6 @@ pub trait MacroEmitter: AsMacro {
         let schema = self.schema_tokens();
         let main_type = self.as_type();
         let view_type = self.as_view_type();
-        let children = self.macro_children();
 
         let TraitTokens { derive, impls } = self.resolve_trait_tokens();
 
@@ -110,7 +118,6 @@ pub trait MacroEmitter: AsMacro {
             #main_type
             #view_type
             #impls
-            #(#children)*
         }
     }
 

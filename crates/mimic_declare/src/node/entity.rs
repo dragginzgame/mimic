@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_one, quote_slice, split_idents, to_path, to_str_lit},
+    helper::{quote_one, quote_slice, to_path, to_str_lit},
     node::{Def, FieldList, Type},
     node_traits::{Trait, Traits},
     traits::{AsMacro, AsSchema, AsType, MacroEmitter},
@@ -24,7 +24,7 @@ pub struct Entity {
     pub primary_key: Ident,
 
     #[darling(multiple, rename = "index")]
-    pub indexes: Vec<EntityIndex>,
+    pub indexes: Vec<Path>,
 
     #[darling(default)]
     pub fields: FieldList,
@@ -76,10 +76,6 @@ impl AsMacro for Entity {
             _ => None,
         }
     }
-
-    fn macro_children(&self) -> Vec<TokenStream> {
-        self.indexes.iter().map(|ix| ix.all_tokens()).collect()
-    }
 }
 
 impl AsSchema for Entity {
@@ -89,7 +85,7 @@ impl AsSchema for Entity {
         let def = &self.def.schema();
         let store = quote_one(&self.store, to_path);
         let primary_key = quote_one(&self.primary_key, to_str_lit);
-        let indexes = quote_slice(&self.indexes, EntityIndex::schema);
+        let indexes = quote_slice(&self.indexes, to_path);
         let fields = &self.fields.schema();
         let ty = &self.ty.schema();
 
@@ -142,76 +138,5 @@ impl AsType for Entity {
 impl ToTokens for Entity {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         tokens.extend(self.all_tokens());
-    }
-}
-
-///
-/// EntityIndex
-///
-
-#[derive(Debug, FromMeta)]
-pub struct EntityIndex {
-    #[darling(default, map = "split_idents")]
-    pub fields: Vec<Ident>,
-
-    #[darling(default)]
-    pub unique: bool,
-
-    pub store: Path,
-}
-
-impl AsMacro for EntityIndex {
-    fn ident(&self) -> Ident {
-        generate_index_ident(self)
-    }
-
-    fn traits(&self) -> Vec<Trait> {
-        let mut traits = Traits::default();
-        traits.extend(vec![Trait::HasStore]);
-
-        traits.list()
-    }
-
-    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
-        use crate::node_traits::*;
-
-        match t {
-            Trait::HasStore => HasStoreTrait::tokens(self),
-            _ => None,
-        }
-    }
-}
-
-impl AsSchema for EntityIndex {
-    const EMIT_SCHEMA: bool = false;
-
-    fn schema(&self) -> TokenStream {
-        let fields = quote_slice(&self.fields, to_str_lit);
-        let unique = &self.unique;
-        let store = quote_one(&self.store, to_path);
-
-        quote! {
-            ::mimic::schema::node::EntityIndex {
-                fields: #fields,
-                unique: #unique,
-                store: #store,
-            }
-        }
-    }
-}
-
-impl AsType for EntityIndex {
-    fn as_type(&self) -> Option<TokenStream> {
-        let ident = self.ident();
-
-        Some(quote! {
-            pub struct #ident {}
-        })
-    }
-}
-
-impl ToTokens for EntityIndex {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.all_tokens())
     }
 }

@@ -4,7 +4,7 @@ use crate::{
         query::{Cmp, FilterExpr},
         store::DataKey,
     },
-    schema::node::EntityIndex,
+    schema::node::Index,
 };
 
 ///
@@ -82,34 +82,34 @@ impl QueryPlan {
 
     fn extract_index_shape<E: EntityKind>(&self) -> Option<QueryShape> {
         let filter = self.filter.as_ref()?;
-        let mut best_match: Option<(EntityIndex, Vec<Key>)> = None;
+        let mut best_match: Option<(Index, Vec<Key>)> = None;
+        /*
+                for index in E::INDEXES {
+                    let mut matched_keys = vec![];
 
-        for index in E::INDEXES {
-            let mut matched_keys = vec![];
+                    for &field in index.fields {
+                        match Self::find_eq_clause(filter, field) {
+                            Some(v) => match v.as_key() {
+                                Some(k) => matched_keys.push(k),
+                                None => break,
+                            },
+                            None => break,
+                        }
+                    }
 
-            for &field in index.fields {
-                match Self::find_eq_clause(filter, field) {
-                    Some(v) => match v.as_key() {
-                        Some(k) => matched_keys.push(k),
-                        None => break,
-                    },
-                    None => break,
+                    if matched_keys.is_empty() {
+                        continue; // skip this index entirely
+                    }
+
+                    if let Some((_, best_keys)) = &best_match {
+                        if matched_keys.len() > best_keys.len() {
+                            best_match = Some((index.clone(), matched_keys));
+                        }
+                    } else {
+                        best_match = Some((index.clone(), matched_keys));
+                    }
                 }
-            }
-
-            if matched_keys.is_empty() {
-                continue; // skip this index entirely
-            }
-
-            if let Some((_, best_keys)) = &best_match {
-                if matched_keys.len() > best_keys.len() {
-                    best_match = Some((index.clone(), matched_keys));
-                }
-            } else {
-                best_match = Some((index.clone(), matched_keys));
-            }
-        }
-
+        */
         best_match.map(|(index, keys)| QueryShape::Index { index, keys })
     }
 
@@ -132,5 +132,5 @@ pub enum QueryShape {
     One(DataKey),
     Many(Vec<DataKey>),
     Range(DataKey, DataKey),
-    Index { index: EntityIndex, keys: Vec<Key> },
+    Index { index: Index, keys: Vec<Key> },
 }

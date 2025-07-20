@@ -5,7 +5,7 @@ use crate::prelude::*;
 ///
 
 #[entity(
-    store = "crate::schema::TestStore",
+    store = "TestDataStore",
     pk = "id",
     fields(field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"))
 )]
@@ -16,7 +16,7 @@ pub struct CreateBasic {}
 ///
 
 #[entity(
-    store = "crate::schema::TestStore",
+    store = "TestDataStore",
     pk = "id",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
@@ -30,7 +30,7 @@ pub struct CreateBlob {}
 ///
 
 #[entity(
-    store = "crate::schema::TestStore",
+    store = "TestDataStore",
     pk = "id",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
@@ -45,7 +45,7 @@ pub struct Searchable {}
 ///
 
 #[entity(
-    store = "crate::schema::TestStore",
+    store = "TestDataStore",
     pk = "value",
     fields(field(name = "value", value(item(prim = "Nat32"))))
 )]
@@ -56,7 +56,7 @@ pub struct Limit {}
 ///
 
 #[entity(
-    store = "crate::schema::TestStore",
+    store = "TestDataStore",
     pk = "id",
     fields(field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"))
 )]
@@ -88,7 +88,7 @@ pub struct MissingFieldLarge {}
 ///
 
 #[entity(
-    store = "crate::schema::TestStore",
+    store = "TestDataStore",
     pk = "id",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
@@ -102,7 +102,7 @@ pub struct ContainsBlob {}
 ///
 
 #[entity(
-    store = "crate::schema::TestStore",
+    store = "TestDataStore",
     pk = "id",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
@@ -127,7 +127,7 @@ pub struct ContainsOpts {}
 ///
 
 #[entity(
-    store = "crate::schema::TestStore",
+    store = "TestDataStore",
     pk = "id",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
@@ -150,10 +150,10 @@ pub struct ContainsManyRelations {}
 ///
 
 #[entity(
-    store = "crate::schema::TestStore",
+    store = "TestDataStore",
     pk = "id",
-    index(name = "sd", store = "crate::schema::TestIndex", fields = "x"),
-    index(store = "crate::schema::TestIndex", fields = "y", unique),
+    index = "IndexA",
+    index = "IndexB",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(name = "x", value(item(prim = "Int32"))),
@@ -173,15 +173,21 @@ impl Index {
     }
 }
 
+#[index(store = "TestIndexStore", entity = "Index", fields = "x")]
+pub struct IndexB {}
+
+#[index(store = "TestIndexStore", entity = "Index", fields = "y", unique)]
+pub struct IndexA {}
+
 ///
 /// IndexWithFixtures
 ///
 
 #[entity(
-    store = "crate::schema::TestStore",
+    store = "TestDataStore",
     pk = "id",
-    index(name = "x", store = "crate::schema::TestIndex", fields = "x"),
-    index(name = "y", store = "crate::schema::TestIndex", fields = "y", unique),
+    index = "IndexWithFixturesX",
+    index = "IndexWithFixturesY",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(name = "x", value(item(prim = "Int32"))),
@@ -191,6 +197,17 @@ impl Index {
     traits(remove(EntityFixture))
 )]
 pub struct IndexWithFixtures {}
+
+#[index(entity = "IndexWithFixtures", store = "TestIndexStore", fields = "x")]
+pub struct IndexWithFixturesX {}
+
+#[index(
+    entity = "IndexWithFixtures",
+    store = "TestIndexStore",
+    fields = "y",
+    unique
+)]
+pub struct IndexWithFixturesY {}
 
 impl EntityFixture for IndexWithFixtures {
     fn insert_fixtures(exec: &mut SaveExecutor) {
@@ -238,9 +255,9 @@ impl EntityFixture for IndexWithFixtures {
 ///
 
 #[entity(
-    store = "crate::schema::TestStore",
+    store = "TestDataStore",
     pk = "id",
-    index(store = "crate::schema::TestIndex", fields = "rarity_id"),
+    index = "IndexRelationA",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(
@@ -251,17 +268,32 @@ impl EntityFixture for IndexWithFixtures {
 )]
 pub struct IndexRelation {}
 
+#[index(
+    store = "TestIndexStore",
+    entity = "IndexRelation",
+    fields = "rarity_id"
+)]
+pub struct IndexRelationA {}
+
 ///
 /// IndexUniqueOpt
 ///
 
 #[entity(
-    store = "crate::schema::TestStore",
+    store = "TestDataStore",
     pk = "id",
-    index(store = "crate::schema::TestIndex", fields = "value", unique),
+    index = "IndexUniqueOptA",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(name = "value", value(opt, item(prim = "Nat8")))
     )
 )]
 pub struct IndexUniqueOpt {}
+
+#[index(
+    store = "TestIndexStore",
+    entity = "IndexUniqueOpt",
+    fields = "value",
+    unique
+)]
+pub struct IndexUniqueOptA {}

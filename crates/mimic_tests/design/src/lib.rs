@@ -9,6 +9,7 @@ pub mod simple;
 ///
 
 pub(crate) mod prelude {
+    pub use crate::schema::{TestDataStore, TestIndexStore};
     pub use mimic::design::{
         base::{types, validator},
         prelude::*,

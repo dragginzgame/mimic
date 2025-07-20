@@ -26,7 +26,6 @@ use crate::{
         executor::SaveExecutor,
         query::{SortDirection, SortExpr},
     },
-    schema::node::EntityIndex,
 };
 
 ///
@@ -79,7 +78,6 @@ pub trait EntityKind: Kind + TypeKind + EntitySearchable + EntitySortable + HasS
     type PrimaryKey: Copy + Clone;
 
     const PRIMARY_KEY: &'static str;
-    const INDEXES: &'static [EntityIndex];
 
     fn primary_key(&self) -> Self::PrimaryKey;
     fn key(&self) -> Key;

@@ -1,5 +1,5 @@
 use crate::{
-    node::{Entity, EntityIndex},
+    node::{Entity, Index},
     node_traits::{Imp, Implementor, Trait},
     traits::AsMacro,
 };
@@ -33,11 +33,11 @@ impl Imp<Entity> for HasStoreTrait {
 }
 
 ///
-/// EntityIndex
+/// Index
 ///
 
-impl Imp<EntityIndex> for HasStoreTrait {
-    fn tokens(node: &EntityIndex) -> Option<TokenStream> {
+impl Imp<Index> for HasStoreTrait {
+    fn tokens(node: &Index) -> Option<TokenStream> {
         let store = &node.store;
 
         let q = quote! {

@@ -7,7 +7,7 @@ use crate::{
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use icu::{impl_storable_bounded, impl_storable_unbounded};
-use mimic_schema::node::EntityIndex;
+use mimic_schema::node::Index;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashSet,
@@ -40,7 +40,7 @@ impl IndexStore {
     // insert_index_entry
     pub fn insert_index_entry(
         &mut self,
-        index: &EntityIndex,
+        index: &Index,
         index_key: IndexKey,
         key: Key,
     ) -> Result<(), ExecutorError> {

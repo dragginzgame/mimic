@@ -1,7 +1,7 @@
 use crate::{
     node::Entity,
     node_traits::{Imp, Implementor, Trait},
-    traits::{AsMacro, AsSchema},
+    traits::AsMacro,
 };
 use mimic_schema::types::Cardinality;
 use proc_macro2::{Span, TokenStream};
@@ -18,16 +18,12 @@ impl Imp<Entity> for EntityKindTrait {
     fn tokens(node: &Entity) -> Option<TokenStream> {
         let pk_type = &node.fields.get(&node.primary_key).unwrap().value;
         let pk_field = &node.primary_key.to_string();
-        let defs = node.indexes.iter().map(AsSchema::schema);
 
         // static definitions
         let mut q = quote! {
             type PrimaryKey = #pk_type;
 
             const PRIMARY_KEY: &'static str = #pk_field;
-            const INDEXES: &'static [::mimic::schema::node::EntityIndex] = &[
-                #(#defs),*
-            ];
         };
 
         // impls
