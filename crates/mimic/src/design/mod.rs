@@ -20,7 +20,7 @@ pub mod prelude {
             types::*,
         },
         db,
-        db::{executor::SaveExecutor, service::EntityService},
+        db::{Db, service::EntityService},
     };
     pub use ::candid::CandidType;
     pub use derive_more;

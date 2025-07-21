@@ -40,6 +40,7 @@ pub enum DbError {
 /// entry point into the whole db crate
 ///
 
+#[derive(Clone, Copy)]
 pub struct Db {
     data: DataStoreRegistryLocal,
     index: IndexStoreRegistryLocal,

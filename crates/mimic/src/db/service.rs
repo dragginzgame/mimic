@@ -1,4 +1,4 @@
-use crate::{core::traits::EntityKind, db::executor::SaveExecutor};
+use crate::{core::traits::EntityKind, db::Db};
 
 ///
 /// EntityService
@@ -7,7 +7,7 @@ use crate::{core::traits::EntityKind, db::executor::SaveExecutor};
 pub struct EntityService {}
 
 impl EntityService {
-    pub fn save_fixture<E: EntityKind>(exec: &mut SaveExecutor, entity: E) {
-        exec.replace::<E>(entity).unwrap();
+    pub fn save_fixture<E: EntityKind>(db: Db, entity: E) {
+        db.save().replace::<E>(entity).unwrap();
     }
 }

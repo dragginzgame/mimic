@@ -22,7 +22,7 @@ use crate::prelude::*;
 pub struct Filterable {}
 
 impl EntityFixture for Filterable {
-    fn insert_fixtures(exec: &mut SaveExecutor) {
+    fn insert_fixtures(db: Db) {
         let fixtures = [
             ("Alpha", "A", true, 87.2, 1, -10, vec!["red", "blue"]),
             ("Beta", "B", false, 65.1, 2, 0, vec!["green"]),
@@ -37,7 +37,7 @@ impl EntityFixture for Filterable {
         ];
         for (name, category, active, score, level, offset, tags) in &fixtures {
             EntityService::save_fixture(
-                exec,
+                db,
                 Self {
                     name: (*name).into(),
                     category: (*category).into(),

@@ -210,11 +210,11 @@ pub struct IndexWithFixturesX {}
 pub struct IndexWithFixturesY {}
 
 impl EntityFixture for IndexWithFixtures {
-    fn insert_fixtures(exec: &mut SaveExecutor) {
+    fn insert_fixtures(db: Db) {
         // First 40 entries: unique y, non-unique x, z = None
         for i in 0..40 {
             EntityService::save_fixture(
-                exec,
+                db,
                 Self {
                     id: Ulid::generate(),
                     x: i % 10, // allow x to repeat
@@ -227,7 +227,7 @@ impl EntityFixture for IndexWithFixtures {
         // Next 40 entries: continue unique y, z = Some(...)
         for i in 40..80 {
             EntityService::save_fixture(
-                exec,
+                db,
                 Self {
                     id: Ulid::generate(),
                     x: i % 5,       // again allow x to repeat
@@ -239,7 +239,7 @@ impl EntityFixture for IndexWithFixtures {
 
         // Final edge case: y is still unique, z doesn't conflict
         EntityService::save_fixture(
-            exec,
+            db,
             Self {
                 id: Ulid::generate(),
                 x: i32::MAX,

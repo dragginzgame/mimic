@@ -23,7 +23,7 @@ use crate::{
         visit::Visitor,
     },
     db::{
-        executor::SaveExecutor,
+        Db,
         query::{SortDirection, SortExpr},
     },
 };
@@ -333,7 +333,7 @@ where
 pub trait EntityFixture {
     // fixtures
     // inserts the fixtures to the bd via the SaveExecutor
-    fn insert_fixtures(_exec: &mut SaveExecutor) {}
+    fn insert_fixtures(_: Db) {}
 }
 
 ///

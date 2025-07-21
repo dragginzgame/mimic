@@ -22,7 +22,7 @@ pub struct QueryPlan {
 
 impl QueryPlan {
     #[must_use]
-    pub fn from_shape(shape: QueryShape) -> Self {
+    pub const fn from_shape(shape: QueryShape) -> Self {
         Self {
             shape,
             index_used: None,
@@ -73,7 +73,9 @@ impl QueryPlanner {
 
         // check for index matches
         // THIS WILL DO THE INDEX LOOKUPS
-        if let Some(plan) = self.extract_index_plan::<E>(registry) {
+        if E::Indexes::HAS_INDEXES
+            && let Some(plan) = self.extract_index_plan::<E>(registry)
+        {
             return plan;
         }
 

@@ -20,7 +20,7 @@ use crate::prelude::*;
 pub struct Rarity {}
 
 impl EntityFixture for Rarity {
-    fn insert_fixtures(exec: &mut SaveExecutor) {
+    fn insert_fixtures(db: Db) {
         use RarityId as Id;
 
         let data = [
@@ -35,7 +35,7 @@ impl EntityFixture for Rarity {
 
         for (id, name, level, color) in data {
             EntityService::save_fixture(
-                exec,
+                db,
                 Self {
                     id: id.into(),
                     name: name.into(),

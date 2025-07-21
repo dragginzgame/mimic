@@ -31,7 +31,7 @@ fn generate_replace_all(builder: &ActorBuilder) -> TokenStream {
     for (entity_path, _) in builder.get_entities() {
         let entity_ident: Path = parse_str(&entity_path).unwrap();
         inner.push(quote! {
-            #entity_ident::insert_fixtures(&mut exec);
+            #entity_ident::insert_fixtures(db);
         });
     }
 
@@ -42,7 +42,7 @@ fn generate_replace_all(builder: &ActorBuilder) -> TokenStream {
         let num_entities = inner.len();
 
         quote! {
-            let mut exec = db!().save();
+            let db = db!();
 
             #(#inner)*
             log!(Log::Info, "added fixtures ({} entities)", #num_entities);

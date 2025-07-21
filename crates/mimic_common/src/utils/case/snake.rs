@@ -30,7 +30,7 @@ pub fn to_snake_case(s: &str) -> String {
         if ch.is_uppercase() {
             let prev_is_lower_or_digit =
                 prev.is_some_and(|p| p.is_lowercase() || p.is_ascii_digit());
-            let next_is_lower = next.is_some_and(|n| n.is_lowercase());
+            let next_is_lower = next.is_some_and(char::is_lowercase);
 
             if i != 0 && !snake_case.ends_with('_') && (prev_is_lower_or_digit || next_is_lower) {
                 snake_case.push('_');

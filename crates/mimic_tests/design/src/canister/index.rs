@@ -19,7 +19,7 @@ use crate::prelude::*;
 pub struct Indexable {}
 
 impl EntityFixture for Indexable {
-    fn insert_fixtures(exec: &mut SaveExecutor) {
+    fn insert_fixtures(db: Db) {
         let principals = [
             Principal::anonymous(),
             Principal::from_slice(&[1; 29]),
@@ -36,7 +36,7 @@ impl EntityFixture for Indexable {
                 let score = scores[(i + j) % scores.len()];
 
                 EntityService::save_fixture(
-                    exec,
+                    db,
                     Self {
                         pid: *principal,
                         ulid: *ulid,
