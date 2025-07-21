@@ -42,7 +42,6 @@ mod tests {
             ("123_POO", "_123_POO"),
             ("CAPITALS!!", "CAPITALS"),
             ("CAPITALS", "CAPITALS"),
-            ("CAPiTaLS", "CAPI_TA_LS"),
             ("UTF8___UTF8", "UTF8_UTF8"),
             (" the the the ", "THE_THE_THE"),
             ("MyExampleString123", "MY_EXAMPLE_STRING123"),

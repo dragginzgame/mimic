@@ -73,7 +73,32 @@ mod tests {
         }
         assert!(
             !matched,
-            "RNGs with different seeds produced different values"
+            "RNGs with different seeds unexpectedly produced the same value"
+        );
+    }
+
+    #[test]
+    fn test_determinism_with_fixed_seed() {
+        let seed = 42;
+        let mut rng1 = StdRand::seed(seed);
+        let mut rng2 = StdRand::seed(seed);
+
+        for _ in 0..100 {
+            assert_eq!(rng1.next_u64(), rng2.next_u64());
+        }
+    }
+
+    #[test]
+    fn test_bit_entropy() {
+        let mut bits = 0u64;
+        for _ in 0..100 {
+            bits |= next_u64();
+        }
+
+        let bit_count = bits.count_ones();
+        assert!(
+            bit_count > 8,
+            "Low entropy: only {bit_count} bits set in 100 samples",
         );
     }
 }

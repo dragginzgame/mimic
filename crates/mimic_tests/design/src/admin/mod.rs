@@ -74,8 +74,8 @@ pub struct ComplexEntity {}
         field(name = "variant_complex_opt", value(opt, item(is = "EnumA"))),
         field(name = "variant_complex_many", value(many, item(is = "EnumA"))),
         field(name = "variant_simple", value(item(is = "EnumB"))),
+        field(name = "variant_simple_opt", value(opt, item(is = "EnumB"))),
         field(name = "variant_simple_many", value(many, item(is = "EnumB"))),
-        field(name = "variant_simple_opt", value(opt, item(is = "EnumB")))
     )
 )]
 pub struct AdminEntity {}

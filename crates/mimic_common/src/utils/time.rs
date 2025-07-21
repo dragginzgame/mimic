@@ -45,3 +45,19 @@ pub fn now_micros() -> u64 {
 pub fn now_nanos() -> u64 {
     time_nanos() as u64
 }
+
+///
+/// TESTS
+///
+
+#[cfg(test)]
+pub mod test {
+    use super::*;
+
+    #[test]
+    fn test_now_secs_sanity() {
+        let now = now_secs();
+        let current_year_secs = 1_700_000_000; // ≈ Oct 2023
+        assert!(now > current_year_secs);
+    }
+}
