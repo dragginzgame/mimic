@@ -23,5 +23,6 @@ pub mod prelude {
         db::{executor::SaveExecutor, service::EntityService},
     };
     pub use ::candid::CandidType;
+    pub use derive_more;
     pub use mimic_declare::*;
 }
