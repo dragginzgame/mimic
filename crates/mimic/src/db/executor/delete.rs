@@ -84,7 +84,7 @@ impl DeleteExecutor {
 
     // execute_internal
     fn execute_internal<E: EntityKind>(
-        &self,
+        self,
         query: DeleteQuery,
     ) -> Result<DeleteCollection, DbError> {
         let planner = QueryPlanner::new(query.filter.as_ref());
@@ -106,24 +106,27 @@ impl DeleteExecutor {
         // get store
         let store = self.data_registry.with(|db| db.get_store::<E::Store>());
 
-        // execute for every different key
+        // Get a single mutable borrow for the entire operation
         let mut deleted_rows = Vec::new();
-        for dk in data_keys {
-            let Some(data_value) = store.with_borrow(|s| s.get(&dk)) else {
-                continue;
-            };
+        store.with_borrow_mut(|s| {
+            for dk in data_keys {
+                if let Some(data_value) = s.get(&dk) {
+                    // remove from store
+                    s.remove(&dk);
 
-            // deserialize and remove indexes
-            let entity: E = deserialize(&data_value.bytes)?;
-            self.remove_indexes::<E>(&entity)?;
+                    // if there are indexes we need to find and destroy them
+                    if E::Indexes::HAS_INDEXES {
+                        let entity: E = deserialize(&data_value.bytes)?;
+                        self.remove_indexes::<E>(&entity)?;
+                    }
 
-            // delete
-            store.with_borrow_mut(|s| {
-                s.remove(&dk);
-            });
+                    // record deletion
+                    deleted_rows.push(DeleteRow::new(dk.key()));
+                }
+            }
 
-            deleted_rows.push(DeleteRow::new(dk.key()));
-        }
+            Ok::<_, DbError>(())
+        })?;
 
         // debug
         debug!(self.debug, "query.delete: deleted keys {deleted_rows:?}");

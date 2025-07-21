@@ -14,6 +14,7 @@ impl DbTester {
             ("create", Self::create),
             ("create_lots", Self::create_lots),
             ("create_lots_blob", Self::create_lots_blob),
+            ("delete_lots", Self::delete_lots),
             ("data_key_order", Self::data_key_order),
             ("index_create_and_delete", Self::index_create_and_delete),
             ("index_option", Self::index_option),
@@ -77,11 +78,7 @@ impl DbTester {
         db!().save().create(e).unwrap();
 
         // count keys
-        let num_keys = db!()
-            .load()
-            .execute::<CreateBasic>(query::load())
-            .unwrap()
-            .len();
+        let num_keys = db!().load().count_all::<CreateBasic>();
         assert_eq!(num_keys, 1);
 
         // insert another
@@ -89,15 +86,7 @@ impl DbTester {
         db!().save().create(e).unwrap();
 
         // count keys
-
-        assert_eq!(
-            db!()
-                .load()
-                .execute::<CreateBasic>(query::load())
-                .unwrap()
-                .len(),
-            2
-        );
+        assert_eq!(db!().load().count_all::<CreateBasic>(), 2);
     }
 
     // create_lots
@@ -164,6 +153,38 @@ impl DbTester {
         for pair in keys.windows(2) {
             assert!(pair[0] < pair[1], "key ordering is incorrect");
         }
+    }
+
+    // delete_lots
+    fn delete_lots() {
+        use test_design::canister::db::CreateBasic;
+
+        const ROWS: usize = 500;
+
+        // Step 1: Insert rows and collect keys
+        let mut keys = Vec::with_capacity(ROWS);
+        for _ in 0..ROWS {
+            let key = db!().save().create(CreateBasic::default()).unwrap();
+            keys.push(key);
+        }
+
+        // Step 2: Ensure the count is correct
+        let count_before = db!().load().count_all::<CreateBasic>();
+        assert_eq!(count_before as usize, ROWS, "Expected {ROWS} inserted rows");
+
+        // Step 3: Delete all inserted rows
+        let deleted = db!().delete().many::<CreateBasic, _>(keys.clone()).unwrap();
+
+        assert_eq!(
+            deleted.len(),
+            ROWS,
+            "Expected to delete {ROWS} rows, but got {}",
+            deleted.len()
+        );
+
+        // Step 4: Ensure all have been deleted
+        let count_after = db!().load().count::<CreateBasic>(query::load()).unwrap();
+        assert_eq!(count_after, 0, "Expected 0 rows after deletion");
     }
 
     // index_create_and_delete

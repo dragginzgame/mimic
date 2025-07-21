@@ -133,7 +133,9 @@ impl SaveExecutor {
         };
 
         // update indexes, fail if there are any unique violations
-        self.update_indexes(old.as_ref(), &entity)?;
+        if E::Indexes::HAS_INDEXES {
+            self.update_indexes(old.as_ref(), &entity)?;
+        }
 
         // prepare data
         let entry = DataEntry {

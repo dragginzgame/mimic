@@ -142,10 +142,14 @@ pub trait IndexKindFn {
 
 // Trait implemented for tuples of IndexKind types
 pub trait IndexKindTuple {
+    const HAS_INDEXES: bool;
+
     fn for_each<F: IndexKindFn>(f: &mut F) -> Result<(), F::Error>;
 }
 
 impl IndexKindTuple for () {
+    const HAS_INDEXES: bool = false;
+
     fn for_each<F: IndexKindFn>(_: &mut F) -> Result<(), F::Error> {
         Ok(())
     }
@@ -155,6 +159,8 @@ macro_rules! impl_index_kind_tuple {
     ( $( $name:ident ),+ ) => {
         #[allow(unused_parens)]
         impl< $( $name: IndexKind ),+ > IndexKindTuple for ( $( $name ),+ ) {
+            const HAS_INDEXES: bool = true;
+
             fn for_each<F: IndexKindFn>(f: &mut F) -> Result<(), F::Error> {
                 $( f.apply::<$name>()?; )+
 
