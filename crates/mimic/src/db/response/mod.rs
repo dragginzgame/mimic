@@ -25,5 +25,5 @@ pub enum ResponseError {
 /// (over the wire we can't use LoadCollection<E>)
 ///
 
-#[derive(CandidType, Serialize, Deserialize, Debug)]
+#[derive(CandidType, Debug, Deserialize, Serialize)]
 pub struct LoadResponse {}

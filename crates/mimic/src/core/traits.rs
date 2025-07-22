@@ -578,6 +578,9 @@ impl<T> Validate for T where T: ValidateAuto + ValidateCustom {}
 /// derived code that is used to generate the validation rules for a type and
 /// its children, via schema validation rules
 ///
+/// this shouldn't be used with primitive types, it's only really for validation
+/// rules put in by macros
+///
 
 pub trait ValidateAuto {
     fn validate_self(&self) -> Result<(), ErrorTree> {

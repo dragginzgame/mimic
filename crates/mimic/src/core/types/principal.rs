@@ -1,6 +1,5 @@
 use crate::{
     ThisError,
-    common::error::ErrorTree,
     core::{
         traits::{
             FieldSearchable, FieldSortable, FieldValue, Storable, TypeView, ValidateAuto,
@@ -176,15 +175,7 @@ impl TypeView for Principal {
     }
 }
 
-impl ValidateAuto for Principal {
-    fn validate_self(&self) -> Result<(), ErrorTree> {
-        if self.0.as_slice().is_empty() {
-            Err(PrincipalError::EmptyPrincipal.to_string().into())
-        } else {
-            Ok(())
-        }
-    }
-}
+impl ValidateAuto for Principal {}
 
 impl ValidateCustom for Principal {}
 

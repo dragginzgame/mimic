@@ -15,6 +15,7 @@ impl MaxDecimalPlaces {
         }
     }
 }
+
 impl Validator<Decimal> for MaxDecimalPlaces {
     fn validate(&self, n: &Decimal) -> Result<(), String> {
         if n.scale() <= self.target {
