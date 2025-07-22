@@ -26,6 +26,19 @@ pub enum Arg {
     String(LitStr),
 }
 
+impl Arg {
+    // as_type
+    pub fn as_type(&self) -> TokenStream {
+        match &self {
+            Self::Bool(_) => quote!(bool),
+            Self::Char(_) => quote!(char),
+            Self::Number(n) => n.as_type(),
+            Self::Path(_) => quote!(unimplemented!()),
+            Self::String(_) => quote!(unimplemented!()),
+        }
+    }
+}
+
 impl FromMeta for Arg {
     fn from_value(value: &Lit) -> Result<Self, DarlingError> {
         match value {
@@ -227,6 +240,22 @@ impl_from_for_numeric_value! {
 }
 
 impl ArgNumber {
+    // as_type
+    pub fn as_type(&self) -> TokenStream {
+        match &self {
+            Self::Float32(_) => quote!(f32),
+            Self::Float64(_) => quote!(f64),
+            Self::Int8(_) => quote!(i8),
+            Self::Int16(_) => quote!(i16),
+            Self::Int32(_) => quote!(i32),
+            Self::Int64(_) => quote!(i64),
+            Self::Nat8(_) => quote!(u8),
+            Self::Nat16(_) => quote!(u16),
+            Self::Nat32(_) => quote!(u32),
+            Self::Nat64(_) => quote!(u64),
+        }
+    }
+
     // parse_numeric_string
     fn parse_numeric_string(s: &str) -> Result<Self, DarlingError> {
         let s = s.replace('_', "");

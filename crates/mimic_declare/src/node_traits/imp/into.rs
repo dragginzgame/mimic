@@ -43,8 +43,9 @@ impl Imp<Selector> for IntoTrait {
         let arms = node.variants.iter().map(|variant| {
             let name = &variant.name;
             let value = &variant.value;
+            let ty = &variant.value.as_type();
 
-            quote! { #ident::#name => #value.into() }
+            quote! { #ident::#name => <#ty as Into<#target>>::into(#value) }
         });
 
         // into ulid
