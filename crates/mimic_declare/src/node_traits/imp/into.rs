@@ -44,7 +44,7 @@ impl Imp<Selector> for IntoTrait {
             let name = &variant.name;
             let value = &variant.value;
 
-            quote! { #ident::#name => #value }
+            quote! { #ident::#name => #value.into() }
         });
 
         // into ulid
