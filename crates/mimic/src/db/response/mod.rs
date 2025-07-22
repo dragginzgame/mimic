@@ -1,17 +1,12 @@
-mod delete;
 mod load;
 mod types;
 
-pub use delete::*;
 pub use load::*;
 pub use types::*;
 
+use candid::CandidType;
+use serde::{Deserialize, Serialize};
 use thiserror::Error as ThisError;
-
-//
-// Collections are for internal data
-// Response is external
-//
 
 ///
 /// ResponseError
@@ -19,6 +14,16 @@ use thiserror::Error as ThisError;
 
 #[derive(Debug, ThisError)]
 pub enum ResponseError {
-    #[error("no data found in collection")]
-    EmptyCollection,
+    #[error("no rows found")]
+    NoRowsFound,
 }
+
+///
+/// LoadResponse
+/// this should be CandidType like the other responses, but we're not using it
+/// for now as there's no API standard for returning load results specified
+/// (over the wire we can't use LoadCollection<E>)
+///
+
+#[derive(CandidType, Serialize, Deserialize, Debug)]
+pub struct LoadResponse {}

@@ -43,7 +43,7 @@ where
     pub fn try_key(self) -> Result<Key, MimicError> {
         let key = self
             .key()
-            .ok_or(ResponseError::EmptyCollection)
+            .ok_or(ResponseError::NoRowsFound)
             .map_err(DbError::from)?;
 
         Ok(key)
@@ -71,7 +71,7 @@ where
     pub fn try_entity(self) -> Result<E, MimicError> {
         let res = self
             .entity()
-            .ok_or(ResponseError::EmptyCollection)
+            .ok_or(ResponseError::NoRowsFound)
             .map_err(DbError::from)?;
 
         Ok(res)
@@ -98,7 +98,7 @@ where
     pub fn try_entity_row(self) -> Result<EntityRow<E>, MimicError> {
         let row = self
             .entity_row()
-            .ok_or(ResponseError::EmptyCollection)
+            .ok_or(ResponseError::NoRowsFound)
             .map_err(DbError::from)?;
 
         Ok(row)

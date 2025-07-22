@@ -1,14 +1,13 @@
 use crate::{
     MimicError,
     core::{
-        Value,
+        Key, Value,
         traits::{EntityKind, IndexKindTuple, Path},
     },
     db::{
         DbError,
         executor::IndexAction,
         query::{DeleteQuery, QueryPlan, QueryPlanner},
-        response::{DeleteCollection, DeleteRow},
         store::{DataKey, DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
     debug,
@@ -50,16 +49,13 @@ impl DeleteExecutor {
 
     // one
     // helper method, creates query
-    pub fn one<E: EntityKind>(
-        &self,
-        value: impl Into<Value>,
-    ) -> Result<DeleteCollection, MimicError> {
+    pub fn one<E: EntityKind>(&self, value: impl Into<Value>) -> Result<Vec<Key>, MimicError> {
         self.execute::<E>(DeleteQuery::new().one::<E>(value))
     }
 
     // many
     // helper method, creates query
-    pub fn many<E, I>(&self, values: I) -> Result<DeleteCollection, MimicError>
+    pub fn many<E, I>(&self, values: I) -> Result<Vec<Key>, MimicError>
     where
         E: EntityKind,
         I: IntoIterator,
@@ -69,25 +65,19 @@ impl DeleteExecutor {
     }
 
     // all
-    pub fn all<E: EntityKind>(&self) -> Result<DeleteCollection, MimicError> {
+    pub fn all<E: EntityKind>(&self) -> Result<Vec<Key>, MimicError> {
         self.execute::<E>(DeleteQuery::new())
     }
 
     // execute
-    pub fn execute<E: EntityKind>(
-        self,
-        query: DeleteQuery,
-    ) -> Result<DeleteCollection, MimicError> {
+    pub fn execute<E: EntityKind>(self, query: DeleteQuery) -> Result<Vec<Key>, MimicError> {
         let res = self.execute_internal::<E>(query)?;
 
         Ok(res)
     }
 
     // execute_internal
-    fn execute_internal<E: EntityKind>(
-        self,
-        query: DeleteQuery,
-    ) -> Result<DeleteCollection, DbError> {
+    fn execute_internal<E: EntityKind>(self, query: DeleteQuery) -> Result<Vec<Key>, DbError> {
         let planner = QueryPlanner::new(query.filter.as_ref());
         let plan = planner.plan::<E>();
 
@@ -101,8 +91,8 @@ impl DeleteExecutor {
             .data_registry
             .with(|db| db.try_get_store(E::Store::PATH))?;
 
-        // get keys
-        let keys: Vec<DataKey> = match &plan {
+        // get data keys
+        let data_keys: Vec<DataKey> = match &plan {
             QueryPlan::Keys(keys) => keys.to_vec(),
             QueryPlan::Range(start, end) => store.with_borrow(|store| {
                 store
@@ -111,15 +101,19 @@ impl DeleteExecutor {
                     .collect()
             }),
 
-            QueryPlan::Index(plan) => {
+            QueryPlan::Index(index_plan) => {
                 // get the index store
                 let index_store = self
                     .index_registry
-                    .with(|reg| reg.try_get_store(plan.store_path))?;
+                    .with(|reg| reg.try_get_store(index_plan.store_path))?;
 
                 // resolve keys
                 index_store.with_borrow(|istore| {
-                    istore.resolve_data_keys::<E>(plan.index_path, plan.index_fields, &plan.keys)
+                    istore.resolve_data_keys::<E>(
+                        index_plan.index_path,
+                        index_plan.index_fields,
+                        &index_plan.keys,
+                    )
                 })
             }
         };
@@ -127,10 +121,10 @@ impl DeleteExecutor {
         // Get a single mutable borrow for the entire operation
         let mut deleted_rows = Vec::new();
         store.with_borrow_mut(|s| {
-            for key in keys {
-                if let Some(data_value) = s.get(&key) {
+            for dk in data_keys {
+                if let Some(data_value) = s.get(&dk) {
                     // remove from store
-                    s.remove(&key);
+                    s.remove(&dk);
 
                     // if there are indexes we need to find and destroy them
                     if E::Indexes::HAS_INDEXES {
@@ -139,7 +133,7 @@ impl DeleteExecutor {
                     }
 
                     // record deletion
-                    deleted_rows.push(DeleteRow::new(key.key()));
+                    deleted_rows.push(dk.key());
                 }
             }
 
@@ -149,7 +143,7 @@ impl DeleteExecutor {
         // debug
         debug!(self.debug, "query.delete: deleted keys {deleted_rows:?}");
 
-        Ok(DeleteCollection(deleted_rows))
+        Ok(deleted_rows)
     }
 
     // remove_indexes
