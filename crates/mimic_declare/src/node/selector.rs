@@ -31,7 +31,7 @@ impl AsMacro for Selector {
 
     fn traits(&self) -> Vec<Trait> {
         let mut traits = Traits::new().with_default_traits();
-        traits.add(Trait::Into);
+        traits.add(Trait::From);
 
         traits.list()
     }
@@ -40,7 +40,7 @@ impl AsMacro for Selector {
         use crate::node_traits::*;
 
         match t {
-            Trait::Into => IntoTrait::tokens(self),
+            Trait::From => FromTrait::tokens(self),
 
             _ => None,
         }
