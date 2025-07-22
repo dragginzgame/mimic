@@ -1,5 +1,5 @@
 use crate::{
-    node::{Entity, Enum, EnumValue, List, Map, Newtype, Record, Selector, Set, Tuple},
+    node::{Entity, Enum, EnumValue, List, Map, Newtype, Record, Set, Tuple},
     node_traits::{Imp, Implementor, Trait},
     traits::AsMacro,
 };
@@ -161,36 +161,6 @@ impl Imp<Set> for FromTrait {
             .to_token_stream();
 
         Some(tokens)
-    }
-}
-
-///
-/// Selector
-///
-
-impl Imp<Selector> for FromTrait {
-    fn tokens(node: &Selector) -> Option<TokenStream> {
-        let ident = &node.def.ident;
-        let target = &node.target;
-
-        // arms
-        let arms = node.variants.iter().map(|variant| {
-            let name = &variant.name;
-            let value = &variant.value;
-
-            quote! { #ident::#name => #value.into() }
-        });
-
-        // into ulid
-        Some(quote! {
-            impl From<#ident> for #target {
-                fn from(v: #ident) -> #target {
-                    match v {
-                        #(#arms),*
-                    }
-                }
-            }
-        })
     }
 }
 
