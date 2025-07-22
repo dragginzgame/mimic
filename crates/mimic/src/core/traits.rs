@@ -170,7 +170,6 @@ impl_index_kind_tuple!(I1);
 impl_index_kind_tuple!(I1, I2);
 impl_index_kind_tuple!(I1, I2, I3);
 impl_index_kind_tuple!(I1, I2, I3, I4);
-impl_index_kind_tuple!(I1, I2, I3, I4, I5);
 
 ///
 /// StoreKind

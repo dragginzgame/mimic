@@ -117,12 +117,6 @@ impl FieldValue for Decimal {
     }
 }
 
-impl<D: Into<WrappedDecimal>> From<D> for Decimal {
-    fn from(d: D) -> Self {
-        Self(d.into())
-    }
-}
-
 impl FromPrimitive for Decimal {
     fn from_i64(n: i64) -> Option<Self> {
         Some(WrappedDecimal::from(n).into())
@@ -140,6 +134,47 @@ impl FromPrimitive for Decimal {
         WrappedDecimal::from_f64(n).map(Into::into)
     }
 }
+
+impl From<WrappedDecimal> for Decimal {
+    fn from(d: WrappedDecimal) -> Self {
+        Self(d)
+    }
+}
+
+// lossy f32 done on purpose as these ORM floats aren't designed for NaN etc.
+impl From<f32> for Decimal {
+    fn from(n: f32) -> Self {
+        if n.is_finite() {
+            WrappedDecimal::from_f32(n).unwrap_or(Self::ZERO.0).into()
+        } else {
+            Self::ZERO
+        }
+    }
+}
+
+impl From<f64> for Decimal {
+    fn from(n: f64) -> Self {
+        if n.is_finite() {
+            WrappedDecimal::from_f64(n).unwrap_or(Self::ZERO.0).into()
+        } else {
+            Self::ZERO
+        }
+    }
+}
+
+macro_rules! impl_decimal_from_int {
+    ( $( $type:ty ),* ) => {
+        $(
+            impl From<$type> for Decimal {
+                fn from(n: $type) -> Self {
+                    Self(rust_decimal::Decimal::from(n))
+                }
+            }
+        )*
+    };
+}
+
+impl_decimal_from_int!(u8, u16, u32, u64, u128, i8, i16, i32, i64, i128);
 
 impl<D: Into<Self>> Mul<D> for Decimal {
     type Output = Self;
