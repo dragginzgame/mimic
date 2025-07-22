@@ -1,4 +1,4 @@
-use crate::{core::traits::ValidatorString, design::prelude::*};
+use crate::{core::traits::Validator, design::prelude::*};
 
 ///
 /// Kebab
@@ -7,10 +7,8 @@ use crate::{core::traits::ValidatorString, design::prelude::*};
 #[validator]
 pub struct Kebab {}
 
-impl ValidatorString for Kebab {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        let s = s.as_ref();
-
+impl Validator<str> for Kebab {
+    fn validate(&self, s: &str) -> Result<(), String> {
         if s.is_case(Case::Kebab) {
             Ok(())
         } else {
@@ -26,10 +24,8 @@ impl ValidatorString for Kebab {
 #[validator]
 pub struct Lower {}
 
-impl ValidatorString for Lower {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        let s = s.as_ref();
-
+impl Validator<str> for Lower {
+    fn validate(&self, s: &str) -> Result<(), String> {
         if s.is_case(Case::Lower) {
             Ok(())
         } else {
@@ -45,10 +41,8 @@ impl ValidatorString for Lower {
 #[validator]
 pub struct LowerUscore {}
 
-impl ValidatorString for LowerUscore {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        let s = s.as_ref();
-
+impl Validator<str> for LowerUscore {
+    fn validate(&self, s: &str) -> Result<(), String> {
         if s.chars().all(|c| c.is_lowercase() || c == '_') {
             Ok(())
         } else {
@@ -64,10 +58,8 @@ impl ValidatorString for LowerUscore {
 #[validator]
 pub struct Snake {}
 
-impl ValidatorString for Snake {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        let s = s.as_ref();
-
+impl Validator<str> for Snake {
+    fn validate(&self, s: &str) -> Result<(), String> {
         if s.is_case(Case::Snake) {
             Ok(())
         } else {
@@ -83,10 +75,8 @@ impl ValidatorString for Snake {
 #[validator]
 pub struct Title {}
 
-impl ValidatorString for Title {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        let s = s.as_ref();
-
+impl Validator<str> for Title {
+    fn validate(&self, s: &str) -> Result<(), String> {
         if s.is_case(Case::Title) {
             Ok(())
         } else {
@@ -102,10 +92,8 @@ impl ValidatorString for Title {
 #[validator]
 pub struct Upper {}
 
-impl ValidatorString for Upper {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        let s = s.as_ref();
-
+impl Validator<str> for Upper {
+    fn validate(&self, s: &str) -> Result<(), String> {
         if s.is_case(Case::Upper) {
             Ok(())
         } else {

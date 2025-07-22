@@ -1,4 +1,4 @@
-use crate::{core::traits::ValidatorNumber, design::prelude::*};
+use crate::{core::traits::Validator, design::prelude::*};
 use num_traits::NumCast;
 
 ///
@@ -24,11 +24,8 @@ impl Lt {
     }
 }
 
-impl ValidatorNumber for Lt {
-    fn validate<N>(&self, n: &N) -> Result<(), String>
-    where
-        N: Copy + NumCast,
-    {
+impl<N: Copy + NumCast> Validator<N> for Lt {
+    fn validate(&self, n: &N) -> Result<(), String> {
         let n_cast = cast_to_decimal(n)?;
 
         if n_cast < self.target {
@@ -54,11 +51,8 @@ impl Gt {
     }
 }
 
-impl ValidatorNumber for Gt {
-    fn validate<N>(&self, n: &N) -> Result<(), String>
-    where
-        N: Copy + NumCast,
-    {
+impl<N: Copy + NumCast> Validator<N> for Gt {
+    fn validate(&self, n: &N) -> Result<(), String> {
         let n_cast = cast_to_decimal(n)?;
 
         if n_cast > self.target {
@@ -84,11 +78,8 @@ impl Lte {
     }
 }
 
-impl ValidatorNumber for Lte {
-    fn validate<N>(&self, n: &N) -> Result<(), String>
-    where
-        N: Copy + NumCast,
-    {
+impl<N: Copy + NumCast> Validator<N> for Lte {
+    fn validate(&self, n: &N) -> Result<(), String> {
         let n_cast = cast_to_decimal(n)?;
 
         if n_cast <= self.target {
@@ -117,11 +108,8 @@ impl Gtoe {
     }
 }
 
-impl ValidatorNumber for Gtoe {
-    fn validate<N>(&self, n: &N) -> Result<(), String>
-    where
-        N: Copy + NumCast,
-    {
+impl<N: Copy + NumCast> Validator<N> for Gtoe {
+    fn validate(&self, n: &N) -> Result<(), String> {
         let n_cast = cast_to_decimal(n)?;
 
         if n_cast >= self.target {
@@ -150,11 +138,8 @@ impl Equal {
     }
 }
 
-impl ValidatorNumber for Equal {
-    fn validate<N>(&self, n: &N) -> Result<(), String>
-    where
-        N: Copy + NumCast,
-    {
+impl<N: Copy + NumCast> Validator<N> for Equal {
+    fn validate(&self, n: &N) -> Result<(), String> {
         let n_cast = cast_to_decimal(n)?;
 
         if n_cast == self.target {
@@ -179,11 +164,9 @@ impl NotEqual {
         }
     }
 }
-impl ValidatorNumber for NotEqual {
-    fn validate<N>(&self, n: &N) -> Result<(), String>
-    where
-        N: Copy + NumCast,
-    {
+
+impl<N: Copy + NumCast> Validator<N> for NotEqual {
+    fn validate(&self, n: &N) -> Result<(), String> {
         let n_cast = cast_to_decimal(n)?;
 
         if n_cast == self.target {
@@ -216,11 +199,8 @@ impl Range {
     }
 }
 
-impl ValidatorNumber for Range {
-    fn validate<N>(&self, n: &N) -> Result<(), String>
-    where
-        N: Copy + NumCast,
-    {
+impl<N: Copy + NumCast> Validator<N> for Range {
+    fn validate(&self, n: &N) -> Result<(), String> {
         let n_cast = cast_to_decimal(n)?;
 
         if n_cast >= self.min && n_cast <= self.max {
@@ -249,11 +229,8 @@ impl MultipleOf {
     }
 }
 
-impl ValidatorNumber for MultipleOf {
-    fn validate<N>(&self, n: &N) -> Result<(), String>
-    where
-        N: Copy + NumCast,
-    {
+impl<N: Copy + NumCast> Validator<N> for MultipleOf {
+    fn validate(&self, n: &N) -> Result<(), String> {
         let n_cast = cast_to_decimal(n)?;
 
         if n_cast.checked_rem(self.target) == Some(Decimal::ZERO) {
@@ -280,11 +257,8 @@ impl InArray {
     }
 }
 
-impl ValidatorNumber for InArray {
-    fn validate<N>(&self, n: &N) -> Result<(), String>
-    where
-        N: Copy + NumCast,
-    {
+impl<N: Copy + NumCast> Validator<N> for InArray {
+    fn validate(&self, n: &N) -> Result<(), String> {
         if let Some(n_cast) = <i32 as NumCast>::from(*n) {
             if self.values.contains(&n_cast) {
                 Ok(())

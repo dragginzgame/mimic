@@ -1,4 +1,4 @@
-use crate::{core::traits::ValidatorString, design::prelude::*};
+use crate::{core::traits::Validator, design::prelude::*};
 
 const MAX_DISPLAY_CHARS: usize = 20;
 
@@ -28,17 +28,16 @@ impl Equal {
     }
 }
 
-impl ValidatorString for Equal {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        let string = s.as_ref();
-        let len = string.len();
+impl Validator<str> for Equal {
+    fn validate(&self, s: &str) -> Result<(), String> {
+        let len = s.len();
 
         if len == self.target as usize {
             Ok(())
         } else {
             Err(format!(
                 "length of '{}' ({}) is not equal to {}",
-                truncate_string(&string),
+                truncate_string(&s),
                 len,
                 self.target
             ))
@@ -61,15 +60,14 @@ impl Min {
     }
 }
 
-impl ValidatorString for Min {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        let string = s.as_ref();
-        let len = string.len();
+impl Validator<str> for Min {
+    fn validate(&self, s: &str) -> Result<(), String> {
+        let len = s.len();
 
         if len < self.target as usize {
             Err(format!(
                 "length of '{}' ({}) is lower than minimum of {}",
-                truncate_string(&string),
+                truncate_string(&s),
                 len,
                 self.target
             ))
@@ -94,15 +92,14 @@ impl Max {
     }
 }
 
-impl ValidatorString for Max {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        let string = s.as_ref();
-        let len = string.len();
+impl Validator<str> for Max {
+    fn validate(&self, s: &str) -> Result<(), String> {
+        let len = s.len();
 
         if len > self.target as usize {
             Err(format!(
                 "length of '{}' ({}) is greater than maximum of {}",
-                truncate_string(&string),
+                truncate_string(&s),
                 len,
                 self.target
             ))
@@ -131,13 +128,13 @@ impl Range {
     }
 }
 
-impl ValidatorString for Range {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
+impl Validator<str> for Range {
+    fn validate(&self, s: &str) -> Result<(), String> {
         let min = Min::new(self.min);
-        min.validate(&s)?;
+        min.validate(s)?;
 
         let max = Max::new(self.max);
-        max.validate(&s)?;
+        max.validate(s)?;
 
         Ok(())
     }

@@ -1,4 +1,4 @@
-use crate::{core::traits::ValidatorDecimal, design::prelude::*};
+use crate::{core::traits::Validator, design::prelude::*};
 use num_traits::NumCast;
 
 ///
@@ -15,7 +15,7 @@ impl MaxDecimalPlaces {
         }
     }
 }
-impl ValidatorDecimal for MaxDecimalPlaces {
+impl Validator<Decimal> for MaxDecimalPlaces {
     fn validate(&self, n: &Decimal) -> Result<(), String> {
         if n.scale() <= self.target {
             Ok(())

@@ -1,4 +1,4 @@
-use crate::{core::traits::ValidatorString, design::prelude::*};
+use crate::{core::traits::Validator, design::prelude::*};
 
 ///
 /// MimeType
@@ -7,10 +7,8 @@ use crate::{core::traits::ValidatorString, design::prelude::*};
 #[validator]
 pub struct MimeType {}
 
-impl ValidatorString for MimeType {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        let s = s.as_ref();
-
+impl Validator<str> for MimeType {
+    fn validate(&self, s: &str) -> Result<(), String> {
         let parts: Vec<&str> = s.split('/').collect();
         if parts.len() != 2 {
             return Err(format!("MIME type '{s}' must contain exactly one '/'"));
@@ -40,10 +38,8 @@ impl ValidatorString for MimeType {
 #[validator]
 pub struct Url {}
 
-impl ValidatorString for Url {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        let s = s.as_ref();
-
+impl Validator<str> for Url {
+    fn validate(&self, s: &str) -> Result<(), String> {
         // Very basic check — can be expanded
         if s.starts_with("http://") || s.starts_with("https://") {
             Ok(())

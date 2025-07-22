@@ -3,7 +3,7 @@ pub mod color;
 pub mod iso;
 pub mod len;
 
-use crate::{core::traits::ValidatorString, design::prelude::*};
+use crate::{core::traits::Validator, design::prelude::*};
 
 ///
 /// AlphaUscore
@@ -14,10 +14,8 @@ use crate::{core::traits::ValidatorString, design::prelude::*};
 #[validator]
 pub struct AlphaUscore {}
 
-impl ValidatorString for AlphaUscore {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        let s = s.as_ref();
-
+impl Validator<str> for AlphaUscore {
+    fn validate(&self, s: &str) -> Result<(), String> {
         if s.chars().all(|c| c.is_alphabetic() || c == '_') {
             Ok(())
         } else {
@@ -33,10 +31,8 @@ impl ValidatorString for AlphaUscore {
 #[validator]
 pub struct AlphanumUscore {}
 
-impl ValidatorString for AlphanumUscore {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        let s = s.as_ref();
-
+impl Validator<str> for AlphanumUscore {
+    fn validate(&self, s: &str) -> Result<(), String> {
         if s.chars().all(|c| c.is_alphanumeric() || c == '_') {
             Ok(())
         } else {
@@ -52,9 +48,9 @@ impl ValidatorString for AlphanumUscore {
 #[validator]
 pub struct Ascii {}
 
-impl ValidatorString for Ascii {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        if s.as_ref().is_ascii() {
+impl Validator<str> for Ascii {
+    fn validate(&self, s: &str) -> Result<(), String> {
+        if s.is_ascii() {
             Ok(())
         } else {
             Err("string contains non-ascii characters".to_string())
@@ -70,9 +66,9 @@ impl ValidatorString for Ascii {
 #[validator]
 pub struct Version {}
 
-impl ValidatorString for Version {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        match semver::Version::parse(s.as_ref()) {
+impl Validator<str> for Version {
+    fn validate(&self, s: &str) -> Result<(), String> {
+        match semver::Version::parse(s) {
             Ok(_) => Ok(()),
             Err(e) => Err(format!("invalid version {e}")),
         }

@@ -17,11 +17,7 @@ pub use std::{
 
 use crate::{
     common::error::ErrorTree,
-    core::{
-        Key, Value, ValueMap,
-        types::{Decimal, Ulid},
-        visit::Visitor,
-    },
+    core::{Key, Value, ValueMap, types::Ulid, visit::Visitor},
     db::{
         Db,
         query::{SortDirection, SortExpr},
@@ -623,34 +619,8 @@ impl_primitive!(ValidateCustom);
 /// allows a node to validate different types of primitives
 ///
 
-pub trait ValidatorBytes {
-    fn validate(&self, _: &[u8]) -> Result<(), String> {
-        Ok(())
-    }
-}
-
-pub trait ValidatorDecimal {
-    fn validate(&self, _: &Decimal) -> Result<(), String> {
-        Ok(())
-    }
-}
-
-pub trait ValidatorNumber {
-    fn validate<T>(&self, _: &T) -> Result<(), String>
-    where
-        T: Copy + NumCast,
-    {
-        Ok(())
-    }
-}
-
-pub trait ValidatorString {
-    fn validate<S>(&self, _: S) -> Result<(), String>
-    where
-        S: AsRef<str>,
-    {
-        Ok(())
-    }
+pub trait Validator<T: ?Sized> {
+    fn validate(&self, value: &T) -> Result<(), String>;
 }
 
 ///

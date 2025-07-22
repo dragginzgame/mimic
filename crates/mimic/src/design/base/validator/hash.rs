@@ -1,4 +1,4 @@
-use crate::{core::traits::ValidatorString, design::prelude::*};
+use crate::{core::traits::Validator, design::prelude::*};
 
 ///
 /// Sha256
@@ -7,10 +7,8 @@ use crate::{core::traits::ValidatorString, design::prelude::*};
 #[validator]
 pub struct Sha256 {}
 
-impl ValidatorString for Sha256 {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        let s = s.as_ref();
-
+impl Validator<str> for Sha256 {
+    fn validate(&self, s: &str) -> Result<(), String> {
         // len
         if s.len() != 64 {
             return Err(format!("must be 64 characters, got {}", s.len()));

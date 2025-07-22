@@ -1,4 +1,4 @@
-use crate::{core::traits::ValidatorBytes, design::prelude::*};
+use crate::{core::traits::Validator, design::prelude::*};
 
 ///
 /// Utf8
@@ -7,7 +7,7 @@ use crate::{core::traits::ValidatorBytes, design::prelude::*};
 #[validator]
 pub struct Utf8 {}
 
-impl ValidatorBytes for Utf8 {
+impl Validator<[u8]> for Utf8 {
     fn validate(&self, bytes: &[u8]) -> Result<(), String> {
         std::str::from_utf8(bytes)
             .map(|_| ())

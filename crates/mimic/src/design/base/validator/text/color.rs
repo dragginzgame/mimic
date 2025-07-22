@@ -1,4 +1,4 @@
-use crate::{core::traits::ValidatorString, design::prelude::*};
+use crate::{core::traits::Validator, design::prelude::*};
 
 ///
 /// RgbHex
@@ -7,10 +7,8 @@ use crate::{core::traits::ValidatorString, design::prelude::*};
 #[validator]
 pub struct RgbHex {}
 
-impl ValidatorString for RgbHex {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        let s = s.as_ref();
-
+impl Validator<str> for RgbHex {
+    fn validate(&self, s: &str) -> Result<(), String> {
         if s.len() == 6 && s.chars().all(|c| c.is_ascii_hexdigit()) {
             Ok(())
         } else {
@@ -28,10 +26,8 @@ impl ValidatorString for RgbHex {
 #[validator]
 pub struct RgbaHex {}
 
-impl ValidatorString for RgbaHex {
-    fn validate<S: AsRef<str>>(&self, s: S) -> Result<(), String> {
-        let s = s.as_ref();
-
+impl Validator<str> for RgbaHex {
+    fn validate(&self, s: &str) -> Result<(), String> {
         if s.len() == 8 && s.chars().all(|c| c.is_ascii_hexdigit()) {
             Ok(())
         } else {
