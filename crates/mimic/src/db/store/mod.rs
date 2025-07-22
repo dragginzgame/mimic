@@ -4,8 +4,18 @@ mod index;
 pub use data::*;
 pub use index::*;
 
-use crate::core::traits::StoreKind;
 use std::{cell::RefCell, collections::HashMap, rc::Rc, thread::LocalKey};
+use thiserror::Error as ThisError;
+
+///
+/// StoreError
+///
+
+#[derive(Debug, ThisError)]
+pub enum StoreError {
+    #[error("store '{0}' not found")]
+    StoreNotFound(String),
+}
 
 ///
 /// StoreRegistryLocal
@@ -29,46 +39,34 @@ impl<T: 'static> StoreRegistry<T> {
         Self(HashMap::new())
     }
 
-    // get_store_by_path
-    #[must_use]
-    pub fn get_store_by_path(&self, path: &str) -> &'static LocalKey<RefCell<T>> {
-        self.0
-            .get(path)
-            .copied()
-            .unwrap_or_else(|| panic!("store '{path}' not found"))
-    }
-
-    // get_store
-    #[must_use]
-    pub fn get_store<S: StoreKind>(&self) -> &'static LocalKey<RefCell<T>> {
-        self.0
-            .get(S::PATH)
-            .copied()
-            .unwrap_or_else(|| panic!("store '{}' not found", S::PATH))
-    }
-
     // register
     pub fn register(&mut self, name: &'static str, accessor: &'static LocalKey<RefCell<T>>) {
         self.0.insert(name, accessor);
     }
 
-    // with_store
-    pub fn with_store<S, R>(&self, f: impl FnOnce(&T) -> R) -> R
-    where
-        S: StoreKind,
-    {
-        let store = self.get_store::<S>();
+    // try_get_store
+    pub fn try_get_store(&self, path: &str) -> Result<&'static LocalKey<RefCell<T>>, StoreError> {
+        self.0
+            .get(path)
+            .copied()
+            .ok_or_else(|| StoreError::StoreNotFound(path.to_string()))
+    }
 
-        store.with_borrow(|s| f(s))
+    // with_store
+    pub fn with_store<R>(&self, path: &str, f: impl FnOnce(&T) -> R) -> Result<R, StoreError> {
+        let store = self.try_get_store(path)?;
+
+        Ok(store.with_borrow(|s| f(s)))
     }
 
     // with_store_mut
-    pub fn with_store_mut<S, R>(&self, f: impl FnOnce(&mut T) -> R) -> R
-    where
-        S: StoreKind,
-    {
-        let store = self.get_store::<S>();
+    pub fn with_store_mut<R>(
+        &self,
+        path: &str,
+        f: impl FnOnce(&mut T) -> R,
+    ) -> Result<R, StoreError> {
+        let store = self.try_get_store(path)?;
 
-        store.with_borrow_mut(|s| f(s))
+        Ok(store.with_borrow_mut(|s| f(s)))
     }
 }

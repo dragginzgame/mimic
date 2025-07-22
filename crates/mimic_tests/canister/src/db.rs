@@ -1,4 +1,4 @@
-use mimic::{db::query, prelude::*};
+use mimic::{core::traits::Path, db::query, prelude::*};
 use test_design::schema::TestDataStore;
 
 ///
@@ -28,7 +28,8 @@ impl DbTester {
         for (name, test_fn) in tests {
             println!("clearing db");
             crate::DATA_REGISTRY
-                .with(|reg| reg.with_store_mut::<TestDataStore, _>(|store| store.clear()));
+                .with(|reg| reg.with_store_mut(TestDataStore::PATH, |store| store.clear()))
+                .unwrap();
 
             println!("Running test: {name}");
             test_fn();
@@ -78,7 +79,7 @@ impl DbTester {
         db!().save().create(e).unwrap();
 
         // count keys
-        let num_keys = db!().load().count_all::<CreateBasic>();
+        let num_keys = db!().load().count_all::<CreateBasic>().unwrap();
         assert_eq!(num_keys, 1);
 
         // insert another
@@ -86,7 +87,7 @@ impl DbTester {
         db!().save().create(e).unwrap();
 
         // count keys
-        assert_eq!(db!().load().count_all::<CreateBasic>(), 2);
+        assert_eq!(db!().load().count_all::<CreateBasic>().unwrap(), 2);
     }
 
     // create_lots
@@ -169,7 +170,7 @@ impl DbTester {
         }
 
         // Step 2: Ensure the count is correct
-        let count_before = db!().load().count_all::<CreateBasic>();
+        let count_before = db!().load().count_all::<CreateBasic>().unwrap();
         assert_eq!(count_before as usize, ROWS, "Expected {ROWS} inserted rows");
 
         // Step 3: Delete all inserted rows

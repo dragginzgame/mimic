@@ -39,7 +39,7 @@ impl AsMacro for Newtype {
 
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone().with_type_traits();
-        traits.extend(vec![Trait::Deref, Trait::DerefMut, Trait::Inner]);
+        traits.extend(vec![Trait::Deref, Trait::DerefMut]);
 
         // primitive traits
         if self.primitive.supports_arithmetic() {
@@ -87,7 +87,6 @@ impl AsMacro for Newtype {
         match t {
             Trait::FieldValue => FieldValueTrait::tokens(self),
             Trait::From => FromTrait::tokens(self),
-            Trait::Inner => InnerTrait::tokens(self),
             Trait::NumCast => NumCastTrait::tokens(self),
             Trait::NumToPrimitive => NumToPrimitiveTrait::tokens(self),
             Trait::NumFromPrimitive => NumFromPrimitiveTrait::tokens(self),

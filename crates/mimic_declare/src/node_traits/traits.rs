@@ -66,7 +66,6 @@ pub enum Trait {
     FieldSortable,
     FieldValue,
     From,
-    Inner,
     Into,
     NumCast,
     NumFromPrimitive,

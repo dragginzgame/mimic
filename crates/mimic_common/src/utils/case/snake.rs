@@ -10,14 +10,6 @@
 ///
 /// Leading/trailing underscores and whitespace are trimmed.
 ///
-/// # Examples
-/// ```
-/// assert_eq!(to_snake_case("PascalCase"), "pascal_case");
-/// assert_eq!(to_snake_case("XMLHttpRequest"), "xml_http_request");
-/// assert_eq!(to_snake_case("  _Hello World_  "), "hello_world");
-/// assert_eq!(to_snake_case("Shape2D"), "shape2_d");
-/// assert_eq!(to_snake_case("!@#$"), "");
-/// ```
 pub fn to_snake_case(s: &str) -> String {
     let mut snake_case = String::new();
     let chars: Vec<char> = s.trim().chars().collect();

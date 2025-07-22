@@ -554,51 +554,6 @@ impl_field_value_as!(
 );
 
 ///
-/// Inner
-/// a trait for Newtypes to recurse downwards to find the innermost value
-///
-
-pub trait Inner {
-    type Primitive;
-
-    fn inner(&self) -> Self::Primitive;
-    fn into_inner(self) -> Self::Primitive;
-}
-
-impl Inner for String {
-    type Primitive = Self;
-
-    fn inner(&self) -> Self::Primitive {
-        self.clone()
-    }
-
-    fn into_inner(self) -> Self::Primitive {
-        self
-    }
-}
-
-// impl_primitive_inner
-#[macro_export]
-macro_rules! impl_primitive_inner {
-    ($($type:ty),*) => {
-        $(
-            impl Inner for $type {
-                type Primitive = Self;
-
-                fn inner(&self) -> Self::Primitive {
-                    *self
-                }
-                fn into_inner(self) -> Self::Primitive {
-                    self
-                }
-            }
-        )*
-    };
-}
-
-impl_primitive_inner!(bool, f32, f64, i8, i16, i32, i64, u8, u16, u32, u64);
-
-///
 /// Validate
 ///
 

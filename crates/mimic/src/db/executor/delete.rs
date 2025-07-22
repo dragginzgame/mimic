@@ -2,18 +2,19 @@ use crate::{
     MimicError,
     core::{
         Value,
-        traits::{EntityKind, IndexKindTuple},
+        traits::{EntityKind, IndexKindTuple, Path},
     },
     db::{
-        DbError, ExecutorError,
+        DbError,
         executor::IndexAction,
-        query::{DeleteQuery, QueryPlanner, QueryShape},
+        query::{DeleteQuery, QueryPlan, QueryPlanner},
         response::{DeleteCollection, DeleteRow},
         store::{DataKey, DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
     debug,
     serialize::deserialize,
 };
+use std::ops::Bound;
 
 ///
 /// DeleteExecutor
@@ -88,31 +89,48 @@ impl DeleteExecutor {
         query: DeleteQuery,
     ) -> Result<DeleteCollection, DbError> {
         let planner = QueryPlanner::new(query.filter.as_ref());
-        let plan = planner.plan_with_registry::<E>(self.index_registry);
+        let plan = planner.plan::<E>();
 
         debug!(
             self.debug,
             "query.delete: query is {query:?}, plan is {plan:?}"
         );
 
-        // resolve shape
-        let data_keys: Vec<DataKey> = match plan.shape {
-            QueryShape::One(key) => vec![key],
-            QueryShape::Many(entity_keys) => entity_keys,
-
-            _ => return Err(ExecutorError::ShapeNotSupported)?,
-        };
-
         // get store
-        let store = self.data_registry.with(|db| db.get_store::<E::Store>());
+        let store = self
+            .data_registry
+            .with(|db| db.try_get_store(E::Store::PATH))?;
+
+        // get keys
+        let keys: Vec<DataKey> = match &plan {
+            QueryPlan::Keys(keys) => keys.to_vec(),
+            QueryPlan::Range(start, end) => store.with_borrow(|store| {
+                store
+                    .range((Bound::Included(start.clone()), Bound::Included(end.clone())))
+                    .map(|entry| entry.key().clone())
+                    .collect()
+            }),
+
+            QueryPlan::Index(plan) => {
+                // get the index store
+                let index_store = self
+                    .index_registry
+                    .with(|reg| reg.try_get_store(plan.store_path))?;
+
+                // resolve keys
+                index_store.with_borrow(|istore| {
+                    istore.resolve_data_keys::<E>(plan.index_path, plan.index_fields, &plan.keys)
+                })
+            }
+        };
 
         // Get a single mutable borrow for the entire operation
         let mut deleted_rows = Vec::new();
         store.with_borrow_mut(|s| {
-            for dk in data_keys {
-                if let Some(data_value) = s.get(&dk) {
+            for key in keys {
+                if let Some(data_value) = s.get(&key) {
                     // remove from store
-                    s.remove(&dk);
+                    s.remove(&key);
 
                     // if there are indexes we need to find and destroy them
                     if E::Indexes::HAS_INDEXES {
@@ -121,7 +139,7 @@ impl DeleteExecutor {
                     }
 
                     // record deletion
-                    deleted_rows.push(DeleteRow::new(dk.key()));
+                    deleted_rows.push(DeleteRow::new(key.key()));
                 }
             }
 
@@ -141,6 +159,6 @@ impl DeleteExecutor {
             registry: &self.index_registry,
         };
 
-        E::Indexes::for_each(&mut action).map_err(DbError::from)
+        E::Indexes::for_each(&mut action)
     }
 }

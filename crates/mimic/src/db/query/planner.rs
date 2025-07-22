@@ -5,7 +5,7 @@ use crate::{
     },
     db::{
         query::{Cmp, FilterExpr},
-        store::{DataKey, IndexId, IndexStoreRegistryLocal},
+        store::DataKey,
     },
 };
 
@@ -14,33 +14,34 @@ use crate::{
 ///
 
 #[derive(Debug)]
-pub struct QueryPlan {
-    pub shape: QueryShape,
-    pub index_used: Option<IndexId>,
-    pub matched_keys: usize,
-}
-
-impl QueryPlan {
-    #[must_use]
-    pub const fn from_shape(shape: QueryShape) -> Self {
-        Self {
-            shape,
-            index_used: None,
-            matched_keys: 0,
-        }
-    }
+pub enum QueryPlan {
+    Index(IndexPlan),
+    Keys(Vec<DataKey>),
+    Range(DataKey, DataKey),
 }
 
 ///
-/// QueryShape
+/// IndexPlan
 ///
 
 #[derive(Debug)]
-pub enum QueryShape {
-    All,
-    One(DataKey),
-    Many(Vec<DataKey>),
-    Range(DataKey, DataKey),
+pub struct IndexPlan {
+    pub store_path: &'static str,
+    pub index_path: &'static str,
+    pub index_fields: &'static [&'static str],
+    pub keys: Vec<Key>,
+}
+
+impl IndexPlan {
+    #[must_use]
+    pub fn new<I: IndexKind>(keys: Vec<Key>) -> Self {
+        Self {
+            store_path: I::Store::PATH,
+            index_path: I::PATH,
+            index_fields: I::FIELDS,
+            keys,
+        }
+    }
 }
 
 ///
@@ -61,20 +62,17 @@ impl QueryPlanner {
     }
 
     #[must_use]
-    pub fn plan_with_registry<E: EntityKind>(
-        &self,
-        registry: IndexStoreRegistryLocal,
-    ) -> QueryPlan {
+    pub fn plan<E: EntityKind>(&self) -> QueryPlan {
         // If filter is a primary key match
         // this would handle One and Many queries
-        if let Some(shape) = self.extract_shape::<E>() {
-            return QueryPlan::from_shape(shape);
+        if let Some(plan) = self.extract_from_filter::<E>() {
+            return plan;
         }
 
         // check for index matches
         // THIS WILL DO THE INDEX LOOKUPS
         if E::Indexes::HAS_INDEXES
-            && let Some(plan) = self.extract_index_plan::<E>(registry)
+            && let Some(plan) = self.extract_from_index::<E>()
         {
             return plan;
         }
@@ -83,12 +81,11 @@ impl QueryPlanner {
         let start = DataKey::new::<E>(Key::MIN);
         let end = DataKey::new::<E>(Key::MAX);
 
-        QueryPlan::from_shape(QueryShape::Range(start, end))
+        QueryPlan::Range(start, end)
     }
 
-    // extract_shape
-    // currently using primary key lookups
-    fn extract_shape<E: EntityKind>(&self) -> Option<QueryShape> {
+    // extract_from_filter
+    fn extract_from_filter<E: EntityKind>(&self) -> Option<QueryPlan> {
         let filter = self.filter.as_ref()?;
 
         match filter {
@@ -96,7 +93,7 @@ impl QueryPlanner {
                 Cmp::Eq => clause
                     .value
                     .as_key()
-                    .map(|key| QueryShape::One(DataKey::new::<E>(key))),
+                    .map(|key| QueryPlan::Keys(vec![DataKey::new::<E>(key)])),
 
                 Cmp::In => {
                     if let Value::List(values) = &clause.value {
@@ -109,7 +106,7 @@ impl QueryPlanner {
                         if keys.is_empty() {
                             None
                         } else {
-                            Some(QueryShape::Many(keys))
+                            Some(QueryPlan::Keys(keys))
                         }
                     } else {
                         None
@@ -123,41 +120,19 @@ impl QueryPlanner {
         }
     }
 
-    // extract_index_plan
-    fn extract_index_plan<E: EntityKind>(
-        &self,
-        registry: IndexStoreRegistryLocal,
-    ) -> Option<QueryPlan> {
+    // extract_from_index
+    fn extract_from_index<E: EntityKind>(&self) -> Option<QueryPlan> {
         let filter = self.filter.as_ref()?;
 
         let mut matcher = IndexMatcher::new(filter);
 
         E::Indexes::for_each(&mut matcher).ok()?;
 
-        matcher.best_match.map(|matched| {
-            let index_id = IndexId::new(&matched.index_path, matched.fields);
-            let index_store = registry.with(|reg| reg.get_store_by_path(&matched.store_path));
-
-            let keys: Vec<Key> = index_store.with_borrow(|store| {
-                store
-                    .range_with_prefix(&index_id, &matched.keys)
-                    .flat_map(|(_, entry)| entry.iter().copied().collect::<Vec<_>>())
-                    .collect()
-            });
-
-            let matched_keys = keys.len();
-            let shape = match &matched_keys {
-                0 => return None,
-                1 => QueryShape::One(DataKey::new::<E>(keys.into_iter().next().unwrap())),
-                _ => QueryShape::Many(keys.into_iter().map(DataKey::new::<E>).collect()),
-            };
-
-            Some(QueryPlan {
-                shape,
-                index_used: Some(index_id),
-                matched_keys,
-            })
-        })?
+        if let Some(best_match) = matcher.best_match {
+            best_match.plan.map(QueryPlan::Index)
+        } else {
+            None
+        }
     }
 }
 
@@ -167,22 +142,14 @@ impl QueryPlanner {
 
 #[derive(Default)]
 struct IndexMatch {
-    pub store_path: String,
-    pub index_path: String,
-    pub fields: &'static [&'static str],
-    pub keys: Vec<Key>,
-    pub fields_matched: usize,
+    pub plan: Option<IndexPlan>,
+    pub fields_matched: u32,
 }
 
 impl IndexMatch {
-    fn new<I: IndexKind>(keys: Vec<Key>) -> Self {
-        Self {
-            store_path: I::Store::path(),
-            index_path: I::path(),
-            fields: I::FIELDS,
-            fields_matched: keys.len(),
-            keys,
-        }
+    // ✅ Consider extracting plan_priority_score (future-proofing)
+    pub fn score(&self) -> u32 {
+        self.fields_matched
     }
 }
 
@@ -226,13 +193,16 @@ impl IndexKindFn for IndexMatcher {
                 None => break, // stop at first non-match
             }
         }
+        let fields_matched = keys.len() as u32;
 
         // set the match
-        let fields_matched = keys.len();
-        let new = IndexMatch::new::<I>(keys);
+        let new = IndexMatch {
+            plan: Some(IndexPlan::new::<I>(keys)),
+            fields_matched,
+        };
 
         match &self.best_match {
-            Some(existing) if existing.fields_matched >= fields_matched => {} // existing is better
+            Some(existing) if existing.score() >= new.score() => {} // existing is better so skip
             _ => self.best_match = Some(new),
         }
 

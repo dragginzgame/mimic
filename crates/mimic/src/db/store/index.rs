@@ -3,7 +3,7 @@ use crate::{
         Key,
         traits::{EntityKind, IndexKind},
     },
-    db::{executor::ExecutorError, hasher::xx_hash_u64},
+    db::{executor::ExecutorError, hasher::xx_hash_u64, store::DataKey},
     debug,
     ic::structures::{BTreeMap, DefaultMemory},
 };
@@ -120,11 +120,26 @@ impl IndexStore {
         }
     }
 
-    pub fn range_with_prefix<'a>(
-        &'a self,
-        index_id: &'a IndexId,
-        prefix: &'a [Key],
-    ) -> impl Iterator<Item = (IndexKey, IndexEntry)> + 'a {
+    pub fn resolve_data_keys<E: EntityKind>(
+        &self,
+        index_path: &str,
+        index_fields: &[&str],
+        prefix: &[Key],
+    ) -> Vec<DataKey> {
+        self.range_with_prefix(index_path, index_fields, prefix)
+            .flat_map(|(_, entry)| entry.into_iter())
+            .map(|key| DataKey::new::<E>(key))
+            .collect()
+    }
+
+    pub fn range_with_prefix(
+        &self,
+        index_path: &str,
+        index_fields: &[&str],
+        prefix: &[Key],
+    ) -> impl Iterator<Item = (IndexKey, IndexEntry)> {
+        let index_id = IndexId::new(index_path, index_fields);
+
         self.range(
             IndexKey {
                 index_id: index_id.clone(),
@@ -133,7 +148,7 @@ impl IndexStore {
         )
         .take_while(move |entry| {
             let k = entry.key();
-            k.index_id == *index_id && k.keys.starts_with(prefix)
+            k.index_id == index_id && k.keys.starts_with(prefix)
         })
         .map(|entry| (entry.key().clone(), entry.value()))
     }

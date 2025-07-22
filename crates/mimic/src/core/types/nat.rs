@@ -1,6 +1,5 @@
 use crate::core::traits::{
-    FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto, ValidateCustom,
-    Visitable,
+    FieldSearchable, FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable,
 };
 use candid::{CandidType, Nat as WrappedNat};
 use derive_more::{Deref, DerefMut, Display, FromStr};
@@ -48,18 +47,6 @@ impl FieldValue for Nat {}
 impl From<WrappedNat> for Nat {
     fn from(n: WrappedNat) -> Self {
         Self(n)
-    }
-}
-
-impl Inner for Nat {
-    type Primitive = Self;
-
-    fn inner(&self) -> Self::Primitive {
-        self.clone()
-    }
-
-    fn into_inner(self) -> Self::Primitive {
-        self
     }
 }
 

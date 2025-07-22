@@ -1,6 +1,6 @@
 use crate::{
-    core::traits::{EntityKind, IndexKind, IndexKindFn},
-    db::{executor::ExecutorError, store::IndexStoreRegistryLocal},
+    core::traits::{EntityKind, IndexKind, IndexKindFn, Path},
+    db::{DbError, store::IndexStoreRegistryLocal},
 };
 
 ///
@@ -23,31 +23,34 @@ pub enum IndexAction<'a, E: EntityKind> {
     },
 }
 
+impl<'a, E: EntityKind> IndexAction<'a, E> {
+    fn registry(&self) -> &IndexStoreRegistryLocal {
+        match self {
+            IndexAction::Insert { registry, .. }
+            | IndexAction::Remove { registry, .. }
+            | IndexAction::Update { registry, .. } => registry,
+        }
+    }
+}
+
 impl<E: EntityKind> IndexKindFn for IndexAction<'_, E> {
-    type Error = ExecutorError;
+    type Error = DbError;
 
     fn apply<I: IndexKind>(&mut self) -> Result<(), Self::Error> {
+        let store = self
+            .registry()
+            .with(|map| map.try_get_store(I::Store::PATH))?;
+
         match *self {
-            IndexAction::Insert { entity, registry } => {
-                let store = registry.with(|map| map.get_store::<I::Store>());
-                store.with_borrow_mut(|store| {
-                    store.insert_index_entry::<I>(entity)?;
-
-                    Ok(())
-                })?;
+            IndexAction::Insert { entity, .. } => {
+                store.with_borrow_mut(|store| store.insert_index_entry::<I>(entity))?;
             }
 
-            IndexAction::Remove { entity, registry } => {
-                let store = registry.with(|map| map.get_store::<I::Store>());
-                store.with_borrow_mut(|store| {
-                    store.remove_index_entry::<I>(entity);
-
-                    Ok(())
-                })?;
+            IndexAction::Remove { entity, .. } => {
+                store.with_borrow_mut(|store| store.remove_index_entry::<I>(entity));
             }
 
-            IndexAction::Update { old, new, registry } => {
-                let store = registry.with(|map| map.get_store::<I::Store>());
+            IndexAction::Update { old, new, .. } => {
                 store.with_borrow_mut(|store| {
                     store.insert_index_entry::<I>(new)?;
 
@@ -55,7 +58,7 @@ impl<E: EntityKind> IndexKindFn for IndexAction<'_, E> {
                         store.remove_index_entry::<I>(old);
                     }
 
-                    Ok(())
+                    Ok::<_, DbError>(())
                 })?;
             }
         }

@@ -54,7 +54,7 @@ pub mod prelude {
         MimicError,
         core::{
             Key, Value,
-            traits::{EntityFixture as _, EntityKind as _, Inner as _, TypeView as _},
+            traits::{EntityFixture as _, EntityKind as _, TypeView as _},
             types::Ulid,
         },
         db,

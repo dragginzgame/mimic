@@ -13,7 +13,7 @@ pub mod prelude {
         core::{
             Key, Value,
             traits::{
-                EntityFixture, EntityIdKind as _, EntityKind as _, Inner as _, NumCast, Path as _,
+                EntityFixture, EntityIdKind as _, EntityKind as _, NumCast, Path as _,
                 Serialize as _, TypeView as _, Validate as _, ValidateCustom, ValidatorBytes as _,
                 ValidatorDecimal as _, ValidatorNumber as _, ValidatorString as _, Visitable as _,
             },

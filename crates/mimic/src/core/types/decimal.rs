@@ -1,6 +1,6 @@
 use crate::core::{
     traits::{
-        FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto, ValidateCustom,
+        FieldSearchable, FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom,
         Visitable,
     },
     value::Value,
@@ -138,18 +138,6 @@ impl FromPrimitive for Decimal {
 
     fn from_f64(n: f64) -> Option<Self> {
         WrappedDecimal::from_f64(n).map(Into::into)
-    }
-}
-
-impl Inner for Decimal {
-    type Primitive = Self;
-
-    fn inner(&self) -> Self::Primitive {
-        *self
-    }
-
-    fn into_inner(self) -> Self::Primitive {
-        self
     }
 }
 

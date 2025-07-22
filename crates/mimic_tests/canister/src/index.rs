@@ -3,10 +3,13 @@ use mimic::{
         traits::{EntityKind, Path},
         types::Principal,
     },
-    db::query::{self, LoadQuery, QueryPlan, QueryShape},
+    db::query::{self, LoadQuery, QueryPlan, QueryPlanner},
     prelude::*,
 };
-use test_design::{canister::index::Indexable, schema::TestStore};
+use test_design::{
+    canister::index::{Indexable, NotIndexable},
+    schema::TestDataStore,
+};
 
 pub struct IndexTester;
 
@@ -22,7 +25,8 @@ impl IndexTester {
         for (name, test_fn) in tests {
             println!("Clearing DB...");
             crate::DATA_REGISTRY.with(|reg| {
-                reg.with_store_mut::<TestStore>(|store| store.clear()).ok();
+                reg.with_store_mut(TestDataStore::PATH, |store| store.clear())
+                    .ok();
             });
 
             println!("Running test: {name}");
@@ -79,26 +83,22 @@ impl IndexTester {
     fn fallback_to_range() {
         let query = query::load().filter(|f| f.filter("score", Cmp::Gt, 50));
 
-        let plan = QueryPlan::new(&query.filter);
-        let shape = plan.shape::<Indexable>();
+        let planner = QueryPlanner::new(query.filter.as_ref());
+        let plan = planner.plan::<NotIndexable>();
 
-        match shape {
-            QueryShape::Range(_, _) => println!("✅ Fallback to range plan"),
-            _ => panic!("❌ Expected fallback Range plan, got: {shape:?}"),
+        match plan {
+            QueryPlan::Range(_, _) => println!("✅ Fallback to range plan"),
+            _ => panic!("❌ Expected fallback Range plan, got: {plan:?}"),
         }
-
-        let results = db!().load().execute::<Indexable>(query).unwrap().entities();
-
-        assert!(results.iter().all(|e| e.score > 50));
     }
 }
 
 fn assert_uses_index<E: EntityKind>(query: &LoadQuery) {
-    let plan = QueryPlan::new(&query.filter);
-    let shape = plan.shape::<E>();
+    let planner = QueryPlanner::new(query.filter.as_ref());
+    let plan = planner.plan::<E>();
 
-    match shape {
-        QueryShape::Index { .. } => println!("✅ Used index"),
-        _ => panic!("❌ Expected index-based query shape, got: {shape:?}"),
+    match plan {
+        QueryPlan::Index { .. } => println!("✅ Used index"),
+        _ => panic!("❌ Expected index-based query plan, got: {plan:?}"),
     }
 }

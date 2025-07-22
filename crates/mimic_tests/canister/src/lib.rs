@@ -1,7 +1,7 @@
 mod db;
 mod default;
 mod filter;
-//mod index;
+mod index;
 mod ops;
 mod validate;
 
@@ -26,7 +26,7 @@ pub fn test() {
     default::DefaultTester::test();
     db::DbTester::test();
     filter::FilterTester::test();
-    //   index::IndexTester::test();
+    index::IndexTester::test();
     ops::OpsTester::test();
     validate::ValidateTester::test();
 

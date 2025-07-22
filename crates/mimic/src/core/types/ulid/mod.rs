@@ -5,7 +5,7 @@ use crate::{
     ThisError,
     core::{
         traits::{
-            FieldSearchable, FieldSortable, FieldValue, Inner, Storable, TypeView, ValidateAuto,
+            FieldSearchable, FieldSortable, FieldValue, Storable, TypeView, ValidateAuto,
             ValidateCustom, Visitable,
         },
         value::Value,
@@ -141,18 +141,6 @@ impl FieldSortable for Ulid {
 impl FieldValue for Ulid {
     fn to_value(&self) -> Value {
         Value::Ulid(*self)
-    }
-}
-
-impl Inner for Ulid {
-    type Primitive = Self;
-
-    fn inner(&self) -> Self::Primitive {
-        *self
-    }
-
-    fn into_inner(self) -> Self::Primitive {
-        self
     }
 }
 

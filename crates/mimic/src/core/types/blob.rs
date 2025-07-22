@@ -1,6 +1,5 @@
 use crate::core::traits::{
-    FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto, ValidateCustom,
-    Visitable,
+    FieldSearchable, FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
@@ -68,18 +67,6 @@ impl From<&[u8]> for Blob {
 impl<const N: usize> From<&[u8; N]> for Blob {
     fn from(bytes: &[u8; N]) -> Self {
         Self(ByteBuf::from(&bytes[..]))
-    }
-}
-
-impl Inner for Blob {
-    type Primitive = Self;
-
-    fn inner(&self) -> Self::Primitive {
-        self.clone()
-    }
-
-    fn into_inner(self) -> Self::Primitive {
-        self
     }
 }
 

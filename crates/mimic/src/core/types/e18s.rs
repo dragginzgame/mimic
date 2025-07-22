@@ -1,6 +1,6 @@
 use crate::core::{
     traits::{
-        FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto, ValidateCustom,
+        FieldSearchable, FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom,
         Visitable,
     },
     types::Decimal,
@@ -130,18 +130,6 @@ impl FieldValue for E18s {
 impl From<u128> for E18s {
     fn from(n: u128) -> Self {
         Self(n)
-    }
-}
-
-impl Inner for E18s {
-    type Primitive = Self;
-
-    fn inner(&self) -> Self::Primitive {
-        *self
-    }
-
-    fn into_inner(self) -> Self::Primitive {
-        self
     }
 }
 

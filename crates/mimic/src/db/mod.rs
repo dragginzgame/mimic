@@ -10,7 +10,7 @@ use crate::{
     db::{
         executor::{DeleteExecutor, ExecutorError, LoadExecutor, SaveExecutor},
         response::ResponseError,
-        store::{DataStoreRegistryLocal, IndexStoreRegistryLocal},
+        store::{DataStoreRegistryLocal, IndexStoreRegistryLocal, StoreError},
     },
     serialize::SerializeError,
 };
@@ -30,6 +30,9 @@ pub enum DbError {
 
     #[error(transparent)]
     SerializeError(#[from] SerializeError),
+
+    #[error(transparent)]
+    StoreError(#[from] StoreError),
 
     #[error(transparent)]
     ValidateError(#[from] ValidateError),

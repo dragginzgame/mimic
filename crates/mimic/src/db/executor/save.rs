@@ -3,7 +3,7 @@ use crate::{
     common::utils::time,
     core::{
         Key,
-        traits::{EntityKind, IndexKindTuple},
+        traits::{EntityKind, IndexKindTuple, Path},
         validate::validate,
     },
     db::{
@@ -87,7 +87,7 @@ impl SaveExecutor {
     // execute_internal
     fn execute_internal<E: EntityKind>(&self, mode: SaveMode, entity: E) -> Result<Key, DbError> {
         let key = entity.key();
-        let store = self.data.with(|data| data.get_store::<E::Store>());
+        let store = self.data.with(|data| data.try_get_store(E::Store::PATH))?;
         let bytes = serialize(&entity)?;
 
         // validate
@@ -159,6 +159,6 @@ impl SaveExecutor {
             registry: &self.indexes,
         };
 
-        E::Indexes::for_each(&mut action).map_err(DbError::from)
+        E::Indexes::for_each(&mut action)
     }
 }

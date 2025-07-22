@@ -3,7 +3,7 @@ use crate::{
     common::error::ErrorTree,
     core::{
         traits::{
-            FieldSearchable, FieldSortable, FieldValue, Inner, Storable, TypeView, ValidateAuto,
+            FieldSearchable, FieldSortable, FieldValue, Storable, TypeView, ValidateAuto,
             ValidateCustom, Visitable,
         },
         value::Value,
@@ -130,18 +130,6 @@ impl FromStr for Principal {
             .map_err(|e| PrincipalError::Wrapped(e.to_string()))?;
 
         Ok(this)
-    }
-}
-
-impl Inner for Principal {
-    type Primitive = Self;
-
-    fn inner(&self) -> Self::Primitive {
-        *self
-    }
-
-    fn into_inner(self) -> Self::Primitive {
-        self
     }
 }
 

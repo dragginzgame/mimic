@@ -1,6 +1,6 @@
 use crate::core::{
     traits::{
-        FieldSearchable, FieldSortable, FieldValue, Inner, TypeView, ValidateAuto, ValidateCustom,
+        FieldSearchable, FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom,
         Visitable,
     },
     types::Principal,
@@ -115,18 +115,6 @@ impl From<Subaccount> for WrappedSubaccount {
 impl From<WrappedSubaccount> for Subaccount {
     fn from(wrap: WrappedSubaccount) -> Self {
         Self(wrap)
-    }
-}
-
-impl Inner for Subaccount {
-    type Primitive = Self;
-
-    fn inner(&self) -> Self::Primitive {
-        *self
-    }
-
-    fn into_inner(self) -> Self::Primitive {
-        self
     }
 }
 

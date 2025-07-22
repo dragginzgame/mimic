@@ -210,7 +210,7 @@ impl Imp<Newtype> for TypeViewTrait {
             type View = #view_ident;
 
             fn to_view(&self) -> Self::View {
-                self.inner()
+                self.0.to_view()
             }
 
             fn from_view(view: Self::View) -> Self {
