@@ -116,7 +116,7 @@ impl LoadExecutor {
 
     /// count_all
     #[allow(clippy::cast_possible_truncation)]
-    pub fn count_all<E: EntityKind>(self) -> Result<u32, DbError> {
+    pub fn count_all<E: EntityKind>(self) -> Result<u32, MimicError> {
         let rows = self.execute_plan::<E>(None)?;
 
         Ok(rows.len() as u32)
