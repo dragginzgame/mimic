@@ -3,6 +3,7 @@ use crate::{
     node_traits::{Imp, Implementor, Trait},
     traits::AsMacro,
 };
+use mimic_common::utils::case::{Case, Casing};
 use mimic_schema::types::Cardinality;
 use proc_macro2::{Span, TokenStream};
 use quote::{ToTokens, format_ident, quote};
@@ -127,7 +128,10 @@ pub struct EntityAccessorTrait {}
 impl Imp<Entity> for EntityAccessorTrait {
     fn tokens(node: &Entity) -> Option<TokenStream> {
         let ident = node.ident(); // e.g., `Indexable`
+        let fields_ident_s = format!("{ident}_FIELDS").to_case(Case::UpperSnake);
+        let fields_ident = format_ident!("{fields_ident_s}");
 
+        let mut fn_defs = Vec::new();
         let mut field_accessors = Vec::new();
 
         for field in &node.fields {
@@ -135,37 +139,51 @@ impl Imp<Entity> for EntityAccessorTrait {
             let field_str = field_ident.to_string();
             let field_ty = &field.value;
 
+            // Generate static function names
+            let cmp_fn_s = format!("{ident}_cmp_{field_ident}").to_case(Case::Snake);
+            let cmp_fn = format_ident!("{cmp_fn_s}");
+            let search_fn_s = format!("{ident}_search_{field_ident}").to_case(Case::Snake);
+            let search_fn = format_ident!("{search_fn_s}");
+
+            // Define the functions
+            fn_defs.push(quote! {
+                fn #search_fn(x: &#ident, text: &str) -> bool {
+                    <#field_ty as ::mimic::core::traits::FieldSearchable>::contains_text(&x.#field_ident, text)
+                }
+
+                fn #cmp_fn(a: &#ident, b: &#ident) -> ::std::cmp::Ordering {
+                    <#field_ty as ::mimic::core::traits::FieldSortable>::cmp(&a.#field_ident, &b.#field_ident)
+                }
+            });
+
+            // Use the functions in the static accessor table
             field_accessors.push(quote! {
                 ::mimic::core::traits::FieldAccessor {
                     name: #field_str,
-                    search: Some(|x, text|
-                        <#field_ty as ::mimic::core::traits::FieldSearchable>::contains_text(&x.#field_ident, text)
-                    ),
-                    cmp: Some(|a, b|
-                        <#field_ty as ::mimic::core::traits::FieldSortable>::cmp(&a.#field_ident, &b.#field_ident)
-                    ),
+                    search: Some(#search_fn),
+                    cmp: Some(#cmp_fn),
                 }
             });
         }
 
-        // static tokens
-        let static_name = format_ident!("{}_FIELDS", ident.to_string().to_uppercase());
-        let mut tokens = quote! {
-            static #static_name: &[::mimic::core::traits::FieldAccessor<#ident>] = &[
+        let static_def = quote! {
+            #(#fn_defs)*
+
+            static #fields_ident: &[::mimic::core::traits::FieldAccessor<#ident>] = &[
                 #(#field_accessors),*
             ];
         };
 
-        // trait
-        let q = quote! {
+        let trait_impl = quote! {
             fn fields() -> &'static [::mimic::core::traits::FieldAccessor<Self>] {
-                #static_name
+                #fields_ident
             }
         };
 
+        let mut tokens = static_def;
         tokens.extend(
             Implementor::new(ident, Trait::EntityAccessor)
-                .set_tokens(q)
+                .set_tokens(trait_impl)
                 .to_token_stream(),
         );
 

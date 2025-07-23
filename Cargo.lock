@@ -763,6 +763,7 @@ version = "0.8.3"
 dependencies = [
  "darling 0.21.0",
  "derive_more",
+ "mimic_common",
  "mimic_schema",
  "proc-macro2",
  "quote",

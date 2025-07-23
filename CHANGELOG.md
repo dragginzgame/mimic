@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.8.3]
 - cleaned up filter api with less generics
 - added filter_eq to LoadExecutor and DeleteExecutor
+- changed closures in FieldAccessor to static functions, smaller wasm and faster compiles
 
 ## [0.8.2] - Maintenance & Optimisation
 - reduced delete executor to just one mutable borrow
