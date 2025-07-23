@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.8.3]
+- cleaned up filter api with less generics
+- added filter_eq to LoadExecutor and DeleteExecutor
+
 ## [0.8.2] - Maintenance & Optimisation
 - reduced delete executor to just one mutable borrow
 - added delete_lots test just in case
@@ -15,7 +19,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - removed the Inner trait as to_view makes it obsolete
 - merged the ValidatorBytes, ValidatorString into just Validator
 - made index key a u64 and moved the fields into the IndexEntry
-- added filter_eq to LoadExecutor and DeleteExecutor
 
 ## [0.8.1] - Internal Changes
 - added CanisterKind, StoreKind, IndexKind so that we can declare the static types

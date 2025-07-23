@@ -10,8 +10,8 @@ pub struct SortExpr(pub Vec<(String, SortDirection)>);
 
 impl SortExpr {
     /// Add a single field + direction
-    pub fn push<T: Into<String>>(&mut self, field: T, dir: SortDirection) {
-        self.0.push((field.into(), dir));
+    pub fn push(&mut self, field: &str, dir: SortDirection) {
+        self.0.push((field.to_string(), dir));
     }
 
     /// Extend with multiple fields

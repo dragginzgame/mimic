@@ -213,9 +213,9 @@ pub struct FilterClause {
 }
 
 impl FilterClause {
-    pub fn new<F: Into<String>, V: Into<Value>>(field: F, cmp: Cmp, value: V) -> Self {
+    pub fn new(field: &str, cmp: Cmp, value: impl Into<Value>) -> Self {
         Self {
-            field: field.into(),
+            field: field.to_string(),
             cmp,
             value: value.into(),
         }

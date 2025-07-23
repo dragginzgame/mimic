@@ -46,21 +46,17 @@ impl LoadQuery {
     }
 
     #[must_use]
-    pub fn filter_eq<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
+    pub fn filter_eq(self, field: &str, value: impl Into<Value>) -> Self {
         self.filter(|f| f.eq(field, value))
     }
 
     #[must_use]
-    pub fn filter_eq_opt<F: Into<String>, V: Into<Value>>(
-        self,
-        field: F,
-        value: Option<V>,
-    ) -> Self {
+    pub fn filter_eq_opt(self, field: &str, value: Option<impl Into<Value>>) -> Self {
         self.filter(|f| f.eq_opt(field, value))
     }
 
     #[must_use]
-    pub fn filter_in<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
+    pub fn filter_in(self, field: &str, value: impl Into<Value>) -> Self {
         self.filter(|f| f.filter(field, Cmp::In, value))
     }
 
@@ -124,7 +120,7 @@ impl LoadQuery {
 
     // sort_field
     #[must_use]
-    pub fn sort_field<K: Into<String>>(self, field: K, dir: SortDirection) -> Self {
+    pub fn sort_field(self, field: &str, dir: SortDirection) -> Self {
         self.sort(std::iter::once((field, dir)))
     }
 }

@@ -76,10 +76,10 @@ impl LoadExecutor {
     }
 
     // filter_eq
-    pub fn filter_eq<E: EntityKind, F: Into<String>, V: Into<Value>>(
+    pub fn filter_eq<E: EntityKind>(
         self,
-        field: F,
-        value: V,
+        field: &str,
+        value: impl Into<Value>,
     ) -> Result<LoadCollection<E>, MimicError> {
         self.execute::<E>(LoadQuery::new().filter_eq(field, value))
     }

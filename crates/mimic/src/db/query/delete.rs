@@ -42,7 +42,7 @@ impl DeleteQuery {
 
     // filter_in
     #[must_use]
-    pub fn filter_in<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
+    pub fn filter_in(self, field: &str, value: impl Into<Value>) -> Self {
         let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::In, value));
 
         self.merge_filter(clause)
@@ -50,7 +50,7 @@ impl DeleteQuery {
 
     // filter_eq
     #[must_use]
-    pub fn filter_eq<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
+    pub fn filter_eq(self, field: &str, value: impl Into<Value>) -> Self {
         let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::Eq, value));
 
         self.merge_filter(clause)

@@ -78,14 +78,14 @@ impl FilterBuilder {
     ///
 
     #[must_use]
-    pub fn eq<F: Into<String>, V: Into<Value>>(self, field: F, value: V) -> Self {
+    pub fn eq(self, field: &str, value: impl Into<Value>) -> Self {
         let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::Eq, value));
 
         self.add_expr(clause, Logic::And)
     }
 
     #[must_use]
-    pub fn eq_opt<F: Into<String>, V: Into<Value>>(self, field: F, value: Option<V>) -> Self {
+    pub fn eq_opt(self, field: &str, value: Option<impl Into<Value>>) -> Self {
         if let Some(val) = value {
             self.eq(field, val)
         } else {
@@ -98,12 +98,12 @@ impl FilterBuilder {
     ///
 
     #[must_use]
-    pub fn filter<F: Into<String>, V: Into<Value>>(self, field: F, cmp: Cmp, value: V) -> Self {
+    pub fn filter(self, field: &str, cmp: Cmp, value: impl Into<Value>) -> Self {
         self.and(field, cmp, value)
     }
 
     #[must_use]
-    pub fn and<F: Into<String>, V: Into<Value>>(self, field: F, cmp: Cmp, value: V) -> Self {
+    pub fn and(self, field: &str, cmp: Cmp, value: impl Into<Value>) -> Self {
         let clause = FilterExpr::Clause(FilterClause::new(field, cmp, value));
 
         self.add_expr(clause, Logic::And)
@@ -115,12 +115,7 @@ impl FilterBuilder {
     }
 
     #[must_use]
-    pub fn and_opt<F: Into<String>, V: Into<Value>>(
-        self,
-        field: F,
-        cmp: Cmp,
-        value: Option<V>,
-    ) -> Self {
+    pub fn and_opt(self, field: &str, cmp: Cmp, value: Option<impl Into<Value>>) -> Self {
         match value {
             Some(v) => self.and(field, cmp, v),
             None => self,
@@ -140,7 +135,7 @@ impl FilterBuilder {
     ///
 
     #[must_use]
-    pub fn or<F: Into<String>, V: Into<Value>>(self, field: F, cmp: Cmp, value: V) -> Self {
+    pub fn or(self, field: &str, cmp: Cmp, value: impl Into<Value>) -> Self {
         let clause = FilterExpr::Clause(FilterClause::new(field, cmp, value));
 
         self.add_expr(clause, Logic::Or)
@@ -152,12 +147,7 @@ impl FilterBuilder {
     }
 
     #[must_use]
-    pub fn or_opt<F: Into<String>, V: Into<Value>>(
-        self,
-        field: F,
-        cmp: Cmp,
-        value: Option<V>,
-    ) -> Self {
+    pub fn or_opt(self, field: &str, cmp: Cmp, value: Option<impl Into<Value>>) -> Self {
         match value {
             Some(v) => self.or(field, cmp, v),
             None => self,
@@ -177,7 +167,7 @@ impl FilterBuilder {
     ///
 
     #[must_use]
-    pub fn not<F: Into<String>, V: Into<Value>>(self, field: F, cmp: Cmp, value: V) -> Self {
+    pub fn not(self, field: &str, cmp: Cmp, value: impl Into<Value>) -> Self {
         let clause = FilterExpr::Clause(FilterClause::new(field, cmp, value));
         self.not_expr(clause)
     }
@@ -196,12 +186,7 @@ impl FilterBuilder {
     }
 
     #[must_use]
-    pub fn not_opt<F: Into<String>, V: Into<Value>>(
-        self,
-        field: F,
-        cmp: Cmp,
-        value: Option<V>,
-    ) -> Self {
+    pub fn not_opt(self, field: &str, cmp: Cmp, value: Option<impl Into<Value>>) -> Self {
         match value {
             Some(v) => self.not(field, cmp, v),
             None => self,
