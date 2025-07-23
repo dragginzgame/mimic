@@ -1,4 +1,7 @@
-use crate::{MimicError, core::traits::EntityKind, serialize::serialize};
+use crate::{
+    MimicError,
+    core::{serialize, traits::EntityKind},
+};
 use candid::CandidType;
 use derive_more::Display;
 use serde::{Deserialize, Serialize};

@@ -125,6 +125,11 @@ pub struct DataEntry {
 }
 
 impl DataEntry {
+    #[must_use]
+    pub fn new(bytes: Vec<u8>, metadata: Metadata) -> Self {
+        Self { bytes, metadata }
+    }
+
     fn encode_into_vec(&self) -> Vec<u8> {
         let mut out = Vec::new();
 
@@ -162,7 +167,16 @@ impl Storable for DataEntry {
 
 // read_chunk
 fn read_chunk(buf: &mut &[u8]) -> Vec<u8> {
+    assert!(buf.len() >= 4, "not enough bytes for length prefix");
     let len = u32::from_le_bytes(buf[..4].try_into().unwrap()) as usize;
+
+    assert!(
+        buf.len() >= 4 + len,
+        "chunk length {} exceeds buffer size {}",
+        len,
+        buf.len()
+    );
+
     let val = buf[4..4 + len].to_vec();
     *buf = &buf[4 + len..];
 
@@ -172,9 +186,10 @@ fn read_chunk(buf: &mut &[u8]) -> Vec<u8> {
 // write_chunk
 #[allow(clippy::cast_possible_truncation)]
 fn write_chunk(buf: &mut Vec<u8>, data: &[u8]) {
-    let len = data.len();
-    buf.extend(&len.to_le_bytes());
+    assert!(data.len() <= u32::MAX as usize, "chunk too large");
+    let len = data.len() as u32;
 
+    buf.extend(&len.to_le_bytes());
     buf.extend(data);
 }
 
@@ -188,6 +203,13 @@ pub struct Metadata {
     pub modified: u64,
 }
 
+impl Metadata {
+    #[must_use]
+    pub fn new(created: u64, modified: u64) -> Self {
+        Self { created, modified }
+    }
+}
+
 ///
 /// TESTS
 ///
@@ -196,6 +218,16 @@ pub struct Metadata {
 mod tests {
     use super::*;
     use crate::core::types::Ulid;
+
+    #[test]
+    fn data_entry_round_trip_works() {
+        let entry = DataEntry::new(vec![1, 2, 3], Metadata::new(1000, 2000));
+        let encoded = Storable::to_bytes(&entry);
+        let decoded = DataEntry::from_bytes(encoded);
+
+        assert_eq!(entry.bytes, decoded.bytes);
+        assert_eq!(entry.metadata, decoded.metadata);
+    }
 
     #[test]
     fn data_key_max_size_is_bounded() {

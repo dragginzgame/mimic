@@ -8,21 +8,24 @@ use crate::{
 use thiserror::Error as ThisError;
 
 ///
-/// Validate
+/// ValidationError
 ///
 
 #[derive(Debug, ThisError)]
-pub enum ValidateError {
+pub enum ValidationError {
     #[error("validation failed: {0}")]
-    Validation(ErrorTree),
+    ValidationFailed(ErrorTree),
 }
 
 // validate
-pub fn validate(node: &dyn Visitable) -> Result<(), ValidateError> {
+pub fn validate(node: &dyn Visitable) -> Result<(), ValidationError> {
     let mut visitor = ValidateVisitor::new();
     perform_visit(&mut visitor, node, "");
 
-    visitor.errors.result().map_err(ValidateError::Validation)?;
+    visitor
+        .errors
+        .result()
+        .map_err(ValidationError::ValidationFailed)?;
 
     Ok(())
 }

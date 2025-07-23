@@ -12,6 +12,7 @@ pub enum SerializeError {
 }
 
 // serialize
+// passes through to the icu default serializer for efficiency
 pub fn serialize<T>(ty: &T) -> Result<Vec<u8>, SerializeError>
 where
     T: Serialize,

@@ -6,13 +6,12 @@ pub mod service;
 pub mod store;
 
 use crate::{
-    core::validate::ValidateError,
+    core::{serialize::SerializeError, validate::ValidationError},
     db::{
         executor::{DeleteExecutor, ExecutorError, LoadExecutor, SaveExecutor},
         response::ResponseError,
         store::{DataStoreRegistryLocal, IndexStoreRegistryLocal, StoreError},
     },
-    serialize::SerializeError,
 };
 use thiserror::Error as ThisError;
 
@@ -35,7 +34,7 @@ pub enum DbError {
     StoreError(#[from] StoreError),
 
     #[error(transparent)]
-    ValidateError(#[from] ValidateError),
+    ValidationError(#[from] ValidationError),
 }
 
 ///

@@ -10,10 +10,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - added delete_lots test just in case
 - IndexTuple::HAS_INDEXES trait constant so you can easily skip indexes if needed
 - db::Db is now passed to fixtures and not the SaveExecutor
-- QueryShape::ALl removed because it's dangerous and doesn't add anything
+- QueryShape::All removed because it's dangerous and doesn't add anything
 - Delete Range working
 - removed the Inner trait as to_view makes it obsolete
 - merged the ValidatorBytes, ValidatorString into just Validator
+- made index key a u64 and moved the fields into the IndexEntry
 
 ## [0.8.1] - Internal Changes
 - added CanisterKind, StoreKind, IndexKind so that we can declare the static types

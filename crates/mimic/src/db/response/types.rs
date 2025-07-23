@@ -1,7 +1,6 @@
 use crate::{
-    core::{Key, traits::Path},
+    core::{Key, deserialize, serialize, serialize::SerializeError, traits::Path},
     db::store::{DataEntry, DataRow, Metadata},
-    serialize::{SerializeError, deserialize, serialize},
 };
 use candid::CandidType;
 use serde::{Serialize, de::DeserializeOwned};

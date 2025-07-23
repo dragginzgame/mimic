@@ -1,7 +1,7 @@
 use crate::{
     MimicError,
     core::{
-        Key, Value,
+        Key, Value, deserialize,
         traits::{EntityKind, IndexKindTuple, Path},
     },
     db::{
@@ -11,7 +11,6 @@ use crate::{
         store::{DataKey, DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
     debug,
-    serialize::deserialize,
 };
 use std::ops::Bound;
 

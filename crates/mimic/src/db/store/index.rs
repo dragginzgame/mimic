@@ -3,12 +3,12 @@ use crate::{
         Key,
         traits::{EntityKind, IndexKind},
     },
-    db::{executor::ExecutorError, hasher::xx_hash_u64, store::DataKey},
+    db::{executor::ExecutorError, store::DataKey},
     debug,
     ic::structures::{BTreeMap, DefaultMemory},
 };
 use candid::CandidType;
-use derive_more::{Deref, DerefMut};
+use derive_more::{Deref, DerefMut, Display};
 use icu::{impl_storable_bounded, impl_storable_unbounded};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -16,6 +16,7 @@ use std::{
     fmt::{self, Display},
     {cell::RefCell, thread::LocalKey},
 };
+use xxhash_rust::xxh3::xxh3_64;
 
 ///
 /// IndexStoreLocal
@@ -60,7 +61,7 @@ impl IndexStore {
                     return Err(ExecutorError::IndexViolation(index_key));
                 }
 
-                self.insert(index_key.clone(), IndexEntry::from(key));
+                self.insert(index_key.clone(), IndexEntry::new(I::FIELDS, key));
                 debug!(
                     debug,
                     "index.insert: unique index updated {index_key} -> {key}"
@@ -75,7 +76,7 @@ impl IndexStore {
                 );
             }
         } else {
-            self.insert(index_key.clone(), IndexEntry::from(key));
+            self.insert(index_key.clone(), IndexEntry::new(I::FIELDS, key));
             debug!(
                 debug,
                 "index.insert: created new entry {index_key} -> {key}"
@@ -98,7 +99,7 @@ impl IndexStore {
 
         if let Some(existing) = self.get(&index_key) {
             let mut updated = existing;
-            let removed = updated.remove(&key);
+            let removed = updated.remove_key(&key);
             debug!(
                 debug,
                 "index.remove: removed {key} from {index_key} (was present? {removed})"
@@ -127,7 +128,7 @@ impl IndexStore {
         prefix: &[Key],
     ) -> Vec<DataKey> {
         self.range_with_prefix(index_path, index_fields, prefix)
-            .flat_map(|(_, entry)| entry.into_iter())
+            .flat_map(|(_, entry)| entry.keys)
             .map(|key| DataKey::new::<E>(key))
             .collect()
     }
@@ -142,7 +143,7 @@ impl IndexStore {
 
         self.range(
             IndexKey {
-                index_id: index_id.clone(),
+                index_id,
                 keys: prefix.to_vec(),
             }..,
         )
@@ -159,20 +160,34 @@ impl IndexStore {
 ///
 
 #[derive(
-    Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, CandidType, Serialize, Deserialize,
+    Clone,
+    Debug,
+    Display,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    CandidType,
+    Serialize,
+    Deserialize,
 )]
-pub struct IndexId {
-    pub entity_hash: u64,
-    pub fields: Vec<String>,
-}
+pub struct IndexId(u64);
 
 impl IndexId {
     #[must_use]
     pub fn new(path: &str, fields: &[&str]) -> Self {
-        Self {
-            entity_hash: xx_hash_u64(path),
-            fields: fields.iter().map(ToString::to_string).collect(),
+        let mut buffer = Vec::new();
+
+        // much more efficient than format
+        buffer.extend_from_slice(path.as_bytes());
+        for field in fields {
+            buffer.extend_from_slice(field.as_bytes());
+            buffer.extend_from_slice(b"|");
         }
+
+        Self(xxh3_64(&buffer))
     }
 
     #[must_use]
@@ -194,12 +209,6 @@ impl IndexId {
     }
 }
 
-impl Display for IndexId {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({} [{:?}])", self.entity_hash, self.fields)
-    }
-}
-
 ///
 /// IndexKey
 ///
@@ -213,7 +222,8 @@ pub struct IndexKey {
 }
 
 impl IndexKey {
-    pub const STORABLE_MAX_SIZE: u32 = 512;
+    // with five keys it's 235 bytes
+    pub const STORABLE_MAX_SIZE: u32 = 256;
 
     #[must_use]
     pub fn build<I>(entity: &impl EntityKind) -> Option<Self>
@@ -248,6 +258,7 @@ impl IndexKey {
                 Key::max_storable(),
                 Key::max_storable(),
                 Key::max_storable(),
+                Key::max_storable(),
             ]
             .to_vec(),
         }
@@ -266,68 +277,59 @@ impl_storable_bounded!(IndexKey, IndexKey::STORABLE_MAX_SIZE, false);
 /// IndexEntry
 ///
 
-#[derive(CandidType, Clone, Debug, Deref, DerefMut, Deserialize, Serialize)]
-pub struct IndexEntry(HashSet<Key>);
+#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
+pub struct IndexEntry {
+    fields: Vec<String>,
+    keys: HashSet<Key>,
+}
 
 impl IndexEntry {
     #[must_use]
-    pub fn from_key(key: Key) -> Self {
-        let mut set = HashSet::with_capacity(1);
-        set.insert(key);
+    pub fn new(fields: &[&str], key: Key) -> Self {
+        let mut key_set = HashSet::with_capacity(1);
+        key_set.insert(key);
 
-        Self(set)
+        Self {
+            fields: fields.iter().map(ToString::to_string).collect(),
+            keys: key_set,
+        }
     }
 
     #[must_use]
     pub fn insert(&mut self, key: Key) -> bool {
-        self.0.insert(key)
+        self.keys.insert(key)
+    }
+
+    /// Removes the key from the set.
+    #[must_use]
+    pub fn remove_key(&mut self, key: &Key) -> bool {
+        self.keys.remove(key)
     }
 
     /// Checks if the set contains the key.
     #[must_use]
     pub fn contains(&self, key: &Key) -> bool {
-        self.0.contains(key)
+        self.keys.contains(key)
     }
 
     /// Returns `true` if the set is empty.
     #[must_use]
     pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
+        self.keys.is_empty()
     }
 
     /// Returns number of keys in the entry.
     #[must_use]
     pub fn len(&self) -> usize {
-        self.0.len()
+        self.keys.len()
     }
 
     /// Returns keys as a sorted `Vec<Key>` (useful for serialization/debug).
     #[must_use]
     pub fn to_sorted_vec(&self) -> Vec<Key> {
-        let mut keys: Vec<_> = self.0.iter().copied().collect();
+        let mut keys: Vec<_> = self.keys.iter().copied().collect();
         keys.sort_unstable(); // uses Ord, fast
         keys
-    }
-}
-
-impl From<Key> for IndexEntry {
-    fn from(key: Key) -> Self {
-        Self::from_key(key)
-    }
-}
-
-impl FromIterator<Key> for IndexEntry {
-    fn from_iter<I: IntoIterator<Item = Key>>(iter: I) -> Self {
-        Self(HashSet::from_iter(iter))
-    }
-}
-
-impl IntoIterator for IndexEntry {
-    type Item = Key;
-    type IntoIter = std::collections::hash_set::IntoIter<Key>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.0.into_iter()
     }
 }
 
@@ -349,5 +351,15 @@ mod tests {
 
         println!("max serialized size = {size}");
         assert!(size <= IndexKey::STORABLE_MAX_SIZE as usize);
+    }
+
+    #[test]
+    fn index_entry_round_trip() {
+        let original = IndexEntry::new(&["a", "b"], Key::from(1u64));
+        let encoded = Storable::to_bytes(&original);
+        let decoded = IndexEntry::from_bytes(encoded);
+
+        assert_eq!(original.fields, decoded.fields);
+        assert_eq!(original.to_sorted_vec(), decoded.to_sorted_vec());
     }
 }

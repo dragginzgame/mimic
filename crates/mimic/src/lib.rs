@@ -8,7 +8,6 @@ pub mod db;
 pub mod design;
 pub mod interface;
 pub mod macros;
-pub mod serialize;
 
 ///
 /// MIMIC CRATE EXPORTS
@@ -69,6 +68,7 @@ pub mod prelude {
     pub use ::candid::CandidType;
 }
 
+use crate::core::{serialize::SerializeError, validate::ValidationError};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use thiserror::Error as ThisError;
@@ -83,13 +83,13 @@ use thiserror::Error as ThisError;
 #[derive(CandidType, Debug, Deserialize, Serialize, ThisError)]
 pub enum MimicError {
     #[error("{0}")]
-    CoreError(String),
-
-    #[error("{0}")]
     DbError(String),
 
     #[error("{0}")]
     InterfaceError(String),
+
+    #[error("{0}")]
+    ValidationError(String),
 
     #[error("{0}")]
     SerializeError(String),
@@ -105,7 +105,7 @@ macro_rules! from_to_string {
     };
 }
 
-from_to_string!(core::CoreError, CoreError);
 from_to_string!(db::DbError, DbError);
 from_to_string!(interface::InterfaceError, InterfaceError);
-from_to_string!(serialize::SerializeError, SerializeError);
+from_to_string!(ValidationError, ValidationError);
+from_to_string!(SerializeError, SerializeError);
