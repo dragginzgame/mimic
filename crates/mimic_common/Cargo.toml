@@ -12,6 +12,7 @@ derive_more = { workspace = true }
 ic-cdk = { workspace = true }
 serde = { workspace = true }
 tinyrand = { workspace = true }
+xxhash-rust = { workspace = true }
 
 [lints]
 workspace = true

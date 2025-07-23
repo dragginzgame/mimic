@@ -1,6 +1,5 @@
-use crate::core::types::Ulid;
+use crate::{common::utils::hash::hash_u128, core::types::Ulid};
 use ::ulid::Ulid as WrappedUlid;
-use xxhash_rust::xxh3::xxh3_128;
 
 ///
 /// Fixtures
@@ -20,7 +19,7 @@ impl Ulid {
     #[must_use]
     pub fn from_string_digest(digest: &str) -> Self {
         // hash name to u128
-        let hash = xxh3_128(digest.as_bytes());
+        let hash = hash_u128(digest.as_bytes());
         let hash_bytes = hash.to_be_bytes(); // [u8; 16]
 
         // Take the first 16 bytes of the SHA-256 hash and convert them to u128

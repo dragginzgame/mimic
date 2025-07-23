@@ -1,9 +1,9 @@
 use crate::{
+    common::utils::hash::hash_u64,
     core::{
         Key,
         traits::{EntityKind, Storable},
     },
-    db::hasher::xx_hash_u64,
     ic::structures::{BTreeMap, DefaultMemory, storable::Bound},
 };
 use candid::{CandidType, Decode, Encode};
@@ -78,7 +78,7 @@ impl DataKey {
     #[must_use]
     pub fn from_path(path: &str, key: impl Into<Key>) -> Self {
         Self {
-            entity_id: xx_hash_u64(path),
+            entity_id: hash_u64(path.as_bytes()),
             key: key.into(),
         }
     }

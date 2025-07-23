@@ -732,7 +732,6 @@ dependencies = [
  "serde_bytes",
  "thiserror 2.0.12",
  "ulid",
- "xxhash-rust",
 ]
 
 [[package]]
@@ -755,6 +754,7 @@ dependencies = [
  "ic-cdk",
  "serde",
  "tinyrand",
+ "xxhash-rust",
 ]
 
 [[package]]

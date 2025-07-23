@@ -1,5 +1,4 @@
 pub mod executor;
-pub mod hasher;
 pub mod query;
 pub mod response;
 pub mod service;

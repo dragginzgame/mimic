@@ -1,4 +1,5 @@
 use crate::{
+    common::utils::hash::hash_u64,
     core::{
         Key,
         traits::{EntityKind, IndexKind},
@@ -16,7 +17,6 @@ use std::{
     fmt::{self, Display},
     {cell::RefCell, thread::LocalKey},
 };
-use xxhash_rust::xxh3::xxh3_64;
 
 ///
 /// IndexStoreLocal
@@ -187,7 +187,7 @@ impl IndexId {
             buffer.extend_from_slice(b"|");
         }
 
-        Self(xxh3_64(&buffer))
+        Self(hash_u64(&buffer))
     }
 
     #[must_use]
