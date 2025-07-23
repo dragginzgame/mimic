@@ -46,6 +46,11 @@ impl DeleteExecutor {
         self
     }
 
+    ///
+    /// HELPER METHODS
+    /// these will create an intermediate query
+    ///
+
     // one
     // helper method, creates query
     pub fn one<E: EntityKind>(&self, value: impl Into<Value>) -> Result<Vec<Key>, MimicError> {
@@ -67,6 +72,19 @@ impl DeleteExecutor {
     pub fn all<E: EntityKind>(&self) -> Result<Vec<Key>, MimicError> {
         self.execute::<E>(DeleteQuery::new())
     }
+
+    // filter_eq
+    pub fn filter_eq<E: EntityKind, F: Into<String>, V: Into<Value>>(
+        self,
+        field: F,
+        value: V,
+    ) -> Result<Vec<Key>, MimicError> {
+        self.execute::<E>(DeleteQuery::new().filter_eq(field, value))
+    }
+
+    ///
+    /// EXECUTION METHODS
+    ///
 
     // execute
     pub fn execute<E: EntityKind>(self, query: DeleteQuery) -> Result<Vec<Key>, MimicError> {

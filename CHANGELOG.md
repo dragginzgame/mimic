@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - removed the Inner trait as to_view makes it obsolete
 - merged the ValidatorBytes, ValidatorString into just Validator
 - made index key a u64 and moved the fields into the IndexEntry
+- added filter_eq to LoadExecutor and DeleteExecutor
 
 ## [0.8.1] - Internal Changes
 - added CanisterKind, StoreKind, IndexKind so that we can declare the static types
