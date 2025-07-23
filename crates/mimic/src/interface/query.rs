@@ -1,3 +1,11 @@
+use crate::{
+    MimicError,
+    core::Key,
+    db::query::{DeleteQuery, SaveQuery},
+    interface::InterfaceError,
+};
+use candid::Principal;
+use icu::ic::call::Call;
 use thiserror::Error as ThisError;
 
 ///
@@ -14,21 +22,18 @@ pub enum QueryError {
 }
 
 // query_load
+// currently disabled because LoadResponse needs a rethink
 //pub async fn query_load(pid: Principal, query: LoadQuery) -> Result<LoadResponse, MimicError> {
 //    query_call(pid, "mimic_query_load", &query).await
 //}
 
-/*
 // query_save
 pub async fn query_save(pid: Principal, query: SaveQuery) -> Result<Key, MimicError> {
     query_call(pid, "mimic_query_save", &query).await
 }
 
 // query_delete
-pub async fn query_delete(
-    pid: Principal,
-    query: DeleteQuery,
-) -> Result<DeleteResponse, MimicError> {
+pub async fn query_delete(pid: Principal, query: DeleteQuery) -> Result<Vec<Key>, MimicError> {
     query_call(pid, "mimic_query_delete", &query).await
 }
 
@@ -52,5 +57,3 @@ async fn query_call<T: candid::CandidType + for<'de> candid::Deserialize<'de>>(
 
     Ok(response)
 }
-
-*/
