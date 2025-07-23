@@ -98,12 +98,12 @@ impl Imp<Newtype> for DefaultTrait {
 // not 100% sure NumCast will always work here, may need some extra checks
 fn format_default(arg: &Arg) -> TokenStream {
     match arg {
-        Arg::Path(path) => quote!(#path().into()),
-        Arg::Bool(v) => quote!(#v.into()),
-        Arg::Char(v) => quote!(#v.into()),
+        Arg::Bool(v) => quote!(#v),
+        Arg::Char(v) => quote!(#v),
         Arg::Number(v) => {
             quote!(::mimic::core::traits::NumCast::from(#v).expect("number is valid"))
         }
-        Arg::String(v) => quote!(#v.into()),
+        Arg::Path(path) => quote!(#path()),
+        Arg::String(v) => quote!(#v),
     }
 }
