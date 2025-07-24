@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.9.0] - Codegen Rewrite
--- aksjd
+- rewrite of the macro codegen, much faster in vscode now
 - added have view(), views() and try_view() to LoadCollection
 
 ## [0.8.3]

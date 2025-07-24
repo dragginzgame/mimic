@@ -121,7 +121,7 @@ where
         self.try_entity().map(|e| e.to_view())
     }
 
-    // entities
+    // views
     #[must_use]
     pub fn views(self) -> Vec<E::View> {
         self.entities().into_iter().map(|e| e.to_view()).collect()
