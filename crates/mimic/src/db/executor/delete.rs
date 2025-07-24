@@ -110,7 +110,7 @@ impl DeleteExecutor {
 
         // get data keys
         let data_keys: Vec<DataKey> = match &plan {
-            QueryPlan::Keys(keys) => keys.to_vec(),
+            QueryPlan::Keys(keys) => keys.clone(),
             QueryPlan::Range(start, end) => store.with_borrow(|store| {
                 store
                     .range((Bound::Included(start.clone()), Bound::Included(end.clone())))

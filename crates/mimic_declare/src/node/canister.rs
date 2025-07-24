@@ -1,7 +1,9 @@
 use crate::{
     node::Def,
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
+    traits::{
+        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart, SchemaNodeKind,
+    },
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -19,11 +21,31 @@ pub struct Canister {
     pub def: Def,
 }
 
-impl AsMacro for Canister {
+impl HasIdent for Canister {
     fn ident(&self) -> Ident {
         self.def.ident.clone()
     }
+}
 
+impl HasSchema for Canister {
+    fn schema_node_kind() -> SchemaNodeKind {
+        SchemaNodeKind::Canister
+    }
+}
+
+impl HasSchemaPart for Canister {
+    fn schema_part(&self) -> TokenStream {
+        let def = self.def.schema_part();
+
+        quote! {
+            ::mimic::schema::node::Canister{
+                def: #def,
+            }
+        }
+    }
+}
+
+impl HasTraits for Canister {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = Traits::default().with_path_trait();
         traits.add(Trait::CanisterKind);
@@ -41,27 +63,13 @@ impl AsMacro for Canister {
     }
 }
 
-impl AsSchema for Canister {
-    const EMIT_SCHEMA: bool = true;
-
-    fn schema(&self) -> TokenStream {
-        let def = self.def.schema();
-
-        quote! {
-            ::mimic::schema::node::SchemaNode::Canister(::mimic::schema::node::Canister{
-                def: #def,
-            })
-        }
-    }
-}
-
-impl AsType for Canister {
-    fn as_type(&self) -> Option<TokenStream> {
+impl HasTypePart for Canister {
+    fn type_part(&self) -> TokenStream {
         let ident = self.ident();
 
-        Some(quote! {
+        quote! {
             pub struct #ident {}
-        })
+        }
     }
 }
 

@@ -1,12 +1,12 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_path},
     node::TypeValidator,
-    traits::{AsSchema, AsType},
+    traits::{HasSchemaPart, HasTypePart},
 };
 use darling::FromMeta;
 use mimic_schema::types::Primitive;
 use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
+use quote::quote;
 use syn::Path;
 
 ///
@@ -58,14 +58,12 @@ impl Item {
     }
 }
 
-impl AsSchema for Item {
-    const EMIT_SCHEMA: bool = false;
-
-    fn schema(&self) -> TokenStream {
-        let target = self.target().schema();
+impl HasSchemaPart for Item {
+    fn schema_part(&self) -> TokenStream {
+        let target = self.target().schema_part();
         let relation = quote_option(self.relation.as_ref(), to_path);
         let selector = quote_option(self.selector.as_ref(), to_path);
-        let validators = quote_slice(&self.validators, TypeValidator::schema);
+        let validators = quote_slice(&self.validators, TypeValidator::schema_part);
         let indirect = self.indirect;
         let todo = self.todo;
 
@@ -82,35 +80,25 @@ impl AsSchema for Item {
     }
 }
 
-impl AsType for Item {
-    fn as_type(&self) -> Option<TokenStream> {
-        let ty = self.target().as_type();
+impl HasTypePart for Item {
+    fn type_part(&self) -> TokenStream {
+        let ty = self.target().type_part();
 
-        let q = if self.indirect {
+        if self.indirect {
             quote!(Box<#ty>)
         } else {
             quote!(#ty)
-        };
-
-        Some(q)
+        }
     }
 
-    fn as_view_type(&self) -> Option<TokenStream> {
-        let view = self.target().as_view_type();
+    fn view_type_part(&self) -> TokenStream {
+        let view = self.target().view_type_part();
 
-        let q = if self.indirect {
+        if self.indirect {
             quote!(Box<#view>)
         } else {
             quote!(#view)
-        };
-
-        Some(q)
-    }
-}
-
-impl ToTokens for Item {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.as_type());
+        }
     }
 }
 
@@ -123,10 +111,8 @@ pub enum ItemTarget {
     Primitive(Primitive),
 }
 
-impl AsSchema for ItemTarget {
-    const EMIT_SCHEMA: bool = false;
-
-    fn schema(&self) -> TokenStream {
+impl HasSchemaPart for ItemTarget {
+    fn schema_part(&self) -> TokenStream {
         match self {
             Self::Is(path) => {
                 let path = quote_one(path, to_path);
@@ -143,21 +129,19 @@ impl AsSchema for ItemTarget {
     }
 }
 
-impl AsType for ItemTarget {
-    fn as_type(&self) -> Option<TokenStream> {
-        let q = match self {
+impl HasTypePart for ItemTarget {
+    fn type_part(&self) -> TokenStream {
+        match self {
             Self::Is(path) => quote!(#path),
             Self::Primitive(prim) => {
                 let ty = prim.as_type();
                 quote!(#ty)
             }
-        };
-
-        Some(q)
+        }
     }
 
-    fn as_view_type(&self) -> Option<TokenStream> {
-        let q = match self {
+    fn view_type_part(&self) -> TokenStream {
+        match self {
             Self::Is(path) => {
                 quote!(<#path as ::mimic::core::traits::TypeView>::View)
             }
@@ -165,8 +149,6 @@ impl AsType for ItemTarget {
                 let ty = prim.as_type();
                 quote!(<#ty as ::mimic::core::traits::TypeView>::View)
             }
-        };
-
-        Some(q)
+        }
     }
 }

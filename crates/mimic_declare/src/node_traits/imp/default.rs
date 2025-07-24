@@ -4,7 +4,7 @@ use crate::{
         Trait,
         imp::{Imp, Implementor},
     },
-    traits::AsMacro,
+    traits::HasIdent,
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};

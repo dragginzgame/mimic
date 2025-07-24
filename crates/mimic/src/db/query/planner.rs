@@ -34,7 +34,7 @@ pub struct IndexPlan {
 
 impl IndexPlan {
     #[must_use]
-    pub fn new<I: IndexKind>(keys: Vec<Key>) -> Self {
+    pub const fn new<I: IndexKind>(keys: Vec<Key>) -> Self {
         Self {
             store_path: I::Store::PATH,
             index_path: I::PATH,
@@ -148,7 +148,7 @@ struct IndexMatch {
 
 impl IndexMatch {
     // ✅ Consider extracting plan_priority_score (future-proofing)
-    pub fn score(&self) -> u32 {
+    pub const fn score(&self) -> u32 {
         self.fields_matched
     }
 }

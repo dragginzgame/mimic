@@ -1,7 +1,7 @@
 use bencher::*;
 use mimic::{core::Key, db::store::DataKey};
 
-benchmark_group!(benchmarks, create_data_key, compare_data_key,);
+benchmark_group!(benchmarks, create_data_key, compare_data_key);
 
 // create_data_key
 fn create_data_key(bench: &mut Bencher) {

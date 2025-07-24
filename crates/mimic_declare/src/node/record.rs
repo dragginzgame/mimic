@@ -1,7 +1,10 @@
 use crate::{
     node::{Def, FieldList, Type},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
+    traits::{
+        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
+        SchemaNodeKind,
+    },
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -27,11 +30,35 @@ pub struct Record {
     pub ty: Type,
 }
 
-impl AsMacro for Record {
+impl HasIdent for Record {
     fn ident(&self) -> Ident {
         self.def.ident.clone()
     }
+}
 
+impl HasSchema for Record {
+    fn schema_node_kind() -> SchemaNodeKind {
+        SchemaNodeKind::Record
+    }
+}
+
+impl HasSchemaPart for Record {
+    fn schema_part(&self) -> TokenStream {
+        let def = self.def.schema_part();
+        let fields = self.fields.schema_part();
+        let ty = self.ty.schema_part();
+
+        quote! {
+            ::mimic::schema::node::Record {
+                def: #def,
+                fields: #fields,
+                ty: #ty,
+            }
+        }
+    }
+}
+
+impl HasTraits for Record {
     fn traits(&self) -> Vec<Trait> {
         let traits = self.traits.clone().with_type_traits();
 
@@ -61,45 +88,25 @@ impl AsMacro for Record {
     }
 }
 
-impl AsSchema for Record {
-    const EMIT_SCHEMA: bool = true;
-
-    fn schema(&self) -> TokenStream {
-        let def = self.def.schema();
-        let fields = self.fields.schema();
-        let ty = self.ty.schema();
+impl HasTypePart for Record {
+    fn type_part(&self) -> TokenStream {
+        let ident = self.ident();
+        let fields = self.fields.type_part();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Record(::mimic::schema::node::Record {
-                def: #def,
-                fields: #fields,
-                ty: #ty,
-            })
-        }
-    }
-}
-
-impl AsType for Record {
-    fn as_type(&self) -> Option<TokenStream> {
-        let ident = self.ident();
-        let Self { fields, .. } = self;
-
-        // quote
-        Some(quote! {
             pub struct #ident {
                 #fields
             }
-        })
+        }
     }
 
-    fn as_view_type(&self) -> Option<TokenStream> {
+    fn view_type_part(&self) -> TokenStream {
         let ident = self.ident();
         let view_ident = self.view_ident();
         let derives = Self::view_derives();
-        let view_field_list = AsType::as_view_type(&self.fields);
+        let view_field_list = &self.fields.view_type_part();
 
-        // quote
-        Some(quote! {
+        quote! {
             #derives
             pub struct #view_ident {
                 #view_field_list
@@ -110,7 +117,7 @@ impl AsType for Record {
                     #ident::default().to_view()
                 }
             }
-        })
+        }
     }
 }
 

@@ -126,7 +126,7 @@ pub struct DataEntry {
 
 impl DataEntry {
     #[must_use]
-    pub fn new(bytes: Vec<u8>, metadata: Metadata) -> Self {
+    pub const fn new(bytes: Vec<u8>, metadata: Metadata) -> Self {
         Self { bytes, metadata }
     }
 
@@ -186,7 +186,7 @@ fn read_chunk(buf: &mut &[u8]) -> Vec<u8> {
 // write_chunk
 #[allow(clippy::cast_possible_truncation)]
 fn write_chunk(buf: &mut Vec<u8>, data: &[u8]) {
-    assert!(data.len() <= u32::MAX as usize, "chunk too large");
+    assert!(u32::try_from(data.len()).is_ok(), "chunk too large");
     let len = data.len() as u32;
 
     buf.extend(&len.to_le_bytes());
@@ -205,7 +205,7 @@ pub struct Metadata {
 
 impl Metadata {
     #[must_use]
-    pub fn new(created: u64, modified: u64) -> Self {
+    pub const fn new(created: u64, modified: u64) -> Self {
         Self { created, modified }
     }
 }

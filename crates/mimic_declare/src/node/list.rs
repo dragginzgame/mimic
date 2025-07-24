@@ -1,7 +1,10 @@
 use crate::{
     node::{Def, Item, Type},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
+    traits::{
+        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
+        SchemaNodeKind,
+    },
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -26,11 +29,35 @@ pub struct List {
     pub traits: Traits,
 }
 
-impl AsMacro for List {
+impl HasIdent for List {
     fn ident(&self) -> Ident {
         self.def.ident.clone()
     }
+}
 
+impl HasSchema for List {
+    fn schema_node_kind() -> SchemaNodeKind {
+        SchemaNodeKind::List
+    }
+}
+
+impl HasSchemaPart for List {
+    fn schema_part(&self) -> TokenStream {
+        let def = self.def.schema_part();
+        let item = self.item.schema_part();
+        let ty = self.ty.schema_part();
+
+        quote! {
+            ::mimic::schema::node::List {
+                def: #def,
+                item: #item,
+                ty: #ty,
+            }
+        }
+    }
+}
+
+impl HasTraits for List {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone().with_type_traits();
         traits.extend(vec![Trait::Deref, Trait::DerefMut, Trait::IntoIterator]);
@@ -52,41 +79,23 @@ impl AsMacro for List {
     }
 }
 
-impl AsSchema for List {
-    const EMIT_SCHEMA: bool = true;
-
-    fn schema(&self) -> TokenStream {
-        let def = self.def.schema();
-        let item = self.item.schema();
-        let ty = self.ty.schema();
+impl HasTypePart for List {
+    fn type_part(&self) -> TokenStream {
+        let ident = self.ident();
+        let item = &self.item.type_part();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::List(::mimic::schema::node::List {
-                def: #def,
-                item: #item,
-                ty: #ty,
-            })
+            pub struct #ident(Vec<#item>);
         }
     }
-}
 
-impl AsType for List {
-    fn as_type(&self) -> Option<TokenStream> {
-        let ident = self.ident();
-        let item = &self.item;
-
-        Some(quote! {
-            pub struct #ident(Vec<#item>);
-        })
-    }
-
-    fn as_view_type(&self) -> Option<TokenStream> {
+    fn view_type_part(&self) -> TokenStream {
         let view_ident = self.view_ident();
-        let item_view = AsType::as_view_type(&self.item);
+        let item_view = HasTypePart::view_type_part(&self.item);
 
-        Some(quote! {
+        quote! {
             pub type #view_ident = Vec<#item_view>;
-        })
+        }
     }
 }
 

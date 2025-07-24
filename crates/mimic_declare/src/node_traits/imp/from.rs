@@ -1,7 +1,7 @@
 use crate::{
     node::{Entity, Enum, EnumValue, List, Map, Newtype, Record, Set, Tuple},
     node_traits::{Imp, Implementor, Trait},
-    traits::AsMacro,
+    traits::{HasIdent, HasType, HasTypePart},
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -48,7 +48,7 @@ impl Imp<EnumValue> for FromTrait {
 
 impl Imp<List> for FromTrait {
     fn tokens(node: &List) -> Option<TokenStream> {
-        let item = &node.item;
+        let item = &node.item.type_part();
 
         let q = quote! {
             fn from(entries: Vec<I>) -> Self {
@@ -76,8 +76,8 @@ impl Imp<List> for FromTrait {
 
 impl Imp<Map> for FromTrait {
     fn tokens(node: &Map) -> Option<TokenStream> {
-        let key = &node.key;
-        let value = &node.value;
+        let key = &node.key.type_part();
+        let value = &node.value.type_part();
 
         let q = quote! {
             fn from(entries: Vec<(IK, IV)>) -> Self {
@@ -107,7 +107,7 @@ impl Imp<Map> for FromTrait {
 
 impl Imp<Newtype> for FromTrait {
     fn tokens(node: &Newtype) -> Option<TokenStream> {
-        let item = &node.item;
+        let item = &node.item.type_part();
 
         let q = quote! {
             fn from(t: T) -> Self {
@@ -142,7 +142,7 @@ impl Imp<Record> for FromTrait {
 
 impl Imp<Set> for FromTrait {
     fn tokens(node: &Set) -> Option<TokenStream> {
-        let item = &node.item;
+        let item = &node.item.type_part();
 
         let q = quote! {
             fn from(entries: Vec<I>) -> Self {
@@ -176,7 +176,7 @@ impl Imp<Tuple> for FromTrait {
 
 /// from_type_view
 #[allow(clippy::unnecessary_wraps)]
-fn from_type_view(m: &impl AsMacro) -> Option<TokenStream> {
+fn from_type_view(m: &impl HasType) -> Option<TokenStream> {
     let ident = m.ident();
     let view_ident = m.view_ident();
 

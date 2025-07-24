@@ -2,7 +2,10 @@ use crate::{
     helper::quote_option,
     node::{Arg, Def, Item, Type},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
+    traits::{
+        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
+        SchemaNodeKind,
+    },
 };
 use darling::FromMeta;
 use mimic_schema::types::Primitive;
@@ -32,11 +35,36 @@ pub struct Newtype {
     pub traits: Traits,
 }
 
-impl AsMacro for Newtype {
+impl HasIdent for Newtype {
     fn ident(&self) -> Ident {
         self.def.ident.clone()
     }
+}
+impl HasSchema for Newtype {
+    fn schema_node_kind() -> SchemaNodeKind {
+        SchemaNodeKind::Newtype
+    }
+}
 
+impl HasSchemaPart for Newtype {
+    fn schema_part(&self) -> TokenStream {
+        let def = self.def.schema_part();
+        let item = self.item.schema_part();
+        let default = quote_option(self.default.as_ref(), Arg::schema_part);
+        let ty = self.ty.schema_part();
+
+        quote! {
+            ::mimic::schema::node::Newtype {
+                def: #def,
+                item: #item,
+                default: #default,
+                ty: #ty,
+            }
+        }
+    }
+}
+
+impl HasTraits for Newtype {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone().with_type_traits();
         traits.extend(vec![Trait::Deref, Trait::DerefMut]);
@@ -99,44 +127,24 @@ impl AsMacro for Newtype {
     }
 }
 
-impl AsSchema for Newtype {
-    const EMIT_SCHEMA: bool = true;
-
-    fn schema(&self) -> TokenStream {
-        let def = self.def.schema();
-        let item = self.item.schema();
-        let default = quote_option(self.default.as_ref(), Arg::schema);
-        let ty = self.ty.schema();
+impl HasTypePart for Newtype {
+    fn type_part(&self) -> TokenStream {
+        let ident = self.ident();
+        let item = &self.item.type_part();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Newtype(::mimic::schema::node::Newtype {
-                def: #def,
-                item: #item,
-                default: #default,
-                ty: #ty,
-            })
-        }
-    }
-}
-
-impl AsType for Newtype {
-    fn as_type(&self) -> Option<TokenStream> {
-        let ident = self.ident();
-        let item = &self.item;
-
-        Some(quote! {
             #[repr(transparent)]
             pub struct #ident(#item);
-        })
+        }
     }
 
-    fn as_view_type(&self) -> Option<TokenStream> {
+    fn view_type_part(&self) -> TokenStream {
         let view_ident = self.view_ident();
         let view_type = self.primitive.as_type();
 
-        Some(quote! {
+        quote! {
             pub type #view_ident = #view_type;
-        })
+        }
     }
 }
 

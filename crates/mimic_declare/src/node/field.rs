@@ -1,11 +1,11 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_str_lit},
     node::{Arg, Value},
-    traits::{AsSchema, AsType},
+    traits::{HasSchemaPart, HasTypePart},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
+use quote::quote;
 use std::slice::Iter;
 use syn::Ident;
 
@@ -46,11 +46,9 @@ impl<'a> IntoIterator for &'a FieldList {
     }
 }
 
-impl AsSchema for FieldList {
-    const EMIT_SCHEMA: bool = false;
-
-    fn schema(&self) -> TokenStream {
-        let fields = quote_slice(&self.fields, Field::schema);
+impl HasSchemaPart for FieldList {
+    fn schema_part(&self) -> TokenStream {
+        let fields = quote_slice(&self.fields, Field::schema_part);
 
         quote! {
             ::mimic::schema::node::FieldList {
@@ -60,27 +58,21 @@ impl AsSchema for FieldList {
     }
 }
 
-impl AsType for FieldList {
-    fn as_type(&self) -> Option<TokenStream> {
-        let fields = &self.fields;
+impl HasTypePart for FieldList {
+    fn type_part(&self) -> TokenStream {
+        let fields = self.fields.iter().map(HasTypePart::type_part);
 
-        Some(quote! {
+        quote! {
             #(#fields,)*
-        })
+        }
     }
 
-    fn as_view_type(&self) -> Option<TokenStream> {
-        let view_fields = self.fields.iter().map(AsType::as_view_type);
+    fn view_type_part(&self) -> TokenStream {
+        let view_fields = self.fields.iter().map(HasTypePart::view_type_part);
 
-        Some(quote! {
+        quote! {
             #(#view_fields,)*
-        })
-    }
-}
-
-impl ToTokens for FieldList {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.as_type());
+        }
     }
 }
 
@@ -99,13 +91,11 @@ pub struct Field {
     pub default: Option<Arg>,
 }
 
-impl AsSchema for Field {
-    const EMIT_SCHEMA: bool = false;
-
-    fn schema(&self) -> TokenStream {
+impl HasSchemaPart for Field {
+    fn schema_part(&self) -> TokenStream {
         let name = quote_one(&self.ident, to_str_lit);
-        let value = self.value.schema();
-        let default = quote_option(self.default.as_ref(), Arg::schema);
+        let value = self.value.schema_part();
+        let default = quote_option(self.default.as_ref(), Arg::schema_part);
 
         quote! {
             ::mimic::schema::node::Field {
@@ -117,28 +107,22 @@ impl AsSchema for Field {
     }
 }
 
-impl AsType for Field {
-    fn as_type(&self) -> Option<TokenStream> {
+impl HasTypePart for Field {
+    fn type_part(&self) -> TokenStream {
         let ident = &self.ident;
-        let value = &self.value;
+        let value = &self.value.type_part();
 
-        Some(quote! {
+        quote! {
             pub #ident: #value
-        })
+        }
     }
 
-    fn as_view_type(&self) -> Option<TokenStream> {
+    fn view_type_part(&self) -> TokenStream {
         let ident = &self.ident;
-        let value_view = AsType::as_view_type(&self.value);
+        let value_view = &self.value.view_type_part();
 
-        Some(quote! {
+        quote! {
             pub #ident: #value_view
-        })
-    }
-}
-
-impl ToTokens for Field {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.as_type());
+        }
     }
 }

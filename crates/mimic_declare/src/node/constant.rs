@@ -1,6 +1,8 @@
 use crate::{
     node::{Arg, Def},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
+    traits::{
+        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart, SchemaNodeKind,
+    },
 };
 use darling::FromMeta;
 use mimic_schema::types::ConstantType;
@@ -21,39 +23,45 @@ pub struct Constant {
     pub value: Arg,
 }
 
-impl AsMacro for Constant {
+impl HasIdent for Constant {
     fn ident(&self) -> Ident {
         self.def.ident.clone()
     }
 }
 
-impl AsSchema for Constant {
-    const EMIT_SCHEMA: bool = true;
+impl HasSchema for Constant {
+    fn schema_node_kind() -> SchemaNodeKind {
+        SchemaNodeKind::Constant
+    }
+}
 
-    fn schema(&self) -> TokenStream {
-        let def = &self.def.schema();
+impl HasSchemaPart for Constant {
+    fn schema_part(&self) -> TokenStream {
+        let def = &self.def.schema_part();
         let ty = &self.ty;
-        let value = &self.value.schema();
+        let value = &self.value.schema_part();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Constant(::mimic::schema::node::Constant {
+            ::mimic::schema::node::Constant {
                 def: #def,
                 ty: #ty,
                 value: #value,
-            })
+            }
         }
     }
 }
 
-impl AsType for Constant {
-    fn as_type(&self) -> Option<TokenStream> {
+impl HasTraits for Constant {}
+
+impl HasTypePart for Constant {
+    fn type_part(&self) -> TokenStream {
         let ident = self.ident();
         let ty = &self.ty.as_type();
         let value = &self.value;
 
-        Some(quote! {
+        quote! {
             pub const #ident: #ty = #value;
-        })
+        }
     }
 }
 

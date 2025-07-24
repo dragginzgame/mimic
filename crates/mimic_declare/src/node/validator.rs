@@ -1,7 +1,9 @@
 use crate::{
     node::{Def, FieldList},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
+    traits::{
+        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart, SchemaNodeKind,
+    },
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -21,11 +23,33 @@ pub struct Validator {
     pub fields: FieldList,
 }
 
-impl AsMacro for Validator {
+impl HasIdent for Validator {
     fn ident(&self) -> Ident {
         self.def.ident.clone()
     }
+}
 
+impl HasSchema for Validator {
+    fn schema_node_kind() -> SchemaNodeKind {
+        SchemaNodeKind::Validator
+    }
+}
+
+impl HasSchemaPart for Validator {
+    fn schema_part(&self) -> TokenStream {
+        let def = self.def.schema_part();
+        let fields = self.fields.schema_part();
+
+        quote! {
+            ::mimic::schema::node::Validator {
+                def: #def,
+                fields: #fields,
+            }
+        }
+    }
+}
+
+impl HasTraits for Validator {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = Traits::default().with_default_traits();
         traits.add(Trait::Default);
@@ -34,32 +58,16 @@ impl AsMacro for Validator {
     }
 }
 
-impl AsSchema for Validator {
-    const EMIT_SCHEMA: bool = true;
-
-    fn schema(&self) -> TokenStream {
-        let def = self.def.schema();
-        let fields = self.fields.schema();
+impl HasTypePart for Validator {
+    fn type_part(&self) -> TokenStream {
+        let Def { ident, .. } = &self.def;
+        let fields = self.fields.type_part();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Validator(::mimic::schema::node::Validator {
-                def: #def,
-                fields: #fields,
-            })
-        }
-    }
-}
-
-impl AsType for Validator {
-    fn as_type(&self) -> Option<TokenStream> {
-        let Def { ident, .. } = &self.def;
-        let fields = &self.fields;
-
-        Some(quote! {
             pub struct #ident {
                 #fields
             }
-        })
+        }
     }
 }
 

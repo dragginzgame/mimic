@@ -222,10 +222,6 @@ fn fn_wrap(inner: Option<TokenStream>) -> TokenStream {
             }
         }
     } else {
-        quote! {
-            fn validate_children(&self) -> ::std::result::Result<(), ::mimic::common::error::ErrorTree> {
-                Ok(())
-            }
-        }
+        quote!()
     }
 }

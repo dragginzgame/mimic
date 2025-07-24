@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.9.0] - Codegen Rewrite
+-- aksjd
+- added have view(), views() and try_view() to LoadCollection
+
 ## [0.8.3]
 - cleaned up filter api with less generics
 - added filter_eq to LoadExecutor and DeleteExecutor

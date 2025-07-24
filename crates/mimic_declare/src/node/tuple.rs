@@ -2,7 +2,10 @@ use crate::{
     helper::quote_slice,
     node::{Def, Type, Value},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
+    traits::{
+        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
+        SchemaNodeKind,
+    },
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -28,11 +31,35 @@ pub struct Tuple {
     pub traits: Traits,
 }
 
-impl AsMacro for Tuple {
+impl HasIdent for Tuple {
     fn ident(&self) -> Ident {
         self.def.ident.clone()
     }
+}
 
+impl HasSchema for Tuple {
+    fn schema_node_kind() -> SchemaNodeKind {
+        SchemaNodeKind::Tuple
+    }
+}
+
+impl HasSchemaPart for Tuple {
+    fn schema_part(&self) -> TokenStream {
+        let def = self.def.schema_part();
+        let values = quote_slice(&self.values, Value::schema_part);
+        let ty = &self.ty.schema_part();
+
+        quote! {
+            ::mimic::schema::node::Tuple {
+                def: #def,
+                values: #values,
+                ty: #ty,
+            }
+        }
+    }
+}
+
+impl HasTraits for Tuple {
     fn traits(&self) -> Vec<Trait> {
         self.traits.clone().with_type_traits().list()
     }
@@ -50,41 +77,23 @@ impl AsMacro for Tuple {
     }
 }
 
-impl AsSchema for Tuple {
-    const EMIT_SCHEMA: bool = true;
-
-    fn schema(&self) -> TokenStream {
-        let def = self.def.schema();
-        let values = quote_slice(&self.values, Value::schema);
-        let ty = &self.ty.schema();
+impl HasTypePart for Tuple {
+    fn type_part(&self) -> TokenStream {
+        let ident = self.ident();
+        let values = self.values.iter().map(HasTypePart::type_part);
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Tuple(::mimic::schema::node::Tuple {
-                def: #def,
-                values: #values,
-                ty: #ty,
-            })
+            pub struct #ident(pub #(#values),*);
         }
     }
-}
 
-impl AsType for Tuple {
-    fn as_type(&self) -> Option<TokenStream> {
-        let ident = self.ident();
-        let values = &self.values;
-
-        Some(quote! {
-            pub struct #ident(pub #(#values),*);
-        })
-    }
-
-    fn as_view_type(&self) -> Option<TokenStream> {
+    fn view_type_part(&self) -> TokenStream {
         let view_ident = &self.view_ident();
-        let view_values = self.values.iter().map(AsType::as_view_type);
+        let view_values = self.values.iter().map(HasTypePart::view_type_part);
 
-        Some(quote! {
+        quote! {
             pub type #view_ident = (#(#view_values),*);
-        })
+        }
     }
 }
 

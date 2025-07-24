@@ -1,7 +1,7 @@
 use crate::{
     node::EnumValue,
     node_traits::{Imp, Implementor, Trait},
-    traits::AsMacro,
+    traits::HasIdent,
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};

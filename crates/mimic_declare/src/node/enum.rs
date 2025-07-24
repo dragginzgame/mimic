@@ -2,7 +2,10 @@ use crate::{
     helper::{quote_one, quote_option, quote_slice, to_str_lit},
     node::{Def, Type, Value},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
+    traits::{
+        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
+        SchemaNodeKind,
+    },
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -34,11 +37,13 @@ impl Enum {
     }
 }
 
-impl AsMacro for Enum {
+impl HasIdent for Enum {
     fn ident(&self) -> Ident {
         self.def.ident.clone()
     }
+}
 
+impl HasTraits for Enum {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone().with_type_traits();
 
@@ -71,43 +76,41 @@ impl AsMacro for Enum {
     }
 }
 
-impl AsSchema for Enum {
-    const EMIT_SCHEMA: bool = true;
-
-    fn schema(&self) -> TokenStream {
-        let def = &self.def.schema();
-        let variants = quote_slice(&self.variants, EnumVariant::schema);
-        let ty = &self.ty.schema();
+impl HasSchemaPart for Enum {
+    fn schema_part(&self) -> TokenStream {
+        let def = &self.def.schema_part();
+        let variants = quote_slice(&self.variants, EnumVariant::schema_part);
+        let ty = &self.ty.schema_part();
 
         quote! {
-            ::mimic::schema::node::SchemaNode::Enum(::mimic::schema::node::Enum {
+            ::mimic::schema::node::Enum {
                 def: #def,
                 variants: #variants,
                 ty: #ty,
-            })
+            }
         }
     }
 }
 
-impl AsType for Enum {
-    fn as_type(&self) -> Option<TokenStream> {
+impl HasTypePart for Enum {
+    fn type_part(&self) -> TokenStream {
         let ident = self.ident();
-        let variants = &self.variants;
+        let variants = self.variants.iter().map(HasTypePart::type_part);
 
-        Some(quote! {
+        quote! {
             pub enum #ident {
                 #(#variants,)*
             }
-        })
+        }
     }
 
-    fn as_view_type(&self) -> Option<TokenStream> {
+    fn view_type_part(&self) -> TokenStream {
         let ident = self.ident();
         let view_ident = self.view_ident();
-        let view_variants = self.variants.iter().map(AsType::as_view_type);
+        let view_variants = self.variants.iter().map(HasTypePart::view_type_part);
         let derives = Self::view_derives();
 
-        Some(quote! {
+        quote! {
             #derives
             pub enum #view_ident {
                 #(#view_variants,)*
@@ -118,7 +121,7 @@ impl AsType for Enum {
                     #ident::default().to_view()
                 }
             }
-        })
+        }
     }
 }
 
@@ -153,10 +156,14 @@ impl EnumVariant {
     }
 }
 
-impl AsSchema for EnumVariant {
-    const EMIT_SCHEMA: bool = false;
+impl HasSchema for Enum {
+    fn schema_node_kind() -> SchemaNodeKind {
+        SchemaNodeKind::Enum
+    }
+}
 
-    fn schema(&self) -> TokenStream {
+impl HasSchemaPart for EnumVariant {
+    fn schema_part(&self) -> TokenStream {
         let Self {
             default,
             unspecified,
@@ -165,7 +172,7 @@ impl AsSchema for EnumVariant {
 
         // quote
         let name = quote_one(&self.name, to_str_lit);
-        let value = quote_option(self.value.as_ref(), Value::schema);
+        let value = quote_option(self.value.as_ref(), Value::schema_part);
 
         quote! {
             ::mimic::schema::node::EnumVariant {
@@ -178,33 +185,33 @@ impl AsSchema for EnumVariant {
     }
 }
 
-impl AsType for EnumVariant {
-    fn as_type(&self) -> Option<TokenStream> {
+impl HasTypePart for EnumVariant {
+    fn type_part(&self) -> TokenStream {
         let name = if self.unspecified {
             Self::unspecified_ident()
         } else {
             self.name.clone()
         };
-
         let default_attr = self.default.then(|| quote!(#[default]));
 
         let body = if let Some(value) = &self.value {
+            let value = value.type_part();
             quote!(#name(#value))
         } else {
             quote!(#name)
         };
 
-        Some(quote! {
+        quote! {
             #default_attr
             #body
-        })
+        }
     }
 
-    fn as_view_type(&self) -> Option<TokenStream> {
+    fn view_type_part(&self) -> TokenStream {
         let name = &self.name;
 
-        let q = if let Some(value) = &self.value {
-            let value_view = AsType::as_view_type(value);
+        if let Some(value) = &self.value {
+            let value_view = HasTypePart::view_type_part(value);
 
             quote! {
                 #name(#value_view)
@@ -213,14 +220,6 @@ impl AsType for EnumVariant {
             quote! {
                 #name
             }
-        };
-
-        Some(q)
-    }
-}
-
-impl ToTokens for EnumVariant {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.as_type());
+        }
     }
 }

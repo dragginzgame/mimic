@@ -1,7 +1,7 @@
 use crate::{
     node::{Entity, Enum, EnumValue, FieldList, List, Map, Newtype, Record, Set, Tuple},
     node_traits::{Imp, Implementor, Trait},
-    traits::AsMacro,
+    traits::{HasIdent, HasType, HasTypePart},
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -178,8 +178,8 @@ impl Imp<List> for TypeViewTrait {
 impl Imp<Map> for TypeViewTrait {
     fn tokens(node: &Map) -> Option<TokenStream> {
         let view_ident = &node.view_ident();
-        let key = &node.key;
-        let value = &node.value;
+        let key = &node.key.type_part();
+        let value = &node.value.type_part();
 
         // tokens
         let q = quote_typeview_map(view_ident, &quote!(#key), &quote!(#value));

@@ -2,14 +2,13 @@ use crate::{
     helper::format_view_ident,
     node_traits::{Implementor, Trait, TraitList},
 };
+use mimic_common::utils::{
+    case::{Case, Casing},
+    hash::hash_u64,
+};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
-use std::{
-    sync::{LazyLock, Mutex},
-    time::SystemTime,
-};
 use syn::Ident;
-use tinyrand::{Rand, Seeded, StdRand};
 
 ///
 /// TraitTokens
@@ -21,94 +20,15 @@ pub struct TraitTokens {
 }
 
 ///
-/// RNG
-///
-/// Create a static, lazily-initialized StdRng instance wrapped in a Mutex
-///
-
-static RNG: LazyLock<Mutex<StdRand>> = LazyLock::new(|| {
-    let now = SystemTime::now()
-        .duration_since(SystemTime::UNIX_EPOCH)
-        .expect("time went backwards")
-        .as_nanos();
-    let now_u64 = u64::try_from(now).unwrap();
-
-    Mutex::new(StdRand::seed(now_u64))
-});
-
-///
-/// AsMacro
-/// any schema element that's invoked from a crate macro
+/// HasMacro
+/// for any schema node that has a derive macro
 ///
 
-pub trait AsMacro: AsSchema + AsType + quote::ToTokens {
-    /// Returns the primary identifier for the item
-    fn ident(&self) -> Ident;
-
-    /// Returns the derived view struct name
-    fn view_ident(&self) -> Ident {
-        format_view_ident(&self.ident())
-    }
-
-    /// Returns a list of traits to implement
-    fn traits(&self) -> Vec<Trait> {
-        vec![]
-    }
-
-    /// Maps a trait to its token implementation
-    fn map_trait(&self, _: Trait) -> Option<TokenStream> {
-        None
-    }
-
-    /// Maps a trait to its attribute-level implementation
-    fn map_attribute(&self, _: Trait) -> Option<TokenStream> {
-        None
-    }
-
-    /// Resolves a trait using map_trait or a default implementation
-    fn resolve_trait(&self, tr: Trait) -> Option<TokenStream> {
-        self.map_trait(tr).or_else(|| self.default_trait(tr))
-    }
-
-    /// Provides a default implementation for built-in traits
-    fn default_trait(&self, tr: Trait) -> Option<TokenStream> {
-        let ident = self.ident();
-
-        match tr {
-            // Generates a `const PATH` string pointing to the module + type name
-            Trait::Path => {
-                let ident_str = format!("{ident}");
-                let q = quote! {
-                    const PATH: &'static str = concat!(module_path!(), "::", #ident_str);
-                };
-                Some(Implementor::new(ident, tr).set_tokens(q).to_token_stream())
-            }
-
-            // Generate empty impl blocks for marker traits
-            Trait::EntityFixture
-            | Trait::EntityIdKind
-            | Trait::FieldSearchable
-            | Trait::FieldSortable
-            | Trait::FieldValue
-            | Trait::ValidateAuto
-            | Trait::ValidateCustom
-            | Trait::Visitable => Some(Implementor::new(ident, tr).to_token_stream()),
-
-            // All others fallback to None
-            _ => None,
-        }
-    }
-}
-
-///
-/// MacroEmitter
-///
-
-pub trait MacroEmitter: AsMacro {
+pub trait HasMacro: HasSchema + HasTraits + HasType {
     fn all_tokens(&self) -> TokenStream {
         let schema = self.schema_tokens();
-        let main_type = self.as_type();
-        let view_type = self.as_view_type();
+        let main_type = self.type_part();
+        let view_type = self.view_type_part();
 
         let TraitTokens { derive, impls } = self.resolve_trait_tokens();
 
@@ -166,56 +86,170 @@ pub trait MacroEmitter: AsMacro {
     }
 }
 
-impl<T> MacroEmitter for T where T: AsMacro {}
+impl<T> HasMacro for T where T: HasIdent + HasSchema + HasTraits + HasType + HasTypePart {}
 
 ///
-/// AsSchema
-/// an element that can generate schema tokens
+/// HasIdent
 ///
 
-pub trait AsSchema {
-    const EMIT_SCHEMA: bool;
+pub trait HasIdent {
+    /// Returns the primary identifier for the item
+    fn ident(&self) -> Ident;
+}
 
-    // returns the schema fragment
-    fn schema(&self) -> TokenStream {
-        quote!()
+///
+/// HasTraits
+/// a schema node that has traits (derives or impls)
+///
+
+pub trait HasTraits: HasIdent + ToTokens {
+    /// Returns a list of traits to implement
+    fn traits(&self) -> Vec<Trait> {
+        vec![]
     }
 
-    // schema_tokens
-    // generates the structure passed via ctor to the static schema
-    fn schema_tokens(&self) -> Option<TokenStream> {
-        if !Self::EMIT_SCHEMA {
-            return None;
-        }
+    /// Maps a trait to its token implementation
+    fn map_trait(&self, _: Trait) -> Option<TokenStream> {
+        None
+    }
 
-        let schema = self.schema();
-        let mut rng = RNG.lock().expect("Failed to lock RNG");
-        let ctor_fn = format_ident!("ctor_{}", rng.next_u32());
+    /// Maps a trait to its attribute-level implementation
+    fn map_attribute(&self, _: Trait) -> Option<TokenStream> {
+        None
+    }
 
-        Some(quote! {
-            #[cfg(not(target_arch = "wasm32"))]
-            #[::mimic::export::ctor::ctor]
-            fn #ctor_fn() {
-                ::mimic::schema::build::schema_write().insert_node(
-                    #schema
-                );
+    /// Resolves a trait using map_trait or a default implementation
+    fn resolve_trait(&self, tr: Trait) -> Option<TokenStream> {
+        self.map_trait(tr).or_else(|| self.default_trait(tr))
+    }
+
+    /// Provides a default implementation for built-in traits
+    fn default_trait(&self, tr: Trait) -> Option<TokenStream> {
+        let ident = self.ident();
+
+        match tr {
+            // Generates a `const PATH` string pointing to the module + type name
+            Trait::Path => {
+                let q = quote! {
+                    const PATH: &'static str = concat!(module_path!(), "::", stringify!(#ident));
+                };
+
+                Some(Implementor::new(ident, tr).set_tokens(q).to_token_stream())
             }
-        })
+
+            // Generate empty impl blocks for marker traits
+            Trait::EntityFixture
+            | Trait::EntityIdKind
+            | Trait::FieldSearchable
+            | Trait::FieldSortable
+            | Trait::FieldValue
+            | Trait::ValidateAuto
+            | Trait::ValidateCustom
+            | Trait::Visitable => Some(Implementor::new(ident, tr).to_token_stream()),
+
+            // All others fallback to None
+            _ => None,
+        }
     }
 }
 
 ///
-/// AsType
+/// HasSchema
+/// an element that can generate schema tokens
+///
+
+pub trait HasSchema: HasSchemaPart + HasIdent {
+    fn schema_node_kind() -> SchemaNodeKind {
+        SchemaNodeKind::None
+    }
+
+    fn schema_const(&self) -> Ident {
+        let ident_s = &self.ident().to_string().to_case(Case::UpperSnake);
+
+        format_ident!("{ident_s}_CONST")
+    }
+
+    // schema_tokens
+    // generates the structure passed via ctor to the static schema
+    fn schema_tokens(&self) -> TokenStream {
+        let schema = self.schema_part();
+        if schema.is_empty() {
+            return quote!();
+        }
+
+        // randomly generate fn name
+        let ident = self.ident();
+        let hash = hash_u64(ident.to_string().as_bytes());
+        let ctor_fn = format_ident!("ctor_{hash}");
+
+        // insert statement
+        let const_var = self.schema_const();
+        let kind = Self::schema_node_kind();
+
+        quote! {
+            const #const_var: ::mimic::schema::node::#kind = #schema;
+
+            #[cfg(not(target_arch = "wasm32"))]
+            #[::mimic::export::ctor::ctor]
+            fn #ctor_fn() {
+                ::mimic::schema::build::schema_write().insert_node(
+                    ::mimic::schema::node::SchemaNode::#kind(#const_var)
+                );
+            }
+        }
+    }
+}
+
+///
+/// SchemaNodeKind
+///
+
+#[derive(Debug)]
+pub enum SchemaNodeKind {
+    None,
+    Canister,
+    Constant,
+    Entity,
+    Enum,
+    EnumValue,
+    Index,
+    List,
+    Map,
+    Newtype,
+    Record,
+    Selector,
+    Set,
+    Store,
+    Tuple,
+    Validator,
+}
+
+impl ToTokens for SchemaNodeKind {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let ident = format_ident!("{self:?}");
+        ident.to_tokens(tokens);
+    }
+}
+
+///
+/// HasSchemaPart
+/// for types that only emit parts of a schema
+///
+
+pub trait HasSchemaPart {
+    fn schema_part(&self) -> TokenStream {
+        quote!()
+    }
+}
+
+///
+/// HasType
 /// an element that can define a rust type
 ///
 
-pub trait AsType {
-    fn as_type(&self) -> Option<TokenStream> {
-        None
-    }
-
-    fn as_view_type(&self) -> Option<TokenStream> {
-        None
+pub trait HasType: HasTypePart + HasIdent {
+    fn view_ident(&self) -> Ident {
+        format_view_ident(&self.ident())
     }
 
     fn view_derives() -> TokenStream {
@@ -227,5 +261,21 @@ pub trait AsType {
             Trait::Deserialize,
         ])
         .to_derive_tokens()
+    }
+}
+
+impl<T> HasType for T where T: HasTypePart + HasIdent {}
+
+///
+/// HasTypePart
+///
+
+pub trait HasTypePart {
+    fn type_part(&self) -> TokenStream {
+        quote!()
+    }
+
+    fn view_type_part(&self) -> TokenStream {
+        quote!()
     }
 }

@@ -77,9 +77,7 @@ pub trait EntityKind: Kind + TypeKind + EntitySearchable + EntitySortable {
 
     const PRIMARY_KEY: &'static str;
 
-    fn primary_key(&self) -> Self::PrimaryKey;
     fn key(&self) -> Key;
-
     fn values(&self) -> ValueMap;
 }
 

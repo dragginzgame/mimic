@@ -109,6 +109,23 @@ where
     pub fn entity_rows(self) -> Vec<EntityRow<E>> {
         self.0
     }
+
+    // view
+    #[must_use]
+    pub fn view(self) -> Option<E::View> {
+        self.entity().map(|e| e.to_view())
+    }
+
+    // try_view
+    pub fn try_view(self) -> Result<E::View, MimicError> {
+        self.try_entity().map(|e| e.to_view())
+    }
+
+    // entities
+    #[must_use]
+    pub fn views(self) -> Vec<E::View> {
+        self.entities().into_iter().map(|e| e.to_view()).collect()
+    }
 }
 
 impl<E: EntityKind> IntoIterator for LoadCollection<E> {

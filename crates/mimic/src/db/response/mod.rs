@@ -20,6 +20,7 @@ pub enum ResponseError {
 
 ///
 /// LoadResponse
+///
 /// this should be CandidType like the other responses, but we're not using it
 /// for now as there's no API standard for returning load results specified
 /// (over the wire we can't use LoadCollection<E>)

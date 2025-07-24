@@ -2,7 +2,9 @@ use crate::{
     helper::{quote_one, to_path, to_str_lit},
     node::Def,
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
+    traits::{
+        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart, SchemaNodeKind,
+    },
 };
 use darling::FromMeta;
 use mimic_schema::types::StoreType;
@@ -25,11 +27,39 @@ pub struct Store {
     pub memory_id: u8,
 }
 
-impl AsMacro for Store {
+impl HasIdent for Store {
     fn ident(&self) -> Ident {
         self.def.ident.clone()
     }
+}
 
+impl HasSchema for Store {
+    fn schema_node_kind() -> SchemaNodeKind {
+        SchemaNodeKind::Store
+    }
+}
+
+impl HasSchemaPart for Store {
+    fn schema_part(&self) -> TokenStream {
+        let def = &self.def.schema_part();
+        let ident = quote_one(&self.ident, to_str_lit);
+        let ty = &self.ty;
+        let canister = quote_one(&self.canister, to_path);
+        let memory_id = &self.memory_id;
+
+        quote! {
+            ::mimic::schema::node::Store{
+                def: #def,
+                ident: #ident,
+                ty: #ty,
+                canister: #canister,
+                memory_id: #memory_id,
+            }
+        }
+    }
+}
+
+impl HasTraits for Store {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = Traits::default().with_path_trait();
         traits.add(Trait::StoreKind);
@@ -47,35 +77,13 @@ impl AsMacro for Store {
     }
 }
 
-impl AsSchema for Store {
-    const EMIT_SCHEMA: bool = true;
-
-    fn schema(&self) -> TokenStream {
-        let def = &self.def.schema();
-        let ident = quote_one(&self.ident, to_str_lit);
-        let ty = &self.ty;
-        let canister = quote_one(&self.canister, to_path);
-        let memory_id = &self.memory_id;
-
-        quote! {
-            ::mimic::schema::node::SchemaNode::Store(::mimic::schema::node::Store{
-                def: #def,
-                ident: #ident,
-                ty: #ty,
-                canister: #canister,
-                memory_id: #memory_id,
-            })
-        }
-    }
-}
-
-impl AsType for Store {
-    fn as_type(&self) -> Option<TokenStream> {
+impl HasTypePart for Store {
+    fn type_part(&self) -> TokenStream {
         let ident = self.ident();
 
-        Some(quote! {
+        quote! {
             pub struct #ident {}
-        })
+        }
     }
 }
 

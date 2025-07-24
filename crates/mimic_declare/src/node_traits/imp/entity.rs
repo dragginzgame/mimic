@@ -1,7 +1,7 @@
 use crate::{
     node::Entity,
     node_traits::{Imp, Implementor, Trait},
-    traits::AsMacro,
+    traits::{HasIdent, HasTypePart},
 };
 use mimic_common::utils::case::{Case, Casing};
 use mimic_schema::types::Cardinality;
@@ -18,7 +18,12 @@ pub struct EntityKindTrait {}
 impl Imp<Entity> for EntityKindTrait {
     fn tokens(node: &Entity) -> Option<TokenStream> {
         let store = &node.store;
-        let pk_type = &node.fields.get(&node.primary_key).unwrap().value;
+        let pk_type = &node
+            .fields
+            .get(&node.primary_key)
+            .unwrap()
+            .value
+            .type_part();
         let pk_field = &node.primary_key.to_string();
         let index_idents = &node.indexes;
 
@@ -32,7 +37,6 @@ impl Imp<Entity> for EntityKindTrait {
         };
 
         // impls
-        q.extend(primary_key(node));
         q.extend(key(node));
         q.extend(values(node));
 
@@ -41,17 +45,6 @@ impl Imp<Entity> for EntityKindTrait {
             .to_token_stream();
 
         Some(tokens)
-    }
-}
-
-// primary_key
-fn primary_key(node: &Entity) -> TokenStream {
-    let primary_key = &node.primary_key;
-
-    quote! {
-        fn primary_key(&self) -> Self::PrimaryKey {
-            self.#primary_key
-        }
     }
 }
 
@@ -128,8 +121,8 @@ pub struct EntityAccessorTrait {}
 impl Imp<Entity> for EntityAccessorTrait {
     fn tokens(node: &Entity) -> Option<TokenStream> {
         let ident = node.ident(); // e.g., `Indexable`
-        let fields_ident_s = format!("{ident}_FIELDS").to_case(Case::UpperSnake);
-        let fields_ident = format_ident!("{fields_ident_s}");
+        let static_ident_s = format!("{ident}_FIELDS").to_case(Case::UpperSnake);
+        let static_ident = format_ident!("{static_ident_s}");
 
         let mut fn_defs = Vec::new();
         let mut field_accessors = Vec::new();
@@ -137,7 +130,7 @@ impl Imp<Entity> for EntityAccessorTrait {
         for field in &node.fields {
             let field_ident = &field.ident;
             let field_str = field_ident.to_string();
-            let field_ty = &field.value;
+            let field_ty = &field.value.type_part();
 
             // Generate static function names
             let cmp_fn_s = format!("{ident}_cmp_{field_ident}").to_case(Case::Snake);
@@ -169,14 +162,14 @@ impl Imp<Entity> for EntityAccessorTrait {
         let static_def = quote! {
             #(#fn_defs)*
 
-            static #fields_ident: &[::mimic::core::traits::FieldAccessor<#ident>] = &[
+            static #static_ident: &[::mimic::core::traits::FieldAccessor<#ident>] = &[
                 #(#field_accessors),*
             ];
         };
 
         let trait_impl = quote! {
             fn fields() -> &'static [::mimic::core::traits::FieldAccessor<Self>] {
-                #fields_ident
+                #static_ident
             }
         };
 

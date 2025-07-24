@@ -2,7 +2,9 @@ use crate::{
     helper::{quote_one, quote_slice, split_idents, to_path, to_str_lit},
     node::Def,
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
+    traits::{
+        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart, SchemaNodeKind,
+    },
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -28,11 +30,39 @@ pub struct Index {
     pub unique: bool,
 }
 
-impl AsMacro for Index {
+impl HasIdent for Index {
     fn ident(&self) -> Ident {
         self.def.ident.clone()
     }
+}
 
+impl HasSchema for Index {
+    fn schema_node_kind() -> SchemaNodeKind {
+        SchemaNodeKind::Index
+    }
+}
+
+impl HasSchemaPart for Index {
+    fn schema_part(&self) -> TokenStream {
+        let def = self.def.schema_part();
+        let store = quote_one(&self.store, to_path);
+        let entity = quote_one(&self.entity, to_path);
+        let fields = quote_slice(&self.fields, to_str_lit);
+        let unique = &self.unique;
+
+        quote! {
+            ::mimic::schema::node::Index {
+                def: #def,
+                store: #store,
+                entity: #entity,
+                fields: #fields,
+                unique: #unique,
+            }
+        }
+    }
+}
+
+impl HasTraits for Index {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = Traits::default().with_path_trait();
         traits.extend(vec![Trait::IndexKind]);
@@ -50,35 +80,13 @@ impl AsMacro for Index {
     }
 }
 
-impl AsSchema for Index {
-    const EMIT_SCHEMA: bool = true;
-
-    fn schema(&self) -> TokenStream {
-        let def = self.def.schema();
-        let store = quote_one(&self.store, to_path);
-        let entity = quote_one(&self.entity, to_path);
-        let fields = quote_slice(&self.fields, to_str_lit);
-        let unique = &self.unique;
-
-        quote! {
-            ::mimic::schema::node::SchemaNode::Index(::mimic::schema::node::Index {
-                def: #def,
-                store: #store,
-                entity: #entity,
-                fields: #fields,
-                unique: #unique,
-            })
-        }
-    }
-}
-
-impl AsType for Index {
-    fn as_type(&self) -> Option<TokenStream> {
+impl HasTypePart for Index {
+    fn type_part(&self) -> TokenStream {
         let ident = self.ident();
 
-        Some(quote! {
+        quote! {
             pub struct #ident {}
-        })
+        }
     }
 }
 

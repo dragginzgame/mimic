@@ -2,7 +2,9 @@ use crate::{
     helper::{quote_one, quote_slice, to_path, to_str_lit},
     node::{Arg, Def},
     node_traits::{Trait, Traits},
-    traits::{AsMacro, AsSchema, AsType, MacroEmitter},
+    traits::{
+        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart, SchemaNodeKind,
+    },
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -24,11 +26,35 @@ pub struct Selector {
     pub variants: Vec<SelectorVariant>,
 }
 
-impl AsMacro for Selector {
+impl HasIdent for Selector {
     fn ident(&self) -> Ident {
         self.def.ident.clone()
     }
+}
 
+impl HasSchema for Selector {
+    fn schema_node_kind() -> SchemaNodeKind {
+        SchemaNodeKind::Selector
+    }
+}
+
+impl HasSchemaPart for Selector {
+    fn schema_part(&self) -> TokenStream {
+        let def = &self.def.schema_part();
+        let target = quote_one(&self.target, to_path);
+        let variants = quote_slice(&self.variants, SelectorVariant::schema_part);
+
+        quote! {
+            ::mimic::schema::node::Selector {
+                def: #def,
+                target: #target,
+                variants: #variants,
+            }
+        }
+    }
+}
+
+impl HasTraits for Selector {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = Traits::new().with_default_traits();
         traits.add(Trait::Into);
@@ -47,37 +73,16 @@ impl AsMacro for Selector {
     }
 }
 
-impl AsSchema for Selector {
-    const EMIT_SCHEMA: bool = true;
-
-    fn schema(&self) -> TokenStream {
-        let def = &self.def.schema();
-        let target = quote_one(&self.target, to_path);
-        let variants = quote_slice(&self.variants, SelectorVariant::schema);
-
-        quote! {
-            ::mimic::schema::node::SchemaNode::Selector(
-                ::mimic::schema::node::Selector{
-                    def: #def,
-                    target: #target,
-                    variants: #variants,
-                }
-            )
-        }
-    }
-}
-
-impl AsType for Selector {
-    fn as_type(&self) -> Option<TokenStream> {
+impl HasTypePart for Selector {
+    fn type_part(&self) -> TokenStream {
         let ident = self.ident();
         let variants = &self.variants;
 
-        // quote
-        Some(quote! {
+        quote! {
             pub enum #ident {
                 #(#variants,)*
             }
-        })
+        }
     }
 }
 
@@ -117,12 +122,10 @@ impl ToTokens for SelectorVariant {
     }
 }
 
-impl AsSchema for SelectorVariant {
-    const EMIT_SCHEMA: bool = false;
-
-    fn schema(&self) -> TokenStream {
+impl HasSchemaPart for SelectorVariant {
+    fn schema_part(&self) -> TokenStream {
         let name = quote_one(&self.name, to_str_lit);
-        let value = self.value.schema();
+        let value = self.value.schema_part();
         let default = self.default;
 
         quote! {

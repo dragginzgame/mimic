@@ -1,11 +1,11 @@
 use crate::{
     node::Item,
-    traits::{AsSchema, AsType},
+    traits::{HasSchemaPart, HasTypePart},
 };
 use darling::FromMeta;
 use mimic_schema::types::Cardinality;
 use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
+use quote::quote;
 
 ///
 /// Value
@@ -34,12 +34,10 @@ impl Value {
     }
 }
 
-impl AsSchema for Value {
-    const EMIT_SCHEMA: bool = false;
-
-    fn schema(&self) -> TokenStream {
+impl HasSchemaPart for Value {
+    fn schema_part(&self) -> TokenStream {
         let cardinality = &self.cardinality();
-        let item = &self.item.schema();
+        let item = &self.item.schema_part();
 
         quote!(
             ::mimic::schema::node::Value {
@@ -50,34 +48,24 @@ impl AsSchema for Value {
     }
 }
 
-impl AsType for Value {
-    fn as_type(&self) -> Option<TokenStream> {
-        let item = &self.item;
+impl HasTypePart for Value {
+    fn type_part(&self) -> TokenStream {
+        let item = &self.item.type_part();
 
-        let q = match self.cardinality() {
+        match self.cardinality() {
             Cardinality::One => quote!(#item),
             Cardinality::Opt => quote!(Option<#item>),
             Cardinality::Many => quote!(Vec<#item>),
-        };
-
-        Some(q)
+        }
     }
 
-    fn as_view_type(&self) -> Option<TokenStream> {
-        let item_view = AsType::as_view_type(&self.item);
+    fn view_type_part(&self) -> TokenStream {
+        let item_view = &self.item.view_type_part();
 
-        let q = match self.cardinality() {
+        match self.cardinality() {
             Cardinality::One => quote!(#item_view),
             Cardinality::Opt => quote!(Option<#item_view>),
             Cardinality::Many => quote!(Vec<#item_view>),
-        };
-
-        Some(q)
-    }
-}
-
-impl ToTokens for Value {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.as_type());
+        }
     }
 }

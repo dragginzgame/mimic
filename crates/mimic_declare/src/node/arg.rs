@@ -1,6 +1,6 @@
 use crate::{
     helper::{quote_one, quote_slice, to_str_lit},
-    traits::AsSchema,
+    traits::HasSchemaPart,
 };
 use darling::{Error as DarlingError, FromMeta, ast::NestedMeta};
 use derive_more::Deref;
@@ -33,8 +33,7 @@ impl Arg {
             Self::Bool(_) => quote!(bool),
             Self::Char(_) => quote!(char),
             Self::Number(n) => n.as_type(),
-            Self::Path(_) => quote!(unimplemented!()),
-            Self::String(_) => quote!(unimplemented!()),
+            Self::Path(_) | Self::String(_) => quote!(unimplemented!()),
         }
     }
 }
@@ -70,15 +69,13 @@ impl FromMeta for Arg {
     }
 }
 
-impl AsSchema for Arg {
-    const EMIT_SCHEMA: bool = false;
-
-    fn schema(&self) -> TokenStream {
+impl HasSchemaPart for Arg {
+    fn schema_part(&self) -> TokenStream {
         match self {
             Self::Bool(v) => quote!(::mimic::schema::node::Arg::Bool(#v)),
             Self::Char(v) => quote!(::mimic::schema::node::Arg::Char(#v)),
             Self::Number(v) => {
-                let num = quote_one(v, ArgNumber::schema);
+                let num = quote_one(v, ArgNumber::schema_part);
                 quote!(::mimic::schema::node::Arg::Number(#num))
             }
             Self::Path(v) => {
@@ -123,11 +120,9 @@ impl FromMeta for Args {
     }
 }
 
-impl AsSchema for Args {
-    const EMIT_SCHEMA: bool = false;
-
-    fn schema(&self) -> TokenStream {
-        let args = quote_slice(&self.0, Arg::schema);
+impl HasSchemaPart for Args {
+    fn schema_part(&self) -> TokenStream {
+        let args = quote_slice(&self.0, Arg::schema_part);
 
         quote! {
             ::mimic::schema::node::Args(#args)
@@ -371,10 +366,8 @@ impl PartialEq for ArgNumber {
     }
 }
 
-impl AsSchema for ArgNumber {
-    const EMIT_SCHEMA: bool = false;
-
-    fn schema(&self) -> TokenStream {
+impl HasSchemaPart for ArgNumber {
+    fn schema_part(&self) -> TokenStream {
         match self {
             Self::Float32(v) => quote!(::mimic::schema::node::ArgNumber::Float32(#v)),
             Self::Float64(v) => quote!(::mimic::schema::node::ArgNumber::Float64(#v)),

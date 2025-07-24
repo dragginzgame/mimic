@@ -1,7 +1,7 @@
 use crate::{
     node::Newtype,
     node_traits::{Imp, Implementor, Trait},
-    traits::AsMacro,
+    traits::{HasIdent, HasTypePart},
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
@@ -49,7 +49,7 @@ pub struct NumFromPrimitiveTrait {}
 
 impl Imp<Newtype> for NumFromPrimitiveTrait {
     fn tokens(node: &Newtype) -> Option<TokenStream> {
-        let item = &node.item;
+        let item = &node.item.type_part();
 
         let mut q = quote! {
             fn from_i64(n: i64) -> Option<Self> {
