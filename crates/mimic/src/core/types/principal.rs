@@ -2,8 +2,7 @@ use crate::{
     ThisError,
     core::{
         traits::{
-            FieldSearchable, FieldSortable, FieldValue, Storable, TypeView, ValidateAuto,
-            ValidateCustom, Visitable,
+            FieldSortable, FieldValue, Storable, TypeView, ValidateAuto, ValidateCustom, Visitable,
         },
         value::Value,
     },
@@ -81,12 +80,6 @@ impl Principal {
 impl Default for Principal {
     fn default() -> Self {
         Self(WrappedPrincipal::from_slice(&[]))
-    }
-}
-
-impl FieldSearchable for Principal {
-    fn to_searchable_string(&self) -> Option<String> {
-        Some(self.to_string())
     }
 }
 

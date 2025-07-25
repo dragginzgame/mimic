@@ -1,5 +1,5 @@
 use crate::core::traits::{
-    FieldSearchable, FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable,
+    FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable,
 };
 use candid::{CandidType, Nat as WrappedNat};
 use derive_more::{Deref, DerefMut, Display, FromStr};
@@ -29,12 +29,6 @@ use std::cmp::Ordering;
     Deserialize,
 )]
 pub struct Nat(WrappedNat);
-
-impl FieldSearchable for Nat {
-    fn to_searchable_string(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
 
 impl FieldSortable for Nat {
     fn cmp(&self, other: &Self) -> Ordering {

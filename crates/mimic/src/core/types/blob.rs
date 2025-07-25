@@ -1,5 +1,5 @@
 use crate::core::traits::{
-    FieldSearchable, FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable,
+    FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
@@ -45,8 +45,6 @@ impl Display for Blob {
         write!(f, "[blob ({} bytes)]", self.0.len())
     }
 }
-
-impl FieldSearchable for Blob {}
 
 impl FieldSortable for Blob {}
 

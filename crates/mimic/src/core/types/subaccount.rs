@@ -1,8 +1,5 @@
 use crate::core::{
-    traits::{
-        FieldSearchable, FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom,
-        Visitable,
-    },
+    traits::{FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
     types::Principal,
     value::Value,
 };
@@ -73,12 +70,6 @@ impl Display for Subaccount {
         }
 
         Ok(())
-    }
-}
-
-impl FieldSearchable for Subaccount {
-    fn to_searchable_string(&self) -> Option<String> {
-        Some(self.to_string())
     }
 }
 

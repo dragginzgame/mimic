@@ -70,7 +70,7 @@ pub trait CanisterKind: Kind {}
 /// EntityKind
 ///
 
-pub trait EntityKind: Kind + TypeKind + EntitySearchable + EntitySortable {
+pub trait EntityKind: Kind + TypeKind + EntitySortable {
     type Store: StoreKind;
     type Indexes: IndexKindTuple;
     type PrimaryKey: Copy + Clone;
@@ -112,8 +112,8 @@ pub trait EnumValueKind: Kind {
 /// FieldKind
 ///
 
-pub trait FieldKind: Kind + FieldValue + FieldSearchable + FieldSortable {}
-impl<T: Kind + FieldValue + FieldSearchable + FieldSortable> FieldKind for T {}
+pub trait FieldKind: Kind + FieldValue + FieldSortable {}
+impl<T: Kind + FieldValue + FieldSortable> FieldKind for T {}
 
 ///
 /// IndexKind
@@ -314,7 +314,6 @@ where
     E: EntityKind,
 {
     pub name: &'static str,
-    pub search: Option<fn(&E, &str) -> bool>,
     pub cmp: Option<fn(&E, &E) -> std::cmp::Ordering>,
 }
 
@@ -327,39 +326,6 @@ pub trait EntityFixture {
     // fixtures
     // inserts the fixtures to the bd via the SaveExecutor
     fn insert_fixtures(_: Db) {}
-}
-
-///
-/// EntitySearchable
-///
-
-pub trait EntitySearchable {
-    fn search_field(&self, field: &str, text: &str) -> bool;
-
-    // search_fields
-    // AND so we want to return if any specified field doesn't match
-    fn search_fields(&self, fields: &[(String, String)]) -> bool {
-        for (field, text) in fields {
-            if !self.search_field(field, text) {
-                return false;
-            }
-        }
-
-        true
-    }
-}
-
-impl<E> EntitySearchable for E
-where
-    E: EntityAccessor + 'static,
-{
-    fn search_field(&self, field: &str, text: &str) -> bool {
-        E::fields()
-            .iter()
-            .find(|f| f.name == field)
-            .and_then(|f| f.search)
-            .is_some_and(|search_fn| search_fn(self, text))
-    }
 }
 
 ///
@@ -406,52 +372,6 @@ where
         })
     }
 }
-
-///
-/// FieldSearchable
-///
-
-pub trait FieldSearchable {
-    /// Returns a canonical string form of the value, if available
-    /// if None is returned it means that the type is just not suitable for searching
-    fn to_searchable_string(&self) -> Option<String> {
-        None
-    }
-
-    /// Case-insensitive containment check using the query value.
-    fn contains_text(&self, s: &str) -> bool {
-        self.to_searchable_string()
-            .is_some_and(|val| val.to_lowercase().contains(&s.to_lowercase()))
-    }
-}
-
-impl<T: FieldSearchable> FieldSearchable for Option<T> {
-    fn contains_text(&self, text: &str) -> bool {
-        self.as_ref().is_some_and(|v| v.contains_text(text))
-    }
-}
-
-impl<T: FieldSearchable> FieldSearchable for Vec<T> {
-    fn contains_text(&self, text: &str) -> bool {
-        self.iter().any(|v| v.contains_text(text))
-    }
-}
-
-// impl_primitive_field_search
-#[macro_export]
-macro_rules! impl_primitive_field_search {
-    ($($type:ty),*) => {
-        $(
-            impl FieldSearchable for $type {
-                fn to_searchable_string(&self) -> Option<String> {
-                    Some(self.to_string())
-                }
-            }
-        )*
-    };
-}
-
-impl_primitive_field_search!(bool, i8, i16, i32, i64, String, u8, u16, u32, u64, f32, f64);
 
 ///
 /// FieldSortable

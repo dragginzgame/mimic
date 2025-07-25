@@ -1,8 +1,5 @@
 use crate::core::{
-    traits::{
-        FieldSearchable, FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom,
-        Visitable,
-    },
+    traits::{FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
     types::Decimal,
     value::Value,
 };
@@ -97,12 +94,6 @@ impl Display for E8s {
     }
 }
 
-impl FieldSearchable for E8s {
-    fn to_searchable_string(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
-
 impl FieldSortable for E8s {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
@@ -173,14 +164,6 @@ mod tests {
         let (int_digits, frac_digits) = fixed.count_digits();
         assert_eq!(int_digits, 3);
         assert_eq!(frac_digits, 6); // .456789
-    }
-
-    #[test]
-    fn test_to_searchable_string() {
-        let dec = Decimal::from_str("3.17").unwrap();
-        let fixed = E8s::from_decimal(dec).unwrap();
-        let search = fixed.to_searchable_string().unwrap();
-        assert_eq!(search, "3.17000000");
     }
 
     #[test]

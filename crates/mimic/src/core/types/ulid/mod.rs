@@ -5,8 +5,7 @@ use crate::{
     ThisError,
     core::{
         traits::{
-            FieldSearchable, FieldSortable, FieldValue, Storable, TypeView, ValidateAuto,
-            ValidateCustom, Visitable,
+            FieldSortable, FieldValue, Storable, TypeView, ValidateAuto, ValidateCustom, Visitable,
         },
         value::Value,
     },
@@ -123,12 +122,6 @@ impl CandidType for Ulid {
 impl Default for Ulid {
     fn default() -> Self {
         Self(WrappedUlid::nil())
-    }
-}
-
-impl FieldSearchable for Ulid {
-    fn to_searchable_string(&self) -> Option<String> {
-        Some(self.to_string())
     }
 }
 

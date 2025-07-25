@@ -1,8 +1,5 @@
 use crate::core::{
-    traits::{
-        FieldSearchable, FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom,
-        Visitable,
-    },
+    traits::{FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
     value::Value,
 };
 use candid::CandidType;
@@ -102,12 +99,6 @@ impl<D: Into<Self>> Div<D> for Decimal {
 impl FieldSortable for Decimal {
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(self, other)
-    }
-}
-
-impl FieldSearchable for Decimal {
-    fn to_searchable_string(&self) -> Option<String> {
-        Some(self.to_string())
     }
 }
 

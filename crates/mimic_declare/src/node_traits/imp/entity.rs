@@ -135,15 +135,9 @@ impl Imp<Entity> for EntityAccessorTrait {
             // Generate static function names
             let cmp_fn_s = format!("{ident}_cmp_{field_ident}").to_case(Case::Snake);
             let cmp_fn = format_ident!("{cmp_fn_s}");
-            let search_fn_s = format!("{ident}_search_{field_ident}").to_case(Case::Snake);
-            let search_fn = format_ident!("{search_fn_s}");
 
             // Define the functions
             fn_defs.push(quote! {
-                fn #search_fn(x: &#ident, text: &str) -> bool {
-                    <#field_ty as ::mimic::core::traits::FieldSearchable>::contains_text(&x.#field_ident, text)
-                }
-
                 fn #cmp_fn(a: &#ident, b: &#ident) -> ::std::cmp::Ordering {
                     <#field_ty as ::mimic::core::traits::FieldSortable>::cmp(&a.#field_ident, &b.#field_ident)
                 }
@@ -153,7 +147,6 @@ impl Imp<Entity> for EntityAccessorTrait {
             field_accessors.push(quote! {
                 ::mimic::core::traits::FieldAccessor {
                     name: #field_str,
-                    search: Some(#search_fn),
                     cmp: Some(#cmp_fn),
                 }
             });

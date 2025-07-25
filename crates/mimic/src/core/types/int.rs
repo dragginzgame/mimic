@@ -1,5 +1,5 @@
 use crate::core::traits::{
-    FieldSearchable, FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable,
+    FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable,
 };
 use candid::{CandidType, Int as WrappedInt};
 use derive_more::{Deref, DerefMut, Display, FromStr};
@@ -29,12 +29,6 @@ use std::cmp::Ordering;
     Deserialize,
 )]
 pub struct Int(WrappedInt);
-
-impl FieldSearchable for Int {
-    fn to_searchable_string(&self) -> Option<String> {
-        Some(self.to_string())
-    }
-}
 
 impl FieldSortable for Int {
     fn cmp(&self, other: &Self) -> Ordering {

@@ -23,7 +23,7 @@ pub enum IndexAction<'a, E: EntityKind> {
     },
 }
 
-impl<'a, E: EntityKind> IndexAction<'_, E> {
+impl<E: EntityKind> IndexAction<'_, E> {
     const fn registry(&self) -> &IndexStoreRegistryLocal {
         match self {
             IndexAction::Insert { registry, .. }

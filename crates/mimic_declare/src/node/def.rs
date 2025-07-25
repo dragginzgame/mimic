@@ -23,7 +23,7 @@ impl Default for Def {
     fn default() -> Self {
         Self {
             comments: None,
-            ident: format_ident!("temp"),
+            ident: format_ident!("_"),
         }
     }
 }
