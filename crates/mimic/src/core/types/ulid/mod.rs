@@ -4,9 +4,7 @@ pub mod generator;
 use crate::{
     ThisError,
     core::{
-        traits::{
-            FieldSortable, FieldValue, Storable, TypeView, ValidateAuto, ValidateCustom, Visitable,
-        },
+        traits::{FieldValue, Storable, TypeView, ValidateAuto, ValidateCustom, Visitable},
         value::Value,
     },
 };
@@ -15,7 +13,7 @@ use candid::CandidType;
 use derive_more::{Deref, DerefMut, Display, FromStr};
 use icu::ic::structures::storable::Bound;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::{borrow::Cow, cmp::Ordering};
+use std::borrow::Cow;
 
 ///
 /// Error
@@ -122,12 +120,6 @@ impl CandidType for Ulid {
 impl Default for Ulid {
     fn default() -> Self {
         Self(WrappedUlid::nil())
-    }
-}
-
-impl FieldSortable for Ulid {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
     }
 }
 

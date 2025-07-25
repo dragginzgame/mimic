@@ -3,10 +3,9 @@ use crate::{
     node_traits::{Imp, Implementor, Trait},
     traits::{HasIdent, HasTypePart},
 };
-use mimic_common::utils::case::{Case, Casing};
 use mimic_schema::types::Cardinality;
 use proc_macro2::{Span, TokenStream};
-use quote::{ToTokens, format_ident, quote};
+use quote::{ToTokens, quote};
 use syn::LitStr;
 
 ///
@@ -109,70 +108,5 @@ fn values(node: &Entity) -> TokenStream {
 
             ::mimic::core::ValueMap(map)
         }
-    }
-}
-
-///
-/// EntityAccessorTrait
-///
-
-pub struct EntityAccessorTrait {}
-
-impl Imp<Entity> for EntityAccessorTrait {
-    fn tokens(node: &Entity) -> Option<TokenStream> {
-        let ident = node.ident(); // e.g., `Indexable`
-        let static_ident_s = format!("{ident}_FIELDS").to_case(Case::UpperSnake);
-        let static_ident = format_ident!("{static_ident_s}");
-
-        let mut fn_defs = Vec::new();
-        let mut field_accessors = Vec::new();
-
-        for field in &node.fields {
-            let field_ident = &field.ident;
-            let field_str = field_ident.to_string();
-            let field_ty = &field.value.type_part();
-
-            // Generate static function names
-            let cmp_fn_s = format!("{ident}_cmp_{field_ident}").to_case(Case::Snake);
-            let cmp_fn = format_ident!("{cmp_fn_s}");
-
-            // Define the functions
-            fn_defs.push(quote! {
-                fn #cmp_fn(a: &#ident, b: &#ident) -> ::std::cmp::Ordering {
-                    <#field_ty as ::mimic::core::traits::FieldSortable>::cmp(&a.#field_ident, &b.#field_ident)
-                }
-            });
-
-            // Use the functions in the static accessor table
-            field_accessors.push(quote! {
-                ::mimic::core::traits::FieldAccessor {
-                    name: #field_str,
-                    cmp: Some(#cmp_fn),
-                }
-            });
-        }
-
-        let static_def = quote! {
-            #(#fn_defs)*
-
-            static #static_ident: &[::mimic::core::traits::FieldAccessor<#ident>] = &[
-                #(#field_accessors),*
-            ];
-        };
-
-        let trait_impl = quote! {
-            fn fields() -> &'static [::mimic::core::traits::FieldAccessor<Self>] {
-                #static_ident
-            }
-        };
-
-        let mut tokens = static_def;
-        tokens.extend(
-            Implementor::new(ident, Trait::EntityAccessor)
-                .set_tokens(trait_impl)
-                .to_token_stream(),
-        );
-
-        Some(tokens)
     }
 }

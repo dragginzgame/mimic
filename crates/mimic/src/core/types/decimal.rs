@@ -1,5 +1,5 @@
 use crate::core::{
-    traits::{FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
     value::Value,
 };
 use candid::CandidType;
@@ -8,7 +8,6 @@ use num_traits::{FromPrimitive, NumCast, ToPrimitive};
 use rust_decimal::Decimal as WrappedDecimal;
 use serde::{Deserialize, Serialize, ser::Error};
 use std::{
-    cmp::Ordering,
     fmt::{self, Display},
     ops::{Div, Mul},
 };
@@ -93,12 +92,6 @@ impl<D: Into<Self>> Div<D> for Decimal {
     fn div(self, d: D) -> Self::Output {
         let rhs: Self = d.into();
         Self(self.0 / rhs.0)
-    }
-}
-
-impl FieldSortable for Decimal {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
     }
 }
 

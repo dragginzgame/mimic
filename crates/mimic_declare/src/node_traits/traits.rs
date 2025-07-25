@@ -60,9 +60,7 @@ pub enum Trait {
     StoreKind,
 
     // orm
-    EntityAccessor,
     EntityFixture,
-    FieldSortable,
     FieldValue,
     From,
     Into,
@@ -94,7 +92,6 @@ static TYPE_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
     vec![
         Trait::Default,
         Trait::Deserialize,
-        Trait::FieldSortable,
         Trait::FieldValue,
         Trait::From,
         Trait::PartialEq,

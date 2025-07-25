@@ -1,11 +1,8 @@
-use crate::core::traits::{
-    FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable,
-};
+use crate::core::traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable};
 use candid::{CandidType, Int as WrappedInt};
 use derive_more::{Deref, DerefMut, Display, FromStr};
 use icu::impl_storable_unbounded;
 use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
 
 ///
 /// Int
@@ -29,12 +26,6 @@ use std::cmp::Ordering;
     Deserialize,
 )]
 pub struct Int(WrappedInt);
-
-impl FieldSortable for Int {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
-    }
-}
 
 impl FieldValue for Int {}
 

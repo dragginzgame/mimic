@@ -1,6 +1,4 @@
-use crate::core::traits::{
-    FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable,
-};
+use crate::core::traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable};
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
@@ -45,8 +43,6 @@ impl Display for Blob {
         write!(f, "[blob ({} bytes)]", self.0.len())
     }
 }
-
-impl FieldSortable for Blob {}
 
 impl FieldValue for Blob {}
 

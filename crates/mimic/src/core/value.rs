@@ -65,7 +65,7 @@ pub enum Value {
     Text(String),
     Ulid(Ulid),
     List(Vec<Box<Value>>),
-    None,
+    None, // specifically for Options
     Unsupported,
 }
 

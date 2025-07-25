@@ -7,7 +7,7 @@ use crate::{
     db::{
         DbError,
         executor::FilterEvaluator,
-        query::{FilterExpr, LoadQuery, QueryPlan, QueryPlanner, SortExpr},
+        query::{FilterExpr, LoadQuery, QueryPlan, QueryPlanner, SortDirection, SortExpr},
         response::{EntityRow, LoadCollection},
         store::{
             DataKey, DataRow, DataStoreLocal, DataStoreRegistryLocal, IndexStoreRegistryLocal,
@@ -240,9 +240,36 @@ impl LoadExecutor {
     }
 
     // apply_sort
-    fn apply_sort<E: EntityKind>(rows: &mut [EntityRow<E>], sort: &SortExpr) {
-        let sorter = E::sort(sort);
-        rows.sort_by(|a, b| sorter(&a.entry.entity, &b.entry.entity));
+    fn apply_sort<E: EntityKind>(rows: &mut [EntityRow<E>], sort_expr: &SortExpr) {
+        rows.sort_by(|a, b| {
+            let a_values = a.entry.entity.values();
+            let b_values = b.entry.entity.values();
+
+            for (field, direction) in sort_expr.iter() {
+                // convert only once
+                let key: &str = field;
+
+                match (a_values.get(key), b_values.get(key)) {
+                    (Some(va), Some(vb)) => {
+                        match va.partial_cmp(vb) {
+                            Some(core::cmp::Ordering::Equal) => continue,
+                            Some(ordering) => {
+                                return match direction {
+                                    SortDirection::Asc => ordering,
+                                    SortDirection::Desc => ordering.reverse(),
+                                };
+                            }
+                            None => continue, // skip unorderable values
+                        }
+                    }
+                    (None, None) => continue,
+                    (Some(_), None) => return core::cmp::Ordering::Greater,
+                    (None, Some(_)) => return core::cmp::Ordering::Less,
+                }
+            }
+
+            core::cmp::Ordering::Equal
+        });
     }
 
     // apply_pagination

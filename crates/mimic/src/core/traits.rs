@@ -18,10 +18,7 @@ pub use std::{
 use crate::{
     common::error::ErrorTree,
     core::{Key, Value, ValueMap, types::Ulid, visit::Visitor},
-    db::{
-        Db,
-        query::{SortDirection, SortExpr},
-    },
+    db::Db,
 };
 
 ///
@@ -70,7 +67,7 @@ pub trait CanisterKind: Kind {}
 /// EntityKind
 ///
 
-pub trait EntityKind: Kind + TypeKind + EntitySortable {
+pub trait EntityKind: Kind + TypeKind {
     type Store: StoreKind;
     type Indexes: IndexKindTuple;
     type PrimaryKey: Copy + Clone;
@@ -112,8 +109,8 @@ pub trait EnumValueKind: Kind {
 /// FieldKind
 ///
 
-pub trait FieldKind: Kind + FieldValue + FieldSortable {}
-impl<T: Kind + FieldValue + FieldSortable> FieldKind for T {}
+pub trait FieldKind: Kind + FieldValue {}
+impl<T: Kind + FieldValue> FieldKind for T {}
 
 ///
 /// IndexKind
@@ -302,22 +299,6 @@ impl_primitive_type_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
 ///
 
 ///
-/// EntityAccessor
-///
-
-pub trait EntityAccessor: EntityKind {
-    fn fields() -> &'static [FieldAccessor<Self>];
-}
-
-pub struct FieldAccessor<E>
-where
-    E: EntityKind,
-{
-    pub name: &'static str,
-    pub cmp: Option<fn(&E, &E) -> std::cmp::Ordering>,
-}
-
-///
 /// EntityFixture
 /// an enum that can generate fixture data for an Entity
 ///
@@ -326,97 +307,6 @@ pub trait EntityFixture {
     // fixtures
     // inserts the fixtures to the bd via the SaveExecutor
     fn insert_fixtures(_: Db) {}
-}
-
-///
-/// EntitySortable
-/// allows anything with a collection of fields to be sorted
-///
-
-pub type EntitySortableFn<E> = dyn Fn(&E, &E) -> std::cmp::Ordering;
-
-pub trait EntitySortable {
-    fn sort(expr: &SortExpr) -> Box<EntitySortableFn<Self>>
-    where
-        Self: Sized;
-}
-
-impl<E> EntitySortable for E
-where
-    E: EntityAccessor + 'static,
-{
-    fn sort(expr: &SortExpr) -> Box<EntitySortableFn<Self>> {
-        let mut comparators = vec![];
-
-        for (field_name, dir) in expr.iter() {
-            if let Some(accessor) = E::fields().iter().find(|f| f.name == field_name) {
-                if let Some(cmp) = accessor.cmp {
-                    let cmp_fn: Box<EntitySortableFn<E>> = match dir {
-                        SortDirection::Asc => Box::new(cmp),
-                        SortDirection::Desc => Box::new(move |a, b| cmp(b, a)),
-                    };
-                    comparators.push(cmp_fn);
-                }
-            }
-        }
-
-        Box::new(move |a, b| {
-            for cmp in &comparators {
-                let ord = cmp(a, b);
-                if ord != std::cmp::Ordering::Equal {
-                    return ord;
-                }
-            }
-
-            std::cmp::Ordering::Equal
-        })
-    }
-}
-
-///
-/// FieldSortable
-///
-/// wrapper around the Ord/PartialOrd traits so that we can extend it to
-/// more ORM types
-///
-
-pub trait FieldSortable {
-    fn cmp(&self, _other: &Self) -> std::cmp::Ordering {
-        std::cmp::Ordering::Equal
-    }
-}
-
-impl FieldSortable for f32 {}
-impl FieldSortable for f64 {}
-
-// impl_primitive_field_orderable
-#[macro_export]
-macro_rules! impl_primitive_field_orderable {
-    ($($type:ty),*) => {
-        $(
-            impl FieldSortable for $type {
-                fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-                    std::cmp::Ord::cmp(self, other)
-                }
-            }
-        )*
-    };
-}
-
-impl_primitive_field_orderable!(bool, i8, i16, i32, i64, String, u8, u16, u32, u64);
-
-impl<T: FieldSortable> FieldSortable for Box<T> {}
-impl<T: FieldSortable> FieldSortable for Vec<T> {}
-
-impl<T: FieldSortable> FieldSortable for Option<T> {
-    fn cmp(&self, other: &Self) -> Ordering {
-        match (self, other) {
-            (None, None) => Ordering::Equal,
-            (None, Some(_)) => Ordering::Less,
-            (Some(_), None) => Ordering::Greater,
-            (Some(a), Some(b)) => a.cmp(b),
-        }
-    }
 }
 
 ///

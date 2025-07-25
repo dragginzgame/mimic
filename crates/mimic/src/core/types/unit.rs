@@ -1,6 +1,4 @@
-use crate::core::traits::{
-    FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable,
-};
+use crate::core::traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
@@ -23,8 +21,6 @@ use serde::{Deserialize, Serialize};
     Deserialize,
 )]
 pub struct Unit();
-
-impl FieldSortable for Unit {}
 
 impl FieldValue for Unit {}
 

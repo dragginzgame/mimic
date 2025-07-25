@@ -1,5 +1,5 @@
 use crate::core::{
-    traits::{FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
     types::Decimal,
     value::Value,
 };
@@ -7,10 +7,7 @@ use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
 use num_traits::ToPrimitive;
 use serde::{Deserialize, Serialize};
-use std::{
-    cmp::Ordering,
-    fmt::{self, Display},
-};
+use std::fmt::{self, Display};
 
 const SCALE: u64 = 100_000_000;
 
@@ -91,12 +88,6 @@ impl E8s {
 impl Display for E8s {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:.8}", self.to_tokens())
-    }
-}
-
-impl FieldSortable for E8s {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
     }
 }
 

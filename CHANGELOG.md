@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - rewrite of the macro codegen, much faster in vscode now
 - added have view(), views() and try_view() to LoadCollection
 - removed EntitySearchable and FieldSearchable as Value takes care of that
+- removed EntityAccessor, FieldSortable as Value also takes care of that
 
 ## [0.8.3]
 - cleaned up filter api with less generics

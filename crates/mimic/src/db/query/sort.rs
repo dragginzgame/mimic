@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 ///
 
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
-pub struct SortExpr(pub Vec<(String, SortDirection)>);
+pub struct SortExpr(Vec<(String, SortDirection)>);
 
 impl SortExpr {
     /// Add a single field + direction
@@ -23,11 +23,13 @@ impl SortExpr {
         self.0.extend(iter.into_iter().map(|(f, d)| (f.into(), d)));
     }
 
+    /// Check if no sort fields are defined
     #[must_use]
-    pub const fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 
+    /// Iterate over the fields
     pub fn iter(&self) -> impl Iterator<Item = &(String, SortDirection)> {
         self.0.iter()
     }

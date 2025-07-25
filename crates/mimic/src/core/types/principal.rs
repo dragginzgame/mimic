@@ -1,9 +1,7 @@
 use crate::{
     ThisError,
     core::{
-        traits::{
-            FieldSortable, FieldValue, Storable, TypeView, ValidateAuto, ValidateCustom, Visitable,
-        },
+        traits::{FieldValue, Storable, TypeView, ValidateAuto, ValidateCustom, Visitable},
         value::Value,
     },
 };
@@ -13,7 +11,7 @@ use icu::ic::{
     structures::storable::Bound,
 };
 use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, cmp::Ordering, str::FromStr};
+use std::{borrow::Cow, str::FromStr};
 
 ///
 /// PrincipalError
@@ -80,12 +78,6 @@ impl Principal {
 impl Default for Principal {
     fn default() -> Self {
         Self(WrappedPrincipal::from_slice(&[]))
-    }
-}
-
-impl FieldSortable for Principal {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
     }
 }
 

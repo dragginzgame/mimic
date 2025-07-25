@@ -140,7 +140,6 @@ pub trait HasTraits: HasIdent + ToTokens {
             // Generate empty impl blocks for marker traits
             Trait::EntityFixture
             | Trait::EntityIdKind
-            | Trait::FieldSortable
             | Trait::FieldValue
             | Trait::ValidateAuto
             | Trait::ValidateCustom

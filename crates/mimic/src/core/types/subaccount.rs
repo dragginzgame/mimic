@@ -1,5 +1,5 @@
 use crate::core::{
-    traits::{FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
     types::Principal,
     value::Value,
 };
@@ -12,10 +12,7 @@ use icu::{
     impl_storable_bounded,
 };
 use serde::{Deserialize, Serialize};
-use std::{
-    cmp::Ordering,
-    fmt::{self, Display},
-};
+use std::fmt::{self, Display};
 
 ///
 /// Subaccount
@@ -70,12 +67,6 @@ impl Display for Subaccount {
         }
 
         Ok(())
-    }
-}
-
-impl FieldSortable for Subaccount {
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(self, other)
     }
 }
 

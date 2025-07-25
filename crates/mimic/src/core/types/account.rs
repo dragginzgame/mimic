@@ -1,5 +1,5 @@
 use crate::core::{
-    traits::{FieldSortable, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
     types::{Principal, Subaccount},
     value::Value,
 };
@@ -50,8 +50,6 @@ impl Account {
         Self::new(Principal::max_storable(), Some(Subaccount::max_storable()))
     }
 }
-
-impl FieldSortable for Account {}
 
 impl FieldValue for Account {
     fn to_value(&self) -> Value {
