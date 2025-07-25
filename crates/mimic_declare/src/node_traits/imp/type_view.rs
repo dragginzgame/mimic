@@ -192,6 +192,7 @@ impl Imp<Map> for TypeViewTrait {
         })
     }
 }
+
 ///
 /// Newtype
 ///

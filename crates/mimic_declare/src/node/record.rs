@@ -60,10 +60,7 @@ impl HasSchemaPart for Record {
 
 impl HasTraits for Record {
     fn traits(&self) -> Vec<Trait> {
-        let mut traits = self.traits.clone().with_type_traits();
-        traits.add(Trait::FieldListKind);
-
-        traits.list()
+        self.traits.clone().with_type_traits().list()
     }
 
     fn map_trait(&self, t: Trait) -> Option<TokenStream> {
@@ -71,7 +68,6 @@ impl HasTraits for Record {
 
         match t {
             Trait::Default if self.fields.has_default() => DefaultTrait::tokens(self),
-            Trait::FieldListKind => FieldListKindTrait::tokens(self),
             Trait::From => FromTrait::tokens(self),
             Trait::TypeView => TypeViewTrait::tokens(self),
             Trait::ValidateAuto => ValidateAutoTrait::tokens(self),

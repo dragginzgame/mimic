@@ -55,7 +55,6 @@ pub enum Trait {
     EntityKind,
     EntityIdKind,
     EnumValueKind,
-    FieldListKind,
     IndexKind,
     PrimitiveKind,
     StoreKind,
