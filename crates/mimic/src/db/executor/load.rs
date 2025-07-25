@@ -251,20 +251,16 @@ impl LoadExecutor {
 
                 match (a_values.get(key), b_values.get(key)) {
                     (Some(va), Some(vb)) => {
-                        match va.partial_cmp(vb) {
-                            Some(core::cmp::Ordering::Equal) => continue,
-                            Some(ordering) => {
-                                return match direction {
-                                    SortDirection::Asc => ordering,
-                                    SortDirection::Desc => ordering.reverse(),
-                                };
-                            }
-                            None => continue, // skip unorderable values
+                        if let Some(ordering) = va.partial_cmp(vb) {
+                            return match direction {
+                                SortDirection::Asc => ordering,
+                                SortDirection::Desc => ordering.reverse(),
+                            };
                         }
                     }
-                    (None, None) => continue,
                     (Some(_), None) => return core::cmp::Ordering::Greater,
                     (None, Some(_)) => return core::cmp::Ordering::Less,
+                    (None, None) => {}
                 }
             }
 
