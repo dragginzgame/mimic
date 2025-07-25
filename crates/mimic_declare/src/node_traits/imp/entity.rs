@@ -82,7 +82,7 @@ fn values(node: &Entity) -> TokenStream {
                         self.#field_ident
                             .as_ref()
                             .map(|v| v.to_value())
-                            .unwrap_or(::mimic::core::value::Value::None)
+                            .unwrap_or(Value::None)
                     );
                 }),
 
@@ -92,7 +92,7 @@ fn values(node: &Entity) -> TokenStream {
                         .map(|v| Box::new(v.to_value()))
                         .collect::<Vec<_>>();
 
-                    map.insert(#field_lit, ::mimic::core::value::Value::List(list));
+                    map.insert(#field_lit, Value::List(list));
                 }),
             }
         })
@@ -101,12 +101,12 @@ fn values(node: &Entity) -> TokenStream {
     let cap = inserts.len();
     quote! {
         fn values(&self) -> ::mimic::core::value::ValueMap {
-            use ::mimic::core::traits::FieldValue;
+            use ::mimic::core::{value::{ValueMap, Value}, traits::FieldValue};
 
             let mut map = ::std::collections::HashMap::with_capacity(#cap);
             #(#inserts)*
 
-            ::mimic::core::ValueMap(map)
+            ValueMap(map)
         }
     }
 }
