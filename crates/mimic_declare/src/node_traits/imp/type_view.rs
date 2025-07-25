@@ -329,7 +329,7 @@ fn field_list(view_ident: &Ident, fields: &FieldList) -> TokenStream {
         .map(|field| {
             let ident = &field.ident;
             quote! {
-                #ident: ::mimic::core::traits::TypeView::to_view(&self.#ident)
+                #ident: TypeView::to_view(&self.#ident)
             }
         })
         .collect();
@@ -339,7 +339,7 @@ fn field_list(view_ident: &Ident, fields: &FieldList) -> TokenStream {
         .map(|field| {
             let ident = &field.ident;
             quote! {
-                #ident: ::mimic::core::traits::TypeView::from_view(view.#ident)
+                #ident: TypeView::from_view(view.#ident)
             }
         })
         .collect();
@@ -348,12 +348,16 @@ fn field_list(view_ident: &Ident, fields: &FieldList) -> TokenStream {
         type View = #view_ident;
 
         fn to_view(&self) -> Self::View {
+            use ::mimic::core::traits::TypeView;
+
             #view_ident {
                 #(#to_pairs),*
             }
         }
 
         fn from_view(view: Self::View) -> Self {
+            use ::mimic::core::traits::TypeView;
+
             Self {
                 #(#from_pairs),*
             }
