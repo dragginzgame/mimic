@@ -85,7 +85,8 @@ impl HasTypePart for List {
         let item = &self.item.type_part();
 
         quote! {
-            pub struct #ident(Vec<#item>);
+            #[repr(transparent)]
+            pub struct #ident(pub Vec<#item>);
         }
     }
 

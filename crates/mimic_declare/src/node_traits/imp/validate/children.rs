@@ -160,16 +160,16 @@ fn generate_validators_inner(
     validators: &[TypeValidator],
     var_expr: TokenStream,
 ) -> Option<TokenStream> {
-    let rules = generate_validators(validators, quote!(v));
-
-    if rules.is_empty() {
-        None
-    } else {
-        Some(quote! {
-            let v = #var_expr;
-            #(#rules)*
-        })
+    if validators.is_empty() {
+        return None;
     }
+
+    let validator_exprs = generate_validators(validators, quote!(v));
+
+    Some(quote! {
+        let v = #var_expr;
+        #(#validator_exprs)*
+    })
 }
 
 ///

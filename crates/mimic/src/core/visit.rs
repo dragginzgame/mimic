@@ -25,12 +25,16 @@ pub trait Visitor {
 }
 
 // perform_visit
-pub fn perform_visit(visitor: &mut dyn Visitor, node: &dyn Visitable, key: &str) {
-    visitor.push(key);
+pub fn perform_visit(visitor: &mut dyn Visitor, node: &dyn Visitable, key: Option<&str>) {
+    if let Some(k) = key {
+        visitor.push(k);
+    }
     visitor.visit(node, Event::Enter);
     node.drive(visitor);
     visitor.visit(node, Event::Exit);
-    visitor.pop();
+    if key.is_some() {
+        visitor.pop();
+    }
 }
 
 ///

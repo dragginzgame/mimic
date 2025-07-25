@@ -85,7 +85,8 @@ impl HasTypePart for Set {
         let item = &self.item.type_part();
 
         quote! {
-            pub struct #ident(::std::collections::HashSet<#item>);
+            #[repr(transparent)]
+            pub struct #ident(pub ::std::collections::HashSet<#item>);
         }
     }
 

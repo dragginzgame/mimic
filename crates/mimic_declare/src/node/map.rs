@@ -89,7 +89,8 @@ impl HasTypePart for Map {
         let value = &self.value.type_part();
 
         quote! {
-            pub struct #ident(::std::collections::HashMap<#key, #value>);
+            #[repr(transparent)]
+            pub struct #ident(pub ::std::collections::HashMap<#key, #value>);
         }
     }
 

@@ -445,7 +445,7 @@ pub trait Visitable: Validate {
 impl<T: Visitable> Visitable for Option<T> {
     fn drive(&self, visitor: &mut dyn crate::core::visit::Visitor) {
         if let Some(value) = self {
-            crate::core::visit::perform_visit(visitor, value, "");
+            crate::core::visit::perform_visit(visitor, value, None);
         }
     }
 }
@@ -454,7 +454,7 @@ impl<T: Visitable> Visitable for Vec<T> {
     fn drive(&self, visitor: &mut dyn crate::core::visit::Visitor) {
         for (i, value) in self.iter().enumerate() {
             let key = i.to_string();
-            crate::core::visit::perform_visit(visitor, value, &key);
+            crate::core::visit::perform_visit(visitor, value, Some(&key));
         }
     }
 }

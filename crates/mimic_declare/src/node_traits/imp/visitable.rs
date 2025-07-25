@@ -3,9 +3,9 @@ use crate::{
     node_traits::{Imp, Implementor, Trait},
     traits::HasIdent,
 };
-use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
-use syn::{Expr, parse_str};
+use proc_macro2::{Span, TokenStream};
+use quote::{ToTokens, format_ident, quote};
+use syn::{Index, LitStr};
 
 ///
 /// VisitableTrait
@@ -64,10 +64,10 @@ impl Imp<Enum> for VisitableTrait {
 impl Imp<List> for VisitableTrait {
     fn tokens(node: &List) -> Option<TokenStream> {
         let inner = quote! {
-            for (i, value) in self.0.iter().enumerate() {
+            for (i, value) in self.iter().enumerate() {
                 let visitor_key = i.to_string();
 
-                perform_visit(visitor, value, &visitor_key);
+                perform_visit(visitor, value, Some(&visitor_key));
             }
         };
 
@@ -88,15 +88,14 @@ impl Imp<List> for VisitableTrait {
 impl Imp<Map> for VisitableTrait {
     fn tokens(node: &Map) -> Option<TokenStream> {
         let inner = quote! {
-            for (k, v) in self.0.iter() {
+            for (k, v) in self.iter() {
                 let visitor_key = k.to_string();
-                let key_path = format!("{}:key", visitor_key);
-                let val_path = format!("{}:val", visitor_key);
 
-                perform_visit(visitor, k, &key_path);
-                perform_visit(visitor, v, &val_path);
+                perform_visit(visitor, k, Some(&(visitor_key.clone() + ":key")));
+                perform_visit(visitor, v, Some(&(visitor_key + ":val")));
             }
         };
+
         let q = quote_drive_method(&inner);
 
         let tokens = Implementor::new(node.ident(), Trait::Visitable)
@@ -114,7 +113,7 @@ impl Imp<Map> for VisitableTrait {
 impl Imp<Newtype> for VisitableTrait {
     fn tokens(node: &Newtype) -> Option<TokenStream> {
         let inner = quote! {
-            perform_visit(visitor, &self.0, "");
+            perform_visit(visitor, &self.0, None);
         };
 
         let q = quote_drive_method(&inner);
@@ -150,9 +149,10 @@ impl Imp<Record> for VisitableTrait {
 impl Imp<Set> for VisitableTrait {
     fn tokens(node: &Set) -> Option<TokenStream> {
         let inner = quote! {
-            for (i, item) in self.0.iter().enumerate() {
+            for (i, item) in self.iter().enumerate() {
                 let visitor_key = i.to_string();
-                perform_visit(visitor, item, &visitor_key);
+
+                perform_visit(visitor, item, Some(&visitor_key));
             }
         };
         let q = quote_drive_method(&inner);
@@ -174,12 +174,11 @@ impl Imp<Tuple> for VisitableTrait {
         let mut inner = quote!();
 
         for (i, _) in node.values.iter().enumerate() {
-            let key = i.to_string();
-            let var: syn::Expr =
-                syn::parse_str(&format!("self.{i}")).expect("can parse tuple field");
+            let index = Index::from(i);
+            let key_lit = LitStr::new(&i.to_string(), Span::call_site());
 
             inner.extend(quote! {
-                perform_visit(visitor, &#var, #key);
+                perform_visit(visitor, &self.#index, Some(#key_lit));
             });
         }
 
@@ -192,6 +191,7 @@ impl Imp<Tuple> for VisitableTrait {
         Some(tokens)
     }
 }
+
 ///
 /// SUB TYPES
 ///
@@ -204,12 +204,11 @@ pub fn field_list(fields: &FieldList) -> TokenStream {
     let mut inner = quote!();
 
     for f in fields {
-        let field_ident = f.ident.to_string();
-        let var_expr: Expr =
-            parse_str(&format!("self.{field_ident}")).expect("can parse field access");
+        let field_ident = format_ident!("{}", f.ident);
+        let field_ident_s = field_ident.to_string();
 
         inner.extend(quote! {
-            perform_visit(visitor, &#var_expr, #field_ident);
+            perform_visit(visitor, &self.#field_ident, Some(#field_ident_s));
         });
     }
 
@@ -224,7 +223,7 @@ pub fn enum_variant(variant: &EnumVariant) -> TokenStream {
         let name_string = name.to_string();
 
         quote! {
-            Self::#name(value) => perform_visit(visitor, value, #name_string),
+            Self::#name(value) => perform_visit(visitor, value, Some(#name_string)),
         }
     } else {
         quote!(Self::#name => {})

@@ -20,7 +20,7 @@ pub enum ValidationError {
 // validate
 pub fn validate(node: &dyn Visitable) -> Result<(), ValidationError> {
     let mut visitor = ValidateVisitor::new();
-    perform_visit(&mut visitor, node, "");
+    perform_visit(&mut visitor, node, None);
 
     visitor
         .errors
