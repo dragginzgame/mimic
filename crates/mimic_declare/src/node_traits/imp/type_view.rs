@@ -62,7 +62,7 @@ impl Imp<Enum> for TypeViewTrait {
 
             if variant.value.is_some() {
                 quote! {
-                    Self::View::#variant_name(v) => Self::#variant_name(::mimic::core::traits::TypeView::from_view(v))
+                    Self::View::#variant_name(v) => Self::#variant_name(TypeView::from_view(v))
                 }
             } else {
                 quote! {
@@ -282,14 +282,14 @@ impl Imp<Tuple> for TypeViewTrait {
         let to_view_fields = indices.iter().map(|i| {
             let index = syn::Index::from(*i);
             quote! {
-                ::mimic::core::traits::TypeView::to_view(&self.#index)
+                TypeView::to_view(&self.#index)
             }
         });
 
         let from_view_fields = indices.iter().map(|i| {
             let index = syn::Index::from(*i);
             quote! {
-                ::mimic::core::traits::TypeView::from_view(view.#index)
+                TypeView::from_view(view.#index)
             }
         });
 
@@ -330,7 +330,7 @@ fn field_list(view_ident: &Ident, fields: &FieldList) -> TokenStream {
         .map(|field| {
             let ident = &field.ident;
             quote! {
-                #ident: ::mimic::core::traits::TypeView::to_view(&self.#ident)
+                #ident: TypeView::to_view(&self.#ident)
             }
         })
         .collect();
@@ -340,7 +340,7 @@ fn field_list(view_ident: &Ident, fields: &FieldList) -> TokenStream {
         .map(|field| {
             let ident = &field.ident;
             quote! {
-                #ident: ::mimic::core::traits::TypeView::from_view(view.#ident)
+                #ident: TypeView::from_view(view.#ident)
             }
         })
         .collect();
@@ -368,13 +368,13 @@ fn quote_typeview_linear(view_ident: &Ident) -> TokenStream {
 
         fn to_view(&self) -> Self::View {
             self.iter()
-                .map(|v| ::mimic::core::traits::TypeView::to_view(v))
+                .map(|v| TypeView::to_view(v))
                 .collect()
         }
 
         fn from_view(view: Self::View) -> Self {
             Self(view.into_iter()
-                .map(|v| ::mimic::core::traits::TypeView::from_view(v))
+                .map(|v| TypeView::from_view(v))
                 .collect())
         }
     }
@@ -387,8 +387,8 @@ fn quote_typeview_map(view_ident: &Ident, key: &TokenStream, value: &TokenStream
         fn to_view(&self) -> Self::View {
          self.0.iter()
                 .map(|(k, v)| (
-                    ::mimic::core::traits::TypeView::to_view(k),
-                    ::mimic::core::traits::TypeView::to_view(v),
+                    TypeView::to_view(k),
+                    TypeView::to_view(v),
                 ))
                 .collect()
         }
@@ -396,8 +396,8 @@ fn quote_typeview_map(view_ident: &Ident, key: &TokenStream, value: &TokenStream
         fn from_view(view: Self::View) -> Self {
             Self(view.into_iter()
                 .map(|(k, v)| (
-                    <#key as ::mimic::core::traits::TypeView>::from_view(k),
-                    <#value as ::mimic::core::traits::TypeView>::from_view(v),
+                    <#key as TypeView>::from_view(k),
+                    <#value as TypeView>::from_view(v),
                 ))
                 .collect())
         }
