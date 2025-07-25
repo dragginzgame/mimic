@@ -67,7 +67,7 @@ impl Imp<List> for VisitableTrait {
             for (i, value) in self.0.iter().enumerate() {
                 let visitor_key = i.to_string();
 
-                ::mimic::core::visit::perform_visit(visitor, value, &visitor_key);
+                perform_visit(visitor, value, &visitor_key);
             }
         };
 
@@ -93,8 +93,8 @@ impl Imp<Map> for VisitableTrait {
                 let key_path = format!("{}:key", visitor_key);
                 let val_path = format!("{}:val", visitor_key);
 
-                ::mimic::core::visit::perform_visit(visitor, k, &key_path);
-                ::mimic::core::visit::perform_visit(visitor, v, &val_path);
+                perform_visit(visitor, k, &key_path);
+                perform_visit(visitor, v, &val_path);
             }
         };
         let q = quote_drive_method(&inner);
@@ -114,7 +114,7 @@ impl Imp<Map> for VisitableTrait {
 impl Imp<Newtype> for VisitableTrait {
     fn tokens(node: &Newtype) -> Option<TokenStream> {
         let inner = quote! {
-            ::mimic::core::visit::perform_visit(visitor, &self.0, "");
+            perform_visit(visitor, &self.0, "");
         };
 
         let q = quote_drive_method(&inner);
@@ -152,7 +152,7 @@ impl Imp<Set> for VisitableTrait {
         let inner = quote! {
             for (i, item) in self.0.iter().enumerate() {
                 let visitor_key = i.to_string();
-                ::mimic::core::visit::perform_visit(visitor, item, &visitor_key);
+                perform_visit(visitor, item, &visitor_key);
             }
         };
         let q = quote_drive_method(&inner);
@@ -179,7 +179,7 @@ impl Imp<Tuple> for VisitableTrait {
                 syn::parse_str(&format!("self.{i}")).expect("can parse tuple field");
 
             inner.extend(quote! {
-                ::mimic::core::visit::perform_visit(visitor, &#var, #key);
+                perform_visit(visitor, &#var, #key);
             });
         }
 
@@ -209,7 +209,7 @@ pub fn field_list(fields: &FieldList) -> TokenStream {
             parse_str(&format!("self.{field_ident}")).expect("can parse field access");
 
         inner.extend(quote! {
-            ::mimic::core::visit::perform_visit(visitor, &#var_expr, #field_ident);
+            perform_visit(visitor, &#var_expr, #field_ident);
         });
     }
 
@@ -224,7 +224,7 @@ pub fn enum_variant(variant: &EnumVariant) -> TokenStream {
         let name_string = name.to_string();
 
         quote! {
-            Self::#name(value) => ::mimic::core::visit::perform_visit(visitor, value, #name_string),
+            Self::#name(value) => perform_visit(visitor, value, #name_string),
         }
     } else {
         quote!(Self::#name => {})
@@ -240,6 +240,8 @@ pub fn enum_variant(variant: &EnumVariant) -> TokenStream {
 fn quote_drive_method(inner: &TokenStream) -> TokenStream {
     quote! {
         fn drive(&self, visitor: &mut dyn ::mimic::core::visit::Visitor) {
+            use ::mimic::core::visit::perform_visit;
+
             #inner
         }
     }
