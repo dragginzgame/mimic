@@ -4,9 +4,8 @@ use crate::{
     traits::{HasIdent, HasTypePart},
 };
 use mimic_schema::types::Cardinality;
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::LitStr;
 
 ///
 /// EntityKindTrait
@@ -68,9 +67,10 @@ fn values(node: &Entity) -> TokenStream {
     let inserts = &node
         .fields
         .iter()
-        .map(|field| {
+        .enumerate()
+        .map(|(i, field)| {
             let field_ident = &field.ident;
-            let field_lit = LitStr::new(&field_ident.to_string(), Span::call_site());
+            let field_lit = quote!(Self::FIELD_NAMES[#i]);
 
             match field.value.cardinality() {
                 Cardinality::One => Some(quote! {

@@ -18,7 +18,7 @@ pub struct FromTrait {}
 
 impl Imp<Entity> for FromTrait {
     fn tokens(node: &Entity) -> Option<TokenStream> {
-        from_type_view(node)
+        Some(from_type_view(node))
     }
 }
 
@@ -28,7 +28,7 @@ impl Imp<Entity> for FromTrait {
 
 impl Imp<Enum> for FromTrait {
     fn tokens(node: &Enum) -> Option<TokenStream> {
-        from_type_view(node)
+        Some(from_type_view(node))
     }
 }
 
@@ -38,7 +38,7 @@ impl Imp<Enum> for FromTrait {
 
 impl Imp<EnumValue> for FromTrait {
     fn tokens(node: &EnumValue) -> Option<TokenStream> {
-        from_type_view(node)
+        Some(from_type_view(node))
     }
 }
 
@@ -132,7 +132,7 @@ impl Imp<Newtype> for FromTrait {
 
 impl Imp<Record> for FromTrait {
     fn tokens(node: &Record) -> Option<TokenStream> {
-        from_type_view(node)
+        Some(from_type_view(node))
     }
 }
 
@@ -170,13 +170,12 @@ impl Imp<Set> for FromTrait {
 
 impl Imp<Tuple> for FromTrait {
     fn tokens(node: &Tuple) -> Option<TokenStream> {
-        from_type_view(node)
+        Some(from_type_view(node))
     }
 }
 
 /// from_type_view
-#[allow(clippy::unnecessary_wraps)]
-fn from_type_view(m: &impl HasType) -> Option<TokenStream> {
+fn from_type_view(m: &impl HasType) -> TokenStream {
     let ident = m.ident();
     let view_ident = m.view_ident();
 
@@ -186,10 +185,8 @@ fn from_type_view(m: &impl HasType) -> Option<TokenStream> {
         }
     };
 
-    let tokens = Implementor::new(ident, Trait::From)
+    Implementor::new(ident, Trait::From)
         .set_tokens(q)
         .add_trait_generic(quote!(#view_ident))
-        .to_token_stream();
-
-    Some(tokens)
+        .to_token_stream()
 }

@@ -80,6 +80,7 @@ impl Imp<List> for VisitableTrait {
         Some(tokens)
     }
 }
+
 ///
 /// Map
 ///
@@ -202,13 +203,14 @@ impl Imp<Tuple> for VisitableTrait {
 pub fn field_list(fields: &FieldList) -> TokenStream {
     let mut inner = quote!();
 
-    for f in fields {
-        let field_ident = f.ident.to_string();
+    for (i, field) in fields.iter().enumerate() {
+        let field_ident = &field.ident;
+        let field_name = quote!(Self::FIELD_NAMES[#i]);
         let var_expr: Expr =
             parse_str(&format!("self.{field_ident}")).expect("can parse field access");
 
         inner.extend(quote! {
-            ::mimic::core::visit::perform_visit(visitor, &#var_expr, #field_ident);
+            ::mimic::core::visit::perform_visit(visitor, &#var_expr, #field_name);
         });
     }
 

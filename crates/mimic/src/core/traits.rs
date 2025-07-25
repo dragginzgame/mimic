@@ -113,6 +113,16 @@ pub trait FieldKind: Kind + FieldValue {}
 impl<T: Kind + FieldValue> FieldKind for T {}
 
 ///
+/// FieldListKind
+/// not specifically it's own macro, but this trait is derived on
+/// Entity and Record
+///
+
+pub trait FieldListKind {
+    const FIELD_NAMES: &'static [&'static str];
+}
+
+///
 /// IndexKind
 ///
 
