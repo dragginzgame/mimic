@@ -143,11 +143,11 @@ impl HasTypePart for ItemTarget {
     fn view_type_part(&self) -> TokenStream {
         match self {
             Self::Is(path) => {
-                quote!(<#path as TypeView>::View)
+                quote!(<#path as ::mimic::core::traits::TypeView>::View)
             }
             Self::Primitive(prim) => {
                 let ty = prim.as_type();
-                quote!(<#ty as TypeView>::View)
+                quote!(<#ty as ::mimic::core::traits::TypeView>::View)
             }
         }
     }

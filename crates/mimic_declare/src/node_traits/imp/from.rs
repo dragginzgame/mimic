@@ -181,7 +181,7 @@ fn from_type_view(m: &impl HasType) -> TokenStream {
 
     let q = quote! {
         fn from(view: #view_ident) -> Self {
-            <Self as TypeView>::from_view(view)
+            <Self as ::mimic::core::traits::TypeView>::from_view(view)
         }
     };
 
