@@ -40,13 +40,13 @@ impl Imp<Entity> for FieldValuesTrait {
                     }),
 
                     Cardinality::Many => Some(quote! {
-                                #field_lit => {
-                                    let list = self.#field_ident
-                                        .iter()
-                                        .map(|v| Box::new(v.to_value()))
-                                        .collect::<Vec<_>>();
+                        #field_lit => {
+                            let list = self.#field_ident
+                                .iter()
+                                .map(|v| Box::new(v.to_value()))
+                                .collect::<Vec<_>>();
 
-                                Some(Value::List(list))
+                        Some(Value::List(list))
                     }}),
                 }
             })
