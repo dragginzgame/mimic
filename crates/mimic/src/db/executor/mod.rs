@@ -19,6 +19,9 @@ use thiserror::Error as ThisError;
 
 #[derive(Debug, ThisError)]
 pub enum ExecutorError {
+    #[error("entity is missing primary key")]
+    EntityMissingPrimaryKey(IndexKey),
+
     #[error("data key exists: {0}")]
     KeyExists(DataKey),
 

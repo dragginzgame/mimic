@@ -26,7 +26,7 @@ impl Imp<Entity> for EntityKindTrait {
         let pk_field = &node.primary_key.to_string();
 
         // static definitions
-        let mut q = quote! {
+        let q = quote! {
             type Store = #store;
             type PrimaryKey = #pk_type;
             type Indexes = (#(#index_idents),*);
@@ -34,29 +34,10 @@ impl Imp<Entity> for EntityKindTrait {
             const PRIMARY_KEY: &'static str = #pk_field;
         };
 
-        // impls
-        q.extend(key(node));
-
         let tokens = Implementor::new(node.ident(), Trait::EntityKind)
             .set_tokens(q)
             .to_token_stream();
 
         Some(tokens)
-    }
-}
-
-// key
-fn key(node: &Entity) -> TokenStream {
-    let primary_key = &node.primary_key;
-
-    quote! {
-        fn key(&self) -> Key {
-            use ::mimic::core::traits::FieldValue;
-
-            self.#primary_key
-                .to_value()
-                .as_key()
-                .expect("primary key field must be indexable")
-        }
     }
 }

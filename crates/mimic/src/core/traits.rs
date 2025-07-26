@@ -74,7 +74,12 @@ pub trait EntityKind: Kind + TypeKind + FieldValues {
 
     const PRIMARY_KEY: &'static str;
 
-    fn key(&self) -> Key;
+    fn key(&self) -> Key {
+        self.get_value(Self::PRIMARY_KEY)
+            .expect("entity primary key has a value")
+            .as_key()
+            .expect("entity primary key is a valid key")
+    }
 }
 
 ///
