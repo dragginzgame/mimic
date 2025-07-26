@@ -87,7 +87,6 @@ impl SaveExecutor {
     fn execute_internal<E: EntityKind>(&self, mode: SaveMode, entity: E) -> Result<Key, DbError> {
         let key = entity.key();
         let store = self.data.with(|data| data.try_get_store(E::Store::PATH))?;
-        let bytes = serialize(&entity)?;
 
         // validate
         validate(&entity)?;
@@ -106,20 +105,16 @@ impl SaveExecutor {
 
         // did anything change?
         let (created, modified, old) = match (mode, old_result) {
-            (SaveMode::Create, Some(_)) => return Err(ExecutorError::KeyExists(data_key))?,
             (SaveMode::Create | SaveMode::Replace, None) => (now, now, None),
-            (SaveMode::Update, None) => return Err(ExecutorError::KeyNotFound(data_key))?,
 
             (SaveMode::Update | SaveMode::Replace, Some(old_data_value)) => {
                 let old_entity_value: EntityEntry<E> = old_data_value.try_into()?;
 
-                // no changes
                 if entity == old_entity_value.entity {
                     debug!(
                         self.debug,
                         "query.{mode}: no changes for {data_key}, skipping save"
                     );
-
                     return Ok(key);
                 }
 
@@ -129,7 +124,14 @@ impl SaveExecutor {
                     Some(old_entity_value.entity),
                 )
             }
+
+            // invalid
+            (SaveMode::Create, Some(_)) => return Err(ExecutorError::KeyExists(data_key))?,
+            (SaveMode::Update, None) => return Err(ExecutorError::KeyNotFound(data_key))?,
         };
+
+        // now we can serialize
+        let bytes = serialize(&entity)?;
 
         // update indexes, fail if there are any unique violations
         if E::Indexes::HAS_INDEXES {

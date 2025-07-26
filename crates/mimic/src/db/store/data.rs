@@ -6,7 +6,7 @@ use crate::{
     },
     ic::structures::{BTreeMap, DefaultMemory, storable::Bound},
 };
-use candid::{CandidType, Decode, Encode};
+use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use icu::impl_storable_bounded;
 use serde::{Deserialize, Serialize};
@@ -133,11 +133,15 @@ impl DataEntry {
     fn encode_into_vec(&self) -> Vec<u8> {
         let mut out = Vec::new();
 
-        let blob_bytes = self.bytes.to_bytes();
-        write_chunk(&mut out, &blob_bytes);
+        // version
+        out.push(1);
 
-        let meta_bytes = Encode!(&self.metadata).expect("encode metadata");
-        write_chunk(&mut out, &meta_bytes);
+        // write bytes
+        write_chunk(&mut out, &self.bytes);
+
+        // Write metadata directly: created (8 bytes) + modified (8 bytes)
+        out.extend(&self.metadata.created.to_le_bytes());
+        out.extend(&self.metadata.modified.to_le_bytes());
 
         out
     }
@@ -156,12 +160,22 @@ impl Storable for DataEntry {
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
         let mut cursor = &bytes[..];
+        let version = cursor[0];
+        cursor = &cursor[1..];
 
-        let bytes = read_chunk(&mut cursor);
-        let metadata_buf = read_chunk(&mut cursor);
-        let metadata = Decode!(&metadata_buf, Metadata).expect("decode metadata");
+        match version {
+            1 => {
+                let bytes = read_chunk(&mut cursor);
+                let created = u64::from_le_bytes(cursor[0..8].try_into().unwrap());
+                let modified = u64::from_le_bytes(cursor[8..16].try_into().unwrap());
 
-        Self { bytes, metadata }
+                Self {
+                    bytes,
+                    metadata: Metadata::new(created, modified),
+                }
+            }
+            _ => panic!("unknown version"),
+        }
     }
 }
 

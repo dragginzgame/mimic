@@ -60,12 +60,6 @@ impl LoadQuery {
         self.filter(|f| f.filter(field, Cmp::In, value))
     }
 
-    #[must_use]
-    pub fn set_filter(mut self, expr: FilterExpr) -> Self {
-        self.filter = Some(expr);
-        self
-    }
-
     // filter
     #[must_use]
     pub fn filter(mut self, f: impl FnOnce(FilterBuilder) -> FilterBuilder) -> Self {

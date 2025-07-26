@@ -168,7 +168,7 @@ impl FilterTester {
 
     fn filter_not_clause() {
         let expr = FilterExpr::Clause(FilterClause::new("category", Cmp::Eq, "C")).not();
-        let query = query::load().set_filter(expr);
+        let query = query::load().filter(|f| f.expr(expr));
 
         let results = db!()
             .load()
@@ -179,7 +179,7 @@ impl FilterTester {
     }
 
     fn filter_true_short_circuit() {
-        let query = query::load().set_filter(FilterExpr::True);
+        let query = query::load().filter(|f| f.expr(FilterExpr::True));
         let results = db!()
             .load()
             .execute::<Filterable>(query)
@@ -192,7 +192,7 @@ impl FilterTester {
     fn filter_false_short_circuit() {
         let results = db!()
             .load()
-            .execute::<Filterable>(query::load().set_filter(FilterExpr::False))
+            .execute::<Filterable>(query::load().filter(|f| f.expr(FilterExpr::False)))
             .unwrap()
             .entities();
 

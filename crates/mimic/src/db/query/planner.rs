@@ -193,6 +193,8 @@ impl IndexKindFn for IndexMatcher {
                 None => break, // stop at first non-match
             }
         }
+
+        #[allow(clippy::cast_possible_truncation)]
         let fields_matched = keys.len() as u32;
 
         // set the match

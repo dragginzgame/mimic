@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.9.1]
+- added a u8 version to the serialized data in the DataStore
+- now converting metadata directly into bytes to avoid candid encode/decode - 10% less wasm instructions!
+
 ## [0.9.0] - Codegen Rewrite
 - rewrite of the macro codegen, much faster in vscode now
 - added have view(), views() and try_view() to LoadCollection

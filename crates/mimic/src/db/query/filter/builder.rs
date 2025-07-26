@@ -110,8 +110,14 @@ impl FilterBuilder {
     }
 
     #[must_use]
-    pub fn and_expr(self, expr: FilterExpr) -> Self {
+    pub fn expr(self, expr: FilterExpr) -> Self {
         self.add_expr(expr, Logic::And)
+    }
+
+    // alias for expr
+    #[must_use]
+    pub fn and_expr(self, expr: FilterExpr) -> Self {
+        self.expr(expr)
     }
 
     #[must_use]
