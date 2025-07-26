@@ -365,23 +365,7 @@ impl_primitive_type_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
 /// Validate
 ///
 
-pub trait Validate: ValidateAuto + ValidateCustom {
-    fn validate(&self) -> Result<(), ErrorTree> {
-        let mut errs = ErrorTree::new();
-
-        if let Err(e) = self.validate_self() {
-            errs.merge(e);
-        }
-        if let Err(e) = self.validate_children() {
-            errs.merge(e);
-        }
-        if let Err(e) = self.validate_custom() {
-            errs.merge(e);
-        }
-
-        errs.result()
-    }
-}
+pub trait Validate: ValidateAuto + ValidateCustom {}
 
 impl<T> Validate for T where T: ValidateAuto + ValidateCustom {}
 

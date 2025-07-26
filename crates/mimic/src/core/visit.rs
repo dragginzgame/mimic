@@ -69,17 +69,30 @@ impl Visitor for ValidateVisitor {
     fn visit(&mut self, item: &dyn Visitable, event: Event) {
         match event {
             Event::Enter => {
-                if let Err(errs) = item.validate() {
-                    if !errs.is_empty() {
-                        let route = self.current_route();
+                let mut errs = ErrorTree::new();
 
-                        if route.is_empty() {
-                            // At the current level, merge directly.
-                            self.errors.merge(errs);
-                        } else {
-                            // Add to a child entry under the computed route.
-                            self.errors.children.entry(route).or_default().merge(errs);
-                        }
+                // combine all validation types
+                // better to do it here and not in the trait
+                if let Err(e) = item.validate_self() {
+                    errs.merge(e);
+                }
+                if let Err(e) = item.validate_children() {
+                    errs.merge(e);
+                }
+                if let Err(e) = item.validate_custom() {
+                    errs.merge(e);
+                }
+
+                // check for errs
+                if !errs.is_empty() {
+                    let route = self.current_route();
+
+                    if route.is_empty() {
+                        // At the current level, merge directly.
+                        self.errors.merge(errs);
+                    } else {
+                        // Add to a child entry under the computed route.
+                        self.errors.children.entry(route).or_default().merge(errs);
                     }
                 }
             }
