@@ -24,7 +24,6 @@ impl Imp<Entity> for EntityKindTrait {
 
         let index_idents = &node.indexes;
         let pk_field = &node.primary_key.to_string();
-        let num_fields = &node.fields.len();
 
         // static definitions
         let mut q = quote! {
@@ -33,7 +32,6 @@ impl Imp<Entity> for EntityKindTrait {
             type Indexes = (#(#index_idents),*);
 
             const PRIMARY_KEY: &'static str = #pk_field;
-            const NUM_FIELDS: usize = #num_fields;
         };
 
         // impls

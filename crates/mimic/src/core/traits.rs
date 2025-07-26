@@ -73,7 +73,6 @@ pub trait EntityKind: Kind + TypeKind + FieldValues {
     type PrimaryKey: Copy + Clone;
 
     const PRIMARY_KEY: &'static str;
-    const NUM_FIELDS: usize;
 
     fn key(&self) -> Key;
 }
@@ -269,16 +268,9 @@ pub trait FieldValues {
 /// any node created via a macro has a Path
 /// ie. design::game::rarity::Rarity
 ///
-/// primitives are used unwrapped so we can't declare the impl anywhere else
-///
 
 pub trait Path {
     const PATH: &'static str;
-
-    #[must_use]
-    fn path() -> String {
-        Self::PATH.to_string()
-    }
 }
 
 ///
