@@ -45,21 +45,6 @@ impl LoadQuery {
         self.filter_in(E::PRIMARY_KEY, Value::List(list))
     }
 
-    #[must_use]
-    pub fn filter_eq(self, field: &str, value: impl Into<Value>) -> Self {
-        self.filter(|f| f.eq(field, value))
-    }
-
-    #[must_use]
-    pub fn filter_eq_opt(self, field: &str, value: Option<impl Into<Value>>) -> Self {
-        self.filter(|f| f.eq_opt(field, value))
-    }
-
-    #[must_use]
-    pub fn filter_in(self, field: &str, value: impl Into<Value>) -> Self {
-        self.filter(|f| f.filter(field, Cmp::In, value))
-    }
-
     // filter
     #[must_use]
     pub fn filter(mut self, f: impl FnOnce(FilterBuilder) -> FilterBuilder) -> Self {
@@ -73,6 +58,21 @@ impl LoadQuery {
         }
 
         self
+    }
+
+    #[must_use]
+    pub fn filter_eq(self, field: &str, value: impl Into<Value>) -> Self {
+        self.filter(|f| f.eq(field, value))
+    }
+
+    #[must_use]
+    pub fn filter_eq_opt(self, field: &str, value: Option<impl Into<Value>>) -> Self {
+        self.filter(|f| f.eq_opt(field, value))
+    }
+
+    #[must_use]
+    pub fn filter_in(self, field: &str, value: impl Into<Value>) -> Self {
+        self.filter(|f| f.filter(field, Cmp::In, value))
     }
 
     // offset

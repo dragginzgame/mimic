@@ -7,7 +7,9 @@ use crate::{
     db::{
         DbError,
         executor::FilterEvaluator,
-        query::{FilterExpr, LoadQuery, QueryPlan, QueryPlanner, SortDirection, SortExpr},
+        query::{
+            FilterBuilder, FilterExpr, LoadQuery, QueryPlan, QueryPlanner, SortDirection, SortExpr,
+        },
         response::{EntityRow, LoadCollection},
         store::{
             DataKey, DataRow, DataStoreLocal, DataStoreRegistryLocal, IndexStoreRegistryLocal,
@@ -75,13 +77,12 @@ impl LoadExecutor {
         self.execute::<E>(LoadQuery::new())
     }
 
-    // filter_eq
-    pub fn filter_eq<E: EntityKind>(
+    // filter
+    pub fn filter<E: EntityKind>(
         self,
-        field: &str,
-        value: impl Into<Value>,
+        f: impl FnOnce(FilterBuilder) -> FilterBuilder,
     ) -> Result<LoadCollection<E>, MimicError> {
-        self.execute::<E>(LoadQuery::new().filter_eq(field, value))
+        self.execute::<E>(LoadQuery::new().filter(f))
     }
 
     //

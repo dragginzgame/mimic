@@ -7,7 +7,7 @@ use crate::{
     db::{
         DbError,
         executor::IndexAction,
-        query::{DeleteQuery, QueryPlan, QueryPlanner},
+        query::{DeleteQuery, FilterBuilder, QueryPlan, QueryPlanner},
         store::{DataKey, DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
     debug,
@@ -73,13 +73,12 @@ impl DeleteExecutor {
         self.execute::<E>(DeleteQuery::new())
     }
 
-    // filter_eq
-    pub fn filter_eq<E: EntityKind>(
+    // filter
+    pub fn filter<E: EntityKind>(
         self,
-        field: &str,
-        value: impl Into<Value>,
+        f: impl FnOnce(FilterBuilder) -> FilterBuilder,
     ) -> Result<Vec<Key>, MimicError> {
-        self.execute::<E>(DeleteQuery::new().filter_eq(field, value))
+        self.execute::<E>(DeleteQuery::new().filter(f))
     }
 
     ///

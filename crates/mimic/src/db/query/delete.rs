@@ -1,6 +1,6 @@
 use crate::{
     core::{Value, traits::EntityKind},
-    db::query::{Cmp, FilterClause, FilterExpr},
+    db::query::{Cmp, FilterBuilder, FilterExpr},
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -40,28 +40,33 @@ impl DeleteQuery {
         self.filter_in(E::PRIMARY_KEY, Value::List(list))
     }
 
-    // filter_in
+    // filter
     #[must_use]
-    pub fn filter_in(self, field: &str, value: impl Into<Value>) -> Self {
-        let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::In, value));
+    pub fn filter(mut self, f: impl FnOnce(FilterBuilder) -> FilterBuilder) -> Self {
+        let builder = match self.filter.take() {
+            Some(existing) => FilterBuilder::from(existing),
+            None => FilterBuilder::new(),
+        };
 
-        self.merge_filter(clause)
-    }
-
-    // filter_eq
-    #[must_use]
-    pub fn filter_eq(self, field: &str, value: impl Into<Value>) -> Self {
-        let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::Eq, value));
-
-        self.merge_filter(clause)
-    }
-
-    fn merge_filter(mut self, new: FilterExpr) -> Self {
-        self.filter = Some(match self.filter.take() {
-            Some(existing) => existing.and(new),
-            None => new,
-        });
+        if let Some(expr) = f(builder).build() {
+            self.filter = Some(expr);
+        }
 
         self
+    }
+
+    #[must_use]
+    pub fn filter_eq(self, field: &str, value: impl Into<Value>) -> Self {
+        self.filter(|f| f.eq(field, value))
+    }
+
+    #[must_use]
+    pub fn filter_eq_opt(self, field: &str, value: Option<impl Into<Value>>) -> Self {
+        self.filter(|f| f.eq_opt(field, value))
+    }
+
+    #[must_use]
+    pub fn filter_in(self, field: &str, value: impl Into<Value>) -> Self {
+        self.filter(|f| f.filter(field, Cmp::In, value))
     }
 }
