@@ -1,5 +1,5 @@
 use crate::{
-    core::value::{Value, ValueMap},
+    core::{traits::FieldValues, value::Value},
     db::query::{Cmp, FilterClause, FilterExpr},
 };
 
@@ -8,12 +8,12 @@ use crate::{
 ///
 
 pub struct FilterEvaluator<'a> {
-    values: &'a ValueMap,
+    values: &'a dyn FieldValues,
 }
 
 impl<'a> FilterEvaluator<'a> {
     #[must_use]
-    pub const fn new(values: &'a ValueMap) -> Self {
+    pub const fn new(values: &'a dyn FieldValues) -> Self {
         Self { values }
     }
 
@@ -32,8 +32,8 @@ impl<'a> FilterEvaluator<'a> {
     // eval_clause
     fn eval_clause(&self, clause: &FilterClause) -> bool {
         self.values
-            .get(&clause.field.as_str())
-            .is_some_and(|actual| Self::compare(actual, clause.cmp, &clause.value))
+            .get_value(clause.field.as_str())
+            .is_some_and(|actual| Self::compare(&actual, clause.cmp, &clause.value))
     }
 
     // compare

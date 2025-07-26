@@ -230,16 +230,14 @@ impl IndexKey {
     where
         I: IndexKind,
     {
-        // Pull the values from the entity
-        let values = entity.values().collect_all(I::FIELDS);
+        let mut keys = Vec::with_capacity(I::FIELDS.len());
 
-        // Early exit: if any value is null or fails to convert into a key
-        let mut keys = Vec::with_capacity(values.len());
-        for v in values {
-            match v.as_key() {
-                Some(k) => keys.push(k),
-                None => return None,
-            }
+        // get each value and convert to key
+        for field in I::FIELDS {
+            let value = entity.get_value(field)?;
+
+            let key = value.as_key()?;
+            keys.push(key);
         }
 
         Some(Self {

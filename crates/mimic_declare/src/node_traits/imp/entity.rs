@@ -3,10 +3,8 @@ use crate::{
     node_traits::{Imp, Implementor, Trait},
     traits::{HasIdent, HasTypePart},
 };
-use mimic_schema::types::Cardinality;
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::LitStr;
 
 ///
 /// EntityKindTrait
@@ -23,8 +21,10 @@ impl Imp<Entity> for EntityKindTrait {
             .unwrap()
             .value
             .type_part();
-        let pk_field = &node.primary_key.to_string();
+
         let index_idents = &node.indexes;
+        let pk_field = &node.primary_key.to_string();
+        let num_fields = &node.fields.len();
 
         // static definitions
         let mut q = quote! {
@@ -33,11 +33,11 @@ impl Imp<Entity> for EntityKindTrait {
             type Indexes = (#(#index_idents),*);
 
             const PRIMARY_KEY: &'static str = #pk_field;
+            const NUM_FIELDS: usize = #num_fields;
         };
 
         // impls
         q.extend(key(node));
-        q.extend(values(node));
 
         let tokens = Implementor::new(node.ident(), Trait::EntityKind)
             .set_tokens(q)
@@ -59,54 +59,6 @@ fn key(node: &Entity) -> TokenStream {
                 .to_value()
                 .as_key()
                 .expect("primary key field must be indexable")
-        }
-    }
-}
-
-// values
-fn values(node: &Entity) -> TokenStream {
-    let inserts = &node
-        .fields
-        .iter()
-        .map(|field| {
-            let field_ident = &field.ident;
-            let field_lit = LitStr::new(&field_ident.to_string(), Span::call_site());
-
-            match field.value.cardinality() {
-                Cardinality::One => Some(quote! {
-                    map.insert(#field_lit, self.#field_ident.to_value());
-                }),
-
-                Cardinality::Opt => Some(quote! {
-                    map.insert(#field_lit,
-                        self.#field_ident
-                            .as_ref()
-                            .map(|v| v.to_value())
-                            .unwrap_or(Value::None)
-                    );
-                }),
-
-                Cardinality::Many => Some(quote! {
-                    let list = self.#field_ident
-                        .iter()
-                        .map(|v| Box::new(v.to_value()))
-                        .collect::<Vec<_>>();
-
-                    map.insert(#field_lit, Value::List(list));
-                }),
-            }
-        })
-        .collect::<Vec<_>>();
-
-    let cap = inserts.len();
-    quote! {
-        fn values(&self) -> ::mimic::core::value::ValueMap {
-            use ::mimic::core::{value::{ValueMap, Value}, traits::FieldValue};
-
-            let mut map = ::std::collections::HashMap::with_capacity(#cap);
-            #(#inserts)*
-
-            ValueMap(map)
         }
     }
 }

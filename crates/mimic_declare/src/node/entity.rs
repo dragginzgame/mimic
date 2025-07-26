@@ -76,7 +76,11 @@ impl HasSchemaPart for Entity {
 impl HasTraits for Entity {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone().with_type_traits();
-        traits.extend(vec![Trait::EntityKind, Trait::EntityFixture]);
+        traits.extend(vec![
+            Trait::EntityKind,
+            Trait::EntityFixture,
+            Trait::FieldValues,
+        ]);
 
         traits.list()
     }
@@ -88,6 +92,7 @@ impl HasTraits for Entity {
             Trait::Default if self.fields.has_default() => DefaultTrait::tokens(self),
             Trait::From => FromTrait::tokens(self),
             Trait::EntityKind => EntityKindTrait::tokens(self),
+            Trait::FieldValues => FieldValuesTrait::tokens(self),
             Trait::TypeView => TypeViewTrait::tokens(self),
             Trait::ValidateAuto => ValidateAutoTrait::tokens(self),
             Trait::Visitable => VisitableTrait::tokens(self),

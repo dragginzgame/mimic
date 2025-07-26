@@ -3,9 +3,7 @@ use crate::core::{
     types::{Decimal, E8s, E18s, Principal, Ulid},
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
-use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 ///
 /// Handy Macros
@@ -22,29 +20,6 @@ macro_rules! impl_from_for {
             }
         )*
     };
-}
-
-///
-/// ValueMap
-/// a HashMap of Values returned from the Entity
-///
-
-#[derive(Debug, Deref, DerefMut)]
-pub struct ValueMap(pub HashMap<&'static str, Value>);
-
-impl ValueMap {
-    #[must_use]
-    pub fn collect_all(&self, fields: &[&str]) -> Vec<Value> {
-        let mut values = Vec::with_capacity(fields.len());
-
-        for field in fields {
-            if let Some(v) = self.0.get(field) {
-                values.push(v.clone());
-            }
-        }
-
-        values
-    }
 }
 
 ///

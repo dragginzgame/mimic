@@ -62,6 +62,7 @@ pub enum Trait {
     // orm
     EntityFixture,
     FieldValue,
+    FieldValues,
     From,
     Into,
     NumCast,

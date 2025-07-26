@@ -9,4 +9,4 @@ pub mod visit;
 pub use key::Key;
 pub use serialize::{deserialize, serialize};
 pub use validate::validate;
-pub use value::{Value, ValueMap};
+pub use value::Value;

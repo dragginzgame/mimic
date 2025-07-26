@@ -13,9 +13,9 @@ pub mod prelude {
         core::{
             Key, Value,
             traits::{
-                EntityFixture, EntityIdKind as _, EntityKind as _, NumCast, Path as _,
-                Serialize as _, TypeView as _, Validate as _, ValidateCustom, Validator as _,
-                Visitable as _,
+                EntityFixture, EntityIdKind as _, EntityKind as _, FieldValue as _, NumCast,
+                Path as _, Serialize as _, TypeView as _, Validate as _, ValidateCustom,
+                Validator as _, Visitable as _,
             },
             types::*,
         },

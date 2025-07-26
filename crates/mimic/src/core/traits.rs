@@ -17,7 +17,7 @@ pub use std::{
 
 use crate::{
     common::error::ErrorTree,
-    core::{Key, Value, ValueMap, types::Ulid, visit::Visitor},
+    core::{Key, Value, types::Ulid, visit::Visitor},
     db::Db,
 };
 
@@ -67,15 +67,15 @@ pub trait CanisterKind: Kind {}
 /// EntityKind
 ///
 
-pub trait EntityKind: Kind + TypeKind {
+pub trait EntityKind: Kind + TypeKind + FieldValues {
     type Store: StoreKind;
     type Indexes: IndexKindTuple;
     type PrimaryKey: Copy + Clone;
 
     const PRIMARY_KEY: &'static str;
+    const NUM_FIELDS: usize;
 
     fn key(&self) -> Key;
-    fn values(&self) -> ValueMap;
 }
 
 ///
@@ -194,6 +194,76 @@ impl<T> TypeKind for T where
 }
 
 ///
+/// OTHER TRAITS
+///
+
+///
+/// EntityFixture
+/// an enum that can generate fixture data for an Entity
+///
+
+pub trait EntityFixture {
+    // fixtures
+    // inserts the fixtures to the bd via the SaveExecutor
+    fn insert_fixtures(_: Db) {}
+}
+
+///
+/// FieldValue
+///
+/// A trait that defines how a value is wrapped for WHERE queries,
+/// filtering, or comparison.
+///
+
+pub trait FieldValue {
+    fn to_value(&self) -> Value {
+        Value::Unsupported
+    }
+}
+
+impl FieldValue for String {
+    fn to_value(&self) -> Value {
+        Value::Text(self.clone())
+    }
+}
+
+// impl_field_value_as
+#[macro_export]
+macro_rules! impl_field_value_as {
+    ( $( $type:ty => $variant:ident ),* $(,)? ) => {
+        $(
+            impl FieldValue for $type {
+                fn to_value(&self) -> Value {
+                    Value::$variant((*self).into())
+                }
+            }
+        )*
+    };
+}
+
+impl_field_value_as!(
+    f32 => Float,
+    f64 => Float,
+    i8 => Int,
+    i16 => Int,
+    i32 => Int,
+    i64 => Int,
+    u8 => Nat,
+    u16 => Nat,
+    u32 => Nat,
+    u64 => Nat,
+    bool => Bool,
+);
+
+///
+/// FieldValues
+///
+
+pub trait FieldValues {
+    fn get_value(&self, field: &str) -> Option<Value>;
+}
+
+///
 /// Path
 ///
 /// any node created via a macro has a Path
@@ -293,68 +363,6 @@ macro_rules! impl_primitive_type_view {
 }
 
 impl_primitive_type_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
-
-///
-/// SINGLE KIND TRAITS
-///
-
-///
-/// EntityFixture
-/// an enum that can generate fixture data for an Entity
-///
-
-pub trait EntityFixture {
-    // fixtures
-    // inserts the fixtures to the bd via the SaveExecutor
-    fn insert_fixtures(_: Db) {}
-}
-
-///
-/// FieldValue
-///
-/// A trait that defines how a value is wrapped for WHERE queries,
-/// filtering, or comparison.
-///
-
-pub trait FieldValue {
-    fn to_value(&self) -> Value {
-        Value::Unsupported
-    }
-}
-
-impl FieldValue for String {
-    fn to_value(&self) -> Value {
-        Value::Text(self.clone())
-    }
-}
-
-// impl_field_value_as
-#[macro_export]
-macro_rules! impl_field_value_as {
-    ( $( $type:ty => $variant:ident ),* $(,)? ) => {
-        $(
-            impl FieldValue for $type {
-                fn to_value(&self) -> Value {
-                    Value::$variant((*self).into())
-                }
-            }
-        )*
-    };
-}
-
-impl_field_value_as!(
-    f32 => Float,
-    f64 => Float,
-    i8 => Int,
-    i16 => Int,
-    i32 => Int,
-    i64 => Int,
-    u8 => Nat,
-    u16 => Nat,
-    u32 => Nat,
-    u64 => Nat,
-    bool => Bool,
-);
 
 ///
 /// Validate

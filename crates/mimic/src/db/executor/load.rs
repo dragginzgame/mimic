@@ -180,25 +180,35 @@ impl LoadExecutor {
         rows: Vec<DataRow>,
         query: &LoadQuery,
     ) -> Result<Vec<EntityRow<E>>, DbError> {
-        let mut entities = rows
-            .into_iter()
-            .map(TryFrom::try_from)
-            .collect::<Result<Vec<EntityRow<E>>, _>>()?;
+        let mut entities = Vec::with_capacity(rows.len());
 
-        // filter
-        if let Some(filter) = &query.filter {
-            entities = Self::apply_filter(entities, filter);
+        // Deserialize once into preallocated vec
+        for row in rows {
+            entities.push(EntityRow::<E>::try_from(row)?);
         }
 
-        // sort
+        // In-place filter
+        if let Some(filter) = &query.filter {
+            let filter_simple = filter.clone().simplify();
+
+            entities.retain(|row| FilterEvaluator::new(&row.entry.entity).eval(&filter_simple));
+        }
+
+        // In-place sort
         if let Some(sort) = &query.sort {
             Self::apply_sort(&mut entities, sort);
         }
 
-        // paginate
-        entities = Self::apply_pagination(entities, query.offset, query.limit);
+        // In-place pagination
+        let total = entities.len();
+        let start = usize::min(query.offset as usize, total);
+        let end = match query.limit {
+            Some(limit) => usize::min(start + limit as usize, total),
+            None => total,
+        };
 
-        Ok(entities)
+        // No heap reallocation — slicing the original buffer
+        Ok(entities[start..end].to_vec())
     }
 
     // load_many
@@ -229,29 +239,22 @@ impl LoadExecutor {
         rows: Vec<EntityRow<E>>,
         filter: &FilterExpr,
     ) -> Vec<EntityRow<E>> {
-        let filter_simple = filter.clone().simplify(); // ⬅️ done once
-
         rows.into_iter()
-            .filter(|row| {
-                let values = row.entry.entity.values();
-                FilterEvaluator::new(&values).eval(&filter_simple)
-            })
+            .filter(|row| FilterEvaluator::new(&row.entry.entity).eval(filter))
             .collect()
     }
 
     // apply_sort
     fn apply_sort<E: EntityKind>(rows: &mut [EntityRow<E>], sort_expr: &SortExpr) {
         rows.sort_by(|a, b| {
-            let a_values = a.entry.entity.values();
-            let b_values = b.entry.entity.values();
-
             for (field, direction) in sort_expr.iter() {
-                // convert only once
-                let key: &str = field;
+                // get values
+                let va = a.entry.entity.get_value(field);
+                let vb = b.entry.entity.get_value(field);
 
-                match (a_values.get(key), b_values.get(key)) {
+                match (va, vb) {
                     (Some(va), Some(vb)) => {
-                        if let Some(ordering) = va.partial_cmp(vb) {
+                        if let Some(ordering) = va.partial_cmp(&vb) {
                             return match direction {
                                 SortDirection::Asc => ordering,
                                 SortDirection::Desc => ordering.reverse(),
@@ -266,13 +269,5 @@ impl LoadExecutor {
 
             core::cmp::Ordering::Equal
         });
-    }
-
-    // apply_pagination
-    fn apply_pagination<T>(rows: Vec<T>, offset: u32, limit: Option<u32>) -> Vec<T> {
-        rows.into_iter()
-            .skip(offset as usize)
-            .take(limit.unwrap_or(u32::MAX) as usize)
-            .collect()
     }
 }

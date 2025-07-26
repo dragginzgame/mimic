@@ -24,6 +24,10 @@ impl FieldList {
         self.fields.iter().find(|f| f.ident == *ident)
     }
 
+    pub fn len(&self) -> usize {
+        self.fields.len()
+    }
+
     pub fn iter(&self) -> std::slice::Iter<'_, Field> {
         self.fields.iter()
     }
