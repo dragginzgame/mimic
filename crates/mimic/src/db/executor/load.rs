@@ -79,7 +79,7 @@ impl LoadExecutor {
 
     // filter
     pub fn filter<E: EntityKind>(
-        self,
+        &self,
         f: impl FnOnce(FilterBuilder) -> FilterBuilder,
     ) -> Result<LoadCollection<E>, MimicError> {
         self.execute::<E>(LoadQuery::new().filter(f))
@@ -181,12 +181,10 @@ impl LoadExecutor {
         rows: Vec<DataRow>,
         query: &LoadQuery,
     ) -> Result<Vec<EntityRow<E>>, DbError> {
-        let mut entities = Vec::with_capacity(rows.len());
-
-        // Deserialize once into preallocated vec
-        for row in rows {
-            entities.push(EntityRow::<E>::try_from(row)?);
-        }
+        let mut entities: Vec<_> = rows
+            .into_iter()
+            .map(EntityRow::<E>::try_from)
+            .collect::<Result<_, _>>()?;
 
         // In-place filter
         if let Some(filter) = &query.filter {
@@ -249,22 +247,18 @@ impl LoadExecutor {
     fn apply_sort<E: EntityKind>(rows: &mut [EntityRow<E>], sort_expr: &SortExpr) {
         rows.sort_by(|a, b| {
             for (field, direction) in sort_expr.iter() {
-                // get values
-                let va = a.entry.entity.get_value(field);
-                let vb = b.entry.entity.get_value(field);
+                let (Some(va), Some(vb)) = (
+                    a.entry.entity.get_value(field),
+                    b.entry.entity.get_value(field),
+                ) else {
+                    continue;
+                };
 
-                match (va, vb) {
-                    (Some(va), Some(vb)) => {
-                        if let Some(ordering) = va.partial_cmp(&vb) {
-                            return match direction {
-                                SortDirection::Asc => ordering,
-                                SortDirection::Desc => ordering.reverse(),
-                            };
-                        }
-                    }
-                    (Some(_), None) => return core::cmp::Ordering::Greater,
-                    (None, Some(_)) => return core::cmp::Ordering::Less,
-                    (None, None) => {}
+                if let Some(ordering) = va.partial_cmp(&vb) {
+                    return match direction {
+                        SortDirection::Asc => ordering,
+                        SortDirection::Desc => ordering.reverse(),
+                    };
                 }
             }
 
