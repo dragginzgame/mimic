@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - added a u8 version to the serialized data in the DataStore
 - now converting metadata directly into bytes to avoid candid encode/decode - 10% less wasm instructions!
 - standardised filter() on both Query and Executor types
+- added validators for UpperCamel and UPPER_SNAKE
+- moved text::Function to ident::{Function, Variant, Field}
 
 ## [0.9.0] - Codegen Rewrite
 - rewrite of the macro codegen, much faster in vscode now

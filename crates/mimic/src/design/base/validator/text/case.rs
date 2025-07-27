@@ -101,3 +101,37 @@ impl Validator<str> for Upper {
         }
     }
 }
+
+///
+/// UpperCamel
+///
+
+#[validator]
+pub struct UpperCamel {}
+
+impl Validator<str> for UpperCamel {
+    fn validate(&self, s: &str) -> Result<(), String> {
+        if s.is_case(Case::UpperCamel) {
+            Ok(())
+        } else {
+            Err(format!("'{s}' is not UpperCamelCase"))
+        }
+    }
+}
+
+///
+/// UpperSnake
+///
+
+#[validator]
+pub struct UpperSnake {}
+
+impl Validator<str> for UpperSnake {
+    fn validate(&self, s: &str) -> Result<(), String> {
+        if s.is_case(Case::UpperSnake) {
+            Ok(())
+        } else {
+            Err(format!("'{s}' is not UPPER_SNAKE_CASE"))
+        }
+    }
+}
