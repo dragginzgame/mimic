@@ -45,6 +45,20 @@ pub struct Field {}
 pub struct Function {}
 
 ///
+/// Variable
+///
+
+#[newtype(
+    primitive = "Text",
+    item(prim = "Text"),
+    ty(
+        validator(path = "validator::text::len::Range", args(2, 40)),
+        validator(path = "validator::text::case::Snake"),
+    )
+)]
+pub struct Variable {}
+
+///
 /// Variant
 ///
 
