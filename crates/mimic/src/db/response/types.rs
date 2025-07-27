@@ -1,9 +1,9 @@
 use crate::{
-    core::{Key, deserialize, serialize, serialize::SerializeError, traits::Path},
+    core::{Key, deserialize, serialize, serialize::SerializeError, traits::EntityKind},
     db::store::{DataEntry, DataRow, Metadata},
 };
 use candid::CandidType;
-use serde::{Serialize, de::DeserializeOwned};
+use serde::Serialize;
 
 ///
 /// EntityRow
@@ -11,27 +11,18 @@ use serde::{Serialize, de::DeserializeOwned};
 ///
 
 #[derive(CandidType, Clone, Debug, Serialize)]
-pub struct EntityRow<E>
-where
-    E: DeserializeOwned,
-{
+pub struct EntityRow<E: EntityKind> {
     pub key: Key,
     pub entry: EntityEntry<E>,
 }
 
-impl<E> EntityRow<E>
-where
-    E: DeserializeOwned,
-{
+impl<E: EntityKind> EntityRow<E> {
     pub const fn new(key: Key, entry: EntityEntry<E>) -> Self {
         Self { key, entry }
     }
 }
 
-impl<E> TryFrom<DataRow> for EntityRow<E>
-where
-    E: DeserializeOwned,
-{
+impl<E: EntityKind> TryFrom<DataRow> for EntityRow<E> {
     type Error = SerializeError;
 
     fn try_from(row: DataRow) -> Result<Self, Self::Error> {
@@ -47,18 +38,12 @@ where
 ///
 
 #[derive(CandidType, Clone, Debug, Serialize)]
-pub struct EntityEntry<E>
-where
-    E: DeserializeOwned,
-{
+pub struct EntityEntry<E: EntityKind> {
     pub entity: E,
     pub metadata: Metadata,
 }
 
-impl<E> TryFrom<DataEntry> for EntityEntry<E>
-where
-    E: DeserializeOwned,
-{
+impl<E: EntityKind> TryFrom<DataEntry> for EntityEntry<E> {
     type Error = SerializeError;
 
     fn try_from(value: DataEntry) -> Result<Self, Self::Error> {
@@ -71,10 +56,7 @@ where
     }
 }
 
-impl<E> TryFrom<EntityEntry<E>> for DataEntry
-where
-    E: Path + Serialize + DeserializeOwned,
-{
+impl<E: EntityKind> TryFrom<EntityEntry<E>> for DataEntry {
     type Error = SerializeError;
 
     fn try_from(value: EntityEntry<E>) -> Result<Self, Self::Error> {

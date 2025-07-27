@@ -9,10 +9,7 @@ use crate::{
 };
 use mimic_common::utils;
 use serde::Serialize;
-use std::{
-    any::{Any, TypeId},
-    collections::BTreeMap,
-};
+use std::{any::Any, collections::BTreeMap};
 
 ///
 /// SchemaNode
@@ -190,45 +187,31 @@ impl Schema {
     // try_cast_node
     // attempts to downcast the node to the specified type `T` and returns Result
     pub fn try_cast_node<'a, T: 'static>(&'a self, path: &str) -> Result<&'a T, SchemaError> {
-        let node = self
-            .nodes
-            .get(path)
-            .and_then(|node| node.as_any().downcast_ref::<T>())
-            .ok_or_else(|| {
-                let path = path.to_string();
+        let Some(node) = self.nodes.get(path) else {
+            return Err(NodeError::PathNotFound(path.to_string()))?;
+        };
 
-                if let Some(node) = self.nodes.get(&path) {
-                    if node.as_any().type_id() == TypeId::of::<T>() {
-                        NodeError::DowncastFail(path)
-                    } else {
-                        NodeError::IncorrectNodeType(path)
-                    }
-                } else {
-                    NodeError::PathNotFound(path)
-                }
-            })?;
-
-        Ok(node)
+        if let Some(typed) = node.as_any().downcast_ref::<T>() {
+            Ok(typed)
+        } else {
+            Err(NodeError::IncorrectNodeType(path.to_string()))?
+        }
     }
 
     // get_nodes
-    #[must_use]
-    pub fn get_nodes<'a, T: 'static>(&'a self) -> Box<dyn Iterator<Item = (&'a str, &'a T)> + 'a> {
-        Box::new(self.nodes.iter().filter_map(|(key, node)| {
+    pub fn get_nodes<'a, T: 'static>(&'a self) -> impl Iterator<Item = (&'a str, &'a T)> + 'a {
+        self.nodes.iter().filter_map(|(key, node)| {
             node.as_any()
                 .downcast_ref::<T>()
                 .map(|node| (key.as_str(), node))
-        }))
+        })
     }
 
     // get_node_values
-    #[must_use]
-    pub fn get_node_values<'a, T: 'static>(&'a self) -> Box<dyn Iterator<Item = &'a T> + 'a> {
-        Box::new(
-            self.nodes
-                .values()
-                .filter_map(|node| node.as_any().downcast_ref::<T>()),
-        )
+    pub fn get_node_values<'a, T: 'static>(&'a self) -> impl Iterator<Item = &'a T> + 'a {
+        self.nodes
+            .values()
+            .filter_map(|node| node.as_any().downcast_ref::<T>())
     }
 
     // filter_nodes
@@ -236,19 +219,16 @@ impl Schema {
     pub fn filter_nodes<'a, T: 'static, F>(
         &'a self,
         predicate: F,
-    ) -> Box<dyn Iterator<Item = (&'a str, &'a T)> + 'a>
+    ) -> impl Iterator<Item = (&'a str, &'a T)> + 'a
     where
         F: Fn(&T) -> bool + 'a,
     {
-        Box::new(self.nodes.iter().filter_map(move |(key, node)| {
-            if let Some(target) = node.as_any().downcast_ref::<T>() {
-                if predicate(target) {
-                    return Some((key.as_str(), target));
-                }
-            }
-
-            None
-        }))
+        self.nodes.iter().filter_map(move |(key, node)| {
+            node.as_any()
+                .downcast_ref::<T>()
+                .filter(|target| predicate(target))
+                .map(|target| (key.as_str(), target))
+        })
     }
 }
 

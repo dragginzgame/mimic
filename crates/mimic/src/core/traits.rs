@@ -183,12 +183,20 @@ pub trait StoreKind: Kind {
 ///
 
 pub trait TypeKind:
-    Kind + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq + TypeView
+    Kind + Clone + Default + Serialize + DeserializeOwned + Validate + Visitable + PartialEq + TypeView
 {
 }
 
 impl<T> TypeKind for T where
-    T: Kind + Clone + Default + Serialize + DeserializeOwned + Visitable + PartialEq + TypeView
+    T: Kind
+        + Clone
+        + Default
+        + DeserializeOwned
+        + PartialEq
+        + Serialize
+        + TypeView
+        + Validate
+        + Visitable
 {
 }
 

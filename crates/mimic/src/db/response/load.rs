@@ -36,7 +36,7 @@ where
     // key
     #[must_use]
     pub fn key(self) -> Option<Key> {
-        self.0.into_iter().next().map(|row| row.key)
+        self.0.first().map(|row| row.key)
     }
 
     // try_key
@@ -52,7 +52,7 @@ where
     // keys
     #[must_use]
     pub fn keys(self) -> Vec<Key> {
-        self.0.into_iter().map(|row| row.key).collect()
+        self.0.iter().map(|row| row.key).collect()
     }
 
     // map
@@ -143,10 +143,15 @@ impl<E: EntityKind> IntoIterator for LoadCollection<E> {
 /// to Vec<Row>
 ///
 
-#[derive(Debug, Deref)]
+#[derive(Debug)]
 pub struct LoadMap<T>(HashMap<Key, T>);
 
 impl<T> LoadMap<T> {
+    #[must_use]
+    pub fn as_map(&self) -> &HashMap<Key, T> {
+        &self.0
+    }
+
     // from_pairs
     pub fn from_pairs<I>(pairs: I) -> Self
     where
