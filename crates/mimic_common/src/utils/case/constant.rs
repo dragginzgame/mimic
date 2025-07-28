@@ -25,10 +25,10 @@ pub fn to_constant_case(s: &str) -> String {
 // TESTS
 //
 
-#[cfg(test)]
 /// Tests converting strings to snake case. Runs through a series of test cases,
 /// converting input strings to snake case and comparing the result to the
 /// expected output.
+#[cfg(test)]
 mod tests {
     use super::*;
 

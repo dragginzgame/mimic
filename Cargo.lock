@@ -625,8 +625,8 @@ dependencies = [
 
 [[package]]
 name = "icu"
-version = "0.1.8"
-source = "git+https://github.com/dragginzgame/icu#2146aad1933ca95879591a8207c6c07bc0207aa6"
+version = "0.1.9"
+source = "git+https://github.com/dragginzgame/icu#478ea537f4fdb0b4f3c9fa0fc516c2aa44523e9a"
 dependencies = [
  "candid",
  "defer",
@@ -642,6 +642,7 @@ dependencies = [
  "serde",
  "sha2",
  "thiserror 2.0.12",
+ "tinyrand",
 ]
 
 [[package]]
@@ -753,7 +754,6 @@ dependencies = [
  "derive_more",
  "ic-cdk",
  "serde",
- "tinyrand",
  "xxhash-rust",
 ]
 
@@ -779,6 +779,7 @@ dependencies = [
  "candid",
  "darling 0.21.0",
  "derive_more",
+ "icu",
  "mimic_common",
  "proc-macro2",
  "quote",

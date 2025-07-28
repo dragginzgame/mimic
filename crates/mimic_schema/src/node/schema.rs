@@ -7,7 +7,6 @@ use crate::{
     },
     visit::Visitor,
 };
-use mimic_common::utils;
 use serde::Serialize;
 use std::{any::Any, collections::BTreeMap};
 
@@ -138,7 +137,7 @@ impl Schema {
         Self {
             nodes: BTreeMap::new(),
             hash: "",
-            timestamp: utils::time::now_secs(),
+            timestamp: icu::utils::time::now_secs(),
         }
     }
 

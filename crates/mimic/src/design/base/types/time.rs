@@ -31,7 +31,7 @@ pub struct Timestamp {}
 impl Timestamp {
     #[must_use]
     pub fn now() -> Self {
-        Self(mimic::common::utils::time::now_secs())
+        Self(icu::utils::time::now_secs())
     }
 }
 

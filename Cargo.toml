@@ -48,7 +48,6 @@ syn = "2.0"
 test_canister = { path = "crates/mimic_tests/canister" }
 test_design = { path = "crates/mimic_tests/design" }
 thiserror = "2.0"
-tinyrand = "0.5"
 # removed std because it imports rand.  serde feature doesn't compile without it
 ulid = { version = "1.2", default-features = false }
 xxhash-rust = { version = "0.8", default-features = false, features = ["xxh3"] }

@@ -1,6 +1,5 @@
 use crate::{
     MimicError,
-    common::utils::time,
     core::{
         Key, deserialize, serialize,
         traits::{EntityKind, IndexKindTuple, Path},
@@ -15,6 +14,7 @@ use crate::{
     },
     debug,
 };
+use icu::utils::time::now_secs;
 
 ///
 /// SaveExecutor
@@ -99,7 +99,7 @@ impl SaveExecutor {
         // on Update and Replace compare old and new data
         //
 
-        let now = time::now_secs();
+        let now = now_secs();
         let data_key = DataKey::new::<E>(key);
         let old_result = store.with_borrow(|store| store.get(&data_key));
 
