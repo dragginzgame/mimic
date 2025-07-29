@@ -1,5 +1,5 @@
 use crate::{
-    MimicError,
+    Error,
     core::{
         Value,
         traits::{EntityKind, Path},
@@ -57,13 +57,13 @@ impl LoadExecutor {
     //
 
     // one
-    pub fn one<E: EntityKind>(&self, value: impl Into<Value>) -> Result<E, MimicError> {
+    pub fn one<E: EntityKind>(&self, value: impl Into<Value>) -> Result<E, Error> {
         self.execute::<E>(LoadQuery::new().one::<E>(value))?
             .try_entity()
     }
 
     // many
-    pub fn many<E, I>(&self, values: I) -> Result<LoadCollection<E>, MimicError>
+    pub fn many<E, I>(&self, values: I) -> Result<LoadCollection<E>, Error>
     where
         E: EntityKind,
         I: IntoIterator,
@@ -73,7 +73,7 @@ impl LoadExecutor {
     }
 
     // all
-    pub fn all<E: EntityKind>(&self) -> Result<LoadCollection<E>, MimicError> {
+    pub fn all<E: EntityKind>(&self) -> Result<LoadCollection<E>, Error> {
         self.execute::<E>(LoadQuery::new())
     }
 
@@ -81,7 +81,7 @@ impl LoadExecutor {
     pub fn filter<E: EntityKind>(
         &self,
         f: impl FnOnce(FilterBuilder) -> FilterBuilder,
-    ) -> Result<LoadCollection<E>, MimicError> {
+    ) -> Result<LoadCollection<E>, Error> {
         self.execute::<E>(LoadQuery::new().filter(f))
     }
 
@@ -90,7 +90,7 @@ impl LoadExecutor {
     //
 
     /// Execute a full query and return a collection of entities.
-    pub fn execute<E: EntityKind>(self, query: LoadQuery) -> Result<LoadCollection<E>, MimicError> {
+    pub fn execute<E: EntityKind>(self, query: LoadQuery) -> Result<LoadCollection<E>, Error> {
         let collection = self.execute_internal::<E>(query)?;
 
         Ok(collection)
@@ -98,7 +98,7 @@ impl LoadExecutor {
 
     /// Count matching entities using lazy iteration without full deserialization.
     #[allow(clippy::cast_possible_truncation)]
-    pub fn count<E: EntityKind>(self, query: LoadQuery) -> Result<u32, MimicError> {
+    pub fn count<E: EntityKind>(self, query: LoadQuery) -> Result<u32, Error> {
         // Only takes filter into account
         let rows = self.execute_plan::<E>(query.filter.as_ref())?;
 
@@ -121,7 +121,7 @@ impl LoadExecutor {
 
     /// count_all
     #[allow(clippy::cast_possible_truncation)]
-    pub fn count_all<E: EntityKind>(self) -> Result<u32, MimicError> {
+    pub fn count_all<E: EntityKind>(self) -> Result<u32, Error> {
         let rows = self.execute_plan::<E>(None)?;
 
         Ok(rows.len() as u32)

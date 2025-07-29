@@ -1,6 +1,6 @@
 #![allow(clippy::type_complexity)]
 use crate::{
-    MimicError,
+    Error,
     core::{Key, traits::EntityKind},
     db::{
         DbError,
@@ -40,7 +40,7 @@ where
     }
 
     // try_key
-    pub fn try_key(self) -> Result<Key, MimicError> {
+    pub fn try_key(self) -> Result<Key, Error> {
         let key = self
             .key()
             .ok_or(ResponseError::NoRowsFound)
@@ -68,7 +68,7 @@ where
     }
 
     // try_entity
-    pub fn try_entity(self) -> Result<E, MimicError> {
+    pub fn try_entity(self) -> Result<E, Error> {
         let res = self
             .entity()
             .ok_or(ResponseError::NoRowsFound)
@@ -95,7 +95,7 @@ where
     }
 
     // try_entity_row
-    pub fn try_entity_row(self) -> Result<EntityRow<E>, MimicError> {
+    pub fn try_entity_row(self) -> Result<EntityRow<E>, Error> {
         let row = self
             .entity_row()
             .ok_or(ResponseError::NoRowsFound)
@@ -117,7 +117,7 @@ where
     }
 
     // try_view
-    pub fn try_view(self) -> Result<E::View, MimicError> {
+    pub fn try_view(self) -> Result<E::View, Error> {
         self.try_entity().map(|e| e.to_view())
     }
 

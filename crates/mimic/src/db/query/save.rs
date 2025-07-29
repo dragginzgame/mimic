@@ -1,5 +1,5 @@
 use crate::{
-    MimicError,
+    Error,
     core::{serialize, traits::EntityKind},
 };
 use candid::CandidType;
@@ -42,7 +42,7 @@ impl SaveQuery {
     }
 
     // from
-    pub fn from<E: EntityKind>(mut self, input: impl Into<E>) -> Result<Self, MimicError> {
+    pub fn from<E: EntityKind>(mut self, input: impl Into<E>) -> Result<Self, Error> {
         let entity = input.into();
         self.bytes = serialize(&entity)?;
 
@@ -57,7 +57,7 @@ impl SaveQuery {
     }
 
     // from_entity
-    pub fn from_entity<E: EntityKind>(mut self, entity: E) -> Result<Self, MimicError> {
+    pub fn from_entity<E: EntityKind>(mut self, entity: E) -> Result<Self, Error> {
         self.bytes = serialize(&entity)?;
 
         Ok(self)

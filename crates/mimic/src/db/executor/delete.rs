@@ -1,5 +1,5 @@
 use crate::{
-    MimicError,
+    Error,
     core::{
         Key, Value, deserialize,
         traits::{EntityKind, IndexKindTuple, Path},
@@ -53,13 +53,13 @@ impl DeleteExecutor {
 
     // one
     // helper method, creates query
-    pub fn one<E: EntityKind>(&self, value: impl Into<Value>) -> Result<Vec<Key>, MimicError> {
+    pub fn one<E: EntityKind>(&self, value: impl Into<Value>) -> Result<Vec<Key>, Error> {
         self.execute::<E>(DeleteQuery::new().one::<E>(value))
     }
 
     // many
     // helper method, creates query
-    pub fn many<E, I>(&self, values: I) -> Result<Vec<Key>, MimicError>
+    pub fn many<E, I>(&self, values: I) -> Result<Vec<Key>, Error>
     where
         E: EntityKind,
         I: IntoIterator,
@@ -69,7 +69,7 @@ impl DeleteExecutor {
     }
 
     // all
-    pub fn all<E: EntityKind>(&self) -> Result<Vec<Key>, MimicError> {
+    pub fn all<E: EntityKind>(&self) -> Result<Vec<Key>, Error> {
         self.execute::<E>(DeleteQuery::new())
     }
 
@@ -77,7 +77,7 @@ impl DeleteExecutor {
     pub fn filter<E: EntityKind>(
         self,
         f: impl FnOnce(FilterBuilder) -> FilterBuilder,
-    ) -> Result<Vec<Key>, MimicError> {
+    ) -> Result<Vec<Key>, Error> {
         self.execute::<E>(DeleteQuery::new().filter(f))
     }
 
@@ -86,7 +86,7 @@ impl DeleteExecutor {
     ///
 
     // execute
-    pub fn execute<E: EntityKind>(self, query: DeleteQuery) -> Result<Vec<Key>, MimicError> {
+    pub fn execute<E: EntityKind>(self, query: DeleteQuery) -> Result<Vec<Key>, Error> {
         let res = self.execute_internal::<E>(query)?;
 
         Ok(res)

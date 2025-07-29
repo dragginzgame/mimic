@@ -6,7 +6,7 @@ mod ops;
 mod validate;
 
 use icu::{ic::export_candid, prelude::*};
-use mimic::{MimicError, db::query, prelude::*};
+use mimic::{db::query, prelude::*};
 use test_design::fixture::rarity::{Rarity, RarityView};
 
 //

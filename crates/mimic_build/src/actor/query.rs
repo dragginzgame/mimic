@@ -71,7 +71,7 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
             pub fn #fn_name(
                 path: String,
                 query: ::mimic::db::query::LoadQuery,
-            ) -> Result<::mimic::db::response::LoadResponse, ::mimic::MimicError>
+            ) -> Result<::mimic::db::response::LoadResponse, ::mimic::Error>
         },
 
         QueryKind::Save => quote! {
@@ -79,7 +79,7 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
             pub fn #fn_name(
                 path: String,
                 query: ::mimic::db::query::SaveQuery,
-            ) -> Result<::mimic::core::Key, ::mimic::MimicError>
+            ) -> Result<::mimic::core::Key, ::mimic::Error>
         },
 
         QueryKind::Delete => quote! {
@@ -87,7 +87,7 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
             pub fn #fn_name(
                 path: String,
                 query: ::mimic::db::query::DeleteQuery,
-            ) -> Result<::mimic::db::response::DeleteResponse, ::mimic::MimicError>
+            ) -> Result<::mimic::db::response::DeleteResponse, ::mimic::Error>
         },
     };
 

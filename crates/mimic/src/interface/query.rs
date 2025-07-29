@@ -1,5 +1,5 @@
 use crate::{
-    MimicError,
+    Error,
     core::Key,
     db::query::{DeleteQuery, SaveQuery},
     interface::InterfaceError,
@@ -28,12 +28,12 @@ pub enum QueryError {
 //}
 
 // query_save
-pub async fn query_save(pid: Principal, query: SaveQuery) -> Result<Key, MimicError> {
+pub async fn query_save(pid: Principal, query: SaveQuery) -> Result<Key, Error> {
     query_call(pid, "mimic_query_save", &query).await
 }
 
 // query_delete
-pub async fn query_delete(pid: Principal, query: DeleteQuery) -> Result<Vec<Key>, MimicError> {
+pub async fn query_delete(pid: Principal, query: DeleteQuery) -> Result<Vec<Key>, Error> {
     query_call(pid, "mimic_query_delete", &query).await
 }
 
@@ -43,7 +43,7 @@ async fn query_call<T: candid::CandidType + for<'de> candid::Deserialize<'de>>(
     pid: Principal,
     method: &str,
     arg: impl candid::CandidType,
-) -> Result<T, MimicError> {
+) -> Result<T, Error> {
     let result = Call::unbounded_wait(pid, method)
         .with_arg(arg)
         .await

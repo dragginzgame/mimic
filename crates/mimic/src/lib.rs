@@ -50,7 +50,7 @@ extern crate self as mimic;
 
 pub mod prelude {
     pub use crate::{
-        MimicError,
+        Error as MimicError,
         core::{
             Key, Value,
             traits::{EntityFixture as _, EntityKind as _, TypeView as _},
@@ -74,14 +74,14 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error as ThisError;
 
 ///
-/// MimicError
+/// Error
 ///
 /// top level error should handle all sub-errors, but not expose the candid types
 /// as that would be a lot for any project that uses mimic
 ///
 
 #[derive(CandidType, Debug, Deserialize, Serialize, ThisError)]
-pub enum MimicError {
+pub enum Error {
     #[error("{0}")]
     DbError(String),
 
@@ -97,9 +97,9 @@ pub enum MimicError {
 
 macro_rules! from_to_string {
     ($from:ty, $variant:ident) => {
-        impl From<$from> for MimicError {
+        impl From<$from> for Error {
             fn from(e: $from) -> Self {
-                MimicError::$variant(e.to_string())
+                Error::$variant(e.to_string())
             }
         }
     };

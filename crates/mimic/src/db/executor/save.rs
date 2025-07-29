@@ -1,5 +1,5 @@
 use crate::{
-    MimicError,
+    Error,
     core::{
         Key, deserialize, serialize,
         traits::{EntityKind, IndexKindTuple, Path},
@@ -47,7 +47,7 @@ impl SaveExecutor {
 
     // execute
     // serializes the save query to pass to execute_internal
-    pub fn execute<E: EntityKind>(&self, query: SaveQuery) -> Result<Key, MimicError> {
+    pub fn execute<E: EntityKind>(&self, query: SaveQuery) -> Result<Key, Error> {
         let bytes: E = deserialize(&query.bytes)?;
         let key = self.execute_internal::<E>(query.mode, bytes)?;
 
@@ -55,14 +55,14 @@ impl SaveExecutor {
     }
 
     // create
-    pub fn create<E: EntityKind>(&self, entity: E) -> Result<Key, MimicError> {
+    pub fn create<E: EntityKind>(&self, entity: E) -> Result<Key, Error> {
         let key = self.execute_internal::<E>(SaveMode::Create, entity)?;
 
         Ok(key)
     }
 
     // create_from_view
-    pub fn create_from_view<E: EntityKind>(&self, view: &E::View) -> Result<Key, MimicError>
+    pub fn create_from_view<E: EntityKind>(&self, view: &E::View) -> Result<Key, Error>
     where
         E::View: Clone + Into<E>,
     {
@@ -70,14 +70,14 @@ impl SaveExecutor {
     }
 
     // update
-    pub fn update<E: EntityKind>(&self, entity: E) -> Result<Key, MimicError> {
+    pub fn update<E: EntityKind>(&self, entity: E) -> Result<Key, Error> {
         let key = self.execute_internal::<E>(SaveMode::Update, entity)?;
 
         Ok(key)
     }
 
     // replace
-    pub fn replace<E: EntityKind>(&self, entity: E) -> Result<Key, MimicError> {
+    pub fn replace<E: EntityKind>(&self, entity: E) -> Result<Key, Error> {
         let key = self.execute_internal::<E>(SaveMode::Replace, entity)?;
 
         Ok(key)
