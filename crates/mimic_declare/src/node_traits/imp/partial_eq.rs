@@ -1,6 +1,7 @@
 use crate::{
-    node::{ItemTarget, Newtype},
+    node::Newtype,
     node_traits::{Imp, TraitStrategy},
+    traits::HasTypePart,
 };
 use quote::quote;
 
@@ -17,21 +18,16 @@ pub struct PartialEqTrait {}
 impl Imp<Newtype> for PartialEqTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
         let ident = &node.def.ident;
-        let item = &node.item;
-
-        let is_type = match item.target() {
-            ItemTarget::Primitive(_) => return None, // 👈 skip if primitive
-            ItemTarget::Is(ty) => ty,
-        };
+        let item = &node.item.type_part();
 
         let tokens = quote! {
-            impl PartialEq<#is_type> for #ident {
-                fn eq(&self, other: &#is_type) -> bool {
+            impl PartialEq<#item> for #ident {
+                fn eq(&self, other: &#item) -> bool {
                     self.0 == *other
                 }
             }
 
-            impl PartialEq<#ident> for #is_type {
+            impl PartialEq<#ident> for #item {
                 fn eq(&self, other: &#ident) -> bool {
                     *self == other.0
                 }

@@ -1,6 +1,6 @@
 use crate::{
     node::Def,
-    node_traits::{Trait, TraitStrategy, Traits},
+    node_traits::{Trait, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart, SchemaNodeKind,
     },
