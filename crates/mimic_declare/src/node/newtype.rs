@@ -114,6 +114,7 @@ impl HasTraits for Newtype {
 
         match t {
             Trait::PartialEq => PartialEqTrait::strategy(self).map(|s| s.with_derive(t)),
+            Trait::PartialOrd => PartialOrdTrait::strategy(self).map(|s| s.with_derive(t)),
 
             Trait::FieldValue => FieldValueTrait::strategy(self),
             Trait::From => FromTrait::strategy(self),
