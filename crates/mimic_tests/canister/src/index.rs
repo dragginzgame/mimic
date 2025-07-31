@@ -20,6 +20,7 @@ impl IndexTester {
             ("index_on_principal_ulid", Self::index_on_principal_ulid),
             ("index_on_all_fields", Self::index_on_all_fields),
             ("fallback_to_range", Self::fallback_to_range),
+            ("negative_index_miss", Self::negative_index_miss),
         ];
 
         for (name, test_fn) in tests {
@@ -90,6 +91,18 @@ impl IndexTester {
             QueryPlan::Range(_, _) => println!("✅ Fallback to range plan"),
             _ => panic!("❌ Expected fallback Range plan, got: {plan:?}"),
         }
+    }
+
+    fn negative_index_miss() {
+        let query =
+            query::load().filter(|f| f.filter("pid", Cmp::Eq, Principal::from_slice(&[99; 29])));
+        assert_uses_index::<Indexable>(&query);
+
+        let results = db!().load().execute::<Indexable>(query).unwrap().entities();
+        assert!(
+            results.is_empty(),
+            "Expected no results from unmatched index lookup"
+        );
     }
 }
 

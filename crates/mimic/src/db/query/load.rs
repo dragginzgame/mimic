@@ -1,6 +1,9 @@
 use crate::{
     core::{Value, traits::EntityKind},
-    db::query::{Cmp, FilterBuilder, FilterExpr, SortDirection, SortExpr},
+    db::query::{
+        Cmp, FilterBuilder, FilterExpr, LimitExpr, QueryError, QueryValidate, SortDirection,
+        SortExpr,
+    },
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -12,8 +15,7 @@ use serde::{Deserialize, Serialize};
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct LoadQuery {
     pub filter: Option<FilterExpr>,
-    pub limit: Option<u32>,
-    pub offset: u32,
+    pub limit: Option<LimitExpr>,
     pub sort: Option<SortExpr>,
 }
 
@@ -21,6 +23,11 @@ impl LoadQuery {
     #[must_use]
     pub fn new() -> Self {
         Self::default()
+    }
+
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.filter.is_none() && self.limit.is_none() && self.sort.is_none()
     }
 
     // one
@@ -45,7 +52,6 @@ impl LoadQuery {
         self.filter_in(E::PRIMARY_KEY, Value::List(list))
     }
 
-    // filter
     #[must_use]
     pub fn filter(mut self, f: impl FnOnce(FilterBuilder) -> FilterBuilder) -> Self {
         let builder = match self.filter.take() {
@@ -75,24 +81,17 @@ impl LoadQuery {
         self.filter(|f| f.filter(field, Cmp::In, value))
     }
 
-    // offset
     #[must_use]
-    pub const fn offset(mut self, offset: u32) -> Self {
-        self.offset = offset;
+    pub fn limit(mut self, limit: u32) -> Self {
+        let expr = self.limit.unwrap_or_default().limit(limit);
+        self.limit = Some(expr);
         self
     }
 
-    // limit
     #[must_use]
-    pub const fn limit(mut self, limit: u32) -> Self {
-        self.limit = Some(limit);
-        self
-    }
-
-    // limit_option
-    #[must_use]
-    pub const fn limit_option(mut self, limit: Option<u32>) -> Self {
-        self.limit = limit;
+    pub fn offset(mut self, offset: u32) -> Self {
+        let expr = self.limit.unwrap_or_default().offset(offset);
+        self.limit = Some(expr);
         self
     }
 
@@ -116,5 +115,21 @@ impl LoadQuery {
     #[must_use]
     pub fn sort_field(self, field: &str, dir: SortDirection) -> Self {
         self.sort(std::iter::once((field, dir)))
+    }
+}
+
+impl<E: EntityKind> QueryValidate<E> for LoadQuery {
+    fn validate(&self) -> Result<(), QueryError> {
+        if let Some(filter) = &self.filter {
+            QueryValidate::<E>::validate(filter)?;
+        }
+        if let Some(limit) = &self.limit {
+            QueryValidate::<E>::validate(limit)?;
+        }
+        if let Some(sort) = &self.sort {
+            QueryValidate::<E>::validate(sort)?;
+        }
+
+        Ok(())
     }
 }

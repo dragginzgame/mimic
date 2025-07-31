@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.9.2]
+- query rewrite, LimitExpr is separate, and all parts of the query validate
+- added tests to make sure that any query with an invalid field name on filter or sort fails
+
 ## [0.9.1]
 - added a u8 version to the serialized data in the DataStore
 - now converting metadata directly into bytes to avoid candid encode/decode - 10% less wasm instructions!

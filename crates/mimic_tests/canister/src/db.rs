@@ -10,6 +10,8 @@ pub struct DbTester {}
 impl DbTester {
     pub fn test() {
         let tests: Vec<(&str, fn())> = vec![
+            ("query_fail_filter", Self::query_fail_filter),
+            ("query_fail_sort", Self::query_fail_sort),
             ("blob", Self::blob),
             ("create", Self::create),
             ("create_lots", Self::create_lots),
@@ -40,7 +42,25 @@ impl DbTester {
     // TESTS
     //
 
-    // blob
+    fn query_fail_filter() {
+        use test_design::canister::db::CreateBasic;
+
+        let query = query::load().filter(|f| f.filter("wefwefasd", Cmp::Eq, "A"));
+        let res = db!().load().execute::<CreateBasic>(query);
+
+        assert!(res.is_err(), "filter query should fail");
+    }
+
+    fn query_fail_sort() {
+        use test_design::canister::db::CreateBasic;
+
+        let res = db!()
+            .load()
+            .execute::<CreateBasic>(query::load().sort_field("jwjehrjrh", SortDirection::Asc));
+
+        assert!(res.is_err(), "sort query should fail");
+    }
+
     fn blob() {
         use test_design::canister::db::ContainsBlob;
 
@@ -196,17 +216,33 @@ impl DbTester {
         let e1 = Index::new(1, 10);
         let id1 = db!().save().create(e1).unwrap();
 
+        // COUNT
+        let rows = db!().load().count_all::<Index>().unwrap();
+        assert_eq!(rows, 1);
+
         // Step 2: Insert entity e2 with x=1 (non-unique), y=20 (unique)
         let e2 = Index::new(1, 20);
         db!().save().create(e2).unwrap();
+
+        // COUNT
+        let rows = db!().load().count_all::<Index>().unwrap();
+        assert_eq!(rows, 2);
 
         // Step 3: Attempt to insert another with duplicate y=10 (should fail)
         let e3 = Index::new(2, 10);
         let result = db!().save().create(e3.clone());
         assert!(result.is_err(), "expected unique index violation on y=10");
 
+        // COUNT
+        let rows = db!().load().count_all::<Index>().unwrap();
+        assert_eq!(rows, 2);
+
         // Step 4: Delete e1 (y=10)
-        db!().delete().one::<Index>(id1).unwrap();
+        db!().delete().debug().one::<Index>(id1).unwrap();
+
+        // COUNT
+        let rows = db!().load().count_all::<Index>().unwrap();
+        assert_eq!(rows, 1);
 
         // Step 5: Try inserting e3 again (y=10 should now be free)
         let result = db!().save().create(e3);
@@ -215,8 +251,13 @@ impl DbTester {
             "expected insert to succeed after y=10 was freed by delete"
         );
 
+        // COUNT
+        let rows = db!().load().count_all::<Index>().unwrap();
+        assert_eq!(rows, 2);
+
         // Step 6: Confirm only 2 entities remain
-        let rows = db!().load().count::<Index>(query::load()).unwrap();
+        //  let rows = db!().load().count_all::<Index>().unwrap();
+        let rows = db!().load().count_all::<Index>().unwrap();
 
         assert_eq!(rows, 2);
     }

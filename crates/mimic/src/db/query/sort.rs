@@ -1,3 +1,7 @@
+use crate::{
+    core::traits::EntityKind,
+    db::query::{QueryError, QueryValidate},
+};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
@@ -32,6 +36,17 @@ impl SortExpr {
     /// Iterate over the fields
     pub fn iter(&self) -> impl Iterator<Item = &(String, SortDirection)> {
         self.0.iter()
+    }
+}
+
+impl<E: EntityKind> QueryValidate<E> for SortExpr {
+    fn validate(&self) -> Result<(), QueryError> {
+        for (field, _) in self.iter() {
+            if !E::FIELDS.contains(&field.as_str()) {
+                return Err(QueryError::InvalidSortField(field.clone()));
+            }
+        }
+        Ok(())
     }
 }
 

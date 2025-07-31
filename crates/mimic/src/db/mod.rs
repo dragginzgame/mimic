@@ -8,6 +8,7 @@ use crate::{
     core::{serialize::SerializeError, validate::ValidationError},
     db::{
         executor::{DeleteExecutor, ExecutorError, LoadExecutor, SaveExecutor},
+        query::QueryError,
         response::ResponseError,
         store::{DataStoreRegistryLocal, IndexStoreRegistryLocal, StoreError},
     },
@@ -22,6 +23,9 @@ use thiserror::Error as ThisError;
 pub enum DbError {
     #[error(transparent)]
     ExecutorError(#[from] ExecutorError),
+
+    #[error(transparent)]
+    QueryError(#[from] QueryError),
 
     #[error(transparent)]
     ResponseError(#[from] ResponseError),

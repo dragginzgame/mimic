@@ -7,7 +7,10 @@ mod validate;
 
 use icu::{ic::export_candid, prelude::*};
 use mimic::{Error, db::query, prelude::*};
-use test_design::fixture::rarity::{Rarity, RarityView};
+use test_design::{
+    canister::filter::{Filterable, FilterableView},
+    fixture::rarity::{Rarity, RarityView},
+};
 
 //
 // INIT
@@ -38,6 +41,14 @@ pub fn test() {
 //
 // ENDPOINTS
 //
+
+// filterable
+#[query]
+pub fn filterable() -> Result<Vec<FilterableView>, Error> {
+    let res = db!().load().all::<Filterable>()?.entities().to_view();
+
+    Ok(res)
+}
 
 // rarity
 #[query]

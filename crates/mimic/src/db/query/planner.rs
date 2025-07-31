@@ -77,16 +77,19 @@ impl QueryPlanner {
             return plan;
         }
 
-        // default to the range of the current entity
-        let start = DataKey::new::<E>(Key::MIN);
-        let end = DataKey::new::<E>(Key::MAX);
+        // Fallback: if we have a real filter, do a full scan
+        // No filter = full scan from Key::MIN to Key::MAX
+        let min = DataKey::new::<E>(Key::MIN);
+        let max = DataKey::new::<E>(Key::MAX);
 
-        QueryPlan::Range(start, end)
+        QueryPlan::Range(min, max)
     }
 
     // extract_from_filter
     fn extract_from_filter<E: EntityKind>(&self) -> Option<QueryPlan> {
-        let filter = self.filter.as_ref()?;
+        let Some(filter) = &self.filter else {
+            return None;
+        };
 
         match filter {
             FilterExpr::Clause(clause) if clause.field == E::PRIMARY_KEY => match clause.cmp {
@@ -122,7 +125,9 @@ impl QueryPlanner {
 
     // extract_from_index
     fn extract_from_index<E: EntityKind>(&self) -> Option<QueryPlan> {
-        let filter = self.filter.as_ref()?;
+        let Some(filter) = &self.filter else {
+            return None;
+        };
 
         let mut matcher = IndexMatcher::new(filter);
 

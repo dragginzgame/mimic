@@ -19,9 +19,6 @@ use thiserror::Error as ThisError;
 
 #[derive(Debug, ThisError)]
 pub enum ExecutorError {
-    #[error("entity is missing primary key")]
-    EntityMissingPrimaryKey(IndexKey),
-
     #[error("data key exists: {0}")]
     KeyExists(DataKey),
 
@@ -30,9 +27,6 @@ pub enum ExecutorError {
 
     #[error("index execution not yet supported")]
     IndexNotSupported,
-
-    #[error("query shape not supported")]
-    ShapeNotSupported,
 
     #[error("index constraint violation for index: {0:?}")]
     IndexViolation(IndexKey),

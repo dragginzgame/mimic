@@ -1,5 +1,6 @@
 mod delete;
 mod filter;
+mod limit;
 mod load;
 mod planner;
 mod save;
@@ -7,10 +8,41 @@ mod sort;
 
 pub use delete::*;
 pub use filter::*;
+pub use limit::*;
 pub use load::*;
 pub use planner::*;
 pub use save::*;
 pub use sort::*;
+
+use crate::core::traits::EntityKind;
+use thiserror::Error as ThisError;
+
+///
+/// QueryError
+///
+
+#[derive(Debug, ThisError)]
+pub enum QueryError {
+    #[error("invalid filter field '{0}'")]
+    InvalidFilterField(String),
+
+    #[error("invalid sort field '{0}'")]
+    InvalidSortField(String),
+}
+
+///
+/// QueryValidate Trait
+///
+
+pub trait QueryValidate<E: EntityKind> {
+    fn validate(&self) -> Result<(), QueryError>;
+}
+
+impl<E: EntityKind, T: QueryValidate<E>> QueryValidate<E> for Box<T> {
+    fn validate(&self) -> Result<(), QueryError> {
+        (**self).validate()
+    }
+}
 
 // load
 #[must_use]

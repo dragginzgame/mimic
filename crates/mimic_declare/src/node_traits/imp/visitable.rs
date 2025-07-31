@@ -65,9 +65,7 @@ impl Imp<List> for VisitableTrait {
     fn tokens(node: &List) -> Option<TokenStream> {
         let inner = quote! {
             for (i, value) in self.iter().enumerate() {
-                let visitor_key = i.to_string();
-
-                perform_visit(visitor, value, Some(&visitor_key));
+                perform_visit(visitor, value, Some(&i.to_string()));
             }
         };
 
@@ -89,10 +87,8 @@ impl Imp<Map> for VisitableTrait {
     fn tokens(node: &Map) -> Option<TokenStream> {
         let inner = quote! {
             for (k, v) in self.iter() {
-                let visitor_key = k.to_string();
-
-                perform_visit(visitor, k, Some(&(visitor_key.clone() + ":key")));
-                perform_visit(visitor, v, Some(&(visitor_key + ":val")));
+                perform_visit(visitor, k, Some("key"));
+                perform_visit(visitor, v, Some("value"));
             }
         };
 
@@ -150,9 +146,7 @@ impl Imp<Set> for VisitableTrait {
     fn tokens(node: &Set) -> Option<TokenStream> {
         let inner = quote! {
             for (i, item) in self.iter().enumerate() {
-                let visitor_key = i.to_string();
-
-                perform_visit(visitor, item, Some(&visitor_key));
+                perform_visit(visitor, item, Some(&i.to_string()));
             }
         };
         let q = quote_drive_method(&inner);

@@ -23,6 +23,12 @@ pub enum FilterExpr {
     Not(Box<FilterExpr>),
 }
 
+impl Default for FilterExpr {
+    fn default() -> Self {
+        Self::True
+    }
+}
+
 impl FilterExpr {
     /// Combine two expressions into an `And` expression.
     ///

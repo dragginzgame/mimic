@@ -3,8 +3,9 @@ use crate::{
     node_traits::{Imp, Implementor, Trait},
     traits::{HasIdent, HasTypePart},
 };
-use proc_macro2::TokenStream;
+use proc_macro2::{Span, TokenStream};
 use quote::{ToTokens, quote};
+use syn::LitStr;
 
 ///
 /// EntityKindTrait
@@ -15,6 +16,9 @@ pub struct EntityKindTrait {}
 impl Imp<Entity> for EntityKindTrait {
     fn tokens(node: &Entity) -> Option<TokenStream> {
         let store = &node.store;
+        let index_idents = &node.indexes;
+        let pk_field = &node.primary_key.to_string();
+
         let pk_type = &node
             .fields
             .get(&node.primary_key)
@@ -22,8 +26,12 @@ impl Imp<Entity> for EntityKindTrait {
             .value
             .type_part();
 
-        let index_idents = &node.indexes;
-        let pk_field = &node.primary_key.to_string();
+        // don't remove fields, it will be super handy
+        let fields: Vec<LitStr> = node
+            .fields
+            .iter()
+            .map(|f| LitStr::new(&f.ident.to_string(), Span::call_site()))
+            .collect();
 
         // static definitions
         let mut q = quote! {
@@ -32,6 +40,7 @@ impl Imp<Entity> for EntityKindTrait {
             type Indexes = (#(#index_idents),*);
 
             const PRIMARY_KEY: &'static str = #pk_field;
+            const FIELDS: &'static [&'static str]  = &[#(#fields),*];
         };
 
         // impls

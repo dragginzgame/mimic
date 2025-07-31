@@ -7,7 +7,7 @@ use crate::{
     db::{
         DbError,
         executor::IndexAction,
-        query::{DeleteQuery, FilterBuilder, QueryPlan, QueryPlanner},
+        query::{DeleteQuery, FilterBuilder, QueryPlan, QueryPlanner, QueryValidate},
         store::{DataKey, DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
     debug,
@@ -94,45 +94,16 @@ impl DeleteExecutor {
 
     // execute_internal
     fn execute_internal<E: EntityKind>(self, query: DeleteQuery) -> Result<Vec<Key>, DbError> {
-        let planner = QueryPlanner::new(query.filter.as_ref());
-        let plan = planner.plan::<E>();
-
-        debug!(
-            self.debug,
-            "query.delete: query is {query:?}, plan is {plan:?}"
-        );
+        // validate query
+        QueryValidate::<E>::validate(&query)?;
 
         // get store
         let store = self
             .data_registry
             .with(|db| db.try_get_store(E::Store::PATH))?;
 
-        // get data keys
-        let data_keys: Vec<DataKey> = match &plan {
-            QueryPlan::Keys(keys) => keys.clone(),
-            QueryPlan::Range(start, end) => store.with_borrow(|store| {
-                store
-                    .range((Bound::Included(start.clone()), Bound::Included(end.clone())))
-                    .map(|entry| entry.key().clone())
-                    .collect()
-            }),
-
-            QueryPlan::Index(index_plan) => {
-                // get the index store
-                let index_store = self
-                    .index_registry
-                    .with(|reg| reg.try_get_store(index_plan.store_path))?;
-
-                // resolve keys
-                index_store.with_borrow(|istore| {
-                    istore.resolve_data_keys::<E>(
-                        index_plan.index_path,
-                        index_plan.index_fields,
-                        &index_plan.keys,
-                    )
-                })
-            }
-        };
+        // resolve data keys
+        let data_keys = self.resolve_data_keys::<E>(&query)?;
 
         // Get a single mutable borrow for the entire operation
         let mut deleted_rows = Vec::new();
@@ -160,6 +131,59 @@ impl DeleteExecutor {
         debug!(self.debug, "query.delete: deleted keys {deleted_rows:?}");
 
         Ok(deleted_rows)
+    }
+
+    fn resolve_data_keys<E: EntityKind>(
+        &self,
+        query: &DeleteQuery,
+    ) -> Result<Vec<DataKey>, DbError> {
+        // plan
+        let planner = QueryPlanner::new(query.filter.as_ref());
+        let plan = planner.plan::<E>();
+
+        debug!(
+            self.debug,
+            "query.delete: query is {query:?}, plan is {plan:?}"
+        );
+
+        let store = self
+            .data_registry
+            .with(|db| db.try_get_store(E::Store::PATH))?;
+
+        // get keys
+        let mut keys: Vec<DataKey> = match plan {
+            QueryPlan::Keys(keys) => keys,
+
+            QueryPlan::Range(start, end) => store.with_borrow(|store| {
+                store
+                    .range((Bound::Included(start.clone()), Bound::Included(end.clone())))
+                    .map(|entry| entry.key().clone())
+                    .collect()
+            }),
+
+            QueryPlan::Index(index_plan) => {
+                let index_store = self
+                    .index_registry
+                    .with(|reg| reg.try_get_store(index_plan.store_path))?;
+
+                index_store.with_borrow(|istore| {
+                    istore.resolve_data_keys::<E>(
+                        index_plan.index_path,
+                        index_plan.index_fields,
+                        &index_plan.keys,
+                    )
+                })
+            }
+        };
+
+        // apply limit
+        if let Some(limit_expr) = &query.limit {
+            if let Some(limit) = limit_expr.limit {
+                keys.truncate(limit as usize);
+            }
+        }
+
+        Ok(keys)
     }
 
     // remove_indexes

@@ -1,6 +1,9 @@
 use crate::{
-    core::{traits::FieldValues, value::Value},
-    db::query::{Cmp, FilterClause, FilterExpr},
+    core::{
+        traits::{EntityKind, FieldValues},
+        value::Value,
+    },
+    db::query::{Cmp, FilterClause, FilterExpr, QueryError, QueryValidate},
 };
 
 ///
@@ -119,14 +122,6 @@ impl<'a> FilterEvaluator<'a> {
                 Some(cmp.compare_order(a.partial_cmp(&(*b as f64))?))
             }
 
-            // Ulid ↔ Text
-            (Value::Ulid(a), Value::Text(b)) => Some(cmp.compare_order(a.to_string().cmp(b))),
-            (Value::Text(a), Value::Ulid(b)) => Some(cmp.compare_order(a.cmp(&b.to_string()))),
-
-            // Principal ↔ Text
-            (Value::Principal(a), Value::Text(b)) => Some(cmp.compare_order(a.to_text().cmp(b))),
-            (Value::Text(a), Value::Principal(b)) => Some(cmp.compare_order(a.cmp(&b.to_text()))),
-
             _ => None,
         }
     }
@@ -147,5 +142,31 @@ impl<'a> FilterEvaluator<'a> {
 
             _ => return None,
         })
+    }
+}
+
+impl<E: EntityKind> QueryValidate<E> for FilterExpr {
+    fn validate(&self) -> Result<(), QueryError> {
+        match self {
+            FilterExpr::True | FilterExpr::False => Ok(()),
+
+            FilterExpr::Clause(c) => {
+                if !E::FIELDS.contains(&c.field.as_str()) {
+                    return Err(QueryError::InvalidFilterField(c.field.clone()));
+                }
+
+                // (Optional) type checking could happen here
+                Ok(())
+            }
+
+            FilterExpr::And(children) | FilterExpr::Or(children) => {
+                for expr in children {
+                    QueryValidate::<E>::validate(expr)?;
+                }
+                Ok(())
+            }
+
+            FilterExpr::Not(inner) => QueryValidate::<E>::validate(inner),
+        }
     }
 }

@@ -8,7 +8,8 @@ use crate::{
         DbError,
         executor::FilterEvaluator,
         query::{
-            FilterBuilder, FilterExpr, LoadQuery, QueryPlan, QueryPlanner, SortDirection, SortExpr,
+            FilterBuilder, FilterExpr, LoadQuery, QueryPlan, QueryPlanner, QueryValidate,
+            SortDirection, SortExpr,
         },
         response::{EntityRow, LoadCollection},
         store::{
@@ -132,6 +133,9 @@ impl LoadExecutor {
         &self,
         query: LoadQuery,
     ) -> Result<LoadCollection<E>, DbError> {
+        // validate query
+        QueryValidate::<E>::validate(&query)?;
+
         let rows = self.execute_plan::<E>(query.filter.as_ref())?;
         let entities = Self::finalize_rows::<E>(rows, &query)?;
 
@@ -143,7 +147,6 @@ impl LoadExecutor {
         &self,
         filter: Option<&FilterExpr>,
     ) -> Result<Vec<DataRow>, DbError> {
-        // create planner
         let planner = QueryPlanner::new(filter);
         let plan = planner.plan::<E>();
 
@@ -199,15 +202,19 @@ impl LoadExecutor {
         }
 
         // In-place pagination
-        let total = entities.len();
-        let start = usize::min(query.offset as usize, total);
-        let end = match query.limit {
-            Some(limit) => usize::min(start + limit as usize, total),
-            None => total,
-        };
+        if let Some(limit) = &query.limit {
+            let total = entities.len();
+            let start = usize::min(limit.offset as usize, total);
+            let end = match limit.limit {
+                Some(lim) => usize::min(start + lim as usize, total),
+                None => total,
+            };
 
-        // No heap reallocation — slicing the original buffer
-        Ok(entities[start..end].to_vec())
+            // No heap reallocation — slicing the original buffer
+            entities = entities[start..end].to_vec();
+        }
+
+        Ok(entities)
     }
 
     // load_many

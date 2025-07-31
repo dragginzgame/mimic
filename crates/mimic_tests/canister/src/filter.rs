@@ -33,6 +33,7 @@ impl FilterTester {
             ("filter_in_category", Self::filter_in_category),
             ("filter_allin_tags", Self::filter_allin_tags),
             ("filter_anyin_tags", Self::filter_anyin_tags),
+            ("filter_eq_principal", Self::filter_eq_principal),
             ("filter_contains_tag", Self::filter_contains_tag),
         ];
 
@@ -274,6 +275,26 @@ impl FilterTester {
                 e.name
             );
         }
+    }
+
+    fn filter_eq_principal() {
+        // Use dummy principal that matches the one used in fixtures
+        let expected = Filterable::dummy_principal(1);
+
+        let results = db!()
+            .load()
+            .filter::<Filterable>(|f| f.filter("pid", Cmp::Eq, expected))
+            .unwrap()
+            .entities();
+
+        assert!(
+            !results.is_empty(),
+            "Expected at least one entity with matching principal"
+        );
+        assert!(
+            results.iter().all(|e| e.pid == expected),
+            "All results should have matching principal"
+        );
     }
 
     fn filter_contains_tag() {

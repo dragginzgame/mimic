@@ -33,10 +33,12 @@ impl Imp<Entity> for FieldValuesTrait {
                     }),
 
                     Cardinality::Opt => Some(quote! {
-                        #field_lit =>
-                                self.#field_ident
-                                    .as_ref()
-                                    .map(|v| v.to_value()),
+                        #field_lit => Some(
+                            self.#field_ident
+                                .as_ref()
+                                .map(|v| v.to_value())
+                                .unwrap_or(::mimic::core::value::Value::None)
+                        ),
                     }),
 
                     Cardinality::Many => Some(quote! {
