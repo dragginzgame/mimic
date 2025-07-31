@@ -25,6 +25,8 @@ pub mod schema {
     pub use mimic_schema::*;
 }
 
+pub use Error as MimicError;
+
 ///
 /// RE-EXPORTS
 ///
