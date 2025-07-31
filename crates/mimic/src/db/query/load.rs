@@ -81,9 +81,21 @@ impl LoadQuery {
         self.filter(|f| f.filter(field, Cmp::In, value))
     }
 
+    ///
+    /// LIMIT
+    ///
+
     #[must_use]
     pub fn limit(mut self, limit: u32) -> Self {
         let expr = self.limit.unwrap_or_default().limit(limit);
+        self.limit = Some(expr);
+        self
+    }
+
+    #[must_use]
+    pub fn limit_option(mut self, limit: Option<u32>) -> Self {
+        let mut expr = self.limit.unwrap_or_default();
+        expr.limit = limit;
         self.limit = Some(expr);
         self
     }
@@ -94,6 +106,10 @@ impl LoadQuery {
         self.limit = Some(expr);
         self
     }
+
+    ///
+    /// SORT
+    ///
 
     // sort
     #[must_use]
