@@ -235,8 +235,8 @@ impl IndexKey {
         // get each value and convert to key
         for field in I::FIELDS {
             let value = entity.get_value(field)?;
-
             let key = value.as_key()?;
+
             keys.push(key);
         }
 

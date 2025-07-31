@@ -1,9 +1,8 @@
 use crate::{
     node::{ItemTarget, Newtype},
-    node_traits::{Imp, Implementor, Trait, TraitStrategy},
-    traits::HasIdent,
+    node_traits::{Imp, TraitStrategy},
 };
-use quote::{ToTokens, quote};
+use quote::quote;
 
 ///
 /// PartialEqTrait

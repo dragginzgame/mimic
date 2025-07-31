@@ -45,7 +45,7 @@ fn generate_replace_all(builder: &ActorBuilder) -> TokenStream {
             let db = db!();
 
             #(#inner)*
-            log!(Log::Info, "added fixtures ({} entities)", #num_entities);
+            ::icu::log!(::icu::Log::Info, "added fixtures ({} entities)", #num_entities);
 
             Ok(())
         }
