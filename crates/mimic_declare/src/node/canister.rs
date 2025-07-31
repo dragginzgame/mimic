@@ -1,6 +1,6 @@
 use crate::{
     node::Def,
-    node_traits::{Trait, Traits},
+    node_traits::{Trait, TraitStrategy, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart, SchemaNodeKind,
     },
@@ -51,15 +51,6 @@ impl HasTraits for Canister {
         traits.add(Trait::CanisterKind);
 
         traits.list()
-    }
-
-    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
-        use crate::node_traits::*;
-
-        match t {
-            Trait::CanisterKind => CanisterKindTrait::tokens(self),
-            _ => None,
-        }
     }
 }
 

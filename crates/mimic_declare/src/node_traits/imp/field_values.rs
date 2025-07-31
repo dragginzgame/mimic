@@ -1,10 +1,10 @@
 use crate::{
     node::Entity,
-    node_traits::{Imp, Implementor, Trait},
+    node_traits::{Imp, Implementor, Trait, TraitStrategy},
     traits::HasIdent,
 };
 use mimic_schema::types::Cardinality;
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::Span;
 use quote::{ToTokens, quote};
 use syn::LitStr;
 
@@ -19,7 +19,7 @@ pub struct FieldValuesTrait {}
 ///
 
 impl Imp<Entity> for FieldValuesTrait {
-    fn tokens(node: &Entity) -> Option<TokenStream> {
+    fn strategy(node: &Entity) -> Option<TraitStrategy> {
         let match_arms = node
             .fields
             .iter()
@@ -37,7 +37,7 @@ impl Imp<Entity> for FieldValuesTrait {
                             self.#field_ident
                                 .as_ref()
                                 .map(|v| v.to_value())
-                                .unwrap_or(::mimic::core::value::Value::None)
+                                .unwrap_or(::mimic::core::Value::None)
                         ),
                     }),
 
@@ -48,8 +48,9 @@ impl Imp<Entity> for FieldValuesTrait {
                                 .map(|v| Box::new(v.to_value()))
                                 .collect::<Vec<_>>();
 
-                        Some(Value::List(list))
-                    }}),
+                            Some(::mimic::core::Value::List(list))
+                        }
+                    }),
                 }
             })
             .collect::<Vec<_>>();
@@ -67,6 +68,6 @@ impl Imp<Entity> for FieldValuesTrait {
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }

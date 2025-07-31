@@ -1,9 +1,8 @@
 use crate::{
     node::EnumValue,
-    node_traits::{Imp, Implementor, Trait},
+    node_traits::{Imp, Implementor, Trait, TraitStrategy},
     traits::HasIdent,
 };
-use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 ///
@@ -17,7 +16,7 @@ pub struct EnumValueKindTrait {}
 ///
 
 impl Imp<EnumValue> for EnumValueKindTrait {
-    fn tokens(node: &EnumValue) -> Option<TokenStream> {
+    fn strategy(node: &EnumValue) -> Option<TraitStrategy> {
         let mut inner = quote!();
 
         // iterate variants
@@ -43,6 +42,6 @@ impl Imp<EnumValue> for EnumValueKindTrait {
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }

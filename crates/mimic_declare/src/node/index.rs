@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_slice, split_idents, to_path, to_str_lit},
     node::Def,
-    node_traits::{Trait, Traits},
+    node_traits::{Trait, TraitStrategy, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart, SchemaNodeKind,
     },
@@ -70,11 +70,11 @@ impl HasTraits for Index {
         traits.list()
     }
 
-    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+    fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
         use crate::node_traits::*;
 
         match t {
-            Trait::IndexKind => IndexKindTrait::tokens(self),
+            Trait::IndexKind => IndexKindTrait::strategy(self),
             _ => None,
         }
     }

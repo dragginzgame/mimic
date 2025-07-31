@@ -1,9 +1,8 @@
 use crate::{
     node::Newtype,
-    node_traits::{Imp, Implementor, Trait},
+    node_traits::{Imp, Implementor, Trait, TraitStrategy},
     traits::{HasIdent, HasTypePart},
 };
-use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 
 ///
@@ -17,7 +16,7 @@ pub struct NumCastTrait {}
 ///
 
 impl Imp<Newtype> for NumCastTrait {
-    fn tokens(node: &Newtype) -> Option<TokenStream> {
+    fn strategy(node: &Newtype) -> Option<TraitStrategy> {
         let num_fn = node.primitive.num_cast_fn();
         let to_method = format_ident!("to_{}", num_fn);
         let from_method = format_ident!("from_{}", num_fn);
@@ -33,7 +32,7 @@ impl Imp<Newtype> for NumCastTrait {
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -48,18 +47,16 @@ pub struct NumFromPrimitiveTrait {}
 ///
 
 impl Imp<Newtype> for NumFromPrimitiveTrait {
-    fn tokens(node: &Newtype) -> Option<TokenStream> {
+    fn strategy(node: &Newtype) -> Option<TraitStrategy> {
         let item = &node.item.type_part();
 
         let mut q = quote! {
             fn from_i64(n: i64) -> Option<Self> {
-                type Ty = #item;
-                Ty::from_i64(n).map(Self)
+                #item::from_i64(n).map(Self)
             }
 
             fn from_u64(n: u64) -> Option<Self> {
-                type Ty = #item;
-                Ty::from_u64(n).map(Self)
+                #item::from_u64(n).map(Self)
             }
         };
 
@@ -67,8 +64,7 @@ impl Imp<Newtype> for NumFromPrimitiveTrait {
         if node.primitive.is_float() {
             q.extend(quote! {
                 fn from_f64(n: f64) -> Option<Self> {
-                    type Ty = #item;
-                    Ty::from_f64(n).map(Self)
+                    #item::from_f64(n).map(Self)
                 }
             });
         }
@@ -77,7 +73,7 @@ impl Imp<Newtype> for NumFromPrimitiveTrait {
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -92,7 +88,7 @@ pub struct NumToPrimitiveTrait {}
 ///
 
 impl Imp<Newtype> for NumToPrimitiveTrait {
-    fn tokens(node: &Newtype) -> Option<TokenStream> {
+    fn strategy(node: &Newtype) -> Option<TraitStrategy> {
         let q = quote! {
             fn to_i64(&self) -> Option<i64> {
                 ::mimic::export::num_traits::NumCast::from(self.0)
@@ -107,6 +103,6 @@ impl Imp<Newtype> for NumToPrimitiveTrait {
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }

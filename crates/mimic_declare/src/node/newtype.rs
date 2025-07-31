@@ -1,7 +1,7 @@
 use crate::{
     helper::quote_option,
     node::{Arg, Def, Item, Type},
-    node_traits::{Trait, Traits},
+    node_traits::{Trait, TraitStrategy, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
         SchemaNodeKind,
@@ -109,18 +109,20 @@ impl HasTraits for Newtype {
         traits.list()
     }
 
-    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+    fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
         use crate::node_traits::*;
 
         match t {
-            Trait::FieldValue => FieldValueTrait::tokens(self),
-            Trait::From => FromTrait::tokens(self),
-            Trait::NumCast => NumCastTrait::tokens(self),
-            Trait::NumToPrimitive => NumToPrimitiveTrait::tokens(self),
-            Trait::NumFromPrimitive => NumFromPrimitiveTrait::tokens(self),
-            Trait::TypeView => TypeViewTrait::tokens(self),
-            Trait::ValidateAuto => ValidateAutoTrait::tokens(self),
-            Trait::Visitable => VisitableTrait::tokens(self),
+            Trait::PartialEq => PartialEqTrait::strategy(self).map(|s| s.with_derive(t)),
+
+            Trait::FieldValue => FieldValueTrait::strategy(self),
+            Trait::From => FromTrait::strategy(self),
+            Trait::NumCast => NumCastTrait::strategy(self),
+            Trait::NumToPrimitive => NumToPrimitiveTrait::strategy(self),
+            Trait::NumFromPrimitive => NumFromPrimitiveTrait::strategy(self),
+            Trait::TypeView => TypeViewTrait::strategy(self),
+            Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
+            Trait::Visitable => VisitableTrait::strategy(self),
 
             _ => None,
         }
@@ -134,7 +136,7 @@ impl HasTypePart for Newtype {
 
         quote! {
             #[repr(transparent)]
-            pub struct #ident(#item);
+            pub struct #ident(pub #item);
         }
     }
 

@@ -1,9 +1,8 @@
 use crate::{
     node::Index,
-    node_traits::{Imp, Implementor, Trait},
+    node_traits::{Imp, Implementor, Trait, TraitStrategy},
     traits::HasIdent,
 };
-use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use syn::LitStr;
 
@@ -14,7 +13,7 @@ use syn::LitStr;
 pub struct IndexKindTrait {}
 
 impl Imp<Index> for IndexKindTrait {
-    fn tokens(node: &Index) -> Option<TokenStream> {
+    fn strategy(node: &Index) -> Option<TraitStrategy> {
         let store = &node.store;
         let entity = &node.entity;
         let unique = node.unique;
@@ -37,6 +36,6 @@ impl Imp<Index> for IndexKindTrait {
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }

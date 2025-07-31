@@ -1,9 +1,8 @@
 use crate::{
     node::Store,
-    node_traits::{Imp, Implementor, Trait},
+    node_traits::{Imp, Implementor, Trait, TraitStrategy},
     traits::HasIdent,
 };
-use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 ///
@@ -13,7 +12,7 @@ use quote::{ToTokens, quote};
 pub struct StoreKindTrait {}
 
 impl Imp<Store> for StoreKindTrait {
-    fn tokens(node: &Store) -> Option<TokenStream> {
+    fn strategy(node: &Store) -> Option<TraitStrategy> {
         let canister = &node.canister;
 
         // static definitions
@@ -25,6 +24,6 @@ impl Imp<Store> for StoreKindTrait {
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }

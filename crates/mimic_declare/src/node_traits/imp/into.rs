@@ -1,8 +1,7 @@
 use crate::{
     node::{EntityId, Selector},
-    node_traits::Imp,
+    node_traits::{Imp, TraitStrategy},
 };
-use proc_macro2::TokenStream;
 use quote::quote;
 
 ///
@@ -16,17 +15,19 @@ pub struct IntoTrait {}
 ///
 
 impl Imp<EntityId> for IntoTrait {
-    fn tokens(node: &EntityId) -> Option<TokenStream> {
+    fn strategy(node: &EntityId) -> Option<TraitStrategy> {
         let ident = &node.def.ident;
 
         // into ulid
-        Some(quote! {
+        let tokens = quote! {
             impl Into<::mimic::core::types::Ulid> for #ident {
                 fn into(self) -> ::mimic::core::types::Ulid {
                     self.ulid()
                 }
             }
-        })
+        };
+
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -35,7 +36,7 @@ impl Imp<EntityId> for IntoTrait {
 ///
 
 impl Imp<Selector> for IntoTrait {
-    fn tokens(node: &Selector) -> Option<TokenStream> {
+    fn strategy(node: &Selector) -> Option<TraitStrategy> {
         let ident = &node.def.ident;
         let target = &node.target;
 
@@ -49,7 +50,7 @@ impl Imp<Selector> for IntoTrait {
         });
 
         // into ulid
-        Some(quote! {
+        let tokens = quote! {
             impl Into<#target> for #ident {
                 fn into(self) -> #target {
                     match self {
@@ -57,6 +58,8 @@ impl Imp<Selector> for IntoTrait {
                     }
                 }
             }
-        })
+        };
+
+        Some(TraitStrategy::from_impl(tokens))
     }
 }

@@ -1,9 +1,8 @@
 use crate::{
     node::{Entity, Enum, EnumValue, List, Map, Newtype, Record, Set, Tuple},
-    node_traits::{Imp, Implementor, Trait},
+    node_traits::{Imp, Implementor, Trait, TraitStrategy},
     traits::{HasIdent, HasType, HasTypePart},
 };
-use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 ///
@@ -17,7 +16,7 @@ pub struct FromTrait {}
 ///
 
 impl Imp<Entity> for FromTrait {
-    fn tokens(node: &Entity) -> Option<TokenStream> {
+    fn strategy(node: &Entity) -> Option<TraitStrategy> {
         Some(from_type_view(node))
     }
 }
@@ -27,7 +26,7 @@ impl Imp<Entity> for FromTrait {
 ///
 
 impl Imp<Enum> for FromTrait {
-    fn tokens(node: &Enum) -> Option<TokenStream> {
+    fn strategy(node: &Enum) -> Option<TraitStrategy> {
         Some(from_type_view(node))
     }
 }
@@ -37,7 +36,7 @@ impl Imp<Enum> for FromTrait {
 ///
 
 impl Imp<EnumValue> for FromTrait {
-    fn tokens(node: &EnumValue) -> Option<TokenStream> {
+    fn strategy(node: &EnumValue) -> Option<TraitStrategy> {
         Some(from_type_view(node))
     }
 }
@@ -47,7 +46,7 @@ impl Imp<EnumValue> for FromTrait {
 ///
 
 impl Imp<List> for FromTrait {
-    fn tokens(node: &List) -> Option<TokenStream> {
+    fn strategy(node: &List) -> Option<TraitStrategy> {
         let item = &node.item.type_part();
 
         let q = quote! {
@@ -66,7 +65,7 @@ impl Imp<List> for FromTrait {
             .add_trait_generic(quote!(Vec<I>))
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -75,7 +74,7 @@ impl Imp<List> for FromTrait {
 ///
 
 impl Imp<Map> for FromTrait {
-    fn tokens(node: &Map) -> Option<TokenStream> {
+    fn strategy(node: &Map) -> Option<TraitStrategy> {
         let key = &node.key.type_part();
         let value = &node.value.type_part();
 
@@ -97,7 +96,7 @@ impl Imp<Map> for FromTrait {
             .add_trait_generic(quote!(Vec<(IK, IV)>))
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -106,7 +105,7 @@ impl Imp<Map> for FromTrait {
 ///
 
 impl Imp<Newtype> for FromTrait {
-    fn tokens(node: &Newtype) -> Option<TokenStream> {
+    fn strategy(node: &Newtype) -> Option<TraitStrategy> {
         let item = &node.item.type_part();
 
         let q = quote! {
@@ -122,7 +121,7 @@ impl Imp<Newtype> for FromTrait {
             .add_trait_generic(quote!(T))
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -131,7 +130,7 @@ impl Imp<Newtype> for FromTrait {
 ///
 
 impl Imp<Record> for FromTrait {
-    fn tokens(node: &Record) -> Option<TokenStream> {
+    fn strategy(node: &Record) -> Option<TraitStrategy> {
         Some(from_type_view(node))
     }
 }
@@ -141,7 +140,7 @@ impl Imp<Record> for FromTrait {
 ///
 
 impl Imp<Set> for FromTrait {
-    fn tokens(node: &Set) -> Option<TokenStream> {
+    fn strategy(node: &Set) -> Option<TraitStrategy> {
         let item = &node.item.type_part();
 
         let q = quote! {
@@ -160,7 +159,7 @@ impl Imp<Set> for FromTrait {
             .add_trait_generic(quote!(Vec<I>))
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -169,13 +168,13 @@ impl Imp<Set> for FromTrait {
 ///
 
 impl Imp<Tuple> for FromTrait {
-    fn tokens(node: &Tuple) -> Option<TokenStream> {
+    fn strategy(node: &Tuple) -> Option<TraitStrategy> {
         Some(from_type_view(node))
     }
 }
 
 /// from_type_view
-fn from_type_view(m: &impl HasType) -> TokenStream {
+fn from_type_view(m: &impl HasType) -> TraitStrategy {
     let ident = m.ident();
     let view_ident = m.view_ident();
 
@@ -185,8 +184,10 @@ fn from_type_view(m: &impl HasType) -> TokenStream {
         }
     };
 
-    Implementor::new(ident, Trait::From)
+    let tokens = Implementor::new(ident, Trait::From)
         .set_tokens(q)
         .add_trait_generic(quote!(#view_ident))
-        .to_token_stream()
+        .to_token_stream();
+
+    TraitStrategy::from_impl(tokens)
 }

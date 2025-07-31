@@ -1,7 +1,7 @@
 use crate::{
     helper::quote_slice,
     node::{Def, Type, Value},
-    node_traits::{Trait, Traits},
+    node_traits::{Trait, TraitStrategy, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
         SchemaNodeKind,
@@ -64,13 +64,13 @@ impl HasTraits for Tuple {
         self.traits.clone().with_type_traits().list()
     }
 
-    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+    fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
         use crate::node_traits::*;
 
         match t {
-            Trait::From => FromTrait::tokens(self),
-            Trait::TypeView => TypeViewTrait::tokens(self),
-            Trait::Visitable => VisitableTrait::tokens(self),
+            Trait::From => FromTrait::strategy(self),
+            Trait::TypeView => TypeViewTrait::strategy(self),
+            Trait::Visitable => VisitableTrait::strategy(self),
 
             _ => None,
         }

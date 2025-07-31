@@ -1,6 +1,6 @@
 use crate::{
     node::{Entity, Enum, EnumVariant, FieldList, List, Map, Newtype, Record, Set, Tuple},
-    node_traits::{Imp, Implementor, Trait},
+    node_traits::{Imp, Implementor, Trait, TraitStrategy},
     traits::HasIdent,
 };
 use proc_macro2::{Span, TokenStream};
@@ -18,14 +18,14 @@ pub struct VisitableTrait {}
 ///
 
 impl Imp<Entity> for VisitableTrait {
-    fn tokens(node: &Entity) -> Option<TokenStream> {
+    fn strategy(node: &Entity) -> Option<TraitStrategy> {
         let q = field_list(&node.fields);
 
         let tokens = Implementor::new(node.ident(), Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -34,7 +34,7 @@ impl Imp<Entity> for VisitableTrait {
 ///
 
 impl Imp<Enum> for VisitableTrait {
-    fn tokens(node: &Enum) -> Option<TokenStream> {
+    fn strategy(node: &Enum) -> Option<TraitStrategy> {
         // build inner
         let mut variant_tokens = quote!();
         for variant in &node.variants {
@@ -53,7 +53,7 @@ impl Imp<Enum> for VisitableTrait {
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -62,7 +62,7 @@ impl Imp<Enum> for VisitableTrait {
 ///
 
 impl Imp<List> for VisitableTrait {
-    fn tokens(node: &List) -> Option<TokenStream> {
+    fn strategy(node: &List) -> Option<TraitStrategy> {
         let inner = quote! {
             for (i, value) in self.iter().enumerate() {
                 perform_visit(visitor, value, Some(&i.to_string()));
@@ -75,7 +75,7 @@ impl Imp<List> for VisitableTrait {
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -84,7 +84,7 @@ impl Imp<List> for VisitableTrait {
 ///
 
 impl Imp<Map> for VisitableTrait {
-    fn tokens(node: &Map) -> Option<TokenStream> {
+    fn strategy(node: &Map) -> Option<TraitStrategy> {
         let inner = quote! {
             for (k, v) in self.iter() {
                 perform_visit(visitor, k, Some("key"));
@@ -98,7 +98,7 @@ impl Imp<Map> for VisitableTrait {
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -107,7 +107,7 @@ impl Imp<Map> for VisitableTrait {
 ///
 
 impl Imp<Newtype> for VisitableTrait {
-    fn tokens(node: &Newtype) -> Option<TokenStream> {
+    fn strategy(node: &Newtype) -> Option<TraitStrategy> {
         let inner = quote! {
             perform_visit(visitor, &self.0, None);
         };
@@ -118,7 +118,7 @@ impl Imp<Newtype> for VisitableTrait {
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -127,14 +127,14 @@ impl Imp<Newtype> for VisitableTrait {
 ///
 
 impl Imp<Record> for VisitableTrait {
-    fn tokens(node: &Record) -> Option<TokenStream> {
+    fn strategy(node: &Record) -> Option<TraitStrategy> {
         let q = field_list(&node.fields);
 
         let tokens = Implementor::new(node.ident(), Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -143,7 +143,7 @@ impl Imp<Record> for VisitableTrait {
 ///
 
 impl Imp<Set> for VisitableTrait {
-    fn tokens(node: &Set) -> Option<TokenStream> {
+    fn strategy(node: &Set) -> Option<TraitStrategy> {
         let inner = quote! {
             for (i, item) in self.iter().enumerate() {
                 perform_visit(visitor, item, Some(&i.to_string()));
@@ -155,7 +155,7 @@ impl Imp<Set> for VisitableTrait {
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -164,7 +164,7 @@ impl Imp<Set> for VisitableTrait {
 ///
 
 impl Imp<Tuple> for VisitableTrait {
-    fn tokens(node: &Tuple) -> Option<TokenStream> {
+    fn strategy(node: &Tuple) -> Option<TraitStrategy> {
         let mut inner = quote!();
 
         for (i, _) in node.values.iter().enumerate() {
@@ -182,7 +182,7 @@ impl Imp<Tuple> for VisitableTrait {
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 

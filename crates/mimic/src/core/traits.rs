@@ -4,7 +4,7 @@ pub use icu::ic::structures::storable::Storable;
 pub use num_traits::{FromPrimitive as NumFromPrimitive, NumCast, ToPrimitive as NumToPrimitive};
 pub use serde::{Deserialize, Serialize, de::DeserializeOwned};
 pub use std::{
-    cmp::Ordering,
+    cmp::{Eq, Ordering, PartialEq},
     collections::{HashMap, HashSet},
     convert::{AsRef, From, Into},
     default::Default,

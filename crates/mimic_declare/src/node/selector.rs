@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_slice, to_path, to_str_lit},
     node::{Arg, Def},
-    node_traits::{Trait, Traits},
+    node_traits::{Trait, TraitStrategy, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart, SchemaNodeKind,
     },
@@ -62,11 +62,11 @@ impl HasTraits for Selector {
         traits.list()
     }
 
-    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+    fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
         use crate::node_traits::*;
 
         match t {
-            Trait::Into => IntoTrait::tokens(self),
+            Trait::Into => IntoTrait::strategy(self),
 
             _ => None,
         }

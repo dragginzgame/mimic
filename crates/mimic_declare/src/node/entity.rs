@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_slice, to_path, to_str_lit},
     node::{Def, FieldList, Type},
-    node_traits::{Trait, Traits},
+    node_traits::{Trait, TraitStrategy, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
         SchemaNodeKind,
@@ -85,17 +85,19 @@ impl HasTraits for Entity {
         traits.list()
     }
 
-    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+    fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
         use crate::node_traits::*;
 
         match t {
-            Trait::Default if self.fields.has_default() => DefaultTrait::tokens(self),
-            Trait::From => FromTrait::tokens(self),
-            Trait::EntityKind => EntityKindTrait::tokens(self),
-            Trait::FieldValues => FieldValuesTrait::tokens(self),
-            Trait::TypeView => TypeViewTrait::tokens(self),
-            Trait::ValidateAuto => ValidateAutoTrait::tokens(self),
-            Trait::Visitable => VisitableTrait::tokens(self),
+            Trait::Default if self.fields.has_default() => DefaultTrait::strategy(self),
+            Trait::Default => Some(TraitStrategy::from_derive(t)),
+
+            Trait::From => FromTrait::strategy(self),
+            Trait::EntityKind => EntityKindTrait::strategy(self),
+            Trait::FieldValues => FieldValuesTrait::strategy(self),
+            Trait::TypeView => TypeViewTrait::strategy(self),
+            Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
+            Trait::Visitable => VisitableTrait::strategy(self),
 
             _ => None,
         }

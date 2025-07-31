@@ -1,6 +1,6 @@
 use crate::{
     node::Def,
-    node_traits::{Trait, Traits},
+    node_traits::{Trait, TraitStrategy, Traits},
     traits::{HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart},
 };
 use darling::FromMeta;
@@ -42,11 +42,11 @@ impl HasTraits for EntityId {
         traits.list()
     }
 
-    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+    fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
         use crate::node_traits::*;
 
         match t {
-            Trait::Into => IntoTrait::tokens(self),
+            Trait::Into => IntoTrait::strategy(self),
 
             _ => None,
         }

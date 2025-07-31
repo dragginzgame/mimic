@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_str_lit},
     node::{Def, Type, Value},
-    node_traits::{Trait, Traits},
+    node_traits::{Trait, TraitStrategy, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
         SchemaNodeKind,
@@ -55,14 +55,14 @@ impl HasTraits for Enum {
         traits.list()
     }
 
-    fn map_trait(&self, t: Trait) -> Option<TokenStream> {
+    fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
         use crate::node_traits::*;
 
         match t {
-            Trait::From => FromTrait::tokens(self),
-            Trait::TypeView => TypeViewTrait::tokens(self),
-            Trait::ValidateAuto => ValidateAutoTrait::tokens(self),
-            Trait::Visitable => VisitableTrait::tokens(self),
+            Trait::From => FromTrait::strategy(self),
+            Trait::TypeView => TypeViewTrait::strategy(self),
+            Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
+            Trait::Visitable => VisitableTrait::strategy(self),
 
             _ => None,
         }

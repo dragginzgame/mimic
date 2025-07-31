@@ -1,6 +1,6 @@
 use crate::{
     helper::format_view_ident,
-    node_traits::{Implementor, Trait, TraitList},
+    node_traits::{Implementor, Trait, TraitList, TraitStrategy},
 };
 use mimic_common::utils::{
     case::{Case, Casing},
@@ -44,32 +44,37 @@ pub trait HasMacro: HasSchema + HasTraits + HasType {
     fn resolve_trait_tokens(&self) -> TraitTokens {
         let mut derived_traits = Vec::new();
         let mut attrs = Vec::new();
-        let mut impls = quote!();
+        let mut impls = TokenStream::new();
 
         for tr in self.traits() {
-            let impl_block = self.resolve_trait(tr);
+            let strat = self.map_trait(tr).or_else(|| self.default_strategy(tr));
+
             let attr = self.map_attribute(tr);
 
-            match (impl_block, attr) {
-                (Some(t), Some(a)) => {
-                    impls.extend(t);
-                    attrs.push(a);
+            match strat {
+                Some(strategy) => {
+                    if let Some(ts) = strategy.imp {
+                        impls.extend(ts);
+                    }
+
+                    if let Some(derive_tr) = strategy.derive {
+                        if let Some(path) = derive_tr.derive_path() {
+                            derived_traits.push(path);
+                        }
+                    }
                 }
-                (Some(t), None) => {
-                    impls.extend(t);
-                }
-                (None, Some(a)) => {
+                None => {
+                    // No impl strategy; fallback to deriving the trait if it supports it
                     if let Some(path) = tr.derive_path() {
                         derived_traits.push(path);
+                    } else if attr.is_none() {
+                        panic!("Trait `{tr:?}` has no impl, derive, or attributes.");
                     }
-                    attrs.push(a);
                 }
-                (None, None) => {
-                    // Enforce that at least one strategy is defined
-                    derived_traits.push(tr.derive_path().unwrap_or_else(|| {
-                        panic!("trait '{tr}' has no derive, impl, or attributes")
-                    }));
-                }
+            }
+
+            if let Some(attr_tokens) = attr {
+                attrs.push(attr_tokens);
             }
         }
 
@@ -80,6 +85,7 @@ pub trait HasMacro: HasSchema + HasTraits + HasType {
                 #[derive(#(#derived_traits),*)]
             }
         };
+
         derive.extend(attrs);
 
         TraitTokens { derive, impls }
@@ -109,7 +115,7 @@ pub trait HasTraits: HasIdent + ToTokens {
     }
 
     /// Maps a trait to its token implementation
-    fn map_trait(&self, _: Trait) -> Option<TokenStream> {
+    fn map_trait(&self, _: Trait) -> Option<TraitStrategy> {
         None
     }
 
@@ -118,13 +124,8 @@ pub trait HasTraits: HasIdent + ToTokens {
         None
     }
 
-    /// Resolves a trait using map_trait or a default implementation
-    fn resolve_trait(&self, tr: Trait) -> Option<TokenStream> {
-        self.map_trait(tr).or_else(|| self.default_trait(tr))
-    }
-
-    /// Provides a default implementation for built-in traits
-    fn default_trait(&self, tr: Trait) -> Option<TokenStream> {
+    /// Provides a default strategy for built-in traits
+    fn default_strategy(&self, tr: Trait) -> Option<TraitStrategy> {
         let ident = self.ident();
 
         match tr {
@@ -134,16 +135,23 @@ pub trait HasTraits: HasIdent + ToTokens {
                     const PATH: &'static str = concat!(module_path!(), "::", stringify!(#ident));
                 };
 
-                Some(Implementor::new(ident, tr).set_tokens(q).to_token_stream())
+                let tokens = Implementor::new(ident, tr).set_tokens(q).to_token_stream();
+
+                Some(TraitStrategy::from_impl(tokens))
             }
 
             // Generate empty impl blocks for marker traits
-            Trait::EntityFixture
+            Trait::CanisterKind
+            | Trait::EntityFixture
             | Trait::EntityIdKind
             | Trait::FieldValue
             | Trait::ValidateAuto
             | Trait::ValidateCustom
-            | Trait::Visitable => Some(Implementor::new(ident, tr).to_token_stream()),
+            | Trait::Visitable => {
+                let tokens = Implementor::new(ident, tr).to_token_stream();
+
+                Some(TraitStrategy::from_impl(tokens))
+            }
 
             // All others fallback to None
             _ => None,

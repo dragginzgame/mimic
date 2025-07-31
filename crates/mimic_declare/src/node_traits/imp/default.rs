@@ -1,9 +1,6 @@
 use crate::{
     node::{Arg, Entity, FieldList, Newtype, Record},
-    node_traits::{
-        Trait,
-        imp::{Imp, Implementor},
-    },
+    node_traits::{Imp, Implementor, Trait, TraitStrategy},
     traits::HasIdent,
 };
 use proc_macro2::TokenStream;
@@ -20,13 +17,13 @@ pub struct DefaultTrait {}
 ///
 
 impl Imp<Entity> for DefaultTrait {
-    fn tokens(node: &Entity) -> Option<TokenStream> {
+    fn strategy(node: &Entity) -> Option<TraitStrategy> {
         let q = field_list(&node.fields);
         let tokens = Implementor::new(node.ident(), Trait::Default)
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -35,13 +32,13 @@ impl Imp<Entity> for DefaultTrait {
 ///
 
 impl Imp<Record> for DefaultTrait {
-    fn tokens(node: &Record) -> Option<TokenStream> {
+    fn strategy(node: &Record) -> Option<TraitStrategy> {
         let q = field_list(&node.fields);
         let tokens = Implementor::new(node.ident(), Trait::Default)
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -73,7 +70,7 @@ fn field_list(fields: &FieldList) -> TokenStream {
 ///
 
 impl Imp<Newtype> for DefaultTrait {
-    fn tokens(node: &Newtype) -> Option<TokenStream> {
+    fn strategy(node: &Newtype) -> Option<TraitStrategy> {
         let inner = match &node.default {
             Some(arg) => format_default(arg),
             None => panic!("newtype {} is missing a default value", node.def.ident),
@@ -90,7 +87,7 @@ impl Imp<Newtype> for DefaultTrait {
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 

@@ -1,6 +1,6 @@
 use crate::{
     node::Entity,
-    node_traits::{Imp, Implementor, Trait},
+    node_traits::{Imp, Implementor, Trait, TraitStrategy},
     traits::{HasIdent, HasTypePart},
 };
 use proc_macro2::{Span, TokenStream};
@@ -14,7 +14,7 @@ use syn::LitStr;
 pub struct EntityKindTrait {}
 
 impl Imp<Entity> for EntityKindTrait {
-    fn tokens(node: &Entity) -> Option<TokenStream> {
+    fn strategy(node: &Entity) -> Option<TraitStrategy> {
         let store = &node.store;
         let index_idents = &node.indexes;
         let pk_field = &node.primary_key.to_string();
@@ -50,7 +50,7 @@ impl Imp<Entity> for EntityKindTrait {
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 

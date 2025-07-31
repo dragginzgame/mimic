@@ -1,6 +1,6 @@
 use crate::{
     node::{Entity, Enum, EnumValue, FieldList, List, Map, Newtype, Record, Set, Tuple},
-    node_traits::{Imp, Implementor, Trait},
+    node_traits::{Imp, Implementor, Trait, TraitStrategy},
     traits::{HasIdent, HasType, HasTypePart},
 };
 use proc_macro2::TokenStream;
@@ -18,18 +18,16 @@ pub struct TypeViewTrait {}
 ///
 
 impl Imp<Entity> for TypeViewTrait {
-    fn tokens(node: &Entity) -> Option<TokenStream> {
+    fn strategy(node: &Entity) -> Option<TraitStrategy> {
         let view_ident = &node.view_ident();
 
         // tokens
         let q = field_list(view_ident, &node.fields);
-        let type_view = Implementor::new(node.ident(), Trait::TypeView)
+        let tokens = Implementor::new(node.ident(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
-        Some(quote! {
-            #type_view
-        })
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -38,7 +36,7 @@ impl Imp<Entity> for TypeViewTrait {
 ///
 
 impl Imp<Enum> for TypeViewTrait {
-    fn tokens(node: &Enum) -> Option<TokenStream> {
+    fn strategy(node: &Enum) -> Option<TraitStrategy> {
         let view_ident = &node.view_ident();
 
         // to_view_arms
@@ -90,13 +88,11 @@ impl Imp<Enum> for TypeViewTrait {
         };
 
         // tokens
-        let type_view = Implementor::new(node.ident(), Trait::TypeView)
+        let tokens = Implementor::new(node.ident(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
-        Some(quote! {
-            #type_view
-        })
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -105,7 +101,7 @@ impl Imp<Enum> for TypeViewTrait {
 ///
 
 impl Imp<EnumValue> for TypeViewTrait {
-    fn tokens(node: &EnumValue) -> Option<TokenStream> {
+    fn strategy(node: &EnumValue) -> Option<TraitStrategy> {
         let view_ident = node.view_ident();
 
         // to_view_arms
@@ -143,13 +139,11 @@ impl Imp<EnumValue> for TypeViewTrait {
         };
 
         // tokens
-        let type_view = Implementor::new(node.ident(), Trait::TypeView)
+        let tokens = Implementor::new(node.ident(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
-        Some(quote! {
-            #type_view
-        })
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -158,18 +152,16 @@ impl Imp<EnumValue> for TypeViewTrait {
 ///
 
 impl Imp<List> for TypeViewTrait {
-    fn tokens(node: &List) -> Option<TokenStream> {
+    fn strategy(node: &List) -> Option<TraitStrategy> {
         let view_ident = &node.view_ident();
 
         // tokens
         let q = quote_typeview_linear(view_ident);
-        let type_view = Implementor::new(node.ident(), Trait::TypeView)
+        let tokens = Implementor::new(node.ident(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
-        Some(quote! {
-            #type_view
-        })
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -178,20 +170,18 @@ impl Imp<List> for TypeViewTrait {
 ///
 
 impl Imp<Map> for TypeViewTrait {
-    fn tokens(node: &Map) -> Option<TokenStream> {
+    fn strategy(node: &Map) -> Option<TraitStrategy> {
         let view_ident = &node.view_ident();
         let key = &node.key.type_part();
         let value = &node.value.type_part();
 
         // tokens
         let q = quote_typeview_map(view_ident, &quote!(#key), &quote!(#value));
-        let type_view = Implementor::new(node.ident(), Trait::TypeView)
+        let tokens = Implementor::new(node.ident(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
-        Some(quote! {
-            #type_view
-        })
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 ///
@@ -199,7 +189,7 @@ impl Imp<Map> for TypeViewTrait {
 ///
 
 impl Imp<Newtype> for TypeViewTrait {
-    fn tokens(node: &Newtype) -> Option<TokenStream> {
+    fn strategy(node: &Newtype) -> Option<TraitStrategy> {
         let view_ident = &node.view_ident();
 
         let from_view = if node.item.is_primitive() {
@@ -221,13 +211,11 @@ impl Imp<Newtype> for TypeViewTrait {
         };
 
         // tokens
-        let type_view = Implementor::new(node.ident(), Trait::TypeView)
+        let tokens = Implementor::new(node.ident(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
-        Some(quote! {
-            #type_view
-        })
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -236,17 +224,15 @@ impl Imp<Newtype> for TypeViewTrait {
 ///
 
 impl Imp<Record> for TypeViewTrait {
-    fn tokens(node: &Record) -> Option<TokenStream> {
+    fn strategy(node: &Record) -> Option<TraitStrategy> {
         let view_ident = &node.view_ident();
         let q = field_list(view_ident, &node.fields);
 
-        let type_view = Implementor::new(node.ident(), Trait::TypeView)
+        let tokens = Implementor::new(node.ident(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
-        Some(quote! {
-            #type_view
-        })
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -255,17 +241,15 @@ impl Imp<Record> for TypeViewTrait {
 ///
 
 impl Imp<Set> for TypeViewTrait {
-    fn tokens(node: &Set) -> Option<TokenStream> {
+    fn strategy(node: &Set) -> Option<TraitStrategy> {
         let view_ident = &node.view_ident();
 
         let q = quote_typeview_linear(view_ident);
-        let type_view = Implementor::new(node.ident(), Trait::TypeView)
+        let tokens = Implementor::new(node.ident(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
-        Some(quote! {
-            #type_view
-        })
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 
@@ -274,7 +258,7 @@ impl Imp<Set> for TypeViewTrait {
 ///
 
 impl Imp<Tuple> for TypeViewTrait {
-    fn tokens(node: &Tuple) -> Option<TokenStream> {
+    fn strategy(node: &Tuple) -> Option<TraitStrategy> {
         let ident = node.ident();
         let view_ident = node.view_ident();
 
@@ -310,13 +294,11 @@ impl Imp<Tuple> for TypeViewTrait {
             }
         };
 
-        let type_view = Implementor::new(ident, Trait::TypeView)
+        let tokens = Implementor::new(ident, Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
-        Some(quote! {
-            #type_view
-        })
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 

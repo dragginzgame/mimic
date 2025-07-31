@@ -1,9 +1,8 @@
 use crate::{
     node::Newtype,
-    node_traits::{Imp, Implementor, Trait},
+    node_traits::{Imp, Implementor, Trait, TraitStrategy},
     traits::HasIdent,
 };
-use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 ///
@@ -17,7 +16,7 @@ pub struct FieldValueTrait {}
 ///
 
 impl Imp<Newtype> for FieldValueTrait {
-    fn tokens(node: &Newtype) -> Option<TokenStream> {
+    fn strategy(node: &Newtype) -> Option<TraitStrategy> {
         let q = quote! {
             fn to_value(&self) -> ::mimic::core::value::Value {
                 self.0.to_value()
@@ -28,6 +27,6 @@ impl Imp<Newtype> for FieldValueTrait {
             .set_tokens(q)
             .to_token_stream();
 
-        Some(tokens)
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
