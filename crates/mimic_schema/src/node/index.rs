@@ -1,6 +1,6 @@
 use crate::{
     build::schema_read,
-    node::{Def, MacroNode, Store, ValidateNode, VisitableNode},
+    node::{MacroNode, Store, ValidateNode, VisitableNode},
     types::StoreType,
 };
 use mimic_common::error::ErrorTree;
@@ -13,9 +13,7 @@ use std::ops::Not;
 
 #[derive(Clone, Debug, Serialize)]
 pub struct Index {
-    pub def: Def,
     pub store: &'static str,
-    pub entity: &'static str,
     pub fields: &'static [&'static str],
 
     #[serde(default, skip_serializing_if = "Not::not")]

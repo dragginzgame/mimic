@@ -1,7 +1,7 @@
 use crate::{
     node::Entity,
     node_traits::{Imp, Implementor, Trait, TraitStrategy},
-    traits::{HasIdent, HasTypePart},
+    traits::{HasIdent, HasSchemaPart, HasTypePart},
 };
 use proc_macro2::{Span, TokenStream};
 use quote::{ToTokens, quote};
@@ -16,7 +16,6 @@ pub struct EntityKindTrait {}
 impl Imp<Entity> for EntityKindTrait {
     fn strategy(node: &Entity) -> Option<TraitStrategy> {
         let store = &node.store;
-        let index_idents = &node.indexes;
         let pk_field = &node.primary_key.to_string();
 
         let pk_type = &node
@@ -26,21 +25,28 @@ impl Imp<Entity> for EntityKindTrait {
             .value
             .type_part();
 
-        // don't remove fields, it will be super handy
+        // future note: don't remove fields, it will be super handy
         let fields: Vec<LitStr> = node
             .fields
             .iter()
             .map(|f| LitStr::new(&f.ident.to_string(), Span::call_site()))
             .collect();
 
+        // indexes
+        let indexes = &node
+            .indexes
+            .iter()
+            .map(|index| index.schema_part())
+            .collect::<Vec<_>>();
+
         // static definitions
         let mut q = quote! {
             type Store = #store;
             type PrimaryKey = #pk_type;
-            type Indexes = (#(#index_idents),*);
 
             const PRIMARY_KEY: &'static str = #pk_field;
             const FIELDS: &'static [&'static str]  = &[#(#fields),*];
+            const INDEXES: &'static [&'static ::mimic::schema::node::Index]  = &[#(&#indexes),*];
         };
 
         // impls

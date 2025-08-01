@@ -152,8 +152,8 @@ pub struct ContainsManyRelations {}
 #[entity(
     store = "TestDataStore",
     pk = "id",
-    index = "IndexA",
-    index = "IndexB",
+    index(store = "TestIndexStore", fields = "x"),
+    index(store = "TestIndexStore", fields = "y", unique),
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(name = "x", value(item(prim = "Int32"))),
@@ -173,12 +173,6 @@ impl Index {
     }
 }
 
-#[index(store = "TestIndexStore", entity = "Index", fields = "x")]
-pub struct IndexB {}
-
-#[index(store = "TestIndexStore", entity = "Index", fields = "y", unique)]
-pub struct IndexA {}
-
 ///
 /// IndexWithFixtures
 ///
@@ -186,8 +180,8 @@ pub struct IndexA {}
 #[entity(
     store = "TestDataStore",
     pk = "id",
-    index = "IndexWithFixturesX",
-    index = "IndexWithFixturesY",
+    index(store = "TestIndexStore", fields = "x"),
+    index(store = "TestIndexStore", fields = "y", unique),
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(name = "x", value(item(prim = "Int32"))),
@@ -197,17 +191,6 @@ pub struct IndexA {}
     traits(remove(EntityFixture))
 )]
 pub struct IndexWithFixtures {}
-
-#[index(entity = "IndexWithFixtures", store = "TestIndexStore", fields = "x")]
-pub struct IndexWithFixturesX {}
-
-#[index(
-    entity = "IndexWithFixtures",
-    store = "TestIndexStore",
-    fields = "y",
-    unique
-)]
-pub struct IndexWithFixturesY {}
 
 impl EntityFixture for IndexWithFixtures {
     fn insert_fixtures(db: Db) {
@@ -257,7 +240,7 @@ impl EntityFixture for IndexWithFixtures {
 #[entity(
     store = "TestDataStore",
     pk = "id",
-    index = "IndexRelationA",
+    index(store = "TestIndexStore", fields = "rarity_id"),
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(
@@ -268,13 +251,6 @@ impl EntityFixture for IndexWithFixtures {
 )]
 pub struct IndexRelation {}
 
-#[index(
-    store = "TestIndexStore",
-    entity = "IndexRelation",
-    fields = "rarity_id"
-)]
-pub struct IndexRelationA {}
-
 ///
 /// IndexUniqueOpt
 ///
@@ -282,18 +258,10 @@ pub struct IndexRelationA {}
 #[entity(
     store = "TestDataStore",
     pk = "id",
-    index = "IndexUniqueOptA",
+    index(store = "TestIndexStore", fields = "value", unique),
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(name = "value", value(opt, item(prim = "Nat8")))
     )
 )]
 pub struct IndexUniqueOpt {}
-
-#[index(
-    store = "TestIndexStore",
-    entity = "IndexUniqueOpt",
-    fields = "value",
-    unique
-)]
-pub struct IndexUniqueOptA {}

@@ -2,11 +2,10 @@ use crate::{
     Error,
     core::{
         Key, Value, deserialize,
-        traits::{EntityKind, IndexKindTuple, Path},
+        traits::{EntityKind, Path},
     },
     db::{
         DbError,
-        executor::IndexAction,
         query::{DeleteQuery, FilterBuilder, QueryPlan, QueryPlanner, QueryValidate},
         store::{DataKey, DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
@@ -114,7 +113,7 @@ impl DeleteExecutor {
                     s.remove(&dk);
 
                     // if there are indexes we need to find and destroy them
-                    if E::Indexes::HAS_INDEXES {
+                    if !E::INDEXES.is_empty() {
                         let entity: E = deserialize(&data_value.bytes)?;
                         self.remove_indexes::<E>(&entity)?;
                     }
@@ -161,18 +160,14 @@ impl DeleteExecutor {
                     .collect()
             }),
 
-            QueryPlan::Index(index_plan) => {
+            QueryPlan::Index(plan) => {
+                let index = plan.index;
+
                 let index_store = self
                     .index_registry
-                    .with(|reg| reg.try_get_store(index_plan.store_path))?;
+                    .with(|reg| reg.try_get_store(index.store))?;
 
-                index_store.with_borrow(|istore| {
-                    istore.resolve_data_keys::<E>(
-                        index_plan.index_path,
-                        index_plan.index_fields,
-                        &index_plan.keys,
-                    )
-                })
+                index_store.with_borrow(|istore| istore.resolve_data_keys::<E>(index, &plan.keys))
             }
         };
 
@@ -188,11 +183,16 @@ impl DeleteExecutor {
 
     // remove_indexes
     fn remove_indexes<E: EntityKind>(&self, entity: &E) -> Result<(), DbError> {
-        let mut action = IndexAction::Remove {
-            entity,
-            registry: &self.index_registry,
-        };
+        for index in E::INDEXES {
+            let store = self
+                .index_registry
+                .with(|reg| reg.try_get_store(index.store))?;
 
-        E::Indexes::for_each(&mut action)
+            store.with_borrow_mut(|this| {
+                this.remove_index_entry(entity, index);
+            });
+        }
+
+        Ok(())
     }
 }

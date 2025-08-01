@@ -19,6 +19,7 @@ use crate::{
     common::error::ErrorTree,
     core::{Key, Value, types::Ulid, visit::Visitor},
     db::Db,
+    schema::node::Index,
 };
 
 ///
@@ -69,11 +70,11 @@ pub trait CanisterKind: Kind {}
 
 pub trait EntityKind: Kind + TypeKind + FieldValues {
     type Store: StoreKind;
-    type Indexes: IndexKindTuple;
     type PrimaryKey: Copy + Clone;
 
     const PRIMARY_KEY: &'static str;
     const FIELDS: &'static [&'static str];
+    const INDEXES: &'static [&'static Index];
 
     fn key(&self) -> Key;
 }
@@ -111,60 +112,6 @@ pub trait EnumValueKind: Kind {
 
 pub trait FieldKind: Kind + FieldValue {}
 impl<T: Kind + FieldValue> FieldKind for T {}
-
-///
-/// IndexKind
-///
-
-pub trait IndexKind: Kind {
-    type Store: StoreKind;
-    type Entity: EntityKind;
-
-    const FIELDS: &'static [&'static str];
-    const UNIQUE: bool;
-}
-
-// Trait to represent a compile-time operation on a single index type
-pub trait IndexKindFn {
-    type Error;
-
-    fn apply<I: IndexKind>(&mut self) -> Result<(), Self::Error>;
-}
-
-// Trait implemented for tuples of IndexKind types
-pub trait IndexKindTuple {
-    const HAS_INDEXES: bool;
-
-    fn for_each<F: IndexKindFn>(f: &mut F) -> Result<(), F::Error>;
-}
-
-impl IndexKindTuple for () {
-    const HAS_INDEXES: bool = false;
-
-    fn for_each<F: IndexKindFn>(_: &mut F) -> Result<(), F::Error> {
-        Ok(())
-    }
-}
-
-macro_rules! impl_index_kind_tuple {
-    ( $( $name:ident ),+ ) => {
-        #[allow(unused_parens)]
-        impl< $( $name: IndexKind ),+ > IndexKindTuple for ( $( $name ),+ ) {
-            const HAS_INDEXES: bool = true;
-
-            fn for_each<F: IndexKindFn>(f: &mut F) -> Result<(), F::Error> {
-                $( f.apply::<$name>()?; )+
-
-                Ok(())
-            }
-        }
-    };
-}
-
-impl_index_kind_tuple!(I1);
-impl_index_kind_tuple!(I1, I2);
-impl_index_kind_tuple!(I1, I2, I3);
-impl_index_kind_tuple!(I1, I2, I3, I4);
 
 ///
 /// StoreKind

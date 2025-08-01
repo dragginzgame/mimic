@@ -165,12 +165,11 @@ impl LoadExecutor {
                 // get the index store
                 let index_store = self
                     .index_registry
-                    .with(|reg| reg.try_get_store(plan.store_path))?;
+                    .with(|reg| reg.try_get_store(plan.index.store))?;
 
                 // resolve keys
-                let keys = index_store.with_borrow(|istore| {
-                    istore.resolve_data_keys::<E>(plan.index_path, plan.index_fields, &plan.keys)
-                });
+                let keys = index_store
+                    .with_borrow(|istore| istore.resolve_data_keys::<E>(plan.index, &plan.keys));
 
                 Self::load_many(store, &keys)
             }

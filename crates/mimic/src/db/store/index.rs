@@ -1,12 +1,10 @@
 use crate::{
     common::utils::hash::hash_u64,
-    core::{
-        Key,
-        traits::{EntityKind, IndexKind},
-    },
+    core::{Key, traits::EntityKind},
     db::{executor::ExecutorError, store::DataKey},
     debug,
     ic::structures::{BTreeMap, DefaultMemory},
+    schema::node::Index,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, Display};
@@ -40,14 +38,15 @@ impl IndexStore {
     /// Inserts the given entity into the index defined by `I`.
     /// - If `I::UNIQUE`, insertion will fail if a conflicting entry already exists.
     /// - If the entity is missing required fields for this index, insertion is skipped.
-    pub fn insert_index_entry<I: IndexKind>(
+    pub fn insert_index_entry<E: EntityKind>(
         &mut self,
-        entity: &impl EntityKind,
+        entity: &E,
+        index: &Index,
     ) -> Result<(), ExecutorError> {
         let debug = false;
 
         // Skip if index key can't be built (e.g. optional fields missing)
-        let Some(index_key) = IndexKey::build::<I>(entity) else {
+        let Some(index_key) = IndexKey::new(entity, index) else {
             return Ok(());
         };
         let key = entity.key();
@@ -55,13 +54,17 @@ impl IndexStore {
         if let Some(existing) = self.get(&index_key) {
             let mut updated = existing;
 
-            if I::UNIQUE {
+            if index.unique {
                 if !updated.contains(&key) && !updated.is_empty() {
-                    debug!(debug, "index.insert: unique violation at {index_key}");
+                    debug!(
+                        debug,
+                        "existing entry for index {index_key:?} = {:?}",
+                        updated.to_sorted_vec()
+                    );
                     return Err(ExecutorError::IndexViolation(index_key));
                 }
 
-                self.insert(index_key.clone(), IndexEntry::new(I::FIELDS, key));
+                self.insert(index_key.clone(), IndexEntry::new(index.fields, key));
                 debug!(
                     debug,
                     "index.insert: unique index updated {index_key} -> {key}"
@@ -76,7 +79,7 @@ impl IndexStore {
                 );
             }
         } else {
-            self.insert(index_key.clone(), IndexEntry::new(I::FIELDS, key));
+            self.insert(index_key.clone(), IndexEntry::new(index.fields, key));
             debug!(
                 debug,
                 "index.insert: created new entry {index_key} -> {key}"
@@ -87,14 +90,15 @@ impl IndexStore {
     }
 
     // remove_index_entry
-    pub fn remove_index_entry<I: IndexKind>(
+    pub fn remove_index_entry(
         &mut self,
         entity: &impl EntityKind,
+        index: &Index,
     ) -> Option<IndexEntry> {
         let debug = false;
 
         // Skip if index key can't be built (e.g. optional fields missing)
-        let index_key = IndexKey::build::<I>(entity)?;
+        let index_key = IndexKey::new(entity, index)?;
         let key = entity.key();
 
         if let Some(existing) = self.get(&index_key) {
@@ -102,11 +106,12 @@ impl IndexStore {
             let removed = updated.remove_key(&key);
             debug!(
                 debug,
-                "index.remove: removed {key} from {index_key} (was present? {removed})"
+                "index.remove: removed {key} from {index_key} (was: {removed})"
             );
 
             if updated.is_empty() {
                 debug!(debug, "index.remove: {index_key} is empty — removing");
+
                 self.remove(&index_key)
             } else {
                 self.insert(index_key.clone(), updated.clone());
@@ -121,25 +126,19 @@ impl IndexStore {
         }
     }
 
-    pub fn resolve_data_keys<E: EntityKind>(
-        &self,
-        index_path: &str,
-        index_fields: &[&str],
-        prefix: &[Key],
-    ) -> Vec<DataKey> {
-        self.range_with_prefix(index_path, index_fields, prefix)
+    pub fn resolve_data_keys<E: EntityKind>(&self, index: &Index, prefix: &[Key]) -> Vec<DataKey> {
+        self.range_with_prefix::<E>(index, prefix)
             .flat_map(|(_, entry)| entry.keys)
             .map(|key| DataKey::new::<E>(key))
             .collect()
     }
 
-    pub fn range_with_prefix(
+    pub fn range_with_prefix<E: EntityKind>(
         &self,
-        index_path: &str,
-        index_fields: &[&str],
+        index: &Index,
         prefix: &[Key],
     ) -> impl Iterator<Item = (IndexKey, IndexEntry)> {
-        let index_id = IndexId::new(index_path, index_fields);
+        let index_id = IndexId::new::<E>(index);
 
         self.range(
             IndexKey {
@@ -177,7 +176,11 @@ pub struct IndexId(u64);
 
 impl IndexId {
     #[must_use]
-    pub fn new(path: &str, fields: &[&str]) -> Self {
+    pub fn new<E: EntityKind>(index: &Index) -> Self {
+        Self::from_path_and_fields(E::PATH, index.fields)
+    }
+
+    fn from_path_and_fields(path: &str, fields: &[&str]) -> Self {
         let mut buffer = Vec::new();
 
         // much more efficient than format
@@ -191,13 +194,8 @@ impl IndexId {
     }
 
     #[must_use]
-    pub fn from_index<I: IndexKind>() -> Self {
-        Self::new(I::PATH, I::FIELDS)
-    }
-
-    #[must_use]
     pub fn max_storable() -> Self {
-        Self::new(
+        Self::from_path_and_fields(
             "path::to::long::entity::name::Entity",
             &[
                 "long_field_one",
@@ -226,14 +224,11 @@ impl IndexKey {
     pub const STORABLE_MAX_SIZE: u32 = 256;
 
     #[must_use]
-    pub fn build<I>(entity: &impl EntityKind) -> Option<Self>
-    where
-        I: IndexKind,
-    {
-        let mut keys = Vec::with_capacity(I::FIELDS.len());
+    pub fn new<E: EntityKind>(entity: &E, index: &Index) -> Option<Self> {
+        let mut keys = Vec::with_capacity(index.fields.len());
 
         // get each value and convert to key
-        for field in I::FIELDS {
+        for field in index.fields {
             let value = entity.get_value(field)?;
             let key = value.as_key()?;
 
@@ -241,7 +236,7 @@ impl IndexKey {
         }
 
         Some(Self {
-            index_id: IndexId::from_index::<I>(),
+            index_id: IndexId::new::<E>(index),
             keys,
         })
     }

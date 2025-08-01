@@ -7,7 +7,7 @@ use crate::prelude::*;
 #[entity(
     store = "TestDataStore",
     pk = "id",
-    index = "IndexableA",
+    index(store = "TestIndexStore", fields = "pid, ulid, score"),
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
         field(name = "pid", value(item(prim = "Principal"))),
@@ -48,17 +48,6 @@ impl EntityFixture for Indexable {
         }
     }
 }
-
-///
-/// IndexableA
-///
-
-#[index(
-    store = "TestIndexStore",
-    entity = "Indexable",
-    fields = "pid, ulid, score"
-)]
-pub struct IndexableA {}
 
 ///
 /// NotIndexable

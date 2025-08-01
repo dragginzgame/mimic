@@ -218,7 +218,6 @@ pub enum SchemaNodeKind {
     Entity,
     Enum,
     EnumValue,
-    Index,
     List,
     Map,
     Newtype,

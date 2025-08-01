@@ -1,12 +1,10 @@
 use crate::{
-    core::{
-        Key, Value,
-        traits::{EntityKind, IndexKind, IndexKindFn, IndexKindTuple, Path},
-    },
+    core::{Key, Value, traits::EntityKind},
     db::{
         query::{Cmp, FilterExpr},
         store::DataKey,
     },
+    schema::node::Index,
 };
 
 ///
@@ -26,22 +24,8 @@ pub enum QueryPlan {
 
 #[derive(Debug)]
 pub struct IndexPlan {
-    pub store_path: &'static str,
-    pub index_path: &'static str,
-    pub index_fields: &'static [&'static str],
+    pub index: &'static Index,
     pub keys: Vec<Key>,
-}
-
-impl IndexPlan {
-    #[must_use]
-    pub const fn new<I: IndexKind>(keys: Vec<Key>) -> Self {
-        Self {
-            store_path: I::Store::PATH,
-            index_path: I::PATH,
-            index_fields: I::FIELDS,
-            keys,
-        }
-    }
 }
 
 ///
@@ -71,7 +55,7 @@ impl QueryPlanner {
 
         // check for index matches
         // THIS WILL DO THE INDEX LOOKUPS
-        if E::Indexes::HAS_INDEXES
+        if !E::INDEXES.is_empty()
             && let Some(plan) = self.extract_from_index::<E>()
         {
             return plan;
@@ -129,14 +113,43 @@ impl QueryPlanner {
             return None;
         };
 
-        let mut matcher = IndexMatcher::new(filter);
+        let mut best: Option<IndexMatch> = None;
 
-        E::Indexes::for_each(&mut matcher).ok()?;
+        for index in E::INDEXES {
+            let mut keys = Vec::new();
 
-        if let Some(best_match) = matcher.best_match {
-            best_match.plan.map(QueryPlan::Index)
-        } else {
-            None
+            for field in index.fields {
+                match Self::find_eq_clause(filter, field) {
+                    Some(k) => keys.push(k),
+                    None => break, // stop at first non-match
+                }
+            }
+
+            // get score
+            let score = keys.len() as u32;
+            let plan = IndexPlan { index, keys };
+
+            let new_match = IndexMatch {
+                plan: Some(plan),
+                fields_matched: score,
+            };
+
+            match &best {
+                Some(existing) if existing.score() >= new_match.score() => {}
+                _ => best = Some(new_match),
+            }
+        }
+
+        best.and_then(|m| m.plan).map(QueryPlan::Index)
+    }
+
+    fn find_eq_clause(filter: &FilterExpr, field: &str) -> Option<Key> {
+        match filter {
+            FilterExpr::Clause(c) if c.field == field && matches!(c.cmp, Cmp::Eq) => {
+                Some(c.value.as_key()?)
+            }
+            FilterExpr::And(list) => list.iter().find_map(|f| Self::find_eq_clause(f, field)),
+            _ => None,
         }
     }
 }
@@ -155,64 +168,5 @@ impl IndexMatch {
     // ✅ Consider extracting plan_priority_score (future-proofing)
     pub const fn score(&self) -> u32 {
         self.fields_matched
-    }
-}
-
-///
-/// IndexMatcher
-///
-
-struct IndexMatcher {
-    pub filter: FilterExpr,
-    pub best_match: Option<IndexMatch>,
-}
-
-impl IndexMatcher {
-    fn new(filter: &FilterExpr) -> Self {
-        Self {
-            filter: filter.clone(),
-            best_match: None,
-        }
-    }
-
-    fn find_eq_clause(filter: &FilterExpr, field: &str) -> Option<Key> {
-        match filter {
-            FilterExpr::Clause(c) if c.field == field && matches!(c.cmp, Cmp::Eq) => {
-                Some(c.value.as_key()?)
-            }
-            FilterExpr::And(list) => list.iter().find_map(|f| Self::find_eq_clause(f, field)),
-            _ => None,
-        }
-    }
-}
-
-impl IndexKindFn for IndexMatcher {
-    type Error = ();
-
-    fn apply<I: IndexKind>(&mut self) -> Result<(), Self::Error> {
-        // Match all fields in the index
-        let mut keys = Vec::new();
-        for &field in I::FIELDS {
-            match Self::find_eq_clause(&self.filter, field) {
-                Some(k) => keys.push(k),
-                None => break, // stop at first non-match
-            }
-        }
-
-        #[allow(clippy::cast_possible_truncation)]
-        let fields_matched = keys.len() as u32;
-
-        // set the match
-        let new = IndexMatch {
-            plan: Some(IndexPlan::new::<I>(keys)),
-            fields_matched,
-        };
-
-        match &self.best_match {
-            Some(existing) if existing.score() >= new.score() => {} // existing is better so skip
-            _ => self.best_match = Some(new),
-        }
-
-        Ok(())
     }
 }

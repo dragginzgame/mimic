@@ -2,12 +2,12 @@ use crate::{
     Error,
     core::{
         Key, deserialize, serialize,
-        traits::{EntityKind, IndexKindTuple, Path},
+        traits::{EntityKind, Path},
         validate::validate,
     },
     db::{
         DbError,
-        executor::{ExecutorError, IndexAction},
+        executor::ExecutorError,
         query::{SaveMode, SaveQuery},
         response::EntityEntry,
         store::{DataEntry, DataKey, DataStoreRegistryLocal, IndexStoreRegistryLocal, Metadata},
@@ -22,18 +22,21 @@ use icu::utils::time::now_secs;
 
 #[derive(Clone, Copy, Debug)]
 pub struct SaveExecutor {
-    data: DataStoreRegistryLocal,
-    indexes: IndexStoreRegistryLocal,
+    data_registry: DataStoreRegistryLocal,
+    index_registry: IndexStoreRegistryLocal,
     debug: bool,
 }
 
 impl SaveExecutor {
     // new
     #[must_use]
-    pub const fn new(data: DataStoreRegistryLocal, indexes: IndexStoreRegistryLocal) -> Self {
+    pub const fn new(
+        data_registry: DataStoreRegistryLocal,
+        index_registry: IndexStoreRegistryLocal,
+    ) -> Self {
         Self {
-            data,
-            indexes,
+            data_registry,
+            index_registry,
             debug: false,
         }
     }
@@ -86,7 +89,9 @@ impl SaveExecutor {
     // execute_internal
     fn execute_internal<E: EntityKind>(&self, mode: SaveMode, entity: E) -> Result<Key, DbError> {
         let key = entity.key();
-        let store = self.data.with(|data| data.try_get_store(E::Store::PATH))?;
+        let store = self
+            .data_registry
+            .with(|reg| reg.try_get_store(E::Store::PATH))?;
 
         // validate
         validate(&entity)?;
@@ -133,10 +138,8 @@ impl SaveExecutor {
         // now we can serialize
         let bytes = serialize(&entity)?;
 
-        // update indexes, fail if there are any unique violations
-        if E::Indexes::HAS_INDEXES {
-            self.update_indexes(old.as_ref(), &entity)?;
-        }
+        // replace indexes, fail if there are any unique violations
+        self.replace_indexes(old.as_ref(), &entity)?;
 
         // prepare data
         let entry = DataEntry {
@@ -152,14 +155,24 @@ impl SaveExecutor {
         Ok(key)
     }
 
-    // update_indexes
-    fn update_indexes<E: EntityKind>(&self, old: Option<&E>, new: &E) -> Result<(), DbError> {
-        let mut action = IndexAction::Update {
-            old,
-            new,
-            registry: &self.indexes,
-        };
+    // replace_indexes
+    fn replace_indexes<E: EntityKind>(&self, old: Option<&E>, new: &E) -> Result<(), DbError> {
+        for index in E::INDEXES {
+            let store = self
+                .index_registry
+                .with(|reg| reg.try_get_store(index.store))?;
 
-        E::Indexes::for_each(&mut action)
+            store.with_borrow_mut(|s| {
+                // remove first
+                if let Some(old) = old {
+                    s.remove_index_entry(old, index);
+                }
+                s.insert_index_entry(new, index)?;
+
+                Ok::<(), DbError>(())
+            })?;
+        }
+
+        Ok(())
     }
 }

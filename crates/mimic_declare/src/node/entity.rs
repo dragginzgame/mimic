@@ -1,6 +1,6 @@
 use crate::{
     helper::{quote_one, quote_slice, to_path, to_str_lit},
-    node::{Def, FieldList, Type},
+    node::{Def, FieldList, Index, Type},
     node_traits::{Trait, TraitStrategy, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
@@ -27,7 +27,7 @@ pub struct Entity {
     pub primary_key: Ident,
 
     #[darling(multiple, rename = "index")]
-    pub indexes: Vec<Path>,
+    pub indexes: Vec<Index>,
 
     #[darling(default)]
     pub fields: FieldList,
@@ -56,7 +56,7 @@ impl HasSchemaPart for Entity {
         let def = &self.def.schema_part();
         let store = quote_one(&self.store, to_path);
         let primary_key = quote_one(&self.primary_key, to_str_lit);
-        let indexes = quote_slice(&self.indexes, to_path);
+        let indexes = quote_slice(&self.indexes, Index::schema_part);
         let fields = &self.fields.schema_part();
         let ty = &self.ty.schema_part();
 

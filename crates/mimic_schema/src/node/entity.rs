@@ -20,7 +20,7 @@ pub struct Entity {
     pub primary_key: &'static str,
 
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-    pub indexes: &'static [&'static str],
+    pub indexes: &'static [Index],
 
     pub fields: FieldList,
     pub ty: Type,
@@ -61,19 +61,14 @@ impl ValidateNode for Entity {
         let mut resolved_indexes = Vec::new();
 
         // check indexes have proper fields
-        for index_path in self.indexes {
-            match schema.try_get_node_as::<Index>(index_path) {
-                Ok(index) => {
-                    // Check all fields in the index exist on the entity
-                    for field in index.fields {
-                        if self.fields.get(field).is_none() {
-                            errs.add(format!("index field '{field}' not found"));
-                        }
-                    }
-                    resolved_indexes.push(index);
+        for index in self.indexes {
+            // Check all fields in the index exist on the entity
+            for field in index.fields {
+                if self.fields.get(field).is_none() {
+                    errs.add(format!("index field '{field}' not found"));
                 }
-                Err(e) => errs.add(e),
             }
+            resolved_indexes.push(index);
         }
 
         // Check for redundant indexes (prefix relationships)
