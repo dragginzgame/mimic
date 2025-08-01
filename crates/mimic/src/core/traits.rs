@@ -70,7 +70,6 @@ pub trait CanisterKind: Kind {}
 
 pub trait EntityKind: Kind + TypeKind + FieldValues {
     type Store: StoreKind;
-    type PrimaryKey: Copy + Clone;
 
     const PRIMARY_KEY: &'static str;
     const FIELDS: &'static [&'static str];

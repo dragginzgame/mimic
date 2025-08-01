@@ -119,9 +119,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.30"
+version = "1.2.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "deec109607ca693028562ed836a5f1c4b8bd77755c4e132fc5ce11b0b6211ae7"
+checksum = "c3a42d84bb6b69d3a8b3eaacf0d88f179e1929695e1ad012b6cf64d9caaa5fd2"
 dependencies = [
  "shlex",
 ]
@@ -626,7 +626,7 @@ dependencies = [
 [[package]]
 name = "icu"
 version = "0.1.10"
-source = "git+https://github.com/dragginzgame/icu#a8ca414579d6afe829c2f90f5a90c163c8895c9c"
+source = "git+https://github.com/dragginzgame/icu#14bb268bed364121612a0c07dcc8fd0597b0e8c6"
 dependencies = [
  "candid",
  "defer",

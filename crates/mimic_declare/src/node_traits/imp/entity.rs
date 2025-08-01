@@ -1,7 +1,7 @@
 use crate::{
     node::{Entity, Index},
     node_traits::{Imp, Implementor, Trait, TraitStrategy},
-    traits::{HasIdent, HasSchemaPart, HasTypePart},
+    traits::{HasIdent, HasSchemaPart},
 };
 use proc_macro2::{Span, TokenStream};
 use quote::{ToTokens, quote};
@@ -17,13 +17,6 @@ impl Imp<Entity> for EntityKindTrait {
     fn strategy(node: &Entity) -> Option<TraitStrategy> {
         let store = &node.store;
         let pk_field = &node.primary_key.to_string();
-
-        let pk_type = &node
-            .fields
-            .get(&node.primary_key)
-            .unwrap()
-            .value
-            .type_part();
 
         // future note: don't remove fields, it will be super handy
         let fields: Vec<LitStr> = node
@@ -42,7 +35,6 @@ impl Imp<Entity> for EntityKindTrait {
         // static definitions
         let mut q = quote! {
             type Store = #store;
-            type PrimaryKey = #pk_type;
 
             const PRIMARY_KEY: &'static str = #pk_field;
             const FIELDS: &'static [&'static str]  = &[#(#fields),*];
