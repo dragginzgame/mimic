@@ -24,7 +24,7 @@ impl FieldList {
         self.fields.iter().find(|f| f.ident == *ident)
     }
 
-    pub fn len(&self) -> usize {
+    pub const fn len(&self) -> usize {
         self.fields.len()
     }
 

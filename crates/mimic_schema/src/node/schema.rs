@@ -193,7 +193,7 @@ impl Schema {
     }
 
     // get_nodes
-    pub fn get_nodes<'a, T: 'static>(&'a self) -> impl Iterator<Item = (&'a str, &'a T)> + 'a {
+    pub fn get_nodes<T: 'static>(&'_ self) -> impl Iterator<Item = (&'_ str, &'_ T)> + '_ {
         self.nodes.iter().filter_map(|(key, node)| {
             node.as_any()
                 .downcast_ref::<T>()
@@ -202,7 +202,7 @@ impl Schema {
     }
 
     // get_node_values
-    pub fn get_node_values<'a, T: 'static>(&'a self) -> impl Iterator<Item = &'a T> + 'a {
+    pub fn get_node_values<T: 'static>(&'_ self) -> impl Iterator<Item = &'_ T> + '_ {
         self.nodes
             .values()
             .filter_map(|node| node.as_any().downcast_ref::<T>())

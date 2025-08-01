@@ -148,7 +148,7 @@ pub struct LoadMap<T>(HashMap<Key, T>);
 
 impl<T> LoadMap<T> {
     #[must_use]
-    pub fn as_map(&self) -> &HashMap<Key, T> {
+    pub const fn as_map(&self) -> &HashMap<Key, T> {
         &self.0
     }
 

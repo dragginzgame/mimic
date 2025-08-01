@@ -148,9 +148,9 @@ impl<'a> FilterEvaluator<'a> {
 impl<E: EntityKind> QueryValidate<E> for FilterExpr {
     fn validate(&self) -> Result<(), QueryError> {
         match self {
-            FilterExpr::True | FilterExpr::False => Ok(()),
+            Self::True | Self::False => Ok(()),
 
-            FilterExpr::Clause(c) => {
+            Self::Clause(c) => {
                 if !E::FIELDS.contains(&c.field.as_str()) {
                     return Err(QueryError::InvalidFilterField(c.field.clone()));
                 }
@@ -159,14 +159,14 @@ impl<E: EntityKind> QueryValidate<E> for FilterExpr {
                 Ok(())
             }
 
-            FilterExpr::And(children) | FilterExpr::Or(children) => {
+            Self::And(children) | Self::Or(children) => {
                 for expr in children {
                     QueryValidate::<E>::validate(expr)?;
                 }
                 Ok(())
             }
 
-            FilterExpr::Not(inner) => QueryValidate::<E>::validate(inner),
+            Self::Not(inner) => QueryValidate::<E>::validate(inner),
         }
     }
 }

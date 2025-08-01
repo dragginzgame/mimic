@@ -126,6 +126,7 @@ impl QueryPlanner {
             }
 
             // get score
+            #[allow(clippy::cast_possible_truncation)]
             let score = keys.len() as u32;
             let plan = IndexPlan { index, keys };
 

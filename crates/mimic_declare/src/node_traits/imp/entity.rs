@@ -1,5 +1,5 @@
 use crate::{
-    node::Entity,
+    node::{Entity, Index},
     node_traits::{Imp, Implementor, Trait, TraitStrategy},
     traits::{HasIdent, HasSchemaPart, HasTypePart},
 };
@@ -36,7 +36,7 @@ impl Imp<Entity> for EntityKindTrait {
         let indexes = &node
             .indexes
             .iter()
-            .map(|index| index.schema_part())
+            .map(Index::schema_part)
             .collect::<Vec<_>>();
 
         // static definitions

@@ -73,7 +73,7 @@ impl TraitStrategy {
         Self::new().with_impl(tokens)
     }
 
-    pub fn with_derive(mut self, tr: Trait) -> Self {
+    pub const fn with_derive(mut self, tr: Trait) -> Self {
         self.derive = Some(tr);
         self
     }

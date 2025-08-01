@@ -17,7 +17,7 @@ pub struct LimitExpr {
 
 impl LimitExpr {
     #[must_use]
-    pub fn new(limit: u32) -> Self {
+    pub const fn new(limit: u32) -> Self {
         Self {
             limit: Some(limit),
             offset: 0,
@@ -25,7 +25,7 @@ impl LimitExpr {
     }
 
     #[must_use]
-    pub fn with_offset(limit: u32, offset: u32) -> Self {
+    pub const fn with_offset(limit: u32, offset: u32) -> Self {
         Self {
             limit: Some(limit),
             offset,
@@ -33,13 +33,13 @@ impl LimitExpr {
     }
 
     #[must_use]
-    pub fn limit(mut self, limit: u32) -> Self {
+    pub const fn limit(mut self, limit: u32) -> Self {
         self.limit = Some(limit);
         self
     }
 
     #[must_use]
-    pub fn offset(mut self, offset: u32) -> Self {
+    pub const fn offset(mut self, offset: u32) -> Self {
         self.offset = offset;
         self
     }

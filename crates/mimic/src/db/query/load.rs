@@ -26,7 +26,7 @@ impl LoadQuery {
     }
 
     #[must_use]
-    pub fn is_empty(&self) -> bool {
+    pub const fn is_empty(&self) -> bool {
         self.filter.is_none() && self.limit.is_none() && self.sort.is_none()
     }
 

@@ -24,7 +24,7 @@ pub struct Filterable {}
 
 impl Filterable {
     #[must_use]
-    pub fn dummy_principal(n: u8) -> Principal {
+    pub const fn dummy_principal(n: u8) -> Principal {
         Principal::from_slice(&[n; 29])
     }
 }
@@ -54,7 +54,7 @@ impl EntityFixture for Filterable {
                     level: *level,
                     offset: *offset,
                     tags: tags.iter().map(ToString::to_string).collect(),
-                    pid: Filterable::dummy_principal(*pid_index),
+                    pid: Self::dummy_principal(*pid_index),
                     ..Default::default()
                 },
             );
