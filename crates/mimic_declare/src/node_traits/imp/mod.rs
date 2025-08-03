@@ -54,7 +54,7 @@ pub trait ImpFn<N> {
 /// TraitStrategy
 ///
 
-#[derive(Default, Debug)]
+#[derive(Debug, Default)]
 pub struct TraitStrategy {
     pub derive: Option<Trait>,
     pub imp: Option<TokenStream>,
