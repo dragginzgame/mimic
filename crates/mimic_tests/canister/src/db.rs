@@ -122,7 +122,7 @@ impl DbTester {
         }
 
         // Retrieve the count from the store
-        let count = db!().load().count::<CreateBasic>(query::load()).unwrap();
+        let count = db!().load().count_all::<CreateBasic>().unwrap();
 
         // Assert that the count matches the expected number
         assert_eq!(count, ROWS, "Expected {ROWS} keys in the store");
@@ -145,7 +145,7 @@ impl DbTester {
         }
 
         // Retrieve the count from the store
-        let count = db!().load().count::<CreateBlob>(query::load()).unwrap();
+        let count = db!().load().count_all::<CreateBlob>().unwrap();
 
         // Assert that the count matches the expected number
         assert_eq!(count, ROWS, "Expected {ROWS} keys in the store");
@@ -204,7 +204,7 @@ impl DbTester {
         );
 
         // Step 4: Ensure all have been deleted
-        let count_after = db!().load().count::<CreateBasic>(query::load()).unwrap();
+        let count_after = db!().load().count_all::<CreateBasic>().unwrap();
         assert_eq!(count_after, 0, "Expected 0 rows after deletion");
     }
 
@@ -318,7 +318,7 @@ impl DbTester {
         db!().save().create(e5).unwrap();
 
         // Confirm only 3 entities now exist
-        let rows = db!().load().count::<IndexUniqueOpt>(query::load()).unwrap();
+        let rows = db!().load().count_all::<IndexUniqueOpt>().unwrap();
         assert_eq!(rows, 3);
     }
 

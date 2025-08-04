@@ -57,13 +57,11 @@ impl LoadExecutor {
     // these will create a query on the fly
     //
 
-    // one
     pub fn one<E: EntityKind>(&self, value: impl Into<Value>) -> Result<E, Error> {
         self.execute::<E>(LoadQuery::new().one::<E>(value))?
             .try_entity()
     }
 
-    // many
     pub fn many<E, I>(&self, values: I) -> Result<LoadCollection<E>, Error>
     where
         E: EntityKind,
@@ -73,12 +71,10 @@ impl LoadExecutor {
         self.execute::<E>(LoadQuery::new().many::<E, I>(values))
     }
 
-    // all
     pub fn all<E: EntityKind>(&self) -> Result<LoadCollection<E>, Error> {
         self.execute::<E>(LoadQuery::new())
     }
 
-    // filter
     pub fn filter<E: EntityKind>(
         &self,
         f: impl FnOnce(FilterBuilder) -> FilterBuilder,
@@ -86,24 +82,58 @@ impl LoadExecutor {
         self.execute::<E>(LoadQuery::new().filter(f))
     }
 
+    #[allow(clippy::cast_possible_truncation)]
+    pub fn count_all<E: EntityKind>(self) -> Result<u32, Error> {
+        self.count::<E>(LoadQuery::all())
+    }
+
     //
     // EXECUTION LOGIC
     //
 
     /// Execute a full query and return a collection of entities.
-    pub fn execute<E: EntityKind>(self, query: LoadQuery) -> Result<LoadCollection<E>, Error> {
-        let collection = self.execute_internal::<E>(query)?;
+    pub fn execute<E: EntityKind>(&self, query: LoadQuery) -> Result<LoadCollection<E>, Error> {
+        QueryValidate::<E>::validate(&query).map_err(DbError::from)?;
 
-        Ok(collection)
+        let plan = self.build_plan::<E>(query.filter.as_ref());
+        let rows = self.execute_plan::<E>(&plan)?;
+        let entities = Self::finalize_rows::<E>(rows, &query)?;
+
+        Ok(LoadCollection(entities))
     }
 
-    /// Count matching entities using lazy iteration without full deserialization.
+    /// Executes a query and returns only the count
+    /// matching entities using lazy iteration without full deserialization.
     #[allow(clippy::cast_possible_truncation)]
     pub fn count<E: EntityKind>(self, query: LoadQuery) -> Result<u32, Error> {
-        // Only takes filter into account
-        let rows = self.execute_plan::<E>(query.filter.as_ref())?;
+        QueryValidate::<E>::validate(&query).map_err(DbError::from)?;
 
-        // filter or not?
+        let plan = self.build_plan::<E>(query.filter.as_ref());
+
+        match &plan {
+            QueryPlan::Index(index_plan) => {
+                let index_store = self
+                    .index_registry
+                    .with(|reg| reg.try_get_store(index_plan.index.store))
+                    .map_err(DbError::from)?;
+
+                let keys = index_store.with_borrow(|istore| {
+                    istore.resolve_data_keys::<E>(index_plan.index, &index_plan.keys)
+                });
+
+                return Ok(keys.len() as u32);
+            }
+
+            QueryPlan::Keys(keys) => {
+                return Ok(keys.len() as u32);
+            }
+
+            _ => {}
+        }
+
+        // Fallback: range scan with optional filter
+        let rows = self.execute_plan::<E>(&plan)?;
+
         let count = if let Some(filter) = &query.filter {
             let filtered = Self::apply_filter::<E>(
                 rows.into_iter()
@@ -120,56 +150,36 @@ impl LoadExecutor {
         Ok(count)
     }
 
-    /// count_all
-    #[allow(clippy::cast_possible_truncation)]
-    pub fn count_all<E: EntityKind>(self) -> Result<u32, Error> {
-        let rows = self.execute_plan::<E>(None)?;
-
-        Ok(rows.len() as u32)
-    }
-
-    /// Internal query executor: handles plan → data rows → filtering/sorting/pagination
-    fn execute_internal<E: EntityKind>(
-        &self,
-        query: LoadQuery,
-    ) -> Result<LoadCollection<E>, DbError> {
-        // validate query
-        QueryValidate::<E>::validate(&query)?;
-
-        let rows = self.execute_plan::<E>(query.filter.as_ref())?;
-        let entities = Self::finalize_rows::<E>(rows, &query)?;
-
-        Ok(LoadCollection(entities))
-    }
-
-    /// Execute only the raw data plan (no filters/sort/pagination yet)
-    fn execute_plan<E: EntityKind>(
-        &self,
-        filter: Option<&FilterExpr>,
-    ) -> Result<Vec<DataRow>, DbError> {
+    /// Build the plan
+    fn build_plan<E: EntityKind>(&self, filter: Option<&FilterExpr>) -> QueryPlan {
         let planner = QueryPlanner::new(filter);
         let plan = planner.plan::<E>();
 
-        debug!(self.debug, "query.load: plan: {plan:?}");
+        debug!(self.debug, "query.plan: {plan:?}");
 
-        // get store
+        plan
+    }
+
+    /// Execute only the raw data plan (no filters/sort/pagination yet)
+    fn execute_plan<E: EntityKind>(&self, plan: &QueryPlan) -> Result<Vec<DataRow>, Error> {
         let store = self
             .data_registry
-            .with(|reg| reg.try_get_store(E::Store::PATH))?;
+            .with(|reg| reg.try_get_store(E::Store::PATH))
+            .map_err(DbError::from)?;
 
         let shape = match plan {
-            QueryPlan::Keys(keys) => Self::load_many(store, &keys),
-            QueryPlan::Range(start, end) => Self::load_range(store, start, end),
+            QueryPlan::Keys(keys) => Self::load_many(store, keys),
+            QueryPlan::Range(start, end) => Self::load_range(store, start.clone(), end.clone()),
 
-            QueryPlan::Index(plan) => {
-                // get the index store
+            QueryPlan::Index(index_plan) => {
                 let index_store = self
                     .index_registry
-                    .with(|reg| reg.try_get_store(plan.index.store))?;
+                    .with(|reg| reg.try_get_store(index_plan.index.store))
+                    .map_err(DbError::from)?;
 
-                // resolve keys
-                let keys = index_store
-                    .with_borrow(|istore| istore.resolve_data_keys::<E>(plan.index, &plan.keys));
+                let keys = index_store.with_borrow(|istore| {
+                    istore.resolve_data_keys::<E>(index_plan.index, &index_plan.keys)
+                });
 
                 Self::load_many(store, &keys)
             }

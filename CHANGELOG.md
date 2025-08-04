@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - query rewrite, LimitExpr is separate, and all parts of the query validate
 - added tests to make sure that any query with an invalid field name on filter or sort fails
 - combined default and impl into TraitStrategy, because sometimes we need both
+- rewrote LoadExecutor to get a proper fast-track path for count() with a filter
+- LoadQuery::all()
 
 ## [0.9.1]
 - added a u8 version to the serialized data in the DataStore
