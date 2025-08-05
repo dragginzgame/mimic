@@ -54,7 +54,9 @@ impl ValidateNode for Enum {
         }
 
         // Check if the unspecified variant is not the first in the list
-        if let Some(index) = un_first && index != 0 {
+        if let Some(index) = un_first
+            && index != 0
+        {
             errs.add("the unspecified variant must be the first in the list");
         }
 
