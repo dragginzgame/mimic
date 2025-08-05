@@ -33,8 +33,6 @@ make test
 make clippy
 make fmt-check
 
-# Build for wasm target
-make build-wasm
 ```
 
 ### 2. Prepare for Release
