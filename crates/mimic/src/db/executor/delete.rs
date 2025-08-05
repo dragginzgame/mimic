@@ -180,10 +180,8 @@ impl DeleteExecutor {
         };
 
         // apply limit
-        if let Some(limit_expr) = &query.limit {
-            if let Some(limit) = limit_expr.limit {
-                keys.truncate(limit as usize);
-            }
+        if let Some(limit_expr) = &query.limit && let Some(limit) = limit_expr.limit {
+            keys.truncate(limit as usize);
         }
 
         Ok(keys)

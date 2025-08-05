@@ -5,6 +5,25 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+## [0.9.4] - 2025-08-05
+- Initial release
+
+## [0.9.4] - Versioning & Security System
+- **CRITICAL SECURITY**: Implemented tag immutability - once a version is tagged, the code at that version can NEVER change
+- **NEW**: Comprehensive versioning system with automated tools (`make patch`, `make minor`, `make major`)
+- **NEW**: Security validation scripts (`make security-check`, `make check-versioning`)
+- **NEW**: Automated CI/CD pipeline with GitHub Actions
+- **NEW**: Complete documentation suite (VERSIONING.md, INTEGRATION.md, RELEASE_GUIDE.md)
+- **NEW**: Git dependency integration with immutable version pinning
+- **IMPROVED**: Fixed all clippy warnings with `-D warnings`
+- **IMPROVED**: Code quality optimizations (collapsible if statements, unnecessary map_err removal)
+- **IMPROVED**: Enhanced Makefile with comprehensive command shortcuts
+- **SECURITY**: Enterprise-grade tag immutability enforcement
+- **SECURITY**: Supply chain attack prevention through immutable versions
+- **SECURITY**: Automated security checks and validation
+
 ## [0.9.3] - Making Saving Great Again
 - save queries now return the new entity, making it easier to return results without additional queries
 - attached back the automated query endpoints
