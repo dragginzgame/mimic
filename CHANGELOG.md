@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.9.3] - Making Saving Great Again
 - save queries now return the new entity, making it easier to return results without additional queries
 - attached back the automated query endpoints
+- made it a bit more user friendly.  Selector Variants can have a name, not an ident, and it
+generates the ident for you.
 
 ## [0.9.2]
 - query rewrite, LimitExpr is separate, and all parts of the query validate
