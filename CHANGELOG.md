@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - combined default and impl into TraitStrategy, because sometimes we need both
 - rewrote LoadExecutor to get a proper fast-track path for count() with a filter
 - LoadQuery::all()
+- count() alongside execute() uses the same logic but won't deserialize unless it has to
 
 ## [0.9.1]
 - added a u8 version to the serialized data in the DataStore

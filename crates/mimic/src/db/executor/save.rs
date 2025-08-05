@@ -65,11 +65,11 @@ impl SaveExecutor {
     }
 
     // create_from_view
-    pub fn create_from_view<E: EntityKind>(&self, view: &E::View) -> Result<Key, Error>
+    pub fn create_from_view<E: EntityKind>(&self, view: E::View) -> Result<Key, Error>
     where
         E::View: Clone + Into<E>,
     {
-        self.create(view.clone().into())
+        self.create(view.into())
     }
 
     // update
