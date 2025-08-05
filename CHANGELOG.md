@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.9.3] - Making Saving Great Again
+- save queries now return the new entity, making it easier to return results without additional queries
+- attached back the automated query endpoints
+
 ## [0.9.2]
 - query rewrite, LimitExpr is separate, and all parts of the query validate
 - added tests to make sure that any query with an invalid field name on filter or sort fails

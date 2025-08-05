@@ -48,62 +48,72 @@ impl SaveExecutor {
         self
     }
 
-    // execute
-    // serializes the save query to pass to execute_internal
-    pub fn execute<E: EntityKind>(&self, query: SaveQuery) -> Result<Key, Error> {
+    // response
+    // a specific response used by the automated query endpoints that
+    // we will improve int he future
+    pub fn response<E: EntityKind>(&self, query: SaveQuery) -> Result<Key, Error> {
         let bytes: E = deserialize(&query.bytes)?;
-        let key = self.execute_internal::<E>(query.mode, bytes)?;
+        let key = self.execute_internal::<E>(query.mode, bytes)?.key();
 
         Ok(key)
+    }
+
+    // execute
+    // serializes the save query to pass to execute_internal
+    pub fn execute<E: EntityKind>(&self, query: SaveQuery) -> Result<E, Error> {
+        let bytes: E = deserialize(&query.bytes)?;
+        let entity = self.execute_internal::<E>(query.mode, bytes)?;
+
+        Ok(entity)
     }
 
     // create
-    pub fn create<E: EntityKind>(&self, entity: E) -> Result<Key, Error> {
-        let key = self.execute_internal::<E>(SaveMode::Create, entity)?;
+    pub fn create<E: EntityKind>(&self, entity: E) -> Result<E, Error> {
+        let entity = self.execute_internal::<E>(SaveMode::Create, entity)?;
 
-        Ok(key)
+        Ok(entity)
     }
 
     // create_from_view
-    pub fn create_from_view<E: EntityKind>(&self, view: E::View) -> Result<Key, Error>
+    pub fn create_from_view<E: EntityKind>(&self, view: E::View) -> Result<E, Error>
     where
-        E::View: Clone + Into<E>,
+        E::View: Into<E>,
     {
         self.create(view.into())
     }
 
     // update
-    pub fn update<E: EntityKind>(&self, entity: E) -> Result<Key, Error> {
-        let key = self.execute_internal::<E>(SaveMode::Update, entity)?;
+    pub fn update<E: EntityKind>(&self, entity: E) -> Result<E, Error> {
+        let entity = self.execute_internal::<E>(SaveMode::Update, entity)?;
 
-        Ok(key)
+        Ok(entity)
     }
 
     // update_from_view
-    pub fn update_from_view<E: EntityKind>(&self, view: E::View) -> Result<Key, Error>
+    pub fn update_from_view<E: EntityKind>(&self, view: E::View) -> Result<E, Error>
     where
-        E::View: Clone + Into<E>,
+        E::View: Into<E>,
     {
         self.update(view.into())
     }
 
     // replace
-    pub fn replace<E: EntityKind>(&self, entity: E) -> Result<Key, Error> {
-        let key = self.execute_internal::<E>(SaveMode::Replace, entity)?;
+    pub fn replace<E: EntityKind>(&self, entity: E) -> Result<E, Error> {
+        let entity = self.execute_internal::<E>(SaveMode::Replace, entity)?;
 
-        Ok(key)
+        Ok(entity)
     }
 
     // replace_from_view
-    pub fn replace_from_view<E: EntityKind>(&self, view: E::View) -> Result<Key, Error>
+    pub fn replace_from_view<E: EntityKind>(&self, view: E::View) -> Result<E, Error>
     where
-        E::View: Clone + Into<E>,
+        E::View: Into<E>,
     {
         self.replace(view.into())
     }
 
     // execute_internal
-    fn execute_internal<E: EntityKind>(&self, mode: SaveMode, entity: E) -> Result<Key, DbError> {
+    fn execute_internal<E: EntityKind>(&self, mode: SaveMode, entity: E) -> Result<E, DbError> {
         let key = entity.key();
         let store = self
             .data_registry
@@ -136,7 +146,7 @@ impl SaveExecutor {
                         self.debug,
                         "query.{mode}: no changes for {data_key}, skipping save"
                     );
-                    return Ok(key);
+                    return Ok(entity);
                 }
 
                 (
@@ -168,7 +178,7 @@ impl SaveExecutor {
             store.insert(data_key.clone(), entry);
         });
 
-        Ok(key)
+        Ok(entity)
     }
 
     // replace_indexes

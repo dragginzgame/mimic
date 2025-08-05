@@ -84,6 +84,14 @@ impl DeleteExecutor {
     /// EXECUTION METHODS
     ///
 
+    // response
+    // for the automated query endpoint, we will make this more flexible in the future
+    pub fn response<E: EntityKind>(self, query: DeleteQuery) -> Result<Vec<Key>, Error> {
+        let res = self.execute_internal::<E>(query)?;
+
+        Ok(res)
+    }
+
     // execute
     pub fn execute<E: EntityKind>(self, query: DeleteQuery) -> Result<Vec<Key>, Error> {
         let res = self.execute_internal::<E>(query)?;

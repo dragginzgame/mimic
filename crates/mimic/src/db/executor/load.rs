@@ -1,7 +1,7 @@
 use crate::{
     Error,
     core::{
-        Value,
+        Key, Value,
         traits::{EntityKind, Path},
     },
     db::{
@@ -90,6 +90,14 @@ impl LoadExecutor {
     //
     // EXECUTION LOGIC
     //
+
+    // response
+    // for the automated query endpoint, we will make this more flexible in the future
+    pub fn response<E: EntityKind>(self, query: LoadQuery) -> Result<Vec<Key>, Error> {
+        let res = self.execute::<E>(query)?.keys();
+
+        Ok(res)
+    }
 
     /// Execute a full query and return a collection of entities.
     pub fn execute<E: EntityKind>(&self, query: LoadQuery) -> Result<LoadCollection<E>, Error> {
