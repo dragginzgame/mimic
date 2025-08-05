@@ -79,11 +79,27 @@ impl SaveExecutor {
         Ok(key)
     }
 
+    // update_from_view
+    pub fn update_from_view<E: EntityKind>(&self, view: E::View) -> Result<Key, Error>
+    where
+        E::View: Clone + Into<E>,
+    {
+        self.update(view.into())
+    }
+
     // replace
     pub fn replace<E: EntityKind>(&self, entity: E) -> Result<Key, Error> {
         let key = self.execute_internal::<E>(SaveMode::Replace, entity)?;
 
         Ok(key)
+    }
+
+    // replace_from_view
+    pub fn replace_from_view<E: EntityKind>(&self, view: E::View) -> Result<Key, Error>
+    where
+        E::View: Clone + Into<E>,
+    {
+        self.replace(view.into())
     }
 
     // execute_internal
