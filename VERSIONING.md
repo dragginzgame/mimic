@@ -87,8 +87,7 @@ When you push a version tag (e.g., `v1.0.0`), the following happens automaticall
 
 1. **Testing**: All tests run on multiple targets
 2. **Building**: Release builds are created
-3. **Publishing**: All crates are published to crates.io
-4. **GitHub Release**: A GitHub release is created with notes from the changelog
+3. **GitHub Release**: A GitHub release is created with notes from the changelog
 
 ## Changelog Management
 
@@ -121,7 +120,7 @@ All crates in the workspace share the same version. When you bump the version:
 
 - The workspace `Cargo.toml` is updated
 - All crate dependencies are automatically updated
-- All crates are published with the same version
+- All crates are built with the same version
 
 ## Pre-release Versions
 
@@ -161,13 +160,13 @@ If a tag already exists for the version you're trying to create:
 2. Delete the remote tag: `git push origin :refs/tags/v1.0.0`
 3. Run the version script again
 
-### Publishing Issues
+### Release Issues
 
-If publishing to crates.io fails:
+If GitHub release creation fails:
 
-1. Check that you have the `CARGO_REGISTRY_TOKEN` secret set in GitHub
-2. Ensure all crates have unique names
-3. Verify that the version hasn't been published before
+1. Check that the GitHub Actions workflow is configured correctly
+2. Ensure the tag was pushed to the remote repository
+3. Verify that the changelog format is correct
 
 ## Security & Tag Immutability
 

@@ -72,7 +72,6 @@ git push --follow-tags
 This triggers:
 - ✅ Automated testing
 - ✅ Building for all targets
-- ✅ Publishing to crates.io
 - ✅ Creating GitHub release
 
 ## 🔧 Version Management Commands
@@ -100,27 +99,15 @@ make release          # Create release with current version
 ./scripts/app/version.sh release 1.0.0  # Specific version
 ```
 
-## 📦 Publishing Workflow
+## 📦 Release Workflow
 
-### Automated Publishing
+### Automated Release
 
 When you push a version tag, GitHub Actions automatically:
 
 1. **Tests** the codebase
 2. **Builds** for all targets
-3. **Publishes** all crates to crates.io
-4. **Creates** a GitHub release with changelog notes
-
-### Manual Publishing (if needed)
-
-```bash
-# Publish to crates.io
-cargo publish --manifest-path crates/mimic/Cargo.toml
-cargo publish --manifest-path crates/mimic_build/Cargo.toml
-cargo publish --manifest-path crates/mimic_common/Cargo.toml
-cargo publish --manifest-path crates/mimic_declare/Cargo.toml
-cargo publish --manifest-path crates/mimic_schema/Cargo.toml
-```
+3. **Creates** a GitHub release with changelog notes
 
 ## 🏷️ Git Tag Management
 
@@ -194,7 +181,6 @@ Follow [Keep a Changelog](https://keepachangelog.com/) format:
 ### Post-Release Verification
 
 - [ ] GitHub Actions passed
-- [ ] Crates published to crates.io
 - [ ] GitHub release created
 - [ ] Users can access new version
 
@@ -213,11 +199,11 @@ git push origin :refs/tags/v1.0.0
 make patch
 ```
 
-#### Publishing Fails
+#### Release Creation Fails
 
-1. Check `CARGO_REGISTRY_TOKEN` secret in GitHub
-2. Verify crate names are unique
-3. Ensure version hasn't been published before
+1. Check GitHub Actions workflow
+2. Verify tag was pushed correctly
+3. Ensure changelog format is correct
 
 #### Git Dependency Issues
 
