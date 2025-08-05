@@ -1,5 +1,5 @@
 use crate::{
-    helper::{quote_one, quote_slice, to_path, to_str_lit},
+    helper::{quote_one, quote_slice, to_path},
     node::{Arg, Def},
     node_traits::{Trait, TraitStrategy, Traits},
     traits::{
@@ -7,7 +7,8 @@ use crate::{
     },
 };
 use darling::FromMeta;
-use proc_macro2::TokenStream;
+use mimic_common::utils::case::{Case, Casing};
+use proc_macro2::{Span, TokenStream};
 use quote::{ToTokens, quote};
 use syn::{Ident, Path};
 
@@ -98,16 +99,26 @@ impl ToTokens for Selector {
 
 #[derive(Clone, Debug, FromMeta)]
 pub struct SelectorVariant {
-    pub name: Ident,
+    #[darling(default)]
+    pub name: String,
+
     pub value: Arg,
 
     #[darling(default)]
     pub default: bool,
 }
 
+impl SelectorVariant {
+    pub fn ident(&self) -> Ident {
+        let camel = format!("V{}", &self.name.to_case(Case::UpperCamel));
+
+        Ident::new(&camel, Span::call_site())
+    }
+}
+
 impl ToTokens for SelectorVariant {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let name = &self.name;
+        let ident = self.ident();
 
         let attr = if self.default {
             quote!(#[default])
@@ -117,14 +128,14 @@ impl ToTokens for SelectorVariant {
 
         tokens.extend(quote! {
             #attr
-            #name
+            #ident
         });
     }
 }
 
 impl HasSchemaPart for SelectorVariant {
     fn schema_part(&self) -> TokenStream {
-        let name = quote_one(&self.name, to_str_lit);
+        let name = &self.name; // just a string
         let value = self.value.schema_part();
         let default = self.default;
 
