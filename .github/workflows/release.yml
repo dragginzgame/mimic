@@ -17,8 +17,6 @@ jobs:
       
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
       
       - name: Cache dependencies
         uses: actions/cache@v3
@@ -34,9 +32,6 @@ jobs:
       - name: Run tests
         run: cargo test --workspace
       
-      - name: Run tests (wasm target)
-        run: cargo test --workspace --target wasm32-unknown-unknown
-
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -46,8 +41,6 @@ jobs:
       
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
       
       - name: Cache dependencies
         uses: actions/cache@v3
@@ -62,9 +55,6 @@ jobs:
       
       - name: Build
         run: cargo build --release --workspace
-      
-      - name: Build (wasm target)
-        run: cargo build --release --workspace --target wasm32-unknown-unknown
 
   create-release:
     name: Create GitHub Release

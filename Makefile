@@ -15,7 +15,6 @@ help:
 	@echo "Development:"
 	@echo "  test             Run all tests"
 	@echo "  build            Build all crates"
-	@echo "  build-wasm       Build for wasm target"
 	@echo "  check            Run cargo check"
 	@echo "  clippy           Run clippy checks"
 	@echo "  fmt              Format code"
@@ -60,8 +59,7 @@ test:
 build:
 	cargo build --release --workspace
 
-build-wasm:
-	cargo build --release --workspace --target wasm32-unknown-unknown
+
 
 check:
 	cargo check --workspace
@@ -81,7 +79,6 @@ clean:
 
 # Install development dependencies
 install-dev:
-	rustup target add wasm32-unknown-unknown
 	cargo install cargo-watch
 
 # Run tests in watch mode
@@ -101,4 +98,4 @@ security-check:
 	@./scripts/app/security-check.sh
 
 # Build and test everything
-all: clean check fmt-check clippy test build build-wasm 
+all: clean check fmt-check clippy test build 
