@@ -23,7 +23,7 @@ pub enum QueryError {
 
 // query_load
 // currently disabled because LoadResponse needs a rethink
-//pub async fn query_load(pid: Principal, query: LoadQuery) -> Result<LoadResponse, MimicError> {
+//pub async fn query_load(pid: Principal, query: LoadQuery) -> Result<Vec<Key>, MimicError> {
 //    query_call(pid, "mimic_query_load", &query).await
 //}
 

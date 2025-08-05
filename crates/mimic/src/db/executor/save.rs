@@ -75,11 +75,13 @@ impl SaveExecutor {
     }
 
     // create_from_view
-    pub fn create_from_view<E: EntityKind>(&self, view: E::View) -> Result<E, Error>
+    pub fn create_from_view<E: EntityKind>(&self, view: E::View) -> Result<E::View, Error>
     where
         E::View: Into<E>,
     {
-        self.create(view.into())
+        let entity = self.create(view.into())?;
+
+        Ok(entity.to_view())
     }
 
     // update
@@ -90,11 +92,13 @@ impl SaveExecutor {
     }
 
     // update_from_view
-    pub fn update_from_view<E: EntityKind>(&self, view: E::View) -> Result<E, Error>
+    pub fn update_from_view<E: EntityKind>(&self, view: E::View) -> Result<E::View, Error>
     where
         E::View: Into<E>,
     {
-        self.update(view.into())
+        let entity = self.update(view.into())?;
+
+        Ok(entity.to_view())
     }
 
     // replace
@@ -105,11 +109,13 @@ impl SaveExecutor {
     }
 
     // replace_from_view
-    pub fn replace_from_view<E: EntityKind>(&self, view: E::View) -> Result<E, Error>
+    pub fn replace_from_view<E: EntityKind>(&self, view: E::View) -> Result<E::View, Error>
     where
         E::View: Into<E>,
     {
-        self.replace(view.into())
+        let entity = self.replace(view.into())?;
+
+        Ok(entity.to_view())
     }
 
     // execute_internal
