@@ -1,7 +1,7 @@
 use crate::{
     Error,
     core::Key,
-    db::query::{DeleteQuery, SaveQuery},
+    db::query::{DeleteQuery, LoadQuery, SaveQuery},
     interface::InterfaceError,
 };
 use candid::Principal;
@@ -23,9 +23,9 @@ pub enum QueryError {
 
 // query_load
 // currently disabled because LoadResponse needs a rethink
-//pub async fn query_load(pid: Principal, query: LoadQuery) -> Result<Vec<Key>, MimicError> {
-//    query_call(pid, "mimic_query_load", &query).await
-//}
+pub async fn query_load(pid: Principal, query: LoadQuery) -> Result<Vec<Key>, Error> {
+    query_call(pid, "mimic_query_load", &query).await
+}
 
 // query_save
 pub async fn query_save(pid: Principal, query: SaveQuery) -> Result<Key, Error> {
