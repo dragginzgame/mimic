@@ -7,9 +7,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [0.9.4] - 2025-08-05
-- Initial release
-
 ## [0.9.4] - Versioning & Security System
 - **CRITICAL SECURITY**: Implemented tag immutability - once a version is tagged, the code at that version can NEVER change
 - **NEW**: Comprehensive versioning system with automated tools (`make patch`, `make minor`, `make major`)
