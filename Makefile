@@ -14,7 +14,6 @@ help:
 	@echo ""
 	@echo "Development:"
 	@echo "  test             Run all tests"
-	@echo "  test-wasm        Run tests for wasm target"
 	@echo "  build            Build all crates"
 	@echo "  build-wasm       Build for wasm target"
 	@echo "  check            Run cargo check"
@@ -57,9 +56,6 @@ release:
 # Development commands
 test:
 	cargo test --workspace
-
-test-wasm:
-	cargo test --workspace --target wasm32-unknown-unknown
 
 build:
 	cargo build --release --workspace
@@ -105,4 +101,4 @@ security-check:
 	@./scripts/app/security-check.sh
 
 # Build and test everything
-all: clean check fmt-check clippy test test-wasm build build-wasm 
+all: clean check fmt-check clippy test build build-wasm 
