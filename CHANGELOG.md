@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.9.8] - 2025-08-06
+- Initial release
+
+## [Unreleased]
+
 ## [0.9.6] - 2025-08-06
 - added From<&String> to Value
 
