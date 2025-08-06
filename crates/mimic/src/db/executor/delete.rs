@@ -84,6 +84,14 @@ impl DeleteExecutor {
     /// EXECUTION METHODS
     ///
 
+    // response
+    // for the automated query endpoint, we will make this more flexible in the future
+    pub fn response<E: EntityKind>(self, query: DeleteQuery) -> Result<Vec<Key>, Error> {
+        let res = self.execute_internal::<E>(query)?;
+
+        Ok(res)
+    }
+
     // execute
     pub fn execute<E: EntityKind>(self, query: DeleteQuery) -> Result<Vec<Key>, Error> {
         let res = self.execute_internal::<E>(query)?;
@@ -172,10 +180,10 @@ impl DeleteExecutor {
         };
 
         // apply limit
-        if let Some(limit_expr) = &query.limit {
-            if let Some(limit) = limit_expr.limit {
-                keys.truncate(limit as usize);
-            }
+        if let Some(limit_expr) = &query.limit
+            && let Some(limit) = limit_expr.limit
+        {
+            keys.truncate(limit as usize);
         }
 
         Ok(keys)

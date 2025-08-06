@@ -5,10 +5,36 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+- added and_eq and or_eq to the filter builder
+
+## [0.9.4] - Versioning & Security System
+- **CRITICAL SECURITY**: Implemented tag immutability - once a version is tagged, the code at that version can NEVER change
+- **NEW**: Comprehensive versioning system with automated tools (`make patch`, `make minor`, `make major`)
+- **NEW**: Security validation scripts (`make security-check`, `make check-versioning`)
+- **NEW**: Automated CI/CD pipeline with GitHub Actions
+- **NEW**: Complete documentation suite (VERSIONING.md, INTEGRATION.md, RELEASE_GUIDE.md)
+- **NEW**: Git dependency integration with immutable version pinning
+- **IMPROVED**: Fixed all clippy warnings with `-D warnings`
+- **IMPROVED**: Code quality optimizations (collapsible if statements, unnecessary map_err removal)
+- **IMPROVED**: Enhanced Makefile with comprehensive command shortcuts
+- **SECURITY**: Enterprise-grade tag immutability enforcement
+- **SECURITY**: Supply chain attack prevention through immutable versions
+- **SECURITY**: Automated security checks and validation
+
+## [0.9.3] - Making Saving Great Again
+- save queries now return the new entity, making it easier to return results without additional queries
+- attached back the automated query endpoints
+- made it a bit more user friendly.  Selector Variants can have a name, not an ident, and it
+generates the ident for you.
+
 ## [0.9.2]
 - query rewrite, LimitExpr is separate, and all parts of the query validate
 - added tests to make sure that any query with an invalid field name on filter or sort fails
 - combined default and impl into TraitStrategy, because sometimes we need both
+- rewrote LoadExecutor to get a proper fast-track path for count() with a filter
+- LoadQuery::all()
+- count() alongside execute() uses the same logic but won't deserialize unless it has to
 
 ## [0.9.1]
 - added a u8 version to the serialized data in the DataStore

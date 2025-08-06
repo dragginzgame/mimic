@@ -31,8 +31,7 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
 
     let match_arms = if entities.is_empty() {
         quote! {
-            Err(::mimic::interface::query::QueryError::EntityNotFound(path))
-                .map_err(::mimic::interface::InterfaceError::from)?
+            Err(::mimic::interface::InterfaceError::from(::mimic::interface::query::QueryError::EntityNotFound(path)))?
         }
     } else {
         let arms = entities.iter().map(|(entity_path, _)| {
@@ -47,7 +46,7 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
                     #entity_path => db!().delete().response::<#ty>(query)
                 },
                 QueryKind::Save => quote! {
-                    #entity_path =>  db!().save().execute::<#ty>(query)
+                    #entity_path =>  db!().save().response::<#ty>(query)
                 },
             }
         });
@@ -55,8 +54,7 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
         quote! {
             let res = match path.as_str() {
                 #(#arms,)*
-                _ => Err(::mimic::interface::query::QueryError::EntityNotFound(path))
-                    .map_err(::mimic::interface::InterfaceError::from)?,
+                _ => Err(::mimic::interface::InterfaceError::from(::mimic::interface::query::QueryError::EntityNotFound(path)))?,
             }?;
 
             Ok(res)
@@ -71,7 +69,7 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
             pub fn #fn_name(
                 path: String,
                 query: ::mimic::db::query::LoadQuery,
-            ) -> Result<::mimic::db::response::LoadResponse, ::mimic::Error>
+            ) -> Result<Vec<::mimic::core::Key>, ::mimic::Error>
         },
 
         QueryKind::Save => quote! {
@@ -87,7 +85,7 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
             pub fn #fn_name(
                 path: String,
                 query: ::mimic::db::query::DeleteQuery,
-            ) -> Result<::mimic::db::response::DeleteResponse, ::mimic::Error>
+            ) -> Result<Vec<::mimic::core::Key>, ::mimic::Error>
         },
     };
 

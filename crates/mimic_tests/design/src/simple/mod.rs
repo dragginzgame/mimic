@@ -115,9 +115,9 @@ pub struct Negative {}
 
 #[selector(
     target = "DecimalNewtype",
-    variant(name = "Cm50", value = 0.5),
-    variant(name = "Metre1", value = 1.0),
-    variant(name = "Meter10", value = 10.0)
+    variant(name = "50 cm", value = 0.5),
+    variant(name = "1m", value = 1.0),
+    variant(name = "10m", value = 10.0)
 )]
 pub struct Selector {}
 

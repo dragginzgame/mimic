@@ -74,8 +74,14 @@ impl FilterBuilder {
     }
 
     ///
-    /// COMPARISONS
+    /// BUILDING BLOCKS
+    /// (these use AND)
     ///
+
+    #[must_use]
+    pub fn expr(self, expr: FilterExpr) -> Self {
+        self.add_expr(expr, Logic::And)
+    }
 
     #[must_use]
     pub fn eq(self, field: &str, value: impl Into<Value>) -> Self {
@@ -110,8 +116,8 @@ impl FilterBuilder {
     }
 
     #[must_use]
-    pub fn expr(self, expr: FilterExpr) -> Self {
-        self.add_expr(expr, Logic::And)
+    pub fn and_eq(self, field: &str, value: impl Into<Value>) -> Self {
+        self.eq(field, value)
     }
 
     // alias for expr
@@ -143,6 +149,13 @@ impl FilterBuilder {
     #[must_use]
     pub fn or(self, field: &str, cmp: Cmp, value: impl Into<Value>) -> Self {
         let clause = FilterExpr::Clause(FilterClause::new(field, cmp, value));
+
+        self.add_expr(clause, Logic::Or)
+    }
+
+    #[must_use]
+    pub fn or_eq(self, field: &str, value: impl Into<Value>) -> Self {
+        let clause = FilterExpr::Clause(FilterClause::new(field, Cmp::Eq, value));
 
         self.add_expr(clause, Logic::Or)
     }

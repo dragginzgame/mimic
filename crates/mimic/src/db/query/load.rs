@@ -30,7 +30,10 @@ impl LoadQuery {
         self.filter.is_none() && self.limit.is_none() && self.sort.is_none()
     }
 
-    // one
+    //
+    // SHAPES
+    //
+
     #[must_use]
     pub fn one<E: EntityKind>(self, value: impl Into<Value>) -> Self {
         self.filter_eq(E::PRIMARY_KEY, value.into())
@@ -50,6 +53,12 @@ impl LoadQuery {
             .collect::<Vec<_>>();
 
         self.filter_in(E::PRIMARY_KEY, Value::List(list))
+    }
+
+    // all just overrides, same as calling new
+    #[must_use]
+    pub fn all() -> Self {
+        Self::default()
     }
 
     #[must_use]

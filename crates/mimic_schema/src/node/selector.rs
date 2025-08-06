@@ -1,8 +1,4 @@
 use crate::node::{Arg, Def, MacroNode, ValidateNode, VisitableNode, Visitor};
-use mimic_common::{
-    error::ErrorTree,
-    utils::case::{Case, Casing},
-};
 use serde::Serialize;
 use std::ops::Not;
 
@@ -51,20 +47,6 @@ pub struct SelectorVariant {
     pub default: bool,
 }
 
-impl ValidateNode for SelectorVariant {
-    fn validate(&self) -> Result<(), ErrorTree> {
-        let mut errs = ErrorTree::default();
-
-        // name
-        if !self.name.is_case(Case::UpperCamel) {
-            errs.add(format!(
-                "variant name '{}' must be in UpperCamelCase",
-                self.name
-            ));
-        }
-
-        errs.result()
-    }
-}
+impl ValidateNode for SelectorVariant {}
 
 impl VisitableNode for SelectorVariant {}

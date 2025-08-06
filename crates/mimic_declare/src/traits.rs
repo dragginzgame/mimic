@@ -57,10 +57,10 @@ pub trait HasMacro: HasSchema + HasTraits + HasType {
                         impls.extend(ts);
                     }
 
-                    if let Some(derive_tr) = strategy.derive {
-                        if let Some(path) = derive_tr.derive_path() {
-                            derived_traits.push(path);
-                        }
+                    if let Some(derive_tr) = strategy.derive
+                        && let Some(path) = derive_tr.derive_path()
+                    {
+                        derived_traits.push(path);
                     }
                 }
                 None => {

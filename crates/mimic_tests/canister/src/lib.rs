@@ -8,7 +8,10 @@ mod validate;
 use icu::{ic::export_candid, prelude::*};
 use mimic::{Error, db::query, prelude::*};
 use test_design::{
-    canister::filter::{Filterable, FilterableView},
+    canister::{
+        filter::{Filterable, FilterableView},
+        index::{Indexable, IndexableView},
+    },
     fixture::rarity::{Rarity, RarityView},
 };
 
@@ -69,6 +72,13 @@ pub fn rarity() -> Result<Vec<RarityView>, Error> {
         .entities();
 
     Ok(res.to_view())
+}
+
+#[query]
+pub fn indexable() -> Result<Vec<IndexableView>, Error> {
+    let res = db!().load().all::<Indexable>()?.entities().to_view();
+
+    Ok(res)
 }
 
 export_candid!();

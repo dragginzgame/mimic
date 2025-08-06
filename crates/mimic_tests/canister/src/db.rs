@@ -122,7 +122,7 @@ impl DbTester {
         }
 
         // Retrieve the count from the store
-        let count = db!().load().count::<CreateBasic>(query::load()).unwrap();
+        let count = db!().load().count_all::<CreateBasic>().unwrap();
 
         // Assert that the count matches the expected number
         assert_eq!(count, ROWS, "Expected {ROWS} keys in the store");
@@ -145,7 +145,7 @@ impl DbTester {
         }
 
         // Retrieve the count from the store
-        let count = db!().load().count::<CreateBlob>(query::load()).unwrap();
+        let count = db!().load().count_all::<CreateBlob>().unwrap();
 
         // Assert that the count matches the expected number
         assert_eq!(count, ROWS, "Expected {ROWS} keys in the store");
@@ -185,7 +185,7 @@ impl DbTester {
         // Step 1: Insert rows and collect keys
         let mut keys = Vec::with_capacity(ROWS);
         for _ in 0..ROWS {
-            let key = db!().save().create(CreateBasic::default()).unwrap();
+            let key = db!().save().create(CreateBasic::default()).unwrap().key();
             keys.push(key);
         }
 
@@ -204,7 +204,7 @@ impl DbTester {
         );
 
         // Step 4: Ensure all have been deleted
-        let count_after = db!().load().count::<CreateBasic>(query::load()).unwrap();
+        let count_after = db!().load().count_all::<CreateBasic>().unwrap();
         assert_eq!(count_after, 0, "Expected 0 rows after deletion");
     }
 
@@ -214,7 +214,7 @@ impl DbTester {
 
         // Step 1: Insert entity e1 with x=1, y=10
         let e1 = Index::new(1, 10);
-        let id1 = db!().save().create(e1).unwrap();
+        let id1 = db!().save().create(e1).unwrap().key();
 
         // COUNT
         let rows = db!().load().count_all::<Index>().unwrap();
@@ -270,21 +270,21 @@ impl DbTester {
             id: Ulid::generate(),
             value: Some(10),
         };
-        let id1 = db!().save().create(e1).unwrap();
+        let id1 = db!().save().create(e1).unwrap().key();
 
         // Insert entity with Some(20)
         let e2 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: Some(20),
         };
-        db!().save().create(e2).unwrap();
+        db!().save().create(e2).unwrap().key();
 
         // Insert entity with None (should not conflict with anything)
         let e3 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: None,
         };
-        let id3 = db!().save().create(e3).unwrap();
+        let id3 = db!().save().create(e3).unwrap().key();
 
         // Insert duplicate Some(10) — should fail (if index is unique)
         let e4 = IndexUniqueOpt {
@@ -318,7 +318,7 @@ impl DbTester {
         db!().save().create(e5).unwrap();
 
         // Confirm only 3 entities now exist
-        let rows = db!().load().count::<IndexUniqueOpt>(query::load()).unwrap();
+        let rows = db!().load().count_all::<IndexUniqueOpt>().unwrap();
         assert_eq!(rows, 3);
     }
 
@@ -352,19 +352,19 @@ impl DbTester {
     fn load_one() {
         use test_design::canister::db::CreateBasic;
 
-        let id = db!().save().create(CreateBasic::default()).unwrap();
+        let saved = db!().save().create(CreateBasic::default()).unwrap();
 
-        let loaded = db!().load().one::<CreateBasic>(id).unwrap();
+        let loaded = db!().load().one::<CreateBasic>(saved.key()).unwrap();
 
-        assert_eq!(loaded.key(), id);
+        assert_eq!(loaded.key(), saved.key());
     }
 
     fn load_many() {
         use test_design::canister::db::CreateBasic;
 
-        let key1 = db!().save().create(CreateBasic::default()).unwrap();
-        let key2 = db!().save().create(CreateBasic::default()).unwrap();
-        let key3 = db!().save().create(CreateBasic::default()).unwrap();
+        let key1 = db!().save().create(CreateBasic::default()).unwrap().key();
+        let key2 = db!().save().create(CreateBasic::default()).unwrap().key();
+        let key3 = db!().save().create(CreateBasic::default()).unwrap().key();
 
         // Pass a slice of IDs
         let many_keys = vec![key1, key2, key3];

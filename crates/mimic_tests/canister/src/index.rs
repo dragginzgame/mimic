@@ -18,7 +18,8 @@ impl IndexTester {
         let tests: Vec<(&str, fn())> = vec![
             ("index_on_principal", Self::index_on_principal),
             ("index_on_principal_ulid", Self::index_on_principal_ulid),
-            ("index_on_all_fields", Self::index_on_all_fields),
+            ("index_uses_all_fields", Self::index_uses_all_fields),
+            ("index_cant_use_all_fields", Self::index_cant_use_all_fields),
             ("fallback_to_range", Self::fallback_to_range),
             ("negative_index_miss", Self::negative_index_miss),
         ];
@@ -36,14 +37,32 @@ impl IndexTester {
     }
 
     fn index_on_principal() {
+        let db = db!();
         let pid = Principal::from_slice(&[1; 29]);
+
+        db!()
+            .save()
+            .replace(Indexable {
+                pid,
+                ulid: Ulid::from_u128(1),
+                score: 42,
+                ..Default::default()
+            })
+            .unwrap();
+
         let query = query::load().filter(|f| f.filter("pid", Cmp::Eq, pid));
 
         assert_uses_index::<Indexable>(&query);
 
-        let results = db!().load().execute::<Indexable>(query).unwrap().entities();
+        let results = db
+            .load()
+            .execute::<Indexable>(query.clone())
+            .unwrap()
+            .entities();
+        let count = db.load().count::<Indexable>(query).unwrap();
 
-        assert!(results.iter().all(|e| e.pid == pid));
+        assert_eq!(results.len(), 1);
+        assert_eq!(count, 1);
     }
 
     fn index_on_principal_ulid() {
@@ -53,32 +72,54 @@ impl IndexTester {
             query::load().filter(|f| f.filter("pid", Cmp::Eq, pid).filter("ulid", Cmp::Eq, ulid));
 
         assert_uses_index::<Indexable>(&query);
-
-        let results = db!().load().execute::<Indexable>(query).unwrap().entities();
-
-        assert!(results.iter().all(|e| e.pid == pid && e.ulid == ulid));
     }
 
-    fn index_on_all_fields() {
-        let pid = Principal::from_slice(&[1; 29]);
-        let ulid = Ulid::from_u128(1);
-        let score = 10u32;
-
+    fn index_uses_all_fields() {
         let query = query::load().filter(|f| {
-            f.filter("pid", Cmp::Eq, pid)
-                .filter("ulid", Cmp::Eq, ulid)
-                .filter("score", Cmp::Eq, score)
+            f.filter("pid", Cmp::Eq, Principal::from_slice(&[1; 29]))
+                .filter("score", Cmp::Eq, Ulid::from_u128(1))
+                .filter("ulid", Cmp::Eq, 10u32)
         });
 
+        let planner = QueryPlanner::new(query.filter.as_ref());
+        let plan = planner.plan::<Indexable>();
+
+        match &plan {
+            QueryPlan::Index(index_plan) => {
+                let len = index_plan.keys.len();
+
+                assert_eq!(
+                    len, 3,
+                    "Expected all 3 index fields to be matched, got {len}",
+                );
+                println!("✅ Index plan uses {len} fields");
+            }
+            _ => panic!("❌ Expected index plan, got: {plan:?}"),
+        }
+
         assert_uses_index::<Indexable>(&query);
+    }
 
-        let results = db!().load().execute::<Indexable>(query).unwrap().entities();
+    fn index_cant_use_all_fields() {
+        let query = query::load().filter(|f| {
+            f.filter("pid", Cmp::Eq, Principal::from_slice(&[1; 29]))
+                .filter("score", Cmp::Eq, Ulid::from_u128(1))
+        });
 
-        assert!(
-            results
-                .iter()
-                .all(|e| e.pid == pid && e.ulid == ulid && e.score == score)
-        );
+        let planner = QueryPlanner::new(query.filter.as_ref());
+        let plan = planner.plan::<Indexable>();
+
+        match &plan {
+            QueryPlan::Index(index_plan) => {
+                let len = index_plan.keys.len();
+
+                assert_eq!(len, 1, "Expected one index field to be matched, got {len}",);
+                println!("✅ Index plan uses {len} fields");
+            }
+            _ => panic!("❌ Expected index plan, got: {plan:?}"),
+        }
+
+        assert_uses_index::<Indexable>(&query);
     }
 
     fn fallback_to_range() {

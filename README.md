@@ -66,6 +66,33 @@ pub fn rarities(...) -> Result<Vec<Rarity>, Error> {
 #### How do I install Mimic?
 **A:** We have an install guide [here](INSTALLING.md).
 
+#### How do I manage versions and releases?
+**A:** We have a comprehensive versioning guide [here](VERSIONING.md) and convenient tools:
+
+```bash
+# Show current version
+make version
+
+# List available git tags
+make tags
+
+# Bump versions
+make patch    # 0.9.3 -> 0.9.4
+make minor    # 0.9.3 -> 0.10.0  
+make major    # 0.9.3 -> 1.0.0
+
+# Create a release
+make release
+```
+
+#### How do I integrate Mimic as a git dependency?
+**A:** We have a comprehensive integration guide [here](INTEGRATION.md). Quick start:
+
+```toml
+[dependencies]
+mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", features = [] }
+```
+
 -------
 
 #### Current Situation
