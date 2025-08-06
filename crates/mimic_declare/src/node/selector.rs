@@ -110,9 +110,16 @@ pub struct SelectorVariant {
 
 impl SelectorVariant {
     pub fn ident(&self) -> Ident {
-        let camel = format!("V{}", &self.name.to_case(Case::UpperCamel));
+        let camel = self.name.to_case(Case::UpperCamel).trim().to_string();
+        let needs_prefix = camel.chars().next().is_some_and(|c| c.is_ascii_digit());
 
-        Ident::new(&camel, Span::call_site())
+        let ident_str = if needs_prefix {
+            format!("V{camel}")
+        } else {
+            camel
+        };
+
+        Ident::new(&ident_str, Span::call_site())
     }
 }
 

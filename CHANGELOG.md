@@ -8,9 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ## [0.9.6] - 2025-08-06
-- Initial release
+- added From<&String> to Value
 
-## [Unreleased]
+## [0.9.5]
 - added and_eq and or_eq to the filter builder
 
 ## [0.9.4] - Versioning & Security System
