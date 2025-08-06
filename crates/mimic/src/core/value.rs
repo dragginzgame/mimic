@@ -114,6 +114,12 @@ impl From<&Key> for Value {
     }
 }
 
+impl From<&String> for Value {
+    fn from(value: &String) -> Self {
+        (value.clone()).into()
+    }
+}
+
 impl From<&Ulid> for Value {
     fn from(value: &Ulid) -> Self {
         (*value).into()
