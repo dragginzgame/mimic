@@ -104,58 +104,19 @@ impl LoadExecutor {
         QueryValidate::<E>::validate(&query).map_err(DbError::from)?;
 
         let plan = self.build_plan::<E>(query.filter.as_ref());
-        let rows = self.execute_plan::<E>(&plan)?;
+        let rows = self.execute_plan::<E>(plan)?;
         let entities = Self::finalize_rows::<E>(rows, &query)?;
 
         Ok(LoadCollection(entities))
     }
 
-    /// Executes a query and returns only the count
-    /// matching entities using lazy iteration without full deserialization.
+    /// currently just doing the same as execute()
+    /// keeping it separate in case we can optimise count queries in the future
     #[allow(clippy::cast_possible_truncation)]
     pub fn count<E: EntityKind>(self, query: LoadQuery) -> Result<u32, Error> {
-        QueryValidate::<E>::validate(&query).map_err(DbError::from)?;
+        let collection = self.execute::<E>(query)?;
 
-        let plan = self.build_plan::<E>(query.filter.as_ref());
-
-        match &plan {
-            QueryPlan::Index(index_plan) => {
-                let index_store = self
-                    .index_registry
-                    .with(|reg| reg.try_get_store(index_plan.index.store))
-                    .map_err(DbError::from)?;
-
-                let keys = index_store.with_borrow(|istore| {
-                    istore.resolve_data_keys::<E>(index_plan.index, &index_plan.keys)
-                });
-
-                return Ok(keys.len() as u32);
-            }
-
-            QueryPlan::Keys(keys) => {
-                return Ok(keys.len() as u32);
-            }
-
-            _ => {}
-        }
-
-        // Fallback: range scan with optional filter
-        let rows = self.execute_plan::<E>(&plan)?;
-
-        let count = if let Some(filter) = &query.filter {
-            let filtered = Self::apply_filter::<E>(
-                rows.into_iter()
-                    .map(TryFrom::try_from)
-                    .collect::<Result<Vec<_>, _>>()?,
-                filter,
-            );
-
-            filtered.len() as u32
-        } else {
-            rows.len() as u32
-        };
-
-        Ok(count)
+        Ok(collection.len())
     }
 
     /// Build the plan
@@ -169,15 +130,15 @@ impl LoadExecutor {
     }
 
     /// Execute only the raw data plan (no filters/sort/pagination yet)
-    fn execute_plan<E: EntityKind>(&self, plan: &QueryPlan) -> Result<Vec<DataRow>, Error> {
+    fn execute_plan<E: EntityKind>(&self, plan: QueryPlan) -> Result<Vec<DataRow>, Error> {
         let store = self
             .data_registry
             .with(|reg| reg.try_get_store(E::Store::PATH))
             .map_err(DbError::from)?;
 
         let shape = match plan {
-            QueryPlan::Keys(keys) => Self::load_many(store, keys),
-            QueryPlan::Range(start, end) => Self::load_range(store, start.clone(), end.clone()),
+            QueryPlan::Keys(keys) => Self::load_many(store, &keys),
+            QueryPlan::Range(start, end) => Self::load_range(store, start, end),
 
             QueryPlan::Index(index_plan) => {
                 let index_store = self
@@ -210,11 +171,13 @@ impl LoadExecutor {
         if let Some(filter) = &query.filter {
             let filter_simple = filter.clone().simplify();
 
-            entities.retain(|row| FilterEvaluator::new(&row.entry.entity).eval(&filter_simple));
+            Self::apply_filter(&mut entities, &filter_simple);
         }
 
         // In-place sort
-        if let Some(sort) = &query.sort {
+        if let Some(sort) = &query.sort
+            && entities.len() > 1
+        {
             Self::apply_sort(&mut entities, sort);
         }
 
@@ -227,8 +190,13 @@ impl LoadExecutor {
                 None => total,
             };
 
-            // No heap reallocation — slicing the original buffer
-            entities = entities[start..end].to_vec();
+            // avoid allocating a new vector
+            if start >= end {
+                entities.clear();
+            } else {
+                entities.drain(..start);
+                entities.truncate(end - start);
+            }
         }
 
         Ok(entities)
@@ -258,13 +226,8 @@ impl LoadExecutor {
     }
 
     // apply_filter
-    fn apply_filter<E: EntityKind>(
-        rows: Vec<EntityRow<E>>,
-        filter: &FilterExpr,
-    ) -> Vec<EntityRow<E>> {
-        rows.into_iter()
-            .filter(|row| FilterEvaluator::new(&row.entry.entity).eval(filter))
-            .collect()
+    fn apply_filter<E: EntityKind>(rows: &mut Vec<EntityRow<E>>, filter: &FilterExpr) {
+        rows.retain(|row| FilterEvaluator::new(&row.entry.entity).eval(filter));
     }
 
     // apply_sort

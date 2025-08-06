@@ -6,11 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+- this is for 0.9.9
 
 ## [0.9.8] - 2025-08-06
-- Initial release
-
-## [Unreleased]
+- fixed Selector so that it tries to use a familiar ident
 
 ## [0.9.6] - 2025-08-06
 - added From<&String> to Value
