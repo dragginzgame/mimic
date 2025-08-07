@@ -41,13 +41,18 @@ impl<'a> FilterEvaluator<'a> {
 
     // compare
     fn compare(left: &Value, cmp: Cmp, right: &Value) -> bool {
-        // 1. Try numeric/structural coercions first
+        // Try numeric/structural coercions first
         if let Some(res) = Self::coerce_match(left, right, cmp) {
             return res;
         }
 
-        // 2. Try text-based coercion
+        // Try text-based coercion
         if let Some(res) = Self::coerce_text_match(left, right, cmp) {
+            return res;
+        }
+
+        // Then collection contains
+        if let Some(res) = Self::coerce_collection_contains(left, right, cmp) {
             return res;
         }
 
@@ -85,7 +90,6 @@ impl<'a> FilterEvaluator<'a> {
         }
     }
 
-    #[must_use]
     #[allow(clippy::cast_sign_loss)]
     #[allow(clippy::cast_precision_loss)]
     fn coerce_match(actual: &Value, expected: &Value, cmp: Cmp) -> Option<bool> {
@@ -127,7 +131,6 @@ impl<'a> FilterEvaluator<'a> {
     }
 
     /// Applies a case-insensitive textual comparison if both values can be viewed as strings.
-    #[must_use]
     fn coerce_text_match(actual: &Value, expected: &Value, cmp: Cmp) -> Option<bool> {
         let a = actual.to_searchable_string()?;
         let b = expected.to_searchable_string()?;
@@ -142,6 +145,19 @@ impl<'a> FilterEvaluator<'a> {
 
             _ => return None,
         })
+    }
+
+    fn coerce_collection_contains(actual: &Value, expected: &Value, cmp: Cmp) -> Option<bool> {
+        match (actual, expected) {
+            // check if list contains the scalar value
+            (Value::List(items), item) => match cmp {
+                Cmp::Contains => Some(items.iter().any(|elem| elem.as_ref() == item)),
+                _ => None,
+            },
+
+            // optional future: support "scalar contains list" (e.g., "abc" contains ["a", "b"])
+            _ => None,
+        }
     }
 }
 

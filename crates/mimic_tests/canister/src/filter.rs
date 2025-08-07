@@ -1,9 +1,8 @@
 use mimic::{
-    core::traits::Path,
     db::query::{self, FilterClause, FilterExpr},
     prelude::*,
 };
-use test_design::{canister::filter::Filterable, schema::TestDataStore};
+use test_design::canister::filter::Filterable;
 
 ///
 /// FilterTester
@@ -37,18 +36,48 @@ impl FilterTester {
             ("filter_contains_tag", Self::filter_contains_tag),
         ];
 
-        for (name, test_fn) in tests {
-            println!("clearing db");
-            crate::DATA_REGISTRY
-                .with(|reg| reg.with_store_mut(TestDataStore::PATH, |store| store.clear()))
-                .unwrap();
+        // insert data
+        Self::insert();
 
+        for (name, test_fn) in tests {
             println!("Running test: {name}");
             test_fn();
         }
     }
 
-    // filter
+    // insert
+    fn insert() {
+        let fixtures = [
+            ("Alpha", "A", true, 87.2, 1, -10, vec!["red", "blue"], 1),
+            ("Beta", "B", false, 65.1, 2, 0, vec!["green"], 2),
+            ("Gamma", "C", true, 92.5, 3, 10, vec!["red", "yellow"], 3),
+            ("Delta", "B", false, 15.3, 2, 5, vec![], 4),
+            ("Epsilon", "A", true, 75.0, 4, -5, vec!["green", "blue"], 5),
+            ("Zeta", "C", false, 88.8, 5, 15, vec!["purple"], 6),
+            ("Eta", "B", true, 30.5, 1, 8, vec!["red"], 7),
+            ("Theta", "A", true, 99.9, 6, -20, vec!["blue", "green"], 8),
+            ("Iota", "C", false, 42.0, 3, 0, vec!["yellow", "red"], 9),
+            ("Kappa", "B", true, 50.0, 2, 3, vec!["green", "blue"], 10),
+        ];
+
+        for (name, category, active, score, level, offset, tags, pid_index) in fixtures {
+            EntityService::save_fixture(
+                db!(),
+                Filterable {
+                    name: name.into(),
+                    category: category.into(),
+                    active,
+                    score,
+                    level,
+                    offset,
+                    tags: tags.iter().map(ToString::to_string).collect(),
+                    pid: Filterable::dummy_principal(pid_index),
+                    ..Default::default()
+                },
+            );
+        }
+    }
+
     fn filter_eq_string() {
         let query = query::load().filter(|f| f.filter("category", Cmp::Eq, "A"));
 
@@ -57,7 +86,9 @@ impl FilterTester {
             .execute::<Filterable>(query)
             .unwrap()
             .entities();
+
         assert!(results.iter().all(|e| e.category == "A"));
+        assert_eq!(results.len(), 3);
     }
 
     fn filter_eq_bool() {
@@ -68,7 +99,9 @@ impl FilterTester {
             .execute::<Filterable>(query)
             .unwrap()
             .entities();
+
         assert!(results.iter().all(|e| e.active));
+        assert_eq!(results.len(), 6);
     }
 
     fn filter_gt_score() {
@@ -90,7 +123,9 @@ impl FilterTester {
             .execute::<Filterable>(query)
             .unwrap()
             .entities();
+
         assert!(results.iter().all(|e| e.level <= 3));
+        assert_eq!(results.len(), 7);
     }
 
     fn filter_ne_category() {
@@ -101,7 +136,9 @@ impl FilterTester {
             .execute::<Filterable>(query)
             .unwrap()
             .entities();
+
         assert!(results.iter().all(|e| e.category != "B"));
+        assert_eq!(results.len(), 6);
     }
 
     fn filter_and_group() {
@@ -117,15 +154,15 @@ impl FilterTester {
             .execute::<Filterable>(query)
             .unwrap()
             .entities();
+
         assert!(results.iter().all(|e| e.score >= 60.0 && e.level >= 2));
+        assert_eq!(results.len(), 5);
     }
 
     fn filter_or_group() {
         let query = query::load().filter(|f| {
-            f.or_group(|b| {
-                b.filter("category", Cmp::Eq, "A")
-                    .filter("category", Cmp::Eq, "C")
-            })
+            f.filter("category", Cmp::Eq, "A")
+                .or("category", Cmp::Eq, "C")
         });
 
         let results = db!()
@@ -133,11 +170,13 @@ impl FilterTester {
             .execute::<Filterable>(query)
             .unwrap()
             .entities();
+
         assert!(
             results
                 .iter()
                 .all(|e| e.category == "A" || e.category == "C")
         );
+        assert_eq!(results.len(), 6);
     }
 
     fn filter_nested_groups() {
@@ -153,7 +192,9 @@ impl FilterTester {
             .execute::<Filterable>(query)
             .unwrap()
             .entities();
+
         assert!(!results.is_empty());
+        assert_eq!(results.len(), 7);
     }
 
     fn filter_startswith_name() {
@@ -164,7 +205,9 @@ impl FilterTester {
             .execute::<Filterable>(query)
             .unwrap()
             .entities();
+
         assert!(results.iter().all(|e| e.name.starts_with('A')));
+        assert_eq!(results.len(), 1);
     }
 
     fn filter_not_clause() {
@@ -176,7 +219,9 @@ impl FilterTester {
             .execute::<Filterable>(query)
             .unwrap()
             .entities();
+
         assert!(results.iter().all(|e| e.category != "C"));
+        assert_eq!(results.len(), 7);
     }
 
     fn filter_true_short_circuit() {
@@ -208,6 +253,7 @@ impl FilterTester {
             .execute::<Filterable>(query)
             .unwrap()
             .entities();
+
         assert_eq!(results.len(), 0);
     }
 
@@ -231,6 +277,7 @@ impl FilterTester {
                 .iter()
                 .all(|e| e.category == "A" || e.category == "C")
         );
+        assert_eq!(results.len(), 6);
     }
 
     fn filter_allin_tags() {
@@ -251,6 +298,8 @@ impl FilterTester {
         assert!(results.iter().all(|e| {
             e.tags.contains(&"blue".to_string()) && e.tags.contains(&"green".to_string())
         }));
+
+        assert_eq!(results.len(), 3);
     }
 
     fn filter_anyin_tags() {
@@ -275,6 +324,8 @@ impl FilterTester {
                 e.name
             );
         }
+
+        assert_eq!(results.len(), 5);
     }
 
     fn filter_eq_principal() {
@@ -295,6 +346,7 @@ impl FilterTester {
             results.iter().all(|e| e.pid == expected),
             "All results should have matching principal"
         );
+        assert_eq!(results.len(), 1);
     }
 
     fn filter_contains_tag() {
@@ -311,5 +363,6 @@ impl FilterTester {
                 .iter()
                 .all(|e| e.tags.contains(&"green".to_string()))
         );
+        assert_eq!(results.len(), 4);
     }
 }

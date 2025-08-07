@@ -238,7 +238,7 @@ impl DbTester {
         assert_eq!(rows, 2);
 
         // Step 4: Delete e1 (y=10)
-        db!().delete().debug().one::<Index>(id1).unwrap();
+        db!().delete().one::<Index>(id1).unwrap();
 
         // COUNT
         let rows = db!().load().count_all::<Index>().unwrap();
