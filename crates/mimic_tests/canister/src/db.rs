@@ -339,7 +339,7 @@ impl DbTester {
                     .load()
                     .execute::<Limit>(query::load().offset(offset).limit(limit))
                     .unwrap()
-                    .len();
+                    .count();
 
                 assert_eq!(count, limit, "{limit} not equal to {count}");
                 //    if !results.is_empty() {
@@ -371,7 +371,7 @@ impl DbTester {
         let loaded = db!().load().many::<CreateBasic>(&many_keys).unwrap();
 
         // Assert correct count
-        assert_eq!(loaded.len(), 3);
+        assert_eq!(loaded.count(), 3);
 
         // Optionally assert that each loaded item has a matching ID
         for key in loaded.keys() {
@@ -414,6 +414,6 @@ impl DbTester {
         // Retrieve rows in B-Tree order
         let rows = db!().load().all::<ContainsManyRelations>().unwrap();
 
-        let _ = rows.len();
+        let _ = rows.count();
     }
 }

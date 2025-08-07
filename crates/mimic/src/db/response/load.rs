@@ -7,24 +7,24 @@ use crate::{
         response::{EntityRow, ResponseError},
     },
 };
-use derive_more::Deref;
 use std::{borrow::Borrow, collections::HashMap};
 
 ///
 /// LoadCollection
 ///
 
-#[derive(Debug, Deref)]
+#[derive(Debug)]
 pub struct LoadCollection<E: EntityKind>(pub Vec<EntityRow<E>>);
 
 impl<E> LoadCollection<E>
 where
     E: EntityKind,
 {
-    // len
+    // count
+    // not len, as it returns a u32 so could get confusing
     #[must_use]
     #[allow(clippy::cast_possible_truncation)]
-    pub const fn len(&self) -> u32 {
+    pub const fn count(&self) -> u32 {
         self.0.len() as u32
     }
 

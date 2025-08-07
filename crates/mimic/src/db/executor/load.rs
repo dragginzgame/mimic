@@ -111,9 +111,9 @@ impl LoadExecutor {
     /// keeping it separate in case we can optimise count queries in the future
     #[allow(clippy::cast_possible_truncation)]
     pub fn count<E: EntityKind>(self, query: LoadQuery) -> Result<u32, Error> {
-        let collection = self.execute::<E>(query)?;
+        let count = self.execute::<E>(query)?.count();
 
-        Ok(collection.len())
+        Ok(count)
     }
 
     /// Build the plan
