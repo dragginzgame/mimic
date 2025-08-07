@@ -62,13 +62,11 @@ impl LoadExecutor {
             .try_entity()
     }
 
-    pub fn many<E, I>(&self, values: I) -> Result<LoadCollection<E>, Error>
-    where
-        E: EntityKind,
-        I: IntoIterator,
-        I::Item: Into<Value>,
-    {
-        self.execute::<E>(LoadQuery::new().many::<E, I>(values))
+    pub fn many<E: EntityKind>(
+        &self,
+        values: impl IntoIterator<Item = impl Into<Value>>,
+    ) -> Result<LoadCollection<E>, Error> {
+        self.execute::<E>(LoadQuery::new().many::<E>(values))
     }
 
     pub fn all<E: EntityKind>(&self) -> Result<LoadCollection<E>, Error> {
@@ -82,7 +80,6 @@ impl LoadExecutor {
         self.execute::<E>(LoadQuery::new().filter(f))
     }
 
-    #[allow(clippy::cast_possible_truncation)]
     pub fn count_all<E: EntityKind>(self) -> Result<u32, Error> {
         self.count::<E>(LoadQuery::all())
     }

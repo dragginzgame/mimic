@@ -50,29 +50,21 @@ impl DeleteExecutor {
     /// these will create an intermediate query
     ///
 
-    // one
-    // helper method, creates query
     pub fn one<E: EntityKind>(&self, value: impl Into<Value>) -> Result<Vec<Key>, Error> {
         self.execute::<E>(DeleteQuery::new().one::<E>(value))
     }
 
-    // many
-    // helper method, creates query
-    pub fn many<E, I>(&self, values: I) -> Result<Vec<Key>, Error>
-    where
-        E: EntityKind,
-        I: IntoIterator,
-        I::Item: Into<Value>,
-    {
-        self.execute::<E>(DeleteQuery::new().many::<E, I>(values))
+    pub fn many<E: EntityKind>(
+        &self,
+        values: impl IntoIterator<Item = impl Into<Value>>,
+    ) -> Result<Vec<Key>, Error> {
+        self.execute::<E>(DeleteQuery::new().many::<E>(values))
     }
 
-    // all
     pub fn all<E: EntityKind>(&self) -> Result<Vec<Key>, Error> {
         self.execute::<E>(DeleteQuery::new())
     }
 
-    // filter
     pub fn filter<E: EntityKind>(
         self,
         f: impl FnOnce(FilterBuilder) -> FilterBuilder,

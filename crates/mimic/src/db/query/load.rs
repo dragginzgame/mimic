@@ -39,13 +39,10 @@ impl LoadQuery {
         self.filter_eq(E::PRIMARY_KEY, value.into())
     }
 
-    // many
     #[must_use]
-    pub fn many<E, I>(self, values: I) -> Self
+    pub fn many<E>(self, values: impl IntoIterator<Item = impl Into<Value>>) -> Self
     where
         E: EntityKind,
-        I: IntoIterator,
-        I::Item: Into<Value>,
     {
         let list = values
             .into_iter()

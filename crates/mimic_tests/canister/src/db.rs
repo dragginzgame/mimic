@@ -194,7 +194,7 @@ impl DbTester {
         assert_eq!(count_before as usize, ROWS, "Expected {ROWS} inserted rows");
 
         // Step 3: Delete all inserted rows
-        let deleted = db!().delete().many::<CreateBasic, _>(keys.clone()).unwrap();
+        let deleted = db!().delete().many::<CreateBasic>(keys.clone()).unwrap();
 
         assert_eq!(
             deleted.len(),
@@ -368,7 +368,7 @@ impl DbTester {
 
         // Pass a slice of IDs
         let many_keys = vec![key1, key2, key3];
-        let loaded = db!().load().many::<CreateBasic, _>(&many_keys).unwrap();
+        let loaded = db!().load().many::<CreateBasic>(&many_keys).unwrap();
 
         // Assert correct count
         assert_eq!(loaded.len(), 3);

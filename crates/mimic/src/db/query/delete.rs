@@ -27,12 +27,7 @@ impl DeleteQuery {
     }
 
     #[must_use]
-    pub fn many<E, I>(self, values: I) -> Self
-    where
-        E: EntityKind,
-        I: IntoIterator,
-        I::Item: Into<Value>,
-    {
+    pub fn many<E: EntityKind>(self, values: impl IntoIterator<Item = impl Into<Value>>) -> Self {
         let list = values
             .into_iter()
             .map(|v| Box::new(v.into()))
