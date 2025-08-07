@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-- this is for 0.9.9
+- removed second generic arg on load and delete many()
 
 ## [0.9.8] - 2025-08-06
 - fixed Selector so that it tries to use a familiar ident
