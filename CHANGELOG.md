@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [0.9.10] - 2025-08-07
+- Initial release
+
+## [Unreleased]
 - removed second generic arg on load and delete many()
 
 ## [0.9.8] - 2025-08-06
