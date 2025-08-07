@@ -6,11 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-
-## [0.9.12] - 2025-08-07
-- Initial release
-
-## [Unreleased]
+- better error message on 0 rows found
 - removed len and deref from LoadCollection, now its count -> u32
 
 ## [0.9.10] - 2025-08-07

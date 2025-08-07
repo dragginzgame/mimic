@@ -43,7 +43,7 @@ where
     pub fn try_key(self) -> Result<Key, Error> {
         let key = self
             .key()
-            .ok_or(ResponseError::NoRowsFound)
+            .ok_or_else(|| ResponseError::NoRowsFound(E::PATH.to_string()))
             .map_err(DbError::from)?;
 
         Ok(key)
@@ -71,7 +71,7 @@ where
     pub fn try_entity(self) -> Result<E, Error> {
         let res = self
             .entity()
-            .ok_or(ResponseError::NoRowsFound)
+            .ok_or_else(|| ResponseError::NoRowsFound(E::PATH.to_string()))
             .map_err(DbError::from)?;
 
         Ok(res)
@@ -98,7 +98,7 @@ where
     pub fn try_entity_row(self) -> Result<EntityRow<E>, Error> {
         let row = self
             .entity_row()
-            .ok_or(ResponseError::NoRowsFound)
+            .ok_or_else(|| ResponseError::NoRowsFound(E::PATH.to_string()))
             .map_err(DbError::from)?;
 
         Ok(row)

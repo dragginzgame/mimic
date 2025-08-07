@@ -70,6 +70,11 @@ impl Principal {
     }
 
     #[must_use]
+    pub const fn dummy(n: u8) -> Self {
+        Self::from_slice(&[n; 29])
+    }
+
+    #[must_use]
     pub const fn max_storable() -> Self {
         Self::from_slice(&[0xFF; 29])
     }

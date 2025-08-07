@@ -1,8 +1,9 @@
 use mimic::{
+    core::types::Principal,
     db::query::{self, FilterClause, FilterExpr},
     prelude::*,
 };
-use test_design::canister::filter::Filterable;
+use test_design::canister::filter::{Filterable, FilterableOpt};
 
 ///
 /// FilterTester
@@ -34,10 +35,16 @@ impl FilterTester {
             ("filter_anyin_tags", Self::filter_anyin_tags),
             ("filter_eq_principal", Self::filter_eq_principal),
             ("filter_contains_tag", Self::filter_contains_tag),
+            // opt
+            ("filter_opt_eq_name", Self::filter_opt_eq_name),
+            ("filter_opt_lt_level", Self::filter_opt_lt_level),
+            ("filter_opt_is_none_name", Self::filter_opt_is_none_name),
+            ("filter_opt_ne_pid_null", Self::filter_opt_ne_pid_null),
         ];
 
         // insert data
         Self::insert();
+        Self::insert_opt();
 
         for (name, test_fn) in tests {
             println!("Running test: {name}");
@@ -71,19 +78,44 @@ impl FilterTester {
                     level,
                     offset,
                     tags: tags.iter().map(ToString::to_string).collect(),
-                    pid: Filterable::dummy_principal(pid_index),
+                    pid: Principal::dummy(pid_index),
                     ..Default::default()
                 },
             );
         }
     }
 
-    fn filter_eq_string() {
-        let query = query::load().filter(|f| f.filter("category", Cmp::Eq, "A"));
+    fn insert_opt() {
+        let fixtures = [
+            (Some("Alice"), Some(1), Some(-10), Some(Principal::dummy(1))),
+            (Some("Bob"), Some(2), Some(0), Some(Principal::dummy(2))),
+            (None, Some(3), None, Some(Principal::dummy(3))),
+            (Some("Charlie"), None, Some(5), None),
+            (None, None, None, None),
+        ];
 
+        for (name, level, offset, pid) in fixtures {
+            EntityService::save_fixture(
+                db!(),
+                FilterableOpt {
+                    name: name.map(str::to_string),
+                    level,
+                    offset,
+                    pid,
+                    ..Default::default()
+                },
+            );
+        }
+    }
+
+    ///
+    /// NORMAL (Filterable)
+    ///
+
+    fn filter_eq_string() {
         let results = db!()
             .load()
-            .execute::<Filterable>(query)
+            .filter::<Filterable>(|f| f.filter("category", Cmp::Eq, "A"))
             .unwrap()
             .entities();
 
@@ -92,11 +124,9 @@ impl FilterTester {
     }
 
     fn filter_eq_bool() {
-        let query = query::load().filter(|f| f.filter("active", Cmp::Eq, true));
-
         let results = db!()
             .load()
-            .execute::<Filterable>(query)
+            .filter::<Filterable>(|f| f.filter("active", Cmp::Eq, true))
             .unwrap()
             .entities();
 
@@ -105,22 +135,20 @@ impl FilterTester {
     }
 
     fn filter_gt_score() {
-        let query = query::load().filter(|f| f.filter("score", Cmp::Gt, 80.0));
-
         let results = db!()
             .load()
-            .execute::<Filterable>(query)
+            .filter::<Filterable>(|f| f.filter("score", Cmp::Gt, 80.0))
             .unwrap()
             .entities();
+
         assert!(results.iter().all(|e| e.score > 80.0));
+        assert_eq!(results.len(), 4);
     }
 
     fn filter_le_level() {
-        let query = query::load().filter(|f| f.filter("level", Cmp::Lte, 3));
-
         let results = db!()
             .load()
-            .execute::<Filterable>(query)
+            .filter::<Filterable>(|f| f.filter("level", Cmp::Lte, 3))
             .unwrap()
             .entities();
 
@@ -129,11 +157,9 @@ impl FilterTester {
     }
 
     fn filter_ne_category() {
-        let query = query::load().filter(|f| f.filter("category", Cmp::Ne, "B"));
-
         let results = db!()
             .load()
-            .execute::<Filterable>(query)
+            .filter::<Filterable>(|f| f.filter("category", Cmp::Ne, "B"))
             .unwrap()
             .entities();
 
@@ -198,11 +224,9 @@ impl FilterTester {
     }
 
     fn filter_startswith_name() {
-        let query = query::load().filter(|f| f.filter("name", Cmp::StartsWith, "A"));
-
         let results = db!()
             .load()
-            .execute::<Filterable>(query)
+            .filter::<Filterable>(|f| f.filter("name", Cmp::StartsWith, "A"))
             .unwrap()
             .entities();
 
@@ -225,10 +249,9 @@ impl FilterTester {
     }
 
     fn filter_true_short_circuit() {
-        let query = query::load().filter(|f| f.expr(FilterExpr::True));
         let results = db!()
             .load()
-            .execute::<Filterable>(query)
+            .filter::<Filterable>(|f| f.expr(FilterExpr::True))
             .unwrap()
             .entities();
 
@@ -238,7 +261,7 @@ impl FilterTester {
     fn filter_false_short_circuit() {
         let results = db!()
             .load()
-            .execute::<Filterable>(query::load().filter(|f| f.expr(FilterExpr::False)))
+            .filter::<Filterable>(|f| f.expr(FilterExpr::False))
             .unwrap()
             .entities();
 
@@ -246,11 +269,9 @@ impl FilterTester {
     }
 
     fn filter_empty_result() {
-        let query = query::load().filter(|f| f.filter("category", Cmp::Eq, "Nonexistent"));
-
         let results = db!()
             .load()
-            .execute::<Filterable>(query)
+            .filter::<Filterable>(|f| f.filter("category", Cmp::Eq, "Nonexistent"))
             .unwrap()
             .entities();
 
@@ -258,12 +279,9 @@ impl FilterTester {
     }
 
     fn filter_in_category() {
-        let query =
-            query::load().filter(|f| f.filter("category", Cmp::In, Value::list(&["A", "C"])));
-
         let results = db!()
             .load()
-            .execute::<Filterable>(query)
+            .filter::<Filterable>(|f| f.filter("category", Cmp::In, Value::list(&["A", "C"])))
             .unwrap()
             .entities();
 
@@ -281,12 +299,9 @@ impl FilterTester {
     }
 
     fn filter_allin_tags() {
-        let query =
-            query::load().filter(|f| f.filter("tags", Cmp::AllIn, Value::list(&["blue", "green"])));
-
         let results = db!()
             .load()
-            .execute::<Filterable>(query)
+            .filter::<Filterable>(|f| f.filter("tags", Cmp::AllIn, Value::list(&["blue", "green"])))
             .unwrap()
             .entities();
 
@@ -303,12 +318,9 @@ impl FilterTester {
     }
 
     fn filter_anyin_tags() {
-        let query =
-            query::load().filter(|f| f.filter("tags", Cmp::AnyIn, Value::list(&["blue", "green"])));
-
         let results = db!()
             .load()
-            .execute::<Filterable>(query)
+            .filter::<Filterable>(|f| f.filter("tags", Cmp::AnyIn, Value::list(&["blue", "green"])))
             .unwrap()
             .entities();
 
@@ -330,7 +342,7 @@ impl FilterTester {
 
     fn filter_eq_principal() {
         // Use dummy principal that matches the one used in fixtures
-        let expected = Filterable::dummy_principal(1);
+        let expected = Principal::dummy(1);
 
         let results = db!()
             .load()
@@ -350,11 +362,9 @@ impl FilterTester {
     }
 
     fn filter_contains_tag() {
-        let query = query::load().filter(|f| f.filter("tags", Cmp::Contains, "green"));
-
         let results = db!()
             .load()
-            .execute::<Filterable>(query)
+            .filter::<Filterable>(|f| f.filter("tags", Cmp::Contains, "green"))
             .unwrap()
             .entities();
 
@@ -364,5 +374,53 @@ impl FilterTester {
                 .all(|e| e.tags.contains(&"green".to_string()))
         );
         assert_eq!(results.len(), 4);
+    }
+
+    ///
+    /// OPTIONAL (FilterableOpt)
+    ///
+
+    fn filter_opt_eq_name() {
+        let results = db!()
+            .load()
+            .filter::<FilterableOpt>(|f| f.filter("name", Cmp::Eq, "Alice"))
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].name.as_deref(), Some("Alice"));
+    }
+
+    fn filter_opt_is_none_name() {
+        let results = db!()
+            .load()
+            .filter::<FilterableOpt>(|f| f.filter("name", Cmp::Eq, Value::None))
+            .unwrap()
+            .entities();
+
+        assert!(results.iter().all(|e| e.name.is_none()));
+        assert_eq!(results.len(), 2); // Charlie and None
+    }
+
+    fn filter_opt_lt_level() {
+        let results = db!()
+            .load()
+            .filter::<FilterableOpt>(|f| f.filter("level", Cmp::Lt, 3))
+            .unwrap()
+            .entities();
+
+        assert!(results.iter().all(|e| e.level.unwrap_or(255) < 3));
+        assert_eq!(results.len(), 2); // Alice (1), Bob (2)
+    }
+
+    fn filter_opt_ne_pid_null() {
+        let results = db!()
+            .load()
+            .filter::<FilterableOpt>(|f| f.filter("pid", Cmp::Ne, Value::None))
+            .unwrap()
+            .entities();
+
+        assert!(results.iter().all(|e| e.pid.is_some()));
+        assert_eq!(results.len(), 3);
     }
 }

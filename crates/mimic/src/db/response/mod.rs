@@ -12,6 +12,6 @@ use thiserror::Error as ThisError;
 
 #[derive(Debug, ThisError)]
 pub enum ResponseError {
-    #[error("no rows found")]
-    NoRowsFound,
+    #[error("no rows returned from query (entity {0})")]
+    NoRowsFound(String),
 }
