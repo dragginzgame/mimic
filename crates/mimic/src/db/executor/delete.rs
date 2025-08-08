@@ -6,6 +6,7 @@ use crate::{
     },
     db::{
         DbError,
+        executor::FilterEvaluator,
         query::{DeleteQuery, FilterBuilder, QueryPlan, QueryPlanner, QueryValidate},
         store::{DataKey, DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
@@ -149,20 +150,16 @@ impl DeleteExecutor {
             .data_registry
             .with(|db| db.try_get_store(E::Store::PATH))?;
 
-        // get keys
+        // 1) collect candidate keys from the plan (unfiltered superset)
         let mut keys: Vec<DataKey> = match plan {
             QueryPlan::Keys(keys) => keys,
-
-            QueryPlan::Range(start, end) => store.with_borrow(|store| {
-                store
-                    .range((Bound::Included(start.clone()), Bound::Included(end.clone())))
-                    .map(|entry| entry.key().clone())
+            QueryPlan::Range(start, end) => store.with_borrow(|s| {
+                s.range((Bound::Included(start.clone()), Bound::Included(end.clone())))
+                    .map(|e| e.key().clone())
                     .collect()
             }),
-
             QueryPlan::Index(plan) => {
                 let index = plan.index;
-
                 let index_store = self
                     .index_registry
                     .with(|reg| reg.try_get_store(index.store))?;
@@ -171,7 +168,30 @@ impl DeleteExecutor {
             }
         };
 
-        // apply limit
+        // 2) apply filter (like LoadExecutor::finalize_rows) BEFORE limit
+        if let Some(filter_expr) = &query.filter {
+            let filter_simple = filter_expr.clone().simplify();
+
+            // Borrow store immutably to evaluate rows
+            keys = store.with_borrow(|s| {
+                keys.into_iter()
+                    .filter(|dk| {
+                        s.get(dk).is_some_and(|data_value| {
+                            // deserialize to E to expose FieldValues for FilterEvaluator
+                            match crate::core::deserialize::<E>(&data_value.bytes) {
+                                Ok(entity) => {
+                                    let eval = FilterEvaluator::new(&entity);
+                                    eval.eval(&filter_simple)
+                                }
+                                Err(_) => false,
+                            }
+                        })
+                    })
+                    .collect()
+            });
+        }
+
+        // 3) apply limit AFTER filtering
         if let Some(limit_expr) = &query.limit
             && let Some(limit) = limit_expr.limit
         {

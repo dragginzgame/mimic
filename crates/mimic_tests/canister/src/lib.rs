@@ -31,7 +31,8 @@ fn init() {
 pub fn test() {
     default::DefaultTester::test();
     db::DbTester::test();
-    filter::FilterTester::test();
+    filter::load::LoadFilterTester::test();
+    filter::delete::DeleteFilterTester::test();
     index::IndexTester::test();
     ops::OpsTester::test();
     validate::ValidateTester::test();

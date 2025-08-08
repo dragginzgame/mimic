@@ -6,11 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+- actually using the filter on the DeleteExecutor
+- added lots of tests for deleting, also fixed the fact Filterable was being saved to the wrong Store
+- updated rust to 1.89
 
 ## [0.9.14] - 2025-08-07
-- Initial release
-
-## [Unreleased]
 - better error message on 0 rows found
 - removed len and deref from LoadCollection, now its count -> u32
 

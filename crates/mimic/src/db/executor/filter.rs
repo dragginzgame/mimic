@@ -5,7 +5,6 @@ use crate::{
     },
     db::query::{Cmp, FilterClause, FilterExpr, QueryError, QueryValidate},
 };
-use icu::{Log, log};
 
 ///
 /// FilterEvaluator
@@ -43,7 +42,7 @@ impl<'a> FilterEvaluator<'a> {
     // compare
     fn compare(left: &Value, cmp: Cmp, right: &Value) -> bool {
         // Try numeric/structural coercions first
-        let result = if let Some(res) = Self::coerce_match(left, right, cmp) {
+        if let Some(res) = Self::coerce_match(left, right, cmp) {
             res
         }
         // Try text-based coercion
@@ -87,20 +86,7 @@ impl<'a> FilterEvaluator<'a> {
 
                 _ => false, // should only be text ops here, already handled
             }
-        };
-
-        // 👇 Add this for debugging
-        if matches!(cmp, Cmp::Eq | Cmp::Ne) && !result {
-            log!(
-                Log::Warn,
-                "DEBUG: Eq failed - left: {:?}, right: {:?}, equal: {}",
-                left,
-                right,
-                left == right
-            );
         }
-
-        result
     }
 
     #[allow(clippy::cast_sign_loss)]

@@ -6,12 +6,12 @@ use mimic::{
 use test_design::canister::filter::{Filterable, FilterableOpt};
 
 ///
-/// FilterTester
+/// LoadFilterTester
 ///
 
-pub struct FilterTester {}
+pub struct LoadFilterTester {}
 
-impl FilterTester {
+impl LoadFilterTester {
     pub fn test() {
         let tests: Vec<(&str, fn())> = vec![
             ("filter_eq_string", Self::filter_eq_string),

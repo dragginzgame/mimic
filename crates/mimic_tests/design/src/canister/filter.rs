@@ -5,7 +5,7 @@ use crate::prelude::*;
 ///
 
 #[entity(
-    store = "crate::schema::FixtureStore",
+    store = "TestDataStore",
     pk = "id",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
@@ -27,7 +27,7 @@ pub struct Filterable {}
 ///
 
 #[entity(
-    store = "crate::schema::FixtureStore",
+    store = "TestDataStore",
     pk = "id",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),

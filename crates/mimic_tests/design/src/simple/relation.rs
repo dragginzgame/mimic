@@ -5,7 +5,7 @@ use crate::prelude::*;
 ///
 
 #[entity(
-    store = "crate::schema::FixtureStore",
+    store = "TestDataStore",
     pk = "id",
     fields(
         field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
@@ -21,7 +21,7 @@ pub struct HasRelation {}
 ///
 
 #[entity(
-    store = "crate::schema::FixtureStore",
+    store = "TestDataStore",
     pk = "id",
     fields(field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"))
 )]
@@ -32,7 +32,7 @@ pub struct EntityA {}
 ///
 
 #[entity(
-    store = "crate::schema::FixtureStore",
+    store = "TestDataStore",
     pk = "id",
     fields(field(name = "id", value(item(prim = "Nat16"))))
 )]
@@ -43,7 +43,7 @@ pub struct EntityB {}
 ///
 
 #[entity(
-    store = "crate::schema::FixtureStore",
+    store = "TestDataStore",
     pk = "id",
     fields(field(name = "id", value(item(prim = "Principal"))))
 )]
