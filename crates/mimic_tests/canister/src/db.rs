@@ -69,7 +69,7 @@ impl DbTester {
         // Insert rows
         for _ in 0..ROWS {
             let e = ContainsBlob::default();
-            db!().save().create(e).unwrap();
+            db!().create(e).unwrap();
         }
 
         // Retrieve rows in B-Tree order
@@ -96,7 +96,7 @@ impl DbTester {
         use test_design::canister::db::CreateBasic;
 
         let e = CreateBasic::default();
-        db!().save().create(e).unwrap();
+        db!().create(e).unwrap();
 
         // count keys
         let num_keys = db!().load().count_all::<CreateBasic>().unwrap();
@@ -104,7 +104,7 @@ impl DbTester {
 
         // insert another
         let e = CreateBasic::default();
-        db!().save().create(e).unwrap();
+        db!().create(e).unwrap();
 
         // count keys
         assert_eq!(db!().load().count_all::<CreateBasic>().unwrap(), 2);
@@ -118,7 +118,7 @@ impl DbTester {
         // insert rows
         for _ in 0..ROWS {
             let e = CreateBasic::default();
-            db!().save().create(e).unwrap();
+            db!().create(e).unwrap();
         }
 
         // Retrieve the count from the store
@@ -141,7 +141,7 @@ impl DbTester {
                 ..Default::default()
             };
 
-            db!().save().create(e).unwrap();
+            db!().create(e).unwrap();
         }
 
         // Retrieve the count from the store
@@ -160,7 +160,7 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = DataKeyOrder::default();
-            db!().save().create(e).unwrap();
+            db!().create(e).unwrap();
         }
 
         // Retrieve rows in B-Tree order
@@ -185,7 +185,7 @@ impl DbTester {
         // Step 1: Insert rows and collect keys
         let mut keys = Vec::with_capacity(ROWS);
         for _ in 0..ROWS {
-            let key = db!().save().create(CreateBasic::default()).unwrap().key();
+            let key = db!().create(CreateBasic::default()).unwrap().key();
             keys.push(key);
         }
 
@@ -214,7 +214,7 @@ impl DbTester {
 
         // Step 1: Insert entity e1 with x=1, y=10
         let e1 = Index::new(1, 10);
-        let id1 = db!().save().create(e1).unwrap().key();
+        let id1 = db!().create(e1).unwrap().key();
 
         // COUNT
         let rows = db!().load().count_all::<Index>().unwrap();
@@ -222,7 +222,7 @@ impl DbTester {
 
         // Step 2: Insert entity e2 with x=1 (non-unique), y=20 (unique)
         let e2 = Index::new(1, 20);
-        db!().save().create(e2).unwrap();
+        db!().create(e2).unwrap();
 
         // COUNT
         let rows = db!().load().count_all::<Index>().unwrap();
@@ -230,7 +230,7 @@ impl DbTester {
 
         // Step 3: Attempt to insert another with duplicate y=10 (should fail)
         let e3 = Index::new(2, 10);
-        let result = db!().save().create(e3.clone());
+        let result = db!().create(e3.clone());
         assert!(result.is_err(), "expected unique index violation on y=10");
 
         // COUNT
@@ -245,7 +245,7 @@ impl DbTester {
         assert_eq!(rows, 1);
 
         // Step 5: Try inserting e3 again (y=10 should now be free)
-        let result = db!().save().create(e3);
+        let result = db!().create(e3);
         assert!(
             result.is_ok(),
             "expected insert to succeed after y=10 was freed by delete"
@@ -270,28 +270,28 @@ impl DbTester {
             id: Ulid::generate(),
             value: Some(10),
         };
-        let id1 = db!().save().create(e1).unwrap().key();
+        let id1 = db!().create(e1).unwrap().key();
 
         // Insert entity with Some(20)
         let e2 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: Some(20),
         };
-        db!().save().create(e2).unwrap().key();
+        db!().create(e2).unwrap().key();
 
         // Insert entity with None (should not conflict with anything)
         let e3 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: None,
         };
-        let id3 = db!().save().create(e3).unwrap().key();
+        let id3 = db!().create(e3).unwrap().key();
 
         // Insert duplicate Some(10) — should fail (if index is unique)
         let e4 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: Some(10),
         };
-        let result = db!().save().create(e4.clone());
+        let result = db!().create(e4.clone());
         assert!(
             result.is_err(),
             "Expected duplicate index error on Some(10)"
@@ -301,7 +301,7 @@ impl DbTester {
         db!().delete().one::<IndexUniqueOpt>(id1).unwrap();
 
         // Retry insert of e4 — should now succeed
-        let result = db!().save().create(e4);
+        let result = db!().create(e4);
         assert!(
             result.is_ok(),
             "Expected insert to succeed after deleting conflicting index"
@@ -315,7 +315,7 @@ impl DbTester {
             id: Ulid::generate(),
             value: None,
         };
-        db!().save().create(e5).unwrap();
+        db!().create(e5).unwrap();
 
         // Confirm only 3 entities now exist
         let rows = db!().load().count_all::<IndexUniqueOpt>().unwrap();
@@ -329,7 +329,7 @@ impl DbTester {
         // overwrite the ulid with replace()
         for value in 1..100 {
             let e = Limit { value };
-            db!().save().replace(e).unwrap();
+            db!().replace(e).unwrap();
         }
 
         // Test various limits and offsets
@@ -352,7 +352,7 @@ impl DbTester {
     fn load_one() {
         use test_design::canister::db::CreateBasic;
 
-        let saved = db!().save().create(CreateBasic::default()).unwrap();
+        let saved = db!().create(CreateBasic::default()).unwrap();
 
         let loaded = db!().load().one::<CreateBasic>(saved.key()).unwrap();
 
@@ -362,9 +362,9 @@ impl DbTester {
     fn load_many() {
         use test_design::canister::db::CreateBasic;
 
-        let key1 = db!().save().create(CreateBasic::default()).unwrap().key();
-        let key2 = db!().save().create(CreateBasic::default()).unwrap().key();
-        let key3 = db!().save().create(CreateBasic::default()).unwrap().key();
+        let key1 = db!().create(CreateBasic::default()).unwrap().key();
+        let key2 = db!().create(CreateBasic::default()).unwrap().key();
+        let key3 = db!().create(CreateBasic::default()).unwrap().key();
 
         // Pass a slice of IDs
         let many_keys = vec![key1, key2, key3];
@@ -387,7 +387,7 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = ContainsOpts::default();
-            db!().save().create(e).unwrap();
+            db!().create(e).unwrap();
         }
 
         // Retrieve rows in B-Tree order
@@ -408,7 +408,7 @@ impl DbTester {
         // Insert rows
         for _ in 1..ROWS {
             let e = ContainsManyRelations::default();
-            db!().save().create(e).unwrap();
+            db!().create(e).unwrap();
         }
 
         // Retrieve rows in B-Tree order

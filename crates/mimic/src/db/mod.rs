@@ -5,7 +5,8 @@ pub mod service;
 pub mod store;
 
 use crate::{
-    core::{serialize::SerializeError, validate::ValidationError},
+    Error,
+    core::{serialize::SerializeError, traits::EntityKind, validate::ValidationError},
     db::{
         executor::{DeleteExecutor, ExecutorError, LoadExecutor, SaveExecutor},
         query::QueryError,
@@ -67,14 +68,20 @@ impl Db {
         SaveExecutor::new(self.data, self.index)
     }
 
+    pub fn create<E: EntityKind>(&self, entity: E) -> Result<E, Error> {
+        SaveExecutor::new(self.data, self.index).create(entity)
+    }
+
+    pub fn replace<E: EntityKind>(&self, entity: E) -> Result<E, Error> {
+        SaveExecutor::new(self.data, self.index).replace(entity)
+    }
+
+    pub fn update<E: EntityKind>(&self, entity: E) -> Result<E, Error> {
+        SaveExecutor::new(self.data, self.index).update(entity)
+    }
+
     #[must_use]
     pub const fn delete(&self) -> DeleteExecutor {
         DeleteExecutor::new(self.data, self.index)
-    }
-
-    // specific save queries
-    #[must_use]
-    pub const fn create(&self) -> SaveExecutor {
-        SaveExecutor::new(self.data, self.index)
     }
 }

@@ -129,6 +129,7 @@ impl DeleteFilterTester {
             .filter::<Filterable>(|f| f.filter("category", Cmp::Eq, "A"))
             .unwrap()
             .entities();
+
         assert!(rest.is_empty(), "no A rows should remain");
     }
 
@@ -140,6 +141,7 @@ impl DeleteFilterTester {
             .unwrap();
 
         assert_eq!(deleted.len(), 4, "expected to delete 4 rows with green tag");
+
         let remaining = Self::remaining_count_filterable();
         assert_eq!(remaining, 6);
     }
@@ -152,6 +154,7 @@ impl DeleteFilterTester {
             .unwrap();
 
         assert_eq!(deleted.len(), 6, "expected to delete 6 rows (A or C)");
+
         let remaining = Self::remaining_count_filterable();
         assert_eq!(remaining, 4);
     }
@@ -169,6 +172,7 @@ impl DeleteFilterTester {
             1,
             "expected to delete exactly one row by pid"
         );
+
         let remaining = Self::remaining_count_filterable();
         assert_eq!(remaining, 9);
     }
@@ -192,6 +196,7 @@ impl DeleteFilterTester {
             .filter::<FilterableOpt>(|f| f.filter("name", Cmp::Eq, Value::None))
             .unwrap()
             .entities();
+
         assert!(rest.is_empty());
     }
 
@@ -212,6 +217,7 @@ impl DeleteFilterTester {
             .filter::<FilterableOpt>(|f| f.filter("name", Cmp::Eq, "Alice"))
             .unwrap()
             .entities();
+
         assert!(rest.is_empty());
     }
 }

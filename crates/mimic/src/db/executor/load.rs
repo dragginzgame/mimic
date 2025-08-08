@@ -1,24 +1,14 @@
 use crate::{
     Error,
-    core::{
-        Key, Value,
-        traits::{EntityKind, Path},
-    },
+    core::{Key, Value, traits::EntityKind},
     db::{
         DbError,
-        executor::FilterEvaluator,
-        query::{
-            FilterBuilder, FilterExpr, LoadQuery, QueryPlan, QueryPlanner, QueryValidate,
-            SortDirection, SortExpr,
-        },
+        executor::{Context, FilterEvaluator},
+        query::{FilterBuilder, FilterExpr, LoadQuery, QueryValidate, SortDirection, SortExpr},
         response::{EntityRow, LoadCollection},
-        store::{
-            DataKey, DataRow, DataStoreLocal, DataStoreRegistryLocal, IndexStoreRegistryLocal,
-        },
+        store::{DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
-    debug,
 };
-use std::ops::Bound;
 
 ///
 /// LoadExecutor
@@ -54,7 +44,7 @@ impl LoadExecutor {
 
     //
     // HELPER METHODS
-    // these will create a query on the fly
+    // these will create an intermediate query
     //
 
     pub fn one<E: EntityKind>(&self, value: impl Into<Value>) -> Result<E, Error> {
@@ -84,9 +74,17 @@ impl LoadExecutor {
         self.count::<E>(LoadQuery::all())
     }
 
-    //
-    // EXECUTION LOGIC
-    //
+    ///
+    /// EXECUTION METHODS
+    ///
+
+    fn context(&self) -> Context {
+        Context {
+            data_registry: self.data_registry,
+            index_registry: self.index_registry,
+            debug: self.debug,
+        }
+    }
 
     // response
     // for the automated query endpoint, we will make this more flexible in the future
@@ -100,9 +98,27 @@ impl LoadExecutor {
     pub fn execute<E: EntityKind>(&self, query: LoadQuery) -> Result<LoadCollection<E>, Error> {
         QueryValidate::<E>::validate(&query).map_err(DbError::from)?;
 
-        let plan = self.build_plan::<E>(query.filter.as_ref());
-        let rows = self.execute_plan::<E>(plan)?;
-        let entities = Self::finalize_rows::<E>(rows, &query)?;
+        let ctx = self.context();
+        let plan = ctx.plan::<E>(query.filter.as_ref());
+        let rows = ctx.rows_from_plan::<E>(plan)?;
+
+        let mut entities: Vec<_> = rows
+            .into_iter()
+            .map(EntityRow::<E>::try_from)
+            .collect::<Result<_, _>>()
+            .map_err(DbError::from)?;
+
+        if let Some(f) = &query.filter {
+            Self::apply_filter(&mut entities, &f.clone().simplify());
+        }
+        if let Some(sort) = &query.sort
+            && entities.len() > 1
+        {
+            Self::apply_sort(&mut entities, sort);
+        }
+        if let Some(lim) = &query.limit {
+            Context::paginate_rows(&mut entities, lim.offset, lim.limit);
+        }
 
         Ok(LoadCollection(entities))
     }
@@ -114,112 +130,6 @@ impl LoadExecutor {
         let count = self.execute::<E>(query)?.count();
 
         Ok(count)
-    }
-
-    /// Build the plan
-    fn build_plan<E: EntityKind>(&self, filter: Option<&FilterExpr>) -> QueryPlan {
-        let planner = QueryPlanner::new(filter);
-        let plan = planner.plan::<E>();
-
-        debug!(self.debug, "query.plan: {plan:?}");
-
-        plan
-    }
-
-    /// Execute only the raw data plan (no filters/sort/pagination yet)
-    fn execute_plan<E: EntityKind>(&self, plan: QueryPlan) -> Result<Vec<DataRow>, Error> {
-        let store = self
-            .data_registry
-            .with(|reg| reg.try_get_store(E::Store::PATH))
-            .map_err(DbError::from)?;
-
-        let shape = match plan {
-            QueryPlan::Keys(keys) => Self::load_many(store, &keys),
-            QueryPlan::Range(start, end) => Self::load_range(store, start, end),
-
-            QueryPlan::Index(index_plan) => {
-                let index_store = self
-                    .index_registry
-                    .with(|reg| reg.try_get_store(index_plan.index.store))
-                    .map_err(DbError::from)?;
-
-                let keys = index_store.with_borrow(|istore| {
-                    istore.resolve_data_keys::<E>(index_plan.index, &index_plan.keys)
-                });
-
-                Self::load_many(store, &keys)
-            }
-        };
-
-        Ok(shape)
-    }
-
-    // finalize_rows
-    fn finalize_rows<E: EntityKind>(
-        rows: Vec<DataRow>,
-        query: &LoadQuery,
-    ) -> Result<Vec<EntityRow<E>>, DbError> {
-        let mut entities: Vec<_> = rows
-            .into_iter()
-            .map(EntityRow::<E>::try_from)
-            .collect::<Result<_, _>>()?;
-
-        // In-place filter
-        if let Some(filter) = &query.filter {
-            let filter_simple = filter.clone().simplify();
-
-            Self::apply_filter(&mut entities, &filter_simple);
-        }
-
-        // In-place sort
-        if let Some(sort) = &query.sort
-            && entities.len() > 1
-        {
-            Self::apply_sort(&mut entities, sort);
-        }
-
-        // In-place pagination
-        if let Some(limit) = &query.limit {
-            let total = entities.len();
-            let start = usize::min(limit.offset as usize, total);
-            let end = match limit.limit {
-                Some(lim) => usize::min(start + lim as usize, total),
-                None => total,
-            };
-
-            // avoid allocating a new vector
-            if start >= end {
-                entities.clear();
-            } else {
-                entities.drain(..start);
-                entities.truncate(end - start);
-            }
-        }
-
-        Ok(entities)
-    }
-
-    // load_many
-    fn load_many(store: DataStoreLocal, keys: &[DataKey]) -> Vec<DataRow> {
-        store.with_borrow(|this| {
-            keys.iter()
-                .filter_map(|key| {
-                    this.get(key).map(|entry| DataRow {
-                        key: key.clone(),
-                        entry,
-                    })
-                })
-                .collect()
-        })
-    }
-
-    // load_range
-    fn load_range(store: DataStoreLocal, start: DataKey, end: DataKey) -> Vec<DataRow> {
-        store.with_borrow(|this| {
-            this.range((Bound::Included(start), Bound::Included(end)))
-                .map(|entry| DataRow::new(entry.key().clone(), entry.value()))
-                .collect()
-        })
     }
 
     // apply_filter
