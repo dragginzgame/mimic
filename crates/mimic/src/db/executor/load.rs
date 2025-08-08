@@ -78,7 +78,7 @@ impl LoadExecutor {
     /// EXECUTION METHODS
     ///
 
-    fn context(&self) -> Context {
+    const fn context(&self) -> Context {
         Context {
             data_registry: self.data_registry,
             index_registry: self.index_registry,
@@ -88,7 +88,7 @@ impl LoadExecutor {
 
     // response
     // for the automated query endpoint, we will make this more flexible in the future
-    pub fn response<E: EntityKind>(self, query: LoadQuery) -> Result<Vec<Key>, Error> {
+    pub fn response<E: EntityKind>(&self, query: LoadQuery) -> Result<Vec<Key>, Error> {
         let res = self.execute::<E>(query)?.keys();
 
         Ok(res)
@@ -111,13 +111,15 @@ impl LoadExecutor {
         if let Some(f) = &query.filter {
             Self::apply_filter(&mut entities, &f.clone().simplify());
         }
+
         if let Some(sort) = &query.sort
             && entities.len() > 1
         {
             Self::apply_sort(&mut entities, sort);
         }
+
         if let Some(lim) = &query.limit {
-            Context::paginate_rows(&mut entities, lim.offset, lim.limit);
+            Self::apply_pagination(&mut entities, lim.offset, lim.limit);
         }
 
         Ok(LoadCollection(entities))
@@ -158,5 +160,18 @@ impl LoadExecutor {
 
             core::cmp::Ordering::Equal
         });
+    }
+
+    pub fn apply_pagination<T>(rows: &mut Vec<T>, offset: u32, limit: Option<u32>) {
+        let total = rows.len();
+        let start = usize::min(offset as usize, total);
+        let end = limit.map_or(total, |l| usize::min(start + l as usize, total));
+
+        if start >= end {
+            rows.clear();
+        } else {
+            rows.drain(..start);
+            rows.truncate(end - start);
+        }
     }
 }

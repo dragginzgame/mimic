@@ -3,7 +3,7 @@ use crate::{
     core::{Key, Value, deserialize, traits::EntityKind},
     db::{
         DbError,
-        executor::Context,
+        executor::{Context, FilterEvaluator},
         query::{DeleteQuery, FilterBuilder, QueryValidate},
         store::{DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
@@ -73,7 +73,7 @@ impl DeleteExecutor {
     /// EXECUTION METHODS
     ///
 
-    fn context(&self) -> Context {
+    const fn context(&self) -> Context {
         Context {
             data_registry: self.data_registry,
             index_registry: self.index_registry,
@@ -94,39 +94,67 @@ impl DeleteExecutor {
         QueryValidate::<E>::validate(&query).map_err(DbError::from)?;
 
         let ctx = self.context();
-
-        // plan + stores
         let plan = ctx.plan::<E>(query.filter.as_ref());
         let store = ctx.store::<E>()?;
+        let keys = ctx.candidates_from_plan::<E>(plan)?; // no deserialization here
 
-        // candidates from plan
-        let mut keys = ctx.candidates_from_plan::<E>(plan)?;
+        let limit = query
+            .limit
+            .as_ref()
+            .and_then(|l| l.limit)
+            .map(|l| l as usize);
+        let filter_simplified = query.filter.as_ref().map(|f| f.clone().simplify());
 
-        // filter (key-level) BEFORE limit
-        if let Some(f) = &query.filter {
-            keys = ctx.filter_keys::<E>(&store, keys, f);
-        }
+        let mut deleted_rows: Vec<Key> = Vec::new();
 
-        // apply limit AFTER filtering
-        if let Some(lim) = query.limit.as_ref().and_then(|l| l.limit) {
-            keys.truncate(lim as usize);
-        }
-
-        // single mutable borrow to delete + drop indexes
-        let mut deleted_rows = Vec::new();
         store.with_borrow_mut(|s| {
             for dk in keys {
-                if let Some(data_value) = s.get(&dk) {
-                    s.remove(&dk);
-
-                    if !E::INDEXES.is_empty() {
-                        let entity: E = deserialize(&data_value.bytes)?;
-                        self.remove_indexes::<E>(&entity)?;
-                    }
-
-                    deleted_rows.push(dk.key());
+                // If we already hit the limit, bail early
+                if let Some(max) = limit
+                    && deleted_rows.len() >= max
+                {
+                    break;
                 }
+
+                // Peek the value once
+                let Some(data_value) = s.get(&dk) else {
+                    continue;
+                };
+
+                // Decide if we need to deserialize:
+                // - Needed if we have a filter (to evaluate)
+                // - Or if we *might* delete and need to drop index entries
+                let mut entity_opt: Option<E> = None;
+
+                // Evaluate filter if present
+                if let Some(ref f) = filter_simplified {
+                    // deserialize once to evaluate
+                    match deserialize::<E>(&data_value.bytes) {
+                        Ok(ent) => {
+                            if !FilterEvaluator::new(&ent).eval(f) {
+                                continue; // not matched; skip
+                            }
+                            entity_opt = Some(ent); // reuse for index removal
+                        }
+                        Err(_) => continue,
+                    }
+                }
+
+                // Passed filter (or no filter) → delete
+                s.remove(&dk);
+
+                // Remove indexes if any. Only deserialize if we haven't yet and need it.
+                if !E::INDEXES.is_empty() {
+                    let ent = match entity_opt {
+                        Some(ent) => ent,
+                        None => deserialize::<E>(&data_value.bytes)?,
+                    };
+                    self.remove_indexes::<E>(&ent)?;
+                }
+
+                deleted_rows.push(dk.key());
             }
+
             Ok::<_, DbError>(())
         })?;
 
