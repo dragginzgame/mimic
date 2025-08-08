@@ -1,7 +1,9 @@
 use crate::{
     ThisError,
     core::{
-        traits::{FieldValue, Storable, TypeView, ValidateAuto, ValidateCustom, Visitable},
+        traits::{
+            FieldKey, FieldValue, Storable, TypeView, ValidateAuto, ValidateCustom, Visitable,
+        },
         value::Value,
     },
 };
@@ -85,6 +87,8 @@ impl Default for Principal {
         Self(WrappedPrincipal::from_slice(&[]))
     }
 }
+
+impl FieldKey for Principal {}
 
 impl FieldValue for Principal {
     fn to_value(&self) -> Value {

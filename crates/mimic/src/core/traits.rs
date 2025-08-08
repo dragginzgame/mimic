@@ -163,6 +163,23 @@ pub trait EntityFixture {
 }
 
 ///
+/// FieldKey
+///
+
+pub trait FieldKey: Copy + Into<Key> {}
+
+#[macro_export]
+macro_rules! impl_field_key {
+    ( $( $type:ty ),* $(,)? ) => {
+        $(
+            impl FieldKey for $type {}
+        )*
+    };
+}
+
+impl_field_key!(i8, i16, i32, i64, u8, u16, u32, u64);
+
+///
 /// FieldValue
 ///
 /// A trait that defines how a value is wrapped for WHERE queries,

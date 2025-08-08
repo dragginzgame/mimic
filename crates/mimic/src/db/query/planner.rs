@@ -113,35 +113,37 @@ impl QueryPlanner {
             return None;
         };
 
-        let mut best: Option<IndexMatch> = None;
+        let mut best: Option<(usize, IndexPlan)> = None;
 
         for index in E::INDEXES {
+            // Build leftmost-prefix of equality keys
             let mut keys = Vec::new();
-
             for field in index.fields {
-                match Self::find_eq_clause(filter, field) {
-                    Some(k) => keys.push(k),
-                    None => break, // stop at first non-match
+                if let Some(k) = Self::find_eq_clause(filter, field) {
+                    keys.push(k);
+                } else {
+                    break; // stop at first non-match
                 }
             }
 
-            // get score
-            #[allow(clippy::cast_possible_truncation)]
-            let score = keys.len() as u32;
-            let plan = IndexPlan { index, keys };
+            // Skip indexes that produced no keys
+            // this was originally added when we had a unique index on a field that
+            // could not be a key (Text)
+            if keys.is_empty() {
+                continue;
+            }
 
-            let new_match = IndexMatch {
-                plan: Some(plan),
-                fields_matched: score,
-            };
+            // Score by prefix length
+            let score = keys.len();
+            let cand = (score, IndexPlan { index, keys });
 
             match &best {
-                Some(existing) if existing.score() >= new_match.score() => {}
-                _ => best = Some(new_match),
+                Some((best_score, _)) if *best_score >= score => {}
+                _ => best = Some(cand),
             }
         }
 
-        best.and_then(|m| m.plan).map(QueryPlan::Index)
+        best.map(|(_, plan)| QueryPlan::Index(plan))
     }
 
     fn find_eq_clause(filter: &FilterExpr, field: &str) -> Option<Key> {
@@ -152,22 +154,5 @@ impl QueryPlanner {
             FilterExpr::And(list) => list.iter().find_map(|f| Self::find_eq_clause(f, field)),
             _ => None,
         }
-    }
-}
-
-///
-/// IndexMatch
-///
-
-#[derive(Default)]
-struct IndexMatch {
-    pub plan: Option<IndexPlan>,
-    pub fields_matched: u32,
-}
-
-impl IndexMatch {
-    // ✅ Consider extracting plan_priority_score (future-proofing)
-    pub const fn score(&self) -> u32 {
-        self.fields_matched
     }
 }

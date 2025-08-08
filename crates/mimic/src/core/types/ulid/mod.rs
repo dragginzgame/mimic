@@ -4,7 +4,9 @@ pub mod generator;
 use crate::{
     ThisError,
     core::{
-        traits::{FieldValue, Storable, TypeView, ValidateAuto, ValidateCustom, Visitable},
+        traits::{
+            FieldKey, FieldValue, Storable, TypeView, ValidateAuto, ValidateCustom, Visitable,
+        },
         value::Value,
     },
 };
@@ -122,6 +124,8 @@ impl Default for Ulid {
         Self(WrappedUlid::nil())
     }
 }
+
+impl FieldKey for Ulid {}
 
 impl FieldValue for Ulid {
     fn to_value(&self) -> Value {

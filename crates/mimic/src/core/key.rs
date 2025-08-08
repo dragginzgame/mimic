@@ -42,27 +42,33 @@ impl Key {
         }
     }
 
-    /// Returns the maximum possible index value for range upper bounds.
-    #[must_use]
-    pub const fn sentinel_max(&self) -> Self {
-        match self {
-            Self::Invalid => Self::Invalid,
-            Self::Int(_) => Self::Int(i64::MAX),
-            Self::Nat(_) => Self::Nat(u64::MAX),
-            Self::Principal(_) => Self::Principal(Principal::MAX),
-            Self::Ulid(_) => Self::Ulid(Ulid::MAX),
-        }
-    }
-
     #[must_use]
     pub const fn max_storable() -> Self {
         Self::Principal(Principal::max_storable())
     }
 }
 
+impl From<i8> for Key {
+    fn from(v: i8) -> Self {
+        Self::Int(v.into())
+    }
+}
+
+impl From<i16> for Key {
+    fn from(v: i16) -> Self {
+        Self::Int(v.into())
+    }
+}
+
 impl From<i32> for Key {
     fn from(v: i32) -> Self {
         Self::Int(v.into())
+    }
+}
+
+impl From<i64> for Key {
+    fn from(v: i64) -> Self {
+        Self::Int(v)
     }
 }
 
