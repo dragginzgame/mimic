@@ -149,7 +149,16 @@ impl QueryPlanner {
     fn find_eq_clause(filter: &FilterExpr, field: &str) -> Option<Key> {
         match filter {
             FilterExpr::Clause(c) if c.field == field && matches!(c.cmp, Cmp::Eq) => {
-                Some(c.value.as_key()?)
+                if let Some(k) = c.value.as_key() {
+                    Some(k)
+                } else {
+                    debug_assert!(
+                        false,
+                        "Index field `{}` had non-keyable value: {:?}",
+                        field, c.value
+                    );
+                    None
+                }
             }
             FilterExpr::And(list) => list.iter().find_map(|f| Self::find_eq_clause(f, field)),
             _ => None,

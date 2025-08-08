@@ -26,6 +26,9 @@ pub enum QueryError {
     #[error("invalid filter field '{0}'")]
     InvalidFilterField(String),
 
+    #[error("invalid index field '{0}'")]
+    InvalidIndexField(String),
+
     #[error("invalid sort field '{0}'")]
     InvalidSortField(String),
 }

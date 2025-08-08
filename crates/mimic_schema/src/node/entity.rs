@@ -3,7 +3,7 @@ use crate::{
     node::{
         Def, Field, FieldList, Index, MacroNode, Store, Type, TypeNode, ValidateNode, VisitableNode,
     },
-    types::StoreType,
+    types::{Cardinality, StoreType},
     visit::Visitor,
 };
 use mimic_common::error::ErrorTree;
@@ -64,7 +64,11 @@ impl ValidateNode for Entity {
         for index in self.indexes {
             // Check all fields in the index exist on the entity
             for field in index.fields {
-                if self.fields.get(field).is_none() {
+                if let Some(field) = self.fields.get(field) {
+                    if field.value.cardinality == Cardinality::Many {
+                        errs.add("cannot add an index field with many cardinality");
+                    }
+                } else {
                     errs.add(format!("index field '{field}' not found"));
                 }
             }
