@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [0.9.16] - 2025-08-08
+- Initial release
+
+## [Unreleased]
 - actually using the filter on the DeleteExecutor
 - added lots of tests for deleting, also fixed the fact Filterable was being saved to the wrong Store
 - updated rust to 1.89
