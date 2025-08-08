@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - actually using the filter on the DeleteExecutor
 - added lots of tests for deleting, also fixed the fact Filterable was being saved to the wrong Store
 - updated rust to 1.89
+- moved shared Load and Delete code into Context
+- added db!().create::<E>(e), replace and update
 
 ## [0.9.14] - 2025-08-07
 - better error message on 0 rows found
