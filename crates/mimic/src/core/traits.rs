@@ -166,7 +166,9 @@ pub trait EntityFixture {
 /// FieldKey
 ///
 
-pub trait FieldKey: Copy + Into<Key> {}
+pub trait FieldKey: Copy {}
+
+impl<T: FieldKey> FieldKey for Option<T> {}
 
 #[macro_export]
 macro_rules! impl_field_key {

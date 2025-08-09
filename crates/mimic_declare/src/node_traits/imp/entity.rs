@@ -1,7 +1,7 @@
 use crate::{
     node::{Entity, Index},
     node_traits::{Imp, Implementor, Trait, TraitStrategy},
-    traits::{HasIdent, HasSchemaPart},
+    traits::{HasIdent, HasSchemaPart, HasTypePart},
 };
 use proc_macro2::{Span, TokenStream};
 use quote::{ToTokens, quote};
@@ -44,9 +44,15 @@ impl Imp<Entity> for EntityKindTrait {
         // impls
         q.extend(key(node));
 
-        let tokens = Implementor::new(node.ident(), Trait::EntityKind)
+        let mut tokens = Implementor::new(node.ident(), Trait::EntityKind)
             .set_tokens(q)
             .to_token_stream();
+
+        // after impl
+        tokens.extend(index_asserts(node));
+
+        // add indexes so the compiler will catch invalid indexes
+        // in the format type _ : (FieldKey, FieldKey) = (..., ...)
 
         Some(TraitStrategy::from_impl(tokens))
     }
@@ -66,4 +72,38 @@ fn key(node: &Entity) -> TokenStream {
                 .unwrap()
         }
     }
+}
+
+// Build per-index compile-time checks
+pub fn index_asserts(node: &Entity) -> TokenStream {
+    let per_index: Vec<TokenStream> = node
+        .indexes
+        .iter()
+        .map(|idx| {
+            // Each field -> ::full::path
+            let field_exprs: Vec<_> = idx
+                .fields
+                .iter()
+                .map(|ident| {
+                    let field = node.fields.get(ident).unwrap().value.type_part();
+
+                    quote!( #field )
+                })
+                .collect();
+
+            quote! {
+                #[allow(unused)]
+                const _: () = {
+
+                    // Compile-time bound: every key must implement FieldKey + Copy
+                    const fn _require_key<K: ::mimic::core::traits::FieldKey>() {}
+
+                    // Assert each field key satisfies the trait bounds
+                    #( _require_key::<#field_exprs>(); )*
+                };
+            }
+        })
+        .collect();
+
+    quote! { #( #per_index )* }
 }

@@ -10,13 +10,8 @@ pub fn generate(builder: &ActorBuilder) -> TokenStream {
 
     quote! {
         /// Initializes all registered fixtures by replacing data in storage.
-        pub fn mimic_init_fixtures() -> Result<(), ::mimic::Error> {
-            mimic_fixtures_replace_all()
-        }
-
-        /// Replaces fixtures for all registered entities.
         #[allow(clippy::too_many_lines)]
-        pub fn mimic_fixtures_replace_all() -> Result<(), ::mimic::Error> {
+        pub fn mimic_init_fixtures() -> Result<(), ::mimic::Error> {
             #body
         }
     }
@@ -45,7 +40,7 @@ fn generate_replace_all(builder: &ActorBuilder) -> TokenStream {
             let db = db!();
 
             #(#inner)*
-            ::icu::log!(::icu::Log::Info, "added fixtures ({} entities)", #num_entities);
+            ::icu::log!(::icu::Log::Info, "📦 added fixtures ({} entities)", #num_entities);
 
             Ok(())
         }

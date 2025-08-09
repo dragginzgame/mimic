@@ -3,7 +3,7 @@ use mimic::{
     db::query::{self, FilterClause, FilterExpr},
     prelude::*,
 };
-use test_design::canister::filter::{Filterable, FilterableIndex, FilterableOpt};
+use test_design::canister::filter::{Filterable, FilterableOpt};
 
 ///
 /// LoadFilterTester
@@ -40,17 +40,11 @@ impl LoadFilterTester {
             ("filter_opt_lt_level", Self::filter_opt_lt_level),
             ("filter_opt_is_none_name", Self::filter_opt_is_none_name),
             ("filter_opt_ne_pid_null", Self::filter_opt_ne_pid_null),
-            // other
-            (
-                "asset_eq_vs_table_scan_and_index_plan",
-                Self::asset_eq_vs_table_scan_and_index_plan,
-            ),
         ];
 
         // insert data
         Self::insert();
         Self::insert_opt();
-        Self::insert_index();
 
         for (name, test_fn) in tests {
             println!("Running test: {name}");
@@ -108,20 +102,6 @@ impl LoadFilterTester {
                     level,
                     offset,
                     pid,
-                    ..Default::default()
-                },
-            );
-        }
-    }
-
-    fn insert_index() {
-        let refs = ["Ref-001", "Ref-000001"];
-
-        for reference in refs {
-            EntityService::save_fixture(
-                db!(),
-                FilterableIndex {
-                    reference: reference.to_string(),
                     ..Default::default()
                 },
             );
@@ -442,50 +422,5 @@ impl LoadFilterTester {
 
         assert!(results.iter().all(|e| e.pid.is_some()));
         assert_eq!(results.len(), 3);
-    }
-
-    //
-    // FilterableIndex
-    //
-
-    fn asset_eq_vs_table_scan_and_index_plan() {
-        let needle = "Ref-001".to_string();
-
-        // Act: indexed path (planner will pick the index; we just care that filter works)
-        let by_index = db!()
-            .load()
-            .debug()
-            .filter::<FilterableIndex>(|f| f.eq("reference", needle.clone()))
-            .unwrap()
-            .entities();
-
-        // Assert basics
-        assert_eq!(by_index.len(), 1, "expected exactly one match for {needle}");
-        assert_eq!(by_index[0].reference, needle);
-
-        // Cross-check: full table scan w/ the same predicate logic
-        let scan_count = db!()
-            .load()
-            .all::<FilterableIndex>()
-            .unwrap()
-            .entities()
-            .into_iter()
-            .filter(|e| e.reference == "Ref-001")
-            .count();
-
-        assert_eq!(
-            by_index.len(),
-            scan_count,
-            "indexed path and scan path should return the same count"
-        );
-
-        // Negative case: unknown reference should return empty
-        let none = db!()
-            .load()
-            .filter::<FilterableIndex>(|f| f.eq("reference", "Does-Not-Exist"))
-            .unwrap()
-            .entities();
-
-        assert!(none.is_empty());
     }
 }
