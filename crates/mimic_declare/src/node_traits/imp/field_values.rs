@@ -36,8 +36,7 @@ impl Imp<Entity> for FieldValuesTrait {
                         #field_lit => Some(
                             self.#field_ident
                                 .as_ref()
-                                .map(|v| v.to_value())
-                                .unwrap_or(::mimic::core::Value::None)
+                                .map_or(Value::None, FieldValue::to_value)
                         ),
                     }),
 
@@ -48,7 +47,7 @@ impl Imp<Entity> for FieldValuesTrait {
                                 .map(|v| Box::new(v.to_value()))
                                 .collect::<Vec<_>>();
 
-                            Some(::mimic::core::Value::List(list))
+                            Some(Value::List(list))
                         }
                     }),
                 }
@@ -57,6 +56,8 @@ impl Imp<Entity> for FieldValuesTrait {
 
         let q = quote! {
             fn get_value(&self, field: &str) -> Option<::mimic::core::Value> {
+                use ::mimic::core::{traits::FieldValue, Value};
+
                 match field {
                     #(#match_arms)*
                     _ => None,

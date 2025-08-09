@@ -27,7 +27,7 @@ ctor = "0.4"
 darling = "0.21"
 derive_more = { version = "2.0", default-features = false, features = ["full"] }
 ic-cdk = "0.18.5"
-icu = { git = "https://github.com/dragginzgame/icu", tag = "v0.1.23" }
+icu = { git = "https://github.com/dragginzgame/icu", tag = "v0.1.26" }
 mimic = { path = "crates/mimic" }
 mimic_build = { path = "crates/mimic_build" }
 mimic_common = { path = "crates/mimic_common" }
@@ -55,8 +55,8 @@ xxhash-rust = { version = "0.8", default-features = false, features = ["xxh3"] }
 # clippy
 [workspace.lints.clippy]
 all = { level = "warn", priority = -1 }
-pedantic = { level = "warn", priority = -1 }
-nursery = { level = "warn", priority = -1 }
+pedantic = { level = "allow", priority = -1 }
+nursery = { level = "allow", priority = -1 }
 
 # always warn
 must-use-candidate = "warn"
