@@ -1,6 +1,6 @@
 use crate::core::{
     Key,
-    types::{Decimal, E8s, E18s, Principal, Ulid},
+    types::{Decimal, E8s, E18s, Principal, Subaccount, Ulid},
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
 use serde::{Deserialize, Serialize};
@@ -37,6 +37,7 @@ pub enum Value {
     Int(i64),
     Nat(u64),
     Principal(Principal),
+    Subaccount(Subaccount),
     Text(String),
     Ulid(Ulid),
     List(Vec<Box<Value>>),
@@ -51,6 +52,7 @@ impl Value {
             Self::Int(v) => Some(Key::Int(*v)),
             Self::Nat(v) => Some(Key::Nat(*v)),
             Self::Principal(v) => Some(Key::Principal(*v)),
+            Self::Subaccount(v) => Some(Key::Subaccount(*v)),
             Self::Ulid(v) => Some(Key::Ulid(*v)),
             _ => None,
         }
@@ -103,6 +105,7 @@ impl From<Key> for Value {
             Key::Int(v) => Self::Int(v),
             Key::Nat(v) => Self::Nat(v),
             Key::Principal(v) => Self::Principal(v),
+            Key::Subaccount(v) => Self::Subaccount(v),
             Key::Ulid(v) => Self::Ulid(v),
         }
     }

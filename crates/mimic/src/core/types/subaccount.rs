@@ -1,5 +1,5 @@
 use crate::core::{
-    traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldKey, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
     types::Principal,
     value::Value,
 };
@@ -69,6 +69,8 @@ impl Display for Subaccount {
         Ok(())
     }
 }
+
+impl FieldKey for Subaccount {}
 
 impl FieldValue for Subaccount {
     fn to_value(&self) -> Value {

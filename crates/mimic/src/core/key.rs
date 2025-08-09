@@ -1,4 +1,4 @@
-use crate::core::types::{Principal, Ulid};
+use crate::core::types::{Principal, Subaccount, Ulid};
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::Display;
 use serde::{Deserialize, Serialize};
@@ -21,6 +21,7 @@ pub enum Key {
     Int(i64),
     Nat(u64),
     Principal(Principal),
+    Subaccount(Subaccount),
     Ulid(Ulid),
 }
 
@@ -38,7 +39,8 @@ impl Key {
             Self::Int(_) => 1,
             Self::Nat(_) => 2,
             Self::Principal(_) => 3,
-            Self::Ulid(_) => 4,
+            Self::Subaccount(_) => 4,
+            Self::Ulid(_) => 5,
         }
     }
 
@@ -114,6 +116,12 @@ impl From<WrappedPrincipal> for Key {
     }
 }
 
+impl From<Subaccount> for Key {
+    fn from(s: Subaccount) -> Self {
+        Self::Subaccount(s)
+    }
+}
+
 impl PartialEq<i64> for Key {
     fn eq(&self, other: &i64) -> bool {
         matches!(self, Self::Int(val) if val == other)
@@ -138,6 +146,12 @@ impl PartialEq<Principal> for Key {
     }
 }
 
+impl PartialEq<Subaccount> for Key {
+    fn eq(&self, other: &Subaccount) -> bool {
+        matches!(self, Self::Subaccount(val) if val == other)
+    }
+}
+
 impl PartialEq<Key> for i64 {
     fn eq(&self, other: &Key) -> bool {
         other == self
@@ -157,6 +171,12 @@ impl PartialEq<Key> for Ulid {
 }
 
 impl PartialEq<Key> for Principal {
+    fn eq(&self, other: &Key) -> bool {
+        other == self
+    }
+}
+
+impl PartialEq<Key> for Subaccount {
     fn eq(&self, other: &Key) -> bool {
         other == self
     }

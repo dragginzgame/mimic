@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.9.22] - 2025-08-09
 - added a way to detect invalid indexes at compile time
+- added FieldKey to subaccount so it can be used as a database key/index
 
 ## [0.9.20] - 2025-08-08
 - change extract_from_index so it skips any index that produces no keys (to fix a nasty bug)
