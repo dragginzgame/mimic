@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ## [0.9.22] - 2025-08-09
-- Initial release
+- added a way to detect invalid indexes at compile time
 
 ## [0.9.20] - 2025-08-08
 - change extract_from_index so it skips any index that produces no keys (to fix a nasty bug)
