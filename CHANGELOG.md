@@ -7,10 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [0.10.0] - 2025-08-10
-- Initial release
-
-## [Unreleased]
+## [0.10.0] - Indexes for All Types
+- changed Index equality to use hashed Values, implemented a canonical to_bytes for all Value types
+- now any type can be used as an Index
+- found lots of newtype bugs with things like Nat, Int, Principal and fixed them
+- ordering bug with Decimal, so made sure all types can Order
 
 ## [0.9.22] - 2025-08-09
 - added a way to detect invalid indexes at compile time
