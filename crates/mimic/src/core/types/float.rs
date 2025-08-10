@@ -38,12 +38,12 @@ impl Float32 {
     }
 
     #[must_use]
-    pub fn get(self) -> f32 {
+    pub const fn get(self) -> f32 {
         self.0
     }
 
     #[must_use]
-    pub fn to_be_bytes(&self) -> [u8; 4] {
+    pub const fn to_be_bytes(&self) -> [u8; 4] {
         self.0.to_bits().to_be_bytes()
     }
 }
@@ -70,23 +70,25 @@ impl TryFrom<f32> for Float32 {
 }
 
 impl From<Float32> for f32 {
-    fn from(x: Float32) -> f32 {
+    fn from(x: Float32) -> Self {
         x.0
     }
 }
 
+#[allow(clippy::cast_precision_loss)]
+#[allow(clippy::cast_possible_truncation)]
 impl FromPrimitive for Float32 {
     fn from_i64(n: i64) -> Option<Self> {
         // i64 always finite in f32 (though not exact)
-        Float32::try_new(n as f32)
+        Self::try_new(n as f32)
     }
 
     fn from_u64(n: u64) -> Option<Self> {
-        Float32::try_new(n as f32)
+        Self::try_new(n as f32)
     }
 
     fn from_f32(n: f32) -> Option<Self> {
-        Float32::try_new(n)
+        Self::try_new(n)
     }
 
     fn from_f64(n: f64) -> Option<Self> {
@@ -94,11 +96,11 @@ impl FromPrimitive for Float32 {
         if !n.is_finite() {
             return None;
         }
-        if n < f32::MIN as f64 || n > f32::MAX as f64 {
+        if n < f64::from(f32::MIN) || n > f64::from(f32::MAX) {
             return None;
         }
 
-        Float32::try_new(n as f32)
+        Self::try_new(n as f32)
     }
 }
 
@@ -113,7 +115,7 @@ impl ToPrimitive for Float32 {
         Some(self.0)
     }
     fn to_f64(&self) -> Option<f64> {
-        Some(self.0 as f64)
+        Some(f64::from(self.0))
     }
 }
 
@@ -176,12 +178,12 @@ impl Float64 {
     }
 
     #[must_use]
-    pub fn get(self) -> f64 {
+    pub const fn get(self) -> f64 {
         self.0
     }
 
     #[must_use]
-    pub fn to_be_bytes(&self) -> [u8; 8] {
+    pub const fn to_be_bytes(&self) -> [u8; 8] {
         self.0.to_bits().to_be_bytes()
     }
 }
@@ -208,22 +210,23 @@ impl TryFrom<f64> for Float64 {
 }
 
 impl From<Float64> for f64 {
-    fn from(x: Float64) -> f64 {
+    fn from(x: Float64) -> Self {
         x.0
     }
 }
-
+#[allow(clippy::cast_precision_loss)]
+#[allow(clippy::cast_possible_truncation)]
 impl FromPrimitive for Float64 {
     fn from_i64(n: i64) -> Option<Self> {
-        Float64::try_new(n as f64)
+        Self::try_new(n as f64)
     }
 
     fn from_u64(n: u64) -> Option<Self> {
-        Float64::try_new(n as f64)
+        Self::try_new(n as f64)
     }
 
     fn from_f32(n: f32) -> Option<Self> {
-        Float64::try_new(n as f64)
+        Self::try_new(f64::from(n))
     }
 
     fn from_f64(n: f64) -> Option<Self> {
@@ -232,10 +235,11 @@ impl FromPrimitive for Float64 {
             return None;
         }
 
-        Float64::try_new(n)
+        Self::try_new(n)
     }
 }
 
+#[allow(clippy::cast_possible_truncation)]
 impl ToPrimitive for Float64 {
     fn to_i64(&self) -> Option<i64> {
         self.0.to_i64()

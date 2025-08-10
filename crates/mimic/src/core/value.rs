@@ -182,55 +182,56 @@ fn feed_bytes(h: &mut Xxh3, b: &[u8]) {
     h.update(b);
 }
 
+#[allow(clippy::cast_possible_truncation)]
 impl Value {
     fn write_to_hasher(&self, h: &mut Xxh3) {
         match self {
-            Value::Bool(b) => {
+            Self::Bool(b) => {
                 feed_u8(h, 0x01);
                 feed_u8(h, u8::from(*b));
             }
-            Value::Decimal(d) => {
+            Self::Decimal(d) => {
                 feed_u8(h, 0x02);
                 // encode (sign, scale, mantissa) deterministically:
                 feed_u8(h, u8::from(d.is_sign_negative()));
                 feed_u32(h, d.scale());
                 feed_bytes(h, &d.mantissa().to_be_bytes());
             }
-            Value::E8s(v) => {
+            Self::E8s(v) => {
                 feed_u8(h, 0x03);
                 feed_u64(h, v.into_inner());
             }
-            Value::E18s(v) => {
+            Self::E18s(v) => {
                 feed_u8(h, 0x04);
                 feed_bytes(h, &v.to_be_bytes());
             }
-            Value::Float32(v) => {
+            Self::Float32(v) => {
                 feed_u8(h, 0x04);
                 feed_bytes(h, &v.to_be_bytes());
             }
-            Value::Float64(v) => {
+            Self::Float64(v) => {
                 feed_u8(h, 0x04);
                 feed_bytes(h, &v.to_be_bytes());
             }
-            Value::Int(i) => {
+            Self::Int(i) => {
                 feed_u8(h, 0x05);
                 feed_i64(h, *i);
             }
-            Value::Nat(u) => {
+            Self::Nat(u) => {
                 feed_u8(h, 0x06);
                 feed_u64(h, *u);
             }
-            Value::Principal(p) => {
+            Self::Principal(p) => {
                 feed_u8(h, 0x07);
                 let raw = p.as_slice();
                 feed_u32(h, raw.len() as u32);
                 feed_bytes(h, raw);
             }
-            Value::Subaccount(s) => {
+            Self::Subaccount(s) => {
                 feed_u8(h, 0x08);
                 feed_bytes(h, &s.to_bytes());
             } // assuming &[u8; 32]
-            Value::Text(s) => {
+            Self::Text(s) => {
                 feed_u8(h, 0x09);
                 // If you need case/Unicode insensitivity, normalize; else skip (much faster)
                 // let norm = normalize_nfkc_casefold(s);
@@ -239,11 +240,11 @@ impl Value {
                 feed_u32(h, s.len() as u32);
                 feed_bytes(h, s.as_bytes());
             }
-            Value::Ulid(u) => {
+            Self::Ulid(u) => {
                 feed_u8(h, 0x0A);
                 feed_bytes(h, &u.to_bytes());
             }
-            Value::List(xs) => {
+            Self::List(xs) => {
                 feed_u8(h, 0x0B);
                 feed_u32(h, xs.len() as u32);
                 for x in xs {
@@ -251,10 +252,10 @@ impl Value {
                     x.write_to_hasher(h); // recurse, no sub-hash
                 }
             }
-            Value::None => {
+            Self::None => {
                 feed_u8(h, 0x0C);
             }
-            Value::Unsupported => {
+            Self::Unsupported => {
                 feed_u8(h, 0x0D);
             }
         }
@@ -262,10 +263,10 @@ impl Value {
 
     #[must_use]
     pub fn hash_value(&self) -> [u8; 16] {
-        let mut h = Xxh3::with_seed(0);
+        const VERSION: u8 = 1;
 
-        const VER: u8 = 1;
-        feed_u8(&mut h, VER); // version
+        let mut h = Xxh3::with_seed(0);
+        feed_u8(&mut h, VERSION); // version
 
         self.write_to_hasher(&mut h);
         h.digest128().to_be_bytes()
