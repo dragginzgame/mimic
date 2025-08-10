@@ -46,6 +46,12 @@ pub mod export {
 extern crate self as mimic;
 
 ///
+/// CONSTANTS
+///
+
+pub const MAX_INDEX_FIELDS: usize = 4;
+
+///
 /// MIMIC PRELUDE
 /// using _ brings traits into scope and avoids name conflicts
 ///

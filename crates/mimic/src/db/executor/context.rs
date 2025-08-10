@@ -55,7 +55,7 @@ impl Context {
                     .with(|reg| reg.try_get_store(index_plan.index.store))?;
 
                 index_store.with_borrow(|istore| {
-                    istore.resolve_data_keys::<E>(index_plan.index, &index_plan.keys)
+                    istore.resolve_data_values::<E>(index_plan.index, &index_plan.values)
                 })
             }
         };

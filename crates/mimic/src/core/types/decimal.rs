@@ -3,14 +3,11 @@ use crate::core::{
     value::Value,
 };
 use candid::CandidType;
-use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
+use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign};
 use num_traits::{FromPrimitive, NumCast, ToPrimitive};
 use rust_decimal::Decimal as WrappedDecimal;
 use serde::{Deserialize, Serialize, ser::Error};
-use std::{
-    fmt::{self, Display},
-    ops::{Div, Mul},
-};
+use std::ops::{Div, Mul};
 
 ///
 /// Decimal
@@ -25,6 +22,7 @@ use std::{
     Default,
     Deref,
     DerefMut,
+    Display,
     Eq,
     FromStr,
     PartialEq,
@@ -77,12 +75,6 @@ impl CandidType for Decimal {
             .ok_or_else(|| S::Error::custom("Failed to convert Decimal to f64"))?;
 
         serializer.serialize_float64(v)
-    }
-}
-
-impl Display for Decimal {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.0.fmt(f)
     }
 }
 

@@ -1,5 +1,5 @@
 use mimic::{
-    core::types::Principal,
+    core::types::{Decimal, Principal},
     db::query::{self, FilterClause, FilterExpr},
     prelude::*,
 };
@@ -74,7 +74,7 @@ impl LoadFilterTester {
                     name: name.into(),
                     category: category.into(),
                     active,
-                    score,
+                    score: Decimal::from(score),
                     level,
                     offset,
                     tags: tags.iter().map(ToString::to_string).collect(),
@@ -137,11 +137,11 @@ impl LoadFilterTester {
     fn filter_gt_score() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.filter("score", Cmp::Gt, 80.0))
+            .filter::<Filterable>(|f| f.filter("score", Cmp::Gt, Decimal::from(80.0)))
             .unwrap()
             .entities();
 
-        assert!(results.iter().all(|e| e.score > 80.0));
+        assert!(results.iter().all(|e| e.score > Decimal::from(80.0)));
         assert_eq!(results.len(), 4);
     }
 
@@ -170,7 +170,7 @@ impl LoadFilterTester {
     fn filter_and_group() {
         let query = query::load().filter(|f| {
             f.and_group(|b| {
-                b.filter("score", Cmp::Gte, 60.0)
+                b.filter("score", Cmp::Gte, Decimal::from(60.0))
                     .filter("level", Cmp::Gte, 2)
             })
         });
@@ -181,7 +181,11 @@ impl LoadFilterTester {
             .unwrap()
             .entities();
 
-        assert!(results.iter().all(|e| e.score >= 60.0 && e.level >= 2));
+        assert!(
+            results
+                .iter()
+                .all(|e| e.score >= Decimal::from(60.0) && e.level >= 2)
+        );
         assert_eq!(results.len(), 5);
     }
 
@@ -208,7 +212,7 @@ impl LoadFilterTester {
     fn filter_nested_groups() {
         let query = query::load().filter(|f| {
             f.filter("active", Cmp::Eq, true).or_group(|b| {
-                b.and_group(|b| b.filter("score", Cmp::Lt, 40.0))
+                b.and_group(|b| b.filter("score", Cmp::Lt, Decimal::from(40.0)))
                     .or("offset", Cmp::Lt, 0)
             })
         });

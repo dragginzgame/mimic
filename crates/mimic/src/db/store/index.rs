@@ -1,6 +1,7 @@
 use crate::{
+    MAX_INDEX_FIELDS,
     common::utils::hash::hash_u64,
-    core::{Key, traits::EntityKind},
+    core::{Key, Value, traits::EntityKind},
     db::{executor::ExecutorError, store::DataKey},
     debug,
     ic::structures::{BTreeMap, DefaultMemory},
@@ -126,31 +127,47 @@ impl IndexStore {
         }
     }
 
-    pub fn resolve_data_keys<E: EntityKind>(&self, index: &Index, prefix: &[Key]) -> Vec<DataKey> {
-        self.range_with_prefix::<E>(index, prefix)
-            .flat_map(|(_, entry)| entry.keys)
+    pub fn resolve_data_values<E: EntityKind>(
+        &self,
+        index: &Index,
+        prefix: &[Value],
+    ) -> Vec<DataKey> {
+        self.iter_with_hashed_prefix::<E>(index, prefix)
+            .flat_map(|(_, entry)| entry.keys.iter().copied().collect::<Vec<_>>())
             .map(|key| DataKey::new::<E>(key))
             .collect()
     }
 
-    pub fn range_with_prefix<E: EntityKind>(
+    /// Internal: iterate entries for this index whose hashed_values start with the hashed prefix.
+    fn iter_with_hashed_prefix<E: EntityKind>(
         &self,
         index: &Index,
-        prefix: &[Key],
+        prefix: &[Value],
     ) -> impl Iterator<Item = (IndexKey, IndexEntry)> {
         let index_id = IndexId::new::<E>(index);
+        let hashed_prefix = Self::hash_values(prefix);
 
+        // Scan the contiguous range for this index_id and filter by hashed prefix.
         self.range(
             IndexKey {
                 index_id,
-                keys: prefix.to_vec(),
+                hashed_values: Vec::new(),
             }..,
         )
-        .take_while(move |entry| {
-            let k = entry.key();
-            k.index_id == index_id && k.keys.starts_with(prefix)
-        })
+        .take_while(move |entry| entry.key().index_id == index_id)
+        .filter(move |entry| entry.key().hashed_values.starts_with(&hashed_prefix))
         .map(|entry| (entry.key().clone(), entry.value()))
+    }
+
+    #[inline]
+    fn hash_values(values: &[Value]) -> Vec<[u8; 16]> {
+        let mut out = Vec::new();
+
+        for v in values {
+            out.push(v.hash_value());
+        }
+
+        out
     }
 }
 
@@ -211,33 +228,30 @@ impl IndexId {
 /// IndexKey
 ///
 
-#[derive(
-    CandidType, Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize,
-)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize)]
 pub struct IndexKey {
     pub index_id: IndexId,
-    pub keys: Vec<Key>,
+    pub hashed_values: Vec<[u8; 16]>,
 }
 
 impl IndexKey {
-    // with five keys it's 235 bytes
-    pub const STORABLE_MAX_SIZE: u32 = 256;
+    // currently works out at 166
+    pub const STORABLE_MAX_SIZE: u32 = 180;
 
     #[must_use]
     pub fn new<E: EntityKind>(entity: &E, index: &Index) -> Option<Self> {
-        let mut keys = Vec::with_capacity(index.fields.len());
+        let mut hashed_values = Vec::<[u8; 16]>::new();
 
         // get each value and convert to key
         for field in index.fields {
             let value = entity.get_value(field)?;
-            let key = value.as_key()?;
 
-            keys.push(key);
+            hashed_values.push(value.hash_value());
         }
 
         Some(Self {
             index_id: IndexId::new::<E>(index),
-            keys,
+            hashed_values,
         })
     }
 
@@ -246,21 +260,14 @@ impl IndexKey {
     pub fn max_storable() -> Self {
         Self {
             index_id: IndexId::max_storable(),
-            keys: [
-                Key::max_storable(),
-                Key::max_storable(),
-                Key::max_storable(),
-                Key::max_storable(),
-                Key::max_storable(),
-            ]
-            .to_vec(),
+            hashed_values: (0..MAX_INDEX_FIELDS).map(|_| [u8::MAX; 16]).collect(),
         }
     }
 }
 
 impl Display for IndexKey {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({} [{:?}])", self.index_id, self.keys)
+        write!(f, "({} [{:?}])", self.index_id, self.hashed_values)
     }
 }
 

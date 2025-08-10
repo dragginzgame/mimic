@@ -96,14 +96,14 @@ impl PartialEq<WrappedAccount> for Account {
 impl_storable_bounded!(Account, Self::STORABLE_MAX_SIZE, true);
 
 impl TypeView for Account {
-    type View = WrappedAccount;
+    type View = Self;
 
     fn to_view(&self) -> Self::View {
-        self.0
+        *self
     }
 
     fn from_view(view: Self::View) -> Self {
-        Self(view)
+        view
     }
 }
 

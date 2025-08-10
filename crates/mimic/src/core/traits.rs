@@ -106,13 +106,6 @@ pub trait EnumValueKind: Kind {
 }
 
 ///
-/// FieldKind
-///
-
-pub trait FieldKind: Kind + FieldValue {}
-impl<T: Kind + FieldValue> FieldKind for T {}
-
-///
 /// StoreKind
 ///
 
@@ -163,25 +156,6 @@ pub trait EntityFixture {
 }
 
 ///
-/// FieldKey
-///
-
-pub trait FieldKey: Copy {}
-
-impl<T: FieldKey> FieldKey for Option<T> {}
-
-#[macro_export]
-macro_rules! impl_field_key {
-    ( $( $type:ty ),* $(,)? ) => {
-        $(
-            impl FieldKey for $type {}
-        )*
-    };
-}
-
-impl_field_key!(i8, i16, i32, i64, u8, u16, u32, u64);
-
-///
 /// FieldValue
 ///
 /// A trait that defines how a value is wrapped for WHERE queries,
@@ -215,8 +189,6 @@ macro_rules! impl_field_value_as {
 }
 
 impl_field_value_as!(
-    f32 => Float,
-    f64 => Float,
     i8 => Int,
     i16 => Int,
     i32 => Int,

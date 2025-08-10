@@ -190,9 +190,18 @@ impl Imp<Map> for TypeViewTrait {
 
 impl Imp<Newtype> for TypeViewTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
+        let item = &node.item;
         let view_ident = &node.view_ident();
 
-        let from_view = if node.item.is_primitive() {
+        let to_view = if let Some(primitive) = item.primitive
+            && primitive.supports_copy()
+        {
+            quote!(self.0)
+        } else {
+            quote!(self.0.to_view())
+        };
+
+        let from_view = if item.is_primitive() {
             quote!(Self(view))
         } else {
             quote!(Self(view.into()))
@@ -202,7 +211,7 @@ impl Imp<Newtype> for TypeViewTrait {
             type View = #view_ident;
 
             fn to_view(&self) -> Self::View {
-                self.0.to_view()
+                #to_view
             }
 
             fn from_view(view: Self::View) -> Self {

@@ -67,7 +67,7 @@ impl HasSchemaPart for Newtype {
 impl HasTraits for Newtype {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone().with_type_traits();
-        traits.extend(vec![Trait::Deref, Trait::DerefMut]);
+        traits.extend(vec![Trait::Deref, Trait::DerefMut, Trait::Eq]);
 
         // primitive traits
         if self.primitive.supports_arithmetic() {
@@ -86,9 +86,6 @@ impl HasTraits for Newtype {
         if self.primitive.supports_display() {
             traits.add(Trait::Display);
         }
-        if self.primitive.supports_eq() {
-            traits.add(Trait::Eq);
-        }
         if self.primitive.supports_hash() {
             traits.add(Trait::Hash);
         }
@@ -99,10 +96,8 @@ impl HasTraits for Newtype {
                 Trait::NumToPrimitive,
             ]);
         }
-        if self.primitive.supports_total_ord() {
+        if self.primitive.supports_ord() {
             traits.add(Trait::Ord);
-        }
-        if self.primitive.supports_partial_ord() {
             traits.add(Trait::PartialOrd);
         }
 

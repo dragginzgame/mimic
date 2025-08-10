@@ -86,7 +86,7 @@ impl IndexTester {
 
         match &plan {
             QueryPlan::Index(index_plan) => {
-                let len = index_plan.keys.len();
+                let len = index_plan.values.len();
 
                 assert_eq!(
                     len, 3,
@@ -111,7 +111,7 @@ impl IndexTester {
 
         match &plan {
             QueryPlan::Index(index_plan) => {
-                let len = index_plan.keys.len();
+                let len = index_plan.values.len();
 
                 assert_eq!(len, 1, "Expected one index field to be matched, got {len}",);
                 println!("✅ Index plan uses {len} fields");

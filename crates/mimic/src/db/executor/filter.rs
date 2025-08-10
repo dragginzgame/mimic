@@ -109,22 +109,6 @@ impl<'a> FilterEvaluator<'a> {
                 }
             }
 
-            // Int ↔ Float
-            (Value::Int(a), Value::Float(b)) => {
-                Some(cmp.compare_order((*a as f64).partial_cmp(b)?))
-            }
-            (Value::Float(a), Value::Int(b)) => {
-                Some(cmp.compare_order(a.partial_cmp(&(*b as f64))?))
-            }
-
-            // Nat ↔ Float
-            (Value::Nat(a), Value::Float(b)) => {
-                Some(cmp.compare_order((*a as f64).partial_cmp(b)?))
-            }
-            (Value::Float(a), Value::Nat(b)) => {
-                Some(cmp.compare_order(a.partial_cmp(&(*b as f64))?))
-            }
-
             _ => None,
         }
     }

@@ -18,6 +18,7 @@ const SCALE: u64 = 100_000_000;
 /// For example: 1.25 = 125_000_000
 ///
 
+#[repr(transparent)]
 #[derive(
     Add,
     AddAssign,
@@ -60,6 +61,12 @@ impl E8s {
         }
 
         Some(Self((value * SCALE as f64).round() as u64))
+    }
+
+    /// Consume and return raw units.
+    #[must_use]
+    pub const fn into_inner(self) -> u64 {
+        self.0
     }
 
     #[must_use]

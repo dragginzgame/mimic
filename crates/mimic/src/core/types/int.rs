@@ -1,6 +1,6 @@
 use crate::core::traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable};
 use candid::{CandidType, Int as WrappedInt};
-use derive_more::{Deref, DerefMut, Display, FromStr};
+use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign};
 use icu::impl_storable_unbounded;
 use serde::{Deserialize, Serialize};
 
@@ -9,6 +9,8 @@ use serde::{Deserialize, Serialize};
 ///
 
 #[derive(
+    Add,
+    AddAssign,
     CandidType,
     Clone,
     Debug,
@@ -24,6 +26,8 @@ use serde::{Deserialize, Serialize};
     PartialOrd,
     Serialize,
     Deserialize,
+    Sub,
+    SubAssign,
 )]
 pub struct Int(WrappedInt);
 
@@ -38,14 +42,14 @@ impl From<WrappedInt> for Int {
 impl_storable_unbounded!(Int);
 
 impl TypeView for Int {
-    type View = WrappedInt;
+    type View = Self;
 
     fn to_view(&self) -> Self::View {
-        self.0.clone()
+        self.clone()
     }
 
     fn from_view(view: Self::View) -> Self {
-        Self(view)
+        view
     }
 }
 

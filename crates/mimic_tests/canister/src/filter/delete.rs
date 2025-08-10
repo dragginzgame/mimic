@@ -1,5 +1,8 @@
 use mimic::{
-    core::{traits::Path, types::Principal},
+    core::{
+        traits::Path,
+        types::{Decimal, Principal},
+    },
     db::query::Cmp,
     prelude::*,
 };
@@ -67,7 +70,7 @@ impl DeleteFilterTester {
                     name: name.into(),
                     category: category.into(),
                     active,
-                    score,
+                    score: Decimal::from(score),
                     level,
                     offset,
                     tags: tags.iter().map(ToString::to_string).collect(),

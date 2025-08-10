@@ -12,7 +12,7 @@ use crate::prelude::*;
         field(name = "name", value(item(prim = "Text"))),
         field(name = "category", value(item(prim = "Text"))),
         field(name = "active", value(item(prim = "Bool"))),
-        field(name = "score", value(item(prim = "Float64"))),
+        field(name = "score", value(item(prim = "Decimal"))),
         field(name = "level", value(item(prim = "Nat8"))),
         field(name = "opt_level", value(opt, item(prim = "Nat8"))),
         field(name = "offset", value(item(prim = "Int32"))),

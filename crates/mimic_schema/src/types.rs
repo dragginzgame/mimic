@@ -132,7 +132,7 @@ impl Primitive {
 
     #[must_use]
     pub const fn supports_copy(self) -> bool {
-        matches!(self, Self::Bool | Self::Principal) || self.is_numeric()
+        !matches!(self, Self::Blob | Self::Int | Self::Nat | Self::Text)
     }
 
     #[must_use]
@@ -141,15 +141,11 @@ impl Primitive {
     }
 
     #[must_use]
-    pub const fn supports_eq(self) -> bool {
-        !self.is_float()
-    }
-
-    #[must_use]
     pub const fn supports_hash(self) -> bool {
-        !(self.is_float() || matches!(self, Self::Blob))
+        !matches!(self, Self::Blob | Self::Unit)
     }
 
+    // Int and Nat are unbounded integers so have no native representation
     #[must_use]
     pub const fn supports_num_cast(self) -> bool {
         matches!(
@@ -157,14 +153,12 @@ impl Primitive {
             Self::Decimal
                 | Self::E8s
                 | Self::E18s
-                | Self::Int
                 | Self::Int8
                 | Self::Int16
                 | Self::Int32
                 | Self::Int64
                 | Self::Float32
                 | Self::Float64
-                | Self::Nat
                 | Self::Nat8
                 | Self::Nat16
                 | Self::Nat32
@@ -172,17 +166,10 @@ impl Primitive {
         )
     }
 
+    // both Ord and PartialOrd
     #[must_use]
-    pub const fn supports_partial_ord(self) -> bool {
+    pub const fn supports_ord(self) -> bool {
         !matches!(self, Self::Blob | Self::Unit)
-    }
-
-    #[must_use]
-    pub const fn supports_total_ord(self) -> bool {
-        !matches!(
-            self,
-            Self::Blob | Self::Decimal | Self::Float32 | Self::Float64 | Self::Unit
-        )
     }
 
     //

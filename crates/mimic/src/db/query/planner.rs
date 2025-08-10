@@ -25,7 +25,7 @@ pub enum QueryPlan {
 #[derive(Debug)]
 pub struct IndexPlan {
     pub index: &'static Index,
-    pub keys: Vec<Key>,
+    pub values: Vec<Value>,
 }
 
 ///
@@ -107,7 +107,7 @@ impl QueryPlanner {
         }
     }
 
-    // extract_from_index
+    // extract_from_index: build a leftmost equality prefix in terms of Value
     fn extract_from_index<E: EntityKind>(&self) -> Option<QueryPlan> {
         let Some(filter) = &self.filter else {
             return None;
@@ -116,29 +116,27 @@ impl QueryPlanner {
         let mut best: Option<(usize, IndexPlan)> = None;
 
         for index in E::INDEXES {
-            // Build leftmost-prefix of equality keys
-            let mut keys = Vec::new();
+            // Build leftmost equality prefix (only == supported for hashed indexes)
+            let mut values: Vec<Value> = Vec::new();
+
             for field in index.fields {
-                if let Some(k) = Self::find_eq_clause(filter, field) {
-                    keys.push(k);
+                if let Some(v) = Self::find_eq_value(filter, field) {
+                    values.push(v);
                 } else {
                     break; // stop at first non-match
                 }
             }
 
-            // Skip indexes that produced no keys
-            // this was originally added when we had a unique index on a field that
-            // could not be a key (Text)
-            if keys.is_empty() {
+            // Skip indexes that produced no equality prefix
+            if values.is_empty() {
                 continue;
             }
 
-            // Score by prefix length
-            let score = keys.len();
-            let cand = (score, IndexPlan { index, keys });
+            let score = values.len();
+            let cand = (score, IndexPlan { index, values });
 
             match &best {
-                Some((best_score, _)) if *best_score >= score => {}
+                Some((best_score, _)) if *best_score >= score => { /* keep current best */ }
                 _ => best = Some(cand),
             }
         }
@@ -146,21 +144,14 @@ impl QueryPlanner {
         best.map(|(_, plan)| QueryPlan::Index(plan))
     }
 
-    fn find_eq_clause(filter: &FilterExpr, field: &str) -> Option<Key> {
+    /// Find an equality clause (`field == ?`) anywhere in the filter tree and return the Value.
+    fn find_eq_value(filter: &FilterExpr, field: &str) -> Option<Value> {
         match filter {
             FilterExpr::Clause(c) if c.field == field && matches!(c.cmp, Cmp::Eq) => {
-                if let Some(k) = c.value.as_key() {
-                    Some(k)
-                } else {
-                    debug_assert!(
-                        false,
-                        "Index field `{}` had non-keyable value: {:?}",
-                        field, c.value
-                    );
-                    None
-                }
+                Some(c.value.clone())
             }
-            FilterExpr::And(list) => list.iter().find_map(|f| Self::find_eq_clause(f, field)),
+            // Walk conjunctive subtrees
+            FilterExpr::And(list) => list.iter().find_map(|f| Self::find_eq_value(f, field)),
             _ => None,
         }
     }

@@ -1,8 +1,9 @@
 use crate::core::{
     Key,
-    types::{Decimal, E8s, E18s, Principal, Subaccount, Ulid},
+    types::{Decimal, E8s, E18s, Float32, Float64, Principal, Subaccount, Ulid},
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
+use mimic_common::utils::hash::Xxh3;
 use serde::{Deserialize, Serialize};
 
 ///
@@ -33,7 +34,8 @@ pub enum Value {
     Decimal(Decimal),
     E8s(E8s),
     E18s(E18s),
-    Float(f64),
+    Float32(Float32),
+    Float64(Float64),
     Int(i64),
     Nat(u64),
     Principal(Principal),
@@ -41,7 +43,7 @@ pub enum Value {
     Text(String),
     Ulid(Ulid),
     List(Vec<Box<Value>>),
-    None, // specifically for Options
+    None, // specifically for Option
     Unsupported,
 }
 
@@ -82,8 +84,6 @@ impl_from_for! {
     Decimal => Decimal,
     E8s => E8s,
     E18s => E18s,
-    f32 => Float,
-    f64 => Float,
     i8 => Int,
     i16 => Int,
     i32 => Int,
@@ -145,17 +145,221 @@ impl PartialOrd for Value {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         match (self, other) {
             (Self::Bool(a), Self::Bool(b)) => a.partial_cmp(b),
+            (Self::Decimal(a), Self::Decimal(b)) => a.partial_cmp(b),
             (Self::E8s(a), Self::E8s(b)) => a.partial_cmp(b),
             (Self::E18s(a), Self::E18s(b)) => a.partial_cmp(b),
-            (Self::Float(a), Self::Float(b)) => a.partial_cmp(b),
             (Self::Int(a), Self::Int(b)) => a.partial_cmp(b),
             (Self::Nat(a), Self::Nat(b)) => a.partial_cmp(b),
             (Self::Principal(a), Self::Principal(b)) => a.partial_cmp(b),
+            (Self::Subaccount(a), Self::Subaccount(b)) => a.partial_cmp(b),
             (Self::Text(a), Self::Text(b)) => a.partial_cmp(b),
             (Self::Ulid(a), Self::Ulid(b)) => a.partial_cmp(b),
 
             // Cross-type comparisons: no ordering
             _ => None,
+        }
+    }
+}
+
+#[inline]
+fn feed_u8(h: &mut Xxh3, x: u8) {
+    h.update(&[x]);
+}
+#[inline]
+fn feed_u32(h: &mut Xxh3, x: u32) {
+    h.update(&x.to_be_bytes());
+}
+#[inline]
+fn feed_u64(h: &mut Xxh3, x: u64) {
+    h.update(&x.to_be_bytes());
+}
+#[inline]
+fn feed_i64(h: &mut Xxh3, x: i64) {
+    h.update(&x.to_be_bytes());
+}
+#[inline]
+fn feed_bytes(h: &mut Xxh3, b: &[u8]) {
+    h.update(b);
+}
+
+impl Value {
+    fn write_to_hasher(&self, h: &mut Xxh3) {
+        match self {
+            Value::Bool(b) => {
+                feed_u8(h, 0x01);
+                feed_u8(h, u8::from(*b));
+            }
+            Value::Decimal(d) => {
+                feed_u8(h, 0x02);
+                // encode (sign, scale, mantissa) deterministically:
+                feed_u8(h, u8::from(d.is_sign_negative()));
+                feed_u32(h, d.scale());
+                feed_bytes(h, &d.mantissa().to_be_bytes());
+            }
+            Value::E8s(v) => {
+                feed_u8(h, 0x03);
+                feed_u64(h, v.into_inner());
+            }
+            Value::E18s(v) => {
+                feed_u8(h, 0x04);
+                feed_bytes(h, &v.to_be_bytes());
+            }
+            Value::Float32(v) => {
+                feed_u8(h, 0x04);
+                feed_bytes(h, &v.to_be_bytes());
+            }
+            Value::Float64(v) => {
+                feed_u8(h, 0x04);
+                feed_bytes(h, &v.to_be_bytes());
+            }
+            Value::Int(i) => {
+                feed_u8(h, 0x05);
+                feed_i64(h, *i);
+            }
+            Value::Nat(u) => {
+                feed_u8(h, 0x06);
+                feed_u64(h, *u);
+            }
+            Value::Principal(p) => {
+                feed_u8(h, 0x07);
+                let raw = p.as_slice();
+                feed_u32(h, raw.len() as u32);
+                feed_bytes(h, raw);
+            }
+            Value::Subaccount(s) => {
+                feed_u8(h, 0x08);
+                feed_bytes(h, &s.to_bytes());
+            } // assuming &[u8; 32]
+            Value::Text(s) => {
+                feed_u8(h, 0x09);
+                // If you need case/Unicode insensitivity, normalize; else skip (much faster)
+                // let norm = normalize_nfkc_casefold(s);
+                // feed_u32( h, norm.len() as u32);
+                // feed_bytes( h, norm.as_bytes());
+                feed_u32(h, s.len() as u32);
+                feed_bytes(h, s.as_bytes());
+            }
+            Value::Ulid(u) => {
+                feed_u8(h, 0x0A);
+                feed_bytes(h, &u.to_bytes());
+            }
+            Value::List(xs) => {
+                feed_u8(h, 0x0B);
+                feed_u32(h, xs.len() as u32);
+                for x in xs {
+                    feed_u8(h, 0xFF);
+                    x.write_to_hasher(h); // recurse, no sub-hash
+                }
+            }
+            Value::None => {
+                feed_u8(h, 0x0C);
+            }
+            Value::Unsupported => {
+                feed_u8(h, 0x0D);
+            }
+        }
+    }
+
+    #[must_use]
+    pub fn hash_value(&self) -> [u8; 16] {
+        let mut h = Xxh3::with_seed(0);
+
+        const VER: u8 = 1;
+        feed_u8(&mut h, VER); // version
+
+        self.write_to_hasher(&mut h);
+        h.digest128().to_be_bytes()
+    }
+}
+
+///
+/// TESTS
+///
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::{Key, types::Decimal};
+
+    #[test]
+    fn hash_is_deterministic_for_int() {
+        let v = Value::Int(42);
+        let a = v.hash_value();
+        let b = v.hash_value();
+
+        assert_eq!(a, b, "hash should be deterministic for same value");
+    }
+
+    #[test]
+    fn different_variants_produce_different_hashes() {
+        let a = Value::Int(5).hash_value();
+        let b = Value::Nat(5).hash_value();
+
+        assert_ne!(
+            a, b,
+            "Int(5) and Nat(5) must hash differently (different tag)"
+        );
+    }
+
+    #[test]
+    fn text_is_length_and_content_sensitive() {
+        let a = Value::Text("foo".to_string()).hash_value();
+        let b = Value::Text("bar".to_string()).hash_value();
+        assert_ne!(a, b, "different strings should hash differently");
+
+        let c = Value::Text("foo".to_string()).hash_value();
+        assert_eq!(a, c, "same string should hash the same");
+    }
+
+    #[test]
+    fn list_hash_is_order_sensitive() {
+        let l1 = Value::list(&[Value::Int(1), Value::Int(2)]);
+        let l2 = Value::list(&[Value::Int(2), Value::Int(1)]);
+
+        assert_ne!(
+            l1.hash_value(),
+            l2.hash_value(),
+            "list order should affect hash"
+        );
+    }
+
+    #[test]
+    fn list_hash_is_length_sensitive() {
+        let l1 = Value::list(&[Value::Int(1)]);
+        let l2 = Value::list(&[Value::Int(1), Value::Int(1)]);
+
+        assert_ne!(
+            l1.hash_value(),
+            l2.hash_value(),
+            "list length should affect hash"
+        );
+    }
+
+    #[test]
+    fn as_key_some_for_orderable_variants() {
+        assert_eq!(Value::Int(7).as_key(), Some(Key::Int(7)));
+        assert_eq!(Value::Nat(7).as_key(), Some(Key::Nat(7)));
+        assert_eq!(Value::Ulid(Ulid::MIN).as_key(), Some(Key::Ulid(Ulid::MIN)));
+        // Non-orderable / non-key variants
+        assert!(Value::Text("x".into()).as_key().is_none());
+        assert!(Value::Decimal(Decimal::new(1, 0)).as_key().is_none());
+        assert!(Value::List(vec![]).as_key().is_none());
+        assert!(Value::None.as_key().is_none());
+        assert!(Value::Unsupported.as_key().is_none());
+    }
+
+    #[test]
+    fn from_key_round_trips() {
+        let ks = [Key::Int(-9), Key::Nat(9), Key::Ulid(Ulid::MAX)];
+        for k in ks {
+            let v = Value::from(k);
+            let back = v
+                .as_key()
+                .expect("as_key should succeed for orderable variants");
+            assert_eq!(
+                k, back,
+                "Value <-> Key round trip failed: {k:?} -> {v:?} -> {back:?}"
+            );
         }
     }
 }

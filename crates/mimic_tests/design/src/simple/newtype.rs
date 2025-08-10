@@ -13,18 +13,63 @@ pub use prelude::*;
 #[newtype(primitive = "Float32", item(prim = "Float32"))]
 pub struct Float32 {}
 
-///
-/// Float64
-/// wrapped primitive
-///
+#[newtype(primitive = "Float32", item(is = "Float32"))]
+pub struct Float32W {}
 
-#[newtype(primitive = "Float64", item(prim = "Float64"))]
-pub struct Float64 {}
+#[newtype(primitive = "Float32", item(is = "Float32W"))]
+pub struct Float32WW {}
 
 ///
-/// WrapFloat64
-/// double wrapped primitive
+/// Int
 ///
 
-#[newtype(primitive = "Float64", item(is = "Float64"))]
-pub struct WrapFloat64 {}
+#[newtype(primitive = "Int", item(prim = "Int"))]
+pub struct Int {}
+
+///
+/// Nat
+///
+
+#[newtype(primitive = "Nat", item(prim = "Nat"))]
+pub struct Nat {}
+
+///
+/// Nat32
+///
+
+#[newtype(primitive = "Nat32", item(prim = "Nat32"))]
+pub struct Nat32 {}
+
+#[newtype(primitive = "Nat32", item(is = "Nat32"))]
+pub struct Nat32W {}
+
+#[newtype(primitive = "Nat32", item(is = "Nat32W"))]
+pub struct Nat32WW {}
+
+///
+/// Principal
+///
+
+#[newtype(primitive = "Principal", item(prim = "Principal"))]
+pub struct Principal {}
+
+///
+/// Subaccount
+///
+
+#[newtype(primitive = "Subaccount", item(prim = "Subaccount"))]
+pub struct Subaccount {}
+
+///
+/// Ulid
+///
+
+#[newtype(primitive = "Ulid", item(prim = "Ulid"))]
+pub struct Ulid {}
+
+///
+/// Unit
+///
+
+#[newtype(primitive = "Unit", item(prim = "Unit"))]
+pub struct Unit {}

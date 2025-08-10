@@ -1,5 +1,5 @@
 use crate::core::{
-    traits::{FieldKey, FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
     types::Principal,
     value::Value,
 };
@@ -70,8 +70,6 @@ impl Display for Subaccount {
     }
 }
 
-impl FieldKey for Subaccount {}
-
 impl FieldValue for Subaccount {
     fn to_value(&self) -> Value {
         Value::Text(self.to_string())
@@ -117,14 +115,14 @@ impl PartialEq<WrappedSubaccount> for Subaccount {
 impl_storable_bounded!(Subaccount, Subaccount::STORABLE_MAX_SIZE, true);
 
 impl TypeView for Subaccount {
-    type View = WrappedSubaccount;
+    type View = Self;
 
     fn to_view(&self) -> Self::View {
-        self.0
+        *self
     }
 
     fn from_view(view: Self::View) -> Self {
-        Self(view)
+        view
     }
 }
 

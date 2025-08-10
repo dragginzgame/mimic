@@ -1,5 +1,7 @@
 use xxhash_rust::xxh3::{xxh3_64, xxh3_128};
 
+pub use xxhash_rust::xxh3::Xxh3;
+
 //
 // hashing algorithms that are fast and safe, taken
 // from the xxhash_rust crate

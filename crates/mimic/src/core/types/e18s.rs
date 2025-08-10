@@ -39,7 +39,7 @@ const SCALE: u128 = 1_000_000_000_000_000_000; // 1e18
     Sub,
     SubAssign,
 )]
-pub struct E18s(pub u128);
+pub struct E18s(u128);
 
 impl E18s {
     #[must_use]
@@ -60,6 +60,12 @@ impl E18s {
         }
 
         Some(Self((value * SCALE as f64).round() as u128))
+    }
+
+    /// Consume and return raw units.
+    #[must_use]
+    pub const fn into_inner(self) -> u128 {
+        self.0
     }
 
     #[must_use]
