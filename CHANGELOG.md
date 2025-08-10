@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.0] - 2025-08-10
+- Initial release
+
+## [Unreleased]
+
 ## [0.9.22] - 2025-08-09
 - added a way to detect invalid indexes at compile time
 - added FieldKey to subaccount so it can be used as a database key/index
