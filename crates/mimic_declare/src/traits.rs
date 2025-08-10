@@ -2,10 +2,7 @@ use crate::{
     helper::format_view_ident,
     node_traits::{Implementor, Trait, TraitList, TraitStrategy},
 };
-use mimic_common::utils::{
-    case::{Case, Casing},
-    hash::hash_u64,
-};
+use mimic_common::utils::case::{Case, Casing};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 use syn::Ident;
@@ -166,7 +163,7 @@ pub trait HasTraits: HasIdent + ToTokens {
 
 pub trait HasSchema: HasSchemaPart + HasIdent {
     fn schema_node_kind() -> SchemaNodeKind {
-        SchemaNodeKind::None
+        unreachable!();
     }
 
     fn schema_const(&self) -> Ident {
@@ -183,11 +180,6 @@ pub trait HasSchema: HasSchemaPart + HasIdent {
             return quote!();
         }
 
-        // randomly generate fn name
-        let ident = self.ident();
-        let hash = hash_u64(ident.to_string().as_bytes());
-        let ctor_fn = format_ident!("ctor_{hash}");
-
         // insert statement
         let const_var = self.schema_const();
         let kind = Self::schema_node_kind();
@@ -196,8 +188,8 @@ pub trait HasSchema: HasSchemaPart + HasIdent {
             const #const_var: ::mimic::schema::node::#kind = #schema;
 
             #[cfg(not(target_arch = "wasm32"))]
-            #[::mimic::export::ctor::ctor]
-            fn #ctor_fn() {
+            #[::mimic::export::ctor::ctor(anonymous, crate_path = ::mimic::export::ctor)]
+            fn __ctor() {
                 ::mimic::schema::build::schema_write().insert_node(
                     ::mimic::schema::node::SchemaNode::#kind(#const_var)
                 );
@@ -212,7 +204,6 @@ pub trait HasSchema: HasSchemaPart + HasIdent {
 
 #[derive(Debug)]
 pub enum SchemaNodeKind {
-    None,
     Canister,
     Constant,
     Entity,

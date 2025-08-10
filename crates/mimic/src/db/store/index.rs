@@ -57,12 +57,7 @@ impl IndexStore {
 
             if index.unique {
                 if !updated.contains(&key) && !updated.is_empty() {
-                    debug!(
-                        debug,
-                        "existing entry for index {index_key:?} = {:?}",
-                        updated.to_sorted_vec()
-                    );
-                    return Err(ExecutorError::IndexViolation(index_key));
+                    return Err(ExecutorError::index_violation(E::PATH, index.fields));
                 }
 
                 self.insert(index_key.clone(), IndexEntry::new(index.fields, key));
@@ -267,7 +262,12 @@ impl IndexKey {
 
 impl Display for IndexKey {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({} [{:?}])", self.index_id, self.hashed_values)
+        write!(
+            f,
+            "id: {}, values: {}",
+            self.index_id,
+            self.hashed_values.len()
+        )
     }
 }
 

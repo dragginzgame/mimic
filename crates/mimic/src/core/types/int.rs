@@ -1,4 +1,7 @@
-use crate::core::traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable};
+use crate::core::{
+    Value,
+    traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
+};
 use candid::{CandidType, Int as WrappedInt};
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign};
 use icu::impl_storable_unbounded;
@@ -31,7 +34,21 @@ use serde::{Deserialize, Serialize};
 )]
 pub struct Int(WrappedInt);
 
-impl FieldValue for Int {}
+impl Int {
+    #[must_use]
+    pub fn to_leb128(&self) -> Vec<u8> {
+        let mut out = Vec::new();
+        self.encode(&mut out).expect("Int LEB128 encode");
+
+        out
+    }
+}
+
+impl FieldValue for Int {
+    fn to_value(&self) -> Value {
+        Value::BigInt(self.clone())
+    }
+}
 
 impl From<WrappedInt> for Int {
     fn from(i: WrappedInt) -> Self {

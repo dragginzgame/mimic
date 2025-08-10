@@ -33,6 +33,7 @@ pub fn test() {
     db::DbTester::test();
     filter::load::LoadFilterTester::test();
     filter::delete::DeleteFilterTester::test();
+    filter::index::IndexFilterTester::test();
     index::IndexTester::test();
     ops::OpsTester::test();
     validate::ValidateTester::test();

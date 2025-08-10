@@ -285,7 +285,7 @@ impl LoadFilterTester {
     fn filter_in_category() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.filter("category", Cmp::In, Value::list(&["A", "C"])))
+            .filter::<Filterable>(|f| f.filter("category", Cmp::In, Value::from_list(&["A", "C"])))
             .unwrap()
             .entities();
 
@@ -305,7 +305,9 @@ impl LoadFilterTester {
     fn filter_allin_tags() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.filter("tags", Cmp::AllIn, Value::list(&["blue", "green"])))
+            .filter::<Filterable>(|f| {
+                f.filter("tags", Cmp::AllIn, Value::from_list(&["blue", "green"]))
+            })
             .unwrap()
             .entities();
 
@@ -324,7 +326,9 @@ impl LoadFilterTester {
     fn filter_anyin_tags() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.filter("tags", Cmp::AnyIn, Value::list(&["blue", "green"])))
+            .filter::<Filterable>(|f| {
+                f.filter("tags", Cmp::AnyIn, Value::from_list(&["blue", "green"]))
+            })
             .unwrap()
             .entities();
 

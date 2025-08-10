@@ -63,9 +63,8 @@ impl E8s {
         Some(Self((value * SCALE as f64).round() as u64))
     }
 
-    /// Consume and return raw units.
     #[must_use]
-    pub const fn into_inner(self) -> u64 {
+    pub const fn get(self) -> u64 {
         self.0
     }
 

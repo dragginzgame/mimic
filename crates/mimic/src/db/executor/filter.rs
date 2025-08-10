@@ -1,7 +1,7 @@
 use crate::{
     core::{
         traits::{EntityKind, FieldValues},
-        value::Value,
+        value::{TextMode, Value},
     },
     db::query::{Cmp, FilterClause, FilterExpr, QueryError, QueryValidate},
 };
@@ -39,106 +39,79 @@ impl<'a> FilterEvaluator<'a> {
             .is_some_and(|actual| Self::compare(&actual, clause.cmp, &clause.value))
     }
 
-    // compare
+    /// Core comparator dispatch
     fn compare(left: &Value, cmp: Cmp, right: &Value) -> bool {
-        // Try numeric/structural coercions first
-        if let Some(res) = Self::coerce_match(left, right, cmp) {
-            res
+        // 0) Presence/null checks (RHS ignored)
+        match cmp {
+            Cmp::IsNone => return matches!(left, Value::None),
+            Cmp::IsSome => return !matches!(left, Value::None),
+            _ => {}
         }
-        // Try text-based coercion
-        else if let Some(res) = Self::coerce_text_match(left, right, cmp) {
-            res
+
+        // 1) Numeric ordering (Decimal-first, then f64-safe handled inside Value::cmp_numeric)
+        if matches!(
+            cmp,
+            Cmp::Eq | Cmp::Ne | Cmp::Lt | Cmp::Lte | Cmp::Gt | Cmp::Gte
+        ) && let Some(ord) = left.cmp_numeric(right)
+        {
+            return cmp.compare_order(ord);
         }
-        // Then collection contains
-        else if let Some(res) = Self::coerce_collection_contains(left, right, cmp) {
-            res
+
+        // 2) Text ops (CS/CI explicit)
+        if let Some(res) = Self::coerce_text_match(left, right, cmp) {
+            return res;
         }
-        // Fall back to strict comparison
-        else {
-            match cmp {
-                // values
-                Cmp::Eq => left == right,
-                Cmp::Ne => left != right,
-                Cmp::Lt => left < right,
-                Cmp::Lte => left <= right,
-                Cmp::Gt => left > right,
-                Cmp::Gte => left >= right,
 
-                // lists
-                Cmp::In => match right {
-                    Value::List(items) => items.iter().any(|v| v.as_ref() == left),
-                    _ => false,
-                },
+        // 3) Collection membership ops
+        if let Some(res) = Self::coerce_collection(left, right, cmp) {
+            return res;
+        }
 
-                Cmp::AllIn => match (left, right) {
-                    (Value::List(left_items), Value::List(right_items)) => right_items
-                        .iter()
-                        .all(|r| left_items.iter().any(|l| l == r)),
-                    _ => false,
-                },
-
-                Cmp::AnyIn => match (left, right) {
-                    (Value::List(left_items), Value::List(right_items)) => right_items
-                        .iter()
-                        .any(|r| left_items.iter().any(|l| l == r)),
-                    _ => false,
-                },
-
-                _ => false, // should only be text ops here, already handled
-            }
+        // 4) final fallback: strict same-variant compare only
+        match cmp {
+            Cmp::Eq => left == right,
+            Cmp::Ne => left != right,
+            Cmp::Lt => left < right,
+            Cmp::Lte => left <= right,
+            Cmp::Gt => left > right,
+            Cmp::Gte => left >= right,
+            _ => false,
         }
     }
 
-    #[allow(clippy::cast_sign_loss)]
-    #[allow(clippy::cast_precision_loss)]
-    fn coerce_match(actual: &Value, expected: &Value, cmp: Cmp) -> Option<bool> {
-        match (actual, expected) {
-            // Int ↔ Nat
-            (Value::Int(a), Value::Nat(b)) => {
-                if *a < 0 {
-                    Some(matches!(cmp, Cmp::Ne)) // negative can't equal unsigned
-                } else {
-                    Some(cmp.compare_order((*a as u64).cmp(b)))
-                }
-            }
-            (Value::Nat(a), Value::Int(b)) => {
-                if *b < 0 {
-                    Some(matches!(cmp, Cmp::Ne))
-                } else {
-                    Some(cmp.compare_order(a.cmp(&(*b as u64))))
-                }
-            }
+    /// Text dispatch (maps Cmp → Value::text_* with CS/CI)
+    fn coerce_text_match(actual: &Value, expected: &Value, cmp: Cmp) -> Option<bool> {
+        use Cmp::*;
+
+        match cmp {
+            Eq => actual.text_eq(expected, TextMode::Cs),
+            Ne => actual.text_eq(expected, TextMode::Cs).map(|b| !b),
+            Contains => actual.text_contains(expected, TextMode::Cs),
+            StartsWith => actual.text_starts_with(expected, TextMode::Cs),
+            EndsWith => actual.text_ends_with(expected, TextMode::Cs),
+
+            // CI variants — ensure these exist in your Cmp enum
+            EqCi => actual.text_eq(expected, TextMode::Ci),
+            NeCi => actual.text_eq(expected, TextMode::Ci).map(|b| !b),
+            ContainsCi => actual.text_contains(expected, TextMode::Ci),
+            StartsWithCi => actual.text_starts_with(expected, TextMode::Ci),
+            EndsWithCi => actual.text_ends_with(expected, TextMode::Ci),
 
             _ => None,
         }
     }
 
-    /// Applies a case-insensitive textual comparison if both values can be viewed as strings.
-    fn coerce_text_match(actual: &Value, expected: &Value, cmp: Cmp) -> Option<bool> {
-        let a = actual.to_searchable_string()?;
-        let b = expected.to_searchable_string()?;
+    /// Collection membership using Value helpers
+    fn coerce_collection(actual: &Value, expected: &Value, cmp: Cmp) -> Option<bool> {
+        use Cmp::*;
 
-        let a = a.to_lowercase();
-        let b = b.to_lowercase();
-
-        Some(match cmp {
-            Cmp::Contains => a.contains(&b),
-            Cmp::StartsWith => a.starts_with(&b),
-            Cmp::EndsWith => a.ends_with(&b),
-
-            _ => return None,
-        })
-    }
-
-    fn coerce_collection_contains(actual: &Value, expected: &Value, cmp: Cmp) -> Option<bool> {
-        match (actual, expected) {
-            // check if list contains the scalar value
-            (Value::List(items), item) => match cmp {
-                Cmp::Contains => Some(items.iter().any(|elem| elem.as_ref() == item)),
-                _ => None,
-            },
-
-            // optional future: support "scalar contains list" (e.g., "abc" contains ["a", "b"])
+        match cmp {
+            AllIn => actual.contains_all(expected),
+            AnyIn => actual.contains_any(expected),
+            Contains => actual.contains(expected),
+            In => actual.in_list(expected),
+            IsEmpty => actual.is_empty(),
+            IsNotEmpty => actual.is_not_empty(),
             _ => None,
         }
     }

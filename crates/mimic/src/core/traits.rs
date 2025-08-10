@@ -156,6 +156,14 @@ pub trait EntityFixture {
 }
 
 ///
+/// FieldValues
+///
+
+pub trait FieldValues {
+    fn get_value(&self, field: &str) -> Option<Value>;
+}
+
+///
 /// FieldValue
 ///
 /// A trait that defines how a value is wrapped for WHERE queries,
@@ -163,8 +171,9 @@ pub trait EntityFixture {
 ///
 
 pub trait FieldValue {
+    // returns an opaque sentinel type by default
     fn to_value(&self) -> Value {
-        Value::Unsupported
+        Value::Unit
     }
 }
 
@@ -193,20 +202,12 @@ impl_field_value_as!(
     i16 => Int,
     i32 => Int,
     i64 => Int,
-    u8 => Nat,
-    u16 => Nat,
-    u32 => Nat,
-    u64 => Nat,
+    u8 => Uint,
+    u16 => Uint,
+    u32 => Uint,
+    u64 => Uint,
     bool => Bool,
 );
-
-///
-/// FieldValues
-///
-
-pub trait FieldValues {
-    fn get_value(&self, field: &str) -> Option<Value>;
-}
 
 ///
 /// Path

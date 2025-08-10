@@ -38,3 +38,21 @@ pub struct Filterable {}
     )
 )]
 pub struct FilterableOpt {}
+
+///
+/// FilterableIndex
+///
+
+#[entity(
+    store = "TestDataStore",
+    pk = "id",
+    index(store = "TestIndexStore", fields = "name", unique),
+    index(store = "TestIndexStore", fields = "name_opt"),
+    fields(
+        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(name = "name", value(item(prim = "Text"))),
+        field(name = "name_opt", value(opt, item(prim = "Text"))),
+        field(name = "name_many", value(many, item(prim = "Text"))),
+    )
+)]
+pub struct FilterableIndex {}

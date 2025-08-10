@@ -153,7 +153,7 @@ impl DeleteFilterTester {
     fn delete_in_category_a_or_c() {
         let deleted = db!()
             .delete()
-            .filter::<Filterable>(|f| f.filter("category", Cmp::In, Value::list(&["A", "C"])))
+            .filter::<Filterable>(|f| f.filter("category", Cmp::In, Value::from_list(&["A", "C"])))
             .unwrap();
 
         assert_eq!(deleted.len(), 6, "expected to delete 6 rows (A or C)");

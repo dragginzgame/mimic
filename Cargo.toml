@@ -23,7 +23,7 @@ license = "MIT"
 [workspace.dependencies]
 candid = "0.10"
 convert_case = "0.8"
-ctor = "0.4"
+ctor = "0.5"
 darling = "0.21"
 derive_more = { version = "2.0", default-features = false, features = ["full"] }
 ic-cdk = "0.18.5"

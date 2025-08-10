@@ -12,16 +12,12 @@ use std::cmp::Ordering;
 /// Planning to enforce Copy semantics (i.e., fast, clean, safe)
 ///
 
-#[derive(
-    CandidType, Clone, Copy, Debug, Default, Deserialize, Display, Eq, Hash, PartialEq, Serialize,
-)]
+#[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, Eq, Hash, PartialEq, Serialize)]
 pub enum Key {
-    #[default]
-    Invalid,
     Int(i64),
-    Nat(u64),
     Principal(Principal),
     Subaccount(Subaccount),
+    Uint(u64),
     Ulid(Ulid),
 }
 
@@ -35,12 +31,11 @@ impl Key {
 
     const fn variant_rank(&self) -> u8 {
         match self {
-            Self::Invalid => 0,
-            Self::Int(_) => 1,
-            Self::Nat(_) => 2,
-            Self::Principal(_) => 3,
-            Self::Subaccount(_) => 4,
-            Self::Ulid(_) => 5,
+            Self::Int(_) => 0,
+            Self::Principal(_) => 1,
+            Self::Subaccount(_) => 2,
+            Self::Uint(_) => 3,
+            Self::Ulid(_) => 4,
         }
     }
 
@@ -76,25 +71,25 @@ impl From<i64> for Key {
 
 impl From<u8> for Key {
     fn from(v: u8) -> Self {
-        Self::Nat(v.into())
+        Self::Uint(v.into())
     }
 }
 
 impl From<u16> for Key {
     fn from(v: u16) -> Self {
-        Self::Nat(v.into())
+        Self::Uint(v.into())
     }
 }
 
 impl From<u32> for Key {
     fn from(v: u32) -> Self {
-        Self::Nat(v.into())
+        Self::Uint(v.into())
     }
 }
 
 impl From<u64> for Key {
     fn from(v: u64) -> Self {
-        Self::Nat(v)
+        Self::Uint(v)
     }
 }
 
@@ -130,7 +125,7 @@ impl PartialEq<i64> for Key {
 
 impl PartialEq<u64> for Key {
     fn eq(&self, other: &u64) -> bool {
-        matches!(self, Self::Nat(val) if val == other)
+        matches!(self, Self::Uint(val) if val == other)
     }
 }
 
@@ -186,8 +181,8 @@ impl Ord for Key {
     fn cmp(&self, other: &Self) -> Ordering {
         match (self, other) {
             (Self::Int(a), Self::Int(b)) => Ord::cmp(a, b),
-            (Self::Nat(a), Self::Nat(b)) => Ord::cmp(a, b),
             (Self::Principal(a), Self::Principal(b)) => Ord::cmp(a, b),
+            (Self::Uint(a), Self::Uint(b)) => Ord::cmp(a, b),
             (Self::Ulid(a), Self::Ulid(b)) => Ord::cmp(a, b),
 
             _ => Ord::cmp(&self.variant_rank(), &other.variant_rank()), // fallback for cross-type comparison
@@ -215,7 +210,7 @@ mod tests {
 
         let others = vec![
             Key::Ulid(Ulid::MIN),
-            Key::Nat(u64::MIN),
+            Key::Uint(u64::MIN),
             Key::Principal(Principal::MIN),
         ];
 
@@ -230,8 +225,8 @@ mod tests {
 
         let others = vec![
             Key::Int(i64::MAX),
-            Key::Nat(u64::MAX),
             Key::Principal(Principal::MAX),
+            Key::Uint(u64::MAX),
         ];
 
         for v in others {

@@ -1,4 +1,7 @@
-use crate::core::traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable};
+use crate::core::{
+    Value,
+    traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
+};
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
@@ -44,7 +47,11 @@ impl Display for Blob {
     }
 }
 
-impl FieldValue for Blob {}
+impl FieldValue for Blob {
+    fn to_value(&self) -> Value {
+        Value::Blob(self.to_vec())
+    }
+}
 
 impl From<Vec<u8>> for Blob {
     fn from(bytes: Vec<u8>) -> Self {

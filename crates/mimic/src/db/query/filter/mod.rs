@@ -252,6 +252,21 @@ pub enum Cmp {
     Contains,
     StartsWith,
     EndsWith,
+
+    // case insensitive matching
+    EqCi,
+    NeCi,
+    ContainsCi,
+    StartsWithCi,
+    EndsWithCi,
+
+    // optionals / presence
+    IsNone,
+    IsSome,
+
+    // collections / strings
+    IsEmpty,    // len == 0
+    IsNotEmpty, // len > 0
 }
 
 impl Cmp {

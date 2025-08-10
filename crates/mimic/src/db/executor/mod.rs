@@ -10,7 +10,7 @@ pub use filter::*;
 pub use load::*;
 pub use save::*;
 
-use crate::db::store::{DataKey, IndexKey};
+use crate::db::store::DataKey;
 use thiserror::Error as ThisError;
 
 ///
@@ -28,6 +28,13 @@ pub enum ExecutorError {
     #[error("index execution not yet supported")]
     IndexNotSupported,
 
-    #[error("index constraint violation for index: {0:?}")]
-    IndexViolation(IndexKey),
+    #[error("index constraint violation: {0} ({1})")]
+    IndexViolation(String, String),
+}
+
+impl ExecutorError {
+    #[must_use]
+    pub fn index_violation(path: &str, index_fields: &[&str]) -> Self {
+        Self::IndexViolation(path.to_string(), index_fields.join(", "))
+    }
 }

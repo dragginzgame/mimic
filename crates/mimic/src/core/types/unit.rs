@@ -1,4 +1,7 @@
-use crate::core::traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable};
+use crate::core::{
+    Value,
+    traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
+};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
@@ -22,7 +25,11 @@ use serde::{Deserialize, Serialize};
 )]
 pub struct Unit();
 
-impl FieldValue for Unit {}
+impl FieldValue for Unit {
+    fn to_value(&self) -> Value {
+        Value::Unit
+    }
+}
 
 impl TypeView for Unit {
     type View = Self;

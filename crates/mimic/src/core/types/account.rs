@@ -46,6 +46,17 @@ impl Account {
     }
 
     #[must_use]
+    pub fn owner_bytes(&self) -> &[u8] {
+        self.0.owner.as_slice()
+    }
+
+    // Treat None as all-zero subaccount (ICRC-1 convention); canonicalizes ordering & hashing.
+    #[must_use]
+    pub fn subaccount_bytes(&self) -> [u8; 32] {
+        self.0.subaccount.unwrap_or([0; 32])
+    }
+
+    #[must_use]
     pub fn max_storable() -> Self {
         Self::new(Principal::max_storable(), Some(Subaccount::max_storable()))
     }
@@ -53,7 +64,7 @@ impl Account {
 
 impl FieldValue for Account {
     fn to_value(&self) -> Value {
-        Value::Text(self.to_string())
+        Value::Account(*self)
     }
 }
 

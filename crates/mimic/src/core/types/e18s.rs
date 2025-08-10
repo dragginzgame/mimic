@@ -62,9 +62,8 @@ impl E18s {
         Some(Self((value * SCALE as f64).round() as u128))
     }
 
-    /// Consume and return raw units.
     #[must_use]
-    pub const fn into_inner(self) -> u128 {
+    pub const fn get(self) -> u128 {
         self.0
     }
 
