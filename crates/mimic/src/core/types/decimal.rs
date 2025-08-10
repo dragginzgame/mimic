@@ -58,6 +58,11 @@ impl Decimal {
     pub fn checked_rem(self, rhs: Self) -> Option<Self> {
         self.0.checked_rem(*rhs).map(Self)
     }
+
+    #[must_use]
+    pub fn from_i128_with_scale(num: i128, scale: u32) -> Self {
+        WrappedDecimal::from_i128_with_scale(num, scale).into()
+    }
 }
 
 impl CandidType for Decimal {

@@ -81,21 +81,19 @@ impl<'a> FilterEvaluator<'a> {
 
     /// Text dispatch (maps Cmp → Value::text_* with CS/CI)
     fn coerce_text_match(actual: &Value, expected: &Value, cmp: Cmp) -> Option<bool> {
-        use Cmp::*;
-
         match cmp {
-            Eq => actual.text_eq(expected, TextMode::Cs),
-            Ne => actual.text_eq(expected, TextMode::Cs).map(|b| !b),
-            Contains => actual.text_contains(expected, TextMode::Cs),
-            StartsWith => actual.text_starts_with(expected, TextMode::Cs),
-            EndsWith => actual.text_ends_with(expected, TextMode::Cs),
+            Cmp::Eq => actual.text_eq(expected, TextMode::Cs),
+            Cmp::Ne => actual.text_eq(expected, TextMode::Cs).map(|b| !b),
+            Cmp::Contains => actual.text_contains(expected, TextMode::Cs),
+            Cmp::StartsWith => actual.text_starts_with(expected, TextMode::Cs),
+            Cmp::EndsWith => actual.text_ends_with(expected, TextMode::Cs),
 
             // CI variants — ensure these exist in your Cmp enum
-            EqCi => actual.text_eq(expected, TextMode::Ci),
-            NeCi => actual.text_eq(expected, TextMode::Ci).map(|b| !b),
-            ContainsCi => actual.text_contains(expected, TextMode::Ci),
-            StartsWithCi => actual.text_starts_with(expected, TextMode::Ci),
-            EndsWithCi => actual.text_ends_with(expected, TextMode::Ci),
+            Cmp::EqCi => actual.text_eq(expected, TextMode::Ci),
+            Cmp::NeCi => actual.text_eq(expected, TextMode::Ci).map(|b| !b),
+            Cmp::ContainsCi => actual.text_contains(expected, TextMode::Ci),
+            Cmp::StartsWithCi => actual.text_starts_with(expected, TextMode::Ci),
+            Cmp::EndsWithCi => actual.text_ends_with(expected, TextMode::Ci),
 
             _ => None,
         }
@@ -103,15 +101,13 @@ impl<'a> FilterEvaluator<'a> {
 
     /// Collection membership using Value helpers
     fn coerce_collection(actual: &Value, expected: &Value, cmp: Cmp) -> Option<bool> {
-        use Cmp::*;
-
         match cmp {
-            AllIn => actual.contains_all(expected),
-            AnyIn => actual.contains_any(expected),
-            Contains => actual.contains(expected),
-            In => actual.in_list(expected),
-            IsEmpty => actual.is_empty(),
-            IsNotEmpty => actual.is_not_empty(),
+            Cmp::AllIn => actual.contains_all(expected),
+            Cmp::AnyIn => actual.contains_any(expected),
+            Cmp::Contains => actual.contains(expected),
+            Cmp::In => actual.in_list(expected),
+            Cmp::IsEmpty => actual.is_empty(),
+            Cmp::IsNotEmpty => actual.is_not_empty(),
             _ => None,
         }
     }

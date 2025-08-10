@@ -9,8 +9,6 @@ use num_traits::ToPrimitive;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
 
-const SCALE: u64 = 100_000_000;
-
 ///
 /// E8s
 ///
@@ -43,9 +41,11 @@ const SCALE: u64 = 100_000_000;
 pub struct E8s(u64);
 
 impl E8s {
+    const SCALE: u64 = 100_000_000;
+
     #[must_use]
     pub fn from_decimal(value: Decimal) -> Option<Self> {
-        let d = value * SCALE;
+        let d = value * Self::SCALE;
 
         Some(Self(d.to_u64()?))
     }
@@ -60,7 +60,7 @@ impl E8s {
             return None;
         }
 
-        Some(Self((value * SCALE as f64).round() as u64))
+        Some(Self((value * Self::SCALE as f64).round() as u64))
     }
 
     #[must_use]
@@ -69,14 +69,14 @@ impl E8s {
     }
 
     #[must_use]
-    pub fn to_tokens(self) -> Decimal {
-        Decimal::from(self.0) / Decimal::from(SCALE)
+    pub fn to_decimal(self) -> Decimal {
+        Decimal::from(self)
     }
 
     #[must_use]
     pub fn count_digits(&self) -> (usize, usize) {
-        let whole = self.0 / SCALE;
-        let frac = self.0 % SCALE;
+        let whole = self.0 / Self::SCALE;
+        let frac = self.0 % Self::SCALE;
 
         let id = whole.to_string().len();
         let fd = {
@@ -93,13 +93,20 @@ impl E8s {
 
 impl Display for E8s {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:.8}", self.to_tokens())
+        write!(f, "{:.8}", self.to_decimal())
     }
 }
 
 impl FieldValue for E8s {
     fn to_value(&self) -> Value {
         Value::E8s(*self)
+    }
+}
+
+impl From<E8s> for Decimal {
+    fn from(v: E8s) -> Self {
+        // mantissa = raw atomic units, scale = 8
+        Self::new(v.get() as i64, 8)
     }
 }
 
@@ -166,13 +173,13 @@ mod tests {
     #[test]
     fn test_from_u64() {
         let fixed = E8s::from_decimal(Decimal::from(42)).unwrap();
-        assert_eq!(fixed.to_tokens(), Decimal::from(42));
+        assert_eq!(fixed.to_decimal(), Decimal::from(42));
     }
 
     #[test]
     fn test_default_is_zero() {
         let fixed = E8s::default();
-        assert_eq!(fixed.to_tokens(), Decimal::ZERO);
+        assert_eq!(fixed.to_decimal(), Decimal::ZERO);
     }
 
     #[test]

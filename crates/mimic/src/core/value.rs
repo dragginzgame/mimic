@@ -86,25 +86,25 @@ impl Value {
     #[must_use]
     pub const fn tag(&self) -> u8 {
         match self {
-            Value::Account(_) => ValueTag::Account,
-            Value::BigInt(_) => ValueTag::BigInt,
-            Value::BigUint(_) => ValueTag::BigUint,
-            Value::Blob(_) => ValueTag::Blob,
-            Value::Bool(_) => ValueTag::Bool,
-            Value::Decimal(_) => ValueTag::Decimal,
-            Value::E8s(_) => ValueTag::E8s,
-            Value::E18s(_) => ValueTag::E18s,
-            Value::Float32(_) => ValueTag::Float32,
-            Value::Float64(_) => ValueTag::Float64,
-            Value::Int(_) => ValueTag::Int,
-            Value::List(_) => ValueTag::List,
-            Value::None => ValueTag::None,
-            Value::Principal(_) => ValueTag::Principal,
-            Value::Subaccount(_) => ValueTag::Subaccount,
-            Value::Text(_) => ValueTag::Text,
-            Value::Uint(_) => ValueTag::Uint,
-            Value::Ulid(_) => ValueTag::Ulid,
-            Value::Unit => ValueTag::Unit,
+            Self::Account(_) => ValueTag::Account,
+            Self::BigInt(_) => ValueTag::BigInt,
+            Self::BigUint(_) => ValueTag::BigUint,
+            Self::Blob(_) => ValueTag::Blob,
+            Self::Bool(_) => ValueTag::Bool,
+            Self::Decimal(_) => ValueTag::Decimal,
+            Self::E8s(_) => ValueTag::E8s,
+            Self::E18s(_) => ValueTag::E18s,
+            Self::Float32(_) => ValueTag::Float32,
+            Self::Float64(_) => ValueTag::Float64,
+            Self::Int(_) => ValueTag::Int,
+            Self::List(_) => ValueTag::List,
+            Self::None => ValueTag::None,
+            Self::Principal(_) => ValueTag::Principal,
+            Self::Subaccount(_) => ValueTag::Subaccount,
+            Self::Text(_) => ValueTag::Text,
+            Self::Uint(_) => ValueTag::Uint,
+            Self::Ulid(_) => ValueTag::Ulid,
+            Self::Unit => ValueTag::Unit,
         }
         .to_u8()
     }
@@ -126,8 +126,8 @@ impl Value {
     }
 
     #[must_use]
-    pub fn as_text(&self) -> Option<&str> {
-        if let Value::Text(s) = self {
+    pub const fn as_text(&self) -> Option<&str> {
+        if let Self::Text(s) = self {
             Some(s.as_str())
         } else {
             None
@@ -135,8 +135,8 @@ impl Value {
     }
 
     #[must_use]
-    pub fn as_list(&self) -> Option<&[Box<Value>]> {
-        if let Value::List(xs) = self {
+    pub const fn as_list(&self) -> Option<&[Box<Self>]> {
+        if let Self::List(xs) = self {
             Some(xs.as_slice())
         } else {
             None
@@ -145,13 +145,13 @@ impl Value {
 
     fn to_decimal(&self) -> Option<Decimal> {
         match self {
-            Value::Decimal(d) => Some(*d),
-            Value::E8s(v) => Decimal::from_u64(v.get()),
-            Value::E18s(v) => Decimal::from_u128(v.get()),
-            Value::Float64(f) => Decimal::from_f64(f.get()),
-            Value::Float32(f) => Decimal::from_f32(f.get()),
-            Value::Int(i) => Decimal::from_i64(*i),
-            Value::Uint(u) => Decimal::from_u64(*u),
+            Self::Decimal(d) => Some(*d),
+            Self::E8s(v) => Some(v.to_decimal()),
+            Self::E18s(v) => Some(v.to_decimal()),
+            Self::Float64(f) => Decimal::from_f64(f.get()),
+            Self::Float32(f) => Decimal::from_f32(f.get()),
+            Self::Int(i) => Decimal::from_i64(*i),
+            Self::Uint(u) => Decimal::from_u64(*u),
 
             _ => None,
         }
@@ -159,10 +159,10 @@ impl Value {
 
     fn to_f64_lossless(&self) -> Option<f64> {
         match self {
-            Value::Float64(f) => Some(f.get()),
-            Value::Float32(f) => Some(f.get() as f64),
-            Value::Int(i) if (-F64_SAFE_I..=F64_SAFE_I).contains(i) => Some(*i as f64),
-            Value::Uint(u) if *u <= F64_SAFE_U => Some(*u as f64),
+            Self::Float64(f) => Some(f.get()),
+            Self::Float32(f) => Some(f64::from(f.get())),
+            Self::Int(i) if (-F64_SAFE_I..=F64_SAFE_I).contains(i) => Some(*i as f64),
+            Self::Uint(u) if *u <= F64_SAFE_U => Some(*u as f64),
 
             _ => None,
         }
@@ -173,11 +173,11 @@ impl Value {
     ///
 
     #[must_use]
-    pub fn is_empty(&self) -> Option<bool> {
+    pub const fn is_empty(&self) -> Option<bool> {
         match self {
-            Value::List(xs) => Some(xs.is_empty()),
-            Value::Text(s) => Some(s.is_empty()),
-            Value::Blob(b) => Some(b.is_empty()),
+            Self::List(xs) => Some(xs.is_empty()),
+            Self::Text(s) => Some(s.is_empty()),
+            Self::Blob(b) => Some(b.is_empty()),
             _ => None, // no concept of "empty"
         }
     }
@@ -188,8 +188,8 @@ impl Value {
     }
 
     #[must_use]
-    pub fn in_list(&self, haystack: &Value) -> Option<bool> {
-        if let Value::List(items) = haystack {
+    pub fn in_list(&self, haystack: &Self) -> Option<bool> {
+        if let Self::List(items) = haystack {
             Some(items.iter().any(|h| h.as_ref() == self))
         } else {
             None
@@ -213,13 +213,13 @@ impl Value {
     }
 
     #[must_use]
-    pub fn contains(&self, needle: &Value) -> Option<bool> {
+    pub fn contains(&self, needle: &Self) -> Option<bool> {
         self.as_list()
             .map(|items| items.iter().any(|v| v.as_ref() == needle))
     }
 
     #[must_use]
-    pub fn contains_any(&self, needles: &Value) -> Option<bool> {
+    pub fn contains_any(&self, needles: &Self) -> Option<bool> {
         let (items, needles) = (self.as_list()?, needles.as_list()?);
 
         Some(
@@ -230,7 +230,7 @@ impl Value {
     }
 
     #[must_use]
-    pub fn contains_all(&self, needles: &Value) -> Option<bool> {
+    pub fn contains_all(&self, needles: &Self) -> Option<bool> {
         let (items, needles) = (self.as_list()?, needles.as_list()?);
 
         Some(
@@ -318,11 +318,11 @@ impl_from_for! {
 impl From<Key> for Value {
     fn from(k: Key) -> Self {
         match k {
-            Key::Int(v) => Value::Int(v),
-            Key::Principal(v) => Value::Principal(v),
-            Key::Subaccount(v) => Value::Subaccount(v),
-            Key::Uint(v) => Value::Uint(v),
-            Key::Ulid(v) => Value::Ulid(v),
+            Key::Int(v) => Self::Int(v),
+            Key::Principal(v) => Self::Principal(v),
+            Key::Subaccount(v) => Self::Subaccount(v),
+            Key::Uint(v) => Self::Uint(v),
+            Key::Ulid(v) => Self::Ulid(v),
         }
     }
 }
@@ -358,7 +358,7 @@ impl From<Vec<Self>> for Value {
 }
 
 impl From<()> for Value {
-    fn from(_: ()) -> Self {
+    fn from((): ()) -> Self {
         Self::Unit
     }
 }

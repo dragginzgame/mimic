@@ -5,7 +5,8 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.10.1] - 2025-08-10
+- made ctor anonymous and now mimic users don't have to include it at all
 
 ## [0.10.0] - Indexes for All Types
 - changed Index equality to use hashed Values, implemented a canonical to_bytes for all Value types

@@ -76,8 +76,8 @@ impl IndexFilterTester {
                 db!(),
                 FilterableIndex {
                     name: name.into(),
-                    name_opt: name_opt.map(|s| s.to_string()),
-                    name_many: name_many.iter().map(|s| s.to_string()).collect(),
+                    name_opt: name_opt.map(ToString::to_string),
+                    name_many: name_many.iter().map(ToString::to_string).collect(),
                     ..Default::default()
                 },
             );

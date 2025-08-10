@@ -9,8 +9,6 @@ use num_traits::ToPrimitive;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
 
-const SCALE: u128 = 1_000_000_000_000_000_000; // 1e18
-
 ///
 /// E18s
 ///
@@ -42,9 +40,11 @@ const SCALE: u128 = 1_000_000_000_000_000_000; // 1e18
 pub struct E18s(u128);
 
 impl E18s {
+    const SCALE: u128 = 1_000_000_000_000_000_000; // 1e18
+
     #[must_use]
     pub fn from_decimal(value: Decimal) -> Option<Self> {
-        let d = value * SCALE;
+        let d = value * Self::SCALE;
 
         Some(Self(d.to_u128()?))
     }
@@ -59,7 +59,7 @@ impl E18s {
             return None;
         }
 
-        Some(Self((value * SCALE as f64).round() as u128))
+        Some(Self((value * Self::SCALE as f64).round() as u128))
     }
 
     #[must_use]
@@ -68,14 +68,14 @@ impl E18s {
     }
 
     #[must_use]
-    pub fn to_tokens(self) -> Decimal {
-        Decimal::from(self.0) / Decimal::from(SCALE)
+    pub fn to_decimal(self) -> Decimal {
+        Decimal::from_i128_with_scale(self.0 as i128, 18)
     }
 
     #[must_use]
     pub fn count_digits(&self) -> (usize, usize) {
-        let whole = self.0 / SCALE;
-        let frac = self.0 % SCALE;
+        let whole = self.0 / Self::SCALE;
+        let frac = self.0 % Self::SCALE;
 
         let id = whole.to_string().len();
         let fd = {
@@ -93,8 +93,8 @@ impl E18s {
 impl Display for E18s {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let scaled = self.0;
-        let whole = scaled / SCALE;
-        let frac = scaled % SCALE;
+        let whole = scaled / Self::SCALE;
+        let frac = scaled % Self::SCALE;
 
         if frac == 0 {
             write!(f, "{whole}")
@@ -147,6 +147,7 @@ mod tests {
     fn test_display_formatting() {
         let dec = Decimal::from_str("42.5").unwrap();
         let e18s = E18s::from_decimal(dec).unwrap();
+
         assert_eq!(e18s.to_string(), "42.5");
     }
 
@@ -166,21 +167,24 @@ mod tests {
         let e18s =
             E18s::from_decimal(Decimal::from_str("123.456789123456789123").unwrap()).unwrap();
         let (int_digits, frac_digits) = e18s.count_digits();
+
         assert_eq!(int_digits, 3);
         assert_eq!(frac_digits, 18);
     }
 
     #[test]
     fn test_from_u128() {
-        let raw = 42 * SCALE;
+        let raw = 42 * E18s::SCALE;
         let e18s = E18s::from(raw);
-        assert_eq!(e18s.to_tokens(), Decimal::from(42));
+
+        assert_eq!(e18s.to_decimal(), Decimal::from(42));
     }
 
     #[test]
     fn test_default_is_zero() {
         let fixed = E18s::default();
-        assert_eq!(fixed.to_tokens(), Decimal::ZERO);
+
+        assert_eq!(fixed.to_decimal(), Decimal::ZERO);
     }
 
     #[test]
