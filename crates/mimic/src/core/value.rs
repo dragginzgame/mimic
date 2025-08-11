@@ -179,9 +179,10 @@ impl Value {
         }
     }
 
+    #[must_use]
     pub fn to_index_fingerprint(&self) -> Option<[u8; 16]> {
         match self {
-            Value::None | Value::Unit | Value::Unsupported => None,
+            Self::None | Self::Unit | Self::Unsupported => None,
             _ => Some(self.hash_value()),
         }
     }

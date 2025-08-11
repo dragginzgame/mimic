@@ -47,13 +47,13 @@ impl E18s {
 
     /// Construct from **atomics** (raw scaled integer). No scaling applied.
     #[must_use]
-    pub fn from_atomic(raw: u128) -> Self {
+    pub const fn from_atomic(raw: u128) -> Self {
         Self(raw)
     }
 
     /// Construct from **whole units**. Scales by 10^18 (saturating).
     #[must_use]
-    pub fn from_units(units: u128) -> Self {
+    pub const fn from_units(units: u128) -> Self {
         Self(units.saturating_mul(Self::SCALE))
     }
 
@@ -94,7 +94,7 @@ impl E18s {
     }
 
     #[must_use]
-    pub fn to_be_bytes(self) -> [u8; 16] {
+    pub const fn to_be_bytes(self) -> [u8; 16] {
         self.0.to_be_bytes()
     }
 }

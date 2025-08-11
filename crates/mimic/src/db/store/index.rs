@@ -160,8 +160,8 @@ impl IndexStore {
     }
 
     fn index_fingerprints(values: &[Value]) -> Option<Vec<[u8; 16]>> {
-        values.iter().map(|v| v.to_index_fingerprint()).collect()
         // collects to Option<Vec<_>>: None if any element was non-indexable
+        values.iter().map(Value::to_index_fingerprint).collect()
     }
 }
 
