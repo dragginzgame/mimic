@@ -8,6 +8,7 @@ mod int;
 mod nat;
 mod principal;
 mod subaccount;
+mod timestamp;
 mod ulid;
 mod unit;
 
@@ -21,6 +22,7 @@ pub use int::*;
 pub use nat::*;
 pub use principal::*;
 pub use subaccount::*;
+pub use timestamp::*;
 pub use ulid::*;
 pub use unit::*;
 

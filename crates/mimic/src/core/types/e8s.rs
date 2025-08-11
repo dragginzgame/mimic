@@ -4,7 +4,7 @@ use crate::core::{
     value::Value,
 };
 use candid::CandidType;
-use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
+use derive_more::{Add, AddAssign, FromStr, Sub, SubAssign};
 use num_traits::ToPrimitive;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
@@ -25,8 +25,6 @@ use std::fmt::{self, Display};
     Copy,
     Debug,
     Default,
-    Deref,
-    DerefMut,
     Eq,
     FromStr,
     PartialEq,

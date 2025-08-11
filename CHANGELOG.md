@@ -6,7 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.10.1] - 2025-08-10
-- made ctor anonymous and now mimic users don't have to include it at all
+- made ctor anonymous and now mimic users don't have to include it (done via macro attributes)
+- moved Timestamp to a primitive type / Value
 
 ## [0.10.0] - Indexes for All Types
 - changed Index equality to use hashed Values, implemented a canonical to_bytes for all Value types

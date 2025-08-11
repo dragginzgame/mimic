@@ -18,7 +18,7 @@ use std::{
 ///
 
 #[repr(transparent)]
-#[derive(CandidType, Serialize, Deserialize, Copy, Clone, Debug, Display, Default)]
+#[derive(CandidType, Clone, Copy, Debug, Default, Deserialize, Display, Serialize)]
 pub struct Float32(f32);
 
 impl Float32 {
@@ -163,7 +163,7 @@ impl Visitable for Float32 {}
 ///
 
 #[repr(transparent)]
-#[derive(CandidType, Serialize, Deserialize, Copy, Clone, Debug, Default)]
+#[derive(CandidType, Clone, Copy, Debug, Default, Deserialize, Serialize)]
 pub struct Float64(f64);
 
 impl Float64 {

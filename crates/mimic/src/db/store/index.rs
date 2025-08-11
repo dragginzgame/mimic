@@ -223,7 +223,7 @@ impl IndexId {
 /// IndexKey
 ///
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct IndexKey {
     pub index_id: IndexId,
     pub hashed_values: Vec<[u8; 16]>,

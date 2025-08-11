@@ -1,6 +1,9 @@
 use crate::core::{
     Key,
-    types::{Account, Decimal, E8s, E18s, Float32, Float64, Int, Nat, Principal, Subaccount, Ulid},
+    types::{
+        Account, Decimal, E8s, E18s, Float32, Float64, Int, Nat, Principal, Subaccount, Timestamp,
+        Ulid,
+    },
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
 use mimic_common::utils::hash::Xxh3;
@@ -19,7 +22,7 @@ const F64_SAFE_U: u64 = 1u64 << 53;
 /// TextMode
 ///
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum TextMode {
     Cs, // case-sensitive
     Ci, // case-insensitive
@@ -65,6 +68,7 @@ pub enum Value {
     Principal(Principal),
     Subaccount(Subaccount),
     Text(String),
+    Timestamp(Timestamp),
     Uint(u64),
     Ulid(Ulid),
     Unit, // when the rhs in a query doesnt matter, or the type is not filterable
@@ -102,6 +106,7 @@ impl Value {
             Self::Principal(_) => ValueTag::Principal,
             Self::Subaccount(_) => ValueTag::Subaccount,
             Self::Text(_) => ValueTag::Text,
+            Self::Timestamp(_) => ValueTag::Timestamp,
             Self::Uint(_) => ValueTag::Uint,
             Self::Ulid(_) => ValueTag::Ulid,
             Self::Unit => ValueTag::Unit,
@@ -151,6 +156,7 @@ impl Value {
             Self::Float64(f) => Decimal::from_f64(f.get()),
             Self::Float32(f) => Decimal::from_f32(f.get()),
             Self::Int(i) => Decimal::from_i64(*i),
+            Self::Timestamp(t) => Decimal::from_u64(t.get()),
             Self::Uint(u) => Decimal::from_u64(*u),
 
             _ => None,
@@ -307,6 +313,7 @@ impl_from_for! {
     Principal => Principal,
     &str => Text,
     String => Text,
+    Timestamp => Timestamp,
     Ulid => Ulid,
     u8 => Uint,
     u16 => Uint,
@@ -321,6 +328,7 @@ impl From<Key> for Value {
             Key::Int(v) => Self::Int(v),
             Key::Principal(v) => Self::Principal(v),
             Key::Subaccount(v) => Self::Subaccount(v),
+            Key::Timestamp(v) => Self::Timestamp(v),
             Key::Uint(v) => Self::Uint(v),
             Key::Ulid(v) => Self::Ulid(v),
         }
@@ -378,6 +386,7 @@ impl PartialOrd for Value {
             (Self::Principal(a), Self::Principal(b)) => a.partial_cmp(b),
             (Self::Subaccount(a), Self::Subaccount(b)) => a.partial_cmp(b),
             (Self::Text(a), Self::Text(b)) => a.partial_cmp(b),
+            (Self::Timestamp(a), Self::Timestamp(b)) => a.partial_cmp(b),
             (Self::Uint(a), Self::Uint(b)) => a.partial_cmp(b),
             (Self::Ulid(a), Self::Ulid(b)) => a.partial_cmp(b),
 
@@ -392,7 +401,7 @@ impl PartialOrd for Value {
 ///
 
 #[repr(u8)]
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ValueTag {
     Account = 1,
     BigInt = 2,
@@ -410,9 +419,10 @@ pub enum ValueTag {
     Principal = 14,
     Subaccount = 15,
     Text = 16,
-    Uint = 17,
-    Ulid = 18,
-    Unit = 19,
+    Timestamp = 17,
+    Uint = 18,
+    Ulid = 19,
+    Unit = 20,
 }
 
 impl ValueTag {
@@ -491,7 +501,6 @@ impl Value {
             Self::Int(i) => {
                 feed_i64(h, *i);
             }
-
             Self::Principal(p) => {
                 let raw = p.as_slice();
                 feed_u32(h, raw.len() as u32);
@@ -499,7 +508,7 @@ impl Value {
             }
             Self::Subaccount(s) => {
                 feed_bytes(h, &s.to_bytes());
-            } // assuming &[u8; 32]
+            }
             Self::Text(s) => {
                 // If you need case/Unicode insensitivity, normalize; else skip (much faster)
                 // let norm = normalize_nfkc_casefold(s);
@@ -507,6 +516,9 @@ impl Value {
                 // feed_bytes( h, norm.as_bytes());
                 feed_u32(h, s.len() as u32);
                 feed_bytes(h, s.as_bytes());
+            }
+            Self::Timestamp(t) => {
+                feed_u64(h, t.get());
             }
             Self::Uint(u) => {
                 feed_u64(h, *u);

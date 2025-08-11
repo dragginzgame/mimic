@@ -1,4 +1,4 @@
-use crate::core::types::{Principal, Subaccount, Ulid};
+use crate::core::types::{Principal, Subaccount, Timestamp, Ulid};
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::Display;
 use serde::{Deserialize, Serialize};
@@ -17,6 +17,7 @@ pub enum Key {
     Int(i64),
     Principal(Principal),
     Subaccount(Subaccount),
+    Timestamp(Timestamp),
     Uint(u64),
     Ulid(Ulid),
 }
@@ -34,8 +35,9 @@ impl Key {
             Self::Int(_) => 0,
             Self::Principal(_) => 1,
             Self::Subaccount(_) => 2,
-            Self::Uint(_) => 3,
-            Self::Ulid(_) => 4,
+            Self::Timestamp(_) => 3,
+            Self::Uint(_) => 4,
+            Self::Ulid(_) => 5,
         }
     }
 

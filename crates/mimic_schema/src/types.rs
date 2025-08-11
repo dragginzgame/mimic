@@ -120,6 +120,7 @@ pub enum Primitive {
     Principal,
     Subaccount,
     Text,
+    Timestamp,
     Ulid,
     Unit,
 }
@@ -239,7 +240,7 @@ impl Primitive {
             Self::Nat8 => "u8",
             Self::Nat16 => "u16",
             Self::Nat32 => "u32",
-            Self::Nat64 | Self::E8s => "u64",
+            Self::Nat64 | Self::E8s | Self::Timestamp => "u64",
             _ => panic!("unexpected primitive type"),
         }
         .into()

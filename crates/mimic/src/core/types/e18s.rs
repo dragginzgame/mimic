@@ -4,7 +4,7 @@ use crate::core::{
     value::Value,
 };
 use candid::CandidType;
-use derive_more::{Add, AddAssign, Deref, DerefMut, FromStr, Sub, SubAssign};
+use derive_more::{Add, AddAssign, FromStr, Sub, SubAssign};
 use num_traits::ToPrimitive;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
@@ -24,8 +24,6 @@ use std::fmt::{self, Display};
     Copy,
     Debug,
     Default,
-    Deref,
-    DerefMut,
     Eq,
     FromStr,
     PartialEq,
@@ -73,6 +71,11 @@ impl E18s {
     }
 
     #[must_use]
+    pub fn to_be_bytes(self) -> [u8; 16] {
+        self.0.to_be_bytes()
+    }
+
+    #[must_use]
     pub fn count_digits(&self) -> (usize, usize) {
         let whole = self.0 / Self::SCALE;
         let frac = self.0 % Self::SCALE;
@@ -92,19 +95,7 @@ impl E18s {
 
 impl Display for E18s {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let scaled = self.0;
-        let whole = scaled / Self::SCALE;
-        let frac = scaled % Self::SCALE;
-
-        if frac == 0 {
-            write!(f, "{whole}")
-        } else {
-            let mut frac_str = format!("{frac:018}");
-            while frac_str.ends_with('0') {
-                frac_str.pop();
-            }
-            write!(f, "{whole}.{frac_str}")
-        }
+        write!(f, "{:.18}", self.to_decimal())
     }
 }
 
