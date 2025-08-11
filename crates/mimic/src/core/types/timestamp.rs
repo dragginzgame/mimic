@@ -52,6 +52,12 @@ impl FieldValue for Timestamp {
     }
 }
 
+impl From<u64> for Timestamp {
+    fn from(u: u64) -> Self {
+        Self(u)
+    }
+}
+
 impl TypeView for Timestamp {
     type View = Self;
 
