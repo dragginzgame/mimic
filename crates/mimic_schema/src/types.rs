@@ -99,7 +99,6 @@ impl ToTokens for ConstantType {
 )]
 #[remain::sorted]
 pub enum Primitive {
-    Account,
     Blob,
     Bool,
     Decimal,

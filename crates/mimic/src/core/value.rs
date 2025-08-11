@@ -1,8 +1,7 @@
 use crate::core::{
     Key,
     types::{
-        Account, Decimal, E8s, E18s, Float32, Float64, Int, Nat, Principal, Subaccount, Timestamp,
-        Ulid,
+        Decimal, E8s, E18s, Float32, Float64, Int, Nat, Principal, Subaccount, Timestamp, Ulid,
     },
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
@@ -58,7 +57,6 @@ macro_rules! impl_from_for {
 
 #[derive(CandidType, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Value {
-    Account(Account),
     BigInt(Int),
     BigUint(Nat),
     Blob(Vec<u8>),
@@ -97,7 +95,6 @@ impl Value {
     #[must_use]
     pub const fn tag(&self) -> u8 {
         match self {
-            Self::Account(_) => ValueTag::Account,
             Self::BigInt(_) => ValueTag::BigInt,
             Self::BigUint(_) => ValueTag::BigUint,
             Self::Blob(_) => ValueTag::Blob,
@@ -418,27 +415,26 @@ impl PartialOrd for Value {
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ValueTag {
-    Account = 1,
-    BigInt = 2,
-    BigUint = 3,
-    Blob = 4,
-    Bool = 5,
-    Decimal = 6,
-    E8s = 7,
-    E18s = 8,
-    Float32 = 9,
-    Float64 = 10,
-    Int = 11,
-    List = 12,
-    None = 13,
-    Principal = 14,
-    Subaccount = 15,
-    Text = 16,
-    Timestamp = 17,
-    Uint = 18,
-    Ulid = 19,
-    Unit = 20,
-    Unsupported = 21,
+    BigInt = 1,
+    BigUint = 2,
+    Blob = 3,
+    Bool = 4,
+    Decimal = 5,
+    E8s = 6,
+    E18s = 7,
+    Float32 = 8,
+    Float64 = 9,
+    Int = 10,
+    List = 11,
+    None = 12,
+    Principal = 13,
+    Subaccount = 14,
+    Text = 15,
+    Timestamp = 16,
+    Uint = 17,
+    Ulid = 18,
+    Unit = 19,
+    Unsupported = 20,
 }
 
 impl ValueTag {
@@ -479,10 +475,6 @@ impl Value {
         feed_u8(h, self.tag());
 
         match self {
-            Self::Account(v) => {
-                feed_bytes(h, v.owner_bytes());
-                feed_bytes(h, &v.subaccount_bytes());
-            }
             Self::BigInt(v) => {
                 feed_bytes(h, &v.to_leb128());
             }
