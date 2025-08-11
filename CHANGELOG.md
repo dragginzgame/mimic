@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.6] - 2025-08-11
+- Initial release
+
+## [Unreleased]
+
 ## [0.10.4] - 2025-08-11
 - made ctor anonymous and now mimic users don't have to include it (done via macro attributes)
 - moved Timestamp to a primitive type / Value
