@@ -32,3 +32,18 @@ pub struct Indexable {}
     )
 )]
 pub struct NotIndexable {}
+
+///
+/// IndexableOptText
+///
+
+#[entity(
+    store = "TestDataStore",
+    pk = "id",
+    index(store = "TestIndexStore", fields = "username", unique),
+    fields(
+        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(name = "username", value(opt, item(prim = "Text"))),
+    )
+)]
+pub struct IndexableOptText {}

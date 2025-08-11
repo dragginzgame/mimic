@@ -173,7 +173,7 @@ pub trait FieldValues {
 pub trait FieldValue {
     // returns an opaque sentinel type by default
     fn to_value(&self) -> Value {
-        Value::Unit
+        Value::Unsupported
     }
 }
 

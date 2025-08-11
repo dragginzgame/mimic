@@ -7,7 +7,7 @@ use mimic::{
     prelude::*,
 };
 use test_design::{
-    canister::index::{Indexable, NotIndexable},
+    canister::index::{Indexable, IndexableOptText, NotIndexable},
     schema::TestDataStore,
 };
 
@@ -22,6 +22,7 @@ impl IndexTester {
             ("index_cant_use_all_fields", Self::index_cant_use_all_fields),
             ("fallback_to_range", Self::fallback_to_range),
             ("negative_index_miss", Self::negative_index_miss),
+            ("indexable_opt_text", Self::indexable_opt_text),
         ];
 
         for (name, test_fn) in tests {
@@ -144,6 +145,58 @@ impl IndexTester {
             results.is_empty(),
             "Expected no results from unmatched index lookup"
         );
+    }
+
+    fn indexable_opt_text() {
+        let db = db!();
+
+        // case 1: insert with Some("bob") — should work
+        db.save()
+            .replace(IndexableOptText {
+                username: Some("bob".into()),
+                ..Default::default()
+            })
+            .unwrap();
+
+        // case 2: insert with None — indexable_opt_text index is UNIQUE, so:
+        // - if None is excluded from index, should succeed (no index entry created)
+        // - if None is included as token, should allow only the first, second should error
+        let first_none_insert = db.save().replace(IndexableOptText {
+            username: None,
+            ..Default::default()
+        });
+        assert!(
+            first_none_insert.is_ok(),
+            "First NULL username insert should succeed"
+        );
+
+        let second_none_insert = db.save().replace(IndexableOptText {
+            username: None,
+            ..Default::default()
+        });
+
+        match second_none_insert {
+            Ok(_) => {
+                // If your `Value::to_index_fingerprint` skips None, you will land here:
+                println!("✅ Multiple NULL usernames allowed (NULL excluded from index)");
+            }
+            Err(err) => {
+                panic!("❌ Unexpected error inserting NULL username: {err:?}");
+            }
+        }
+
+        // case 3: insert with Some("bob") again — should violate UNIQUE index
+        let dup_bob_insert = db.save().replace(IndexableOptText {
+            username: Some("bob".into()),
+            ..Default::default()
+        });
+
+        match dup_bob_insert {
+            Err(_) => {
+                println!("✅ Duplicate 'bob' violates UNIQUE index as expected");
+            }
+            Ok(_) => panic!("❌ Expected duplicate 'bob' to violate UNIQUE index"),
+        }
     }
 }
 

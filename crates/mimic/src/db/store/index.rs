@@ -140,9 +140,8 @@ impl IndexStore {
         prefix: &[Value],
     ) -> impl Iterator<Item = (IndexKey, IndexEntry)> {
         let index_id = IndexId::new::<E>(index);
-        let hashed_prefix = Self::hash_values(prefix);
+        let hashed_prefix_opt = Self::index_fingerprints(prefix); // Option<Vec<[u8;16]>>
 
-        // Scan the contiguous range for this index_id and filter by hashed prefix.
         self.range(
             IndexKey {
                 index_id,
@@ -150,19 +149,19 @@ impl IndexStore {
             }..,
         )
         .take_while(move |entry| entry.key().index_id == index_id)
-        .filter(move |entry| entry.key().hashed_values.starts_with(&hashed_prefix))
+        .filter(move |entry| {
+            if let Some(ref hp) = hashed_prefix_opt {
+                entry.key().hashed_values.starts_with(hp)
+            } else {
+                false // if prefix had None/Unit/Unsupported, no matches via index
+            }
+        })
         .map(|entry| (entry.key().clone(), entry.value()))
     }
 
-    #[inline]
-    fn hash_values(values: &[Value]) -> Vec<[u8; 16]> {
-        let mut out = Vec::new();
-
-        for v in values {
-            out.push(v.hash_value());
-        }
-
-        out
+    fn index_fingerprints(values: &[Value]) -> Option<Vec<[u8; 16]>> {
+        values.iter().map(|v| v.to_index_fingerprint()).collect()
+        // collects to Option<Vec<_>>: None if any element was non-indexable
     }
 }
 
@@ -240,8 +239,9 @@ impl IndexKey {
         // get each value and convert to key
         for field in index.fields {
             let value = entity.get_value(field)?;
+            let fp = value.to_index_fingerprint()?; // bail if any component is non-indexable
 
-            hashed_values.push(value.hash_value());
+            hashed_values.push(fp);
         }
 
         Some(Self {

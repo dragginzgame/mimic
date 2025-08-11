@@ -49,6 +49,12 @@ macro_rules! impl_from_for {
 /// Value
 /// can be used in WHERE statements
 ///
+/// Cheatsheet
+///
+/// None        → the field’s value is Option::None (i.e., SQL NULL).
+/// Unit        → internal placeholder for RHS; not a real value.
+/// Unsupported → the field exists but isn’t filterable/indexable.
+///
 
 #[derive(CandidType, Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Value {
@@ -64,14 +70,15 @@ pub enum Value {
     Float64(Float64),
     Int(i64),
     List(Vec<Box<Value>>),
-    None, // specifically for Option
+    None,
     Principal(Principal),
     Subaccount(Subaccount),
     Text(String),
     Timestamp(Timestamp),
     Uint(u64),
     Ulid(Ulid),
-    Unit, // when the rhs in a query doesnt matter, or the type is not filterable
+    Unit,
+    Unsupported,
 }
 
 impl Value {
@@ -110,6 +117,7 @@ impl Value {
             Self::Uint(_) => ValueTag::Uint,
             Self::Ulid(_) => ValueTag::Ulid,
             Self::Unit => ValueTag::Unit,
+            Self::Unsupported => ValueTag::Unsupported,
         }
         .to_u8()
     }
@@ -171,6 +179,13 @@ impl Value {
             Self::Uint(u) if *u <= F64_SAFE_U => Some(*u as f64),
 
             _ => None,
+        }
+    }
+
+    pub fn to_index_fingerprint(&self) -> Option<[u8; 16]> {
+        match self {
+            Value::None | Value::Unit | Value::Unsupported => None,
+            _ => Some(self.hash_value()),
         }
     }
 
@@ -423,6 +438,7 @@ pub enum ValueTag {
     Uint = 18,
     Ulid = 19,
     Unit = 20,
+    Unsupported = 21,
 }
 
 impl ValueTag {
@@ -533,12 +549,12 @@ impl Value {
                     x.write_to_hasher(h); // recurse, no sub-hash
                 }
             }
-            Self::None | Self::Unit => {}
+            Self::None | Self::Unit | Self::Unsupported => {}
         }
     }
 
     #[must_use]
-    pub fn hash_value(&self) -> [u8; 16] {
+    fn hash_value(&self) -> [u8; 16] {
         const VERSION: u8 = 1;
 
         let mut h = Xxh3::with_seed(0);
