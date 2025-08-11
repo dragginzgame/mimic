@@ -38,27 +38,50 @@ use std::fmt::{self, Display};
 pub struct E18s(u128);
 
 impl E18s {
-    const SCALE: u128 = 1_000_000_000_000_000_000; // 1e18
+    const DECIMALS: u32 = 18;
+    const SCALE: u128 = 1_000_000_000_000_000_000; // 10^18
 
+    ///
+    /// CONSTRUCTORS
+    ///
+
+    /// Construct from **atomics** (raw scaled integer). No scaling applied.
+    #[must_use]
+    pub fn from_atomic(raw: u128) -> Self {
+        Self(raw)
+    }
+
+    /// Construct from **whole units**. Scales by 10^18 (saturating).
+    #[must_use]
+    pub fn from_units(units: u128) -> Self {
+        Self(units.saturating_mul(Self::SCALE))
+    }
+
+    /// Exact `Decimal` → fixed-point. Returns `None` if value has more than 18 fractional digits,
+    /// is negative, or out of range for `u128`.
     #[must_use]
     pub fn from_decimal(value: Decimal) -> Option<Self> {
-        let d = value * Self::SCALE;
-
-        Some(Self(d.to_u128()?))
+        let scaled = value * Self::SCALE;
+        scaled.to_u128().map(Self)
     }
 
+    /// ⚠️ Non-critical float conversions only. Prefer the Decimal-based API.
     #[must_use]
-    #[allow(clippy::cast_possible_truncation)]
-    #[allow(clippy::cast_precision_loss)]
-    #[allow(clippy::cast_sign_loss)]
-    #[doc = "⚠️ Use only for non-critical float conversions. Prefer from_decimal."]
+    #[allow(
+        clippy::cast_possible_truncation,
+        clippy::cast_precision_loss,
+        clippy::cast_sign_loss
+    )]
     pub fn from_f64(value: f64) -> Option<Self> {
-        if value.is_nan() || value.is_infinite() {
+        if !value.is_finite() {
             return None;
         }
-
         Some(Self((value * Self::SCALE as f64).round() as u128))
     }
+
+    ///
+    /// ACCESSORS
+    ///
 
     #[must_use]
     pub const fn get(self) -> u128 {
@@ -67,35 +90,18 @@ impl E18s {
 
     #[must_use]
     pub fn to_decimal(self) -> Decimal {
-        Decimal::from_i128_with_scale(self.0 as i128, 18)
+        Decimal::from_i128_with_scale(self.0 as i128, Self::DECIMALS).normalize()
     }
 
     #[must_use]
     pub fn to_be_bytes(self) -> [u8; 16] {
         self.0.to_be_bytes()
     }
-
-    #[must_use]
-    pub fn count_digits(&self) -> (usize, usize) {
-        let whole = self.0 / Self::SCALE;
-        let frac = self.0 % Self::SCALE;
-
-        let id = whole.to_string().len();
-        let fd = {
-            let mut s = format!("{frac:018}");
-            while s.ends_with('0') {
-                s.pop();
-            }
-            s.len()
-        };
-
-        (id, fd)
-    }
 }
 
 impl Display for E18s {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:.18}", self.to_decimal())
+        self.to_decimal().fmt(f)
     }
 }
 
@@ -151,16 +157,6 @@ mod tests {
         assert!(a < b);
         assert!(b > a);
         assert_eq!(a, c);
-    }
-
-    #[test]
-    fn test_count_digits() {
-        let e18s =
-            E18s::from_decimal(Decimal::from_str("123.456789123456789123").unwrap()).unwrap();
-        let (int_digits, frac_digits) = e18s.count_digits();
-
-        assert_eq!(int_digits, 3);
-        assert_eq!(frac_digits, 18);
     }
 
     #[test]

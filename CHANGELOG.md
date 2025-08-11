@@ -7,9 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [0.10.2] - 2025-08-11
+## [0.10.4] - 2025-08-11
 - made ctor anonymous and now mimic users don't have to include it (done via macro attributes)
 - moved Timestamp to a primitive type / Value
+- redid E8s and E18s with better API
 
 ## [0.10.0] - Indexes for All Types
 - changed Index equality to use hashed Values, implemented a canonical to_bytes for all Value types

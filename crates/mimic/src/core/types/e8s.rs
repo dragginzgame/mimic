@@ -39,20 +39,56 @@ use std::fmt::{self, Display};
 pub struct E8s(u64);
 
 impl E8s {
-    const SCALE: u64 = 100_000_000;
+    const DECIMALS: u32 = 8;
+    const SCALE: u64 = 100_000_000; // 10^8
 
+    ///
+    /// CONSTRUCTORS
+    ///
+
+    /// Construct from **atomics** (raw scaled integer). No scaling applied.
     #[must_use]
-    pub fn from_decimal(value: Decimal) -> Option<Self> {
-        let d = value * Self::SCALE;
-
-        Some(Self(d.to_u64()?))
+    pub fn from_atomic(raw: u64) -> Self {
+        Self(raw)
     }
+
+    /// Construct from **whole units** (tokens). Scales by 1e8.
+    #[must_use]
+    pub fn from_units(units: u64) -> Self {
+        Self(units.saturating_mul(Self::SCALE))
+    }
+
+    /// Exact decimal → fixed-point, fails if more than 8 fractional digits.
+    #[must_use]
+    pub fn try_from_decimal_exact(d: Decimal) -> Option<Self> {
+        // multiply and require integer result (no leftover fractional part)
+        let scaled = d * Decimal::from(Self::SCALE);
+
+        // require exact integer: normalized equality with its 0dp rounding
+        if scaled == scaled.round_dp(0) {
+            scaled.to_u64().map(Self)
+        } else {
+            None
+        }
+    }
+
+    /// Decimal → fixed-point with rounding to 8dp.
+    #[must_use]
+    pub fn from_decimal_round(d: Decimal) -> Option<Self> {
+        let scaled = (d * Decimal::from(Self::SCALE)).round_dp(0);
+
+        scaled.to_u64().map(E8s)
+    }
+
+    ///
+    /// METHODS
+    ///
 
     #[must_use]
     #[allow(clippy::cast_possible_truncation)]
     #[allow(clippy::cast_precision_loss)]
     #[allow(clippy::cast_sign_loss)]
-    #[doc = "⚠️ Use only for non-critical float conversions. Prefer from_decimal."]
+    #[doc = "⚠️ Use only for non-critical float conversions. Prefer try_from_decimal."]
     pub fn from_f64(value: f64) -> Option<Self> {
         if value.is_nan() || value.is_infinite() {
             return None;
@@ -68,30 +104,13 @@ impl E8s {
 
     #[must_use]
     pub fn to_decimal(self) -> Decimal {
-        Decimal::from(self)
-    }
-
-    #[must_use]
-    pub fn count_digits(&self) -> (usize, usize) {
-        let whole = self.0 / Self::SCALE;
-        let frac = self.0 % Self::SCALE;
-
-        let id = whole.to_string().len();
-        let fd = {
-            let mut s = format!("{frac:08}");
-            while s.ends_with('0') {
-                s.pop();
-            }
-            s.len()
-        };
-
-        (id, fd)
+        Decimal::from_i128_with_scale(self.0 as i128, Self::DECIMALS).normalize()
     }
 }
 
 impl Display for E8s {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:.8}", self.to_decimal())
+        self.to_decimal().fmt(f)
     }
 }
 
@@ -144,34 +163,41 @@ mod tests {
     #[test]
     fn test_display_formatting() {
         let dec = Decimal::from_str("42.5").unwrap();
-        let fixed = E8s::from_decimal(dec).unwrap();
-        assert_eq!(fixed.to_string(), "42.50000000");
+        let fixed = E8s::try_from_decimal_exact(dec).unwrap();
+
+        assert_eq!(fixed.to_string(), "42.5");
     }
 
     #[test]
-    fn test_equality_and_ordering() {
-        let a = E8s::from_decimal(Decimal::from_str("10.0").unwrap()).unwrap();
-        let b = E8s::from_decimal(Decimal::from_str("20.0").unwrap()).unwrap();
-        let c = E8s::from_decimal(Decimal::from_str("10.0").unwrap()).unwrap();
+    fn e8s_units_and_display() {
+        let one_unit = E8s::from_units(1);
 
-        assert!(a < b);
-        assert!(b > a);
-        assert_eq!(a, c);
+        assert_eq!(one_unit.get(), E8s::SCALE);
+        assert_eq!(one_unit.to_string(), "1"); // because normalize() trims zeros
     }
 
     #[test]
-    fn test_count_digits() {
-        let dec = Decimal::from_str("123.456789").unwrap();
-        let fixed = E8s::from_decimal(dec).unwrap();
-        let (int_digits, frac_digits) = fixed.count_digits();
-        assert_eq!(int_digits, 3);
-        assert_eq!(frac_digits, 6); // .456789
+    fn e8s_raw_and_decimal() {
+        let one_atomic = E8s::from(1u64); // raw
+
+        assert_eq!(one_atomic.to_string(), "0.00000001");
     }
 
     #[test]
-    fn test_from_u64() {
-        let fixed = E8s::from_decimal(Decimal::from(42)).unwrap();
-        assert_eq!(fixed.to_decimal(), Decimal::from(42));
+    fn e8s_decimal_exact() {
+        let x = E8s::try_from_decimal_exact(Decimal::from_str("42.5").unwrap()).unwrap();
+
+        assert_eq!(x.to_string(), "42.5");
+        assert_eq!(x.get(), 4_250_000_000);
+    }
+
+    #[test]
+    fn e8s_decimal_round() {
+        // 8dp rounds:
+        let x = E8s::from_decimal_round(Decimal::from_str("0.0000000049").unwrap()).unwrap();
+        assert_eq!(x.get(), 0); // rounds down
+        let y = E8s::from_decimal_round(Decimal::from_str("0.0000000051").unwrap()).unwrap();
+        assert_eq!(y.get(), 1); // rounds up
     }
 
     #[test]

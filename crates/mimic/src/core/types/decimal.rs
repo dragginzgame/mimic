@@ -44,15 +44,13 @@ impl Decimal {
         Self(WrappedDecimal::new(num, scale))
     }
 
+    ///
+    /// WRAPPED FUNCTIONS
+    ///
+
     #[must_use]
-    pub fn count_digits(&self) -> (usize, usize) {
-        let str = format!("{}", self.0.abs());
-        let parts: Vec<_> = str.split('.').collect();
-
-        let id = parts[0].len();
-        let fd = if parts.len() > 1 { parts[1].len() } else { 0 };
-
-        (id, fd)
+    pub fn round_dp(&self, dp: u32) -> Self {
+        Self(self.0.round_dp(dp))
     }
 
     pub fn checked_rem(self, rhs: Self) -> Option<Self> {
@@ -62,6 +60,11 @@ impl Decimal {
     #[must_use]
     pub fn from_i128_with_scale(num: i128, scale: u32) -> Self {
         WrappedDecimal::from_i128_with_scale(num, scale).into()
+    }
+
+    #[must_use]
+    pub fn normalize(&self) -> Self {
+        Self(self.0.normalize())
     }
 }
 

@@ -802,7 +802,7 @@ mod tests {
 
         // 12.34567890 tokens == 1_234_567_890 e8s
         let e8s = v_e8(1_234_567_890);
-        let dec = v_dec_str("12.34567890");
+        let dec = v_dec_str("12.3456789");
         assert_eq!(e8s.cmp_numeric(&dec), Some(Ordering::Equal));
     }
 
