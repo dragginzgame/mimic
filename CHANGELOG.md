@@ -7,10 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [0.11.0] - 2025-08-12
-- Initial release
-
-## [Unreleased]
+## [0.11.0] - New Query Language
+- replaced entire query builder with a much more easy to use / ergonomic way of constructing queries.
+ie. .filter(|f| (f.eq("field", 3) | f.eq("field", 4"))
 
 ## [0.10.12] - 2025-08-11
 - fixed a bug with inserting into an optional index

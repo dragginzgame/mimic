@@ -737,7 +737,7 @@ checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
 name = "mimic"
-version = "0.10.13"
+version = "0.11.0"
 dependencies = [
  "bencher",
  "candid",
@@ -760,7 +760,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_build"
-version = "0.10.13"
+version = "0.11.0"
 dependencies = [
  "mimic_schema",
  "proc-macro2",
@@ -770,7 +770,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_common"
-version = "0.10.13"
+version = "0.11.0"
 dependencies = [
  "candid",
  "convert_case 0.8.0",
@@ -782,7 +782,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_declare"
-version = "0.10.13"
+version = "0.11.0"
 dependencies = [
  "darling 0.21.1",
  "derive_more",
@@ -797,7 +797,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_schema"
-version = "0.10.13"
+version = "0.11.0"
 dependencies = [
  "candid",
  "darling 0.21.1",
@@ -813,7 +813,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_tests"
-version = "0.10.13"
+version = "0.11.0"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -1145,7 +1145,7 @@ dependencies = [
 
 [[package]]
 name = "test_canister"
-version = "0.10.13"
+version = "0.11.0"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -1157,7 +1157,7 @@ dependencies = [
 
 [[package]]
 name = "test_design"
-version = "0.10.13"
+version = "0.11.0"
 dependencies = [
  "candid",
  "ctor",
