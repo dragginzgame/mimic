@@ -1,6 +1,5 @@
 use mimic::{
     core::types::{Decimal, Principal},
-    db::query::{self, FilterClause, FilterExpr},
     prelude::*,
 };
 use test_design::canister::filter::{Filterable, FilterableOpt};
@@ -24,11 +23,8 @@ impl LoadFilterTester {
             ("filter_nested_groups", Self::filter_nested_groups),
             ("filter_startswith_name", Self::filter_startswith_name),
             ("filter_not_clause", Self::filter_not_clause),
-            ("filter_true_short_circuit", Self::filter_true_short_circuit),
-            (
-                "filter_false_short_circuit",
-                Self::filter_false_short_circuit,
-            ),
+            ("filter_always", Self::filter_always),
+            ("filter_never", Self::filter_never),
             ("filter_empty_result", Self::filter_empty_result),
             ("filter_in_category", Self::filter_in_category),
             ("filter_allin_tags", Self::filter_allin_tags),
@@ -115,7 +111,7 @@ impl LoadFilterTester {
     fn filter_eq_string() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.filter("category", Cmp::Eq, "A"))
+            .filter::<Filterable>(|f| f.eq("category", "A"))
             .unwrap()
             .entities();
 
@@ -126,7 +122,7 @@ impl LoadFilterTester {
     fn filter_eq_bool() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.filter("active", Cmp::Eq, true))
+            .filter::<Filterable>(|f| f.eq("active", true))
             .unwrap()
             .entities();
 
@@ -137,7 +133,7 @@ impl LoadFilterTester {
     fn filter_gt_score() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.filter("score", Cmp::Gt, Decimal::from(80.0)))
+            .filter::<Filterable>(|f| f.gt("score", Decimal::from(80.0)))
             .unwrap()
             .entities();
 
@@ -148,7 +144,7 @@ impl LoadFilterTester {
     fn filter_le_level() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.filter("level", Cmp::Lte, 3))
+            .filter::<Filterable>(|f| f.lte("level", 3))
             .unwrap()
             .entities();
 
@@ -159,7 +155,7 @@ impl LoadFilterTester {
     fn filter_ne_category() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.filter("category", Cmp::Ne, "B"))
+            .filter::<Filterable>(|f| f.ne("category", "B"))
             .unwrap()
             .entities();
 
@@ -168,12 +164,8 @@ impl LoadFilterTester {
     }
 
     fn filter_and_group() {
-        let query = query::load().filter(|f| {
-            f.and_group(|b| {
-                b.filter("score", Cmp::Gte, Decimal::from(60.0))
-                    .filter("level", Cmp::Gte, 2)
-            })
-        });
+        let query =
+            query::load().filter(|f| f.gte("score", Decimal::from(60.0)) & f.gte("level", 2));
 
         let results = db!()
             .load()
@@ -190,10 +182,7 @@ impl LoadFilterTester {
     }
 
     fn filter_or_group() {
-        let query = query::load().filter(|f| {
-            f.filter("category", Cmp::Eq, "A")
-                .or("category", Cmp::Eq, "C")
-        });
+        let query = query::load().filter(|f| f.eq("category", "A") | f.eq("category", "C"));
 
         let results = db!()
             .load()
@@ -211,10 +200,7 @@ impl LoadFilterTester {
 
     fn filter_nested_groups() {
         let query = query::load().filter(|f| {
-            f.filter("active", Cmp::Eq, true).or_group(|b| {
-                b.and_group(|b| b.filter("score", Cmp::Lt, Decimal::from(40.0)))
-                    .or("offset", Cmp::Lt, 0)
-            })
+            f.eq("active", true) | f.lt("score", Decimal::from(40.0)) | f.lt("offset", 0)
         });
 
         let results = db!()
@@ -223,14 +209,13 @@ impl LoadFilterTester {
             .unwrap()
             .entities();
 
-        assert!(!results.is_empty());
         assert_eq!(results.len(), 7);
     }
 
     fn filter_startswith_name() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.filter("name", Cmp::StartsWith, "A"))
+            .filter::<Filterable>(|f| f.starts_with("name", "A"))
             .unwrap()
             .entities();
 
@@ -239,8 +224,7 @@ impl LoadFilterTester {
     }
 
     fn filter_not_clause() {
-        let expr = FilterExpr::Clause(FilterClause::new("category", Cmp::Eq, "C")).not();
-        let query = query::load().filter(|f| f.expr(expr));
+        let query = query::load().filter(|f| f.ne("category", "C"));
 
         let results = db!()
             .load()
@@ -252,20 +236,20 @@ impl LoadFilterTester {
         assert_eq!(results.len(), 7);
     }
 
-    fn filter_true_short_circuit() {
+    fn filter_always() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.expr(FilterExpr::True))
+            .filter::<Filterable>(|f| f.always())
             .unwrap()
             .entities();
 
         assert_eq!(results.len(), 10); // all fixtures
     }
 
-    fn filter_false_short_circuit() {
+    fn filter_never() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.expr(FilterExpr::False))
+            .filter::<Filterable>(|f| f.never())
             .unwrap()
             .entities();
 
@@ -275,7 +259,7 @@ impl LoadFilterTester {
     fn filter_empty_result() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.filter("category", Cmp::Eq, "Nonexistent"))
+            .filter::<Filterable>(|f| f.eq("category", "Nonexistent"))
             .unwrap()
             .entities();
 
@@ -285,7 +269,7 @@ impl LoadFilterTester {
     fn filter_in_category() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.filter("category", Cmp::In, Value::from_list(&["A", "C"])))
+            .filter::<Filterable>(|f| f.in_iter("category", ["A", "C"]))
             .unwrap()
             .entities();
 
@@ -305,9 +289,7 @@ impl LoadFilterTester {
     fn filter_allin_tags() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| {
-                f.filter("tags", Cmp::AllIn, Value::from_list(&["blue", "green"]))
-            })
+            .filter::<Filterable>(|f| f.all_in("tags", ["blue", "green"]))
             .unwrap()
             .entities();
 
@@ -326,9 +308,7 @@ impl LoadFilterTester {
     fn filter_anyin_tags() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| {
-                f.filter("tags", Cmp::AnyIn, Value::from_list(&["blue", "green"]))
-            })
+            .filter::<Filterable>(|f| f.any_in("tags", ["blue", "green"]))
             .unwrap()
             .entities();
 
@@ -354,7 +334,7 @@ impl LoadFilterTester {
 
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.filter("pid", Cmp::Eq, expected))
+            .filter::<Filterable>(|f| f.eq("pid", expected))
             .unwrap()
             .entities();
 
@@ -372,7 +352,7 @@ impl LoadFilterTester {
     fn filter_contains_tag() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.filter("tags", Cmp::Contains, "green"))
+            .filter::<Filterable>(|f| f.contains("tags", "green"))
             .unwrap()
             .entities();
 
@@ -391,7 +371,7 @@ impl LoadFilterTester {
     fn filter_opt_eq_name() {
         let results = db!()
             .load()
-            .filter::<FilterableOpt>(|f| f.filter("name", Cmp::Eq, "Alice"))
+            .filter::<FilterableOpt>(|f| f.eq("name", "Alice"))
             .unwrap()
             .entities();
 
@@ -402,7 +382,7 @@ impl LoadFilterTester {
     fn filter_opt_is_none_name() {
         let results = db!()
             .load()
-            .filter::<FilterableOpt>(|f| f.filter("name", Cmp::Eq, Value::None))
+            .filter::<FilterableOpt>(|f| f.eq("name", Value::None))
             .unwrap()
             .entities();
 
@@ -413,7 +393,7 @@ impl LoadFilterTester {
     fn filter_opt_lt_level() {
         let results = db!()
             .load()
-            .filter::<FilterableOpt>(|f| f.filter("level", Cmp::Lt, 3))
+            .filter::<FilterableOpt>(|f| f.lt("level", 3))
             .unwrap()
             .entities();
 
@@ -424,7 +404,7 @@ impl LoadFilterTester {
     fn filter_opt_ne_pid_null() {
         let results = db!()
             .load()
-            .filter::<FilterableOpt>(|f| f.filter("pid", Cmp::Ne, Value::None))
+            .filter::<FilterableOpt>(|f| f.ne("pid", Value::None))
             .unwrap()
             .entities();
 

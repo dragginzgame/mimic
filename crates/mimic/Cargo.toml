@@ -25,9 +25,13 @@ ulid = { workspace = true }
 [dev-dependencies]
 bencher = "0.1"
 
+[lib]
+doctest = false
+
 [lints]
 workspace = true
 
 [[bench]]
 name = "all"
+path = "benches/all.rs"
 harness = false

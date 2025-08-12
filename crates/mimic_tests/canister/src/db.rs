@@ -1,4 +1,4 @@
-use mimic::{core::traits::Path, db::query, prelude::*};
+use mimic::{core::traits::Path, prelude::*};
 use test_design::schema::TestDataStore;
 
 ///
@@ -45,7 +45,7 @@ impl DbTester {
     fn query_fail_filter() {
         use test_design::canister::db::CreateBasic;
 
-        let query = query::load().filter(|f| f.filter("wefwefasd", Cmp::Eq, "A"));
+        let query = query::load().filter(|f| f.eq("wefwefasd", "A"));
         let res = db!().load().execute::<CreateBasic>(query);
 
         assert!(res.is_err(), "filter query should fail");
@@ -56,7 +56,7 @@ impl DbTester {
 
         let res = db!()
             .load()
-            .execute::<CreateBasic>(query::load().sort_field("jwjehrjrh", SortDirection::Asc));
+            .execute::<CreateBasic>(query::load().sort_asc("jwjehrjrh"));
 
         assert!(res.is_err(), "sort query should fail");
     }
@@ -75,7 +75,7 @@ impl DbTester {
         // Retrieve rows in B-Tree order
         let keys = db!()
             .load()
-            .execute::<ContainsBlob>(query::load().sort_field("id", SortDirection::Asc))
+            .execute::<ContainsBlob>(query::load().sort_asc("id"))
             .unwrap()
             .keys();
 
@@ -166,7 +166,7 @@ impl DbTester {
         // Retrieve rows in B-Tree order
         let keys = db!()
             .load()
-            .execute::<DataKeyOrder>(query::load().sort([("id", SortDirection::Asc)]))
+            .execute::<DataKeyOrder>(query::load().sort_asc("id"))
             .unwrap()
             .keys();
 

@@ -1,3 +1,7 @@
+mod ext;
+
+pub use ext::*;
+
 use crate::{
     core::traits::EntityKind,
     db::query::{QueryError, QueryValidate},

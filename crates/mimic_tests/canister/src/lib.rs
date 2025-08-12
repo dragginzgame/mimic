@@ -57,20 +57,20 @@ pub fn filterable() -> Result<Vec<FilterableView>, Error> {
 pub fn rarity() -> Result<Vec<RarityView>, Error> {
     perf_start!();
 
-    let res = db!()
+    let rarities = db!()
         .load()
         .debug()
         .execute::<Rarity>(
             query::load()
                 .filter(|f| {
-                    f.or_group(|f| f.filter("level", Cmp::Gte, 2).filter("level", Cmp::Lte, 4))
-                        .or_group(|f| f.filter("name", Cmp::Contains, "incon"))
+                    // (level >= 2 AND level <= 4) OR (name CONTAINS "ncon")
+                    (f.gte("level", 2) & f.lte("level", 4)) | f.contains("name", "ncon")
                 })
-                .sort([("level", SortDirection::Desc)]),
+                .sort_desc("level"),
         )?
-        .entities();
+        .views();
 
-    Ok(res.to_view())
+    Ok(rarities)
 }
 
 export_candid!();

@@ -14,6 +14,17 @@ pub use planner::*;
 pub use save::*;
 pub use sort::*;
 
+///
+/// Query Prelude
+///
+
+pub mod prelude {
+    pub use super::filter::FilterExt as _;
+    pub use super::limit::LimitExt as _;
+    pub use super::sort::SortExt as _;
+    pub use crate::db::query;
+}
+
 use crate::core::traits::EntityKind;
 use thiserror::Error as ThisError;
 

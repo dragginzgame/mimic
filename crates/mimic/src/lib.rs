@@ -65,9 +65,7 @@ pub mod prelude {
         },
         db,
         db::{
-            executor::SaveExecutor,
-            query::{Cmp, SortDirection},
-            response::LoadCollection,
+            executor::SaveExecutor, query::prelude::*, response::LoadCollection,
             service::EntityService,
         },
         mimic_start,

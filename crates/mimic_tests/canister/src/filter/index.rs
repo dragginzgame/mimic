@@ -92,7 +92,7 @@ impl IndexFilterTester {
     fn filter_eq_name_alpha() {
         let results = db!()
             .load()
-            .filter::<FilterableIndex>(|f| f.filter("name", Cmp::Eq, "Alpha"))
+            .filter::<FilterableIndex>(|f| f.eq("name", "Alpha"))
             .unwrap()
             .entities();
 
@@ -104,7 +104,7 @@ impl IndexFilterTester {
     fn filter_eq_name_zeta() {
         let results = db!()
             .load()
-            .filter::<FilterableIndex>(|f| f.filter("name", Cmp::Eq, "Zeta"))
+            .filter::<FilterableIndex>(|f| f.eq("name", "Zeta"))
             .unwrap()
             .entities();
 
@@ -116,7 +116,7 @@ impl IndexFilterTester {
     fn filter_ne_name_alpha() {
         let results = db!()
             .load()
-            .filter::<FilterableIndex>(|f| f.filter("name", Cmp::Ne, "Alpha"))
+            .filter::<FilterableIndex>(|f| f.ne("name", "Alpha"))
             .unwrap()
             .entities();
 
@@ -128,7 +128,7 @@ impl IndexFilterTester {
     fn filter_eq_name_missing() {
         let results = db!()
             .load()
-            .filter::<FilterableIndex>(|f| f.filter("name", Cmp::Eq, "Nope"))
+            .filter::<FilterableIndex>(|f| f.eq("name", "Nope"))
             .unwrap()
             .entities();
 
@@ -140,7 +140,7 @@ impl IndexFilterTester {
     fn filter_eq_name_case_sensitive() {
         let results = db!()
             .load()
-            .filter::<FilterableIndex>(|f| f.filter("name", Cmp::Eq, "alpha"))
+            .filter::<FilterableIndex>(|f| f.eq("name", "alpha"))
             .unwrap()
             .entities();
 
@@ -153,7 +153,7 @@ impl IndexFilterTester {
     fn filter_is_null_name_opt() {
         let results = db!()
             .load()
-            .filter::<FilterableIndex>(|f| f.filter("name_opt", Cmp::IsNone, ()))
+            .filter::<FilterableIndex>(|f| f.is_none("name_opt"))
             .unwrap()
             .entities();
 
@@ -165,7 +165,7 @@ impl IndexFilterTester {
     fn filter_is_not_null_name_opt() {
         let results = db!()
             .load()
-            .filter::<FilterableIndex>(|f| f.filter("name_opt", Cmp::IsSome, ()))
+            .filter::<FilterableIndex>(|f| f.is_some("name_opt"))
             .unwrap()
             .entities();
 
@@ -177,7 +177,7 @@ impl IndexFilterTester {
     fn filter_eq_name_opt_beta() {
         let results = db!()
             .load()
-            .filter::<FilterableIndex>(|f| f.filter("name_opt", Cmp::Eq, "Beta"))
+            .filter::<FilterableIndex>(|f| f.eq("name_opt", "Beta"))
             .unwrap()
             .entities();
 
@@ -193,7 +193,7 @@ impl IndexFilterTester {
     fn filter_eq_name_opt_alpha() {
         let results = db!()
             .load()
-            .filter::<FilterableIndex>(|f| f.filter("name_opt", Cmp::Eq, "Alpha"))
+            .filter::<FilterableIndex>(|f| f.eq("name_opt", "Alpha"))
             .unwrap()
             .entities();
 
@@ -211,7 +211,7 @@ impl IndexFilterTester {
     fn filter_contains_name_many_alpha() {
         let results = db!()
             .load()
-            .filter::<FilterableIndex>(|f| f.filter("name_many", Cmp::Contains, "alpha"))
+            .filter::<FilterableIndex>(|f| f.contains("name_many", "alpha"))
             .unwrap()
             .entities();
 
@@ -227,7 +227,7 @@ impl IndexFilterTester {
     fn filter_contains_name_many_blue() {
         let results = db!()
             .load()
-            .filter::<FilterableIndex>(|f| f.filter("name_many", Cmp::Contains, "blue"))
+            .filter::<FilterableIndex>(|f| f.contains("name_many", "blue"))
             .unwrap()
             .entities();
 
@@ -243,7 +243,7 @@ impl IndexFilterTester {
     fn filter_contains_name_many_missing() {
         let results = db!()
             .load()
-            .filter::<FilterableIndex>(|f| f.filter("name_many", Cmp::Contains, "zzzz"))
+            .filter::<FilterableIndex>(|f| f.contains("name_many", "zzzz"))
             .unwrap()
             .entities();
 
@@ -255,11 +255,7 @@ impl IndexFilterTester {
         let results = db!()
             .load()
             .filter::<FilterableIndex>(|f| {
-                f.filter("name_many", Cmp::Contains, "blue").filter(
-                    "name_many",
-                    Cmp::Contains,
-                    "green",
-                )
+                f.contains("name_many", "blue") & f.contains("name_many", "green")
             })
             .unwrap()
             .entities();

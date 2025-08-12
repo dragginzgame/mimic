@@ -4,7 +4,9 @@ use crate::{
     db::{
         DbError,
         executor::{Context, FilterEvaluator},
-        query::{FilterBuilder, FilterExpr, LoadQuery, QueryValidate, SortDirection, SortExpr},
+        query::{
+            FilterDsl, FilterExpr, FilterExt, LoadQuery, QueryValidate, SortDirection, SortExpr,
+        },
         response::{EntityRow, LoadCollection},
         store::{DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
@@ -56,7 +58,7 @@ impl LoadExecutor {
         &self,
         values: impl IntoIterator<Item = impl Into<Value>>,
     ) -> Result<LoadCollection<E>, Error> {
-        self.execute::<E>(LoadQuery::new().many::<E>(values))
+        self.execute::<E>(LoadQuery::new().many::<E, _>(values))
     }
 
     pub fn all<E: EntityKind>(&self) -> Result<LoadCollection<E>, Error> {
@@ -64,8 +66,8 @@ impl LoadExecutor {
     }
 
     pub fn filter<E: EntityKind>(
-        &self,
-        f: impl FnOnce(FilterBuilder) -> FilterBuilder,
+        self,
+        f: impl FnOnce(FilterDsl) -> FilterExpr,
     ) -> Result<LoadCollection<E>, Error> {
         self.execute::<E>(LoadQuery::new().filter(f))
     }

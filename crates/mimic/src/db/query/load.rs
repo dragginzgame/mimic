@@ -1,8 +1,8 @@
 use crate::{
     core::{Value, traits::EntityKind},
     db::query::{
-        Cmp, FilterBuilder, FilterExpr, LimitExpr, QueryError, QueryValidate, SortDirection,
-        SortExpr,
+        FilterExpr, FilterSlot, LimitExpr, LimitSlot, QueryError, QueryValidate, SortExpr,
+        SortSlot, prelude::*,
     },
 };
 use candid::CandidType;
@@ -36,20 +36,17 @@ impl LoadQuery {
 
     #[must_use]
     pub fn one<E: EntityKind>(self, value: impl Into<Value>) -> Self {
-        self.filter_eq(E::PRIMARY_KEY, value.into())
+        self.filter(|f| f.eq(E::PRIMARY_KEY, value))
     }
 
     #[must_use]
-    pub fn many<E>(self, values: impl IntoIterator<Item = impl Into<Value>>) -> Self
+    pub fn many<E, I>(self, values: I) -> Self
     where
         E: EntityKind,
+        I: IntoIterator,
+        I::Item: Into<Value>,
     {
-        let list = values
-            .into_iter()
-            .map(|v| Box::new(v.into()))
-            .collect::<Vec<_>>();
-
-        self.filter_in(E::PRIMARY_KEY, Value::List(list))
+        self.filter(move |f| f.in_iter(E::PRIMARY_KEY, values))
     }
 
     // all just overrides, same as calling new
@@ -57,86 +54,23 @@ impl LoadQuery {
     pub fn all() -> Self {
         Self::default()
     }
+}
 
-    #[must_use]
-    pub fn filter(mut self, f: impl FnOnce(FilterBuilder) -> FilterBuilder) -> Self {
-        let builder = match self.filter.take() {
-            Some(existing) => FilterBuilder::from(existing),
-            None => FilterBuilder::new(),
-        };
-
-        if let Some(expr) = f(builder).build() {
-            self.filter = Some(expr);
-        }
-
-        self
+impl FilterSlot for LoadQuery {
+    fn filter_slot(&mut self) -> &mut Option<FilterExpr> {
+        &mut self.filter
     }
+}
 
-    #[must_use]
-    pub fn filter_eq(self, field: &str, value: impl Into<Value>) -> Self {
-        self.filter(|f| f.eq(field, value))
+impl LimitSlot for LoadQuery {
+    fn limit_slot(&mut self) -> &mut Option<LimitExpr> {
+        &mut self.limit
     }
+}
 
-    #[must_use]
-    pub fn filter_eq_opt(self, field: &str, value: Option<impl Into<Value>>) -> Self {
-        self.filter(|f| f.eq_opt(field, value))
-    }
-
-    #[must_use]
-    pub fn filter_in(self, field: &str, value: impl Into<Value>) -> Self {
-        self.filter(|f| f.filter(field, Cmp::In, value))
-    }
-
-    ///
-    /// LIMIT
-    ///
-
-    #[must_use]
-    pub fn limit(mut self, limit: u32) -> Self {
-        let expr = self.limit.unwrap_or_default().limit(limit);
-        self.limit = Some(expr);
-        self
-    }
-
-    #[must_use]
-    pub fn limit_option(mut self, limit: Option<u32>) -> Self {
-        let mut expr = self.limit.unwrap_or_default();
-        expr.limit = limit;
-        self.limit = Some(expr);
-        self
-    }
-
-    #[must_use]
-    pub fn offset(mut self, offset: u32) -> Self {
-        let expr = self.limit.unwrap_or_default().offset(offset);
-        self.limit = Some(expr);
-        self
-    }
-
-    ///
-    /// SORT
-    ///
-
-    // sort
-    #[must_use]
-    pub fn sort<T, I>(mut self, sort: I) -> Self
-    where
-        T: Into<String>,
-        I: IntoIterator<Item = (T, SortDirection)>,
-    {
-        if let Some(expr) = &mut self.sort {
-            expr.extend(sort);
-        } else {
-            self.sort = Some(SortExpr::from_iter(sort));
-        }
-
-        self
-    }
-
-    // sort_field
-    #[must_use]
-    pub fn sort_field(self, field: &str, dir: SortDirection) -> Self {
-        self.sort(std::iter::once((field, dir)))
+impl SortSlot for LoadQuery {
+    fn sort_slot(&mut self) -> &mut Option<SortExpr> {
+        &mut self.sort
     }
 }
 

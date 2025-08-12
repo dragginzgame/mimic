@@ -86,7 +86,7 @@ source ~/.profile
 
 # quill
 # https://github.com/dfinity/quill/releases/
-wget https://github.com/dfinity/quill/releases/download/v0.5.0/quill-linux-x86_64
+wget https://github.com/dfinity/quill/releases/download/v0.5.4/quill-linux-x86_64
 mv -f ./quill-linux-x86_64 $HOME/bin/quill
 chmod +x $HOME/bin/quill
 source ~/.profile

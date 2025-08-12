@@ -4,7 +4,7 @@ use crate::{
     db::{
         DbError,
         executor::{Context, FilterEvaluator},
-        query::{DeleteQuery, FilterBuilder, QueryValidate},
+        query::{DeleteQuery, FilterDsl, FilterExpr, FilterExt, QueryValidate},
         store::{DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
     debug,
@@ -55,7 +55,7 @@ impl DeleteExecutor {
         &self,
         values: impl IntoIterator<Item = impl Into<Value>>,
     ) -> Result<Vec<Key>, Error> {
-        self.execute::<E>(DeleteQuery::new().many::<E>(values))
+        self.execute::<E>(DeleteQuery::new().many::<E, _>(values))
     }
 
     pub fn all<E: EntityKind>(&self) -> Result<Vec<Key>, Error> {
@@ -64,7 +64,7 @@ impl DeleteExecutor {
 
     pub fn filter<E: EntityKind>(
         self,
-        f: impl FnOnce(FilterBuilder) -> FilterBuilder,
+        f: impl FnOnce(FilterDsl) -> FilterExpr,
     ) -> Result<Vec<Key>, Error> {
         self.execute::<E>(DeleteQuery::new().filter(f))
     }

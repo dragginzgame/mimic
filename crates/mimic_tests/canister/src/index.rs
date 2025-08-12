@@ -51,7 +51,7 @@ impl IndexTester {
             })
             .unwrap();
 
-        let query = query::load().filter(|f| f.filter("pid", Cmp::Eq, pid));
+        let query = query::load().filter(|f| f.eq("pid", pid));
 
         assert_uses_index::<Indexable>(&query);
 
@@ -69,17 +69,16 @@ impl IndexTester {
     fn index_on_principal_ulid() {
         let pid = Principal::from_slice(&[1; 29]);
         let ulid = Ulid::from_u128(1);
-        let query =
-            query::load().filter(|f| f.filter("pid", Cmp::Eq, pid).filter("ulid", Cmp::Eq, ulid));
+        let query = query::load().filter(|f| f.eq("pid", pid) & f.eq("ulid", ulid));
 
         assert_uses_index::<Indexable>(&query);
     }
 
     fn index_uses_all_fields() {
         let query = query::load().filter(|f| {
-            f.filter("pid", Cmp::Eq, Principal::from_slice(&[1; 29]))
-                .filter("score", Cmp::Eq, Ulid::from_u128(1))
-                .filter("ulid", Cmp::Eq, 10u32)
+            f.eq("pid", Principal::from_slice(&[1; 29]))
+                & f.eq("score", Ulid::from_u128(1))
+                & f.eq("ulid", 10u32)
         });
 
         let planner = QueryPlanner::new(query.filter.as_ref());
@@ -103,8 +102,7 @@ impl IndexTester {
 
     fn index_cant_use_all_fields() {
         let query = query::load().filter(|f| {
-            f.filter("pid", Cmp::Eq, Principal::from_slice(&[1; 29]))
-                .filter("score", Cmp::Eq, Ulid::from_u128(1))
+            f.eq("pid", Principal::from_slice(&[1; 29])) & f.eq("score", Ulid::from_u128(1))
         });
 
         let planner = QueryPlanner::new(query.filter.as_ref());
@@ -124,7 +122,7 @@ impl IndexTester {
     }
 
     fn fallback_to_range() {
-        let query = query::load().filter(|f| f.filter("score", Cmp::Gt, 50));
+        let query = query::load().filter(|f| f.gt("score", 50));
 
         let planner = QueryPlanner::new(query.filter.as_ref());
         let plan = planner.plan::<NotIndexable>();
@@ -136,8 +134,7 @@ impl IndexTester {
     }
 
     fn negative_index_miss() {
-        let query =
-            query::load().filter(|f| f.filter("pid", Cmp::Eq, Principal::from_slice(&[99; 29])));
+        let query = query::load().filter(|f| f.eq("pid", Principal::from_slice(&[99; 29])));
         assert_uses_index::<Indexable>(&query);
 
         let results = db!().load().execute::<Indexable>(query).unwrap().entities();

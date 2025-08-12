@@ -3,7 +3,6 @@ use mimic::{
         traits::Path,
         types::{Decimal, Principal},
     },
-    db::query::Cmp,
     prelude::*,
 };
 use test_design::{
@@ -118,7 +117,7 @@ impl DeleteFilterTester {
     fn delete_eq_category_a() {
         let deleted = db!()
             .delete()
-            .filter::<Filterable>(|f| f.filter("category", Cmp::Eq, "A"))
+            .filter::<Filterable>(|f| f.eq("category", "A"))
             .unwrap();
 
         assert_eq!(deleted.len(), 3, "expected to delete 3 A-category rows");
@@ -129,7 +128,7 @@ impl DeleteFilterTester {
         // sanity: none of the remaining should be category A
         let rest = db!()
             .load()
-            .filter::<Filterable>(|f| f.filter("category", Cmp::Eq, "A"))
+            .filter::<Filterable>(|f| f.eq("category", "A"))
             .unwrap()
             .entities();
 
@@ -140,7 +139,7 @@ impl DeleteFilterTester {
     fn delete_contains_tag_green() {
         let deleted = db!()
             .delete()
-            .filter::<Filterable>(|f| f.filter("tags", Cmp::Contains, "green"))
+            .filter::<Filterable>(|f| f.contains("tags", "green"))
             .unwrap();
 
         assert_eq!(deleted.len(), 4, "expected to delete 4 rows with green tag");
@@ -153,7 +152,7 @@ impl DeleteFilterTester {
     fn delete_in_category_a_or_c() {
         let deleted = db!()
             .delete()
-            .filter::<Filterable>(|f| f.filter("category", Cmp::In, Value::from_list(&["A", "C"])))
+            .filter::<Filterable>(|f| f.in_iter("category", ["A", "C"]))
             .unwrap();
 
         assert_eq!(deleted.len(), 6, "expected to delete 6 rows (A or C)");
@@ -167,7 +166,7 @@ impl DeleteFilterTester {
         let expected = Principal::dummy(1);
         let deleted = db!()
             .delete()
-            .filter::<Filterable>(|f| f.filter("pid", Cmp::Eq, expected))
+            .filter::<Filterable>(|f| f.eq("pid", expected))
             .unwrap();
 
         assert_eq!(
@@ -186,7 +185,7 @@ impl DeleteFilterTester {
     fn delete_opt_name_is_none() {
         let deleted = db!()
             .delete()
-            .filter::<FilterableOpt>(|f| f.filter("name", Cmp::Eq, Value::None))
+            .filter::<FilterableOpt>(|f| f.eq("name", Value::None))
             .unwrap();
 
         assert_eq!(deleted.len(), 2, "expected to delete 2 rows with name=None");
@@ -196,7 +195,7 @@ impl DeleteFilterTester {
         // sanity: ensure no remaining have name == None
         let rest = db!()
             .load()
-            .filter::<FilterableOpt>(|f| f.filter("name", Cmp::Eq, Value::None))
+            .filter::<FilterableOpt>(|f| f.eq("name", Value::None))
             .unwrap()
             .entities();
 
@@ -207,7 +206,7 @@ impl DeleteFilterTester {
     fn delete_opt_eq_name_alice() {
         let deleted = db!()
             .delete()
-            .filter::<FilterableOpt>(|f| f.filter("name", Cmp::Eq, "Alice"))
+            .filter::<FilterableOpt>(|f| f.eq("name", "Alice"))
             .unwrap();
 
         assert_eq!(deleted.len(), 1, "expected to delete Alice only");
@@ -217,7 +216,7 @@ impl DeleteFilterTester {
         // sanity: ensure Alice is gone
         let rest = db!()
             .load()
-            .filter::<FilterableOpt>(|f| f.filter("name", Cmp::Eq, "Alice"))
+            .filter::<FilterableOpt>(|f| f.eq("name", "Alice"))
             .unwrap()
             .entities();
 
