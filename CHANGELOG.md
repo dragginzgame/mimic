@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.11.0] - 2025-08-12
+- Initial release
+
+## [Unreleased]
+
 ## [0.10.12] - 2025-08-11
 - fixed a bug with inserting into an optional index
 - removed Account as a primitive type
