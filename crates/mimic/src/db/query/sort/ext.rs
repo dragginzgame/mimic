@@ -24,6 +24,7 @@ impl<T: Into<String>> IntoSortKey for Asc<T> {
         (self.0.into(), SortDirection::Asc)
     }
 }
+
 impl<T: Into<String>> IntoSortKey for Desc<T> {
     fn into_sort_key(self) -> (String, SortDirection) {
         (self.0.into(), SortDirection::Desc)
@@ -46,6 +47,7 @@ pub trait SortExt: SortSlot + Sized {
     {
         let iter = items.into_iter().map(IntoSortKey::into_sort_key);
         let slot = self.sort_slot();
+
         if let Some(expr) = slot.as_mut() {
             expr.extend(iter);
         } else {
