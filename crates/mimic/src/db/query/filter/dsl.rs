@@ -34,11 +34,11 @@ impl FilterDsl {
     //
 
     #[must_use]
-    pub fn always(self) -> FilterExpr {
+    pub const fn always(self) -> FilterExpr {
         FilterExpr::True
     }
     #[must_use]
-    pub fn never(self) -> FilterExpr {
+    pub const fn never(self) -> FilterExpr {
         FilterExpr::False
     }
 
@@ -71,7 +71,7 @@ impl FilterDsl {
     // Collections
     //
 
-    fn cmp_iter<I>(self, field: impl AsRef<str>, cmp: Cmp, vals: I) -> FilterExpr
+    fn cmp_iter<I>(field: impl AsRef<str>, cmp: Cmp, vals: I) -> FilterExpr
     where
         I: IntoIterator,
         I::Item: Into<Value>,
@@ -91,7 +91,7 @@ impl FilterDsl {
         I: IntoIterator,
         I::Item: Into<Value>,
     {
-        self.cmp_iter(field, Cmp::In, vals)
+        Self::cmp_iter(field, Cmp::In, vals)
     }
 
     /// ANY element of `vals` is contained in the collection field.
@@ -101,7 +101,7 @@ impl FilterDsl {
         I: IntoIterator,
         I::Item: Into<Value>,
     {
-        self.cmp_iter(field, Cmp::AnyIn, vals)
+        Self::cmp_iter(field, Cmp::AnyIn, vals)
     }
 
     /// ALL elements of `vals` are contained in the collection field.
@@ -111,7 +111,7 @@ impl FilterDsl {
         I: IntoIterator,
         I::Item: Into<Value>,
     {
-        self.cmp_iter(field, Cmp::AllIn, vals)
+        Self::cmp_iter(field, Cmp::AllIn, vals)
     }
 
     //
@@ -124,7 +124,7 @@ impl FilterDsl {
     {
         let mut it = items.into_iter();
         let first = it.next()?;
-        Some(it.fold(first, |acc, e| acc.and(e)))
+        Some(it.fold(first, FilterExpr::and))
     }
 
     pub fn any<I>(items: I) -> Option<FilterExpr>
@@ -133,7 +133,7 @@ impl FilterDsl {
     {
         let mut it = items.into_iter();
         let first = it.next()?;
-        Some(it.fold(first, |acc, e| acc.or(e)))
+        Some(it.fold(first, FilterExpr::or))
     }
 
     //

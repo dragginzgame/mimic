@@ -197,8 +197,13 @@ impl FilterExpr {
     }
 }
 
+///
+/// Bit Operations
+/// allow us to do | & and ^ on expressions
+///
+
 impl BitAnd for FilterExpr {
-    type Output = FilterExpr;
+    type Output = Self;
 
     fn bitand(self, rhs: Self) -> Self::Output {
         self.and(rhs)
@@ -206,7 +211,7 @@ impl BitAnd for FilterExpr {
 }
 
 impl BitOr for FilterExpr {
-    type Output = FilterExpr;
+    type Output = Self;
 
     fn bitor(self, rhs: Self) -> Self::Output {
         self.or(rhs)
@@ -214,10 +219,10 @@ impl BitOr for FilterExpr {
 }
 
 impl Not for FilterExpr {
-    type Output = FilterExpr;
+    type Output = Self;
 
     fn not(self) -> Self::Output {
-        FilterExpr::Not(Box::new(self))
+        Self::Not(Box::new(self))
     }
 }
 

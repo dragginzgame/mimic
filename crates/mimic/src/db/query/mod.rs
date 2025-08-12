@@ -19,10 +19,12 @@ pub use sort::*;
 ///
 
 pub mod prelude {
-    pub use super::filter::FilterExt as _;
-    pub use super::limit::LimitExt as _;
-    pub use super::sort::SortExt as _;
-    pub use crate::db::query;
+    pub use crate::db::query::{
+        self,
+        filter::{FilterDsl, FilterExt as _},
+        limit::LimitExt as _,
+        sort::SortExt as _,
+    };
 }
 
 use crate::core::traits::EntityKind;

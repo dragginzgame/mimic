@@ -49,7 +49,7 @@ pub trait SortExt: SortSlot + Sized {
         if let Some(expr) = slot.as_mut() {
             expr.extend(iter);
         } else {
-            *slot = Some(SortExpr::from_iter(iter));
+            *slot = Some(iter.collect::<SortExpr>());
         }
         self
     }

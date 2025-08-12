@@ -239,7 +239,7 @@ impl LoadFilterTester {
     fn filter_always() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.always())
+            .filter::<Filterable>(FilterDsl::always)
             .unwrap()
             .entities();
 
@@ -249,7 +249,7 @@ impl LoadFilterTester {
     fn filter_never() {
         let results = db!()
             .load()
-            .filter::<Filterable>(|f| f.never())
+            .filter::<Filterable>(FilterDsl::never)
             .unwrap()
             .entities();
 

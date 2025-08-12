@@ -48,13 +48,13 @@ impl E8s {
 
     /// Construct from **atomics** (raw scaled integer). No scaling applied.
     #[must_use]
-    pub fn from_atomic(raw: u64) -> Self {
+    pub const fn from_atomic(raw: u64) -> Self {
         Self(raw)
     }
 
     /// Construct from **whole units** (tokens). Scales by 1e8.
     #[must_use]
-    pub fn from_units(units: u64) -> Self {
+    pub const fn from_units(units: u64) -> Self {
         Self(units.saturating_mul(Self::SCALE))
     }
 
@@ -104,7 +104,7 @@ impl E8s {
 
     #[must_use]
     pub fn to_decimal(self) -> Decimal {
-        Decimal::from_i128_with_scale(self.0 as i128, Self::DECIMALS).normalize()
+        Decimal::from_i128_with_scale(i128::from(self.0), Self::DECIMALS).normalize()
     }
 }
 

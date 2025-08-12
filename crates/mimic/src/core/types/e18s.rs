@@ -89,6 +89,7 @@ impl E18s {
     }
 
     #[must_use]
+    #[allow(clippy::cast_possible_wrap)]
     pub fn to_decimal(self) -> Decimal {
         Decimal::from_i128_with_scale(self.0 as i128, Self::DECIMALS).normalize()
     }

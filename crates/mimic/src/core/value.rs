@@ -168,6 +168,8 @@ impl Value {
         }
     }
 
+    // it's lossless, trust me bro
+    #[allow(clippy::cast_precision_loss)]
     fn to_f64_lossless(&self) -> Option<f64> {
         match self {
             Self::Float64(f) => Some(f.get()),
