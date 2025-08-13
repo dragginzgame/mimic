@@ -15,37 +15,47 @@ pub trait LimitSlot {
 impl<T: LimitSlot> LimitExt for T {}
 
 pub trait LimitExt: LimitSlot + Sized {
+    fn page(self, limit: Option<u32>, offset: Option<u32>) -> Self {
+        self.limit_opt(limit).offset_opt(offset)
+    }
+
     #[must_use]
-    fn limit(self, n: u32) -> Self {
+    fn limit(self, limit: u32) -> Self {
         let mut me = self;
 
         let slot = me.limit_slot();
-        let expr = slot.take().unwrap_or_default().limit(n);
+        let expr = slot.take().unwrap_or_default().limit(limit);
         *slot = Some(expr);
 
         me
     }
 
     #[must_use]
-    fn limit_option(self, n: Option<u32>) -> Self {
+    fn limit_opt(self, opt: Option<u32>) -> Self {
+        if let Some(limit) = opt {
+            self.limit(limit)
+        } else {
+            self
+        }
+    }
+
+    #[must_use]
+    fn offset(self, offset: u32) -> Self {
         let mut me = self;
 
         let slot = me.limit_slot();
-        let mut expr = slot.take().unwrap_or_default();
-        expr.limit = n;
+        let expr = slot.take().unwrap_or_default().offset(offset);
         *slot = Some(expr);
 
         me
     }
 
     #[must_use]
-    fn offset(self, n: u32) -> Self {
-        let mut me = self;
-
-        let slot = me.limit_slot();
-        let expr = slot.take().unwrap_or_default().offset(n);
-        *slot = Some(expr);
-
-        me
+    fn offset_opt(self, opt: Option<u32>) -> Self {
+        if let Some(offset) = opt {
+            self.offset(offset)
+        } else {
+            self
+        }
     }
 }
