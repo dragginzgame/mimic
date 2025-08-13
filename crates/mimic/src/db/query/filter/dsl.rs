@@ -1,7 +1,7 @@
 use crate::core::value::Value;
 use crate::db::query::{Cmp, FilterClause, FilterExpr};
 
-#[derive(Copy, Clone, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default)]
 pub struct FilterDsl;
 
 impl FilterDsl {

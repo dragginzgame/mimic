@@ -710,6 +710,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::cast_precision_loss)]
     fn cmp_numeric_safe_int_boundary() {
         // 2^53 is exactly representable in f64
         let safe: i64 = 9_007_199_254_740_992; // 1 << 53

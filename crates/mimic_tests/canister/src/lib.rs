@@ -5,7 +5,7 @@ mod index;
 mod ops;
 mod validate;
 
-use icu::{ic::export_candid, prelude::*};
+use icu::{canister::Canister, ic::export_candid, prelude::*};
 use mimic::{Error, db::query, prelude::*};
 use test_design::{
     canister::filter::{Filterable, FilterableView},
@@ -16,13 +16,25 @@ use test_design::{
 // INIT
 //
 
-icu_start!("test");
+icu_start_root!();
 mimic_start!();
 
-async fn icu_init(_: Option<Vec<u8>>) {
+pub const CANISTERS: &[Canister] = &[];
+
+#[allow(clippy::unused_async)]
+async fn icu_setup() {}
+
+#[allow(clippy::unused_async)]
+async fn icu_install() {
     mimic_init();
 }
-async fn icu_startup() {}
+
+#[allow(clippy::unused_async)]
+async fn icu_upgrade() {}
+
+///
+/// ENDPOINTS
+///
 
 // test
 #[update]

@@ -120,6 +120,7 @@ impl FieldValue for E8s {
     }
 }
 
+#[allow(clippy::cast_possible_wrap)]
 impl From<E8s> for Decimal {
     fn from(v: E8s) -> Self {
         // mantissa = raw atomic units, scale = 8

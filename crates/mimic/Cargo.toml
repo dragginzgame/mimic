@@ -4,6 +4,9 @@ edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }
 
+[lib]
+doctest = false
+
 [dependencies]
 candid = { workspace = true }
 ctor = { workspace = true }
@@ -24,9 +27,6 @@ ulid = { workspace = true }
 
 [dev-dependencies]
 bencher = "0.1"
-
-[lib]
-doctest = false
 
 [lints]
 workspace = true
