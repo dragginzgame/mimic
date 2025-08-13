@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.11.2] - 2025-08-13
+- Initial release
+
+## [Unreleased]
+
 ## [0.11.0] - New Query Language
 - replaced entire query builder with a much more easy to use / ergonomic way of constructing queries.
 ie. .filter(|f| (f.eq("field", 3) | f.eq("field", 4"))
