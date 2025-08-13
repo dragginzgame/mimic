@@ -21,8 +21,8 @@ CAN=$1
 mkdir -p $ROOT/.dfx/local/canisters/$CAN
 WASM_TARGET=$ROOT/.dfx/local/canisters/$CAN/$CAN.wasm
 
-cargo build --target wasm32-unknown-unknown -p $CAN --locked
-cp -f $ROOT/target/wasm32-unknown-unknown/debug/$CAN.wasm $WASM_TARGET
+cargo build --target wasm32-unknown-unknown -p canister_$CAN
+cp -f $ROOT/target/wasm32-unknown-unknown/debug/canister_$CAN.wasm $WASM_TARGET
 
 # extract candid
 
