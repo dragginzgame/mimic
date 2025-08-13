@@ -69,6 +69,13 @@ impl DeleteExecutor {
         self.execute::<E>(DeleteQuery::new().filter(f))
     }
 
+    pub fn filter_opt<E: EntityKind>(
+        self,
+        f: impl FnOnce(FilterDsl) -> Option<FilterExpr>,
+    ) -> Result<Vec<Key>, Error> {
+        self.execute::<E>(DeleteQuery::new().filter_opt(f))
+    }
+
     ///
     /// EXECUTION METHODS
     ///

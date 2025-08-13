@@ -72,6 +72,13 @@ impl LoadExecutor {
         self.execute::<E>(LoadQuery::new().filter(f))
     }
 
+    pub fn filter_opt<E: EntityKind>(
+        self,
+        f: impl FnOnce(FilterDsl) -> Option<FilterExpr>,
+    ) -> Result<LoadCollection<E>, Error> {
+        self.execute::<E>(LoadQuery::new().filter_opt(f))
+    }
+
     pub fn count_all<E: EntityKind>(self) -> Result<u32, Error> {
         self.count::<E>(LoadQuery::all())
     }
