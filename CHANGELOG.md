@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [0.11.4] - 2025-08-13
+- Initial release
+
+## [Unreleased]
 - added filter_opt to delete and load executor
 
 ## [0.11.0] - New Query Language
