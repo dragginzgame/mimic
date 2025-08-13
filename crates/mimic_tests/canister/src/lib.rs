@@ -16,12 +16,13 @@ use test_design::{
 // INIT
 //
 
+icu_start!("test");
 mimic_start!();
 
-#[init]
-fn init() {
+async fn icu_init(_: Option<Vec<u8>>) {
     mimic_init();
 }
+async fn icu_startup() {}
 
 // test
 #[update]
