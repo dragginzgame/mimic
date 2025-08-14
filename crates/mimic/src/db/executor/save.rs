@@ -14,19 +14,21 @@ use crate::{
     },
 };
 use icu::{debug, utils::time::now_secs};
+use std::marker::PhantomData;
 
 ///
 /// SaveExecutor
 ///
 
 #[derive(Clone, Copy, Debug)]
-pub struct SaveExecutor {
+pub struct SaveExecutor<E: EntityKind> {
     data_registry: DataStoreRegistryLocal,
     index_registry: IndexStoreRegistryLocal,
     debug: bool,
+    _marker: PhantomData<E>,
 }
 
-impl SaveExecutor {
+impl<E: EntityKind> SaveExecutor<E> {
     // new
     #[must_use]
     pub const fn new(
@@ -37,6 +39,7 @@ impl SaveExecutor {
             data_registry,
             index_registry,
             debug: false,
+            _marker: PhantomData,
         }
     }
 
@@ -50,31 +53,31 @@ impl SaveExecutor {
     // response
     // a specific response used by the automated query endpoints that
     // we will improve int he future
-    pub fn response<E: EntityKind>(&self, query: SaveQuery) -> Result<Key, Error> {
+    pub fn response(&self, query: SaveQuery) -> Result<Key, Error> {
         let bytes: E = deserialize(&query.bytes)?;
-        let key = self.execute_internal::<E>(query.mode, bytes)?.key();
+        let key = self.execute_internal(query.mode, bytes)?.key();
 
         Ok(key)
     }
 
     // execute
     // serializes the save query to pass to execute_internal
-    pub fn execute<E: EntityKind>(&self, query: SaveQuery) -> Result<E, Error> {
+    pub fn execute(&self, query: SaveQuery) -> Result<E, Error> {
         let bytes: E = deserialize(&query.bytes)?;
-        let entity = self.execute_internal::<E>(query.mode, bytes)?;
+        let entity = self.execute_internal(query.mode, bytes)?;
 
         Ok(entity)
     }
 
     // create
-    pub fn create<E: EntityKind>(&self, entity: E) -> Result<E, Error> {
-        let entity = self.execute_internal::<E>(SaveMode::Create, entity)?;
+    pub fn create(&self, entity: E) -> Result<E, Error> {
+        let entity = self.execute_internal(SaveMode::Create, entity)?;
 
         Ok(entity)
     }
 
     // create_from_view
-    pub fn create_from_view<E: EntityKind>(&self, view: E::View) -> Result<E::View, Error>
+    pub fn create_from_view(&self, view: E::View) -> Result<E::View, Error>
     where
         E::View: Into<E>,
     {
@@ -84,14 +87,14 @@ impl SaveExecutor {
     }
 
     // update
-    pub fn update<E: EntityKind>(&self, entity: E) -> Result<E, Error> {
-        let entity = self.execute_internal::<E>(SaveMode::Update, entity)?;
+    pub fn update(&self, entity: E) -> Result<E, Error> {
+        let entity = self.execute_internal(SaveMode::Update, entity)?;
 
         Ok(entity)
     }
 
     // update_from_view
-    pub fn update_from_view<E: EntityKind>(&self, view: E::View) -> Result<E::View, Error>
+    pub fn update_from_view(&self, view: E::View) -> Result<E::View, Error>
     where
         E::View: Into<E>,
     {
@@ -101,14 +104,14 @@ impl SaveExecutor {
     }
 
     // replace
-    pub fn replace<E: EntityKind>(&self, entity: E) -> Result<E, Error> {
-        let entity = self.execute_internal::<E>(SaveMode::Replace, entity)?;
+    pub fn replace(&self, entity: E) -> Result<E, Error> {
+        let entity = self.execute_internal(SaveMode::Replace, entity)?;
 
         Ok(entity)
     }
 
     // replace_from_view
-    pub fn replace_from_view<E: EntityKind>(&self, view: E::View) -> Result<E::View, Error>
+    pub fn replace_from_view(&self, view: E::View) -> Result<E::View, Error>
     where
         E::View: Into<E>,
     {
@@ -118,7 +121,7 @@ impl SaveExecutor {
     }
 
     // execute_internal
-    fn execute_internal<E: EntityKind>(&self, mode: SaveMode, entity: E) -> Result<E, DbError> {
+    fn execute_internal(&self, mode: SaveMode, entity: E) -> Result<E, DbError> {
         let key = entity.key();
         let store = self
             .data_registry
@@ -187,7 +190,7 @@ impl SaveExecutor {
     }
 
     // replace_indexes
-    fn replace_indexes<E: EntityKind>(&self, old: Option<&E>, new: &E) -> Result<(), DbError> {
+    fn replace_indexes(&self, old: Option<&E>, new: &E) -> Result<(), DbError> {
         for index in E::INDEXES {
             let store = self
                 .index_registry

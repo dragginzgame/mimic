@@ -154,18 +154,23 @@ impl FilterDsl {
 }
 
 ///
-/// IntoOptFilterFn
+/// IntoFilterOpt
 ///
 
-pub trait IntoOptFilterFn {
-    fn into_opt(self, dsl: FilterDsl) -> Option<FilterExpr>;
+pub trait IntoFilterOpt {
+    fn into_filter_opt(self) -> Option<FilterExpr>;
 }
 
-impl<F> IntoOptFilterFn for F
-where
-    F: FnOnce(FilterDsl) -> FilterExpr,
-{
-    fn into_opt(self, dsl: FilterDsl) -> Option<FilterExpr> {
-        Some(self(dsl))
+impl IntoFilterOpt for FilterExpr {
+    #[inline]
+    fn into_filter_opt(self) -> Option<FilterExpr> {
+        Some(self)
+    }
+}
+
+impl IntoFilterOpt for Option<FilterExpr> {
+    #[inline]
+    fn into_filter_opt(self) -> Option<FilterExpr> {
+        self
     }
 }

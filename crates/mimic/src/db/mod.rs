@@ -59,12 +59,12 @@ impl Db {
     }
 
     #[must_use]
-    pub const fn load(&self) -> LoadExecutor {
+    pub const fn load<E: EntityKind>(&self) -> LoadExecutor<E> {
         LoadExecutor::new(self.data, self.index)
     }
 
     #[must_use]
-    pub const fn save(&self) -> SaveExecutor {
+    pub const fn save<E: EntityKind>(&self) -> SaveExecutor<E> {
         SaveExecutor::new(self.data, self.index)
     }
 
@@ -81,7 +81,7 @@ impl Db {
     }
 
     #[must_use]
-    pub const fn delete(&self) -> DeleteExecutor {
+    pub const fn delete<E: EntityKind>(&self) -> DeleteExecutor<E> {
         DeleteExecutor::new(self.data, self.index)
     }
 }

@@ -9,19 +9,21 @@ use crate::{
     },
 };
 use icu::debug;
+use std::marker::PhantomData;
 
 ///
 /// DeleteExecutor
 ///
 
 #[derive(Clone, Copy, Debug)]
-pub struct DeleteExecutor {
+pub struct DeleteExecutor<E: EntityKind> {
     data_registry: DataStoreRegistryLocal,
     index_registry: IndexStoreRegistryLocal,
     debug: bool,
+    _marker: PhantomData<E>,
 }
 
-impl DeleteExecutor {
+impl<E: EntityKind> DeleteExecutor<E> {
     // new
     #[must_use]
     pub const fn new(
@@ -32,6 +34,7 @@ impl DeleteExecutor {
             data_registry,
             index_registry,
             debug: false,
+            _marker: PhantomData,
         }
     }
 
@@ -47,33 +50,23 @@ impl DeleteExecutor {
     /// these will create an intermediate query
     ///
 
-    pub fn one<E: EntityKind>(&self, value: impl Into<Value>) -> Result<Vec<Key>, Error> {
-        self.execute::<E>(DeleteQuery::new().one::<E>(value))
+    pub fn one(self, value: impl Into<Value>) -> Result<Vec<Key>, Error> {
+        self.execute(DeleteQuery::new().one::<E>(value))
     }
 
-    pub fn many<E: EntityKind>(
-        &self,
+    pub fn many(
+        self,
         values: impl IntoIterator<Item = impl Into<Value>>,
     ) -> Result<Vec<Key>, Error> {
-        self.execute::<E>(DeleteQuery::new().many::<E, _>(values))
+        self.execute(DeleteQuery::new().many::<E, _>(values))
     }
 
-    pub fn all<E: EntityKind>(&self) -> Result<Vec<Key>, Error> {
-        self.execute::<E>(DeleteQuery::new())
+    pub fn all(self) -> Result<Vec<Key>, Error> {
+        self.execute(DeleteQuery::new())
     }
 
-    pub fn filter<E: EntityKind>(
-        self,
-        f: impl FnOnce(FilterDsl) -> FilterExpr,
-    ) -> Result<Vec<Key>, Error> {
-        self.execute::<E>(DeleteQuery::new().filter(f))
-    }
-
-    pub fn filter_opt<E: EntityKind>(
-        self,
-        f: impl FnOnce(FilterDsl) -> Option<FilterExpr>,
-    ) -> Result<Vec<Key>, Error> {
-        self.execute::<E>(DeleteQuery::new().filter_opt(f))
+    pub fn filter(self, f: impl FnOnce(FilterDsl) -> FilterExpr) -> Result<Vec<Key>, Error> {
+        self.execute(DeleteQuery::new().filter(f))
     }
 
     ///
@@ -90,14 +83,14 @@ impl DeleteExecutor {
 
     // response
     // for the automated query endpoint, we will make this more flexible in the future
-    pub fn response<E: EntityKind>(self, query: DeleteQuery) -> Result<Vec<Key>, Error> {
-        let res = self.execute::<E>(query)?;
+    pub fn response(self, query: DeleteQuery) -> Result<Vec<Key>, Error> {
+        let res = self.execute(query)?;
 
         Ok(res)
     }
 
     // execute
-    pub fn execute<E: EntityKind>(self, query: DeleteQuery) -> Result<Vec<Key>, Error> {
+    pub fn execute(self, query: DeleteQuery) -> Result<Vec<Key>, Error> {
         QueryValidate::<E>::validate(&query).map_err(DbError::from)?;
 
         let ctx = self.context();
@@ -156,7 +149,7 @@ impl DeleteExecutor {
                         Some(ent) => ent,
                         None => deserialize::<E>(&data_value.bytes)?,
                     };
-                    self.remove_indexes::<E>(&ent)?;
+                    self.remove_indexes(&ent)?;
                 }
 
                 deleted_rows.push(dk.key());
@@ -171,7 +164,7 @@ impl DeleteExecutor {
     }
 
     // remove_indexes
-    fn remove_indexes<E: EntityKind>(&self, entity: &E) -> Result<(), DbError> {
+    fn remove_indexes(&self, entity: &E) -> Result<(), DbError> {
         for index in E::INDEXES {
             let store = self
                 .index_registry

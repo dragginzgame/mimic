@@ -1,6 +1,6 @@
 use crate::{
     core::{Value, traits::EntityKind},
-    db::query::filter::{FilterDsl, FilterExpr},
+    db::query::filter::{FilterDsl, FilterExpr, IntoFilterOpt},
 };
 
 ///
@@ -19,24 +19,13 @@ impl<T: FilterSlot> FilterExt for T {}
 
 pub trait FilterExt: FilterSlot + Sized {
     #[must_use]
-    fn filter(self, f: impl FnOnce(FilterDsl) -> FilterExpr) -> Self {
-        let mut me = self;
-        let slot = me.filter_slot();
-        let expr = f(FilterDsl);
-        let newf = match slot.take() {
-            Some(existing) => existing.and(expr),
-            None => expr,
-        };
-        *slot = Some(newf);
-
-        me
-    }
-
-    #[must_use]
-    fn filter_opt(self, f: impl FnOnce(FilterDsl) -> Option<FilterExpr>) -> Self {
-        let mut me = self;
-        if let Some(expr) = f(FilterDsl) {
-            let slot = me.filter_slot();
+    fn filter<F, R>(mut self, f: F) -> Self
+    where
+        F: FnOnce(FilterDsl) -> R,
+        R: IntoFilterOpt,
+    {
+        if let Some(expr) = f(FilterDsl).into_filter_opt() {
+            let slot = self.filter_slot();
             let newf = match slot.take() {
                 Some(existing) => existing.and(expr),
                 None => expr,
@@ -44,36 +33,7 @@ pub trait FilterExt: FilterSlot + Sized {
             *slot = Some(newf);
         }
 
-        me
-    }
-
-    #[must_use]
-    fn or_filter(self, f: impl FnOnce(FilterDsl) -> FilterExpr) -> Self {
-        let mut me = self;
-        let slot = me.filter_slot();
-        let expr = f(FilterDsl);
-        let newf = match slot.take() {
-            Some(existing) => existing.or(expr),
-            None => expr,
-        };
-        *slot = Some(newf);
-
-        me
-    }
-
-    #[must_use]
-    fn or_filter_opt(self, f: impl FnOnce(FilterDsl) -> Option<FilterExpr>) -> Self {
-        let mut me = self;
-        if let Some(expr) = f(FilterDsl) {
-            let slot = me.filter_slot();
-            let newf = match slot.take() {
-                Some(existing) => existing.or(expr),
-                None => expr,
-            };
-            *slot = Some(newf);
-        }
-
-        me
+        self
     }
 
     #[must_use]

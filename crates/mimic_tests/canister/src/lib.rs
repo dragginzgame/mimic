@@ -60,7 +60,7 @@ pub fn test() {
 // filterable
 #[query]
 pub fn filterable() -> Result<Vec<FilterableView>, Error> {
-    let res = db!().load().all::<Filterable>()?.entities().to_view();
+    let res = db!().load::<Filterable>().all()?.entities().to_view();
 
     Ok(res)
 }
@@ -71,9 +71,9 @@ pub fn rarity() -> Result<Vec<RarityView>, Error> {
     perf_start!();
 
     let rarities = db!()
-        .load()
+        .load::<Rarity>()
         .debug()
-        .execute::<Rarity>(
+        .execute(
             query::load()
                 .filter(|f| {
                     // (level >= 2 AND level <= 4) OR (name CONTAINS "ncon")

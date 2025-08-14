@@ -91,8 +91,8 @@ impl IndexFilterTester {
     /// name == "Alpha" -> exactly one row
     fn filter_eq_name_alpha() {
         let results = db!()
-            .load()
-            .filter::<FilterableIndex>(|f| f.eq("name", "Alpha"))
+            .load::<FilterableIndex>()
+            .filter(|f| f.eq("name", "Alpha"))
             .unwrap()
             .entities();
 
@@ -103,8 +103,8 @@ impl IndexFilterTester {
     /// name == "Zeta" -> exactly one row
     fn filter_eq_name_zeta() {
         let results = db!()
-            .load()
-            .filter::<FilterableIndex>(|f| f.eq("name", "Zeta"))
+            .load::<FilterableIndex>()
+            .filter(|f| f.eq("name", "Zeta"))
             .unwrap()
             .entities();
 
@@ -115,8 +115,8 @@ impl IndexFilterTester {
     /// name != "Alpha" -> 9 rows (everything except Alpha)
     fn filter_ne_name_alpha() {
         let results = db!()
-            .load()
-            .filter::<FilterableIndex>(|f| f.ne("name", "Alpha"))
+            .load::<FilterableIndex>()
+            .filter(|f| f.ne("name", "Alpha"))
             .unwrap()
             .entities();
 
@@ -127,8 +127,8 @@ impl IndexFilterTester {
     /// name == "Nope" -> 0 rows
     fn filter_eq_name_missing() {
         let results = db!()
-            .load()
-            .filter::<FilterableIndex>(|f| f.eq("name", "Nope"))
+            .load::<FilterableIndex>()
+            .filter(|f| f.eq("name", "Nope"))
             .unwrap()
             .entities();
 
@@ -139,8 +139,8 @@ impl IndexFilterTester {
     /// "alpha" should not match "Alpha".
     fn filter_eq_name_case_sensitive() {
         let results = db!()
-            .load()
-            .filter::<FilterableIndex>(|f| f.eq("name", "alpha"))
+            .load::<FilterableIndex>()
+            .filter(|f| f.eq("name", "alpha"))
             .unwrap()
             .entities();
 
@@ -152,8 +152,8 @@ impl IndexFilterTester {
     // Expect 5 rows: Alpha, Delta, Zeta, Theta, Kappa
     fn filter_is_null_name_opt() {
         let results = db!()
-            .load()
-            .filter::<FilterableIndex>(|f| f.is_none("name_opt"))
+            .load::<FilterableIndex>()
+            .filter(|f| f.is_none("name_opt"))
             .unwrap()
             .entities();
 
@@ -164,8 +164,8 @@ impl IndexFilterTester {
     // Complement of the above: 5 rows with Some(_)
     fn filter_is_not_null_name_opt() {
         let results = db!()
-            .load()
-            .filter::<FilterableIndex>(|f| f.is_some("name_opt"))
+            .load::<FilterableIndex>()
+            .filter(|f| f.is_some("name_opt"))
             .unwrap()
             .entities();
 
@@ -176,8 +176,8 @@ impl IndexFilterTester {
     // Two rows have Some("Beta"): Beta, Eta
     fn filter_eq_name_opt_beta() {
         let results = db!()
-            .load()
-            .filter::<FilterableIndex>(|f| f.eq("name_opt", "Beta"))
+            .load::<FilterableIndex>()
+            .filter(|f| f.eq("name_opt", "Beta"))
             .unwrap()
             .entities();
 
@@ -192,8 +192,8 @@ impl IndexFilterTester {
     // Two rows have Some("Alpha"): Gamma, Iota
     fn filter_eq_name_opt_alpha() {
         let results = db!()
-            .load()
-            .filter::<FilterableIndex>(|f| f.eq("name_opt", "Alpha"))
+            .load::<FilterableIndex>()
+            .filter(|f| f.eq("name_opt", "Alpha"))
             .unwrap()
             .entities();
 
@@ -210,8 +210,8 @@ impl IndexFilterTester {
     // "alpha" appears in Alpha, Gamma, Iota
     fn filter_contains_name_many_alpha() {
         let results = db!()
-            .load()
-            .filter::<FilterableIndex>(|f| f.contains("name_many", "alpha"))
+            .load::<FilterableIndex>()
+            .filter(|f| f.contains("name_many", "alpha"))
             .unwrap()
             .entities();
 
@@ -226,8 +226,8 @@ impl IndexFilterTester {
     // "blue" appears in Alpha, Epsilon, Eta, Kappa
     fn filter_contains_name_many_blue() {
         let results = db!()
-            .load()
-            .filter::<FilterableIndex>(|f| f.contains("name_many", "blue"))
+            .load::<FilterableIndex>()
+            .filter(|f| f.contains("name_many", "blue"))
             .unwrap()
             .entities();
 
@@ -242,8 +242,8 @@ impl IndexFilterTester {
     // Missing token yields 0 results
     fn filter_contains_name_many_missing() {
         let results = db!()
-            .load()
-            .filter::<FilterableIndex>(|f| f.contains("name_many", "zzzz"))
+            .load::<FilterableIndex>()
+            .filter(|f| f.contains("name_many", "zzzz"))
             .unwrap()
             .entities();
 
@@ -253,10 +253,8 @@ impl IndexFilterTester {
     // Require both "blue" AND "green": expect Epsilon and Kappa
     fn filter_contains_both_blue_and_green() {
         let results = db!()
-            .load()
-            .filter::<FilterableIndex>(|f| {
-                f.contains("name_many", "blue") & f.contains("name_many", "green")
-            })
+            .load::<FilterableIndex>()
+            .filter(|f| f.contains("name_many", "blue") & f.contains("name_many", "green"))
             .unwrap()
             .entities();
 

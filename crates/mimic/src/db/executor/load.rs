@@ -5,25 +5,28 @@ use crate::{
         DbError,
         executor::{Context, FilterEvaluator},
         query::{
-            FilterDsl, FilterExpr, FilterExt, LoadQuery, QueryValidate, SortDirection, SortExpr,
+            FilterDsl, FilterExpr, FilterExt, IntoFilterOpt, LoadQuery, QueryValidate,
+            SortDirection, SortExpr,
         },
         response::{EntityRow, LoadCollection},
         store::{DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
 };
+use std::marker::PhantomData;
 
 ///
 /// LoadExecutor
 ///
 
 #[derive(Clone, Copy, Debug)]
-pub struct LoadExecutor {
+pub struct LoadExecutor<E: EntityKind> {
     data_registry: DataStoreRegistryLocal,
     index_registry: IndexStoreRegistryLocal,
     debug: bool,
+    _marker: PhantomData<E>,
 }
 
-impl LoadExecutor {
+impl<E: EntityKind> LoadExecutor<E> {
     // new
     #[must_use]
     pub const fn new(
@@ -34,6 +37,7 @@ impl LoadExecutor {
             data_registry,
             index_registry,
             debug: false,
+            _marker: PhantomData,
         }
     }
 
@@ -49,38 +53,31 @@ impl LoadExecutor {
     // these will create an intermediate query
     //
 
-    pub fn one<E: EntityKind>(&self, value: impl Into<Value>) -> Result<E, Error> {
-        self.execute::<E>(LoadQuery::new().one::<E>(value))?
-            .try_entity()
+    pub fn one(&self, value: impl Into<Value>) -> Result<E, Error> {
+        self.execute(LoadQuery::new().one::<E>(value))?.try_entity()
     }
 
-    pub fn many<E: EntityKind>(
+    pub fn many(
         &self,
         values: impl IntoIterator<Item = impl Into<Value>>,
     ) -> Result<LoadCollection<E>, Error> {
-        self.execute::<E>(LoadQuery::new().many::<E, _>(values))
+        self.execute(LoadQuery::new().many::<E, _>(values))
     }
 
-    pub fn all<E: EntityKind>(&self) -> Result<LoadCollection<E>, Error> {
-        self.execute::<E>(LoadQuery::new())
+    pub fn all(&self) -> Result<LoadCollection<E>, Error> {
+        self.execute(LoadQuery::new())
     }
 
-    pub fn filter<E: EntityKind>(
-        self,
-        f: impl FnOnce(FilterDsl) -> FilterExpr,
-    ) -> Result<LoadCollection<E>, Error> {
-        self.execute::<E>(LoadQuery::new().filter(f))
+    pub fn filter<F, R>(self, f: F) -> Result<LoadCollection<E>, Error>
+    where
+        F: FnOnce(FilterDsl) -> R,
+        R: IntoFilterOpt,
+    {
+        self.execute(LoadQuery::new().filter(f))
     }
 
-    pub fn filter_opt<E: EntityKind>(
-        self,
-        f: impl FnOnce(FilterDsl) -> Option<FilterExpr>,
-    ) -> Result<LoadCollection<E>, Error> {
-        self.execute::<E>(LoadQuery::new().filter_opt(f))
-    }
-
-    pub fn count_all<E: EntityKind>(self) -> Result<u32, Error> {
-        self.count::<E>(LoadQuery::all())
+    pub fn count_all(self) -> Result<u32, Error> {
+        self.count(LoadQuery::all())
     }
 
     ///
@@ -97,14 +94,14 @@ impl LoadExecutor {
 
     // response
     // for the automated query endpoint, we will make this more flexible in the future
-    pub fn response<E: EntityKind>(&self, query: LoadQuery) -> Result<Vec<Key>, Error> {
-        let res = self.execute::<E>(query)?.keys();
+    pub fn response(&self, query: LoadQuery) -> Result<Vec<Key>, Error> {
+        let res = self.execute(query)?.keys();
 
         Ok(res)
     }
 
     /// Execute a full query and return a collection of entities.
-    pub fn execute<E: EntityKind>(&self, query: LoadQuery) -> Result<LoadCollection<E>, Error> {
+    pub fn execute(&self, query: LoadQuery) -> Result<LoadCollection<E>, Error> {
         QueryValidate::<E>::validate(&query).map_err(DbError::from)?;
 
         let ctx = self.context();
@@ -137,19 +134,19 @@ impl LoadExecutor {
     /// currently just doing the same as execute()
     /// keeping it separate in case we can optimise count queries in the future
     #[allow(clippy::cast_possible_truncation)]
-    pub fn count<E: EntityKind>(self, query: LoadQuery) -> Result<u32, Error> {
-        let count = self.execute::<E>(query)?.count();
+    pub fn count(self, query: LoadQuery) -> Result<u32, Error> {
+        let count = self.execute(query)?.count();
 
         Ok(count)
     }
 
     // apply_filter
-    fn apply_filter<E: EntityKind>(rows: &mut Vec<EntityRow<E>>, filter: &FilterExpr) {
+    fn apply_filter(rows: &mut Vec<EntityRow<E>>, filter: &FilterExpr) {
         rows.retain(|row| FilterEvaluator::new(&row.entry.entity).eval(filter));
     }
 
     // apply_sort
-    fn apply_sort<E: EntityKind>(rows: &mut [EntityRow<E>], sort_expr: &SortExpr) {
+    fn apply_sort(rows: &mut [EntityRow<E>], sort_expr: &SortExpr) {
         rows.sort_by(|a, b| {
             for (field, direction) in sort_expr.iter() {
                 let (Some(va), Some(vb)) = (

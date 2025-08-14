@@ -46,7 +46,7 @@ impl DbTester {
         use test_design::canister::db::CreateBasic;
 
         let query = query::load().filter(|f| f.eq("wefwefasd", "A"));
-        let res = db!().load().execute::<CreateBasic>(query);
+        let res = db!().load::<CreateBasic>().execute(query);
 
         assert!(res.is_err(), "filter query should fail");
     }
@@ -55,8 +55,8 @@ impl DbTester {
         use test_design::canister::db::CreateBasic;
 
         let res = db!()
-            .load()
-            .execute::<CreateBasic>(query::load().sort_asc("jwjehrjrh"));
+            .load::<CreateBasic>()
+            .execute(query::load().sort_asc("jwjehrjrh"));
 
         assert!(res.is_err(), "sort query should fail");
     }
@@ -74,8 +74,8 @@ impl DbTester {
 
         // Retrieve rows in B-Tree order
         let keys = db!()
-            .load()
-            .execute::<ContainsBlob>(query::load().sort_asc("id"))
+            .load::<ContainsBlob>()
+            .execute(query::load().sort_asc("id"))
             .unwrap()
             .keys();
 
@@ -99,7 +99,7 @@ impl DbTester {
         db!().create(e).unwrap();
 
         // count keys
-        let num_keys = db!().load().count_all::<CreateBasic>().unwrap();
+        let num_keys = db!().load::<CreateBasic>().count_all().unwrap();
         assert_eq!(num_keys, 1);
 
         // insert another
@@ -107,7 +107,7 @@ impl DbTester {
         db!().create(e).unwrap();
 
         // count keys
-        assert_eq!(db!().load().count_all::<CreateBasic>().unwrap(), 2);
+        assert_eq!(db!().load::<CreateBasic>().count_all().unwrap(), 2);
     }
 
     // create_lots
@@ -122,7 +122,7 @@ impl DbTester {
         }
 
         // Retrieve the count from the store
-        let count = db!().load().count_all::<CreateBasic>().unwrap();
+        let count = db!().load::<CreateBasic>().count_all().unwrap();
 
         // Assert that the count matches the expected number
         assert_eq!(count, ROWS, "Expected {ROWS} keys in the store");
@@ -145,7 +145,7 @@ impl DbTester {
         }
 
         // Retrieve the count from the store
-        let count = db!().load().count_all::<CreateBlob>().unwrap();
+        let count = db!().load::<CreateBlob>().count_all().unwrap();
 
         // Assert that the count matches the expected number
         assert_eq!(count, ROWS, "Expected {ROWS} keys in the store");
@@ -165,8 +165,8 @@ impl DbTester {
 
         // Retrieve rows in B-Tree order
         let keys = db!()
-            .load()
-            .execute::<DataKeyOrder>(query::load().sort_asc("id"))
+            .load::<DataKeyOrder>()
+            .execute(query::load().sort_asc("id"))
             .unwrap()
             .keys();
 
@@ -190,11 +190,11 @@ impl DbTester {
         }
 
         // Step 2: Ensure the count is correct
-        let count_before = db!().load().count_all::<CreateBasic>().unwrap();
+        let count_before = db!().load::<CreateBasic>().count_all().unwrap();
         assert_eq!(count_before as usize, ROWS, "Expected {ROWS} inserted rows");
 
         // Step 3: Delete all inserted rows
-        let deleted = db!().delete().many::<CreateBasic>(keys.clone()).unwrap();
+        let deleted = db!().delete::<CreateBasic>().many(keys.clone()).unwrap();
 
         assert_eq!(
             deleted.len(),
@@ -204,7 +204,7 @@ impl DbTester {
         );
 
         // Step 4: Ensure all have been deleted
-        let count_after = db!().load().count_all::<CreateBasic>().unwrap();
+        let count_after = db!().load::<CreateBasic>().count_all().unwrap();
         assert_eq!(count_after, 0, "Expected 0 rows after deletion");
     }
 
@@ -217,7 +217,7 @@ impl DbTester {
         let id1 = db!().create(e1).unwrap().key();
 
         // COUNT
-        let rows = db!().load().count_all::<Index>().unwrap();
+        let rows = db!().load::<Index>().count_all().unwrap();
         assert_eq!(rows, 1);
 
         // Step 2: Insert entity e2 with x=1 (non-unique), y=20 (unique)
@@ -225,7 +225,7 @@ impl DbTester {
         db!().create(e2).unwrap();
 
         // COUNT
-        let rows = db!().load().count_all::<Index>().unwrap();
+        let rows = db!().load::<Index>().count_all().unwrap();
         assert_eq!(rows, 2);
 
         // Step 3: Attempt to insert another with duplicate y=10 (should fail)
@@ -234,14 +234,14 @@ impl DbTester {
         assert!(result.is_err(), "expected unique index violation on y=10");
 
         // COUNT
-        let rows = db!().load().count_all::<Index>().unwrap();
+        let rows = db!().load::<Index>().count_all().unwrap();
         assert_eq!(rows, 2);
 
         // Step 4: Delete e1 (y=10)
-        db!().delete().one::<Index>(id1).unwrap();
+        db!().delete::<Index>().one(id1).unwrap();
 
         // COUNT
-        let rows = db!().load().count_all::<Index>().unwrap();
+        let rows = db!().load::<Index>().count_all().unwrap();
         assert_eq!(rows, 1);
 
         // Step 5: Try inserting e3 again (y=10 should now be free)
@@ -252,12 +252,11 @@ impl DbTester {
         );
 
         // COUNT
-        let rows = db!().load().count_all::<Index>().unwrap();
+        let rows = db!().load::<Index>().count_all().unwrap();
         assert_eq!(rows, 2);
 
         // Step 6: Confirm only 2 entities remain
-        //  let rows = db!().load().count_all::<Index>().unwrap();
-        let rows = db!().load().count_all::<Index>().unwrap();
+        let rows = db!().load::<Index>().count_all().unwrap();
 
         assert_eq!(rows, 2);
     }
@@ -298,7 +297,7 @@ impl DbTester {
         );
 
         // Delete e1 (frees up Some(10))
-        db!().delete().one::<IndexUniqueOpt>(id1).unwrap();
+        db!().delete::<IndexUniqueOpt>().one(id1).unwrap();
 
         // Retry insert of e4 — should now succeed
         let result = db!().create(e4);
@@ -308,7 +307,7 @@ impl DbTester {
         );
 
         // Delete e3 (value = None)
-        db!().delete().one::<IndexUniqueOpt>(id3).unwrap();
+        db!().delete::<IndexUniqueOpt>().one(id3).unwrap();
 
         // Insert another entity with value = None — should be fine (no uniqueness enforced)
         let e5 = IndexUniqueOpt {
@@ -318,7 +317,7 @@ impl DbTester {
         db!().create(e5).unwrap();
 
         // Confirm only 3 entities now exist
-        let rows = db!().load().count_all::<IndexUniqueOpt>().unwrap();
+        let rows = db!().load::<IndexUniqueOpt>().count_all().unwrap();
         assert_eq!(rows, 3);
     }
 
@@ -336,8 +335,8 @@ impl DbTester {
         for limit in [10, 20, 50] {
             for offset in [0, 5, 10] {
                 let count = db!()
-                    .load()
-                    .execute::<Limit>(query::load().offset(offset).limit(limit))
+                    .load::<Limit>()
+                    .execute(query::load().offset(offset).limit(limit))
                     .unwrap()
                     .count();
 
@@ -354,7 +353,7 @@ impl DbTester {
 
         let saved = db!().create(CreateBasic::default()).unwrap();
 
-        let loaded = db!().load().one::<CreateBasic>(saved.key()).unwrap();
+        let loaded = db!().load::<CreateBasic>().one(saved.key()).unwrap();
 
         assert_eq!(loaded.key(), saved.key());
     }
@@ -368,7 +367,7 @@ impl DbTester {
 
         // Pass a slice of IDs
         let many_keys = vec![key1, key2, key3];
-        let loaded = db!().load().many::<CreateBasic>(&many_keys).unwrap();
+        let loaded = db!().load::<CreateBasic>().many(&many_keys).unwrap();
 
         // Assert correct count
         assert_eq!(loaded.count(), 3);
@@ -392,8 +391,8 @@ impl DbTester {
 
         // Retrieve rows in B-Tree order
         let keys = db!()
-            .load()
-            .execute::<ContainsOpts>(query::load())
+            .load::<ContainsOpts>()
+            .execute(query::load())
             .unwrap()
             .keys();
 
@@ -412,7 +411,7 @@ impl DbTester {
         }
 
         // Retrieve rows in B-Tree order
-        let rows = db!().load().all::<ContainsManyRelations>().unwrap();
+        let rows = db!().load::<ContainsManyRelations>().all().unwrap();
 
         let _ = rows.count();
     }
