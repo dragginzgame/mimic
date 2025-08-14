@@ -37,6 +37,24 @@ pub trait FilterExt: FilterSlot + Sized {
     }
 
     #[must_use]
+    fn or_filter<F, R>(mut self, f: F) -> Self
+    where
+        F: FnOnce(FilterDsl) -> R,
+        R: IntoFilterOpt,
+    {
+        if let Some(expr) = f(FilterDsl).into_filter_opt() {
+            let slot = self.filter_slot();
+            let newf = match slot.take() {
+                Some(existing) => existing.or(expr),
+                None => expr,
+            };
+            *slot = Some(newf);
+        }
+
+        self
+    }
+
+    #[must_use]
     fn simplify(self) -> Self {
         let mut me = self;
         let slot = me.filter_slot();
