@@ -18,6 +18,7 @@ test_design = { workspace = true }
 [build-dependencies]
 mimic = { workspace = true }
 mimic_build = { workspace = true }
+icu = { workspace = true }
 test_design = { workspace = true }
 
 [lints]

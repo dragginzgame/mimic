@@ -12,9 +12,8 @@ use crate::{
         response::EntityEntry,
         store::{DataEntry, DataKey, DataStoreRegistryLocal, IndexStoreRegistryLocal, Metadata},
     },
-    debug,
 };
-use icu::utils::time::now_secs;
+use icu::{debug, utils::time::now_secs};
 
 ///
 /// SaveExecutor

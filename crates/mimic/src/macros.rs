@@ -15,7 +15,7 @@ macro_rules! mimic_start {
 // mimic_build
 // for the various build.rs files
 #[macro_export]
-macro_rules! build {
+macro_rules! mimic_build {
     ($actor:expr) => {
         use std::{fs::File, io::Write, path::PathBuf};
 
@@ -45,17 +45,6 @@ macro_rules! build {
         let actor_file = PathBuf::from(out_dir.clone()).join("actor.rs");
         let mut file = File::create(actor_file)?;
         file.write_all(output.as_bytes())?;
-    };
-}
-
-// debug
-// a debugger with a boolean switch
-#[macro_export]
-macro_rules! debug {
-    ($enabled:expr, $($arg:tt)*) => {
-        if $enabled {
-            ::icu::ic::println!($($arg)*);
-        }
     };
 }
 

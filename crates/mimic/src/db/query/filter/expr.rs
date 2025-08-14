@@ -438,6 +438,7 @@ mod tests {
     fn and_option_includes_when_some() {
         let base = clause("a");
         let out = base.clone().and_option(Some(clause("b")));
+
         match out {
             FilterExpr::And(children) => {
                 assert_eq!(children.len(), 2);

@@ -7,8 +7,8 @@ use crate::{
         query::{DeleteQuery, FilterDsl, FilterExpr, FilterExt, QueryValidate},
         store::{DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
-    debug,
 };
+use icu::debug;
 
 ///
 /// DeleteExecutor

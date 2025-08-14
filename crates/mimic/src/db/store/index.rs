@@ -3,13 +3,12 @@ use crate::{
     common::utils::hash::hash_u64,
     core::{Key, Value, traits::EntityKind},
     db::{executor::ExecutorError, store::DataKey},
-    debug,
     ic::structures::{BTreeMap, DefaultMemory},
     schema::node::Index,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, Display};
-use icu::{impl_storable_bounded, impl_storable_unbounded};
+use icu::{debug, impl_storable_bounded, impl_storable_unbounded};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashSet,

@@ -7,8 +7,8 @@ use crate::{
             DataKey, DataRow, DataStoreLocal, DataStoreRegistryLocal, IndexStoreRegistryLocal,
         },
     },
-    debug,
 };
+use icu::debug;
 use std::ops::Bound;
 
 #[derive(Clone, Copy, Debug)]
