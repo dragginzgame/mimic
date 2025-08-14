@@ -5,6 +5,11 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+## [0.12.0] - 2025-08-14
+- Initial release
+
 ## [0.12.0] - Query Executor Generic Change
 - ::<Entity> has been moved to the root of the fluent builder, which means we can make it a lot more
 ergonomic.  The compiler can infer <T, U> without <E, _, _>
