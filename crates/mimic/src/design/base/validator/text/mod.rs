@@ -57,20 +57,3 @@ impl Validator<str> for Ascii {
         }
     }
 }
-
-///
-/// Version
-/// (semver crate)
-///
-
-#[validator]
-pub struct Version {}
-
-impl Validator<str> for Version {
-    fn validate(&self, s: &str) -> Result<(), String> {
-        match semver::Version::parse(s) {
-            Ok(_) => Ok(()),
-            Err(e) => Err(format!("invalid version {e}")),
-        }
-    }
-}

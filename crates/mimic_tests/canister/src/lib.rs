@@ -21,8 +21,7 @@ mimic_start!();
 
 pub const CANISTERS: &[Canister] = &[];
 
-#[allow(clippy::unused_async)]
-async fn icu_setup() {}
+fn icu_setup() {}
 
 #[allow(clippy::unused_async)]
 async fn icu_install() {
