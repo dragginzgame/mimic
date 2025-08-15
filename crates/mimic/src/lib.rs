@@ -46,6 +46,12 @@ pub mod export {
 extern crate self as mimic;
 
 ///
+/// CRATE
+///
+
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+///
 /// CONSTANTS
 ///
 
