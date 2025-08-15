@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [0.12.4] - 2025-08-15
+- Initial release
+
+## [Unreleased]
 - added Eq trait to all nodes to hide that clippy message, actually much cleaner now
 
 ## [0.12.2] - 2025-08-15
