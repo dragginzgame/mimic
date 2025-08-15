@@ -6,11 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+- removed semver crate as we're going to do versions differently and its just bloat
+- added pub const VERSION
 
 ## [0.12.0] - Query Executor Generic Change
 - ::<Entity> has been moved to the root of the fluent builder, which means we can make it a lot more
 ergonomic.  The compiler can infer <T, U> without <E, _, _>
-- removed semver crate as we're going to do versions differently and its just bloat
 
 ## [0.11.0] - New Query Language
 - replaced entire query builder with a much more easy to use / ergonomic way of constructing queries.
