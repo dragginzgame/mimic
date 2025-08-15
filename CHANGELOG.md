@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [0.12.2] - 2025-08-15
+- Initial release
+
+## [Unreleased]
 - removed semver crate as we're going to do versions differently and its just bloat
 - added pub const VERSION
 
