@@ -5,6 +5,9 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+- made create/replace generic over Into<E> so we don't need create_from_view any more
+
 ## [0.12.4] - 2025-08-15
 - added Eq trait to all nodes to hide that clippy message, actually much cleaner now
 

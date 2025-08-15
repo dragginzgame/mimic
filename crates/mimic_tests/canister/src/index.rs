@@ -42,7 +42,6 @@ impl IndexTester {
         let pid = Principal::from_slice(&[1; 29]);
 
         db!()
-            .save()
             .replace(Indexable {
                 pid,
                 ulid: Ulid::from_u128(1),
@@ -148,17 +147,16 @@ impl IndexTester {
         let db = db!();
 
         // case 1: insert with Some("bob") — should work
-        db.save()
-            .replace(IndexableOptText {
-                username: Some("bob".into()),
-                ..Default::default()
-            })
-            .unwrap();
+        db.replace(IndexableOptText {
+            username: Some("bob".into()),
+            ..Default::default()
+        })
+        .unwrap();
 
         // case 2: insert with None — indexable_opt_text index is UNIQUE, so:
         // - if None is excluded from index, should succeed (no index entry created)
         // - if None is included as token, should allow only the first, second should error
-        let first_none_insert = db.save().replace(IndexableOptText {
+        let first_none_insert = db.replace(IndexableOptText {
             username: None,
             ..Default::default()
         });
@@ -167,7 +165,7 @@ impl IndexTester {
             "First NULL username insert should succeed"
         );
 
-        let second_none_insert = db.save().replace(IndexableOptText {
+        let second_none_insert = db.replace(IndexableOptText {
             username: None,
             ..Default::default()
         });
@@ -183,7 +181,7 @@ impl IndexTester {
         }
 
         // case 3: insert with Some("bob") again — should violate UNIQUE index
-        let dup_bob_insert = db.save().replace(IndexableOptText {
+        let dup_bob_insert = db.replace(IndexableOptText {
             username: Some("bob".into()),
             ..Default::default()
         });

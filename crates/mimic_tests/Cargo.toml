@@ -8,9 +8,9 @@ publish = false
 [dependencies]
 candid = { workspace = true }
 ic-cdk = { workspace = true }
+icu = { workspace = true }
 mimic = { workspace = true }
 test_design = { workspace = true }
-icu = { workspace = true }
 
 [build-dependencies]
 mimic = { workspace = true }

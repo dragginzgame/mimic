@@ -63,6 +63,9 @@ impl Db {
         LoadExecutor::new(self.data, self.index)
     }
 
+    // save
+    // save is needed because a Query can be passed over the wire without a SaveMode
+    // but locally, the replace/update/create methods are preferred
     #[must_use]
     pub const fn save<E: EntityKind>(&self) -> SaveExecutor<E> {
         SaveExecutor::new(self.data, self.index)

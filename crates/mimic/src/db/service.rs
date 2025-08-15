@@ -8,6 +8,6 @@ pub struct EntityService {}
 
 impl EntityService {
     pub fn save_fixture<E: EntityKind>(db: Db, entity: E) {
-        db.save().replace(entity).unwrap();
+        db.replace(entity).unwrap();
     }
 }

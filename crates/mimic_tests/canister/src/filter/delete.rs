@@ -64,7 +64,6 @@ impl DeleteFilterTester {
 
         for (name, category, active, score, level, offset, tags, pid_index) in fixtures {
             db!()
-                .save()
                 .replace(Filterable {
                     name: name.into(),
                     category: category.into(),
@@ -91,7 +90,6 @@ impl DeleteFilterTester {
 
         for (name, level, offset, pid) in fixtures {
             db!()
-                .save()
                 .replace(FilterableOpt {
                     name: name.map(str::to_string),
                     level,

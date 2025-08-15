@@ -70,54 +70,24 @@ impl<E: EntityKind> SaveExecutor<E> {
     }
 
     // create
-    pub fn create(&self, entity: E) -> Result<E, Error> {
-        let entity = self.execute_internal(SaveMode::Create, entity)?;
+    pub fn create(&self, entity: impl Into<E>) -> Result<E, Error> {
+        let entity = self.execute_internal(SaveMode::Create, entity.into())?;
 
         Ok(entity)
-    }
-
-    // create_from_view
-    pub fn create_from_view(&self, view: E::View) -> Result<E::View, Error>
-    where
-        E::View: Into<E>,
-    {
-        let entity = self.create(view.into())?;
-
-        Ok(entity.to_view())
     }
 
     // update
-    pub fn update(&self, entity: E) -> Result<E, Error> {
-        let entity = self.execute_internal(SaveMode::Update, entity)?;
+    pub fn update(&self, entity: impl Into<E>) -> Result<E, Error> {
+        let entity = self.execute_internal(SaveMode::Update, entity.into())?;
 
         Ok(entity)
-    }
-
-    // update_from_view
-    pub fn update_from_view(&self, view: E::View) -> Result<E::View, Error>
-    where
-        E::View: Into<E>,
-    {
-        let entity = self.update(view.into())?;
-
-        Ok(entity.to_view())
     }
 
     // replace
-    pub fn replace(&self, entity: E) -> Result<E, Error> {
-        let entity = self.execute_internal(SaveMode::Replace, entity)?;
+    pub fn replace(&self, entity: impl Into<E>) -> Result<E, Error> {
+        let entity = self.execute_internal(SaveMode::Replace, entity.into())?;
 
         Ok(entity)
-    }
-
-    // replace_from_view
-    pub fn replace_from_view(&self, view: E::View) -> Result<E::View, Error>
-    where
-        E::View: Into<E>,
-    {
-        let entity = self.replace(view.into())?;
-
-        Ok(entity.to_view())
     }
 
     // execute_internal
