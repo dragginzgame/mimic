@@ -49,7 +49,7 @@ impl HasTraits for Enum {
 
         // extra traits
         if self.is_unit_enum() {
-            traits.extend(vec![Trait::Copy, Trait::Eq, Trait::Hash, Trait::PartialOrd]);
+            traits.extend(vec![Trait::Copy, Trait::Hash, Trait::PartialOrd]);
         }
 
         traits.list()

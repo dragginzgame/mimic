@@ -67,7 +67,7 @@ impl HasSchemaPart for Newtype {
 impl HasTraits for Newtype {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone().with_type_traits();
-        traits.extend(vec![Trait::Deref, Trait::DerefMut, Trait::Eq]);
+        traits.extend(vec![Trait::Deref, Trait::DerefMut]);
 
         // primitive traits
         if self.primitive.supports_arithmetic() {

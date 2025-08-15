@@ -15,6 +15,7 @@ pub trait LimitSlot {
 impl<T: LimitSlot> LimitExt for T {}
 
 pub trait LimitExt: LimitSlot + Sized {
+    #[must_use]
     fn page(self, limit: Option<u32>, offset: Option<u32>) -> Self {
         self.limit_opt(limit).offset_opt(offset)
     }
