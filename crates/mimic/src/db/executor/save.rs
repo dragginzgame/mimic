@@ -59,13 +59,13 @@ impl<E: EntityKind> SaveExecutor<E> {
     // we will improve int he future
     pub fn response(&self, query: &SaveQuery) -> Result<Key, Error> {
         let bytes: E = deserialize(&query.bytes)?;
-        let key = self.execute_internal(query.mode, bytes)?.key();
+        let key = self.save_entity(query.mode, bytes)?.key();
 
         Ok(key)
     }
 
     pub fn create(&self, entity: E) -> Result<E, Error> {
-        let entity = self.execute_internal(SaveMode::Create, entity)?;
+        let entity = self.save_entity(SaveMode::Create, entity)?;
 
         Ok(entity)
     }
@@ -78,7 +78,7 @@ impl<E: EntityKind> SaveExecutor<E> {
     }
 
     pub fn update(&self, entity: E) -> Result<E, Error> {
-        let entity = self.execute_internal(SaveMode::Update, entity)?;
+        let entity = self.save_entity(SaveMode::Update, entity)?;
 
         Ok(entity)
     }
@@ -91,7 +91,7 @@ impl<E: EntityKind> SaveExecutor<E> {
     }
 
     pub fn replace(&self, entity: E) -> Result<E, Error> {
-        let entity = self.execute_internal(SaveMode::Replace, entity)?;
+        let entity = self.save_entity(SaveMode::Replace, entity)?;
 
         Ok(entity)
     }
@@ -104,16 +104,16 @@ impl<E: EntityKind> SaveExecutor<E> {
     }
 
     // execute
-    // serializes the save query to pass to execute_internal
+    // serializes the save query to pass to save_entity
     pub fn execute(&self, query: &SaveQuery) -> Result<E, Error> {
         let bytes: E = deserialize(&query.bytes)?;
-        let entity = self.execute_internal(query.mode, bytes)?;
+        let entity = self.save_entity(query.mode, bytes)?;
 
         Ok(entity)
     }
 
-    // execute_internal
-    fn execute_internal(&self, mode: SaveMode, entity: E) -> Result<E, DbError> {
+    // save_entity
+    fn save_entity(&self, mode: SaveMode, entity: E) -> Result<E, DbError> {
         let key = entity.key();
         let store = self
             .data_registry
