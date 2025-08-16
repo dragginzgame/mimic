@@ -7,20 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [0.12.12] - 2025-08-16
-- Initial release
-
-## [Unreleased]
-
-## [0.12.10] - 2025-08-16
-- Initial release
-
-## [Unreleased]
-
-## [0.12.8] - 2025-08-16
-- Initial release
-
-## [Unreleased]
+## [0.12.14] - 2025-08-16
+- now a query on an entity on the wrong canister will be caught by the compiler!
 
 ## [0.12.6] - 2025-08-16
 - made create/replace generic over Into<E> so we don't need create_from_view any more

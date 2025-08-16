@@ -193,10 +193,10 @@ impl Index {
 pub struct IndexWithFixtures {}
 
 impl EntityFixture for IndexWithFixtures {
-    fn insert_fixtures(db: Db) {
+    fn insert_fixtures(db: Db<Self::Canister>) {
         // First 40 entries: unique y, non-unique x, z = None
         for i in 0..40 {
-            EntityService::save_fixture(
+            Self::insert(
                 db,
                 Self {
                     id: Ulid::generate(),

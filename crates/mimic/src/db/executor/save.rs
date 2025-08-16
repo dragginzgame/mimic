@@ -20,7 +20,7 @@ use std::marker::PhantomData;
 /// SaveExecutor
 ///
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy)]
 pub struct SaveExecutor<E: EntityKind> {
     data_registry: DataStoreRegistryLocal,
     index_registry: IndexStoreRegistryLocal,

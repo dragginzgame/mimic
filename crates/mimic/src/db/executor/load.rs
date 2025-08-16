@@ -18,7 +18,7 @@ use std::marker::PhantomData;
 /// LoadExecutor
 ///
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy)]
 pub struct LoadExecutor<E: EntityKind> {
     data_registry: DataStoreRegistryLocal,
     index_registry: IndexStoreRegistryLocal,

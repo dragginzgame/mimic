@@ -18,7 +18,7 @@ pub use std::{
 use crate::{
     common::error::ErrorTree,
     core::{Key, Value, types::Ulid, visit::Visitor},
-    db::Db,
+    db::{Db, service::EntityService},
     schema::node::Index,
 };
 
@@ -65,11 +65,19 @@ impl<T> Kind for T where T: Path {}
 pub trait CanisterKind: Kind {}
 
 ///
+/// CanisterScope
+/// a marker trait that tells us that another Kind lives on a specific Canister
+///
+
+pub trait CanisterScope<C: CanisterKind> {}
+
+///
 /// EntityKind
 ///
 
 pub trait EntityKind: Kind + TypeKind + FieldValues {
     type Store: StoreKind;
+    type Canister: CanisterKind;
 
     const PRIMARY_KEY: &'static str;
     const FIELDS: &'static [&'static str];
@@ -77,6 +85,8 @@ pub trait EntityKind: Kind + TypeKind + FieldValues {
 
     fn key(&self) -> Key;
 }
+
+impl<E> CanisterScope<E::Canister> for E where E: EntityKind {}
 
 ///
 /// EntityIdKind
@@ -146,13 +156,16 @@ impl<T> TypeKind for T where
 
 ///
 /// EntityFixture
-/// an enum that can generate fixture data for an Entity
+/// Trait implemented by enums or helper types that can insert fixture
+/// data for an entity into the correct Db.
 ///
 
-pub trait EntityFixture {
-    // fixtures
-    // inserts the fixtures to the bd via the SaveExecutor
-    fn insert_fixtures(_: Db) {}
+pub trait EntityFixture: EntityKind {
+    fn insert_fixtures(_: Db<Self::Canister>) {}
+
+    fn insert(db: Db<Self::Canister>, entity: Self) {
+        EntityService::save_fixture(db, entity);
+    }
 }
 
 ///

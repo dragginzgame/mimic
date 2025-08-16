@@ -17,7 +17,7 @@ use std::marker::PhantomData;
 /// DeleteExecutor
 ///
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy)]
 pub struct DeleteExecutor<E: EntityKind> {
     data_registry: DataStoreRegistryLocal,
     index_registry: IndexStoreRegistryLocal,

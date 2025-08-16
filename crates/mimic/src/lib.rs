@@ -70,10 +70,7 @@ pub mod prelude {
             types::Ulid,
         },
         db,
-        db::{
-            executor::SaveExecutor, query::prelude::*, response::LoadCollection,
-            service::EntityService,
-        },
+        db::{executor::SaveExecutor, query::prelude::*, response::LoadCollection},
         mimic_start,
     };
     pub use ::candid::CandidType;

@@ -35,6 +35,7 @@ impl Imp<Entity> for EntityKindTrait {
         // static definitions
         let mut q = quote! {
             type Store = #store;
+            type Canister = <Self::Store as ::mimic::core::traits::StoreKind>::Canister;
 
             const PRIMARY_KEY: &'static str = #pk_field;
             const FIELDS: &'static [&'static str]  = &[#(#fields),*];

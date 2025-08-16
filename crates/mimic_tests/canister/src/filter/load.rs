@@ -64,9 +64,8 @@ impl LoadFilterTester {
         ];
 
         for (name, category, active, score, level, offset, tags, pid_index) in fixtures {
-            EntityService::save_fixture(
-                db!(),
-                Filterable {
+            db!()
+                .create(Filterable {
                     name: name.into(),
                     category: category.into(),
                     active,
@@ -76,8 +75,8 @@ impl LoadFilterTester {
                     tags: tags.iter().map(ToString::to_string).collect(),
                     pid: Principal::dummy(pid_index),
                     ..Default::default()
-                },
-            );
+                })
+                .unwrap();
         }
     }
 
@@ -91,16 +90,15 @@ impl LoadFilterTester {
         ];
 
         for (name, level, offset, pid) in fixtures {
-            EntityService::save_fixture(
-                db!(),
-                FilterableOpt {
+            db!()
+                .create(FilterableOpt {
                     name: name.map(str::to_string),
                     level,
                     offset,
                     pid,
                     ..Default::default()
-                },
-            );
+                })
+                .unwrap();
         }
     }
 

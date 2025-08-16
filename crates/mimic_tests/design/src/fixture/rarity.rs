@@ -20,7 +20,7 @@ use crate::prelude::*;
 pub struct Rarity {}
 
 impl EntityFixture for Rarity {
-    fn insert_fixtures(db: Db) {
+    fn insert_fixtures(db: Db<Self::Canister>) {
         use RarityId as Id;
 
         let data = [

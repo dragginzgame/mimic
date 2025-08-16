@@ -83,15 +83,14 @@ impl IndexFilterTester {
         ];
 
         for (name, name_opt, name_many) in fixtures {
-            EntityService::save_fixture(
-                db!(),
-                FilterableIndex {
+            db!()
+                .create(FilterableIndex {
                     name: name.into(),
                     name_opt: name_opt.map(ToString::to_string),
                     name_many: name_many.iter().map(ToString::to_string).collect(),
                     ..Default::default()
-                },
-            );
+                })
+                .unwrap();
         }
     }
 

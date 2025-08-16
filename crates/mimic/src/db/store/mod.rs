@@ -21,9 +21,10 @@ pub enum StoreError {
 /// StoreRegistryLocal
 ///
 
-pub type DataStoreRegistryLocal = &'static LocalKey<Rc<StoreRegistry<DataStore>>>;
+pub type StoreRegistryLocal<S> = &'static LocalKey<Rc<StoreRegistry<S>>>;
 
-pub type IndexStoreRegistryLocal = &'static LocalKey<Rc<StoreRegistry<IndexStore>>>;
+pub type DataStoreRegistryLocal = StoreRegistryLocal<DataStore>;
+pub type IndexStoreRegistryLocal = StoreRegistryLocal<IndexStore>;
 
 ///
 /// StoreRegistry
