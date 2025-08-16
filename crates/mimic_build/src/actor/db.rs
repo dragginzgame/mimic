@@ -2,6 +2,7 @@ use crate::actor::ActorBuilder;
 use mimic_schema::types::StoreType;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
+use syn::parse_str;
 
 // generate
 #[must_use]
@@ -50,8 +51,11 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
 
     let data_registry = wrap_registry_init("data_registry", data_inits);
     let index_registry = wrap_registry_init("index_registry", index_inits);
+    let canister_path: syn::Path =
+        parse_str(&builder.canister.def.path()).expect("invalid canister path");
 
     quote! {
+
         thread_local! {
             #data_defs
             #index_defs
@@ -61,7 +65,11 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
 
             static INDEX_REGISTRY: ::std::rc::Rc<::mimic::db::store::StoreRegistry<::mimic::db::store::IndexStore>> =
                 ::std::rc::Rc::new(#index_registry);
+        }
 
+        /// Global accessor for this canister’s Db
+        pub fn db() -> ::mimic::db::Db<#canister_path> {
+            ::mimic::db::Db::new(&DATA_REGISTRY, &INDEX_REGISTRY)
         }
     }
 }
