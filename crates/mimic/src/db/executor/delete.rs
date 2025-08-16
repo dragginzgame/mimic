@@ -4,7 +4,9 @@ use crate::{
     db::{
         DbError,
         executor::{Context, FilterEvaluator},
-        query::{DeleteQuery, FilterDsl, FilterExpr, FilterExt, QueryValidate},
+        query::{
+            DeleteQuery, FilterDsl, FilterExpr, FilterExt, QueryPlan, QueryPlanner, QueryValidate,
+        },
         store::{DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
 };
@@ -51,51 +53,72 @@ impl<E: EntityKind> DeleteExecutor<E> {
     ///
 
     pub fn one(self, value: impl Into<Value>) -> Result<Vec<Key>, Error> {
-        self.execute(DeleteQuery::new().one::<E>(value))
+        let query = DeleteQuery::new().one::<E>(value);
+        self.execute(&query)
     }
 
     pub fn many(
         self,
         values: impl IntoIterator<Item = impl Into<Value>>,
     ) -> Result<Vec<Key>, Error> {
-        self.execute(DeleteQuery::new().many::<E, _>(values))
+        let query = DeleteQuery::new().many::<E, _>(values);
+        self.execute(&query)
     }
 
     pub fn all(self) -> Result<Vec<Key>, Error> {
-        self.execute(DeleteQuery::new())
+        let query = DeleteQuery::new();
+        self.execute(&query)
     }
 
     pub fn filter(self, f: impl FnOnce(FilterDsl) -> FilterExpr) -> Result<Vec<Key>, Error> {
-        self.execute(DeleteQuery::new().filter(f))
+        let query = DeleteQuery::new().filter(f);
+        self.execute(&query)
     }
 
     ///
-    /// EXECUTION METHODS
+    /// EXECUTION PREP
     ///
 
     const fn context(&self) -> Context {
         Context {
             data_registry: self.data_registry,
             index_registry: self.index_registry,
-            debug: self.debug,
         }
+    }
+
+    // plan
+    // chatgpt says cleaner to keep it a method
+    #[allow(clippy::unused_self)]
+    fn plan(&self, query: &DeleteQuery) -> QueryPlan {
+        QueryPlanner::new(query.filter.as_ref()).plan::<E>()
+    }
+
+    ///
+    /// EXECUTION METHODS
+    ///
+
+    // explain
+    pub fn explain(self, query: &DeleteQuery) -> Result<QueryPlan, Error> {
+        QueryValidate::<E>::validate(query).map_err(DbError::from)?;
+
+        Ok(self.plan(query))
     }
 
     // response
     // for the automated query endpoint, we will make this more flexible in the future
-    pub fn response(self, query: DeleteQuery) -> Result<Vec<Key>, Error> {
+    pub fn response(self, query: &DeleteQuery) -> Result<Vec<Key>, Error> {
         let res = self.execute(query)?;
 
         Ok(res)
     }
 
     // execute
-    pub fn execute(self, query: DeleteQuery) -> Result<Vec<Key>, Error> {
-        QueryValidate::<E>::validate(&query).map_err(DbError::from)?;
+    pub fn execute(self, query: &DeleteQuery) -> Result<Vec<Key>, Error> {
+        QueryValidate::<E>::validate(query).map_err(DbError::from)?;
 
         let ctx = self.context();
-        let plan = ctx.plan::<E>(query.filter.as_ref());
         let store = ctx.store::<E>()?;
+        let plan = self.plan(query);
         let keys = ctx.candidates_from_plan::<E>(plan)?; // no deserialization here
 
         let limit = query
@@ -103,6 +126,7 @@ impl<E: EntityKind> DeleteExecutor<E> {
             .as_ref()
             .and_then(|l| l.limit)
             .map(|l| l as usize);
+
         let filter_simplified = query.filter.as_ref().map(|f| f.clone().simplify());
 
         let mut deleted_rows: Vec<Key> = Vec::new();

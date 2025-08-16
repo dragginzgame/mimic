@@ -69,18 +69,14 @@ pub fn filterable() -> Result<Vec<FilterableView>, Error> {
 pub fn rarity() -> Result<Vec<RarityView>, Error> {
     perf_start!();
 
-    let rarities = db!()
-        .load::<Rarity>()
-        .debug()
-        .execute(
-            query::load()
-                .filter(|f| {
-                    // (level >= 2 AND level <= 4) OR (name CONTAINS "ncon")
-                    (f.gte("level", 2) & f.lte("level", 4)) | f.contains("name", "ncon")
-                })
-                .sort_desc("level"),
-        )?
-        .views();
+    let query = query::load()
+        .filter(|f| {
+            // (level >= 2 AND level <= 4) OR (name CONTAINS "ncon")
+            (f.gte("level", 2) & f.lte("level", 4)) | f.contains("name", "ncon")
+        })
+        .sort(|s| s.desc("level"));
+
+    let rarities = db!().load::<Rarity>().debug().execute(&query)?.views();
 
     Ok(rarities)
 }

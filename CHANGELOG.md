@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 - made create/replace generic over Into<E> so we don't need create_from_view any more
+- moved Plan from Context into the Executors so we can do .explain() and .plan()
+- QueryPlan now only deals with Keys, the DataKey is now the domain of the Executor
+- Query is now passed into the Executor by reference
+- changed the query's sort functions so it follows filter (|s| s.asc ...)
 
 ## [0.12.4] - 2025-08-15
 - added Eq trait to all nodes to hide that clippy message, actually much cleaner now

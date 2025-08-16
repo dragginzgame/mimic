@@ -53,7 +53,7 @@ impl<E: EntityKind> SaveExecutor<E> {
     // response
     // a specific response used by the automated query endpoints that
     // we will improve int he future
-    pub fn response(&self, query: SaveQuery) -> Result<Key, Error> {
+    pub fn response(&self, query: &SaveQuery) -> Result<Key, Error> {
         let bytes: E = deserialize(&query.bytes)?;
         let key = self.execute_internal(query.mode, bytes)?.key();
 
@@ -62,7 +62,7 @@ impl<E: EntityKind> SaveExecutor<E> {
 
     // execute
     // serializes the save query to pass to execute_internal
-    pub fn execute(&self, query: SaveQuery) -> Result<E, Error> {
+    pub fn execute(&self, query: &SaveQuery) -> Result<E, Error> {
         let bytes: E = deserialize(&query.bytes)?;
         let entity = self.execute_internal(query.mode, bytes)?;
 

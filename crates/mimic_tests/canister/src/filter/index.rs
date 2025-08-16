@@ -1,4 +1,4 @@
-use mimic::prelude::*;
+use mimic::{db::query::QueryPlan, prelude::*};
 use test_design::canister::filter::FilterableIndex;
 
 ///
@@ -44,6 +44,17 @@ impl IndexFilterTester {
                 "filter_contains_both_blue_and_green",
                 Self::filter_contains_both_blue_and_green,
             ),
+            ("filter_gt_name_delta", Self::filter_gt_name_delta),
+            ("filter_le_name_gamma", Self::filter_le_name_gamma),
+            ("filter_between_delta_iota", Self::filter_between_delta_iota),
+            (
+                "filter_compound_alpha_opt_and_many",
+                Self::filter_compound_alpha_opt_and_many,
+            ),
+            (
+                "filter_name_opt_null_and_name_has_a",
+                Self::filter_name_opt_null_and_name_has_a,
+            ),
         ];
 
         // insert data
@@ -61,14 +72,14 @@ impl IndexFilterTester {
         let fixtures: [(&str, Option<&str>, &[&str]); 10] = [
             ("Alpha", None, &["alpha", "blue"]),
             ("Beta", Some("Beta"), &[]),
-            ("Gamma", Some("Alpha"), &["red", "alpha"]),
             ("Delta", None, &[]),
             ("Epsilon", Some("Epsilon"), &["green", "blue"]),
-            ("Zeta", None, &[]),
             ("Eta", Some("Beta"), &["blue"]),
-            ("Theta", None, &["yellow"]),
+            ("Gamma", Some("Alpha"), &["red", "alpha"]),
             ("Iota", Some("Alpha"), &["alpha"]),
             ("Kappa", None, &["green", "blue"]),
+            ("Theta", None, &["yellow"]),
+            ("Zeta", None, &[]),
         ];
 
         for (name, name_opt, name_many) in fixtures {
@@ -85,14 +96,30 @@ impl IndexFilterTester {
     }
 
     ///
-    /// NORMAL (Filterable)
+    /// NORMAL (FilterableIndex)
     ///
 
     /// name == "Alpha" -> exactly one row
     fn filter_eq_name_alpha() {
+        let query = query::load().filter(|f| f.eq("name", "Alpha"));
+
+        // explain plan
+        let plan = db!().load::<FilterableIndex>().explain(&query).unwrap();
+        println!("Plan for filter_eq_name_alpha: {plan}");
+
+        match plan {
+            QueryPlan::Index(p) => {
+                assert_eq!(p.index.fields, &["name"]);
+                assert_eq!(p.values.len(), 1);
+                assert_eq!(p.values[0], Value::from("Alpha"));
+            }
+            _ => panic!("expected Index plan, got {plan:?}"),
+        }
+
+        // then execute
         let results = db!()
             .load::<FilterableIndex>()
-            .filter(|f| f.eq("name", "Alpha"))
+            .execute(&query)
             .unwrap()
             .entities();
 
@@ -264,6 +291,78 @@ impl IndexFilterTester {
         }));
     }
 
-    // (Optional) If your API has StartsWith for Text, keep this separate from list Contains:
-    // fn filter_starts_name_alpha_prefix() { ... Cmp::StartsWith, "Al" ... }
+    // ---------- Range & Ordering tests ----------
+
+    // All names > "Delta" (lex order)
+    fn filter_gt_name_delta() {
+        let results = db!()
+            .load::<FilterableIndex>()
+            .filter(|f| f.gt("name", "Delta"))
+            .unwrap()
+            .entities();
+
+        assert!(results.iter().all(|e| *e.name > *"Delta"));
+        assert_eq!(results.len(), 7);
+    }
+
+    // All names <= "Delta" => Alpha, Beta, Delta
+    fn filter_le_name_gamma() {
+        let results = db!()
+            .load::<FilterableIndex>()
+            .filter(|f| f.lte("name", "Delta"))
+            .unwrap()
+            .entities();
+
+        assert!(results.iter().all(|e| *e.name <= *"Delta"));
+        assert_eq!(results.len(), 3);
+    }
+
+    // Names between Delta and Iota inclusive
+    fn filter_between_delta_iota() {
+        let results = db!()
+            .load::<FilterableIndex>()
+            .filter(|f| f.gte("name", "Delta") & f.lte("name", "Iota"))
+            .unwrap()
+            .entities();
+
+        assert!(
+            results
+                .iter()
+                .all(|e| *e.name >= *"Delta" && *e.name <= *"Iota")
+        );
+        assert_eq!(results.len(), 5); // Delta, Epsilon, Eta, Gamma, Iota
+    }
+
+    // ---------- Compound filter tests ----------
+
+    // (name_opt = "Alpha") AND (name_many contains "alpha") => Gamma, Iota
+    fn filter_compound_alpha_opt_and_many() {
+        let results = db!()
+            .load::<FilterableIndex>()
+            .filter(|f| f.eq("name_opt", "Alpha") & f.contains("name_many", "alpha"))
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 2);
+        assert!(results.iter().all(|e| {
+            e.name_opt.as_deref() == Some("Alpha") && e.name_many.iter().any(|t| t == "alpha")
+        }));
+    }
+
+    // ---------- Null + filter combinations ----------
+
+    // name_opt is None AND name contains "a"
+    fn filter_name_opt_null_and_name_has_a() {
+        let results = db!()
+            .load::<FilterableIndex>()
+            .filter(|f| f.is_none("name_opt") & f.contains("name", "a"))
+            .unwrap()
+            .entities();
+
+        assert!(
+            results
+                .iter()
+                .all(|e| e.name_opt.is_none() && e.name.contains('a'))
+        );
+    }
 }

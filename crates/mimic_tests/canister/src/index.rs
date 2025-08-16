@@ -54,12 +54,8 @@ impl IndexTester {
 
         assert_uses_index::<Indexable>(&query);
 
-        let results = db
-            .load::<Indexable>()
-            .execute(query.clone())
-            .unwrap()
-            .entities();
-        let count = db.load::<Indexable>().count(query).unwrap();
+        let results = db.load::<Indexable>().execute(&query).unwrap().entities();
+        let count = db.load::<Indexable>().count(&query).unwrap();
 
         assert_eq!(results.len(), 1);
         assert_eq!(count, 1);
@@ -136,7 +132,11 @@ impl IndexTester {
         let query = query::load().filter(|f| f.eq("pid", Principal::from_slice(&[99; 29])));
         assert_uses_index::<Indexable>(&query);
 
-        let results = db!().load::<Indexable>().execute(query).unwrap().entities();
+        let results = db!()
+            .load::<Indexable>()
+            .execute(&query)
+            .unwrap()
+            .entities();
         assert!(
             results.is_empty(),
             "Expected no results from unmatched index lookup"

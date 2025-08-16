@@ -1,11 +1,9 @@
 use crate::{
     core::{Key, Value, traits::EntityKind},
-    db::{
-        query::{Cmp, FilterExpr},
-        store::DataKey,
-    },
+    db::query::{Cmp, FilterExpr},
     schema::node::Index,
 };
+use std::fmt::{self, Display};
 
 ///
 /// QueryPlan
@@ -14,8 +12,31 @@ use crate::{
 #[derive(Debug)]
 pub enum QueryPlan {
     Index(IndexPlan),
-    Keys(Vec<DataKey>),
-    Range(DataKey, DataKey),
+    Keys(Vec<Key>),
+    Range(Key, Key),
+}
+
+impl fmt::Display for QueryPlan {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Index(plan) => write!(f, "Index({plan})"),
+
+            Self::Keys(keys) => {
+                // Show up to 5 keys, then ellipsize
+                let preview: Vec<String> = keys.iter().take(5).map(|k| format!("{k:?}")).collect();
+
+                if keys.len() > 5 {
+                    write!(f, "Keys[{}… total {}]", preview.join(", "), keys.len())
+                } else {
+                    write!(f, "Keys[{}]", preview.join(", "))
+                }
+            }
+
+            Self::Range(start, end) => {
+                write!(f, "Range({start:?} → {end:?})")
+            }
+        }
+    }
 }
 
 ///
@@ -26,6 +47,13 @@ pub enum QueryPlan {
 pub struct IndexPlan {
     pub index: &'static Index,
     pub values: Vec<Value>,
+}
+
+impl Display for IndexPlan {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let values: Vec<String> = self.values.iter().map(|v| format!("{v:?}")).collect();
+        write!(f, "index={} values=[{}]", self.index, values.join(", "))
+    }
 }
 
 ///
@@ -63,10 +91,7 @@ impl QueryPlanner {
 
         // Fallback: if we have a real filter, do a full scan
         // No filter = full scan from Key::MIN to Key::MAX
-        let min = DataKey::new::<E>(Key::MIN);
-        let max = DataKey::new::<E>(Key::MAX);
-
-        QueryPlan::Range(min, max)
+        QueryPlan::Range(Key::MIN, Key::MAX)
     }
 
     // extract_from_filter
@@ -77,17 +102,13 @@ impl QueryPlanner {
 
         match filter {
             FilterExpr::Clause(clause) if clause.field == E::PRIMARY_KEY => match clause.cmp {
-                Cmp::Eq => clause
-                    .value
-                    .as_key()
-                    .map(|key| QueryPlan::Keys(vec![DataKey::new::<E>(key)])),
+                Cmp::Eq => clause.value.as_key().map(|key| QueryPlan::Keys(vec![key])),
 
                 Cmp::In => {
                     if let Value::List(values) = &clause.value {
                         let keys = values
                             .iter()
                             .filter_map(|v| v.as_ref().as_key())
-                            .map(|key| DataKey::new::<E>(key))
                             .collect::<Vec<_>>();
 
                         if keys.is_empty() {

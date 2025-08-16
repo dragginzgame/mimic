@@ -54,12 +54,9 @@ impl<E: EntityKind> QueryValidate<E> for SortExpr {
     }
 }
 
-impl<T> FromIterator<(T, SortDirection)> for SortExpr
-where
-    T: Into<String>,
-{
-    fn from_iter<I: IntoIterator<Item = (T, SortDirection)>>(iter: I) -> Self {
-        Self(iter.into_iter().map(|(f, d)| (f.into(), d)).collect())
+impl From<Vec<(String, SortDirection)>> for SortExpr {
+    fn from(v: Vec<(String, SortDirection)>) -> Self {
+        Self(v)
     }
 }
 

@@ -5,7 +5,10 @@ use crate::{
 };
 use mimic_common::error::ErrorTree;
 use serde::Serialize;
-use std::ops::Not;
+use std::{
+    fmt::{self, Display},
+    ops::Not,
+};
 
 ///
 /// Index
@@ -24,6 +27,18 @@ impl Index {
     #[must_use]
     pub fn is_prefix_of(&self, other: &Self) -> bool {
         self.fields.len() < other.fields.len() && other.fields.starts_with(self.fields)
+    }
+}
+
+impl Display for Index {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let fields = self.fields.join(", ");
+
+        if self.unique {
+            write!(f, "UNIQUE {}({})", self.store, fields)
+        } else {
+            write!(f, "{}({})", self.store, fields)
+        }
     }
 }
 

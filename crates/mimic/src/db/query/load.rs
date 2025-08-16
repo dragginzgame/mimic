@@ -30,9 +30,9 @@ impl LoadQuery {
         self.filter.is_none() && self.limit.is_none() && self.sort.is_none()
     }
 
-    //
-    // SHAPES
-    //
+    ///
+    /// SHAPES
+    ///
 
     #[must_use]
     pub fn one<E: EntityKind>(self, value: impl Into<Value>) -> Self {

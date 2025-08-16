@@ -28,6 +28,7 @@ where
         self.0.len() as u32
     }
 
+    // is_empty
     #[must_use]
     pub const fn is_empty(&self) -> bool {
         self.0.is_empty()

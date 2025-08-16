@@ -5,8 +5,8 @@ use crate::{
         DbError,
         executor::{Context, FilterEvaluator},
         query::{
-            FilterDsl, FilterExpr, FilterExt, IntoFilterOpt, LoadQuery, QueryValidate,
-            SortDirection, SortExpr,
+            FilterDsl, FilterExpr, FilterExt, IntoFilterOpt, LoadQuery, QueryPlan, QueryPlanner,
+            QueryValidate, SortDirection, SortExpr,
         },
         response::{EntityRow, LoadCollection},
         store::{DataStoreRegistryLocal, IndexStoreRegistryLocal},
@@ -54,18 +54,21 @@ impl<E: EntityKind> LoadExecutor<E> {
     //
 
     pub fn one(&self, value: impl Into<Value>) -> Result<E, Error> {
-        self.execute(LoadQuery::new().one::<E>(value))?.try_entity()
+        let query = LoadQuery::new().one::<E>(value);
+        self.execute(&query)?.try_entity()
     }
 
     pub fn many(
         &self,
         values: impl IntoIterator<Item = impl Into<Value>>,
     ) -> Result<LoadCollection<E>, Error> {
-        self.execute(LoadQuery::new().many::<E, _>(values))
+        let query = LoadQuery::new().many::<E, _>(values);
+        self.execute(&query)
     }
 
     pub fn all(&self) -> Result<LoadCollection<E>, Error> {
-        self.execute(LoadQuery::new())
+        let query = LoadQuery::new();
+        self.execute(&query)
     }
 
     pub fn filter<F, R>(self, f: F) -> Result<LoadCollection<E>, Error>
@@ -73,39 +76,58 @@ impl<E: EntityKind> LoadExecutor<E> {
         F: FnOnce(FilterDsl) -> R,
         R: IntoFilterOpt,
     {
-        self.execute(LoadQuery::new().filter(f))
+        let query = LoadQuery::new().filter(f);
+        self.execute(&query)
     }
 
     pub fn count_all(self) -> Result<u32, Error> {
-        self.count(LoadQuery::all())
+        let query = LoadQuery::all();
+        self.count(&query)
     }
 
     ///
-    /// EXECUTION METHODS
+    /// EXECUTION PREP
     ///
 
     const fn context(&self) -> Context {
         Context {
             data_registry: self.data_registry,
             index_registry: self.index_registry,
-            debug: self.debug,
         }
+    }
+
+    // plan
+    // chatgpt says cleaner to keep it a method
+    #[allow(clippy::unused_self)]
+    fn plan(&self, query: &LoadQuery) -> QueryPlan {
+        QueryPlanner::new(query.filter.as_ref()).plan::<E>()
+    }
+
+    ///
+    /// EXECUTION METHODS
+    ///
+
+    // explain
+    pub fn explain(self, query: &LoadQuery) -> Result<QueryPlan, Error> {
+        QueryValidate::<E>::validate(query).map_err(DbError::from)?;
+
+        Ok(self.plan(query))
     }
 
     // response
     // for the automated query endpoint, we will make this more flexible in the future
-    pub fn response(&self, query: LoadQuery) -> Result<Vec<Key>, Error> {
+    pub fn response(&self, query: &LoadQuery) -> Result<Vec<Key>, Error> {
         let res = self.execute(query)?.keys();
 
         Ok(res)
     }
 
     /// Execute a full query and return a collection of entities.
-    pub fn execute(&self, query: LoadQuery) -> Result<LoadCollection<E>, Error> {
-        QueryValidate::<E>::validate(&query).map_err(DbError::from)?;
+    pub fn execute(&self, query: &LoadQuery) -> Result<LoadCollection<E>, Error> {
+        QueryValidate::<E>::validate(query).map_err(DbError::from)?;
 
         let ctx = self.context();
-        let plan = ctx.plan::<E>(query.filter.as_ref());
+        let plan = self.plan(query);
         let rows = ctx.rows_from_plan::<E>(plan)?;
 
         let mut entities: Vec<_> = rows
@@ -134,7 +156,7 @@ impl<E: EntityKind> LoadExecutor<E> {
     /// currently just doing the same as execute()
     /// keeping it separate in case we can optimise count queries in the future
     #[allow(clippy::cast_possible_truncation)]
-    pub fn count(self, query: LoadQuery) -> Result<u32, Error> {
+    pub fn count(self, query: &LoadQuery) -> Result<u32, Error> {
         let count = self.execute(query)?.count();
 
         Ok(count)

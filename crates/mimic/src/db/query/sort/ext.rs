@@ -13,7 +13,7 @@ pub trait IntoSortKey {
 }
 
 ///
-/// Builders
+/// SortKey Wrappers
 ///
 
 pub struct Asc<T: Into<String>>(pub T);
@@ -32,39 +32,61 @@ impl<T: Into<String>> IntoSortKey for Desc<T> {
 }
 
 ///
+/// SortExprBuilder
+///
+
+#[derive(Default)]
+pub struct SortExprBuilder {
+    keys: Vec<(String, SortDirection)>,
+}
+
+impl SortExprBuilder {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    #[must_use]
+    pub fn asc(mut self, field: impl Into<String>) -> Self {
+        self.keys.push((field.into(), SortDirection::Asc));
+        self
+    }
+
+    #[must_use]
+    pub fn desc(mut self, field: impl Into<String>) -> Self {
+        self.keys.push((field.into(), SortDirection::Desc));
+        self
+    }
+}
+
+impl From<SortExprBuilder> for SortExpr {
+    fn from(b: SortExprBuilder) -> Self {
+        b.keys.into()
+    }
+}
+
+///
 /// SortExt
 ///
 
 impl<T: SortSlot> SortExt for T {}
 
 pub trait SortExt: SortSlot + Sized {
-    /// Add many sort keys at once.
+    /// Closure-based DSL (matches `.filter(|f| ...)`)
     #[must_use]
-    fn sort<I, S>(mut self, items: I) -> Self
+    fn sort<F>(mut self, f: F) -> Self
     where
-        I: IntoIterator<Item = S>,
-        S: IntoSortKey,
+        F: FnOnce(SortExprBuilder) -> SortExprBuilder,
     {
-        let iter = items.into_iter().map(IntoSortKey::into_sort_key);
         let slot = self.sort_slot();
+        let expr: SortExpr = f(SortExprBuilder::new()).into();
 
-        if let Some(expr) = slot.as_mut() {
-            expr.extend(iter);
+        if let Some(existing) = slot.as_mut() {
+            existing.extend(expr.iter().cloned());
         } else {
-            *slot = Some(iter.collect::<SortExpr>());
+            *slot = Some(expr);
         }
+
         self
-    }
-
-    /// Add a single ascending key: `.sort_asc("name")`
-    #[must_use]
-    fn sort_asc(self, field: impl Into<String>) -> Self {
-        self.sort(std::iter::once(Asc(field)))
-    }
-
-    /// Add a single descending key: `.sort_desc("level")`
-    #[must_use]
-    fn sort_desc(self, field: impl Into<String>) -> Self {
-        self.sort(std::iter::once(Desc(field)))
     }
 }

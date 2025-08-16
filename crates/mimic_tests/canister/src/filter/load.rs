@@ -169,7 +169,7 @@ impl LoadFilterTester {
 
         let results = db!()
             .load::<Filterable>()
-            .execute(query)
+            .execute(&query)
             .unwrap()
             .entities();
 
@@ -186,7 +186,7 @@ impl LoadFilterTester {
 
         let results = db!()
             .load::<Filterable>()
-            .execute(query)
+            .execute(&query)
             .unwrap()
             .entities();
 
@@ -205,7 +205,7 @@ impl LoadFilterTester {
 
         let results = db!()
             .load::<Filterable>()
-            .execute(query)
+            .execute(&query)
             .unwrap()
             .entities();
 
@@ -228,7 +228,7 @@ impl LoadFilterTester {
 
         let results = db!()
             .load::<Filterable>()
-            .execute(query)
+            .execute(&query)
             .unwrap()
             .entities();
 

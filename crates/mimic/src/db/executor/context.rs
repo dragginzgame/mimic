@@ -1,29 +1,35 @@
 use crate::{
-    core::traits::{EntityKind, Path},
+    core::{
+        Key,
+        traits::{EntityKind, Path},
+    },
     db::{
         DbError,
-        query::{FilterExpr, QueryPlan, QueryPlanner},
+        query::QueryPlan,
         store::{
             DataKey, DataRow, DataStoreLocal, DataStoreRegistryLocal, IndexStoreRegistryLocal,
         },
     },
 };
-use icu::debug;
 use std::ops::Bound;
+
+///
+/// Context
+///
 
 #[derive(Clone, Copy, Debug)]
 pub struct Context {
     pub data_registry: DataStoreRegistryLocal,
     pub index_registry: IndexStoreRegistryLocal,
-    pub debug: bool,
 }
 
 impl Context {
-    #[must_use]
-    pub fn plan<E: EntityKind>(&self, filter: Option<&FilterExpr>) -> QueryPlan {
-        let plan = QueryPlanner::new(filter).plan::<E>();
-        debug!(self.debug, "query.plan: {plan:?}");
-        plan
+    fn to_data_key<E: EntityKind>(key: Key) -> DataKey {
+        DataKey::new::<E>(key)
+    }
+
+    fn to_data_keys<E: EntityKind>(keys: Vec<Key>) -> Vec<DataKey> {
+        keys.into_iter().map(|k| DataKey::new::<E>(k)).collect()
     }
 
     pub fn store<E: EntityKind>(&self) -> Result<DataStoreLocal, DbError> {
@@ -32,15 +38,21 @@ impl Context {
             .map_err(DbError::from)
     }
 
+    ///
+    /// Analyze Plan
+    ///
+
     pub fn candidates_from_plan<E: EntityKind>(
         &self,
         plan: QueryPlan,
     ) -> Result<Vec<DataKey>, DbError> {
         let candidates = match plan {
-            QueryPlan::Keys(keys) => keys,
+            QueryPlan::Keys(keys) => Self::to_data_keys::<E>(keys),
 
             QueryPlan::Range(start, end) => {
                 let store = self.store::<E>()?;
+                let start = Self::to_data_key::<E>(start);
+                let end = Self::to_data_key::<E>(end);
 
                 store.with_borrow(|s| {
                     s.range((Bound::Included(start), Bound::Included(end)))
@@ -67,19 +79,31 @@ impl Context {
         let store = self.store::<E>()?;
 
         Ok(match plan {
-            QueryPlan::Keys(keys) => self.load_many(&store, &keys),
-            QueryPlan::Range(start, end) => self.load_range(&store, start, end),
+            QueryPlan::Keys(keys) => {
+                let data_keys = Self::to_data_keys::<E>(keys);
+                self.load_many(&store, &data_keys)
+            }
+            QueryPlan::Range(start, end) => {
+                let start = Self::to_data_key::<E>(start);
+                let end = Self::to_data_key::<E>(end);
+                self.load_range(&store, start, end)
+            }
             QueryPlan::Index(_) => {
-                let keys = self.candidates_from_plan::<E>(plan)?;
-                self.load_many(&store, &keys)
+                let data_keys = self.candidates_from_plan::<E>(plan)?;
+                self.load_many(&store, &data_keys)
             }
         })
     }
+
+    ///
+    /// Load Helpers
+    ///
 
     #[must_use]
     pub fn load_many(&self, store: &DataStoreLocal, keys: &[DataKey]) -> Vec<DataRow> {
         store.with_borrow(|s| {
             let mut out = Vec::with_capacity(keys.len());
+
             for k in keys {
                 if let Some(entry) = s.get(k) {
                     out.push(DataRow {
@@ -91,6 +115,7 @@ impl Context {
             out
         })
     }
+
     #[must_use]
     pub fn load_range(&self, store: &DataStoreLocal, start: DataKey, end: DataKey) -> Vec<DataRow> {
         store.with_borrow(|s| {
