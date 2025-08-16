@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ## [0.12.14] - 2025-08-16
+- Initial release
+
+## [Unreleased]
+
+## [0.12.14] - 2025-08-16
 - now a query on an entity on the wrong canister will be caught by the compiler!
 
 ## [0.12.6] - 2025-08-16
