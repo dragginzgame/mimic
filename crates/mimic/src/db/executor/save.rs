@@ -76,6 +76,14 @@ impl<E: EntityKind> SaveExecutor<E> {
         Ok(entity)
     }
 
+    // create_view
+    pub fn create_view<V>(&self, view: E::View) -> Result<E::View, Error> {
+        let entity = E::from_view(view);
+        let saved_view = self.create(entity)?.to_view();
+
+        Ok(saved_view)
+    }
+
     // update
     pub fn update(&self, entity: E) -> Result<E, Error> {
         let entity = self.execute_internal(SaveMode::Update, entity)?;
@@ -83,11 +91,27 @@ impl<E: EntityKind> SaveExecutor<E> {
         Ok(entity)
     }
 
+    // update_view
+    pub fn update_view<V>(&self, view: E::View) -> Result<E::View, Error> {
+        let entity = E::from_view(view);
+        let saved_view = self.update(entity)?.to_view();
+
+        Ok(saved_view)
+    }
+
     // replace
     pub fn replace(&self, entity: E) -> Result<E, Error> {
         let entity = self.execute_internal(SaveMode::Replace, entity)?;
 
         Ok(entity)
+    }
+
+    // replace_view
+    pub fn replace_view<V>(&self, view: E::View) -> Result<E::View, Error> {
+        let entity = E::from_view(view);
+        let saved_view = self.replace(entity)?.to_view();
+
+        Ok(saved_view)
     }
 
     // execute_internal
