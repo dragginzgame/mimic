@@ -50,6 +50,10 @@ impl<E: EntityKind> SaveExecutor<E> {
         self
     }
 
+    ///
+    /// EXECUTION METHODS
+    ///
+
     // response
     // a specific response used by the automated query endpoints that
     // we will improve int he future
@@ -60,23 +64,12 @@ impl<E: EntityKind> SaveExecutor<E> {
         Ok(key)
     }
 
-    // execute
-    // serializes the save query to pass to execute_internal
-    pub fn execute(&self, query: &SaveQuery) -> Result<E, Error> {
-        let bytes: E = deserialize(&query.bytes)?;
-        let entity = self.execute_internal(query.mode, bytes)?;
-
-        Ok(entity)
-    }
-
-    // create
     pub fn create(&self, entity: E) -> Result<E, Error> {
         let entity = self.execute_internal(SaveMode::Create, entity)?;
 
         Ok(entity)
     }
 
-    // create_view
     pub fn create_view<V>(&self, view: E::View) -> Result<E::View, Error> {
         let entity = E::from_view(view);
         let saved_view = self.create(entity)?.to_view();
@@ -84,14 +77,12 @@ impl<E: EntityKind> SaveExecutor<E> {
         Ok(saved_view)
     }
 
-    // update
     pub fn update(&self, entity: E) -> Result<E, Error> {
         let entity = self.execute_internal(SaveMode::Update, entity)?;
 
         Ok(entity)
     }
 
-    // update_view
     pub fn update_view<V>(&self, view: E::View) -> Result<E::View, Error> {
         let entity = E::from_view(view);
         let saved_view = self.update(entity)?.to_view();
@@ -99,19 +90,26 @@ impl<E: EntityKind> SaveExecutor<E> {
         Ok(saved_view)
     }
 
-    // replace
     pub fn replace(&self, entity: E) -> Result<E, Error> {
         let entity = self.execute_internal(SaveMode::Replace, entity)?;
 
         Ok(entity)
     }
 
-    // replace_view
     pub fn replace_view<V>(&self, view: E::View) -> Result<E::View, Error> {
         let entity = E::from_view(view);
         let saved_view = self.replace(entity)?.to_view();
 
         Ok(saved_view)
+    }
+
+    // execute
+    // serializes the save query to pass to execute_internal
+    pub fn execute(&self, query: &SaveQuery) -> Result<E, Error> {
+        let bytes: E = deserialize(&query.bytes)?;
+        let entity = self.execute_internal(query.mode, bytes)?;
+
+        Ok(entity)
     }
 
     // execute_internal

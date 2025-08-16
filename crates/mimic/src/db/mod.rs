@@ -71,20 +71,36 @@ impl Db {
         SaveExecutor::new(self.data, self.index)
     }
 
-    pub fn create<E: EntityKind>(&self, entity: E) -> Result<E, Error> {
-        SaveExecutor::new(self.data, self.index).create(entity)
-    }
-
-    pub fn replace<E: EntityKind>(&self, entity: E) -> Result<E, Error> {
-        SaveExecutor::new(self.data, self.index).replace(entity)
-    }
-
-    pub fn update<E: EntityKind>(&self, entity: E) -> Result<E, Error> {
-        SaveExecutor::new(self.data, self.index).update(entity)
-    }
-
     #[must_use]
     pub const fn delete<E: EntityKind>(&self) -> DeleteExecutor<E> {
         DeleteExecutor::new(self.data, self.index)
+    }
+
+    ///
+    /// High level, common shortcuts
+    ///
+
+    pub fn create<E: EntityKind>(&self, entity: E) -> Result<E, Error> {
+        self.save::<E>().create(entity)
+    }
+
+    pub fn replace<E: EntityKind>(&self, entity: E) -> Result<E, Error> {
+        self.save::<E>().replace(entity)
+    }
+
+    pub fn update<E: EntityKind>(&self, entity: E) -> Result<E, Error> {
+        self.save::<E>().update(entity)
+    }
+
+    pub fn create_view<E: EntityKind>(&self, view: E::View) -> Result<E::View, Error> {
+        self.save::<E>().create_view::<E::View>(view)
+    }
+
+    pub fn replace_view<E: EntityKind>(&self, view: E::View) -> Result<E::View, Error> {
+        self.save::<E>().replace_view::<E::View>(view)
+    }
+
+    pub fn update_view<E: EntityKind>(&self, view: E::View) -> Result<E::View, Error> {
+        self.save::<E>().update_view::<E::View>(view)
     }
 }
