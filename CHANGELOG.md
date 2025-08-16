@@ -8,9 +8,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ## [0.12.6] - 2025-08-16
-- Initial release
-
-## [Unreleased]
 - made create/replace generic over Into<E> so we don't need create_from_view any more
 - moved Plan from Context into the Executors so we can do .explain() and .plan()
 - QueryPlan now only deals with Keys, the DataKey is now the domain of the Executor
