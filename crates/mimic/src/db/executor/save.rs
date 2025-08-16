@@ -70,22 +70,22 @@ impl<E: EntityKind> SaveExecutor<E> {
     }
 
     // create
-    pub fn create(&self, entity: impl Into<E>) -> Result<E, Error> {
-        let entity = self.execute_internal(SaveMode::Create, entity.into())?;
+    pub fn create(&self, entity: E) -> Result<E, Error> {
+        let entity = self.execute_internal(SaveMode::Create, entity)?;
 
         Ok(entity)
     }
 
     // update
-    pub fn update(&self, entity: impl Into<E>) -> Result<E, Error> {
-        let entity = self.execute_internal(SaveMode::Update, entity.into())?;
+    pub fn update(&self, entity: E) -> Result<E, Error> {
+        let entity = self.execute_internal(SaveMode::Update, entity)?;
 
         Ok(entity)
     }
 
     // replace
-    pub fn replace(&self, entity: impl Into<E>) -> Result<E, Error> {
-        let entity = self.execute_internal(SaveMode::Replace, entity.into())?;
+    pub fn replace(&self, entity: E) -> Result<E, Error> {
+        let entity = self.execute_internal(SaveMode::Replace, entity)?;
 
         Ok(entity)
     }
