@@ -56,12 +56,14 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
             #index_defs
 
             // registries
+            #[allow(unused_mut)]
             static DATA_REGISTRY: ::mimic::db::store::DataStoreRegistry = {
                 let mut reg = ::mimic::db::store::DataStoreRegistry::new();
                 #data_inits
                 reg
             };
 
+            #[allow(unused_mut)]
             static INDEX_REGISTRY: ::mimic::db::store::IndexStoreRegistry = {
                 let mut reg = ::mimic::db::store::IndexStoreRegistry::new();
                 #index_inits
@@ -70,6 +72,7 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
         }
 
         /// Global accessor (fat handle) for this canister’s DB
+        #[must_use]
         pub fn db() -> ::mimic::db::Db<#canister_path> {
             ::mimic::db::Db::new(&DATA_REGISTRY, &INDEX_REGISTRY)
         }

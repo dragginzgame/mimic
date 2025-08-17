@@ -8,11 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ## [0.12.18] - 2025-08-17
-- Initial release
-
-## [Unreleased]
-- changed db() to a DB const
 - removed the Rc<> overhead on DATA_REGISTRY and INDEX_REGISTRY
+- refactored the compiler changes to Store and Entity, passing Db now, so a lot less boilerplate code
 
 ## [0.12.16] - 2025-08-16
 - now a query on an entity on the wrong canister will be caught by the compiler!
