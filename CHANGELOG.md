@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [0.12.18] - 2025-08-17
+- Initial release
+
+## [Unreleased]
 - changed db() to a DB const
 - removed the Rc<> overhead on DATA_REGISTRY and INDEX_REGISTRY
 
