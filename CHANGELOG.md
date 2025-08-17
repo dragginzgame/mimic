@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.12.18] - 2025-08-17
 - removed the Rc<> overhead on DATA_REGISTRY and INDEX_REGISTRY
 - refactored the compiler changes to Store and Entity, passing Db now, so a lot less boilerplate code
+- Option and Vec::default() for auto generated default statements
 
 ## [0.12.16] - 2025-08-16
 - now a query on an entity on the wrong canister will be caught by the compiler!
