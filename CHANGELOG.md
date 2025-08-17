@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.12.20] - 2025-08-17
+- Initial release
+
+## [Unreleased]
+
 ## [0.12.18] - 2025-08-17
 - removed the Rc<> overhead on DATA_REGISTRY and INDEX_REGISTRY
 - refactored the compiler changes to Store and Entity, passing Db now, so a lot less boilerplate code
