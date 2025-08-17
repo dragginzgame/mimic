@@ -4,13 +4,11 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::parse_str;
 
-// generate
 #[must_use]
 pub fn generate(builder: &ActorBuilder) -> TokenStream {
     stores(builder)
 }
 
-// stores
 fn stores(builder: &ActorBuilder) -> TokenStream {
     let mut data_defs = quote!();
     let mut index_defs = quote!();

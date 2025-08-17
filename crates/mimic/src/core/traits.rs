@@ -65,20 +65,12 @@ impl<T> Kind for T where T: Path + 'static {}
 pub trait CanisterKind: Kind {}
 
 ///
-/// CanisterScope
-/// a marker trait that tells us that another Kind lives on a specific Canister
-///
-
-pub trait CanisterScope<C: CanisterKind> {}
-
-///
 /// EntityKind
 ///
 
 pub trait EntityKind: Kind + TypeKind + FieldValues {
     type Store: StoreKind;
-    // Canister is defined as Self::Store::Canister to avoid mismatches
-    type Canister: CanisterKind;
+    type Canister: CanisterKind; // Self::Store::Canister shortcut
 
     const PRIMARY_KEY: &'static str;
     const FIELDS: &'static [&'static str];
@@ -86,8 +78,6 @@ pub trait EntityKind: Kind + TypeKind + FieldValues {
 
     fn key(&self) -> Key;
 }
-
-impl<E> CanisterScope<E::Canister> for E where E: EntityKind {}
 
 ///
 /// EntityIdKind

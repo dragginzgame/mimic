@@ -1,10 +1,6 @@
 use crate::{
     Error,
-    core::{
-        Key, deserialize, serialize,
-        traits::{CanisterKind, EntityKind},
-        validate::validate,
-    },
+    core::{Key, deserialize, serialize, traits::EntityKind, validate::validate},
     db::{
         Db, DbError,
         executor::{Context, ExecutorError},
@@ -21,15 +17,15 @@ use std::marker::PhantomData;
 ///
 
 #[derive(Clone, Copy)]
-pub struct SaveExecutor<'a, C: CanisterKind, E: EntityKind> {
-    db: &'a Db<C>,
+pub struct SaveExecutor<'a, E: EntityKind> {
+    db: &'a Db<E::Canister>,
     debug: bool,
     _marker: PhantomData<E>,
 }
 
-impl<'a, C: CanisterKind, E: EntityKind> SaveExecutor<'a, C, E> {
+impl<'a, E: EntityKind> SaveExecutor<'a, E> {
     #[must_use]
-    pub const fn from_db(db: &'a Db<C>) -> Self {
+    pub const fn from_db(db: &'a Db<E::Canister>) -> Self {
         Self {
             db,
             debug: false,
@@ -48,7 +44,7 @@ impl<'a, C: CanisterKind, E: EntityKind> SaveExecutor<'a, C, E> {
     /// EXECUTION PREP
     ///
 
-    const fn context(&self) -> Context<'_, C, E> {
+    const fn context(&self) -> Context<'_, E> {
         Context::new(self.db)
     }
 

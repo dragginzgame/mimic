@@ -1,7 +1,7 @@
 use crate::{
     core::{
         Key,
-        traits::{CanisterKind, EntityKind, Path},
+        traits::{EntityKind, Path},
     },
     db::{
         Db, DbError,
@@ -15,18 +15,17 @@ use std::{marker::PhantomData, ops::Bound};
 /// Context
 ///
 
-pub struct Context<'a, C: CanisterKind, E: EntityKind> {
-    pub db: &'a Db<C>,
+pub struct Context<'a, E: EntityKind> {
+    pub db: &'a Db<E::Canister>,
     _marker: PhantomData<E>,
 }
 
-impl<'a, C, E> Context<'a, C, E>
+impl<'a, E> Context<'a, E>
 where
-    C: CanisterKind,
     E: EntityKind,
 {
     #[must_use]
-    pub const fn new(db: &'a Db<C>) -> Self {
+    pub const fn new(db: &'a Db<E::Canister>) -> Self {
         Self {
             db,
             _marker: PhantomData,
