@@ -3,6 +3,7 @@ use crate::{
     node_traits::{Imp, Implementor, Trait, TraitStrategy},
     traits::HasIdent,
 };
+use mimic_schema::types::Cardinality;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
@@ -18,9 +19,13 @@ pub struct DefaultTrait {}
 
 impl Imp<Entity> for DefaultTrait {
     fn strategy(node: &Entity) -> Option<TraitStrategy> {
-        let q = field_list(&node.fields);
+        // If no fields have default, just derive Default
+        if node.fields.iter().all(|f| f.default.is_none()) {
+            return Some(TraitStrategy::from_derive(Trait::Default));
+        }
+
         let tokens = Implementor::new(node.ident(), Trait::Default)
-            .set_tokens(q)
+            .set_tokens(field_list(&node.fields))
             .to_token_stream();
 
         Some(TraitStrategy::from_impl(tokens))
@@ -33,9 +38,13 @@ impl Imp<Entity> for DefaultTrait {
 
 impl Imp<Record> for DefaultTrait {
     fn strategy(node: &Record) -> Option<TraitStrategy> {
-        let q = field_list(&node.fields);
+        // If no fields have default, just derive Default
+        if node.fields.iter().all(|f| f.default.is_none()) {
+            return Some(TraitStrategy::from_derive(Trait::Default));
+        }
+
         let tokens = Implementor::new(node.ident(), Trait::Default)
-            .set_tokens(q)
+            .set_tokens(field_list(&node.fields))
             .to_token_stream();
 
         Some(TraitStrategy::from_impl(tokens))
@@ -49,7 +58,11 @@ fn field_list(fields: &FieldList) -> TokenStream {
         let expr = if let Some(default) = &field.default {
             format_default(default)
         } else {
-            quote!(Default::default())
+            match field.value.cardinality() {
+                Cardinality::One => quote!(Default::default()),
+                Cardinality::Opt => quote!(Option::default()),
+                Cardinality::Many => quote!(Vec::default()),
+            }
         };
 
         quote! { #ident: #expr }

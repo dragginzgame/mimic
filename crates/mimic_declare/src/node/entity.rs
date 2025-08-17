@@ -89,9 +89,7 @@ impl HasTraits for Entity {
         use crate::node_traits::*;
 
         match t {
-            Trait::Default if self.fields.has_default() => DefaultTrait::strategy(self),
-            Trait::Default => Some(TraitStrategy::from_derive(t)),
-
+            Trait::Default => DefaultTrait::strategy(self),
             Trait::From => FromTrait::strategy(self),
             Trait::EntityKind => EntityKindTrait::strategy(self),
             Trait::FieldValues => FieldValuesTrait::strategy(self),

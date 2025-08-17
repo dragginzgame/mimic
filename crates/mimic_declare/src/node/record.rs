@@ -67,7 +67,7 @@ impl HasTraits for Record {
         use crate::node_traits::*;
 
         match t {
-            Trait::Default if self.fields.has_default() => DefaultTrait::strategy(self),
+            Trait::Default => DefaultTrait::strategy(self),
             Trait::From => FromTrait::strategy(self),
             Trait::TypeView => TypeViewTrait::strategy(self),
             Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
