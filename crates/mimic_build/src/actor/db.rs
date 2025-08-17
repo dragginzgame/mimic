@@ -73,7 +73,7 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
 
         /// Global accessor (fat handle) for this canister’s DB
         #[must_use]
-        pub fn db() -> ::mimic::db::Db<#canister_path> {
+        pub const fn db() -> ::mimic::db::Db<#canister_path> {
             ::mimic::db::Db::new(&DATA_REGISTRY, &INDEX_REGISTRY)
         }
     }
