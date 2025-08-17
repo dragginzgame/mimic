@@ -1,13 +1,15 @@
 use crate::{
     Error,
-    core::{Key, Value, deserialize, traits::EntityKind},
+    core::{
+        Key, Value, deserialize,
+        traits::{CanisterKind, EntityKind},
+    },
     db::{
-        DbError,
+        Db, DbError,
         executor::{Context, FilterEvaluator},
         query::{
             DeleteQuery, FilterDsl, FilterExpr, FilterExt, QueryPlan, QueryPlanner, QueryValidate,
         },
-        store::{DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
 };
 use icu::debug;
@@ -18,23 +20,17 @@ use std::marker::PhantomData;
 ///
 
 #[derive(Clone, Copy)]
-pub struct DeleteExecutor<E: EntityKind> {
-    data_registry: DataStoreRegistryLocal,
-    index_registry: IndexStoreRegistryLocal,
+pub struct DeleteExecutor<'a, C: CanisterKind, E: EntityKind> {
+    db: &'a Db<C>,
     debug: bool,
     _marker: PhantomData<E>,
 }
 
-impl<E: EntityKind> DeleteExecutor<E> {
-    // new
+impl<'a, C: CanisterKind, E: EntityKind> DeleteExecutor<'a, C, E> {
     #[must_use]
-    pub const fn new(
-        data_registry: DataStoreRegistryLocal,
-        index_registry: IndexStoreRegistryLocal,
-    ) -> Self {
+    pub const fn from_db(db: &'a Db<C>) -> Self {
         Self {
-            data_registry,
-            index_registry,
+            db,
             debug: false,
             _marker: PhantomData,
         }
@@ -79,11 +75,8 @@ impl<E: EntityKind> DeleteExecutor<E> {
     /// EXECUTION PREP
     ///
 
-    const fn context(&self) -> Context {
-        Context {
-            data_registry: self.data_registry,
-            index_registry: self.index_registry,
-        }
+    const fn context(&self) -> Context<'_, C, E> {
+        Context::new(self.db)
     }
 
     // plan
@@ -117,21 +110,19 @@ impl<E: EntityKind> DeleteExecutor<E> {
         QueryValidate::<E>::validate(query).map_err(DbError::from)?;
 
         let ctx = self.context();
-        let store = ctx.store::<E>()?;
         let plan = self.plan(query);
-        let keys = ctx.candidates_from_plan::<E>(plan)?; // no deserialization here
+        let keys = ctx.candidates_from_plan(plan)?; // no deserialization here
 
+        // query prep
         let limit = query
             .limit
             .as_ref()
             .and_then(|l| l.limit)
             .map(|l| l as usize);
-
         let filter_simplified = query.filter.as_ref().map(|f| f.clone().simplify());
 
         let mut deleted_rows: Vec<Key> = Vec::new();
-
-        store.with_borrow_mut(|s| {
+        ctx.with_store_mut(|s| {
             for dk in keys {
                 // If we already hit the limit, bail early
                 if let Some(max) = limit
@@ -180,7 +171,7 @@ impl<E: EntityKind> DeleteExecutor<E> {
             }
 
             Ok::<_, DbError>(())
-        })?;
+        })??;
 
         debug!(self.debug, "query.delete: deleted keys {deleted_rows:?}");
 
@@ -190,9 +181,7 @@ impl<E: EntityKind> DeleteExecutor<E> {
     // remove_indexes
     fn remove_indexes(&self, entity: &E) -> Result<(), DbError> {
         for index in E::INDEXES {
-            let store = self
-                .index_registry
-                .with(|reg| reg.try_get_store(index.store))?;
+            let store = self.db.with_index(|reg| reg.try_get_store(index.store))?;
 
             store.with_borrow_mut(|this| {
                 this.remove_index_entry(entity, index);

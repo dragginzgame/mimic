@@ -2,15 +2,15 @@ use crate::{
     Error,
     core::{
         Key, deserialize, serialize,
-        traits::{EntityKind, Path},
+        traits::{CanisterKind, EntityKind},
         validate::validate,
     },
     db::{
-        DbError,
-        executor::ExecutorError,
+        Db, DbError,
+        executor::{Context, ExecutorError},
         query::{SaveMode, SaveQuery},
         response::EntityEntry,
-        store::{DataEntry, DataKey, DataStoreRegistryLocal, IndexStoreRegistryLocal, Metadata},
+        store::{DataEntry, DataKey, Metadata},
     },
 };
 use icu::{debug, utils::time::now_secs};
@@ -21,23 +21,17 @@ use std::marker::PhantomData;
 ///
 
 #[derive(Clone, Copy)]
-pub struct SaveExecutor<E: EntityKind> {
-    data_registry: DataStoreRegistryLocal,
-    index_registry: IndexStoreRegistryLocal,
+pub struct SaveExecutor<'a, C: CanisterKind, E: EntityKind> {
+    db: &'a Db<C>,
     debug: bool,
     _marker: PhantomData<E>,
 }
 
-impl<E: EntityKind> SaveExecutor<E> {
-    // new
+impl<'a, C: CanisterKind, E: EntityKind> SaveExecutor<'a, C, E> {
     #[must_use]
-    pub const fn new(
-        data_registry: DataStoreRegistryLocal,
-        index_registry: IndexStoreRegistryLocal,
-    ) -> Self {
+    pub const fn from_db(db: &'a Db<C>) -> Self {
         Self {
-            data_registry,
-            index_registry,
+            db,
             debug: false,
             _marker: PhantomData,
         }
@@ -48,6 +42,14 @@ impl<E: EntityKind> SaveExecutor<E> {
     pub const fn debug(mut self) -> Self {
         self.debug = true;
         self
+    }
+
+    ///
+    /// EXECUTION PREP
+    ///
+
+    const fn context(&self) -> Context<'_, C, E> {
+        Context::new(self.db)
     }
 
     ///
@@ -115,9 +117,7 @@ impl<E: EntityKind> SaveExecutor<E> {
     // save_entity
     fn save_entity(&self, mode: SaveMode, entity: E) -> Result<E, DbError> {
         let key = entity.key();
-        let store = self
-            .data_registry
-            .with(|reg| reg.try_get_store(E::Store::PATH))?;
+        let ctx = self.context();
 
         // validate
         validate(&entity)?;
@@ -132,7 +132,7 @@ impl<E: EntityKind> SaveExecutor<E> {
 
         let now = now_secs();
         let data_key = DataKey::new::<E>(key);
-        let old_result = store.with_borrow(|store| store.get(&data_key));
+        let old_result = ctx.with_store(|store| store.get(&data_key))?;
 
         // did anything change?
         let (created, modified, old) = match (mode, old_result) {
@@ -174,9 +174,7 @@ impl<E: EntityKind> SaveExecutor<E> {
         };
 
         // insert data row
-        store.with_borrow_mut(|store| {
-            store.insert(data_key.clone(), entry);
-        });
+        ctx.with_store_mut(|store| store.insert(data_key.clone(), entry))?;
 
         Ok(entity)
     }
@@ -184,9 +182,7 @@ impl<E: EntityKind> SaveExecutor<E> {
     // replace_indexes
     fn replace_indexes(&self, old: Option<&E>, new: &E) -> Result<(), DbError> {
         for index in E::INDEXES {
-            let store = self
-                .index_registry
-                .with(|reg| reg.try_get_store(index.store))?;
+            let store = self.db.with_index(|reg| reg.try_get_store(index.store))?;
 
             store.with_borrow_mut(|s| {
                 // remove first

@@ -4,7 +4,7 @@ mod index;
 pub use data::*;
 pub use index::*;
 
-use std::{cell::RefCell, collections::HashMap, rc::Rc, thread::LocalKey};
+use std::{cell::RefCell, collections::HashMap, thread::LocalKey};
 use thiserror::Error as ThisError;
 
 ///
@@ -16,15 +16,6 @@ pub enum StoreError {
     #[error("store '{0}' not found")]
     StoreNotFound(String),
 }
-
-///
-/// StoreRegistryLocal
-///
-
-pub type StoreRegistryLocal<S> = &'static LocalKey<Rc<StoreRegistry<S>>>;
-
-pub type DataStoreRegistryLocal = StoreRegistryLocal<DataStore>;
-pub type IndexStoreRegistryLocal = StoreRegistryLocal<IndexStore>;
 
 ///
 /// StoreRegistry

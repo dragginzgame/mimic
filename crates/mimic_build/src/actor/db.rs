@@ -32,7 +32,7 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
             });
 
             index_inits.extend(quote! {
-                index_registry.register(#store_path_lit, &#cell_ident);
+                reg.register(#store_path_lit, &#cell_ident);
             });
         } else {
             // Data store
@@ -44,50 +44,36 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
             });
 
             data_inits.extend(quote! {
-                data_registry.register(#store_path_lit, &#cell_ident);
+                reg.register(#store_path_lit, &#cell_ident);
             });
         }
     }
 
-    let data_registry = wrap_registry_init("data_registry", data_inits);
-    let index_registry = wrap_registry_init("index_registry", index_inits);
     let canister_path: syn::Path =
         parse_str(&builder.canister.def.path()).expect("invalid canister path");
 
     quote! {
-
         thread_local! {
             #data_defs
             #index_defs
 
-            static DATA_REGISTRY: ::std::rc::Rc<::mimic::db::store::StoreRegistry<::mimic::db::store::DataStore>> =
-                ::std::rc::Rc::new(#data_registry);
+            // registries
+            static DATA_REGISTRY: ::mimic::db::store::DataStoreRegistry = {
+                let mut reg = ::mimic::db::store::DataStoreRegistry::new();
+                #data_inits
+                reg
+            };
 
-            static INDEX_REGISTRY: ::std::rc::Rc<::mimic::db::store::StoreRegistry<::mimic::db::store::IndexStore>> =
-                ::std::rc::Rc::new(#index_registry);
+            static INDEX_REGISTRY: ::mimic::db::store::IndexStoreRegistry = {
+                let mut reg = ::mimic::db::store::IndexStoreRegistry::new();
+                #index_inits
+                reg
+            };
         }
 
-        /// Global accessor for this canister’s Db
+        /// Global accessor (fat handle) for this canister’s DB
         pub fn db() -> ::mimic::db::Db<#canister_path> {
             ::mimic::db::Db::new(&DATA_REGISTRY, &INDEX_REGISTRY)
-        }
-    }
-}
-
-// wrap_registry_init
-fn wrap_registry_init(name: &str, inits: TokenStream) -> TokenStream {
-    if inits.is_empty() {
-        quote! {
-            ::mimic::db::store::StoreRegistry::new()
-        }
-    } else {
-        let name_ident = format_ident!("{}", name);
-        quote! {
-            {
-                let mut #name_ident = ::mimic::db::store::StoreRegistry::new();
-                #inits
-                #name_ident
-            }
         }
     }
 }

@@ -4,6 +4,7 @@ use crate::{
         Key,
         traits::{EntityKind, Storable},
     },
+    db::store::StoreRegistry,
     ic::structures::{BTreeMap, DefaultMemory, storable::Bound},
 };
 use candid::CandidType;
@@ -12,16 +13,23 @@ use icu::impl_storable_bounded;
 use serde::{Deserialize, Serialize};
 use std::{
     borrow::Cow,
-    cell::RefCell,
     fmt::{self, Display},
-    thread::LocalKey,
 };
 
 ///
-/// DataStoreLocal
+/// DataStoreRegistry
 ///
 
-pub type DataStoreLocal = &'static LocalKey<RefCell<DataStore>>;
+#[derive(Deref, DerefMut)]
+pub struct DataStoreRegistry(StoreRegistry<DataStore>);
+
+impl DataStoreRegistry {
+    #[must_use]
+    #[allow(clippy::new_without_default)]
+    pub fn new() -> Self {
+        Self(StoreRegistry::new())
+    }
+}
 
 ///
 /// DataStore

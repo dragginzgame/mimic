@@ -1,15 +1,17 @@
 use crate::{
     Error,
-    core::{Key, Value, traits::EntityKind},
+    core::{
+        Key, Value,
+        traits::{CanisterKind, EntityKind},
+    },
     db::{
-        DbError,
+        Db, DbError,
         executor::{Context, FilterEvaluator},
         query::{
             FilterDsl, FilterExpr, FilterExt, IntoFilterOpt, LoadQuery, QueryPlan, QueryPlanner,
             QueryValidate, SortDirection, SortExpr,
         },
         response::{EntityRow, LoadCollection},
-        store::{DataStoreRegistryLocal, IndexStoreRegistryLocal},
     },
 };
 use std::marker::PhantomData;
@@ -19,23 +21,17 @@ use std::marker::PhantomData;
 ///
 
 #[derive(Clone, Copy)]
-pub struct LoadExecutor<E: EntityKind> {
-    data_registry: DataStoreRegistryLocal,
-    index_registry: IndexStoreRegistryLocal,
+pub struct LoadExecutor<'a, C: CanisterKind, E: EntityKind> {
+    db: &'a Db<C>,
     debug: bool,
     _marker: PhantomData<E>,
 }
 
-impl<E: EntityKind> LoadExecutor<E> {
-    // new
+impl<'a, C: CanisterKind, E: EntityKind> LoadExecutor<'a, C, E> {
     #[must_use]
-    pub const fn new(
-        data_registry: DataStoreRegistryLocal,
-        index_registry: IndexStoreRegistryLocal,
-    ) -> Self {
+    pub const fn from_db(db: &'a Db<C>) -> Self {
         Self {
-            data_registry,
-            index_registry,
+            db,
             debug: false,
             _marker: PhantomData,
         }
@@ -89,11 +85,8 @@ impl<E: EntityKind> LoadExecutor<E> {
     /// EXECUTION PREP
     ///
 
-    const fn context(&self) -> Context {
-        Context {
-            data_registry: self.data_registry,
-            index_registry: self.index_registry,
-        }
+    const fn context(&self) -> Context<'_, C, E> {
+        Context::new(self.db)
     }
 
     // plan
@@ -128,7 +121,7 @@ impl<E: EntityKind> LoadExecutor<E> {
 
         let ctx = self.context();
         let plan = self.plan(query);
-        let rows = ctx.rows_from_plan::<E>(plan)?;
+        let rows = ctx.rows_from_plan(plan)?;
 
         let mut entities: Vec<_> = rows
             .into_iter()

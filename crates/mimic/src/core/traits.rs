@@ -54,9 +54,9 @@ macro_rules! impl_primitive {
 /// Kind
 ///
 
-pub trait Kind: Path {}
+pub trait Kind: Path + 'static {}
 
-impl<T> Kind for T where T: Path {}
+impl<T> Kind for T where T: Path + 'static {}
 
 ///
 /// CanisterKind
@@ -77,6 +77,7 @@ pub trait CanisterScope<C: CanisterKind> {}
 
 pub trait EntityKind: Kind + TypeKind + FieldValues {
     type Store: StoreKind;
+    // Canister is defined as Self::Store::Canister to avoid mismatches
     type Canister: CanisterKind;
 
     const PRIMARY_KEY: &'static str;

@@ -2,7 +2,10 @@ use crate::{
     MAX_INDEX_FIELDS,
     common::utils::hash::hash_u64,
     core::{Key, Value, traits::EntityKind},
-    db::{executor::ExecutorError, store::DataKey},
+    db::{
+        executor::ExecutorError,
+        store::{DataKey, StoreRegistry},
+    },
     ic::structures::{BTreeMap, DefaultMemory},
     schema::node::Index,
 };
@@ -13,14 +16,22 @@ use serde::{Deserialize, Serialize};
 use std::{
     collections::HashSet,
     fmt::{self, Display},
-    {cell::RefCell, thread::LocalKey},
 };
 
 ///
-/// IndexStoreLocal
+/// IndexStoreRegistry
 ///
 
-pub type IndexStoreLocal = &'static LocalKey<RefCell<IndexStore>>;
+#[derive(Deref, DerefMut)]
+pub struct IndexStoreRegistry(StoreRegistry<IndexStore>);
+
+impl IndexStoreRegistry {
+    #[must_use]
+    #[allow(clippy::new_without_default)]
+    pub fn new() -> Self {
+        Self(StoreRegistry::new())
+    }
+}
 
 ///
 /// IndexStore

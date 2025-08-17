@@ -119,7 +119,7 @@ dependencies = [
 
 [[package]]
 name = "canister_test"
-version = "0.12.15"
+version = "0.12.17"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -497,7 +497,7 @@ dependencies = [
  "serde",
  "serde_bytes",
  "slotmap",
- "thiserror 2.0.14",
+ "thiserror 2.0.15",
 ]
 
 [[package]]
@@ -665,7 +665,7 @@ dependencies = [
  "minicbor-serde",
  "serde",
  "sha2",
- "thiserror 2.0.14",
+ "thiserror 2.0.15",
  "tinyrand",
  "toml",
 ]
@@ -749,7 +749,7 @@ checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
 name = "mimic"
-version = "0.12.15"
+version = "0.12.17"
 dependencies = [
  "bencher",
  "candid",
@@ -765,13 +765,13 @@ dependencies = [
  "rust_decimal",
  "serde",
  "serde_bytes",
- "thiserror 2.0.14",
+ "thiserror 2.0.15",
  "ulid",
 ]
 
 [[package]]
 name = "mimic_build"
-version = "0.12.15"
+version = "0.12.17"
 dependencies = [
  "mimic_schema",
  "proc-macro2",
@@ -781,7 +781,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_common"
-version = "0.12.15"
+version = "0.12.17"
 dependencies = [
  "candid",
  "convert_case 0.8.0",
@@ -793,7 +793,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_declare"
-version = "0.12.15"
+version = "0.12.17"
 dependencies = [
  "darling 0.21.2",
  "derive_more",
@@ -808,7 +808,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_schema"
-version = "0.12.15"
+version = "0.12.17"
 dependencies = [
  "candid",
  "darling 0.21.2",
@@ -819,12 +819,12 @@ dependencies = [
  "quote",
  "remain",
  "serde",
- "thiserror 2.0.14",
+ "thiserror 2.0.15",
 ]
 
 [[package]]
 name = "mimic_tests"
-version = "0.12.15"
+version = "0.12.17"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -963,9 +963,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.97"
+version = "1.0.101"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d61789d7719defeb74ea5fe81f2fdfdbd28a803847077cecce2ff14e1472f6f1"
+checksum = "89ae43fd86e4158d6db51ad8e2b80f313af9cc74f5c0e03ccb87de09998732de"
 dependencies = [
  "unicode-ident",
 ]
@@ -1151,7 +1151,7 @@ dependencies = [
 
 [[package]]
 name = "test_design"
-version = "0.12.15"
+version = "0.12.17"
 dependencies = [
  "candid",
  "ctor",
@@ -1170,11 +1170,11 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "2.0.14"
+version = "2.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b0949c3a6c842cbde3f1686d6eea5a010516deb7085f79db747562d4102f41e"
+checksum = "80d76d3f064b981389ecb4b6b7f45a0bf9fdac1d5b9204c7bd6714fecc302850"
 dependencies = [
- "thiserror-impl 2.0.14",
+ "thiserror-impl 2.0.15",
 ]
 
 [[package]]
@@ -1190,9 +1190,9 @@ dependencies = [
 
 [[package]]
 name = "thiserror-impl"
-version = "2.0.14"
+version = "2.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc5b44b4ab9c2fdd0e0512e6bece8388e214c0749f5862b114cc5b7a25daf227"
+checksum = "44d29feb33e986b6ea906bd9c3559a856983f92371b3eaa5e83782a351623de0"
 dependencies = [
  "proc-macro2",
  "quote",

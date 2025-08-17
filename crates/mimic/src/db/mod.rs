@@ -15,10 +15,10 @@ use crate::{
         executor::{DeleteExecutor, ExecutorError, LoadExecutor, SaveExecutor},
         query::QueryError,
         response::ResponseError,
-        store::{DataStoreRegistryLocal, IndexStoreRegistryLocal, StoreError},
+        store::{DataStoreRegistry, IndexStoreRegistry, StoreError},
     },
 };
-use std::marker::PhantomData;
+use std::{marker::PhantomData, thread::LocalKey};
 use thiserror::Error as ThisError;
 
 ///
@@ -59,8 +59,8 @@ pub enum DbError {
 ///
 
 pub struct Db<C: CanisterKind> {
-    data: DataStoreRegistryLocal,
-    index: IndexStoreRegistryLocal,
+    data: &'static LocalKey<DataStoreRegistry>,
+    index: &'static LocalKey<IndexStoreRegistry>,
     _marker: PhantomData<C>,
 }
 
@@ -77,12 +77,23 @@ impl<C: CanisterKind> Clone for Db<C> {
 
 impl<C: CanisterKind> Db<C> {
     #[must_use]
-    pub const fn new(data: DataStoreRegistryLocal, index: IndexStoreRegistryLocal) -> Self {
+    pub const fn new(
+        data: &'static LocalKey<DataStoreRegistry>,
+        index: &'static LocalKey<IndexStoreRegistry>,
+    ) -> Self {
         Self {
             data,
             index,
             _marker: PhantomData,
         }
+    }
+
+    pub fn with_data<R>(&self, f: impl FnOnce(&DataStoreRegistry) -> R) -> R {
+        self.data.with(|reg| f(reg))
+    }
+
+    pub fn with_index<R>(&self, f: impl FnOnce(&IndexStoreRegistry) -> R) -> R {
+        self.index.with(|reg| f(reg))
     }
 
     //
@@ -91,31 +102,31 @@ impl<C: CanisterKind> Db<C> {
 
     /// Get a [`LoadExecutor`] for building and executing queries that read entities.
     #[must_use]
-    pub const fn load<E>(&self) -> LoadExecutor<E>
+    pub const fn load<E>(&self) -> LoadExecutor<'_, C, E>
     where
         E: EntityKind + CanisterScope<C>,
     {
-        LoadExecutor::new(self.data, self.index)
+        LoadExecutor::from_db(self)
     }
 
     /// Get a [`SaveExecutor`] for inserting or updating entities.
     ///
     /// Normally you will use the higher-level `create/replace/update` shortcuts instead.
     #[must_use]
-    pub const fn save<E>(&self) -> SaveExecutor<E>
+    pub const fn save<E>(&self) -> SaveExecutor<'_, C, E>
     where
         E: EntityKind + CanisterScope<C>,
     {
-        SaveExecutor::new(self.data, self.index)
+        SaveExecutor::from_db(self)
     }
 
     /// Get a [`DeleteExecutor`] for deleting entities by key or query.
     #[must_use]
-    pub const fn delete<E>(&self) -> DeleteExecutor<E>
+    pub const fn delete<E>(&self) -> DeleteExecutor<'_, C, E>
     where
         E: EntityKind + CanisterScope<C>,
     {
-        DeleteExecutor::new(self.data, self.index)
+        DeleteExecutor::from_db(self)
     }
 
     //
