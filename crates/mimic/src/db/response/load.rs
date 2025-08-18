@@ -7,13 +7,14 @@ use crate::{
         response::{EntityRow, ResponseError},
     },
 };
+use derive_more::Deref;
 use std::{borrow::Borrow, collections::HashMap};
 
 ///
 /// LoadCollection
 ///
 
-#[derive(Debug)]
+#[derive(Debug, Deref)]
 pub struct LoadCollection<E: EntityKind>(pub Vec<EntityRow<E>>);
 
 impl<E> LoadCollection<E>
@@ -28,20 +29,21 @@ where
         self.0.len() as u32
     }
 
-    // is_empty
     #[must_use]
     pub const fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 
-    // key
+    ///
+    /// Key
+    ///
+
     #[must_use]
-    pub fn key(self) -> Option<Key> {
-        self.0.first().map(|row| row.key)
+    pub fn key(&self) -> Option<Key> {
+        self.0.first().map(|(key, _)| *key)
     }
 
-    // try_key
-    pub fn try_key(self) -> Result<Key, Error> {
+    pub fn try_key(&self) -> Result<Key, Error> {
         let key = self
             .key()
             .ok_or_else(|| ResponseError::NoRowsFound(E::PATH.to_string()))
@@ -50,25 +52,24 @@ where
         Ok(key)
     }
 
-    // keys
     #[must_use]
-    pub fn keys(self) -> Vec<Key> {
-        self.0.iter().map(|row| row.key).collect()
+    pub fn keys(&self) -> Vec<Key> {
+        self.0.iter().map(|(key, _)| *key).collect()
     }
 
-    // map
-    #[must_use]
-    pub fn map(self) -> LoadMap<E> {
-        LoadMap::from_pairs(self.0.into_iter().map(|row| (row.key, row.entry.entity)))
+    pub fn keys_iter(self) -> impl Iterator<Item = Key> {
+        self.0.into_iter().map(|(key, _)| key)
     }
 
-    // entity
+    ///
+    /// Entity
+    ///
+
     #[must_use]
     pub fn entity(self) -> Option<E> {
-        self.0.into_iter().next().map(|row| row.entry.entity)
+        self.0.into_iter().next().map(|(_, entry)| entry.entity)
     }
 
-    // try_entity
     pub fn try_entity(self) -> Result<E, Error> {
         let res = self
             .entity()
@@ -78,54 +79,50 @@ where
         Ok(res)
     }
 
-    // entities
     #[must_use]
     pub fn entities(self) -> Vec<E> {
-        self.0.into_iter().map(|row| row.entry.entity).collect()
+        self.0.into_iter().map(|(_, entry)| entry.entity).collect()
     }
 
-    // entities_iter
     pub fn entities_iter(self) -> impl Iterator<Item = E> {
-        self.0.into_iter().map(|row| row.entry.entity)
+        self.0.into_iter().map(|(_, entry)| entry.entity)
     }
 
-    // entity_row
+    /// Borrow the first entity (if any)
     #[must_use]
-    pub fn entity_row(self) -> Option<EntityRow<E>> {
-        self.0.into_iter().next()
+    pub fn first_entity(&self) -> Option<&E> {
+        self.0.first().map(|(_, entry)| &entry.entity)
     }
 
-    // try_entity_row
-    pub fn try_entity_row(self) -> Result<EntityRow<E>, Error> {
-        let row = self
-            .entity_row()
-            .ok_or_else(|| ResponseError::NoRowsFound(E::PATH.to_string()))
-            .map_err(DbError::from)?;
+    ///
+    /// View
+    ///
 
-        Ok(row)
-    }
-
-    // entity_rows
-    #[must_use]
-    pub fn entity_rows(self) -> Vec<EntityRow<E>> {
-        self.0
-    }
-
-    // view
     #[must_use]
     pub fn view(self) -> Option<E::View> {
         self.entity().map(|e| e.to_view())
     }
 
-    // try_view
     pub fn try_view(self) -> Result<E::View, Error> {
         self.try_entity().map(|e| e.to_view())
     }
 
-    // views
     #[must_use]
     pub fn views(self) -> Vec<E::View> {
         self.entities().into_iter().map(|e| e.to_view()).collect()
+    }
+
+    pub fn views_iter(self) -> impl Iterator<Item = E::View> {
+        self.entities().into_iter().map(|e| e.to_view())
+    }
+
+    ///
+    /// Map
+    ///
+
+    #[must_use]
+    pub fn into_map(self) -> LoadMap<E> {
+        LoadMap::from_pairs(self.0.into_iter().map(|(key, entry)| (key, entry.entity)))
     }
 }
 

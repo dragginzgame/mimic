@@ -102,29 +102,21 @@ where
     }
 
     fn to_data_keys(keys: Vec<Key>) -> Vec<DataKey> {
-        keys.into_iter().map(|k| DataKey::new::<E>(k)).collect()
+        keys.into_iter().map(Self::to_data_key).collect()
     }
 
     fn load_many(&self, keys: &[DataKey]) -> Result<Vec<DataRow>, DbError> {
         self.with_store(|s| {
-            let mut out = Vec::with_capacity(keys.len());
-
-            for k in keys {
-                if let Some(entry) = s.get(k) {
-                    out.push(DataRow {
-                        key: k.clone(),
-                        entry,
-                    });
-                }
-            }
-            out
+            keys.iter()
+                .filter_map(|k| s.get(k).map(|entry| (k.clone(), entry)))
+                .collect()
         })
     }
 
     fn load_range(&self, start: DataKey, end: DataKey) -> Result<Vec<DataRow>, DbError> {
         self.with_store(|s| {
             s.range((Bound::Included(start), Bound::Included(end)))
-                .map(|e| DataRow::new(e.key().clone(), e.value()))
+                .map(|e| (e.key().clone(), e.value()))
                 .collect()
         })
     }

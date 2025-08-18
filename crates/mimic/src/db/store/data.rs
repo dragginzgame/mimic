@@ -47,21 +47,9 @@ impl DataStore {
 
 ///
 /// DataRow
-/// the data B-tree key and entry pair
 ///
 
-#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
-pub struct DataRow {
-    pub key: DataKey,
-    pub entry: DataEntry,
-}
-
-impl DataRow {
-    #[must_use]
-    pub const fn new(key: DataKey, entry: DataEntry) -> Self {
-        Self { key, entry }
-    }
-}
+pub type DataRow = (DataKey, DataEntry);
 
 ///
 /// DataKey

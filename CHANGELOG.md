@@ -5,7 +5,8 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.13.0] - Hallowe'en Edition
+- all cleaned up, optimised, removed structs from DataRow and EntityRow
 
 ## [0.12.20] - 2025-08-17
 - removed the Rc<> overhead on DATA_REGISTRY and INDEX_REGISTRY

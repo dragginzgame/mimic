@@ -8,7 +8,7 @@ use crate::{
             FilterDsl, FilterExpr, FilterExt, IntoFilterOpt, LoadQuery, QueryPlan, QueryPlanner,
             QueryValidate, SortDirection, SortExpr,
         },
-        response::{EntityRow, LoadCollection},
+        response::{EntityEntry, EntityRow, LoadCollection},
     },
 };
 use std::marker::PhantomData;
@@ -118,29 +118,32 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
 
         let ctx = self.context();
         let plan = self.plan(query);
-        let rows = ctx.rows_from_plan(plan)?;
 
-        let mut entities: Vec<_> = rows
+        // Convert data rows -> entity rows
+        let mut rows: Vec<EntityRow<E>> = ctx
+            .rows_from_plan(plan)?
             .into_iter()
-            .map(EntityRow::<E>::try_from)
-            .collect::<Result<_, _>>()
-            .map_err(DbError::from)?;
+            .map(|(k, v)| EntityEntry::try_from(v).map(|entry| (k.key(), entry)))
+            .collect::<Result<_, _>>()?;
 
+        // Filtering
         if let Some(f) = &query.filter {
-            Self::apply_filter(&mut entities, &f.clone().simplify());
+            Self::apply_filter(&mut rows, &f.clone().simplify());
         }
 
+        // Sorting
         if let Some(sort) = &query.sort
-            && entities.len() > 1
+            && rows.len() > 1
         {
-            Self::apply_sort(&mut entities, sort);
+            Self::apply_sort(&mut rows, sort);
         }
 
+        // Pagination
         if let Some(lim) = &query.limit {
-            Self::apply_pagination(&mut entities, lim.offset, lim.limit);
+            Self::apply_pagination(&mut rows, lim.offset, lim.limit);
         }
 
-        Ok(LoadCollection(entities))
+        Ok(LoadCollection(rows))
     }
 
     /// currently just doing the same as execute()
@@ -154,17 +157,15 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
 
     // apply_filter
     fn apply_filter(rows: &mut Vec<EntityRow<E>>, filter: &FilterExpr) {
-        rows.retain(|row| FilterEvaluator::new(&row.entry.entity).eval(filter));
+        rows.retain(|(_, entry)| FilterEvaluator::new(&entry.entity).eval(filter));
     }
 
     // apply_sort
     fn apply_sort(rows: &mut [EntityRow<E>], sort_expr: &SortExpr) {
-        rows.sort_by(|a, b| {
+        rows.sort_by(|(_, ea), (_, eb)| {
             for (field, direction) in sort_expr.iter() {
-                let (Some(va), Some(vb)) = (
-                    a.entry.entity.get_value(field),
-                    b.entry.entity.get_value(field),
-                ) else {
+                let (Some(va), Some(vb)) = (ea.entity.get_value(field), eb.entity.get_value(field))
+                else {
                     continue;
                 };
 
@@ -175,7 +176,6 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
                     };
                 }
             }
-
             core::cmp::Ordering::Equal
         });
     }
