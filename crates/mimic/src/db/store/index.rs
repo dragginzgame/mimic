@@ -6,7 +6,7 @@ use crate::{
         executor::ExecutorError,
         store::{DataKey, StoreRegistry},
     },
-    ic::structures::{BTreeMap, DefaultMemory},
+    ic::structures::{BTreeMap, DefaultMemoryImpl, memory::VirtualMemory},
     schema::node::Index,
 };
 use candid::CandidType;
@@ -38,11 +38,11 @@ impl IndexStoreRegistry {
 ///
 
 #[derive(Deref, DerefMut)]
-pub struct IndexStore(BTreeMap<IndexKey, IndexEntry>);
+pub struct IndexStore(BTreeMap<IndexKey, IndexEntry, VirtualMemory<DefaultMemoryImpl>>);
 
 impl IndexStore {
     #[must_use]
-    pub fn init(memory: DefaultMemory) -> Self {
+    pub fn init(memory: VirtualMemory<DefaultMemoryImpl>) -> Self {
         Self(BTreeMap::init(memory))
     }
 
@@ -132,6 +132,7 @@ impl IndexStore {
         }
     }
 
+    #[must_use]
     pub fn resolve_data_values<E: EntityKind>(
         &self,
         index: &Index,

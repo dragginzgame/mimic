@@ -5,7 +5,7 @@ use crate::{
         traits::{EntityKind, Storable},
     },
     db::store::StoreRegistry,
-    ic::structures::{BTreeMap, DefaultMemory, storable::Bound},
+    ic::structures::{BTreeMap, DefaultMemoryImpl, memory::VirtualMemory, storable::Bound},
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
@@ -36,11 +36,11 @@ impl DataStoreRegistry {
 ///
 
 #[derive(Deref, DerefMut)]
-pub struct DataStore(BTreeMap<DataKey, DataEntry>);
+pub struct DataStore(BTreeMap<DataKey, DataEntry, VirtualMemory<DefaultMemoryImpl>>);
 
 impl DataStore {
     #[must_use]
-    pub fn init(memory: DefaultMemory) -> Self {
+    pub fn init(memory: VirtualMemory<DefaultMemoryImpl>) -> Self {
         Self(BTreeMap::init(memory))
     }
 }

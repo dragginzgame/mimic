@@ -52,7 +52,6 @@ pub enum DbError {
 /// A handle to the set of stores registered for a specific canister domain.
 ///
 /// - `C` is the [`CanisterKind`] (schema/domain marker).
-/// - Entities that belong to this domain must implement [`CanisterScope<C>`].
 ///
 /// The `Db` acts as the entry point for querying, saving, and deleting entities
 /// within a single canister's store registry.
@@ -66,7 +65,7 @@ pub struct Db<C: CanisterKind> {
 
 // Manual Copy + Clone implementations.
 // Safe because Db only contains &'static LocalKey<_> handles,
-// duplicating them does not duplicate the Rc contents.
+// duplicating them does not duplicate the contents.
 impl<C: CanisterKind> Copy for Db<C> {}
 
 impl<C: CanisterKind> Clone for Db<C> {
