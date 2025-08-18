@@ -25,9 +25,6 @@ pub enum ExecutorError {
     #[error("data key not found: {0}")]
     KeyNotFound(DataKey),
 
-    #[error("index execution not yet supported")]
-    IndexNotSupported,
-
     #[error("index constraint violation: {0} ({1})")]
     IndexViolation(String, String),
 }
