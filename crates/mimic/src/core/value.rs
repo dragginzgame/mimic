@@ -241,24 +241,43 @@ impl Value {
 
     #[must_use]
     pub fn contains_any(&self, needles: &Self) -> Option<bool> {
-        let (items, needles) = (self.as_list()?, needles.as_list()?);
+        // normalize RHS → list
+        let needles: Vec<&Value> = match needles {
+            Value::List(vs) => vs.iter().map(|b| b.as_ref()).collect(),
+            v => vec![v],
+        };
 
-        Some(
-            needles
-                .iter()
-                .any(|n| items.iter().any(|v| v.as_ref() == n.as_ref())),
-        )
+        match self {
+            // Case 1: actual is a list → check any overlap
+            Value::List(items) => Some(
+                needles
+                    .iter()
+                    .any(|n| items.iter().any(|v| v.as_ref() == *n)),
+            ),
+
+            // Case 2: actual is scalar → does it appear in RHS list?
+            scalar => Some(needles.contains(&scalar)),
+        }
     }
 
     #[must_use]
     pub fn contains_all(&self, needles: &Self) -> Option<bool> {
-        let (items, needles) = (self.as_list()?, needles.as_list()?);
+        let needles: Vec<&Value> = match needles {
+            Value::List(vs) => vs.iter().map(|b| b.as_ref()).collect(),
+            v => vec![v],
+        };
 
-        Some(
-            needles
-                .iter()
-                .all(|n| items.iter().any(|v| v.as_ref() == n.as_ref())),
-        )
+        match self {
+            // Case 1: actual is a list → does it contain all RHS?
+            Value::List(items) => Some(
+                needles
+                    .iter()
+                    .all(|n| items.iter().any(|v| v.as_ref() == *n)),
+            ),
+
+            // Case 2: actual is scalar → only true if RHS is exactly one matching element
+            scalar => Some(needles.len() == 1 && needles[0] == scalar),
+        }
     }
 
     ///
@@ -757,6 +776,96 @@ mod tests {
         assert_eq!(l.contains_all(&needles_all), Some(true));
         assert_eq!(l.contains_any(&empty), Some(false), "AnyIn([]) == false");
         assert_eq!(l.contains_all(&empty), Some(true), "AllIn([]) == true");
+    }
+
+    // ---- list any/all ------------------------------------------------------
+
+    #[test]
+    fn contains_any_list_vs_list() {
+        let haystack = Value::from_list(&[v_i(1), v_i(2), v_i(3)]);
+        let needles = Value::from_list(&[v_i(4), v_i(2)]);
+        assert_eq!(haystack.contains_any(&needles), Some(true));
+
+        let needles_none = Value::from_list(&[v_i(4), v_i(5)]);
+        assert_eq!(haystack.contains_any(&needles_none), Some(false));
+
+        let empty = Value::from_list::<Value>(&[]);
+        assert_eq!(
+            haystack.contains_any(&empty),
+            Some(false),
+            "AnyIn([]) == false"
+        );
+    }
+
+    #[test]
+    fn contains_all_list_vs_list() {
+        let haystack = Value::from_list(&[v_txt("a"), v_txt("b"), v_txt("c")]);
+        let needles = Value::from_list(&[v_txt("a"), v_txt("c")]);
+        assert_eq!(haystack.contains_all(&needles), Some(true));
+
+        let needles_missing = Value::from_list(&[v_txt("a"), v_txt("z")]);
+        assert_eq!(haystack.contains_all(&needles_missing), Some(false));
+
+        let empty = Value::from_list::<Value>(&[]);
+        assert_eq!(
+            haystack.contains_all(&empty),
+            Some(true),
+            "AllIn([]) == true"
+        );
+    }
+
+    #[test]
+    fn contains_any_list_vs_scalar() {
+        let haystack = Value::from_list(&[v_i(10), v_i(20)]);
+        assert_eq!(haystack.contains_any(&v_i(20)), Some(true));
+        assert_eq!(haystack.contains_any(&v_i(99)), Some(false));
+    }
+
+    #[test]
+    fn contains_all_list_vs_scalar() {
+        let haystack = Value::from_list(&[v_i(10), v_i(20)]);
+        assert_eq!(haystack.contains_all(&v_i(20)), Some(true));
+        assert_eq!(haystack.contains_all(&v_i(99)), Some(false));
+    }
+
+    #[test]
+    fn contains_any_scalar_vs_list() {
+        let scalar = v_txt("hello");
+        let needles_yes = Value::from_list(&[v_txt("x"), v_txt("hello")]);
+        let needles_no = Value::from_list(&[v_txt("x"), v_txt("y")]);
+
+        assert_eq!(scalar.contains_any(&needles_yes), Some(true));
+        assert_eq!(scalar.contains_any(&needles_no), Some(false));
+    }
+
+    #[test]
+    fn contains_all_scalar_vs_list() {
+        let scalar = v_txt("hello");
+        let needles_yes = Value::from_list(&[v_txt("hello")]);
+        let needles_extra = Value::from_list(&[v_txt("hello"), v_txt("world")]);
+        let empty = Value::from_list::<Value>(&[]);
+
+        assert_eq!(scalar.contains_all(&needles_yes), Some(true));
+        assert_eq!(scalar.contains_all(&needles_extra), Some(false));
+        assert_eq!(
+            scalar.contains_all(&empty),
+            Some(false),
+            "Scalar all-in empty should be false"
+        );
+    }
+
+    #[test]
+    fn contains_any_scalar_vs_scalar() {
+        let scalar = v_u(5);
+        assert_eq!(scalar.contains_any(&v_u(5)), Some(true));
+        assert_eq!(scalar.contains_any(&v_u(6)), Some(false));
+    }
+
+    #[test]
+    fn contains_all_scalar_vs_scalar() {
+        let scalar = v_u(5);
+        assert_eq!(scalar.contains_all(&v_u(5)), Some(true));
+        assert_eq!(scalar.contains_all(&v_u(6)), Some(false));
     }
 
     // ---- text CS/CI --------------------------------------------------------
