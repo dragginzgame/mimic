@@ -7,9 +7,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [0.13.0] - 2025-08-18
-- Initial release
-
 ## [0.13.0] - Hallowe'en Edition
 - all cleaned up, optimised, removed structs from DataRow and EntityRow
 
