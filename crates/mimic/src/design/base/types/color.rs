@@ -121,7 +121,8 @@ impl From<Rgb> for RgbHex {
     primitive = "Text",
     item(prim = "Text"),
     default = "FFFFFFFF",
-    ty(validator(path = "validator::text::color::RgbaHex"))
+    ty(validator(path = "validator::text::color::RgbaHex")),
+    traits(remove(From))
 )]
 pub struct RgbaHex {}
 
@@ -129,6 +130,12 @@ impl RgbaHex {
     #[must_use]
     pub fn from_hex_str(s: &str) -> Self {
         Self(normalize_rgba_hex(s))
+    }
+}
+
+impl From<&str> for RgbaHex {
+    fn from(s: &str) -> Self {
+        Self::from_hex_str(s)
     }
 }
 

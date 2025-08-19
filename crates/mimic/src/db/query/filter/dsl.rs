@@ -118,20 +118,22 @@ impl FilterDsl {
     // Collectors
     //
 
-    pub fn all<I>(items: I) -> Option<FilterExpr>
+    pub fn all<I, F>(items: I) -> Option<FilterExpr>
     where
-        I: IntoIterator<Item = FilterExpr>,
+        I: IntoIterator<Item = F>,
+        F: IntoFilterOpt,
     {
-        let mut it = items.into_iter();
+        let mut it = items.into_iter().filter_map(|f| f.into_filter_opt());
         let first = it.next()?;
         Some(it.fold(first, FilterExpr::and))
     }
 
-    pub fn any<I>(items: I) -> Option<FilterExpr>
+    pub fn any<I, F>(items: I) -> Option<FilterExpr>
     where
-        I: IntoIterator<Item = FilterExpr>,
+        I: IntoIterator<Item = F>,
+        F: IntoFilterOpt,
     {
-        let mut it = items.into_iter();
+        let mut it = items.into_iter().filter_map(|f| f.into_filter_opt());
         let first = it.next()?;
         Some(it.fold(first, FilterExpr::or))
     }

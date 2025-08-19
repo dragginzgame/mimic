@@ -36,6 +36,14 @@ pub trait FilterExt: FilterSlot + Sized {
         self
     }
 
+    fn filter_opt(mut self, expr: Option<FilterExpr>) -> Self {
+        if let Some(e) = expr {
+            self = self.filter(|_| e);
+        }
+
+        self
+    }
+
     #[must_use]
     fn or_filter<F, R>(mut self, f: F) -> Self
     where
@@ -49,6 +57,14 @@ pub trait FilterExt: FilterSlot + Sized {
                 None => expr,
             };
             *slot = Some(newf);
+        }
+
+        self
+    }
+
+    fn or_filter_opt(mut self, expr: Option<FilterExpr>) -> Self {
+        if let Some(e) = expr {
+            self = self.or_filter(|_| e);
         }
 
         self

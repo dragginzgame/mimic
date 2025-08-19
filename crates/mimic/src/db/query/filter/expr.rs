@@ -1,15 +1,21 @@
 use crate::{core::value::Value, db::query::Cmp};
 use candid::CandidType;
+use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
 use std::ops::{BitAnd, BitOr, Not};
 
+///
+/// FilterExpr
+///
 /// Represents logical expressions for querying/filtering data.
 ///
 /// Expressions can be:
 /// - `True` or `False` constants
 /// - Single clauses comparing a field with a value
 /// - Composite expressions: `And`, `Or`, and negation `Not`.
-#[derive(CandidType, Clone, Debug, Deserialize, PartialEq, Serialize)]
+///
+
+#[derive(CandidType, Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum FilterExpr {
     True,
     False,
@@ -227,11 +233,65 @@ impl Not for FilterExpr {
 }
 
 ///
+/// FilterExprOpt
+///
+
+#[repr(transparent)]
+#[derive(Debug, Eq, PartialEq, Deref, DerefMut, Clone)]
+pub struct FilterExprOpt(pub Option<FilterExpr>);
+
+impl BitAnd for FilterExprOpt {
+    type Output = Self;
+
+    fn bitand(self, rhs: Self) -> Self::Output {
+        match (self.0, rhs.0) {
+            (Some(a), Some(b)) => Self(Some(a & b)),
+            (Some(a), None) => Self(Some(a)),
+            (None, Some(b)) => Self(Some(b)),
+            (None, None) => Self(None),
+        }
+    }
+}
+
+impl BitOr for FilterExprOpt {
+    type Output = Self;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        match (self.0, rhs.0) {
+            (Some(a), Some(b)) => Self(Some(a | b)),
+            (Some(a), None) => Self(Some(a)),
+            (None, Some(b)) => Self(Some(b)),
+            (None, None) => Self(None),
+        }
+    }
+}
+
+impl Not for FilterExprOpt {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        Self(self.0.map(|a| !a))
+    }
+}
+
+impl From<Option<FilterExpr>> for FilterExprOpt {
+    fn from(opt: Option<FilterExpr>) -> Self {
+        Self(opt)
+    }
+}
+
+impl From<FilterExprOpt> for Option<FilterExpr> {
+    fn from(opt: FilterExprOpt) -> Self {
+        opt.0
+    }
+}
+
+///
 /// FilterClause
 /// represents a basic comparison expression: `field cmp value`
 ///
 
-#[derive(CandidType, Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(CandidType, Clone, Debug, Eq, Deserialize, PartialEq, Serialize)]
 pub struct FilterClause {
     pub field: String,
     pub cmp: Cmp,
@@ -493,5 +553,94 @@ mod tests {
             FilterExpr::Not(Box::new(FilterExpr::False)).simplify(),
             FilterExpr::True
         );
+    }
+
+    // --- FilterExprOpt operators ---
+
+    #[test]
+    fn opt_and_both_some() {
+        let f1 = FilterExprOpt(Some(clause("a")));
+        let f2 = FilterExprOpt(Some(clause("b")));
+        let out = f1 & f2;
+        match out.0 {
+            Some(FilterExpr::And(children)) => assert_eq!(children.len(), 2),
+            _ => panic!("expected Some(And)"),
+        }
+    }
+
+    #[test]
+    fn opt_and_left_some_right_none() {
+        let f1 = FilterExprOpt(Some(clause("a")));
+        let f2 = FilterExprOpt(None);
+        let out = f1 & f2;
+        assert!(matches!(out.0, Some(FilterExpr::Clause(_))));
+    }
+
+    #[test]
+    fn opt_and_left_none_right_some() {
+        let f1 = FilterExprOpt(None);
+        let f2 = FilterExprOpt(Some(clause("b")));
+        let out = f1 & f2;
+        assert!(matches!(out.0, Some(FilterExpr::Clause(_))));
+    }
+
+    #[test]
+    fn opt_and_both_none() {
+        let f1 = FilterExprOpt(None);
+        let f2 = FilterExprOpt(None);
+        let out = f1 & f2;
+        assert!(out.0.is_none());
+    }
+
+    #[test]
+    fn opt_or_both_some() {
+        let f1 = FilterExprOpt(Some(clause("x")));
+        let f2 = FilterExprOpt(Some(clause("y")));
+        let out = f1 | f2;
+        match out.0 {
+            Some(FilterExpr::Or(children)) => assert_eq!(children.len(), 2),
+            _ => panic!("expected Some(Or)"),
+        }
+    }
+
+    #[test]
+    fn opt_or_left_some_right_none() {
+        let f1 = FilterExprOpt(Some(clause("x")));
+        let f2 = FilterExprOpt(None);
+        let out = f1 | f2;
+        assert!(matches!(out.0, Some(FilterExpr::Clause(_))));
+    }
+
+    #[test]
+    fn opt_or_left_none_right_some() {
+        let f1 = FilterExprOpt(None);
+        let f2 = FilterExprOpt(Some(clause("y")));
+        let out = f1 | f2;
+        assert!(matches!(out.0, Some(FilterExpr::Clause(_))));
+    }
+
+    #[test]
+    fn opt_or_both_none() {
+        let f1 = FilterExprOpt(None);
+        let f2 = FilterExprOpt(None);
+        let out = f1 | f2;
+        assert!(out.0.is_none());
+    }
+
+    #[test]
+    fn opt_not_some() {
+        let f = FilterExprOpt(Some(clause("n")));
+        let out = !f;
+        match out.0 {
+            Some(FilterExpr::Not(inner)) => assert!(matches!(*inner, FilterExpr::Clause(_))),
+            _ => panic!("expected Some(Not(Clause))"),
+        }
+    }
+
+    #[test]
+    fn opt_not_none() {
+        let f = FilterExprOpt(None);
+        let out = !f;
+        assert!(out.0.is_none(), "Negating None should stay None");
     }
 }

@@ -55,7 +55,7 @@ macro_rules! impl_from_for {
 /// Unsupported → the field exists but isn’t filterable/indexable.
 ///
 
-#[derive(CandidType, Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(CandidType, Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum Value {
     BigInt(Int),
     BigUint(Nat),
