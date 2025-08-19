@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ## [0.13.6] - 2025-08-19
+- Initial release
+
+## [Unreleased]
+
+## [0.13.6] - 2025-08-19
 - redid fixtures so the trait is easier to use
 
 ## [0.13.4] - Hallowe'en Edition
