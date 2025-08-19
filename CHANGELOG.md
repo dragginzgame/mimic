@@ -7,17 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [0.13.4] - 2025-08-18
-- Initial release
+## [0.13.6] - 2025-08-19
+- redid fixtures so the trait is easier to use
 
-## [Unreleased]
-
-## [0.13.2] - 2025-08-18
-- Initial release
-
-## [Unreleased]
-
-## [0.13.0] - Hallowe'en Edition
+## [0.13.4] - Hallowe'en Edition
 - all cleaned up, optimised, removed structs from DataRow and EntityRow
 
 ## [0.12.20] - 2025-08-17

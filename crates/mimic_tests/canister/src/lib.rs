@@ -40,9 +40,9 @@ async fn icu_upgrade() {}
 pub fn test() {
     default::DefaultTester::test();
     db::DbTester::test();
-    filter::load::LoadFilterTester::test();
     filter::delete::DeleteFilterTester::test();
     filter::index::IndexFilterTester::test();
+    filter::load::LoadFilterTester::test();
     index::IndexTester::test();
     ops::OpsTester::test();
     validate::ValidateTester::test();

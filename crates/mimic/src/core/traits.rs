@@ -151,8 +151,19 @@ impl<T> TypeKind for T where
 /// data for an entity into the correct Db.
 ///
 
-pub trait EntityFixture: EntityKind {
-    fn insert_fixtures(_: Db<Self::Canister>) {}
+pub trait EntityFixture: EntityKind + Sized {
+    /// Override if fixtures are purely self-contained
+    #[must_use]
+    fn fixtures() -> &'static [Self] {
+        &[]
+    }
+
+    /// Insert fixtures. Default: use `fixtures()`
+    fn insert_fixtures(db: Db<Self::Canister>) {
+        for entity in Self::fixtures() {
+            EntityService::save_fixture(db, entity.clone());
+        }
+    }
 
     fn insert(db: Db<Self::Canister>, entity: Self) {
         EntityService::save_fixture(db, entity);
