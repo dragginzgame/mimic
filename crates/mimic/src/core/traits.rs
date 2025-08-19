@@ -154,8 +154,8 @@ impl<T> TypeKind for T where
 pub trait EntityFixture: EntityKind + Sized {
     /// Override if fixtures are purely self-contained
     #[must_use]
-    fn fixtures() -> &'static [Self] {
-        &[]
+    fn fixtures() -> Vec<Self> {
+        Vec::new()
     }
 
     /// Insert fixtures. Default: use `fixtures()`
