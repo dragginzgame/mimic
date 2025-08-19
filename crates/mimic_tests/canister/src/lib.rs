@@ -5,7 +5,7 @@ mod index;
 mod ops;
 mod validate;
 
-use icu::{canister::Canister, ic::export_candid, prelude::*};
+use icu::{ic::export_candid, prelude::*, state::canister::Canister};
 use mimic::{Error, db::query, prelude::*};
 use test_design::{
     canister::filter::{Filterable, FilterableView},
