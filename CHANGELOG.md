@@ -8,19 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ## [0.13.10] - 2025-08-20
-- Initial release
-
-## [Unreleased]
-
-## [0.13.8] - 2025-08-20
-- Initial release
-
-## [Unreleased]
-
-## [0.13.6] - 2025-08-19
-- Initial release
-
-## [Unreleased]
+- made many queries easier to write
 
 ## [0.13.6] - 2025-08-19
 - redid fixtures so the trait is easier to use
