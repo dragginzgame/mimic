@@ -20,7 +20,7 @@ use test_design::{
 icu_start_root!();
 mimic_start!();
 
-pub const CANISTERS: &[Canister] = &[];
+pub static CANISTERS: &[(&CanisterType, Canister)] = &[];
 
 const fn icu_setup() {}
 

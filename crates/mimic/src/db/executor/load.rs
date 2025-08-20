@@ -55,7 +55,7 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
         &self,
         values: impl IntoIterator<Item = impl Into<Value>>,
     ) -> Result<LoadCollection<E>, Error> {
-        let query = LoadQuery::new().many::<E, _>(values);
+        let query = LoadQuery::new().many::<E>(values);
         self.execute(&query)
     }
 

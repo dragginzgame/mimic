@@ -119,7 +119,7 @@ dependencies = [
 
 [[package]]
 name = "canister_test"
-version = "0.13.7"
+version = "0.13.9"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -140,9 +140,9 @@ dependencies = [
 
 [[package]]
 name = "cfg-if"
-version = "1.0.1"
+version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9555578bc9e57714c812a1f84e4fc5b4d21fcb063490c624de019f7464c91268"
+checksum = "2fd1289c04a9ea8cb22300a459a72a385d7c73d3259e2ed7dcb2af674838cfa9"
 
 [[package]]
 name = "convert_case"
@@ -497,7 +497,7 @@ dependencies = [
  "serde",
  "serde_bytes",
  "slotmap",
- "thiserror 2.0.15",
+ "thiserror 2.0.16",
 ]
 
 [[package]]
@@ -586,9 +586,9 @@ dependencies = [
 
 [[package]]
 name = "ic-stable-structures"
-version = "0.7.0"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e54aeb082293c69def5ab34c70593ba85ff000386f7d0eacdf73514daaeca031"
+checksum = "48efe2f2c371e8cb732512d67da61268d6948136cee304721dad6b56efec565d"
 dependencies = [
  "ic_principal",
 ]
@@ -650,8 +650,8 @@ dependencies = [
 
 [[package]]
 name = "icu"
-version = "0.3.3"
-source = "git+https://github.com/dragginzgame/icu?tag=v0.3.3#5c857294dc1b820d09f5ff89ec70ae7c67e97fd0"
+version = "0.3.5"
+source = "git+https://github.com/dragginzgame/icu?tag=v0.3.5#35e02b70c6340cd18daf3e57a259e62d24a5fa94"
 dependencies = [
  "candid",
  "defer",
@@ -660,13 +660,13 @@ dependencies = [
  "ic-cdk-timers",
  "ic-ledger-types",
  "ic-management-canister-types",
- "ic-stable-structures 0.7.0",
+ "ic-stable-structures 0.7.1",
  "ic_principal",
  "icrc-ledger-types",
  "minicbor-serde",
  "serde",
  "sha2",
- "thiserror 2.0.15",
+ "thiserror 2.0.16",
  "tinyrand",
  "toml",
 ]
@@ -750,7 +750,7 @@ checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
 name = "mimic"
-version = "0.13.7"
+version = "0.13.9"
 dependencies = [
  "bencher",
  "candid",
@@ -766,13 +766,13 @@ dependencies = [
  "rust_decimal",
  "serde",
  "serde_bytes",
- "thiserror 2.0.15",
+ "thiserror 2.0.16",
  "ulid",
 ]
 
 [[package]]
 name = "mimic_build"
-version = "0.13.7"
+version = "0.13.9"
 dependencies = [
  "mimic_schema",
  "proc-macro2",
@@ -782,7 +782,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_common"
-version = "0.13.7"
+version = "0.13.9"
 dependencies = [
  "candid",
  "convert_case 0.8.0",
@@ -794,7 +794,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_declare"
-version = "0.13.7"
+version = "0.13.9"
 dependencies = [
  "darling 0.21.2",
  "derive_more",
@@ -809,7 +809,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_schema"
-version = "0.13.7"
+version = "0.13.9"
 dependencies = [
  "candid",
  "darling 0.21.2",
@@ -820,12 +820,12 @@ dependencies = [
  "quote",
  "remain",
  "serde",
- "thiserror 2.0.15",
+ "thiserror 2.0.16",
 ]
 
 [[package]]
 name = "mimic_tests"
-version = "0.13.7"
+version = "0.13.9"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -1152,7 +1152,7 @@ dependencies = [
 
 [[package]]
 name = "test_design"
-version = "0.13.7"
+version = "0.13.9"
 dependencies = [
  "candid",
  "ctor",
@@ -1171,11 +1171,11 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "2.0.15"
+version = "2.0.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "80d76d3f064b981389ecb4b6b7f45a0bf9fdac1d5b9204c7bd6714fecc302850"
+checksum = "3467d614147380f2e4e374161426ff399c91084acd2363eaf549172b3d5e60c0"
 dependencies = [
- "thiserror-impl 2.0.15",
+ "thiserror-impl 2.0.16",
 ]
 
 [[package]]
@@ -1191,9 +1191,9 @@ dependencies = [
 
 [[package]]
 name = "thiserror-impl"
-version = "2.0.15"
+version = "2.0.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "44d29feb33e986b6ea906bd9c3559a856983f92371b3eaa5e83782a351623de0"
+checksum = "6c5e1be1c48b9172ee610da68fd9cd2770e7a4056cb3fc98710ee6906f0c7960"
 dependencies = [
  "proc-macro2",
  "quote",

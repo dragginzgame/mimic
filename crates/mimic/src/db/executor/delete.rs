@@ -54,7 +54,7 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
         self,
         values: impl IntoIterator<Item = impl Into<Value>>,
     ) -> Result<Vec<Key>, Error> {
-        let query = DeleteQuery::new().many::<E, _>(values);
+        let query = DeleteQuery::new().many::<E>(values);
         self.execute(&query)
     }
 

@@ -29,12 +29,7 @@ impl DeleteQuery {
     }
 
     #[must_use]
-    pub fn many<E, I>(self, values: I) -> Self
-    where
-        E: EntityKind,
-        I: IntoIterator,
-        I::Item: Into<Value>,
-    {
+    pub fn many<E: EntityKind>(self, values: impl IntoIterator<Item = impl Into<Value>>) -> Self {
         self.filter(move |f| f.in_iter(E::PRIMARY_KEY, values))
     }
 }
