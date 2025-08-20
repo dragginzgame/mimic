@@ -1,7 +1,8 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_str_lit},
+    imp::TraitStrategy,
     node::{Def, Type, Value},
-    node_traits::{Trait, TraitStrategy, Traits},
+    schema_traits::{Trait, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
         SchemaNodeKind,
@@ -56,7 +57,7 @@ impl HasTraits for Enum {
     }
 
     fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
-        use crate::node_traits::*;
+        use crate::imp::*;
 
         match t {
             Trait::From => FromTrait::strategy(self),

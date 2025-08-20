@@ -1,6 +1,6 @@
 use crate::{
+    imp::{Imp, TraitStrategy},
     node::{EntityId, Selector},
-    node_traits::{Imp, TraitStrategy},
 };
 use quote::quote;
 

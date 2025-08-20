@@ -1,6 +1,7 @@
 use crate::{
+    imp::TraitStrategy,
     node::Def,
-    node_traits::{Trait, TraitStrategy, Traits},
+    schema_traits::{Trait, Traits},
     traits::{HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart},
 };
 use darling::FromMeta;
@@ -43,7 +44,7 @@ impl HasTraits for EntityId {
     }
 
     fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
-        use crate::node_traits::*;
+        use crate::imp::*;
 
         match t {
             Trait::Into => IntoTrait::strategy(self),

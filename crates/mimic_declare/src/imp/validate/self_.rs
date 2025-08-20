@@ -1,12 +1,12 @@
-use crate::{node::Enum, node_traits::ImpFn};
+use crate::{imp::ImpFn, node::Enum};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
 ///
-/// ValidateSelfFunction
+/// ValidateSelfFn
 ///
 
-pub struct ValidateSelfFunction {}
+pub struct ValidateSelfFn {}
 
 ///
 /// Enum
@@ -15,7 +15,7 @@ pub struct ValidateSelfFunction {}
 /// pass validation if selected
 ///
 
-impl ImpFn<Enum> for ValidateSelfFunction {
+impl ImpFn<Enum> for ValidateSelfFn {
     fn tokens(node: &Enum) -> TokenStream {
         let invalid_arms: TokenStream = node
             .variants

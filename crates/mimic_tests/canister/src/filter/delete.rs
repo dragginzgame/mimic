@@ -1,14 +1,8 @@
 use mimic::{
-    core::{
-        traits::Path,
-        types::{Decimal, Principal},
-    },
+    core::types::{Decimal, Principal},
     prelude::*,
 };
-use test_design::{
-    canister::filter::{Filterable, FilterableOpt},
-    schema::TestDataStore,
-};
+use test_design::canister::filter::{Filterable, FilterableOpt};
 
 pub struct DeleteFilterTester {}
 
@@ -36,10 +30,7 @@ impl DeleteFilterTester {
 
     fn reset_and_insert_all() {
         // Clear the store fully so each test is isolated
-        crate::DATA_REGISTRY.with(|reg| {
-            reg.with_store_mut(TestDataStore::PATH, |store| store.clear())
-                .ok();
-        });
+        crate::clear_test_data_store();
 
         Self::insert_filterable();
         Self::insert_filterable_opt();

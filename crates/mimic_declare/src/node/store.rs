@@ -1,7 +1,8 @@
 use crate::{
     helper::{quote_one, to_path, to_str_lit},
+    imp::TraitStrategy,
     node::Def,
-    node_traits::{Trait, TraitStrategy, Traits},
+    schema_traits::{Trait, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart, SchemaNodeKind,
     },
@@ -68,7 +69,7 @@ impl HasTraits for Store {
     }
 
     fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
-        use crate::node_traits::*;
+        use crate::imp::*;
 
         match t {
             Trait::StoreKind => StoreKindTrait::strategy(self),

@@ -1,22 +1,22 @@
 use crate::{
+    imp::ImpFn,
     node::{Entity, FieldList, List, Map, Newtype, Record, Set, TypeValidator, Value},
-    node_traits::ImpFn,
 };
 use mimic_schema::types::Cardinality;
 use proc_macro2::TokenStream;
 use quote::quote;
 
 ///
-/// ValidateChildrenFunction
+/// ValidateChildrenFn
 ///
 
-pub struct ValidateChildrenFunction {}
+pub struct ValidateChildrenFn {}
 
 ///
 /// Entity
 ///
 
-impl ImpFn<Entity> for ValidateChildrenFunction {
+impl ImpFn<Entity> for ValidateChildrenFn {
     fn tokens(node: &Entity) -> TokenStream {
         fn_wrap(field_list(&node.fields))
     }
@@ -26,7 +26,7 @@ impl ImpFn<Entity> for ValidateChildrenFunction {
 /// List
 ///
 
-impl ImpFn<List> for ValidateChildrenFunction {
+impl ImpFn<List> for ValidateChildrenFn {
     fn tokens(node: &List) -> TokenStream {
         let inner = generate_validators_inner(&node.item.validators, quote!(v)).map(|block| {
             quote! {
@@ -44,7 +44,7 @@ impl ImpFn<List> for ValidateChildrenFunction {
 /// Map
 ///
 
-impl ImpFn<Map> for ValidateChildrenFunction {
+impl ImpFn<Map> for ValidateChildrenFn {
     fn tokens(node: &Map) -> TokenStream {
         let key_rules = generate_validators_inner(&node.key.validators, quote!(k));
         let value_rules = generate_value_validation_inner(&node.value, quote!(v));
@@ -69,7 +69,7 @@ impl ImpFn<Map> for ValidateChildrenFunction {
 /// Newtype
 ///
 
-impl ImpFn<Newtype> for ValidateChildrenFunction {
+impl ImpFn<Newtype> for ValidateChildrenFn {
     fn tokens(node: &Newtype) -> TokenStream {
         let type_rules = generate_validators_inner(&node.ty.validators, quote!(&self.0));
         let item_rules = generate_validators_inner(&node.item.validators, quote!(&self.0));
@@ -92,7 +92,7 @@ impl ImpFn<Newtype> for ValidateChildrenFunction {
 /// Record
 ///
 
-impl ImpFn<Record> for ValidateChildrenFunction {
+impl ImpFn<Record> for ValidateChildrenFn {
     fn tokens(node: &Record) -> TokenStream {
         fn_wrap(field_list(&node.fields))
     }
@@ -102,7 +102,7 @@ impl ImpFn<Record> for ValidateChildrenFunction {
 /// Set
 ///
 
-impl ImpFn<Set> for ValidateChildrenFunction {
+impl ImpFn<Set> for ValidateChildrenFn {
     fn tokens(node: &Set) -> TokenStream {
         let inner = generate_validators_inner(&node.item.validators, quote!(v)).map(|block| {
             quote! {

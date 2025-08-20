@@ -1,8 +1,9 @@
 #![allow(clippy::wildcard_imports)]
 
 mod helper;
+mod imp;
 mod node;
-mod node_traits;
+mod schema_traits;
 mod traits;
 
 use crate::node::Def;

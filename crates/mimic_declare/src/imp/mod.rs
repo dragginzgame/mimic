@@ -30,7 +30,7 @@ pub use type_view::*;
 pub use validate::*;
 pub use visitable::*;
 
-use crate::node_traits::Trait;
+use crate::schema_traits::Trait;
 use proc_macro2::TokenStream;
 
 ///

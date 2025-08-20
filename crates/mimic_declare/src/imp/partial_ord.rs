@@ -1,6 +1,6 @@
 use crate::{
+    imp::{Imp, TraitStrategy},
     node::Newtype,
-    node_traits::{Imp, TraitStrategy},
 };
 use quote::quote;
 

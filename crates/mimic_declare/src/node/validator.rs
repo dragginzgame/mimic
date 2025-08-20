@@ -1,6 +1,6 @@
 use crate::{
     node::{Def, FieldList},
-    node_traits::{Trait, Traits},
+    schema_traits::{Trait, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart, SchemaNodeKind,
     },

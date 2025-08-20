@@ -1,6 +1,7 @@
 use crate::{
     helper::format_view_ident,
-    node_traits::{Implementor, Trait, TraitList, TraitStrategy},
+    imp::{Implementor, TraitStrategy},
+    schema_traits::{Trait, TraitList},
 };
 use mimic_common::utils::case::{Case, Casing};
 use proc_macro2::TokenStream;

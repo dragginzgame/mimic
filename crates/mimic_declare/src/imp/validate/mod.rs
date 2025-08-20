@@ -2,13 +2,13 @@ pub mod children;
 pub mod self_;
 
 use crate::{
+    imp::{Imp, ImpFn, Implementor, Trait, TraitStrategy},
     node::{Entity, Enum, List, Map, Newtype, Record, Set},
-    node_traits::{Imp, ImpFn, Implementor, Trait, TraitStrategy},
     traits::HasIdent,
 };
-use children::ValidateChildrenFunction;
+use children::ValidateChildrenFn;
 use quote::ToTokens;
-use self_::ValidateSelfFunction;
+use self_::ValidateSelfFn;
 
 ///
 /// ValidateAutoTrait
@@ -22,7 +22,7 @@ pub struct ValidateAutoTrait {}
 
 impl Imp<Entity> for ValidateAutoTrait {
     fn strategy(node: &Entity) -> Option<TraitStrategy> {
-        let q = ValidateChildrenFunction::tokens(node);
+        let q = ValidateChildrenFn::tokens(node);
 
         let tokens = Implementor::new(node.ident(), Trait::ValidateAuto)
             .set_tokens(q)
@@ -38,7 +38,7 @@ impl Imp<Entity> for ValidateAutoTrait {
 
 impl Imp<Enum> for ValidateAutoTrait {
     fn strategy(node: &Enum) -> Option<TraitStrategy> {
-        let q = ValidateSelfFunction::tokens(node);
+        let q = ValidateSelfFn::tokens(node);
 
         let tokens = Implementor::new(node.ident(), Trait::ValidateAuto)
             .set_tokens(q)
@@ -54,7 +54,7 @@ impl Imp<Enum> for ValidateAutoTrait {
 
 impl Imp<List> for ValidateAutoTrait {
     fn strategy(node: &List) -> Option<TraitStrategy> {
-        let q = ValidateChildrenFunction::tokens(node);
+        let q = ValidateChildrenFn::tokens(node);
 
         let tokens = Implementor::new(node.ident(), Trait::ValidateAuto)
             .set_tokens(q)
@@ -70,7 +70,7 @@ impl Imp<List> for ValidateAutoTrait {
 
 impl Imp<Map> for ValidateAutoTrait {
     fn strategy(node: &Map) -> Option<TraitStrategy> {
-        let q = ValidateChildrenFunction::tokens(node);
+        let q = ValidateChildrenFn::tokens(node);
 
         let tokens = Implementor::new(node.ident(), Trait::ValidateAuto)
             .set_tokens(q)
@@ -86,7 +86,7 @@ impl Imp<Map> for ValidateAutoTrait {
 
 impl Imp<Newtype> for ValidateAutoTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
-        let q = ValidateChildrenFunction::tokens(node);
+        let q = ValidateChildrenFn::tokens(node);
 
         let tokens = Implementor::new(node.ident(), Trait::ValidateAuto)
             .set_tokens(q)
@@ -102,7 +102,7 @@ impl Imp<Newtype> for ValidateAutoTrait {
 
 impl Imp<Record> for ValidateAutoTrait {
     fn strategy(node: &Record) -> Option<TraitStrategy> {
-        let q = ValidateChildrenFunction::tokens(node);
+        let q = ValidateChildrenFn::tokens(node);
 
         let tokens = Implementor::new(node.ident(), Trait::ValidateAuto)
             .set_tokens(q)
@@ -118,7 +118,7 @@ impl Imp<Record> for ValidateAutoTrait {
 
 impl Imp<Set> for ValidateAutoTrait {
     fn strategy(node: &Set) -> Option<TraitStrategy> {
-        let q = ValidateChildrenFunction::tokens(node);
+        let q = ValidateChildrenFn::tokens(node);
 
         let tokens = Implementor::new(node.ident(), Trait::ValidateAuto)
             .set_tokens(q)

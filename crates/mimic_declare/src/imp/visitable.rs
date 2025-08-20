@@ -1,6 +1,6 @@
 use crate::{
+    imp::{Imp, Implementor, Trait, TraitStrategy},
     node::{Entity, Enum, EnumVariant, FieldList, List, Map, Newtype, Record, Set, Tuple},
-    node_traits::{Imp, Implementor, Trait, TraitStrategy},
     traits::HasIdent,
 };
 use proc_macro2::{Span, TokenStream};

@@ -10,6 +10,7 @@ use mimic::{Error, db::query, prelude::*};
 use test_design::{
     canister::filter::{Filterable, FilterableView},
     fixture::rarity::{Rarity, RarityView},
+    schema::TestDataStore,
 };
 
 //
@@ -35,17 +36,34 @@ async fn icu_upgrade() {}
 /// ENDPOINTS
 ///
 
+pub fn clear_test_data_store() {
+    // clear before each test
+    crate::DATA_REGISTRY.with(|reg| {
+        let _ = reg.with_store_mut(TestDataStore::PATH, |s| s.clear());
+    });
+}
+
 // test
 #[update]
 pub fn test() {
-    default::DefaultTester::test();
-    db::DbTester::test();
-    filter::delete::DeleteFilterTester::test();
-    filter::index::IndexFilterTester::test();
-    filter::load::LoadFilterTester::test();
-    index::IndexTester::test();
-    ops::OpsTester::test();
-    validate::ValidateTester::test();
+    let tests: Vec<(&str, fn())> = vec![
+        ("default", default::DefaultTester::test),
+        ("db", db::DbTester::test),
+        ("delete_filter", filter::delete::DeleteFilterTester::test),
+        ("index_filter", filter::index::IndexFilterTester::test),
+        ("load_filter", filter::load::LoadFilterTester::test),
+        ("index", index::IndexTester::test),
+        ("ops", ops::OpsTester::test),
+        ("validate", validate::ValidateTester::test),
+    ];
+
+    // run tests
+    for (name, test_fn) in tests {
+        clear_test_data_store();
+
+        println!("Running test: {name}");
+        test_fn();
+    }
 
     perf_start!();
 

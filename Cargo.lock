@@ -119,7 +119,7 @@ dependencies = [
 
 [[package]]
 name = "canister_test"
-version = "0.13.6"
+version = "0.13.7"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -484,9 +484,9 @@ dependencies = [
 
 [[package]]
 name = "ic-cdk"
-version = "0.18.5"
+version = "0.18.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db9cc3e0e86ee12504c749fa33793014f1f4d6956a8a70e4db595169c5f6ac26"
+checksum = "3694c302426834b1300c095b43dee60aaf07264ca07c8f6456fc6b898c99c72f"
 dependencies = [
  "candid",
  "ic-cdk-executor",
@@ -502,18 +502,19 @@ dependencies = [
 
 [[package]]
 name = "ic-cdk-executor"
-version = "1.0.1"
+version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "15948808e3e7b50749fe50838df77fccaf048c8af2c26884ff5c8f787c29787a"
+checksum = "99f4ee8930fd2e491177e2eb7fff53ee1c407c13b9582bdc7d6920cf83109a2d"
 dependencies = [
+ "ic0",
  "slotmap",
 ]
 
 [[package]]
 name = "ic-cdk-macros"
-version = "0.18.5"
+version = "0.18.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b190cace2b141a5801252115bdc27397d47f086c928af3e917ce1da81b17e3cd"
+checksum = "b2cd13805284d5f422012c392a132757c74bd1bb2f7baeda2f3fca5cbe3d8ce7"
 dependencies = [
  "candid",
  "darling 0.20.11",
@@ -649,8 +650,8 @@ dependencies = [
 
 [[package]]
 name = "icu"
-version = "0.3.2"
-source = "git+https://github.com/dragginzgame/icu?tag=v0.3.2#d1e270f404dc59f27c0213dea0be1938a78d5a8d"
+version = "0.3.3"
+source = "git+https://github.com/dragginzgame/icu?tag=v0.3.3#5c857294dc1b820d09f5ff89ec70ae7c67e97fd0"
 dependencies = [
  "candid",
  "defer",
@@ -749,7 +750,7 @@ checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
 name = "mimic"
-version = "0.13.6"
+version = "0.13.7"
 dependencies = [
  "bencher",
  "candid",
@@ -771,7 +772,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_build"
-version = "0.13.6"
+version = "0.13.7"
 dependencies = [
  "mimic_schema",
  "proc-macro2",
@@ -781,7 +782,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_common"
-version = "0.13.6"
+version = "0.13.7"
 dependencies = [
  "candid",
  "convert_case 0.8.0",
@@ -793,7 +794,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_declare"
-version = "0.13.6"
+version = "0.13.7"
 dependencies = [
  "darling 0.21.2",
  "derive_more",
@@ -808,7 +809,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_schema"
-version = "0.13.6"
+version = "0.13.7"
 dependencies = [
  "candid",
  "darling 0.21.2",
@@ -824,7 +825,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_tests"
-version = "0.13.6"
+version = "0.13.7"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -1151,7 +1152,7 @@ dependencies = [
 
 [[package]]
 name = "test_design"
-version = "0.13.6"
+version = "0.13.7"
 dependencies = [
  "candid",
  "ctor",

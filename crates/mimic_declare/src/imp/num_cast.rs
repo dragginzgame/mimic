@@ -1,6 +1,6 @@
 use crate::{
+    imp::{Imp, Implementor, Trait, TraitStrategy},
     node::Newtype,
-    node_traits::{Imp, Implementor, Trait, TraitStrategy},
     traits::{HasIdent, HasTypePart},
 };
 use quote::{ToTokens, format_ident, quote};

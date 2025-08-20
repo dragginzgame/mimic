@@ -1,7 +1,8 @@
 use crate::{
     helper::{quote_one, quote_slice, to_path, to_str_lit},
+    imp::TraitStrategy,
     node::{Def, FieldList, Index, Type},
-    node_traits::{Trait, TraitStrategy, Traits},
+    schema_traits::{Trait, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
         SchemaNodeKind,
@@ -86,7 +87,7 @@ impl HasTraits for Entity {
     }
 
     fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
-        use crate::node_traits::*;
+        use crate::imp::*;
 
         match t {
             Trait::Default => DefaultTrait::strategy(self),

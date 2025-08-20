@@ -174,66 +174,6 @@ impl Index {
 }
 
 ///
-/// IndexWithFixtures
-///
-
-#[entity(
-    store = "TestDataStore",
-    pk = "id",
-    index(store = "TestIndexStore", fields = "x"),
-    index(store = "TestIndexStore", fields = "y", unique),
-    fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "x", value(item(prim = "Int32"))),
-        field(name = "y", value(item(prim = "Int32"))),
-        field(name = "z", value(opt, item(prim = "Int32"))),
-    ),
-    traits(remove(EntityFixture))
-)]
-pub struct IndexWithFixtures {}
-
-impl EntityFixture for IndexWithFixtures {
-    fn insert_fixtures(db: Db<Self::Canister>) {
-        // First 40 entries: unique y, non-unique x, z = None
-        for i in 0..40 {
-            Self::insert(
-                db,
-                Self {
-                    id: Ulid::generate(),
-                    x: i % 10, // allow x to repeat
-                    y: i,      // y is unique
-                    z: None,
-                },
-            );
-        }
-
-        // Next 40 entries: continue unique y, z = Some(...)
-        for i in 40..80 {
-            EntityService::save_fixture(
-                db,
-                Self {
-                    id: Ulid::generate(),
-                    x: i % 5,       // again allow x to repeat
-                    y: i,           // still unique
-                    z: Some(i * 2), // arbitrary, safe unique-ish z
-                },
-            );
-        }
-
-        // Final edge case: y is still unique, z doesn't conflict
-        EntityService::save_fixture(
-            db,
-            Self {
-                id: Ulid::generate(),
-                x: i32::MAX,
-                y: i32::MIN,
-                z: Some(0),
-            },
-        );
-    }
-}
-
-///
 /// IndexRelation
 ///
 

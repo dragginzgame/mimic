@@ -1,15 +1,9 @@
 use mimic::{
-    core::{
-        traits::{EntityKind, Path},
-        types::Principal,
-    },
+    core::{traits::EntityKind, types::Principal},
     db::query::{self, LoadQuery, QueryPlan, QueryPlanner},
     prelude::*,
 };
-use test_design::{
-    canister::index::{Indexable, IndexableOptText, NotIndexable},
-    schema::TestDataStore,
-};
+use test_design::canister::index::{Indexable, IndexableOptText, NotIndexable};
 
 pub struct IndexTester;
 
@@ -26,12 +20,6 @@ impl IndexTester {
         ];
 
         for (name, test_fn) in tests {
-            println!("Clearing DB...");
-            crate::DATA_REGISTRY.with(|reg| {
-                reg.with_store_mut(TestDataStore::PATH, |store| store.clear())
-                    .ok();
-            });
-
             println!("Running test: {name}");
             test_fn();
         }

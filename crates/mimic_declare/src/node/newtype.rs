@@ -1,7 +1,8 @@
 use crate::{
     helper::quote_option,
+    imp::TraitStrategy,
     node::{Arg, Def, Item, Type},
-    node_traits::{Trait, TraitStrategy, Traits},
+    schema_traits::{Trait, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
         SchemaNodeKind,
@@ -105,7 +106,7 @@ impl HasTraits for Newtype {
     }
 
     fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
-        use crate::node_traits::*;
+        use crate::imp::*;
 
         match t {
             Trait::PartialEq => PartialEqTrait::strategy(self).map(|s| s.with_derive(t)),

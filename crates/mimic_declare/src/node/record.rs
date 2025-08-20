@@ -1,6 +1,7 @@
 use crate::{
+    imp::TraitStrategy,
     node::{Def, FieldList, Type},
-    node_traits::{Trait, TraitStrategy, Traits},
+    schema_traits::{Trait, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
         SchemaNodeKind,
@@ -64,7 +65,7 @@ impl HasTraits for Record {
     }
 
     fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
-        use crate::node_traits::*;
+        use crate::imp::*;
 
         match t {
             Trait::Default => DefaultTrait::strategy(self),

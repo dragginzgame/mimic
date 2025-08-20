@@ -1,6 +1,6 @@
 use crate::{
+    imp::{Imp, Implementor, Trait, TraitStrategy},
     node::{Entity, Enum, EnumValue, List, Map, Newtype, Record, Set, Tuple},
-    node_traits::{Imp, Implementor, Trait, TraitStrategy},
     traits::{HasIdent, HasType, HasTypePart},
 };
 use quote::{ToTokens, quote};
