@@ -123,7 +123,7 @@ impl FilterDsl {
         I: IntoIterator<Item = F>,
         F: IntoFilterOpt,
     {
-        let mut it = items.into_iter().filter_map(|f| f.into_filter_opt());
+        let mut it = items.into_iter().filter_map(IntoFilterOpt::into_filter_opt);
         let first = it.next()?;
         Some(it.fold(first, FilterExpr::and))
     }
@@ -133,7 +133,7 @@ impl FilterDsl {
         I: IntoIterator<Item = F>,
         F: IntoFilterOpt,
     {
-        let mut it = items.into_iter().filter_map(|f| f.into_filter_opt());
+        let mut it = items.into_iter().filter_map(IntoFilterOpt::into_filter_opt);
         let first = it.next()?;
         Some(it.fold(first, FilterExpr::or))
     }

@@ -131,7 +131,7 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
 
         // did anything change?
         let old = match (mode, old_result) {
-            (SaveMode::Create, None) => {
+            (SaveMode::Create | SaveMode::Replace, None) => {
                 entity.touch_created(now);
                 None
             }
@@ -140,11 +140,6 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
                 let old = deserialize::<E>(&old_bytes)?;
                 entity.touch_updated(now);
                 Some(old)
-            }
-
-            (SaveMode::Replace, None) => {
-                entity.touch_created(now);
-                None
             }
 
             // invalid

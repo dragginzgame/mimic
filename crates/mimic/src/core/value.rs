@@ -242,14 +242,14 @@ impl Value {
     #[must_use]
     pub fn contains_any(&self, needles: &Self) -> Option<bool> {
         // normalize RHS → list
-        let needles: Vec<&Value> = match needles {
-            Value::List(vs) => vs.iter().map(|b| b.as_ref()).collect(),
+        let needles: Vec<&Self> = match needles {
+            Self::List(vs) => vs.iter().map(AsRef::as_ref).collect(),
             v => vec![v],
         };
 
         match self {
             // Case 1: actual is a list → check any overlap
-            Value::List(items) => Some(
+            Self::List(items) => Some(
                 needles
                     .iter()
                     .any(|n| items.iter().any(|v| v.as_ref() == *n)),
@@ -262,14 +262,14 @@ impl Value {
 
     #[must_use]
     pub fn contains_all(&self, needles: &Self) -> Option<bool> {
-        let needles: Vec<&Value> = match needles {
-            Value::List(vs) => vs.iter().map(|b| b.as_ref()).collect(),
+        let needles: Vec<&Self> = match needles {
+            Self::List(vs) => vs.iter().map(AsRef::as_ref).collect(),
             v => vec![v],
         };
 
         match self {
             // Case 1: actual is a list → does it contain all RHS?
-            Value::List(items) => Some(
+            Self::List(items) => Some(
                 needles
                     .iter()
                     .all(|n| items.iter().any(|v| v.as_ref() == *n)),

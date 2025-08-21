@@ -22,6 +22,7 @@ pub fn hash_u128(bytes: &[u8]) -> u128 {
 // fnv1a_64
 // const hashing
 #[must_use]
+#[allow(clippy::unreadable_literal)]
 pub const fn fnv1a_64(bytes: &[u8]) -> u64 {
     let mut hash = 0xcbf29ce484222325u64;
     let mut i = 0;
