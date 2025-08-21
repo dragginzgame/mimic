@@ -18,3 +18,19 @@ pub fn hash_u64(bytes: &[u8]) -> u64 {
 pub fn hash_u128(bytes: &[u8]) -> u128 {
     xxh3_128(bytes)
 }
+
+// fnv1a_64
+// const hashing
+#[must_use]
+pub const fn fnv1a_64(bytes: &[u8]) -> u64 {
+    let mut hash = 0xcbf29ce484222325u64;
+    let mut i = 0;
+
+    while i < bytes.len() {
+        hash ^= bytes[i] as u64;
+        hash = hash.wrapping_mul(0x100000001b3);
+        i += 1;
+    }
+
+    hash
+}

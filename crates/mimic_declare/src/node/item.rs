@@ -13,7 +13,7 @@ use syn::Path;
 /// Item
 ///
 
-#[derive(Clone, Debug, FromMeta)]
+#[derive(Clone, Debug, Default, FromMeta)]
 pub struct Item {
     #[darling(default)]
     pub is: Option<Path>,
@@ -46,6 +46,13 @@ impl Item {
             (None, None, Some(_)) => ItemTarget::Primitive(Primitive::Ulid),
             (None, None, None) => ItemTarget::Primitive(Primitive::Unit),
             _ => panic!("item should not have more than one target selected (is, prim, relation)"),
+        }
+    }
+
+    pub fn primitive(prim: Primitive) -> Self {
+        Self {
+            primitive: Some(prim),
+            ..Default::default()
         }
     }
 

@@ -1,6 +1,6 @@
 use crate::{
     Error,
-    core::{Key, Value, traits::EntityKind},
+    core::{Key, Value, deserialize, traits::EntityKind},
     db::{
         Db, DbError,
         executor::{Context, FilterEvaluator},
@@ -8,7 +8,7 @@ use crate::{
             FilterDsl, FilterExpr, FilterExt, IntoFilterOpt, LoadQuery, QueryPlan, QueryPlanner,
             QueryValidate, SortDirection, SortExpr,
         },
-        response::{EntityEntry, EntityRow, LoadCollection},
+        response::LoadCollection,
     },
 };
 use std::marker::PhantomData;
@@ -120,10 +120,10 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
         let plan = self.plan(query);
 
         // Convert data rows -> entity rows
-        let mut rows: Vec<EntityRow<E>> = ctx
+        let mut rows: Vec<(Key, E)> = ctx
             .rows_from_plan(plan)?
             .into_iter()
-            .map(|(k, v)| EntityEntry::try_from(v).map(|entry| (k.key(), entry)))
+            .map(|(k, v)| deserialize::<E>(&v).map(|entry| (k.key(), entry)))
             .collect::<Result<_, _>>()?;
 
         // Filtering
@@ -156,16 +156,15 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
     }
 
     // apply_filter
-    fn apply_filter(rows: &mut Vec<EntityRow<E>>, filter: &FilterExpr) {
-        rows.retain(|(_, entry)| FilterEvaluator::new(&entry.entity).eval(filter));
+    fn apply_filter(rows: &mut Vec<(Key, E)>, filter: &FilterExpr) {
+        rows.retain(|(_, e)| FilterEvaluator::new(e).eval(filter));
     }
 
     // apply_sort
-    fn apply_sort(rows: &mut [EntityRow<E>], sort_expr: &SortExpr) {
+    fn apply_sort(rows: &mut [(Key, E)], sort_expr: &SortExpr) {
         rows.sort_by(|(_, ea), (_, eb)| {
             for (field, direction) in sort_expr.iter() {
-                let (Some(va), Some(vb)) = (ea.entity.get_value(field), eb.entity.get_value(field))
-                else {
+                let (Some(va), Some(vb)) = (ea.get_value(field), eb.get_value(field)) else {
                     continue;
                 };
 

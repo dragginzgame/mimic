@@ -11,7 +11,7 @@ use quote::quote;
 /// Value
 ///
 
-#[derive(Clone, Debug, FromMeta)]
+#[derive(Clone, Debug, Default, FromMeta)]
 pub struct Value {
     #[darling(default)]
     pub opt: bool,

@@ -268,6 +268,7 @@ impl DbTester {
         let e1 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: Some(10),
+            ..Default::default()
         };
         let id1 = db!().create(e1).unwrap().key();
 
@@ -275,6 +276,7 @@ impl DbTester {
         let e2 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: Some(20),
+            ..Default::default()
         };
         db!().create(e2).unwrap().key();
 
@@ -282,6 +284,7 @@ impl DbTester {
         let e3 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: None,
+            ..Default::default()
         };
         let id3 = db!().create(e3).unwrap().key();
 
@@ -289,6 +292,7 @@ impl DbTester {
         let e4 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: Some(10),
+            ..Default::default()
         };
         let result = db!().create(e4.clone());
         assert!(
@@ -313,6 +317,7 @@ impl DbTester {
         let e5 = IndexUniqueOpt {
             id: Ulid::generate(),
             value: None,
+            ..Default::default()
         };
         db!().create(e5).unwrap();
 
@@ -327,7 +332,10 @@ impl DbTester {
         // Insert 100 rows
         // overwrite the ulid with replace()
         for value in 1..100 {
-            let e = Limit { value };
+            let e = Limit {
+                value,
+                ..Default::default()
+            };
             db!().replace(e).unwrap();
         }
 

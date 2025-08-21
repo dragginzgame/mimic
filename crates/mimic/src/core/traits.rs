@@ -68,10 +68,11 @@ pub trait CanisterKind: Kind {}
 /// EntityKind
 ///
 
-pub trait EntityKind: Kind + TypeKind + FieldValues {
+pub trait EntityKind: Kind + TypeKind + EntityLifecycle + FieldValues {
     type Store: StoreKind;
     type Canister: CanisterKind; // Self::Store::Canister shortcut
 
+    const ENTITY_ID: u64;
     const PRIMARY_KEY: &'static str;
     const FIELDS: &'static [&'static str];
     const INDEXES: &'static [&'static Index];
@@ -168,6 +169,15 @@ pub trait EntityFixture: EntityKind + Sized {
     fn insert(db: Db<Self::Canister>, entity: Self) {
         EntityService::save_fixture(db, entity);
     }
+}
+
+///
+/// EntityLifecycle
+///
+
+pub trait EntityLifecycle {
+    fn touch_created(&mut self, now: u64);
+    fn touch_updated(&mut self, now: u64);
 }
 
 ///

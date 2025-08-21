@@ -5,14 +5,11 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.14.0] - Metadata Change
+- Metadata has been added into every entity, and it's not stored separately any longer.  This means that
+you can do queries on created_at / updated_at
 
 ## [0.13.12] - 2025-08-20
-- Initial release
-
-## [Unreleased]
-
-## [0.13.10] - 2025-08-20
 - made many queries easier to write
 
 ## [0.13.6] - 2025-08-19

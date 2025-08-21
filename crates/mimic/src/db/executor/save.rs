@@ -5,8 +5,7 @@ use crate::{
         Db, DbError,
         executor::{Context, ExecutorError},
         query::{SaveMode, SaveQuery},
-        response::EntityEntry,
-        store::{DataEntry, DataKey, Metadata},
+        store::DataKey,
     },
 };
 use icu::{debug, utils::time::now_secs};
@@ -104,14 +103,14 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
     // execute
     // serializes the save query to pass to save_entity
     pub fn execute(&self, query: &SaveQuery) -> Result<E, Error> {
-        let bytes: E = deserialize(&query.bytes)?;
-        let entity = self.save_entity(query.mode, bytes)?;
+        let e: E = deserialize(&query.bytes)?;
+        let entity = self.save_entity(query.mode, e)?;
 
         Ok(entity)
     }
 
     // save_entity
-    fn save_entity(&self, mode: SaveMode, entity: E) -> Result<E, DbError> {
+    fn save_entity(&self, mode: SaveMode, mut entity: E) -> Result<E, DbError> {
         let key = entity.key();
         let ctx = self.context();
 
@@ -131,25 +130,21 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
         let old_result = ctx.with_store(|store| store.get(&data_key))?;
 
         // did anything change?
-        let (created, modified, old) = match (mode, old_result) {
-            (SaveMode::Create | SaveMode::Replace, None) => (now, now, None),
+        let old = match (mode, old_result) {
+            (SaveMode::Create, None) => {
+                entity.touch_created(now);
+                None
+            }
 
-            (SaveMode::Update | SaveMode::Replace, Some(old_data_value)) => {
-                let old_entity_value: EntityEntry<E> = old_data_value.try_into()?;
+            (SaveMode::Update | SaveMode::Replace, Some(old_bytes)) => {
+                let old = deserialize::<E>(&old_bytes)?;
+                entity.touch_updated(now);
+                Some(old)
+            }
 
-                if entity == old_entity_value.entity {
-                    debug!(
-                        self.debug,
-                        "query.{mode}: no changes for {data_key}, skipping save"
-                    );
-                    return Ok(entity);
-                }
-
-                (
-                    old_entity_value.metadata.created,
-                    now,
-                    Some(old_entity_value.entity),
-                )
+            (SaveMode::Replace, None) => {
+                entity.touch_created(now);
+                None
             }
 
             // invalid
@@ -163,14 +158,8 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
         // replace indexes, fail if there are any unique violations
         self.replace_indexes(old.as_ref(), &entity)?;
 
-        // prepare data
-        let entry = DataEntry {
-            bytes,
-            metadata: Metadata { created, modified },
-        };
-
         // insert data row
-        ctx.with_store_mut(|store| store.insert(data_key.clone(), entry))?;
+        ctx.with_store_mut(|store| store.insert(data_key.clone(), bytes))?;
 
         Ok(entity)
     }

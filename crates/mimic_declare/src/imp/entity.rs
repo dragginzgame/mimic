@@ -37,6 +37,7 @@ impl Imp<Entity> for EntityKindTrait {
             type Store = #store;
             type Canister = <Self::Store as ::mimic::core::traits::StoreKind>::Canister;
 
+            const ENTITY_ID: u64 = ::mimic::common::utils::hash::fnv1a_64(Self::PATH.as_bytes());
             const PRIMARY_KEY: &'static str = #pk_field;
             const FIELDS: &'static [&'static str]  = &[#(#fields),*];
             const INDEXES: &'static [&'static ::mimic::schema::node::Index]  = &[#(&#indexes),*];
@@ -66,5 +67,34 @@ fn key(node: &Entity) -> TokenStream {
                 .as_key()
                 .unwrap()
         }
+    }
+}
+
+///
+/// EntityLifecycle
+///
+
+pub struct EntityLifecycleTrait;
+
+impl Imp<Entity> for EntityLifecycleTrait {
+    fn strategy(node: &Entity) -> Option<TraitStrategy> {
+        let ident = node.ident();
+
+        let q = quote! {
+            fn touch_created(&mut self, now: u64) {
+                self.created_at = now.into();
+                self.updated_at = now.into();
+            }
+
+            fn touch_updated(&mut self, now: u64) {
+                self.updated_at = now.into();
+            }
+        };
+
+        let tokens = Implementor::new(ident, Trait::EntityLifecycle)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(TraitStrategy::from_impl(tokens))
     }
 }

@@ -129,7 +129,7 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
                 }
 
                 // Peek the value once
-                let Some(data_value) = s.get(&dk) else {
+                let Some(bytes) = s.get(&dk) else {
                     continue;
                 };
 
@@ -141,7 +141,7 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
                 // Evaluate filter if present
                 if let Some(ref f) = filter_simplified {
                     // deserialize once to evaluate
-                    match deserialize::<E>(&data_value.bytes) {
+                    match deserialize::<E>(&bytes) {
                         Ok(ent) => {
                             if !FilterEvaluator::new(&ent).eval(f) {
                                 continue; // not matched; skip
@@ -159,7 +159,7 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
                 if !E::INDEXES.is_empty() {
                     let ent = match entity_opt {
                         Some(ent) => ent,
-                        None => deserialize::<E>(&data_value.bytes)?,
+                        None => deserialize::<E>(&bytes)?,
                     };
                     self.remove_indexes(&ent)?;
                 }

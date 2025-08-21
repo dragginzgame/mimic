@@ -2,10 +2,7 @@
 use crate::{
     Error,
     core::{Key, traits::EntityKind},
-    db::{
-        DbError,
-        response::{EntityRow, ResponseError},
-    },
+    db::{DbError, response::ResponseError},
 };
 use derive_more::Deref;
 use std::{borrow::Borrow, collections::HashMap};
@@ -15,7 +12,7 @@ use std::{borrow::Borrow, collections::HashMap};
 ///
 
 #[derive(Debug, Deref)]
-pub struct LoadCollection<E: EntityKind>(pub Vec<EntityRow<E>>);
+pub struct LoadCollection<E: EntityKind>(pub Vec<(Key, E)>);
 
 impl<E> LoadCollection<E>
 where
@@ -67,7 +64,7 @@ where
 
     #[must_use]
     pub fn entity(self) -> Option<E> {
-        self.0.into_iter().next().map(|(_, entry)| entry.entity)
+        self.0.into_iter().next().map(|(_, e)| e)
     }
 
     pub fn try_entity(self) -> Result<E, Error> {
@@ -81,17 +78,11 @@ where
 
     #[must_use]
     pub fn entities(self) -> Vec<E> {
-        self.0.into_iter().map(|(_, entry)| entry.entity).collect()
+        self.0.into_iter().map(|(_, e)| e).collect()
     }
 
     pub fn entities_iter(self) -> impl Iterator<Item = E> {
-        self.0.into_iter().map(|(_, entry)| entry.entity)
-    }
-
-    /// Borrow the first entity (if any)
-    #[must_use]
-    pub fn first_entity(&self) -> Option<&E> {
-        self.0.first().map(|(_, entry)| &entry.entity)
+        self.0.into_iter().map(|(_, e)| e)
     }
 
     ///
@@ -122,12 +113,12 @@ where
 
     #[must_use]
     pub fn into_map(self) -> LoadMap<E> {
-        LoadMap::from_pairs(self.0.into_iter().map(|(key, entry)| (key, entry.entity)))
+        LoadMap::from_pairs(self.0)
     }
 }
 
 impl<E: EntityKind> IntoIterator for LoadCollection<E> {
-    type Item = EntityRow<E>;
+    type Item = (Key, E);
     type IntoIter = std::vec::IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {

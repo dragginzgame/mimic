@@ -1,7 +1,7 @@
 use crate::{
     helper::{quote_one, quote_slice, to_path, to_str_lit},
     imp::TraitStrategy,
-    node::{Def, FieldList, Index, Type},
+    node::{Def, Field, FieldList, Index, Type},
     schema_traits::{Trait, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
@@ -30,7 +30,7 @@ pub struct Entity {
     #[darling(multiple, rename = "index")]
     pub indexes: Vec<Index>,
 
-    #[darling(default)]
+    #[darling(default, map = "Entity::add_metadata")]
     pub fields: FieldList,
 
     #[darling(default)]
@@ -38,6 +38,15 @@ pub struct Entity {
 
     #[darling(default)]
     pub traits: Traits,
+}
+
+impl Entity {
+    fn add_metadata(mut fields: FieldList) -> FieldList {
+        fields.push(Field::created_at());
+        fields.push(Field::updated_at());
+
+        fields
+    }
 }
 
 impl HasIdent for Entity {
@@ -80,6 +89,7 @@ impl HasTraits for Entity {
         traits.extend(vec![
             Trait::EntityKind,
             Trait::EntityFixture,
+            Trait::EntityLifecycle,
             Trait::FieldValues,
         ]);
 
@@ -93,6 +103,7 @@ impl HasTraits for Entity {
             Trait::Default => DefaultTrait::strategy(self),
             Trait::From => FromTrait::strategy(self),
             Trait::EntityKind => EntityKindTrait::strategy(self),
+            Trait::EntityLifecycle => EntityLifecycleTrait::strategy(self),
             Trait::FieldValues => FieldValuesTrait::strategy(self),
             Trait::TypeView => TypeViewTrait::strategy(self),
             Trait::ValidateAuto => ValidateAutoTrait::strategy(self),

@@ -1,11 +1,12 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_str_lit},
-    node::{Arg, Value},
+    node::{Arg, Item, Value},
     traits::{HasSchemaPart, HasTypePart},
 };
 use darling::FromMeta;
+use mimic_schema::types::Primitive;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{format_ident, quote};
 use std::slice::Iter;
 use syn::Ident;
 
@@ -13,7 +14,7 @@ use syn::Ident;
 /// FieldList
 ///
 
-#[derive(Debug, Default, FromMeta)]
+#[derive(Clone, Debug, Default, FromMeta)]
 pub struct FieldList {
     #[darling(multiple, rename = "field")]
     pub fields: Vec<Field>,
@@ -38,6 +39,10 @@ impl FieldList {
 
     pub fn has_default(&self) -> bool {
         self.fields.iter().any(|f| f.default.is_some())
+    }
+
+    pub fn push(&mut self, field: Field) {
+        self.fields.push(field);
     }
 }
 
@@ -93,6 +98,32 @@ pub struct Field {
 
     #[darling(default)]
     pub default: Option<Arg>,
+}
+
+impl Field {
+    pub fn created_at() -> Self {
+        Self {
+            ident: format_ident!("created_at"),
+            value: Value {
+                item: Item::primitive(Primitive::Timestamp),
+                ..Default::default()
+            },
+
+            default: None,
+        }
+    }
+
+    pub fn updated_at() -> Self {
+        Self {
+            ident: format_ident!("updated_at"),
+            value: Value {
+                item: Item::primitive(Primitive::Timestamp),
+                ..Default::default()
+            },
+
+            default: None,
+        }
+    }
 }
 
 impl HasSchemaPart for Field {

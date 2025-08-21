@@ -61,6 +61,7 @@ pub enum Trait {
 
     // orm
     EntityFixture,
+    EntityLifecycle,
     FieldValue,
     FieldValues,
     From,
