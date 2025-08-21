@@ -4,28 +4,38 @@ use crate::db::query::{Cmp, FilterClause, FilterExpr};
 #[derive(Clone, Copy, Debug, Default)]
 pub struct FilterDsl;
 
+macro_rules! cmp_fns {
+    ($( $name:ident => $cmp:ident ),*) => {
+        $(
+            pub fn $name(self, field: impl AsRef<str>, v: impl Into<Value>) -> FilterExpr {
+                FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::$cmp, v))
+            }
+        )*
+    }
+}
+
+impl FilterDsl {}
+
 impl FilterDsl {
     //
     // Comparators
     //
 
-    pub fn eq(self, field: impl AsRef<str>, v: impl Into<Value>) -> FilterExpr {
-        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::Eq, v))
-    }
-    pub fn ne(self, field: impl AsRef<str>, v: impl Into<Value>) -> FilterExpr {
-        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::Ne, v))
-    }
-    pub fn lt(self, field: impl AsRef<str>, v: impl Into<Value>) -> FilterExpr {
-        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::Lt, v))
-    }
-    pub fn lte(self, field: impl AsRef<str>, v: impl Into<Value>) -> FilterExpr {
-        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::Lte, v))
-    }
-    pub fn gt(self, field: impl AsRef<str>, v: impl Into<Value>) -> FilterExpr {
-        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::Gt, v))
-    }
-    pub fn gte(self, field: impl AsRef<str>, v: impl Into<Value>) -> FilterExpr {
-        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::Gte, v))
+    cmp_fns! {
+        eq => Eq,
+        eq_ci => EqCi,
+        ne => Ne,
+        ne_ci => NeCi,
+        lt => Lt,
+        lte => Lte,
+        gt => Gt,
+        gte => Gte,
+        contains => Contains,
+        contains_ci => ContainsCi,
+        starts_with => StartsWith,
+        starts_with_ci => StartsWithCi,
+        ends_with => EndsWith,
+        ends_with_ci => EndsWithCi
     }
 
     //
@@ -54,20 +64,6 @@ impl FilterDsl {
     }
 
     //
-    // String helpers
-    //
-
-    pub fn contains(self, field: impl AsRef<str>, v: impl Into<Value>) -> FilterExpr {
-        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::Contains, v))
-    }
-    pub fn starts_with(self, field: impl AsRef<str>, v: impl Into<Value>) -> FilterExpr {
-        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::StartsWith, v))
-    }
-    pub fn ends_with(self, field: impl AsRef<str>, v: impl Into<Value>) -> FilterExpr {
-        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::EndsWith, v))
-    }
-
-    //
     // Collections
     //
 
@@ -76,10 +72,7 @@ impl FilterDsl {
         I: IntoIterator,
         I::Item: Into<Value>,
     {
-        let list = vals
-            .into_iter()
-            .map(|v| Box::new(v.into()))
-            .collect::<Vec<_>>();
+        let list = vals.into_iter().map(Into::into).collect::<Vec<_>>();
 
         FilterExpr::Clause(FilterClause::new(field.as_ref(), cmp, Value::List(list)))
     }

@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.14.1] - 2025-08-21
+- added the _ci analogues of the comparison functions
+- removed the Box<> from the Value::List to declutter
+
 ## [0.14.0] - Metadata Change
 - Metadata has been added into every entity, and it's not stored separately any longer.  This means that
 you can do queries on created_at / updated_at

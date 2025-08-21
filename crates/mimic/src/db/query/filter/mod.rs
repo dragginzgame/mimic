@@ -38,6 +38,9 @@ pub enum Cmp {
     // case insensitive matching
     EqCi,
     NeCi,
+    InCi,
+    AnyInCi,
+    AllInCi,
     ContainsCi,
     StartsWithCi,
     EndsWithCi,

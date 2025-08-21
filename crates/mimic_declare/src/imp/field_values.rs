@@ -44,7 +44,7 @@ impl Imp<Entity> for FieldValuesTrait {
                         #field_lit => {
                             let list = self.#field_ident
                                 .iter()
-                                .map(|v| Box::new(v.to_value()))
+                                .map(|v| v.to_value())
                                 .collect::<Vec<_>>();
 
                             Some(Value::List(list))

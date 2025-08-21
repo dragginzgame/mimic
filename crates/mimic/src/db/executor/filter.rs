@@ -106,6 +106,12 @@ impl<'a> FilterEvaluator<'a> {
             Cmp::AnyIn => actual.contains_any(expected),
             Cmp::Contains => actual.contains(expected),
             Cmp::In => actual.in_list(expected),
+
+            // CI variants
+            Cmp::AllInCi => actual.contains_all_ci(expected),
+            Cmp::AnyInCi => actual.contains_any_ci(expected),
+            Cmp::InCi => actual.in_list_ci(expected),
+
             Cmp::IsEmpty => actual.is_empty(),
             Cmp::IsNotEmpty => actual.is_not_empty(),
             _ => None,

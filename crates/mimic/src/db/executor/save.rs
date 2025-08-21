@@ -133,12 +133,14 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
         let old = match (mode, old_result) {
             (SaveMode::Create | SaveMode::Replace, None) => {
                 entity.touch_created(now);
+
                 None
             }
 
             (SaveMode::Update | SaveMode::Replace, Some(old_bytes)) => {
                 let old = deserialize::<E>(&old_bytes)?;
                 entity.touch_updated(now);
+
                 Some(old)
             }
 

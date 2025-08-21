@@ -106,10 +106,7 @@ impl QueryPlanner {
 
                 Cmp::In => {
                     if let Value::List(values) = &clause.value {
-                        let keys = values
-                            .iter()
-                            .filter_map(|v| v.as_ref().as_key())
-                            .collect::<Vec<_>>();
+                        let keys = values.iter().filter_map(Value::as_key).collect::<Vec<_>>();
 
                         if keys.is_empty() {
                             None
