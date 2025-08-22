@@ -23,12 +23,13 @@ pub enum Key {
 }
 
 impl Key {
-    pub const MIN: Self = Self::Int(i64::MIN);
-    pub const MAX: Self = Self::Ulid(Ulid::MAX);
+    pub const MIN: Self = Self::Int(i64::MIN); // global minimum
+    pub const MAX: Self = Self::Ulid(Ulid::MAX); // global maximum
 
-    // max serialized size is 42
-    // rounding it up to 48 to add a buffer
-    pub const STORABLE_MAX_SIZE: u32 = 48;
+    #[must_use]
+    pub const fn max_storable() -> Self {
+        Self::Principal(Principal::max_storable())
+    }
 
     const fn variant_rank(&self) -> u8 {
         match self {
@@ -40,143 +41,61 @@ impl Key {
             Self::Ulid(_) => 5,
         }
     }
+}
 
-    #[must_use]
-    pub const fn max_storable() -> Self {
-        Self::Principal(Principal::max_storable())
+/// Implements `From<T> for Key` for simple conversions
+macro_rules! impl_from_key {
+    ( $( $ty:ty => $variant:ident ),* $(,)? ) => {
+        $(
+            impl From<$ty> for Key {
+                fn from(v: $ty) -> Self {
+                    Self::$variant(v.into())
+                }
+            }
+        )*
     }
 }
 
-impl From<i8> for Key {
-    fn from(v: i8) -> Self {
-        Self::Int(v.into())
+/// Implements symmetric PartialEq between Key and another type
+macro_rules! impl_eq_key {
+    ( $( $ty:ty => $variant:ident ),* $(,)? ) => {
+        $(
+            impl PartialEq<$ty> for Key {
+                fn eq(&self, other: &$ty) -> bool {
+                    matches!(self, Self::$variant(val) if val == other)
+                }
+            }
+
+            impl PartialEq<Key> for $ty {
+                fn eq(&self, other: &Key) -> bool {
+                    other == self
+                }
+            }
+        )*
     }
 }
 
-impl From<i16> for Key {
-    fn from(v: i16) -> Self {
-        Self::Int(v.into())
-    }
+impl_from_key! {
+    i8  => Int,
+    i16 => Int,
+    i32 => Int,
+    i64 => Int,
+    u8  => Uint,
+    u16 => Uint,
+    u32 => Uint,
+    u64 => Uint,
+    Ulid => Ulid,
+    Principal => Principal,
+    WrappedPrincipal => Principal,
+    Subaccount => Subaccount,
 }
 
-impl From<i32> for Key {
-    fn from(v: i32) -> Self {
-        Self::Int(v.into())
-    }
-}
-
-impl From<i64> for Key {
-    fn from(v: i64) -> Self {
-        Self::Int(v)
-    }
-}
-
-impl From<u8> for Key {
-    fn from(v: u8) -> Self {
-        Self::Uint(v.into())
-    }
-}
-
-impl From<u16> for Key {
-    fn from(v: u16) -> Self {
-        Self::Uint(v.into())
-    }
-}
-
-impl From<u32> for Key {
-    fn from(v: u32) -> Self {
-        Self::Uint(v.into())
-    }
-}
-
-impl From<u64> for Key {
-    fn from(v: u64) -> Self {
-        Self::Uint(v)
-    }
-}
-
-impl From<Ulid> for Key {
-    fn from(v: Ulid) -> Self {
-        Self::Ulid(v)
-    }
-}
-
-impl From<Principal> for Key {
-    fn from(p: Principal) -> Self {
-        Self::Principal(p)
-    }
-}
-
-impl From<WrappedPrincipal> for Key {
-    fn from(p: WrappedPrincipal) -> Self {
-        Self::Principal(p.into())
-    }
-}
-
-impl From<Subaccount> for Key {
-    fn from(s: Subaccount) -> Self {
-        Self::Subaccount(s)
-    }
-}
-
-impl PartialEq<i64> for Key {
-    fn eq(&self, other: &i64) -> bool {
-        matches!(self, Self::Int(val) if val == other)
-    }
-}
-
-impl PartialEq<u64> for Key {
-    fn eq(&self, other: &u64) -> bool {
-        matches!(self, Self::Uint(val) if val == other)
-    }
-}
-
-impl PartialEq<Ulid> for Key {
-    fn eq(&self, other: &Ulid) -> bool {
-        matches!(self, Self::Ulid(val) if val == other)
-    }
-}
-
-impl PartialEq<Principal> for Key {
-    fn eq(&self, other: &Principal) -> bool {
-        matches!(self, Self::Principal(val) if val == other)
-    }
-}
-
-impl PartialEq<Subaccount> for Key {
-    fn eq(&self, other: &Subaccount) -> bool {
-        matches!(self, Self::Subaccount(val) if val == other)
-    }
-}
-
-impl PartialEq<Key> for i64 {
-    fn eq(&self, other: &Key) -> bool {
-        other == self
-    }
-}
-
-impl PartialEq<Key> for u64 {
-    fn eq(&self, other: &Key) -> bool {
-        other == self
-    }
-}
-
-impl PartialEq<Key> for Ulid {
-    fn eq(&self, other: &Key) -> bool {
-        other == self
-    }
-}
-
-impl PartialEq<Key> for Principal {
-    fn eq(&self, other: &Key) -> bool {
-        other == self
-    }
-}
-
-impl PartialEq<Key> for Subaccount {
-    fn eq(&self, other: &Key) -> bool {
-        other == self
-    }
+impl_eq_key! {
+    i64 => Int,
+    u64  => Uint,
+    Ulid => Ulid,
+    Principal => Principal,
+    Subaccount => Subaccount,
 }
 
 impl Ord for Key {
@@ -195,44 +114,5 @@ impl Ord for Key {
 impl PartialOrd for Key {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(Ord::cmp(self, other))
-    }
-}
-
-///
-/// TESTS
-///
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn ulid_min_is_lowest_key() {
-        let min = Key::MIN;
-
-        let others = vec![
-            Key::Ulid(Ulid::MIN),
-            Key::Uint(u64::MIN),
-            Key::Principal(Principal::MIN),
-        ];
-
-        for v in others {
-            assert!(v > min, "Expected {v:?} > Key::MIN");
-        }
-    }
-
-    #[test]
-    fn ulid_max_is_highest_key() {
-        let max = Key::MAX;
-
-        let others = vec![
-            Key::Int(i64::MAX),
-            Key::Principal(Principal::MAX),
-            Key::Uint(u64::MAX),
-        ];
-
-        for v in others {
-            assert!(v < max, "Expected {v:?} < Key::MAX");
-        }
     }
 }

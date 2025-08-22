@@ -4,7 +4,8 @@ mod tests;
 use crate::core::{
     Key,
     types::{
-        Decimal, E8s, E18s, Float32, Float64, Int, Nat, Principal, Subaccount, Timestamp, Ulid,
+        Decimal, E8s, E18s, Float32, Float64, Int, Int128, Nat, Nat128, Principal, Subaccount,
+        Timestamp, Ulid,
     },
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
@@ -16,8 +17,10 @@ use std::cmp::Ordering;
 /// CONSTANTS
 ///
 
-const F64_SAFE_I: i64 = 1i64 << 53;
-const F64_SAFE_U: u64 = 1u64 << 53;
+const F64_SAFE_I64: i64 = 1i64 << 53;
+const F64_SAFE_U64: u64 = 1u64 << 53;
+const F64_SAFE_I128: i128 = 1i128 << 53;
+const F64_SAFE_U128: u128 = 1u128 << 53;
 
 ///
 /// TextMode
@@ -59,8 +62,6 @@ macro_rules! impl_from_for {
 
 #[derive(CandidType, Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum Value {
-    BigInt(Int),
-    BigUint(Nat),
     Blob(Vec<u8>),
     Bool(bool),
     Decimal(Decimal),
@@ -69,6 +70,8 @@ pub enum Value {
     Float32(Float32),
     Float64(Float64),
     Int(i64),
+    Int128(Int128),
+    IntBig(Int),
     List(Vec<Value>),
     None,
     Principal(Principal),
@@ -76,6 +79,8 @@ pub enum Value {
     Text(String),
     Timestamp(Timestamp),
     Uint(u64),
+    Uint128(Nat128),
+    UintBig(Nat),
     Ulid(Ulid),
     Unit,
     Unsupported,
@@ -97,8 +102,6 @@ impl Value {
     #[must_use]
     pub const fn tag(&self) -> u8 {
         match self {
-            Self::BigInt(_) => ValueTag::BigInt,
-            Self::BigUint(_) => ValueTag::BigUint,
             Self::Blob(_) => ValueTag::Blob,
             Self::Bool(_) => ValueTag::Bool,
             Self::Decimal(_) => ValueTag::Decimal,
@@ -107,6 +110,8 @@ impl Value {
             Self::Float32(_) => ValueTag::Float32,
             Self::Float64(_) => ValueTag::Float64,
             Self::Int(_) => ValueTag::Int,
+            Self::Int128(_) => ValueTag::Int128,
+            Self::IntBig(_) => ValueTag::IntBig,
             Self::List(_) => ValueTag::List,
             Self::None => ValueTag::None,
             Self::Principal(_) => ValueTag::Principal,
@@ -114,6 +119,8 @@ impl Value {
             Self::Text(_) => ValueTag::Text,
             Self::Timestamp(_) => ValueTag::Timestamp,
             Self::Uint(_) => ValueTag::Uint,
+            Self::Uint128(_) => ValueTag::Uint128,
+            Self::UintBig(_) => ValueTag::UintBig,
             Self::Ulid(_) => ValueTag::Ulid,
             Self::Unit => ValueTag::Unit,
             Self::Unsupported => ValueTag::Unsupported,
@@ -163,8 +170,10 @@ impl Value {
             Self::Float64(f) => Decimal::from_f64(f.get()),
             Self::Float32(f) => Decimal::from_f32(f.get()),
             Self::Int(i) => Decimal::from_i64(*i),
+            Self::Int128(i) => Decimal::from_i128(i.get()),
             Self::Timestamp(t) => Decimal::from_u64(t.get()),
             Self::Uint(u) => Decimal::from_u64(*u),
+            Self::Uint128(u) => Decimal::from_u128(u.get()),
 
             _ => None,
         }
@@ -176,8 +185,10 @@ impl Value {
         match self {
             Self::Float64(f) => Some(f.get()),
             Self::Float32(f) => Some(f64::from(f.get())),
-            Self::Int(i) if (-F64_SAFE_I..=F64_SAFE_I).contains(i) => Some(*i as f64),
-            Self::Uint(u) if *u <= F64_SAFE_U => Some(*u as f64),
+            Self::Int(i) if (-F64_SAFE_I64..=F64_SAFE_I64).contains(i) => Some(*i as f64),
+            Self::Int128(i) if (-F64_SAFE_I128..=F64_SAFE_I128).contains(i) => Some(i.get() as f64),
+            Self::Uint(u) if *u <= F64_SAFE_U64 => Some(*u as f64),
+            Self::Uint128(u) if *u <= F64_SAFE_U128 => Some(u.get() as f64),
 
             _ => None,
         }
@@ -412,6 +423,7 @@ impl_from_for! {
     i16 => Int,
     i32 => Int,
     i64 => Int,
+    i128 => Int128,
     Principal => Principal,
     &str => Text,
     String => Text,
@@ -421,6 +433,7 @@ impl_from_for! {
     u16 => Uint,
     u32 => Uint,
     u64 => Uint,
+    u128 => Uint128,
 }
 
 // Infallible: every Key can be represented as a Value
@@ -476,8 +489,6 @@ impl From<()> for Value {
 impl PartialOrd for Value {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         match (self, other) {
-            (Self::BigInt(a), Self::BigInt(b)) => a.partial_cmp(b),
-            (Self::BigUint(a), Self::BigUint(b)) => a.partial_cmp(b),
             (Self::Bool(a), Self::Bool(b)) => a.partial_cmp(b),
             (Self::Decimal(a), Self::Decimal(b)) => a.partial_cmp(b),
             (Self::E8s(a), Self::E8s(b)) => a.partial_cmp(b),
@@ -485,11 +496,13 @@ impl PartialOrd for Value {
             (Self::Float32(a), Self::Float32(b)) => a.partial_cmp(b),
             (Self::Float64(a), Self::Float64(b)) => a.partial_cmp(b),
             (Self::Int(a), Self::Int(b)) => a.partial_cmp(b),
+            (Self::IntBig(a), Self::IntBig(b)) => a.partial_cmp(b),
             (Self::Principal(a), Self::Principal(b)) => a.partial_cmp(b),
             (Self::Subaccount(a), Self::Subaccount(b)) => a.partial_cmp(b),
             (Self::Text(a), Self::Text(b)) => a.partial_cmp(b),
             (Self::Timestamp(a), Self::Timestamp(b)) => a.partial_cmp(b),
             (Self::Uint(a), Self::Uint(b)) => a.partial_cmp(b),
+            (Self::UintBig(a), Self::UintBig(b)) => a.partial_cmp(b),
             (Self::Ulid(a), Self::Ulid(b)) => a.partial_cmp(b),
 
             // Cross-type comparisons: no ordering
@@ -505,16 +518,16 @@ impl PartialOrd for Value {
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ValueTag {
-    BigInt = 1,
-    BigUint = 2,
-    Blob = 3,
-    Bool = 4,
-    Decimal = 5,
-    E8s = 6,
-    E18s = 7,
-    Float32 = 8,
-    Float64 = 9,
-    Int = 10,
+    Blob = 1,
+    Bool = 2,
+    Decimal = 3,
+    E8s = 4,
+    E18s = 5,
+    Float32 = 6,
+    Float64 = 7,
+    Int = 8,
+    Int128 = 9,
+    IntBig = 10,
     List = 11,
     None = 12,
     Principal = 13,
@@ -522,9 +535,11 @@ pub enum ValueTag {
     Text = 15,
     Timestamp = 16,
     Uint = 17,
-    Ulid = 18,
-    Unit = 19,
-    Unsupported = 20,
+    Uint128 = 18,
+    UintBig = 19,
+    Ulid = 20,
+    Unit = 21,
+    Unsupported = 22,
 }
 
 impl ValueTag {

@@ -27,6 +27,13 @@ pub struct Float32WW {}
 pub struct Int {}
 
 ///
+/// Int128
+///
+
+#[newtype(primitive = "Int128", item(prim = "Int128"))]
+pub struct Int128 {}
+
+///
 /// Nat
 ///
 
@@ -45,6 +52,13 @@ pub struct Nat32W {}
 
 #[newtype(primitive = "Nat32", item(is = "Nat32W"))]
 pub struct Nat32WW {}
+
+///
+/// Nat128
+///
+
+#[newtype(primitive = "Nat128", item(prim = "Nat128"))]
+pub struct Nat128 {}
 
 ///
 /// Principal

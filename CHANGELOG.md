@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.14.3] - 2025-08-22
+- proper Nat128 and Int128 support, had to wrap the types as minicbor doesn't support them
+
 ## [0.14.2] - 2025-08-21
 - fixed version.sh not to do double bump
 

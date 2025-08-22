@@ -1,3 +1,7 @@
+mod int128;
+
+pub use int128::*;
+
 use crate::core::{
     Value,
     traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
@@ -46,7 +50,7 @@ impl Int {
 
 impl FieldValue for Int {
     fn to_value(&self) -> Value {
-        Value::BigInt(self.clone())
+        Value::IntBig(self.clone())
     }
 }
 

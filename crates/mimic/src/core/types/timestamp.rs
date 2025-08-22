@@ -35,6 +35,9 @@ use serde::{Deserialize, Serialize};
 pub struct Timestamp(u64);
 
 impl Timestamp {
+    pub const MIN: Self = Self(u64::MIN);
+    pub const MAX: Self = Self(u64::MAX);
+
     #[must_use]
     pub fn now() -> Self {
         Self(icu::utils::time::now_secs())

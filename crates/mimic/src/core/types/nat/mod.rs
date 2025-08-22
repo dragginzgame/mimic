@@ -1,10 +1,13 @@
+mod nat128;
+
+pub use nat128::*;
+
 use crate::core::{
     Value,
     traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
 };
 use candid::{CandidType, Nat as WrappedNat};
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign};
-use icu::impl_storable_unbounded;
 use serde::{Deserialize, Serialize};
 
 ///
@@ -46,7 +49,7 @@ impl Nat {
 
 impl FieldValue for Nat {
     fn to_value(&self) -> Value {
-        Value::BigUint(self.clone())
+        Value::UintBig(self.clone())
     }
 }
 
@@ -55,8 +58,6 @@ impl From<WrappedNat> for Nat {
         Self(n)
     }
 }
-
-impl_storable_unbounded!(Nat);
 
 impl TypeView for Nat {
     type View = Self;
