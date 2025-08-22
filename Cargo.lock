@@ -119,7 +119,7 @@ dependencies = [
 
 [[package]]
 name = "canister_test"
-version = "0.14.2"
+version = "0.14.3"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -131,9 +131,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.33"
+version = "1.2.34"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3ee0f8803222ba5a7e2777dd72ca451868909b1ac410621b676adf07280e9b5f"
+checksum = "42bc4aea80032b7bf409b0bc7ccad88853858911b7713a8062fdc0623867bedc"
 dependencies = [
  "shlex",
 ]
@@ -484,9 +484,9 @@ dependencies = [
 
 [[package]]
 name = "ic-cdk"
-version = "0.18.6"
+version = "0.18.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3694c302426834b1300c095b43dee60aaf07264ca07c8f6456fc6b898c99c72f"
+checksum = "4efb278f5d3ef033b3eed7f01f1096eaf67701896aa5ef69f5eddf5a84833dc0"
 dependencies = [
  "candid",
  "ic-cdk-executor",
@@ -512,9 +512,9 @@ dependencies = [
 
 [[package]]
 name = "ic-cdk-macros"
-version = "0.18.6"
+version = "0.18.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b2cd13805284d5f422012c392a132757c74bd1bb2f7baeda2f3fca5cbe3d8ce7"
+checksum = "7eb14c5d691cc9d72bb95459b4761e3a4b3444b85a63d17555d5ddd782969a1e"
 dependencies = [
  "candid",
  "darling 0.20.11",
@@ -566,9 +566,9 @@ dependencies = [
 
 [[package]]
 name = "ic-management-canister-types"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "95f3af3543f6d0cbdecd2dcdfd4737ada2bd42d935cc787eec22090c96492c76"
+checksum = "ea7e5b8a0f7c3b320d9450ac950547db4f24a31601b5d398f9680b64427455d2"
 dependencies = [
  "candid",
  "serde",
@@ -586,9 +586,9 @@ dependencies = [
 
 [[package]]
 name = "ic-stable-structures"
-version = "0.7.1"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48efe2f2c371e8cb732512d67da61268d6948136cee304721dad6b56efec565d"
+checksum = "e54aeb082293c69def5ab34c70593ba85ff000386f7d0eacdf73514daaeca031"
 dependencies = [
  "ic_principal",
 ]
@@ -650,8 +650,8 @@ dependencies = [
 
 [[package]]
 name = "icu"
-version = "0.3.6"
-source = "git+https://github.com/dragginzgame/icu?tag=v0.3.6#065040c8c689d33d115e8d70f4bf8001129c1eb0"
+version = "0.4.1"
+source = "git+https://github.com/dragginzgame/icu?tag=v0.4.1#b307f4bf930e0c5bfbcbbf6c5880a01fcc5aafec"
 dependencies = [
  "candid",
  "defer",
@@ -660,7 +660,7 @@ dependencies = [
  "ic-cdk-timers",
  "ic-ledger-types",
  "ic-management-canister-types",
- "ic-stable-structures 0.7.1",
+ "ic-stable-structures 0.7.0",
  "ic_principal",
  "icrc-ledger-types",
  "minicbor-serde",
@@ -750,7 +750,7 @@ checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
 name = "mimic"
-version = "0.14.2"
+version = "0.14.3"
 dependencies = [
  "bencher",
  "candid",
@@ -772,7 +772,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_build"
-version = "0.14.2"
+version = "0.14.3"
 dependencies = [
  "mimic_schema",
  "proc-macro2",
@@ -782,7 +782,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_common"
-version = "0.14.2"
+version = "0.14.3"
 dependencies = [
  "candid",
  "convert_case 0.8.0",
@@ -794,7 +794,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_declare"
-version = "0.14.2"
+version = "0.14.3"
 dependencies = [
  "darling 0.21.2",
  "derive_more",
@@ -809,7 +809,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_schema"
-version = "0.14.2"
+version = "0.14.3"
 dependencies = [
  "candid",
  "darling 0.21.2",
@@ -825,7 +825,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_tests"
-version = "0.14.2"
+version = "0.14.3"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -1152,7 +1152,7 @@ dependencies = [
 
 [[package]]
 name = "test_design"
-version = "0.14.2"
+version = "0.14.3"
 dependencies = [
  "candid",
  "ctor",
