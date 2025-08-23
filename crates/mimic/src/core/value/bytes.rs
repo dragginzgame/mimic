@@ -77,6 +77,13 @@ impl Value {
                 feed_u32(h, d.scale());
                 feed_bytes(h, &d.mantissa().to_be_bytes());
             }
+            Self::Enum(v) => {
+                feed_u32(h, v.path.len() as u32);
+                feed_bytes(h, v.path.as_bytes());
+
+                feed_u32(h, v.variant.len() as u32);
+                feed_bytes(h, v.variant.as_bytes());
+            }
             Self::E8s(v) => {
                 feed_u64(h, v.get());
             }

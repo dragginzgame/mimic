@@ -18,6 +18,7 @@ use crate::prelude::*;
         field(name = "offset", value(item(prim = "Int32"))),
         field(name = "tags", value(many, item(prim = "Text"))),
         field(name = "pid", value(item(prim = "Principal"))),
+        field(name = "abc", value(item(is = "FilterableEnum"))),
     )
 )]
 pub struct Filterable {}
@@ -56,3 +57,10 @@ pub struct FilterableOpt {}
     )
 )]
 pub struct FilterableIndex {}
+
+///
+/// FilterableEnum
+///
+
+#[enum_(variant(name = "A", default), variant(name = "B"), variant(name = "C"))]
+pub struct FilterableEnum {}

@@ -6,6 +6,7 @@
 mod tests {
     use crate::core::{
         Key,
+        traits::FieldValue,
         types::{Decimal, E8s, E18s, Float32 as F32, Float64 as F64, Ulid},
         value::{TextMode, Value},
     };
@@ -113,7 +114,7 @@ mod tests {
     fn from_key_round_trips() {
         let ks = [Key::Int(-9), Key::Uint(9), Key::Ulid(Ulid::MAX)];
         for k in ks {
-            let v = Value::from(k);
+            let v = k.to_value();
             let back = v
                 .as_key()
                 .expect("as_key should succeed for orderable variants");

@@ -202,9 +202,27 @@ pub trait FieldValue {
     }
 }
 
+impl FieldValue for &str {
+    fn to_value(&self) -> Value {
+        Value::Text(self.to_string())
+    }
+}
+
 impl FieldValue for String {
     fn to_value(&self) -> Value {
         Value::Text(self.clone())
+    }
+}
+
+impl FieldValue for () {
+    fn to_value(&self) -> Value {
+        Value::Unit
+    }
+}
+
+impl<T: FieldValue + Clone> FieldValue for &T {
+    fn to_value(&self) -> Value {
+        (*self).clone().to_value()
     }
 }
 

@@ -1,5 +1,5 @@
 use crate::{
-    core::{Value, traits::EntityKind},
+    core::traits::{EntityKind, FieldValue},
     db::query::filter::{FilterDsl, FilterExpr, IntoFilterOpt},
 };
 
@@ -85,7 +85,7 @@ pub trait FilterExt: FilterSlot + Sized {
 
     // Shapes (primary key helpers)
     #[must_use]
-    fn one<E: EntityKind>(self, value: impl Into<Value>) -> Self {
+    fn one<E: EntityKind>(self, value: impl FieldValue) -> Self {
         self.filter(|f| f.eq(E::PRIMARY_KEY, value))
     }
 
@@ -94,7 +94,7 @@ pub trait FilterExt: FilterSlot + Sized {
     where
         E: EntityKind,
         I: IntoIterator,
-        I::Item: Into<Value>,
+        I::Item: FieldValue,
     {
         self.filter(move |f| f.in_iter(E::PRIMARY_KEY, values))
     }

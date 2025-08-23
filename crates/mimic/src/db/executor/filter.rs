@@ -62,6 +62,11 @@ impl<'a> FilterEvaluator<'a> {
             return res;
         }
 
+        // 2b) Enum ops
+        if let Some(res) = Self::coerce_enum(left, right, cmp) {
+            return res;
+        }
+
         // 3) Collection membership ops
         if let Some(res) = Self::coerce_collection(left, right, cmp) {
             return res;
@@ -114,6 +119,21 @@ impl<'a> FilterEvaluator<'a> {
 
             Cmp::IsEmpty => actual.is_empty(),
             Cmp::IsNotEmpty => actual.is_not_empty(),
+            _ => None,
+        }
+    }
+
+    /// Enum checking
+    fn coerce_enum(left: &Value, right: &Value, cmp: Cmp) -> Option<bool> {
+        match (left, right) {
+            (Value::Enum(l), Value::Enum(r)) if l.path == r.path => {
+                match cmp {
+                    Cmp::Eq => Some(l.variant == r.variant),
+                    Cmp::Ne => Some(l.variant != r.variant),
+
+                    _ => None, // no string ops here
+                }
+            }
             _ => None,
         }
     }

@@ -1,5 +1,5 @@
 use crate::{
-    core::{Value, traits::EntityKind},
+    core::traits::{EntityKind, FieldValue},
     db::query::{
         FilterExpr, FilterExt, FilterSlot, LimitExpr, LimitSlot, QueryError, QueryValidate,
     },
@@ -24,12 +24,12 @@ impl DeleteQuery {
     }
 
     #[must_use]
-    pub fn one<E: EntityKind>(self, value: impl Into<Value>) -> Self {
+    pub fn one<E: EntityKind>(self, value: impl FieldValue) -> Self {
         self.filter(|f| f.eq(E::PRIMARY_KEY, value))
     }
 
     #[must_use]
-    pub fn many<E: EntityKind>(self, values: impl IntoIterator<Item = impl Into<Value>>) -> Self {
+    pub fn many<E: EntityKind>(self, values: impl IntoIterator<Item = impl FieldValue>) -> Self {
         self.filter(move |f| f.in_iter(E::PRIMARY_KEY, values))
     }
 }

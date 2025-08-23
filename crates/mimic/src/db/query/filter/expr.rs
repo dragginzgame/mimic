@@ -1,4 +1,7 @@
-use crate::{core::value::Value, db::query::Cmp};
+use crate::{
+    core::{traits::FieldValue, value::Value},
+    db::query::Cmp,
+};
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
@@ -299,11 +302,12 @@ pub struct FilterClause {
 }
 
 impl FilterClause {
-    pub fn new(field: &str, cmp: Cmp, value: impl Into<Value>) -> Self {
+    #[must_use]
+    pub fn new(field: &str, cmp: Cmp, value: impl FieldValue) -> Self {
         Self {
             field: field.to_string(),
             cmp,
-            value: value.into(),
+            value: value.to_value(),
         }
     }
 }

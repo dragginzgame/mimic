@@ -1,4 +1,4 @@
-use mimic::{db::query::QueryPlan, prelude::*};
+use mimic::{core::traits::FieldValue, db::query::QueryPlan, prelude::*};
 use test_design::canister::filter::FilterableIndex;
 
 ///
@@ -110,7 +110,7 @@ impl IndexFilterTester {
             QueryPlan::Index(p) => {
                 assert_eq!(p.index.fields, &["name"]);
                 assert_eq!(p.values.len(), 1);
-                assert_eq!(p.values[0], Value::from("Alpha"));
+                assert_eq!(p.values[0], "Alpha".to_value());
             }
             _ => panic!("expected Index plan, got {plan:?}"),
         }

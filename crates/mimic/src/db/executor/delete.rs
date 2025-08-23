@@ -1,6 +1,9 @@
 use crate::{
     Error,
-    core::{Key, Value, deserialize, traits::EntityKind},
+    core::{
+        Key, deserialize,
+        traits::{EntityKind, FieldValue},
+    },
     db::{
         Db, DbError,
         executor::{Context, FilterEvaluator},
@@ -45,14 +48,14 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
     /// these will create an intermediate query
     ///
 
-    pub fn one(self, value: impl Into<Value>) -> Result<Vec<Key>, Error> {
+    pub fn one(self, value: impl FieldValue) -> Result<Vec<Key>, Error> {
         let query = DeleteQuery::new().one::<E>(value);
         self.execute(&query)
     }
 
     pub fn many(
         self,
-        values: impl IntoIterator<Item = impl Into<Value>>,
+        values: impl IntoIterator<Item = impl FieldValue>,
     ) -> Result<Vec<Key>, Error> {
         let query = DeleteQuery::new().many::<E>(values);
         self.execute(&query)

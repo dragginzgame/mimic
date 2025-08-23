@@ -1,4 +1,8 @@
-use crate::core::types::{Principal, Subaccount, Timestamp, Ulid};
+use crate::core::{
+    Value,
+    traits::FieldValue,
+    types::{Principal, Subaccount, Timestamp, Ulid},
+};
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::Display;
 use serde::{Deserialize, Serialize};
@@ -39,6 +43,19 @@ impl Key {
             Self::Timestamp(_) => 3,
             Self::Uint(_) => 4,
             Self::Ulid(_) => 5,
+        }
+    }
+}
+
+impl FieldValue for Key {
+    fn to_value(&self) -> Value {
+        match self {
+            Self::Int(v) => Value::Int(*v),
+            Self::Uint(v) => Value::Uint(*v),
+            Self::Principal(v) => Value::Principal(*v),
+            Self::Subaccount(v) => Value::Subaccount(*v),
+            Self::Timestamp(v) => Value::Timestamp(*v),
+            Self::Ulid(v) => Value::Ulid(*v),
         }
     }
 }

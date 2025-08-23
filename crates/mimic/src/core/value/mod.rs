@@ -3,6 +3,7 @@ mod tests;
 
 use crate::core::{
     Key,
+    traits::FieldValue,
     types::{
         Decimal, E8s, E18s, Float32, Float64, Int, Int128, Nat, Nat128, Principal, Subaccount,
         Timestamp, Ulid,
@@ -50,6 +51,27 @@ macro_rules! impl_from_for {
 }
 
 ///
+/// ValueEnum
+/// handles the Enum case
+///
+
+#[derive(CandidType, Clone, Debug, Deserialize, Eq, Ord, PartialOrd, PartialEq, Serialize)]
+pub struct ValueEnum {
+    pub path: String,
+    pub variant: String,
+}
+
+impl ValueEnum {
+    #[must_use]
+    pub fn new(path: &str, variant: &str) -> Self {
+        Self {
+            path: path.to_string(),
+            variant: variant.to_string(),
+        }
+    }
+}
+
+///
 /// Value
 /// can be used in WHERE statements
 ///
@@ -65,6 +87,7 @@ pub enum Value {
     Blob(Vec<u8>),
     Bool(bool),
     Decimal(Decimal),
+    Enum(ValueEnum),
     E8s(E8s),
     E18s(E18s),
     Float32(Float32),
@@ -105,6 +128,7 @@ impl Value {
             Self::Blob(_) => ValueTag::Blob,
             Self::Bool(_) => ValueTag::Bool,
             Self::Decimal(_) => ValueTag::Decimal,
+            Self::Enum(_) => ValueTag::Enum,
             Self::E8s(_) => ValueTag::E8s,
             Self::E18s(_) => ValueTag::E18s,
             Self::Float32(_) => ValueTag::Float32,
@@ -413,58 +437,9 @@ impl Value {
     }
 }
 
-impl_from_for! {
-    Value,
-    bool => Bool,
-    Decimal => Decimal,
-    E8s => E8s,
-    E18s => E18s,
-    i8 => Int,
-    i16 => Int,
-    i32 => Int,
-    i64 => Int,
-    i128 => Int128,
-    Principal => Principal,
-    &str => Text,
-    String => Text,
-    Timestamp => Timestamp,
-    Ulid => Ulid,
-    u8 => Uint,
-    u16 => Uint,
-    u32 => Uint,
-    u64 => Uint,
-    u128 => Uint128,
-}
-
-// Infallible: every Key can be represented as a Value
-impl From<Key> for Value {
-    fn from(k: Key) -> Self {
-        match k {
-            Key::Int(v) => Self::Int(v),
-            Key::Principal(v) => Self::Principal(v),
-            Key::Subaccount(v) => Self::Subaccount(v),
-            Key::Timestamp(v) => Self::Timestamp(v),
-            Key::Uint(v) => Self::Uint(v),
-            Key::Ulid(v) => Self::Ulid(v),
-        }
-    }
-}
-
-impl From<&Key> for Value {
-    fn from(value: &Key) -> Self {
-        (*value).into()
-    }
-}
-
-impl From<&String> for Value {
-    fn from(value: &String) -> Self {
-        (value.clone()).into()
-    }
-}
-
-impl From<&Ulid> for Value {
-    fn from(value: &Ulid) -> Self {
-        (*value).into()
+impl FieldValue for Value {
+    fn to_value(&self) -> Value {
+        self.clone()
     }
 }
 
@@ -521,25 +496,26 @@ pub enum ValueTag {
     Blob = 1,
     Bool = 2,
     Decimal = 3,
-    E8s = 4,
-    E18s = 5,
-    Float32 = 6,
-    Float64 = 7,
-    Int = 8,
-    Int128 = 9,
-    IntBig = 10,
-    List = 11,
-    None = 12,
-    Principal = 13,
-    Subaccount = 14,
-    Text = 15,
-    Timestamp = 16,
-    Uint = 17,
-    Uint128 = 18,
-    UintBig = 19,
-    Ulid = 20,
-    Unit = 21,
-    Unsupported = 22,
+    Enum = 4,
+    E8s = 5,
+    E18s = 6,
+    Float32 = 7,
+    Float64 = 8,
+    Int = 9,
+    Int128 = 10,
+    IntBig = 11,
+    List = 12,
+    None = 13,
+    Principal = 14,
+    Subaccount = 15,
+    Text = 16,
+    Timestamp = 17,
+    Uint = 18,
+    Uint128 = 19,
+    UintBig = 20,
+    Ulid = 21,
+    Unit = 22,
+    Unsupported = 23,
 }
 
 impl ValueTag {

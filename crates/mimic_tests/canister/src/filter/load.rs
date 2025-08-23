@@ -2,7 +2,7 @@ use mimic::{
     core::types::{Decimal, Principal},
     prelude::*,
 };
-use test_design::canister::filter::{Filterable, FilterableOpt};
+use test_design::canister::filter::{Filterable, FilterableEnum, FilterableOpt};
 
 ///
 /// LoadFilterTester
@@ -36,6 +36,8 @@ impl LoadFilterTester {
             ("filter_opt_lt_level", Self::filter_opt_lt_level),
             ("filter_opt_is_none_name", Self::filter_opt_is_none_name),
             ("filter_opt_ne_pid_null", Self::filter_opt_ne_pid_null),
+            // enum
+            ("filter_eq_enum", Self::filter_eq_enum),
         ];
 
         // insert data
@@ -50,20 +52,23 @@ impl LoadFilterTester {
 
     // insert
     fn insert() {
+        use FilterableEnum::*;
+
+        #[rustfmt::skip]
         let fixtures = [
-            ("Alpha", "A", true, 87.2, 1, -10, vec!["red", "blue"], 1),
-            ("Beta", "B", false, 65.1, 2, 0, vec!["green"], 2),
-            ("Gamma", "C", true, 92.5, 3, 10, vec!["red", "yellow"], 3),
-            ("Delta", "B", false, 15.3, 2, 5, vec![], 4),
-            ("Epsilon", "A", true, 75.0, 4, -5, vec!["green", "blue"], 5),
-            ("Zeta", "C", false, 88.8, 5, 15, vec!["purple"], 6),
-            ("Eta", "B", true, 30.5, 1, 8, vec!["red"], 7),
-            ("Theta", "A", true, 99.9, 6, -20, vec!["blue", "green"], 8),
-            ("Iota", "C", false, 42.0, 3, 0, vec!["yellow", "red"], 9),
-            ("Kappa", "B", true, 50.0, 2, 3, vec!["green", "blue"], 10),
+            ("Alpha", "A", true, 87.2, 1, -10, vec!["red", "blue"], 1, A),
+            ("Beta", "B", false, 65.1, 2, 0, vec!["green"], 2, B),
+            ("Gamma", "C", true, 92.5, 3, 10, vec!["red", "yellow"], 3, C),
+            ("Delta", "B", false, 15.3, 2, 5, vec![], 4, B),
+            ("Epsilon", "A", true, 75.0, 4, -5, vec!["green", "blue"], 5, A),
+            ("Zeta", "C", false, 88.8, 5, 15, vec!["purple"], 6, C),
+            ("Eta", "B", true, 30.5, 1, 8, vec!["red"], 7, B),
+            ("Theta", "A", true, 99.9, 6, -20, vec!["blue", "green"], 8 ,A),
+            ("Iota", "C", false, 42.0, 3, 0, vec!["yellow", "red"], 9, C),
+            ("Kappa", "B", true, 50.0, 2, 3, vec!["green", "blue"], 10, B),
         ];
 
-        for (name, category, active, score, level, offset, tags, pid_index) in fixtures {
+        for (name, category, active, score, level, offset, tags, pid_index, abc) in fixtures {
             db!()
                 .create(Filterable {
                     name: name.into(),
@@ -74,6 +79,7 @@ impl LoadFilterTester {
                     offset,
                     tags: tags.iter().map(ToString::to_string).collect(),
                     pid: Principal::dummy(pid_index),
+                    abc,
                     ..Default::default()
                 })
                 .unwrap();
@@ -407,6 +413,19 @@ impl LoadFilterTester {
             .entities();
 
         assert!(results.iter().all(|e| e.pid.is_some()));
+        assert_eq!(results.len(), 3);
+    }
+
+    // --------------------------- enum ---------------------
+
+    fn filter_eq_enum() {
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|f| f.eq("abc", FilterableEnum::A))
+            .unwrap()
+            .entities();
+
+        assert!(results.iter().all(|e| e.abc == FilterableEnum::A));
         assert_eq!(results.len(), 3);
     }
 }

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.14.5] - 2025-08-22
+- you can use an enum, ie. Rarity::Common in a filter query
+
 ## [0.14.4] - 2025-08-22
 - proper Nat128 and Int128 support, had to wrap the types as minicbor doesn't support them
 - latest ICU changes with the new CanisterPool code

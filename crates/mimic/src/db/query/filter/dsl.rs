@@ -1,5 +1,11 @@
-use crate::core::value::Value;
-use crate::db::query::{Cmp, FilterClause, FilterExpr};
+use crate::{
+    core::{traits::FieldValue, value::Value},
+    db::query::{Cmp, FilterClause, FilterExpr},
+};
+
+///
+/// FilterDsl
+///
 
 #[derive(Clone, Copy, Debug, Default)]
 pub struct FilterDsl;
@@ -7,8 +13,8 @@ pub struct FilterDsl;
 macro_rules! cmp_fns {
     ($( $name:ident => $cmp:ident ),*) => {
         $(
-            pub fn $name(self, field: impl AsRef<str>, v: impl Into<Value>) -> FilterExpr {
-                FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::$cmp, v))
+            pub fn $name(self, field: impl AsRef<str>, v: impl FieldValue) -> FilterExpr {
+                FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::$cmp, v.to_value()))
             }
         )*
     }
@@ -57,10 +63,10 @@ impl FilterDsl {
     //
 
     pub fn is_some(self, field: impl AsRef<str>) -> FilterExpr {
-        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::IsSome, ()))
+        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::IsSome, Value::Unit))
     }
     pub fn is_none(self, field: impl AsRef<str>) -> FilterExpr {
-        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::IsNone, ()))
+        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::IsNone, Value::Unit))
     }
 
     //
@@ -70,9 +76,9 @@ impl FilterDsl {
     fn cmp_iter<I>(field: impl AsRef<str>, cmp: Cmp, vals: I) -> FilterExpr
     where
         I: IntoIterator,
-        I::Item: Into<Value>,
+        I::Item: FieldValue,
     {
-        let list = vals.into_iter().map(Into::into).collect::<Vec<_>>();
+        let list = vals.into_iter().map(|v| v.to_value()).collect::<Vec<_>>();
 
         FilterExpr::Clause(FilterClause::new(field.as_ref(), cmp, Value::List(list)))
     }
@@ -82,7 +88,7 @@ impl FilterDsl {
     pub fn in_iter<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
     where
         I: IntoIterator,
-        I::Item: Into<Value>,
+        I::Item: FieldValue,
     {
         Self::cmp_iter(field, Cmp::In, vals)
     }
@@ -92,7 +98,7 @@ impl FilterDsl {
     pub fn any_in<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
     where
         I: IntoIterator,
-        I::Item: Into<Value>,
+        I::Item: FieldValue,
     {
         Self::cmp_iter(field, Cmp::AnyIn, vals)
     }
@@ -102,7 +108,7 @@ impl FilterDsl {
     pub fn all_in<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
     where
         I: IntoIterator,
-        I::Item: Into<Value>,
+        I::Item: FieldValue,
     {
         Self::cmp_iter(field, Cmp::AllIn, vals)
     }
