@@ -28,7 +28,7 @@ ctor = "0.5"
 darling = "0.21"
 derive_more = { version = "2.0", default-features = false, features = ["full"] }
 ic-cdk = "0.18.7"
-icu = { git = "https://github.com/dragginzgame/icu", tag = "v0.4.1" }
+icu = { git = "https://github.com/dragginzgame/icu", tag = "v0.4.4" }
 mimic = { path = "crates/mimic" }
 mimic_build = { path = "crates/mimic_build" }
 mimic_common = { path = "crates/mimic_common" }
@@ -59,8 +59,11 @@ pedantic = { level = "allow", priority = -1 }
 nursery = { level = "allow", priority = -1 }
 
 # always warn
-must-use-candidate = "warn"
+must_use_candidate = "warn"
 redundant_clone = "warn"
+semicolon_if_nothing_returned = "warn"
+uninlined_format_args = "warn"
+use_self = "warn"
 
 # always allow
 doc_markdown = "allow"

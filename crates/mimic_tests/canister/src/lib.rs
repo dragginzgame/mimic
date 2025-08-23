@@ -5,7 +5,7 @@ mod index;
 mod ops;
 mod validate;
 
-use icu::{ic::export_candid, prelude::*, state::canister::CanisterConfig};
+use icu::{ic::export_candid, prelude::*};
 use mimic::{Error, db::query, prelude::*};
 use test_design::{
     canister::filter::{Filterable, FilterableView},
@@ -20,7 +20,7 @@ use test_design::{
 icu_start_root!();
 mimic_start!();
 
-pub static CANISTERS: &[(&CanisterType, CanisterConfig)] = &[];
+pub static WASMS: &[(CanisterType, &[u8])] = &[];
 
 const fn icu_setup() {}
 
