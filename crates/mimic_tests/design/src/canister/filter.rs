@@ -64,3 +64,10 @@ pub struct FilterableIndex {}
 
 #[enum_(variant(name = "A", default), variant(name = "B"), variant(name = "C"))]
 pub struct FilterableEnum {}
+
+///
+/// FilterableEnumFake
+///
+
+#[enum_(variant(name = "A", default), variant(name = "B"), variant(name = "C"))]
+pub struct FilterableEnumFake {}

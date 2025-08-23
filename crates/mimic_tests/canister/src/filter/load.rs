@@ -2,7 +2,9 @@ use mimic::{
     core::types::{Decimal, Principal},
     prelude::*,
 };
-use test_design::canister::filter::{Filterable, FilterableEnum, FilterableOpt};
+use test_design::canister::filter::{
+    Filterable, FilterableEnum, FilterableEnumFake, FilterableOpt,
+};
 
 ///
 /// LoadFilterTester
@@ -38,6 +40,7 @@ impl LoadFilterTester {
             ("filter_opt_ne_pid_null", Self::filter_opt_ne_pid_null),
             // enum
             ("filter_eq_enum", Self::filter_eq_enum),
+            ("filter_eq_enum_fake", Self::filter_eq_enum_fake),
         ];
 
         // insert data
@@ -427,5 +430,15 @@ impl LoadFilterTester {
 
         assert!(results.iter().all(|e| e.abc == FilterableEnum::A));
         assert_eq!(results.len(), 3);
+    }
+
+    fn filter_eq_enum_fake() {
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|f| f.eq("abc", FilterableEnumFake::A))
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 0);
     }
 }
