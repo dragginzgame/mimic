@@ -92,6 +92,12 @@ impl FieldValue for Principal {
     }
 }
 
+impl FieldValue for WrappedPrincipal {
+    fn to_value(&self) -> Value {
+        Value::Principal(self.into())
+    }
+}
+
 impl From<WrappedPrincipal> for Principal {
     fn from(p: WrappedPrincipal) -> Self {
         Self(p)

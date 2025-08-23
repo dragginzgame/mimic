@@ -9,7 +9,7 @@ use crate::core::{
         Timestamp, Ulid,
     },
 };
-use candid::{CandidType, Principal as WrappedPrincipal};
+use candid::CandidType;
 use num_traits::FromPrimitive;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -440,12 +440,6 @@ impl Value {
 impl FieldValue for Value {
     fn to_value(&self) -> Value {
         self.clone()
-    }
-}
-
-impl From<WrappedPrincipal> for Value {
-    fn from(v: WrappedPrincipal) -> Self {
-        Self::Principal(v.into())
     }
 }
 
