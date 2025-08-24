@@ -55,7 +55,7 @@ macro_rules! impl_from_for {
 /// handles the Enum case
 ///
 
-#[derive(CandidType, Clone, Debug, Deserialize, Eq, Ord, PartialOrd, PartialEq, Serialize)]
+#[derive(CandidType, Clone, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct ValueEnum {
     pub path: String,
     pub variant: String,

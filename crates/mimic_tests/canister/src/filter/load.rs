@@ -55,7 +55,7 @@ impl LoadFilterTester {
 
     // insert
     fn insert() {
-        use FilterableEnum::*;
+        use FilterableEnum::{A, B, C};
 
         #[rustfmt::skip]
         let fixtures = [

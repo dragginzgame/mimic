@@ -204,7 +204,7 @@ pub trait FieldValue {
 
 impl FieldValue for &str {
     fn to_value(&self) -> Value {
-        Value::Text(self.to_string())
+        Value::Text((*self).to_string())
     }
 }
 

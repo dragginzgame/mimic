@@ -119,7 +119,7 @@ dependencies = [
 
 [[package]]
 name = "canister_test"
-version = "0.14.7"
+version = "0.14.8"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -750,7 +750,7 @@ checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
 name = "mimic"
-version = "0.14.7"
+version = "0.14.8"
 dependencies = [
  "bencher",
  "candid",
@@ -772,7 +772,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_build"
-version = "0.14.7"
+version = "0.14.8"
 dependencies = [
  "mimic_schema",
  "proc-macro2",
@@ -782,7 +782,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_common"
-version = "0.14.7"
+version = "0.14.8"
 dependencies = [
  "candid",
  "convert_case 0.8.0",
@@ -794,7 +794,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_declare"
-version = "0.14.7"
+version = "0.14.8"
 dependencies = [
  "darling 0.21.3",
  "derive_more",
@@ -809,7 +809,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_schema"
-version = "0.14.7"
+version = "0.14.8"
 dependencies = [
  "candid",
  "darling 0.21.3",
@@ -825,7 +825,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_tests"
-version = "0.14.7"
+version = "0.14.8"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -846,11 +846,11 @@ dependencies = [
 
 [[package]]
 name = "minicbor"
-version = "2.1.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2872b0488eb23abe7b4c26afe14581b30d0e1a7beb05286fe44978a58ea34ba2"
+checksum = "4f182275033b808ede9427884caa8e05fa7db930801759524ca7925bd8aa7a82"
 dependencies = [
- "minicbor-derive 0.18.1",
+ "minicbor-derive 0.18.2",
 ]
 
 [[package]]
@@ -866,9 +866,9 @@ dependencies = [
 
 [[package]]
 name = "minicbor-derive"
-version = "0.18.1"
+version = "0.18.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73b241342fbf809fe5e9ed7fafd25a28c5283618dbcdfce7d9dac8a85728521c"
+checksum = "b17290c95158a760027059fe3f511970d6857e47ff5008f9e09bffe3d3e1c6af"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -881,7 +881,7 @@ version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0bbf243b8cc68a7a76473b14328d3546fb002ae3d069227794520e9181003de9"
 dependencies = [
- "minicbor 2.1.0",
+ "minicbor 2.1.1",
  "serde",
 ]
 
@@ -1152,7 +1152,7 @@ dependencies = [
 
 [[package]]
 name = "test_design"
-version = "0.14.7"
+version = "0.14.8"
 dependencies = [
  "candid",
  "ctor",

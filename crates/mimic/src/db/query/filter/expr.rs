@@ -240,7 +240,7 @@ impl Not for FilterExpr {
 ///
 
 #[repr(transparent)]
-#[derive(Debug, Eq, PartialEq, Deref, DerefMut, Clone)]
+#[derive(Clone, Debug, Deref, DerefMut, Eq, PartialEq)]
 pub struct FilterExprOpt(pub Option<FilterExpr>);
 
 impl BitAnd for FilterExprOpt {
@@ -294,7 +294,7 @@ impl From<FilterExprOpt> for Option<FilterExpr> {
 /// represents a basic comparison expression: `field cmp value`
 ///
 
-#[derive(CandidType, Clone, Debug, Eq, Deserialize, PartialEq, Serialize)]
+#[derive(CandidType, Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct FilterClause {
     pub field: String,
     pub cmp: Cmp,
