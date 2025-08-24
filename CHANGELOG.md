@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.14.8] - 2025-08-24
+- added the FieldValue trait to List and Set so they can be used in queries
+
 ## [0.14.5] - 2025-08-22
 - you can use an enum, ie. Rarity::Common in a filter query
 

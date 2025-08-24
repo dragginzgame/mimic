@@ -1,6 +1,6 @@
 use crate::{
     imp::{Imp, Implementor, Trait, TraitStrategy},
-    node::{Enum, Newtype},
+    node::{Enum, List, Newtype, Set},
     traits::HasIdent,
 };
 use quote::{ToTokens, quote};
@@ -61,6 +61,30 @@ impl Imp<Enum> for FieldValueTrait {
 }
 
 ///
+/// List
+///
+
+impl Imp<List> for FieldValueTrait {
+    fn strategy(node: &List) -> Option<TraitStrategy> {
+        let q = quote! {
+            fn to_value(&self) -> ::mimic::core::value::Value {
+                ::mimic::core::value::Value::List(
+                    self.iter()
+                        .map(|item| item.to_value())
+                        .collect()
+                )
+            }
+        };
+
+        let tokens = Implementor::new(node.ident(), Trait::FieldValue)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(TraitStrategy::from_impl(tokens))
+    }
+}
+
+///
 /// Newtype
 ///
 
@@ -69,6 +93,30 @@ impl Imp<Newtype> for FieldValueTrait {
         let q = quote! {
             fn to_value(&self) -> ::mimic::core::value::Value {
                 self.0.to_value()
+            }
+        };
+
+        let tokens = Implementor::new(node.ident(), Trait::FieldValue)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(TraitStrategy::from_impl(tokens))
+    }
+}
+
+///
+/// Set
+///
+
+impl Imp<Set> for FieldValueTrait {
+    fn strategy(node: &Set) -> Option<TraitStrategy> {
+        let q = quote! {
+            fn to_value(&self) -> ::mimic::core::value::Value {
+                ::mimic::core::value::Value::List(
+                    self.iter()
+                        .map(|item| item.to_value())
+                        .collect()
+                )
             }
         };
 

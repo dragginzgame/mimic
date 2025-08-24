@@ -70,6 +70,7 @@ impl HasTraits for List {
         use crate::imp::*;
 
         match t {
+            Trait::FieldValue => FieldValueTrait::strategy(self),
             Trait::From => FromTrait::strategy(self),
             Trait::TypeView => TypeViewTrait::strategy(self),
             Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
