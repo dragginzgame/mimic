@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.14.9 - 2025-08-25
+- fixed bug in ulid deserializing
+
 ## [0.14.8] - 2025-08-24
 - added the FieldValue trait to List and Set so they can be used in queries
 

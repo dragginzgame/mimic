@@ -3,6 +3,7 @@ pub mod generator;
 
 use crate::{
     ThisError,
+    common::error::ErrorTree,
     core::{
         traits::{FieldValue, Storable, TypeView, ValidateAuto, ValidateCustom, Visitable},
         value::Value,
@@ -21,26 +22,11 @@ use std::borrow::Cow;
 
 #[derive(Debug, ThisError)]
 pub enum UlidError {
-    #[error("invalid character found")]
-    InvalidChar,
-
-    #[error("ulid has an invalid length")]
-    InvalidLength,
-
     #[error("invalid ulid string")]
     InvalidString,
 
     #[error("monotonic error - overflow")]
     GeneratorOverflow,
-}
-
-impl From<::ulid::DecodeError> for UlidError {
-    fn from(error: ::ulid::DecodeError) -> Self {
-        match error {
-            ::ulid::DecodeError::InvalidChar => Self::InvalidChar,
-            ::ulid::DecodeError::InvalidLength => Self::InvalidLength,
-        }
-    }
 }
 
 ///
@@ -165,7 +151,7 @@ impl<'de> Deserialize<'de> for Ulid {
         D: Deserializer<'de>,
     {
         let deserialized_str = String::deserialize(deserializer)?;
-        let ulid = WrappedUlid::from_string(&deserialized_str).map_err(serde::de::Error::custom)?;
+        let ulid = WrappedUlid::from_string(&deserialized_str).unwrap_or_default();
 
         Ok(Self(ulid))
     }
@@ -211,7 +197,17 @@ impl TypeView for Ulid {
     }
 }
 
-impl ValidateAuto for Ulid {}
+impl ValidateAuto for Ulid {
+    fn validate_self(&self) -> Result<(), ErrorTree> {
+        let mut errs = ErrorTree::default();
+
+        if self.0 == WrappedUlid::nil() {
+            errs.add("ulid is nil");
+        }
+
+        errs.result()
+    }
+}
 
 impl ValidateCustom for Ulid {}
 

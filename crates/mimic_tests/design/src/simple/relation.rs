@@ -17,6 +17,20 @@ use crate::prelude::*;
 pub struct HasRelation {}
 
 ///
+/// HasManyRelation
+///
+
+#[entity(
+    store = "TestDataStore",
+    pk = "id",
+    fields(
+        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(name = "a_ids", value(many, item(rel = "EntityA"))),
+    )
+)]
+pub struct HasManyRelation {}
+
+///
 /// EntityA
 ///
 
