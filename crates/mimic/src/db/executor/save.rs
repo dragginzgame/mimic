@@ -8,7 +8,7 @@ use crate::{
         store::DataKey,
     },
 };
-use icu::{debug, utils::time::now_secs};
+use icu::utils::time::now_secs;
 use std::marker::PhantomData;
 
 ///
@@ -118,7 +118,7 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
         validate(&entity)?;
 
         // debug
-        debug!(self.debug, "query.{mode}: {} ({key:?}) ", E::PATH);
+        //   debug!(self.debug, "query.{mode}: {} ({key:?}) ", E::PATH);
 
         //
         // match save mode

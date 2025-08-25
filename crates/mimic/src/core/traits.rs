@@ -1,6 +1,6 @@
 // re-exports of other traits
 // for the standard traits::X pattern
-pub use icu::ic::structures::storable::Storable;
+pub use icu::cdk::structures::storable::Storable;
 pub use num_traits::{FromPrimitive as NumFromPrimitive, NumCast, ToPrimitive as NumToPrimitive};
 pub use serde::{Deserialize, Serialize, de::DeserializeOwned};
 pub use std::{

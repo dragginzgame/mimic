@@ -12,7 +12,7 @@ use crate::{
 use ::ulid::Ulid as WrappedUlid;
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, Display, FromStr};
-use icu::ic::structures::storable::Bound;
+use icu::cdk::structures::storable::Bound;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::borrow::Cow;
 

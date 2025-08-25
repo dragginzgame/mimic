@@ -1,7 +1,7 @@
 use crate::{
     core::{Key, traits::EntityKind},
     db::store::StoreRegistry,
-    ic::structures::{BTreeMap, DefaultMemoryImpl, memory::VirtualMemory},
+    export::icu::cdk::structures::{BTreeMap, DefaultMemoryImpl, memory::VirtualMemory},
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};

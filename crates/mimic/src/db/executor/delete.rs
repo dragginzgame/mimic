@@ -12,7 +12,6 @@ use crate::{
         },
     },
 };
-use icu::debug;
 use std::marker::PhantomData;
 
 ///
@@ -173,7 +172,7 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
             Ok::<_, DbError>(())
         })??;
 
-        debug!(self.debug, "query.delete: deleted keys {deleted_rows:?}");
+        //   debug!(self.debug, "query.delete: deleted keys {deleted_rows:?}");
 
         Ok(deleted_rows)
     }

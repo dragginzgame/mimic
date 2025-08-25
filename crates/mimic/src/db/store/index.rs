@@ -6,12 +6,12 @@ use crate::{
         executor::ExecutorError,
         store::{DataKey, StoreRegistry},
     },
-    ic::structures::{BTreeMap, DefaultMemoryImpl, memory::VirtualMemory},
+    export::icu::cdk::structures::{BTreeMap, DefaultMemoryImpl, memory::VirtualMemory},
     schema::node::Index,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, Display};
-use icu::{debug, impl_storable_bounded, impl_storable_unbounded};
+use icu::{impl_storable_bounded, impl_storable_unbounded};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashSet,
@@ -54,8 +54,6 @@ impl IndexStore {
         entity: &E,
         index: &Index,
     ) -> Result<(), ExecutorError> {
-        let debug = false;
-
         // Skip if index key can't be built (e.g. optional fields missing)
         let Some(index_key) = IndexKey::new(entity, index) else {
             return Ok(());
@@ -63,7 +61,7 @@ impl IndexStore {
         let key = entity.key();
 
         if let Some(existing) = self.get(&index_key) {
-            let mut updated = existing;
+            let updated = existing;
 
             if index.unique {
                 if !updated.contains(&key) && !updated.is_empty() {
@@ -71,25 +69,11 @@ impl IndexStore {
                 }
 
                 self.insert(index_key.clone(), IndexEntry::new(index.fields, key));
-                debug!(
-                    debug,
-                    "index.insert: unique index updated {index_key} -> {key}"
-                );
             } else {
-                let inserted = updated.insert(key);
                 self.insert(index_key.clone(), updated);
-
-                debug!(
-                    debug,
-                    "index.insert: added {key} to {index_key} (new? {inserted})"
-                );
             }
         } else {
-            self.insert(index_key.clone(), IndexEntry::new(index.fields, key));
-            debug!(
-                debug,
-                "index.insert: created new entry {index_key} -> {key}"
-            );
+            self.insert(index_key, IndexEntry::new(index.fields, key));
         }
 
         Ok(())
@@ -101,33 +85,20 @@ impl IndexStore {
         entity: &impl EntityKind,
         index: &Index,
     ) -> Option<IndexEntry> {
-        let debug = false;
-
         // Skip if index key can't be built (e.g. optional fields missing)
         let index_key = IndexKey::new(entity, index)?;
-        let key = entity.key();
 
         if let Some(existing) = self.get(&index_key) {
-            let mut updated = existing;
-            let removed = updated.remove_key(&key);
-            debug!(
-                debug,
-                "index.remove: removed {key} from {index_key} (was: {removed})"
-            );
+            let updated = existing;
 
             if updated.is_empty() {
-                debug!(debug, "index.remove: {index_key} is empty — removing");
-
                 self.remove(&index_key)
             } else {
                 self.insert(index_key.clone(), updated.clone());
-                debug!(debug, "index.remove: updating {index_key} -> {updated:?}");
 
                 Some(updated)
             }
         } else {
-            debug!(debug, "index.remove: no entry found for {index_key}");
-
             None
         }
     }

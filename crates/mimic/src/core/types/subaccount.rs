@@ -5,7 +5,7 @@ use crate::core::{
 };
 use derive_more::{Deref, DerefMut};
 use icu::{
-    ic::{
+    cdk::{
         candid::CandidType, ledger_types::Subaccount as WrappedSubaccount,
         principal::Principal as WrappedPrincipal,
     },

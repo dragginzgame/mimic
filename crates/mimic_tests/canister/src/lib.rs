@@ -5,13 +5,12 @@ mod index;
 mod ops;
 mod validate;
 
-use icu::{ic::export_candid, prelude::*};
+use icu::{cdk::export_candid, prelude::*};
 use mimic::{Error, db::query, prelude::*};
 use test_design::{
     canister::filter::{Filterable, FilterableView},
     fixture::rarity::{Rarity, RarityView},
     schema::TestDataStore,
-    simple::relation::HasManyRelationView,
 };
 
 //
@@ -98,12 +97,6 @@ pub fn rarity() -> Result<Vec<RarityView>, Error> {
     let rarities = db!().load::<Rarity>().debug().execute(&query)?.views();
 
     Ok(rarities)
-}
-
-// pass_in_many
-#[query]
-pub fn pass_in_many(has: HasManyRelationView) -> u32 {
-    has.a_ids.len() as u32
 }
 
 export_candid!();

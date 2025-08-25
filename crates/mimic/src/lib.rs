@@ -31,14 +31,10 @@ pub use Error as MimicError;
 /// RE-EXPORTS
 ///
 
-// makes it easier to use internally
-pub mod ic {
-    pub use icu::ic::*;
-}
-
 pub mod export {
     pub use ctor;
     pub use derive_more;
+    pub use icu;
     pub use num_traits;
     pub use remain;
 }
