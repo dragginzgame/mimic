@@ -11,13 +11,4 @@ pub mod test {
         log!(Log::Info, "icu v{}", icu::VERSION);
         log!(Log::Info, "mimic v{}", mimic::VERSION);
     }
-
-    #[test]
-    fn test_ulid_validate() {
-        use mimic::core::types::Ulid;
-
-        let a = Ulid::nil();
-
-        panic!("{:?}", mimic::core::validate(&a));
-    }
 }

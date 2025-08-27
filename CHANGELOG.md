@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [0.14.10] - 2025-08-26
+## [0.14.11] - 2025-08-26
 - now entities have an associated constant for each field
 
 ## [0.14.9] - 2025-08-25
