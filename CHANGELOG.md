@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [0.14.9 - 2025-08-25
+## [0.14.10] - 2025-08-26
+- now entities have an associated constant for each field
+
+## [0.14.9] - 2025-08-25
 - fixed bug in ulid deserializing
 
 ## [0.14.8] - 2025-08-24

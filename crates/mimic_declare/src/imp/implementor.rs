@@ -56,21 +56,38 @@ impl Implementor {
 
         self
     }
+
+    // impl_header
+    fn impl_header(&self) -> TokenStream {
+        let ident = &self.ident;
+        let trait_ = &self.trait_;
+        let trait_generics = &self.trait_generics;
+
+        // split generics like: impl<'a, T> … where …
+        let (impl_impl, _, impl_where) = self.impl_generics.split_for_impl();
+
+        match trait_ {
+            Trait::Inherent => {
+                quote! {
+                    impl #impl_impl #ident #impl_where
+                }
+            }
+            _ => {
+                quote! {
+                    impl #impl_impl #trait_<#(#trait_generics),*> for #ident #impl_where
+                }
+            }
+        }
+    }
 }
 
 impl ToTokens for Implementor {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = &self.ident;
+        let header = self.impl_header();
         let inner_tokens = &self.tokens;
-        let trait_ = &self.trait_;
-        let trait_generics = &self.trait_generics;
 
-        // split
-        let (impl_impl, _, impl_where) = self.impl_generics.split_for_impl();
-
-        // quote
         tokens.extend(quote! {
-            impl #impl_impl #trait_<#(#trait_generics),*> for #ident #impl_where {
+            #header {
                 #inner_tokens
             }
         });

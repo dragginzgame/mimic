@@ -87,6 +87,7 @@ impl HasTraits for Entity {
     fn traits(&self) -> Vec<Trait> {
         let mut traits = self.traits.clone().with_type_traits();
         traits.extend(vec![
+            Trait::Inherent,
             Trait::EntityKind,
             Trait::EntityFixture,
             Trait::EntityLifecycle,
@@ -100,6 +101,8 @@ impl HasTraits for Entity {
         use crate::imp::*;
 
         match t {
+            Trait::Inherent => InherentTrait::strategy(self),
+
             Trait::Default => DefaultTrait::strategy(self),
             Trait::From => FromTrait::strategy(self),
             Trait::EntityKind => EntityKindTrait::strategy(self),

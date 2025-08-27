@@ -25,7 +25,6 @@ use crate::prelude::*;
         field(name = "nat_candid", value(item(prim = "Nat"))),
         field(name = "nat_8", value(item(prim = "Nat8"))),
         field(name = "nat_16", value(item(prim = "Nat16"))),
-        field(name = "nat_32", value(item(prim = "Nat32"))),
         field(name = "nat_64", value(item(prim = "Nat64"))),
         field(name = "e8s", value(item(prim = "E8s"))),
         field(name = "e18s", value(item(prim = "E18s"))),
