@@ -60,17 +60,15 @@ impl IndexStore {
         };
         let key = entity.key();
 
-        if let Some(existing) = self.get(&index_key) {
-            let updated = existing;
-
+        if let Some(mut existing) = self.get(&index_key) {
             if index.unique {
-                if !updated.contains(&key) && !updated.is_empty() {
+                if !existing.contains(&key) && !existing.is_empty() {
                     return Err(ExecutorError::index_violation(E::PATH, index.fields));
                 }
-
                 self.insert(index_key.clone(), IndexEntry::new(index.fields, key));
             } else {
-                self.insert(index_key.clone(), updated);
+                existing.insert_key(key); // <-- add to the set
+                self.insert(index_key.clone(), existing);
             }
         } else {
             self.insert(index_key, IndexEntry::new(index.fields, key));
@@ -88,15 +86,14 @@ impl IndexStore {
         // Skip if index key can't be built (e.g. optional fields missing)
         let index_key = IndexKey::new(entity, index)?;
 
-        if let Some(existing) = self.get(&index_key) {
-            let updated = existing;
+        if let Some(mut existing) = self.get(&index_key) {
+            existing.remove_key(&entity.key()); // remove from the set
 
-            if updated.is_empty() {
+            if existing.is_empty() {
                 self.remove(&index_key)
             } else {
-                self.insert(index_key.clone(), updated.clone());
-
-                Some(updated)
+                self.insert(index_key.clone(), existing.clone());
+                Some(existing)
             }
         } else {
             None
@@ -277,15 +274,13 @@ impl IndexEntry {
         }
     }
 
-    #[must_use]
-    pub fn insert(&mut self, key: Key) -> bool {
-        self.keys.insert(key)
+    pub fn insert_key(&mut self, key: Key) {
+        let _ = self.keys.insert(key);
     }
 
     /// Removes the key from the set.
-    #[must_use]
-    pub fn remove_key(&mut self, key: &Key) -> bool {
-        self.keys.remove(key)
+    pub fn remove_key(&mut self, key: &Key) {
+        let _ = self.keys.remove(key);
     }
 
     /// Checks if the set contains the key.

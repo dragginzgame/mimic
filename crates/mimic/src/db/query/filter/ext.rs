@@ -73,6 +73,11 @@ pub trait FilterExt: FilterSlot + Sized {
     }
 
     #[must_use]
+    fn filter_expr(self, expr: FilterExpr) -> Self {
+        self.filter(|_| expr)
+    }
+
+    #[must_use]
     fn simplify(self) -> Self {
         let mut me = self;
         let slot = me.filter_slot();
