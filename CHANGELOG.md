@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.14.13] - 2025-08-30
+- fixed nasty bug with indexes
+
 ## [0.14.11] - 2025-08-26
 - now entities have an associated constant for each field
 
