@@ -172,7 +172,7 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
             Ok::<_, DbError>(())
         })??;
 
-        //   debug!(self.debug, "query.delete: deleted keys {deleted_rows:?}");
+        //   icu::cdk::println!("query.delete: deleted keys {deleted_rows:?}");
 
         Ok(deleted_rows)
     }

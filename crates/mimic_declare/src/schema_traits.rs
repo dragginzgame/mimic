@@ -25,6 +25,9 @@ use std::{collections::HashSet, hash::Hash, str::FromStr, sync::LazyLock};
     Deserialize,
 )]
 pub enum Trait {
+    // inherent impl
+    Inherent,
+
     // rust + third party
     Add,
     AddAssign,

@@ -3,9 +3,9 @@ use crate::{
     node::{Entity, Index},
     traits::{HasIdent, HasSchemaPart},
 };
-use proc_macro2::{Span, TokenStream};
-use quote::{ToTokens, quote};
-use syn::LitStr;
+use mimic_common::utils::case::{Case, Casing};
+use proc_macro2::{Ident, TokenStream};
+use quote::{ToTokens, format_ident, quote};
 
 ///
 /// EntityKindTrait
@@ -18,11 +18,14 @@ impl Imp<Entity> for EntityKindTrait {
         let store = &node.store;
         let pk_field = &node.primary_key.to_string();
 
-        // future note: don't remove fields, it will be super handy
-        let fields: Vec<LitStr> = node
+        // instead of string literals, reference the inherent const idents
+        let field_refs: Vec<Ident> = node
             .fields
             .iter()
-            .map(|f| LitStr::new(&f.ident.to_string(), Span::call_site()))
+            .map(|f| {
+                let constant = f.ident.to_string().to_case(Case::Constant);
+                format_ident!("{constant}")
+            })
             .collect();
 
         // indexes
@@ -39,7 +42,7 @@ impl Imp<Entity> for EntityKindTrait {
 
             const ENTITY_ID: u64 = ::mimic::common::utils::hash::fnv1a_64(Self::PATH.as_bytes());
             const PRIMARY_KEY: &'static str = #pk_field;
-            const FIELDS: &'static [&'static str]  = &[#(#fields),*];
+            const FIELDS: &'static [&'static str]  = &[ #( Self::#field_refs ),* ];
             const INDEXES: &'static [&'static ::mimic::schema::node::Index]  = &[#(&#indexes),*];
         };
 
