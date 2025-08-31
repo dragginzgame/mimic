@@ -8,7 +8,7 @@ This guide covers the complete workflow for developing, versioning, and releasin
 
 ```toml
 [dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", features = [] }
+mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.2" }
 ```
 
 ### Check Available Versions
@@ -226,11 +226,7 @@ mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", feature
 
 ```toml
 [dependencies]
-mimic = { 
-    git = "https://github.com/dragginzgame/mimic", 
-    tag = "v0.9.2", 
-    features = ["serde", "ulid"] 
-}
+mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.2", features = ["serde"] }
 ```
 
 ### Development Version
@@ -244,7 +240,7 @@ mimic = { git = "https://github.com/dragginzgame/mimic", branch = "main", featur
 
 ```toml
 [workspace.dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", features = [] }
+mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.2" }
 
 [dependencies]
 mimic = { workspace = true }

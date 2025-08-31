@@ -30,6 +30,14 @@ It was originally built for the Web3 game [Dragginz](https://dragginz.io/) and i
 
 ---
 
+## ⚡ Quickstart
+
+1) Add dependency (pinned): `mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.2" }`
+2) Define an entity with `#[entity]` and a primary key.
+3) Load via `db().load::<Entity>().all().execute()?.entities()`.
+
+---
+
 ## ✨ Features
 
 - **Entity macros** — define entities declaratively with schema attributes
@@ -89,12 +97,12 @@ pub fn rarities(
 
 ## 📦 Crates
 
-* `mimic` — core framework (entities, queries, schema, stores, types).
-* `mimic_build` — canister codegen (`build.rs` → `actor.rs`).
-* `mimic_common` — shared utilities.
-* `mimic_schema` — schema definitions and types.
-* `mimic_declare` — proc-macros for schema/traits.
-* `mimic_tests` — integration/design tests.
+- `mimic` — core framework (entities, queries, schema, stores, types) — https://docs.rs/mimic
+- `mimic_build` — canister codegen (`build.rs` → `actor.rs`) — https://docs.rs/mimic_build
+- `mimic_common` — shared utilities — https://docs.rs/mimic_common
+- `mimic_schema` — schema definitions and types — https://docs.rs/mimic_schema
+- `mimic_declare` — proc-macros for schema/traits — https://docs.rs/mimic_declare
+- `mimic_tests` — integration/design tests
 
 ---
 

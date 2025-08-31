@@ -1,6 +1,6 @@
 # Mimic Integration Guide
 
-This guide explains how to integrate Mimic into your Internet Computer project using git dependencies with version pinning.
+Use a pinned git tag for reproducible builds and immutable versions.
 
 ## Quick Start
 
@@ -8,33 +8,16 @@ Add Mimic to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", features = [] }
+mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.2" }
 ```
-
-## Available Versions
-
-### Latest Stable Versions
-
-| Version | Tag | Release Date | Breaking Changes |
-|---------|-----|--------------|------------------|
-| 0.9.3 | `v0.9.3` | Latest | No |
-| 0.9.2 | `v0.9.2` | - | No |
-| 0.9.1 | `v0.9.1` | - | No |
-| 0.9.0 | `v0.9.0` | - | Yes |
-
-### Version Compatibility
-
-- **0.9.x**: Stable API, backward compatible within series
-- **0.8.x**: Previous stable series
-- **0.7.x**: Legacy series
 
 ## Integration Methods
 
-### 1. Git Dependency with Tag (Recommended)
+### 1) Git dependency with tag (recommended)
 
 ```toml
 [dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", features = [] }
+mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.2" }
 ```
 
 **Pros:**
@@ -48,7 +31,7 @@ mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", feature
 - Manual updates required
 - Larger download size
 
-### 2. Git Dependency with Branch
+### 2) Git dependency with branch
 
 ```toml
 [dependencies]
@@ -64,7 +47,7 @@ mimic = { git = "https://github.com/dragginzgame/mimic", branch = "main", featur
 - Build reproducibility issues
 - Not recommended for production
 
-### 3. Git Dependency with Commit
+### 3) Git dependency with commit
 
 ```toml
 [dependencies]
@@ -79,33 +62,19 @@ mimic = { git = "https://github.com/dragginzgame/mimic", rev = "abc123...", feat
 - Hard to track updates
 - Manual commit hash management
 
-## Features
-
-Mimic supports several feature flags to customize functionality:
+## Optional features
 
 ```toml
 [dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", features = [
-    "default",           # Default features (recommended)
-    "serde",            # Serde serialization support
-    "icu",              # ICU internationalization
-    "ulid",             # ULID support
-    "decimal",          # Decimal number support
+mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.2", features = [
+  "serde",   # serde derive/support in types
 ] }
 ```
 
-### Feature Descriptions
-
-- **default**: Core functionality (always enabled)
-- **serde**: Enable serde serialization/deserialization
-- **icu**: Internationalization support via ICU
-- **ulid**: ULID (Universally Unique Lexicographically Sortable Identifier) support
-- **decimal**: High-precision decimal arithmetic
-
-## Basic Usage Example
+## Basic usage
 
 ```rust
-use mimic::db::{Db, query::load};
+use mimic::db::Db;
 use mimic::entity;
 
 #[entity(
@@ -122,31 +91,17 @@ pub struct User {}
 let db = Db::new();
 
 // Query users
-let users = load::<User>(&db)
+let users = db
+    .load::<User>()
     .all()
     .execute()?
     .entities()
     .collect::<Vec<_>>();
 ```
 
-## Migration Between Versions
+## Migration
 
-### Upgrading from 0.8.x to 0.9.x
-
-1. Update your dependency:
-   ```toml
-   mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", features = [] }
-   ```
-
-2. Check the [changelog](CHANGELOG.md) for breaking changes
-
-3. Update your code according to the migration guide
-
-### Breaking Changes in 0.9.0
-
-- Query API changes
-- Entity macro syntax updates
-- Database initialization changes
+- Check [CHANGELOG.md](CHANGELOG.md) between tags for any breaking notes.
 
 ## Troubleshooting
 
@@ -182,7 +137,7 @@ error: failed to resolve dependencies
 mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", features = [] }
 ```
 
-### Getting Help
+### Getting help
 
 1. Check the [changelog](CHANGELOG.md) for version-specific notes
 2. Review the [versioning guide](VERSIONING.md) for release information
@@ -190,11 +145,11 @@ mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", feature
 
 ## Security
 
-### 🔒 Tag Immutability
+### 🔒 Tag immutability
 
 Mimic enforces **tag immutability** - once a version is tagged and pushed, the code at that version will never change. This ensures:
 
-- **Reproducible builds** - `v0.9.2` always contains the same code
+- **Reproducible builds** - `v0.15.2` always contains the same code
 - **Supply chain security** - prevents malicious code injection
 - **Dependency stability** - your builds won't break unexpectedly
 
