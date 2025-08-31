@@ -33,7 +33,11 @@ impl Arg {
             Self::Bool(_) => quote!(bool),
             Self::Char(_) => quote!(char),
             Self::Number(n) => n.as_type(),
-            Self::Path(_) | Self::String(_) => quote!(unimplemented!()),
+            Self::Path(_) | Self::String(_) => {
+                quote!(::core::compile_error!(
+                    "Path/String are not valid type args here"
+                ))
+            }
         }
     }
 }
@@ -293,8 +297,11 @@ impl ArgNumber {
 
         // 2. Unsuffixed: first try integers
         if s.contains('.') {
-            // 3. Unsuffixed float, treat as Decimal (as LitStr)
-            return Ok(Self::Float64(s.parse::<f64>().unwrap()));
+            // 3. Unsuffixed float -> f64
+            return s
+                .parse::<f64>()
+                .map(Self::Float64)
+                .map_err(|_| DarlingError::custom(format!("invalid numeric literal '{s}'")));
         }
 
         macro_rules! try_parse {

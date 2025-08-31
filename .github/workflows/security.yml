@@ -1,0 +1,29 @@
+name: Security Check
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+  schedule:
+    - cron: '0 3 * * 1' # Mondays at 03:00 UTC
+  workflow_dispatch:
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare git tags
+        run: |
+          git fetch --force --tags --prune --prune-tags origin
+
+      - name: Run security check
+        run: bash scripts/app/security-check.sh
+

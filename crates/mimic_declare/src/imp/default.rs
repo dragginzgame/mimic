@@ -69,7 +69,6 @@ fn field_list(fields: &FieldList) -> TokenStream {
     });
 
     quote! {
-        #[allow(unused)]
         fn default() -> Self {
             Self {
                 #(#assignments),*

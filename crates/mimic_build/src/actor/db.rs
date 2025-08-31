@@ -47,8 +47,8 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
         }
     }
 
-    let canister_path: syn::Path =
-        parse_str(&builder.canister.def.path()).expect("invalid canister path");
+    let canister_path: syn::Path = parse_str(&builder.canister.def.path())
+        .unwrap_or_else(|_| panic!("invalid canister path: {}", builder.canister.def.path()));
 
     quote! {
         thread_local! {

@@ -10,7 +10,7 @@ use std::sync::{LazyLock, Mutex};
 static GENERATOR: LazyLock<Mutex<Generator>> = LazyLock::new(|| Mutex::new(Generator::default()));
 
 pub fn generate() -> Result<Ulid, UlidError> {
-    let mut generator = GENERATOR.lock().unwrap();
+    let mut generator = GENERATOR.lock().expect("ULID generator mutex poisoned");
 
     generator.generate()
 }

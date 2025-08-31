@@ -68,7 +68,7 @@ fn key(node: &Entity) -> TokenStream {
             self.#primary_key
                 .to_value()
                 .as_key()
-                .unwrap()
+                .expect("primary key must be convertible to Key")
         }
     }
 }

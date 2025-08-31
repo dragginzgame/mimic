@@ -153,7 +153,6 @@ mod tests {
         let subaccount = Subaccount::max_storable();
         let size = Storable::to_bytes(&subaccount).len();
 
-        println!("max serialized size = {size}");
         assert!(size <= Subaccount::STORABLE_MAX_SIZE as usize);
     }
 }

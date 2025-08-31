@@ -223,7 +223,6 @@ mod test {
         let ulid = Ulid::max_storable();
         let size = Storable::to_bytes(&ulid).len();
 
-        println!("max serialized size = {size}");
         assert!(size <= Ulid::STORABLE_MAX_SIZE as usize);
     }
 

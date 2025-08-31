@@ -332,7 +332,6 @@ mod tests {
         let index_key = IndexKey::max_storable();
         let size = Storable::to_bytes(&index_key).len();
 
-        println!("max serialized size = {size}");
         assert!(size <= IndexKey::STORABLE_MAX_SIZE as usize);
     }
 

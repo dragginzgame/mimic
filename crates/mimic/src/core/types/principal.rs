@@ -191,7 +191,6 @@ mod tests {
         let principal = Principal::max_storable();
         let size = Storable::to_bytes(&principal).len();
 
-        println!("max serialized size = {size}");
         assert!(size <= Principal::STORABLE_MAX_SIZE as usize);
     }
 

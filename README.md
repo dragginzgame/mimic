@@ -1,8 +1,10 @@
 
 
-![MSRV](https://img.shields.io/badge/rustc-1.81+-blue.svg)
+![MSRV](https://img.shields.io/badge/rustc-1.89+-blue.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation](https://docs.rs/mimic/badge.svg)](https://docs.rs/mimic)
+[![CI](https://github.com/dragginzgame/mimic/actions/workflows/ci.yml/badge.svg)](https://github.com/dragginzgame/mimic/actions/workflows/ci.yml)
+[![Releases](https://img.shields.io/github/v/release/dragginzgame/mimic?sort=semver)](https://github.com/dragginzgame/mimic/releases)
 
 # Mimic — Data Model Framework for the Internet Computer
 
@@ -87,10 +89,12 @@ pub fn rarities(
 
 ## 📦 Crates
 
-* **`mimic`** — main ORM framework (entities, queries, schema, stores, types, utils).
-* **`mimic_build`** — code generation for canisters (`build.rs` → `actor.rs`).
-* **`mimic_common`** — shared utilities.
-* **`mimic_schema`** — schema definitions and types.
+* `mimic` — core framework (entities, queries, schema, stores, types).
+* `mimic_build` — canister codegen (`build.rs` → `actor.rs`).
+* `mimic_common` — shared utilities.
+* `mimic_schema` — schema definitions and types.
+* `mimic_declare` — proc-macros for schema/traits.
+* `mimic_tests` — integration/design tests.
 
 ---
 
@@ -111,6 +115,21 @@ pub fn rarities(
 ### Install
 
 See [INSTALLING.md](INSTALLING.md).
+
+### Workspace
+
+- Rust 1.89.0, edition 2024 (see `Cargo.toml`).
+- Layout: `crates/*`, assets in `assets/`, scripts in `scripts/`.
+
+### Commands
+
+```bash
+make check      # type-check workspace
+make test       # run all tests
+make clippy     # lint (deny warnings)
+make fmt-check  # verify formatting
+make build      # release build
+```
 
 ### Versioning
 
@@ -137,5 +156,4 @@ make release   # create release tag
 
 ## 📜 License
 
-MIT — see [LICENSE](LICENSE).
-
+MIT — see [LICENSE](LICENSE.md).

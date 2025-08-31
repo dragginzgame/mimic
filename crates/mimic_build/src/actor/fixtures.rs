@@ -24,7 +24,8 @@ fn generate_replace_all(builder: &ActorBuilder) -> TokenStream {
 
     // stores
     for (entity_path, _) in builder.get_entities() {
-        let entity_ident: Path = parse_str(&entity_path).unwrap();
+        let entity_ident: Path = parse_str(&entity_path)
+            .unwrap_or_else(|_| panic!("invalid entity path: {entity_path}"));
         inner.push(quote! {
             #entity_ident::insert_fixtures(db);
         });

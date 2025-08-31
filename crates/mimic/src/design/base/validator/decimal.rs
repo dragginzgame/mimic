@@ -11,7 +11,7 @@ pub struct MaxDecimalPlaces {}
 impl MaxDecimalPlaces {
     pub fn new<N: NumCast>(target: N) -> Self {
         Self {
-            target: NumCast::from(target).unwrap(),
+            target: NumCast::from(target).expect("valid numeric cast"),
         }
     }
 }

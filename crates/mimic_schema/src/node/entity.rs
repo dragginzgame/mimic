@@ -29,7 +29,9 @@ pub struct Entity {
 impl Entity {
     #[must_use]
     pub fn get_pk_field(&self) -> &Field {
-        self.fields.get(self.primary_key).expect("pk field exists")
+        self.fields
+            .get(self.primary_key)
+            .unwrap_or_else(|| panic!("missing primary key field '{}'", self.primary_key))
     }
 }
 

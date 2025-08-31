@@ -19,7 +19,7 @@ pub struct Lt {}
 impl Lt {
     pub fn new<N: NumCast>(target: N) -> Self {
         Self {
-            target: NumCast::from(target).unwrap(),
+            target: NumCast::from(target).expect("valid numeric cast"),
         }
     }
 }
@@ -46,7 +46,7 @@ pub struct Gt {}
 impl Gt {
     pub fn new<N: NumCast>(target: N) -> Self {
         Self {
-            target: NumCast::from(target).unwrap(),
+            target: NumCast::from(target).expect("valid numeric cast"),
         }
     }
 }
@@ -73,7 +73,7 @@ pub struct Lte {}
 impl Lte {
     pub fn new<N: NumCast>(target: N) -> Self {
         Self {
-            target: NumCast::from(target).unwrap(),
+            target: NumCast::from(target).expect("valid numeric cast"),
         }
     }
 }
@@ -103,7 +103,7 @@ pub struct Gtoe {}
 impl Gtoe {
     pub fn new<N: NumCast>(target: N) -> Self {
         Self {
-            target: NumCast::from(target).unwrap(),
+            target: NumCast::from(target).expect("valid numeric cast"),
         }
     }
 }
@@ -133,7 +133,7 @@ pub struct Equal {}
 impl Equal {
     pub fn new<N: NumCast>(target: N) -> Self {
         Self {
-            target: NumCast::from(target).unwrap(),
+            target: NumCast::from(target).expect("valid numeric cast"),
         }
     }
 }
@@ -193,8 +193,8 @@ impl Range {
         N: NumCast,
     {
         Self {
-            min: NumCast::from(min).unwrap(),
-            max: NumCast::from(max).unwrap(),
+            min: NumCast::from(min).expect("valid numeric cast"),
+            max: NumCast::from(max).expect("valid numeric cast"),
         }
     }
 }
@@ -224,7 +224,7 @@ pub struct MultipleOf {}
 impl MultipleOf {
     pub fn new<N: NumCast>(target: N) -> Self {
         Self {
-            target: NumCast::from(target).unwrap(),
+            target: NumCast::from(target).expect("valid numeric cast"),
         }
     }
 }

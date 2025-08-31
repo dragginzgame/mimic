@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- AGENTS.md contributor guide with structure, commands, and conventions.
+- PR template to standardize submissions.
+- GitHub Actions: CI (fmt, clippy, tests), Security Check, and Release workflows.
+- Branch protection guide (.github/BRANCH_PROTECTION.md).
+
+### Changed
+- README: updated MSRV badge (1.89+), license link, concise workspace/commands, full crates list, badges.
+- Replaced several unwraps with expect and clearer panic messages in codegen/schema paths and mutex/RwLock usage.
+- Macro ergonomics: emit compile_error! for unsupported Arg types instead of unimplemented!.
+- Removed redundant #[allow(unused)] in generated Default impl.
+- Trimmed println! from tests; behavior unchanged.
+- Fixed clippy lint name in Cargo.toml (unnecessary_cast).
+
 ## [0.15.1] - 2025-08-31
 - view enums now derive Copy, Eq, PartialEq, Ord, PartialOrd
 

@@ -15,10 +15,12 @@ use std::sync::Arc;
 #[must_use]
 pub fn generate(canister_path: &str) -> String {
     // load schema and get the specified canister
-    let schema = get_schema().unwrap();
+    let schema = get_schema().expect("schema must be valid before codegen");
 
     // filter by name
-    let canister = schema.try_get_node_as::<Canister>(canister_path).unwrap();
+    let canister = schema
+        .try_get_node_as::<Canister>(canister_path)
+        .unwrap_or_else(|_| panic!("unknown canister path: {canister_path}"));
 
     // create the ActorBuilder and generate the code
     let code = ActorBuilder::new(Arc::new(schema.clone()), canister.clone());

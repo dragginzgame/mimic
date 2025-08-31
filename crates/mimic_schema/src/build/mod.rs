@@ -30,13 +30,17 @@ static SCHEMA_VALIDATED: OnceLock<bool> = OnceLock::new();
 
 // schema_write
 pub fn schema_write() -> RwLockWriteGuard<'static, Schema> {
-    SCHEMA.write().unwrap()
+    SCHEMA
+        .write()
+        .expect("schema RwLock poisoned while acquiring write lock")
 }
 
 // schema_read
 // just reads the schema directly without validation
 pub(crate) fn schema_read() -> RwLockReadGuard<'static, Schema> {
-    SCHEMA.read().unwrap()
+    SCHEMA
+        .read()
+        .expect("schema RwLock poisoned while acquiring read lock")
 }
 
 // get_schema
