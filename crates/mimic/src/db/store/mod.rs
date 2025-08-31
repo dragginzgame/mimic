@@ -31,6 +31,21 @@ impl<T: 'static> StoreRegistry<T> {
         Self(HashMap::new())
     }
 
+    // iter
+    pub fn iter(&self) -> impl Iterator<Item = (&'static str, &'static LocalKey<RefCell<T>>)> {
+        self.0.iter().map(|(k, v)| (*k, *v))
+    }
+
+    // for_each
+    pub fn for_each<R>(&self, mut f: impl FnMut(&'static str, &T) -> R) {
+        for (path, accessor) in &self.0 {
+            accessor.with(|cell| {
+                let store = cell.borrow();
+                f(path, &store);
+            });
+        }
+    }
+
     // register
     pub fn register(&mut self, name: &'static str, accessor: &'static LocalKey<RefCell<T>>) {
         self.0.insert(name, accessor);

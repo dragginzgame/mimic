@@ -1,4 +1,5 @@
 pub mod query;
+pub mod stats;
 
 use thiserror::Error as ThisError;
 

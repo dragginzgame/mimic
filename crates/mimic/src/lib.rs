@@ -87,6 +87,9 @@ use thiserror::Error as ThisError;
 #[derive(CandidType, Debug, Deserialize, Serialize, ThisError)]
 pub enum Error {
     #[error("{0}")]
+    IcuError(String),
+
+    #[error("{0}")]
     DbError(String),
 
     #[error("{0}")]
@@ -108,6 +111,8 @@ macro_rules! from_to_string {
         }
     };
 }
+
+from_to_string!(icu::IcuError, IcuError);
 
 from_to_string!(db::DbError, DbError);
 from_to_string!(interface::InterfaceError, InterfaceError);

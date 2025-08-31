@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.15.0] - Mimic Stats!
+- now you can use the mimic_stats endpoint on any canister to find out about all the stores, memory
+size, number of entries, first and last key
+
 ## [0.14.13] - 2025-08-30
 - fixed nasty bug with indexes
 

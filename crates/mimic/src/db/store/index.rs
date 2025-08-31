@@ -112,6 +112,12 @@ impl IndexStore {
             .collect()
     }
 
+    pub fn memory_bytes(&self) -> u64 {
+        self.iter()
+            .map(|entry| u64::from(IndexKey::STORABLE_MAX_SIZE) + entry.value().len() as u64)
+            .sum()
+    }
+
     /// Internal: iterate entries for this index whose hashed_values start with the hashed prefix.
     fn iter_with_hashed_prefix<E: EntityKind>(
         &self,

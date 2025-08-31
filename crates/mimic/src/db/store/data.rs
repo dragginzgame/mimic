@@ -36,6 +36,12 @@ impl DataStore {
     pub fn init(memory: VirtualMemory<DefaultMemoryImpl>) -> Self {
         Self(BTreeMap::init(memory))
     }
+
+    pub fn memory_bytes(&self) -> u64 {
+        self.iter()
+            .map(|entry| u64::from(DataKey::STORABLE_MAX_SIZE) + entry.value().len() as u64)
+            .sum()
+    }
 }
 
 ///
