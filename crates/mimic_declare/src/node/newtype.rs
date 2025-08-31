@@ -2,7 +2,7 @@ use crate::{
     helper::quote_option,
     imp::TraitStrategy,
     node::{Arg, Def, Item, Type},
-    schema_traits::{Trait, Traits},
+    schema_traits::{Trait, TraitList, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
         SchemaNodeKind,
@@ -66,7 +66,7 @@ impl HasSchemaPart for Newtype {
 }
 
 impl HasTraits for Newtype {
-    fn traits(&self) -> Vec<Trait> {
+    fn traits(&self) -> TraitList {
         let mut traits = self.traits.clone().with_type_traits();
         traits.extend(vec![Trait::Deref, Trait::DerefMut]);
 
@@ -125,6 +125,8 @@ impl HasTraits for Newtype {
         }
     }
 }
+
+impl HasType for Newtype {}
 
 impl HasTypePart for Newtype {
     fn type_part(&self) -> TokenStream {

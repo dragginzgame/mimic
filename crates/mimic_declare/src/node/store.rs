@@ -2,9 +2,10 @@ use crate::{
     helper::{quote_one, to_path, to_str_lit},
     imp::TraitStrategy,
     node::Def,
-    schema_traits::{Trait, Traits},
+    schema_traits::{Trait, TraitList, Traits},
     traits::{
-        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart, SchemaNodeKind,
+        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
+        SchemaNodeKind,
     },
 };
 use darling::FromMeta;
@@ -61,7 +62,7 @@ impl HasSchemaPart for Store {
 }
 
 impl HasTraits for Store {
-    fn traits(&self) -> Vec<Trait> {
+    fn traits(&self) -> TraitList {
         let mut traits = Traits::default().with_path_trait();
         traits.add(Trait::StoreKind);
 
@@ -77,6 +78,8 @@ impl HasTraits for Store {
         }
     }
 }
+
+impl HasType for Store {}
 
 impl HasTypePart for Store {
     fn type_part(&self) -> TokenStream {

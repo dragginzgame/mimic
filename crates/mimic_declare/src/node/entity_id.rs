@@ -1,8 +1,8 @@
 use crate::{
     imp::TraitStrategy,
     node::Def,
-    schema_traits::{Trait, Traits},
-    traits::{HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart},
+    schema_traits::{Trait, TraitList, Traits},
+    traits::{HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -36,7 +36,7 @@ impl HasSchema for EntityId {}
 impl HasSchemaPart for EntityId {}
 
 impl HasTraits for EntityId {
-    fn traits(&self) -> Vec<Trait> {
+    fn traits(&self) -> TraitList {
         let mut traits = self.traits.clone().with_default_traits();
         traits.extend(vec![Trait::Copy, Trait::EntityIdKind, Trait::Into]);
 
@@ -60,6 +60,8 @@ impl HasTraits for EntityId {
         }
     }
 }
+
+impl HasType for EntityId {}
 
 impl HasTypePart for EntityId {
     fn type_part(&self) -> TokenStream {

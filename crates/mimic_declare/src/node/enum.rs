@@ -2,7 +2,7 @@ use crate::{
     helper::{quote_one, quote_option, quote_slice, to_str_lit},
     imp::TraitStrategy,
     node::{Def, Type, Value},
-    schema_traits::{Trait, Traits},
+    schema_traits::{Trait, TraitList, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
         SchemaNodeKind,
@@ -45,7 +45,7 @@ impl HasIdent for Enum {
 }
 
 impl HasTraits for Enum {
-    fn traits(&self) -> Vec<Trait> {
+    fn traits(&self) -> TraitList {
         let mut traits = self.traits.clone().with_type_traits();
 
         // extra traits
@@ -94,6 +94,32 @@ impl HasSchemaPart for Enum {
     }
 }
 
+impl HasType for Enum {
+    fn view_derives(&self) -> TraitList {
+        let mut traits = vec![
+            Trait::CandidType,
+            Trait::Clone,
+            Trait::Debug,
+            Trait::Serialize,
+            Trait::Deserialize,
+        ];
+
+        // extra traits
+        if self.is_unit_enum() {
+            traits.extend(vec![
+                Trait::Copy,
+                Trait::Hash,
+                Trait::Eq,
+                Trait::Ord,
+                Trait::PartialEq,
+                Trait::PartialOrd,
+            ]);
+        }
+
+        TraitList(traits)
+    }
+}
+
 impl HasTypePart for Enum {
     fn type_part(&self) -> TokenStream {
         let ident = self.ident();
@@ -107,10 +133,10 @@ impl HasTypePart for Enum {
     }
 
     fn view_type_part(&self) -> TokenStream {
+        let derives = self.view_derives();
         let ident = self.ident();
         let view_ident = self.view_ident();
         let view_variants = self.variants.iter().map(HasTypePart::view_type_part);
-        let derives = Self::view_derives();
 
         quote! {
             #derives

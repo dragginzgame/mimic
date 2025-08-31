@@ -1,5 +1,5 @@
 use darling::{Error as DarlingError, FromMeta, ast::NestedMeta};
-use derive_more::{Deref, DerefMut, Display, FromStr};
+use derive_more::{Deref, DerefMut, Display, FromStr, IntoIterator};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 use serde::{Deserialize, Serialize};
@@ -235,7 +235,7 @@ impl Traits {
 
     // list
     // generates the TraitList based on the defaults plus traits that have been added or removed
-    pub fn list(&self) -> Vec<Trait> {
+    pub fn list(&self) -> TraitList {
         let mut traits = HashSet::new();
 
         // self.add
@@ -251,11 +251,7 @@ impl Traits {
             );
         }
 
-        // sort
-        let mut sorted_traits: Vec<Trait> = traits.into_iter().collect();
-        sorted_traits.sort();
-
-        sorted_traits
+        TraitList(traits.into_iter().collect::<Vec<_>>())
     }
 }
 
@@ -263,20 +259,12 @@ impl Traits {
 /// TraitList
 ///
 
-#[derive(Clone, Debug, Default, Deref, DerefMut)]
+#[derive(Clone, Debug, Default, Deref, IntoIterator, DerefMut)]
 pub struct TraitList(pub Vec<Trait>);
 
 impl TraitList {
-    pub fn to_derive_tokens(&self) -> TokenStream {
-        if self.0.is_empty() {
-            quote!()
-        } else {
-            let derive_paths = self.0.iter().filter_map(|tr| tr.derive_path());
-
-            quote! {
-                #[derive(#(#derive_paths),*)]
-            }
-        }
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 
@@ -296,5 +284,16 @@ impl FromMeta for TraitList {
         }
 
         Ok(traits)
+    }
+}
+
+impl ToTokens for TraitList {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        if !self.0.is_empty() {
+            let derive_paths = self.0.iter().filter_map(|tr| tr.derive_path());
+            tokens.extend(quote! {
+                #[derive(#(#derive_paths),*)]
+            });
+        }
     }
 }

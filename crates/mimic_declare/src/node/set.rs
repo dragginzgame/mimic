@@ -1,7 +1,7 @@
 use crate::{
     imp::TraitStrategy,
     node::{Def, Item, Type},
-    schema_traits::{Trait, Traits},
+    schema_traits::{Trait, TraitList, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
         SchemaNodeKind,
@@ -59,7 +59,7 @@ impl HasSchemaPart for Set {
 }
 
 impl HasTraits for Set {
-    fn traits(&self) -> Vec<Trait> {
+    fn traits(&self) -> TraitList {
         let mut traits = self.traits.clone().with_type_traits();
         traits.extend(vec![Trait::Deref, Trait::DerefMut, Trait::IntoIterator]);
 
@@ -80,6 +80,8 @@ impl HasTraits for Set {
         }
     }
 }
+
+impl HasType for Set {}
 
 impl HasTypePart for Set {
     fn type_part(&self) -> TokenStream {

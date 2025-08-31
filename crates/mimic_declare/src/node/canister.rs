@@ -1,8 +1,9 @@
 use crate::{
     node::Def,
-    schema_traits::{Trait, Traits},
+    schema_traits::{Trait, TraitList, Traits},
     traits::{
-        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart, SchemaNodeKind,
+        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
+        SchemaNodeKind,
     },
 };
 use darling::FromMeta;
@@ -46,13 +47,15 @@ impl HasSchemaPart for Canister {
 }
 
 impl HasTraits for Canister {
-    fn traits(&self) -> Vec<Trait> {
+    fn traits(&self) -> TraitList {
         let mut traits = Traits::default().with_path_trait();
         traits.add(Trait::CanisterKind);
 
         traits.list()
     }
 }
+
+impl HasType for Canister {}
 
 impl HasTypePart for Canister {
     fn type_part(&self) -> TokenStream {

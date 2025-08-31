@@ -1,8 +1,9 @@
 use crate::{
     node::{Def, FieldList},
-    schema_traits::{Trait, Traits},
+    schema_traits::{Trait, TraitList, Traits},
     traits::{
-        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart, SchemaNodeKind,
+        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
+        SchemaNodeKind,
     },
 };
 use darling::FromMeta;
@@ -50,13 +51,15 @@ impl HasSchemaPart for Validator {
 }
 
 impl HasTraits for Validator {
-    fn traits(&self) -> Vec<Trait> {
+    fn traits(&self) -> TraitList {
         let mut traits = Traits::default().with_default_traits();
         traits.add(Trait::Default);
 
         traits.list()
     }
 }
+
+impl HasType for Validator {}
 
 impl HasTypePart for Validator {
     fn type_part(&self) -> TokenStream {

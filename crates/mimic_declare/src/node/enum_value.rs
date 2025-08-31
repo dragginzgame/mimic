@@ -2,7 +2,7 @@ use crate::{
     helper::{quote_one, quote_slice, to_str_lit},
     imp::TraitStrategy,
     node::{ArgNumber, Def, Type},
-    schema_traits::{Trait, Traits},
+    schema_traits::{Trait, TraitList, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
         SchemaNodeKind,
@@ -61,7 +61,7 @@ impl HasSchemaPart for EnumValue {
 }
 
 impl HasTraits for EnumValue {
-    fn traits(&self) -> Vec<Trait> {
+    fn traits(&self) -> TraitList {
         let mut traits = self.traits.clone().with_type_traits();
         traits.extend(vec![Trait::Copy, Trait::EnumValueKind, Trait::Hash]);
 
@@ -81,6 +81,8 @@ impl HasTraits for EnumValue {
     }
 }
 
+impl HasType for EnumValue {}
+
 impl HasTypePart for EnumValue {
     fn type_part(&self) -> TokenStream {
         let ident = self.ident();
@@ -97,7 +99,7 @@ impl HasTypePart for EnumValue {
         let ident = self.ident();
         let view_ident = self.view_ident();
         let view_variants = self.variants.iter().map(HasTypePart::view_type_part);
-        let derives = Self::view_derives();
+        let derives = self.view_derives();
 
         quote! {
             #derives

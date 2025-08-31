@@ -1,7 +1,8 @@
 use crate::{
     node::{Arg, Def},
     traits::{
-        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart, SchemaNodeKind,
+        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
+        SchemaNodeKind,
     },
 };
 use darling::FromMeta;
@@ -52,6 +53,8 @@ impl HasSchemaPart for Constant {
 }
 
 impl HasTraits for Constant {}
+
+impl HasType for Constant {}
 
 impl HasTypePart for Constant {
     fn type_part(&self) -> TokenStream {

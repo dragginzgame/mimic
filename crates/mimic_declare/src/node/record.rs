@@ -1,7 +1,7 @@
 use crate::{
     imp::TraitStrategy,
     node::{Def, FieldList, Type},
-    schema_traits::{Trait, Traits},
+    schema_traits::{Trait, TraitList, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
         SchemaNodeKind,
@@ -60,7 +60,7 @@ impl HasSchemaPart for Record {
 }
 
 impl HasTraits for Record {
-    fn traits(&self) -> Vec<Trait> {
+    fn traits(&self) -> TraitList {
         self.traits.clone().with_type_traits().list()
     }
 
@@ -87,6 +87,8 @@ impl HasTraits for Record {
     }
 }
 
+impl HasType for Record {}
+
 impl HasTypePart for Record {
     fn type_part(&self) -> TokenStream {
         let ident = self.ident();
@@ -102,7 +104,7 @@ impl HasTypePart for Record {
     fn view_type_part(&self) -> TokenStream {
         let ident = self.ident();
         let view_ident = self.view_ident();
-        let derives = Self::view_derives();
+        let derives = self.view_derives();
         let view_field_list = &self.fields.view_type_part();
 
         quote! {

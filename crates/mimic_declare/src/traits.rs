@@ -46,7 +46,6 @@ pub trait HasMacro: HasSchema + HasTraits + HasType {
 
         for tr in self.traits() {
             let strat = self.map_trait(tr).or_else(|| self.default_strategy(tr));
-
             let attr = self.map_attribute(tr);
 
             match strat {
@@ -108,8 +107,8 @@ pub trait HasIdent {
 
 pub trait HasTraits: HasIdent + ToTokens {
     /// Returns a list of traits to implement
-    fn traits(&self) -> Vec<Trait> {
-        vec![]
+    fn traits(&self) -> TraitList {
+        TraitList::new()
     }
 
     /// Maps a trait to its token implementation
@@ -249,7 +248,7 @@ pub trait HasType: HasTypePart + HasIdent {
         format_view_ident(&self.ident())
     }
 
-    fn view_derives() -> TokenStream {
+    fn view_derives(&self) -> TraitList {
         TraitList(vec![
             Trait::CandidType,
             Trait::Clone,
@@ -257,11 +256,8 @@ pub trait HasType: HasTypePart + HasIdent {
             Trait::Serialize,
             Trait::Deserialize,
         ])
-        .to_derive_tokens()
     }
 }
-
-impl<T> HasType for T where T: HasTypePart + HasIdent {}
 
 ///
 /// HasTypePart

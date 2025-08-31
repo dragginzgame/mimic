@@ -2,7 +2,7 @@ use crate::{
     helper::quote_slice,
     imp::TraitStrategy,
     node::{Def, Type, Value},
-    schema_traits::{Trait, Traits},
+    schema_traits::{Trait, TraitList, Traits},
     traits::{
         HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
         SchemaNodeKind,
@@ -61,7 +61,7 @@ impl HasSchemaPart for Tuple {
 }
 
 impl HasTraits for Tuple {
-    fn traits(&self) -> Vec<Trait> {
+    fn traits(&self) -> TraitList {
         self.traits.clone().with_type_traits().list()
     }
 
@@ -77,6 +77,8 @@ impl HasTraits for Tuple {
         }
     }
 }
+
+impl HasType for Tuple {}
 
 impl HasTypePart for Tuple {
     fn type_part(&self) -> TokenStream {

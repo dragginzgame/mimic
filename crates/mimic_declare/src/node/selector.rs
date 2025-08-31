@@ -2,9 +2,10 @@ use crate::{
     helper::{quote_one, quote_slice, to_path},
     imp::TraitStrategy,
     node::{Arg, Def},
-    schema_traits::{Trait, Traits},
+    schema_traits::{Trait, TraitList, Traits},
     traits::{
-        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasTypePart, SchemaNodeKind,
+        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
+        SchemaNodeKind,
     },
 };
 use darling::FromMeta;
@@ -57,7 +58,7 @@ impl HasSchemaPart for Selector {
 }
 
 impl HasTraits for Selector {
-    fn traits(&self) -> Vec<Trait> {
+    fn traits(&self) -> TraitList {
         let mut traits = Traits::new().with_default_traits();
         traits.add(Trait::Into);
 
@@ -74,6 +75,8 @@ impl HasTraits for Selector {
         }
     }
 }
+
+impl HasType for Selector {}
 
 impl HasTypePart for Selector {
     fn type_part(&self) -> TokenStream {
