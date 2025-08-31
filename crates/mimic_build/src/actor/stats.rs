@@ -17,7 +17,7 @@ pub fn generate(_builder: &ActorBuilder) -> TokenStream {
                 reg.for_each(|path, store| {
                     data.push(StoreStats {
                         path: path.to_string(),
-                        entries: store.len() as u64,
+                        entries: store.len(),
                         min_key: store.first_key_value().map(|(k, _)| k.into()),
                         max_key: store.last_key_value().map(|(k, _)| k.into()),
                         memory_bytes: store.memory_bytes(),
@@ -29,8 +29,8 @@ pub fn generate(_builder: &ActorBuilder) -> TokenStream {
                 reg.for_each(|path, store| {
                     index.push(IndexStats {
                         path: path.to_string(),
-                        entries: store.len() as u64,
-               memory_bytes: store.memory_bytes(),
+                        entries: store.len(),
+                        memory_bytes: store.memory_bytes(),
                     });
                 });
             });

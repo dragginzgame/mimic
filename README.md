@@ -1,164 +1,141 @@
-![MSRV](https://img.shields.io/badge/rustc-1.81+-blue.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Documentation](https://docs.rs/mimic/badge.svg)](https://docs.rs/mimic)
 
-# Mimic Data Model Framework
 
-![An appealing funny cover image to introduce Mimic](image.png)
+![MSRV](https://img.shields.io/badge/rustc-1.81+-blue.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Documentation](https://docs.rs/mimic/badge.svg)](https://docs.rs/mimic)
+
+# Mimic — Data Model Framework for the Internet Computer
+
+![Funny / appealing cover image for Mimic](assets/image.png)<img src="assets/swampfree.png" alt="100% Certified Swamp-Free" width="200"/>
 
 ```
+
 Make It [ Matter     ] on the Internet Computer
           Magical
-          Monetise
           Modular
           Multiplayer
-          Mostly
+          Monetisable
           Mainstream
-```
+
+````
+
 
 ## 👋 Introduction
 
-Hi, I'm @borovan and I LARP as a Rust developer. This is my ORM framework, originally designed for the web3 game [Dragginz](https://dragginz.io/) but we have decided to open source it to get help making it better, and also provide a tool for others to develop on the [Internet Computer](https://internetcomputer.org).
+**Mimic** is a Rust framework for building strongly-typed, queryable data models on the [Internet Computer](https://internetcomputer.org).
 
-### What is Mimic?
+It was originally built for the Web3 game [Dragginz](https://dragginz.io/) and is now open-sourced for the wider IC community. Mimic aims to make building **schemas, queries, and storage-backed entities** ergonomic, safe, and fun.
 
-We want to be able to design entities using a customised macro language, and then have a query builder to access the data, like this :
+---
+
+## ✨ Features
+
+- **Entity macros** — define entities declaratively with schema attributes
+- **Query builder** — type-safe filters, ordering, offsets, limits
+- **Stable storage** — powered by `ic-stable-structures` B-Trees
+- **Automatic endpoints** — `mimic_build` generates `mimic_query_load`, `mimic_query_save`, `mimic_query_delete`
+- **Stats API** — optional `mimic_stats` endpoint for inspecting stores
+- **Integration with IC canisters** — ergonomic `mimic_start!` and `mimic_build!` macros
+- **Testability** — fixtures, query validation, and index testing
+
+---
+
+## 🚀 Example
+
+### Define an entity
 
 ```rust
-    /// Rarity
-    /// affects the chance of an item dropping or an event occurring
-    #[entity(
-        sk(field = "id"),
-        fields(
-            field(name = "id", value(item(is = "types::Ulid"))),
-            field(name = "name", value(item(is = "text::Name"))),
-            field(name = "description", value(item(is = "text::Description"))),
-            field(name = "order", value(item(is = "game::Order"))),
-            field(name = "color", value(item(is = "types::color::RgbHex"))),
-            order(field = "order", direction = "asc"),
-        ),
-    )]
-    pub struct Rarity {}
-```
+/// Rarity
+/// Affects the chance of an item dropping or an event occurring.
+#[entity(
+    sk(field = "id"),
+    fields(
+        field(name = "id", value(item(is = "types::Ulid"))),
+        field(name = "name", value(item(is = "text::Name"))),
+        field(name = "description", value(item(is = "text::Description"))),
+        field(name = "order", value(item(is = "game::Order"))),
+        field(name = "color", value(item(is = "types::color::RgbHex"))),
+    ),
+)]
+pub struct Rarity {}
+````
+
+### Query entities
 
 ```rust
-// rarities
 #[query]
-pub fn rarities(...) -> Result<Vec<Rarity>, Error> {
-    DB.with(|db| {
-        let rarities = mimic::db::query::load::<Rarity>(db)
-            .debug()
-            .all()
-            .offset(offset)
-            .filter(filter)
-            .order(order)
-            .limit_option(limit)
-            .execute()?
-            .entities()
-            .collect();
-
-        Ok(rarities)
-    })
+pub fn rarities(
+    offset: usize,
+    limit: Option<usize>,
+    filter: FilterExpr,
+    order: OrderExpr,
+) -> Result<Vec<Rarity>, mimic::Error> {
+    db().load::<Rarity>()
+        .debug()
+        .all()
+        .offset(offset)
+        .filter(filter)
+        .order(order)
+        .limit_option(limit)
+        .execute()?
+        .entities()
+        .collect()
 }
-
 ```
 
-### FAQ
+---
 
-#### How do I install Mimic?
-**A:** We have an install guide [here](INSTALLING.md).
+## 📦 Crates
 
-#### How do I manage versions and releases?
-**A:** We have a comprehensive versioning guide [here](VERSIONING.md) and convenient tools:
+* **`mimic`** — main ORM framework (entities, queries, schema, stores, types, utils).
+* **`mimic_build`** — code generation for canisters (`build.rs` → `actor.rs`).
+* **`mimic_common`** — shared utilities.
+* **`mimic_schema`** — schema definitions and types.
+
+---
+
+## 🔧 Modules (in `mimic`)
+
+* `core` — traits, keys, type system, validation.
+* `db` — query execution, stores, registries, persistence.
+* `design` — schema macros and design-time structures.
+* `interface` — canister endpoints, errors, stats API.
+* `macros` — procedural macros (`#[entity]`, `mimic_start!`, etc).
+* `types` — reusable types (ULID, Cardinality, colors, etc).
+* `utils` — helper libraries.
+
+---
+
+## 🧑‍💻 Development
+
+### Install
+
+See [INSTALLING.md](INSTALLING.md).
+
+### Versioning
+
+We use semver with convenience scripts:
 
 ```bash
-# Show current version
-make version
-
-# List available git tags
-make tags
-
-# Bump versions
-make patch    # 0.9.3 -> 0.9.4
-make minor    # 0.9.3 -> 0.10.0  
-make major    # 0.9.3 -> 1.0.0
-
-# Create a release
-make release
+make version   # current version
+make patch     # bump 0.9.3 -> 0.9.4
+make minor     # bump 0.9.3 -> 0.10.0
+make major     # bump 0.9.3 -> 1.0.0
+make release   # create release tag
 ```
 
-#### How do I integrate Mimic as a git dependency?
-**A:** We have a comprehensive integration guide [here](INTEGRATION.md). Quick start:
+---
 
-```toml
-[dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", features = [] }
-```
+## 📊 Current Focus
 
--------
+* Improving docs and examples
+* Better error modeling (`MimicError` + sub-errors)
+* Testing index logic, filters, fixtures
+* Store statistics & memory usage
+* Reducing WASM size from codegen
 
-#### Current Situation
 
-- Documentation is a disaster because it's evolving so quickly I just make it look neat and forget about
-actually writing useful documentation
-- HUGE emphasis on macros which slows down the IDE but it's also what makes it so easy to write game design
+## 📜 License
 
-#### Feature TODO
-
-- Indexing for B-Trees (no use-case yet however)
-
-### Testing TODO
-
-- So far we have barely scratched the surface of how this code should be tested
-
--------------
-
-## ❓Open Questions
-
-### Crates & Modules
-
-- feedback needed on the amount of crates in the framework. Does it have to be so many?  What's the best practice
-for organising crates in a complicated project
-
-### Errors
-
-- what's the best way to handle a framework that has about 50 different error types?
-
------
-
-## 📦 Top-Level Crates
-
-- `mimic` - the codebase is here, plus a top level `mimic/src` crate that includes and organises everything
-- `mimic_build` - the ctor macros that allow you to build your data model or schema
-
-### Mimic
-
-#### config
-
-Framework-level runtime configuration.  Magic numbers, hash seeds, directories etc.
-
-Anything compile time we would have to pass into Mimic as an environment variable or rust feature.
-
-#### schema
-
-All of the schema types, schema build and state
-
-#### ic
-
-the Internet Computer and related repos are all wrapped in the ic crate, with additional helpers
-
-#### query
-
-Query interface for the database.  Contains query builders, and a schema resource locator.
-
-#### store
-
-The B-Tree that stores data in Mimic
-
-#### types
-
-General types that mimic uses, including things like Cardinality that are shared between the data
-model builder and the schema
-
-#### utils
-
-Libraries.  Notably ulid is wrapped here and also wrapped within the ORM, just so we can use it as a raw API CandidType, and also within the ORM where it gains a whole lot more features.
+MIT — see [LICENSE](LICENSE).
 
