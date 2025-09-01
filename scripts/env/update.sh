@@ -11,6 +11,7 @@ cargo install \
     candid-extractor ic-wasm
 
 # cleanup
+cargo fmt
 cargo audit
 cargo sort -w 1>/dev/null
 

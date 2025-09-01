@@ -78,11 +78,7 @@ impl IndexStore {
     }
 
     // remove_index_entry
-    pub fn remove_index_entry(
-        &mut self,
-        entity: &impl EntityKind,
-        index: &Index,
-    ) {
+    pub fn remove_index_entry(&mut self, entity: &impl EntityKind, index: &Index) {
         // Skip if index key can't be built (e.g. optional fields missing)
         let Some(index_key) = IndexKey::new(entity, index) else {
             return;

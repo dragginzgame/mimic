@@ -42,10 +42,22 @@ impl LoadFilterTester {
             ("filter_eq_enum", Self::filter_eq_enum),
             ("filter_eq_enum_fake", Self::filter_eq_enum_fake),
             // invalid comparator/value combos (validation errors)
-            ("invalid_startswith_rhs_non_text", Self::invalid_startswith_rhs_non_text),
-            ("invalid_eq_ci_rhs_non_text", Self::invalid_eq_ci_rhs_non_text),
-            ("invalid_any_in_ci_list_non_text", Self::invalid_any_in_ci_list_non_text),
-            ("invalid_presence_rhs_non_unit", Self::invalid_presence_rhs_non_unit),
+            (
+                "invalid_startswith_rhs_non_text",
+                Self::invalid_startswith_rhs_non_text,
+            ),
+            (
+                "invalid_eq_ci_rhs_non_text",
+                Self::invalid_eq_ci_rhs_non_text,
+            ),
+            (
+                "invalid_any_in_ci_list_non_text",
+                Self::invalid_any_in_ci_list_non_text,
+            ),
+            (
+                "invalid_presence_rhs_non_unit",
+                Self::invalid_presence_rhs_non_unit,
+            ),
         ];
 
         // insert data
@@ -449,21 +461,31 @@ impl LoadFilterTester {
 
     // -------------------- invalid comparator/value validation ---------------------
 
-
     fn invalid_startswith_rhs_non_text() {
         // name is Text; starts_with requires Text RHS
-        let res = db!().load::<Filterable>().filter(|f| f.starts_with("name", 1));
-        assert!(res.is_err(), "Expected validation error for starts_with(name, 1)");
+        let res = db!()
+            .load::<Filterable>()
+            .filter(|f| f.starts_with("name", 1));
+        assert!(
+            res.is_err(),
+            "Expected validation error for starts_with(name, 1)"
+        );
     }
 
     fn invalid_eq_ci_rhs_non_text() {
         // level is numeric; eq_ci requires Text RHS (by comparator family)
         let res = db!().load::<Filterable>().filter(|f| f.eq_ci("level", 1));
-        assert!(res.is_err(), "Expected validation error for eq_ci(level, 1)");
+        assert!(
+            res.is_err(),
+            "Expected validation error for eq_ci(level, 1)"
+        );
     }
 
     fn invalid_any_in_ci_list_non_text() {
-        use mimic::{core::value::Value, db::query::{Cmp, FilterClause, FilterExpr}};
+        use mimic::{
+            core::value::Value,
+            db::query::{Cmp, FilterClause, FilterExpr},
+        };
         // tags is list of Text; AnyInCi expects list of Text on RHS
         let bad = FilterExpr::Clause(FilterClause::new(
             "tags",
@@ -472,16 +494,29 @@ impl LoadFilterTester {
         ));
         let q = query::load().filter_expr(bad);
         let res = db!().load::<Filterable>().execute(&q);
-        assert!(res.is_err(), "Expected validation error for AnyInCi(tags, [ints])");
+        assert!(
+            res.is_err(),
+            "Expected validation error for AnyInCi(tags, [ints])"
+        );
     }
 
     fn invalid_presence_rhs_non_unit() {
-        use mimic::{core::value::Value, db::query::{Cmp, FilterClause, FilterExpr}};
+        use mimic::{
+            core::value::Value,
+            db::query::{Cmp, FilterClause, FilterExpr},
+        };
 
         // Manually construct an invalid presence filter: IsNone should use Unit RHS
-        let bad = FilterExpr::Clause(FilterClause::new("name", Cmp::IsNone, Value::Text("x".into())));
+        let bad = FilterExpr::Clause(FilterClause::new(
+            "name",
+            Cmp::IsNone,
+            Value::Text("x".into()),
+        ));
         let q = query::load().filter_expr(bad);
         let res = db!().load::<Filterable>().execute(&q);
-        assert!(res.is_err(), "Expected validation error for IsNone with non-Unit RHS");
+        assert!(
+            res.is_err(),
+            "Expected validation error for IsNone with non-Unit RHS"
+        );
     }
 }
