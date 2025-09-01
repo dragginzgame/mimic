@@ -8,6 +8,7 @@ help:
 	@echo "  version          Show current version"
 	@echo "  tags             List available git tags"
 	@echo "  patch            Bump patch version (0.0.x)"
+	@echo "  next             Bump to next patch (no tag)"
 	@echo "  minor            Bump minor version (0.x.0)"
 	@echo "  major            Bump major version (x.0.0)"
 	@echo "  release          Create a release with current version"
@@ -51,6 +52,9 @@ major:
 
 release:
 	@./scripts/app/version.sh release
+
+next:
+	@./scripts/app/version.sh next
 
 # Development commands
 test:

@@ -136,6 +136,12 @@ case "${1:-help}" in
         git add Cargo.toml CHANGELOG.md
         git commit -m "Bump version to $new_version"
         create_git_tag "$new_version"
+        if [ -n "${NO_PUSH:-}" ]; then
+          print_warning "Skipping push (NO_PUSH set). Remember to: git push --follow-tags"
+        else
+          print_info "Pushing commit and tags (follow-tags)"
+          git push --follow-tags
+        fi
         print_success "Version bumped to $new_version"
         ;;
     "minor")
@@ -148,6 +154,12 @@ case "${1:-help}" in
         git add Cargo.toml CHANGELOG.md
         git commit -m "Bump version to $new_version"
         create_git_tag "$new_version"
+        if [ -n "${NO_PUSH:-}" ]; then
+          print_warning "Skipping push (NO_PUSH set). Remember to: git push --follow-tags"
+        else
+          print_info "Pushing commit and tags (follow-tags)"
+          git push --follow-tags
+        fi
         print_success "Version bumped to $new_version"
         ;;
     "patch")
@@ -160,7 +172,28 @@ case "${1:-help}" in
         git add Cargo.toml CHANGELOG.md
         git commit -m "Bump version to $new_version"
         create_git_tag "$new_version"
+        if [ -n "${NO_PUSH:-}" ]; then
+          print_warning "Skipping push (NO_PUSH set). Remember to: git push --follow-tags"
+        else
+          print_info "Pushing commit and tags (follow-tags)"
+          git push --follow-tags
+        fi
         print_success "Version bumped to $new_version"
+        ;;
+    "next")
+        check_working_directory
+        current_version=$(get_current_version)
+        new_version=$(bump_version "$current_version" "patch")
+        print_info "Starting next development cycle: $current_version -> $new_version (no tag)"
+        update_cargo_version "$new_version"
+        # Do not tag; just commit Cargo.toml (and existing changelog if present)
+        if [ -f CHANGELOG.md ]; then
+          git add Cargo.toml CHANGELOG.md
+        else
+          git add Cargo.toml
+        fi
+        git commit -m "Start development on $new_version"
+        print_success "Development version set to $new_version (no tag created)"
         ;;
     "release")
         version=${2:-$(get_current_version)}
@@ -175,13 +208,14 @@ case "${1:-help}" in
         print_info "To see all tags: git tag --sort=-version:refname"
         ;;
     "help"|*)
-        echo "Usage: $0 {current|major|minor|patch|release|tags}"
+        echo "Usage: $0 {current|major|minor|patch|next|release|tags}"
         echo ""
         echo "Commands:"
         echo "  current  - Show current version"
         echo "  major    - Bump major version (x.0.0)"
         echo "  minor    - Bump minor version (0.x.0)"
         echo "  patch    - Bump patch version (0.0.x)"
+        echo "  next     - Bump to next patch for development (no tag)"
         echo "  release  - Create release with current version"
         echo "  tags     - List available git tags"
         echo "  help     - Show this help message"
