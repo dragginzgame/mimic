@@ -149,7 +149,92 @@ impl<E: EntityKind> QueryValidate<E> for FilterExpr {
                     return Err(QueryError::InvalidFilterField(c.field.clone()));
                 }
 
-                // (Optional) type checking could happen here
+                // Comparator/value compatibility checks (best-effort)
+                use Cmp::*;
+
+                let v = &c.value;
+                let field = &c.field;
+
+                // Validate by comparator family
+                match c.cmp {
+                    // Ordering requires a comparable RHS: numeric or text.
+                    Lt | Lte | Gt | Gte => {
+                        if !(v.is_numeric() || v.is_text()) {
+                            return Err(QueryError::InvalidFilterValue(format!(
+                                "field '{field}' expects comparable RHS (numeric or text) for {cmp:?}",
+                                cmp = c.cmp
+                            )));
+                        }
+                    }
+
+                    // Case-sensitive text
+                    StartsWith | EndsWith | Contains => {
+                        // Allow Contains to be collection membership too; only enforce text when RHS is Text
+                        if !v.is_text() {
+                            // For Contains, we also allow non-text to support collection ops
+                            if !matches!(c.cmp, Contains) {
+                                return Err(QueryError::InvalidFilterValue(format!(
+                                    "field '{field}' expects text RHS for {cmp:?}",
+                                    cmp = c.cmp
+                                )));
+                            }
+                        }
+                    }
+
+                    // Case-insensitive text must be text RHS
+                    EqCi | NeCi | ContainsCi | StartsWithCi | EndsWithCi => {
+                        if !v.is_text() {
+                            return Err(QueryError::InvalidFilterValue(format!(
+                                "field '{field}' expects text RHS for {cmp:?}",
+                                cmp = c.cmp
+                            )));
+                        }
+                    }
+
+                    // Presence/null checks: RHS should be Unit
+                    IsSome | IsNone | IsEmpty | IsNotEmpty => {
+                        if !v.is_unit() {
+                            return Err(QueryError::InvalidFilterValue(format!(
+                                "field '{field}' expects unit RHS for {cmp:?}",
+                                cmp = c.cmp
+                            )));
+                        }
+                    }
+
+                    // Membership
+                    In => { /* Allow arbitrary RHS (scalar or list). Execution will apply semantics. */
+                    }
+
+                    AnyIn | AllIn => {
+                        // Expect list; allow scalar but no strong typing here
+                        if !matches!(v, Value::List(_)) {
+                            // allow scalar; no-op
+                        }
+                    }
+
+                    // CI collection membership requires text elements if list
+                    AnyInCi | AllInCi | InCi => match v {
+                        Value::List(items) => {
+                            if !items.iter().all(Value::is_text) {
+                                return Err(QueryError::InvalidFilterValue(format!(
+                                    "field '{field}' {cmp:?} expects list of text",
+                                    cmp = c.cmp
+                                )));
+                            }
+                        }
+                        other => {
+                            if !other.is_text() {
+                                return Err(QueryError::InvalidFilterValue(format!(
+                                    "field '{field}' {cmp:?} expects text RHS",
+                                    cmp = c.cmp
+                                )));
+                            }
+                        }
+                    },
+
+                    // Equality/inequality: permissive; no strong typing here
+                    Eq | Ne => {}
+                }
                 Ok(())
             }
 

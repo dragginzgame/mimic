@@ -24,13 +24,13 @@ We provide a convenient script for managing versions: `scripts/app/version.sh`
 # Show current version
 ./scripts/app/version.sh current
 
-# Bump patch version (0.9.3 -> 0.9.4)
+# Bump patch version (0.15.2 -> 0.15.3)
 ./scripts/app/version.sh patch
 
-# Bump minor version (0.9.3 -> 0.10.0)
+# Bump minor version (0.15.2 -> 0.16.0)
 ./scripts/app/version.sh minor
 
-# Bump major version (0.9.3 -> 1.0.0)
+# Bump major version (0.15.2 -> 1.0.0)
 ./scripts/app/version.sh major
 
 # Create a release with current version

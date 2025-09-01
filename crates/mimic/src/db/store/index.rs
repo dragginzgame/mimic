@@ -106,10 +106,13 @@ impl IndexStore {
         index: &Index,
         prefix: &[Value],
     ) -> Vec<DataKey> {
-        self.iter_with_hashed_prefix::<E>(index, prefix)
-            .flat_map(|(_, entry)| entry.keys.iter().copied().collect::<Vec<_>>())
-            .map(|key| DataKey::new::<E>(key))
-            .collect()
+        let mut out = Vec::new();
+
+        for (_, entry) in self.iter_with_hashed_prefix::<E>(index, prefix) {
+            out.extend(entry.keys.iter().map(|&k| DataKey::new::<E>(k)));
+        }
+
+        out
     }
 
     pub fn memory_bytes(&self) -> u64 {
@@ -118,7 +121,8 @@ impl IndexStore {
             .sum()
     }
 
-    /// Internal: iterate entries for this index whose hashed_values start with the hashed prefix.
+    /// Internal: iterate entries for this index whose `hashed_values` start with the hashed `prefix`.
+    /// Uses a bounded range for efficient scanning.
     fn iter_with_hashed_prefix<E: EntityKind>(
         &self,
         index: &Index,
@@ -127,21 +131,35 @@ impl IndexStore {
         let index_id = IndexId::new::<E>(index);
         let hashed_prefix_opt = Self::index_fingerprints(prefix); // Option<Vec<[u8;16]>>
 
-        self.range(
-            IndexKey {
+        // Compute start..end bounds. If the prefix isn't indexable, construct an empty range
+        // (same iterator type) by using identical start==end under the same index_id.
+        let (start_key, end_key) = if let Some(hp) = hashed_prefix_opt {
+            let start = IndexKey {
                 index_id,
-                hashed_values: Vec::new(),
-            }..,
-        )
-        .take_while(move |entry| entry.key().index_id == index_id)
-        .filter(move |entry| {
-            if let Some(ref hp) = hashed_prefix_opt {
-                entry.key().hashed_values.starts_with(hp)
-            } else {
-                false // if prefix had None/Unit/Unsupported, no matches via index
-            }
-        })
-        .map(|entry| (entry.key().clone(), entry.value()))
+                hashed_values: hp.clone(),
+            };
+            let mut end_vec = hp;
+            end_vec.push([0xFF; 16]);
+            let end = IndexKey {
+                index_id,
+                hashed_values: end_vec,
+            };
+            (start, end)
+        } else {
+            (
+                IndexKey {
+                    index_id,
+                    hashed_values: Vec::new(),
+                },
+                IndexKey {
+                    index_id,
+                    hashed_values: Vec::new(),
+                },
+            )
+        };
+
+        self.range(start_key..end_key)
+            .map(|entry| (entry.key().clone(), entry.value()))
     }
 
     fn index_fingerprints(values: &[Value]) -> Option<Vec<[u8; 16]>> {

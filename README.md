@@ -2,7 +2,6 @@
 
 ![MSRV](https://img.shields.io/badge/rustc-1.89+-blue.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Documentation](https://docs.rs/mimic/badge.svg)](https://docs.rs/mimic)
 [![CI](https://github.com/dragginzgame/mimic/actions/workflows/ci.yml/badge.svg)](https://github.com/dragginzgame/mimic/actions/workflows/ci.yml)
 [![Releases](https://img.shields.io/github/v/release/dragginzgame/mimic?sort=semver)](https://github.com/dragginzgame/mimic/releases)
 
@@ -97,12 +96,12 @@ pub fn rarities(
 
 ## 📦 Crates
 
-- `mimic` — core framework (entities, queries, schema, stores, types) — https://docs.rs/mimic
-- `mimic_build` — canister codegen (`build.rs` → `actor.rs`) — https://docs.rs/mimic_build
-- `mimic_common` — shared utilities — https://docs.rs/mimic_common
-- `mimic_schema` — schema definitions and types — https://docs.rs/mimic_schema
-- `mimic_declare` — proc-macros for schema/traits — https://docs.rs/mimic_declare
-- `mimic_tests` — integration/design tests
+- `crates/mimic` — core framework (entities, queries, schema, stores, types)
+- `crates/mimic_build` — canister codegen (`build.rs` → `actor.rs`)
+- `crates/mimic_common` — shared utilities
+- `crates/mimic_schema` — schema definitions and types
+- `crates/mimic_declare` — proc-macros for schema/traits
+- `crates/mimic_tests` — integration/design tests
 
 ---
 
@@ -145,9 +144,9 @@ We use semver with convenience scripts:
 
 ```bash
 make version   # current version
-make patch     # bump 0.9.3 -> 0.9.4
-make minor     # bump 0.9.3 -> 0.10.0
-make major     # bump 0.9.3 -> 1.0.0
+make patch     # bump 0.15.2 -> 0.15.3
+make minor     # bump 0.15.2 -> 0.16.0
+make major     # bump 0.15.2 -> 1.0.0
 make release   # create release tag
 ```
 

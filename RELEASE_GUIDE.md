@@ -15,7 +15,7 @@ mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.2" }
 
 ```bash
 # From your project directory
-git ls-remote --tags https://github.com/dragginzgame/mimic | grep "v0.9"
+git ls-remote --tags https://github.com/dragginzgame/mimic | grep "v0.15"
 
 # Or use our helper script (if you have the repo cloned)
 ./scripts/app/check-git-versions.sh
@@ -52,9 +52,9 @@ make tags
 
 ```bash
 # Bump version (choose one)
-make patch    # 0.9.3 -> 0.9.4
-make minor    # 0.9.3 -> 0.10.0
-make major    # 0.9.3 -> 1.0.0
+make patch    # 0.15.2 -> 0.15.3
+make minor    # 0.15.2 -> 0.16.0
+make major    # 0.15.2 -> 1.0.0
 
 # Or create a specific version
 ./scripts/app/version.sh release 1.0.0
@@ -85,9 +85,9 @@ make check-versioning # Verify system setup
 ### Bump Versions
 
 ```bash
-make patch            # 0.9.3 -> 0.9.4
-make minor            # 0.9.3 -> 0.10.0
-make major            # 0.9.3 -> 1.0.0
+make patch            # 0.15.2 -> 0.15.3
+make minor            # 0.15.2 -> 0.16.0
+make major            # 0.15.2 -> 1.0.0
 ```
 
 ### Create Releases
@@ -219,7 +219,7 @@ git ls-remote https://github.com/dragginzgame/mimic
 
 ```toml
 [dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", features = [] }
+mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.2" }
 ```
 
 ### With Features
@@ -274,4 +274,4 @@ mimic = { workspace = true }
 
 - **Issues**: [GitHub Issues](https://github.com/dragginzgame/mimic/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/dragginzgame/mimic/discussions)
-- **Documentation**: [docs.rs/mimic](https://docs.rs/mimic) 
+- Source: `crates/mimic` (no crates.io/docs.rs)

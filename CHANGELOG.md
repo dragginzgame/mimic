@@ -12,6 +12,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - PR template to standardize submissions.
 - GitHub Actions: CI (fmt, clippy, tests), Security Check, and Release workflows.
 - Branch protection guide (.github/BRANCH_PROTECTION.md).
+- Filter validation: comparator-to-value type checks in `FilterExpr` validation
+  (e.g., ordering requires comparable RHS (numeric or text); CI text ops require text). New
+  `QueryError` variants: `InvalidFilterValue`, `InvalidComparator`.
+- Tests: negative cases for invalid comparator/value combos (e.g., `lt(name, 3)`,
+  `starts_with(name, 1)`, `eq_ci(level, 1)`, CI membership with non-text lists,
+  presence checks with non-Unit RHS).
+ - Value helpers: `Value::is_numeric()` and `Value::is_text()` to centralize
+   type guards used by validation and executors.
 
 ### Changed
 - README: updated MSRV badge (1.89+), license link, concise workspace/commands, full crates list, badges.
@@ -20,6 +28,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Removed redundant #[allow(unused)] in generated Default impl.
 - Trimmed println! from tests; behavior unchanged.
 - Fixed clippy lint name in Cargo.toml (unnecessary_cast).
+- Index prefix scans: optimized `IndexStore::iter_with_hashed_prefix` to use a
+  bounded BTree range based on the hashed prefix, avoiding full partition scans
+  and per-entry `starts_with` checks. Behavior unchanged for non-indexable prefixes
+  (empty scan).
+- Relaxed `IN` validation to allow general field membership (scalar or list),
+  matching existing execution semantics (e.g., `category IN ["A","C"]`).
+- Ordering over Text is now allowed (validated as "comparable"), aligning with
+  tests that perform lexicographic filters on names.
 
 ## [0.15.1] - 2025-08-31
 - view enums now derive Copy, Eq, PartialEq, Ord, PartialOrd

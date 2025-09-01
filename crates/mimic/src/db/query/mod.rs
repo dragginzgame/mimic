@@ -44,6 +44,12 @@ pub enum QueryError {
 
     #[error("invalid sort field '{0}'")]
     InvalidSortField(String),
+
+    #[error("invalid filter value: {0}")]
+    InvalidFilterValue(String),
+
+    #[error("invalid comparator usage: {0}")]
+    InvalidComparator(String),
 }
 
 ///

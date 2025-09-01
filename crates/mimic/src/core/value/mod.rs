@@ -119,6 +119,41 @@ impl Value {
     }
 
     ///
+    /// TYPES
+    ///
+
+    /// Returns true if the value is one of the numeric-like variants
+    /// supported by numeric comparison/ordering.
+    #[must_use]
+    pub const fn is_numeric(&self) -> bool {
+        matches!(
+            self,
+            Self::Decimal(_)
+                | Self::E8s(_)
+                | Self::E18s(_)
+                | Self::Float32(_)
+                | Self::Float64(_)
+                | Self::Int(_)
+                | Self::Int128(_)
+                | Self::Timestamp(_)
+                | Self::Uint(_)
+                | Self::Uint128(_)
+        )
+    }
+
+    /// Returns true if the value is Text.
+    #[must_use]
+    pub const fn is_text(&self) -> bool {
+        matches!(self, Self::Text(_))
+    }
+
+    /// Returns true if the value is Unit.
+    #[must_use]
+    pub fn is_unit(&self) -> bool {
+        matches!(self, Self::Unit)
+    }
+
+    ///
     /// HASHING
     ///
 

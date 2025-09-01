@@ -24,7 +24,7 @@ mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.2" }
 - Exact version pinning
 - Reproducible builds
 - No dependency on crates.io availability
-- **Immutable tags** - code at `v0.9.2` will never change
+- **Immutable tags** - code at `v0.15.2` will never change
 - **Security** - prevents supply chain attacks
 
 **Cons:**
@@ -134,7 +134,7 @@ error: failed to resolve dependencies
 
 **Solution:** Use exact version pinning with tags:
 ```toml
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", features = [] }
+mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.2" }
 ```
 
 ### Getting help
@@ -157,10 +157,10 @@ Mimic enforces **tag immutability** - once a version is tagged and pushed, the c
 
 ```bash
 # Check if a specific version exists and is immutable
-git ls-remote --tags https://github.com/dragginzgame/mimic | grep v0.9.2
+git ls-remote --tags https://github.com/dragginzgame/mimic | grep v0.15
 
 # Verify the commit hash hasn't changed
-git ls-remote https://github.com/dragginzgame/mimic v0.9.2
+git ls-remote https://github.com/dragginzgame/mimic v0.15.2
 ```
 
 ## Best Practices
@@ -171,7 +171,7 @@ Always use tag-based dependencies for production:
 
 ```toml
 # ✅ Good - pinned version
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", features = [] }
+mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.2" }
 
 # ❌ Bad - floating version
 mimic = { git = "https://github.com/dragginzgame/mimic", branch = "main", features = [] }
@@ -183,10 +183,10 @@ Only enable features you need:
 
 ```toml
 # ✅ Good - minimal features
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", features = ["serde"] }
+mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.2", features = ["serde"] }
 
 # ❌ Bad - unnecessary features
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", features = ["serde", "icu", "ulid", "decimal"] }
+mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.2", features = ["serde"] }
 ```
 
 ### 3. Regular Updates
@@ -195,10 +195,10 @@ Keep your dependency updated:
 
 ```bash
 # Check for new versions
-git ls-remote --tags https://github.com/dragginzgame/mimic | grep "v0.9"
+git ls-remote --tags https://github.com/dragginzgame/mimic | grep "v0.15"
 
 # Update to latest patch version
-# Change tag from v0.9.2 to v0.9.3
+# Change tag from v0.15.2 to v0.15.3
 ```
 
 ### 4. Testing
@@ -218,7 +218,7 @@ For workspace projects, add Mimic to the workspace dependencies:
 
 ```toml
 [workspace.dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", features = [] }
+mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.2" }
 
 [workspace.members]
 member1 = "crates/member1"
@@ -235,7 +235,7 @@ For testing and development:
 
 ```toml
 [dev-dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.9.2", features = ["test-utils"] }
+mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.2" }
 ```
 
 ## Version History
@@ -244,13 +244,10 @@ For a complete version history and detailed changelog, see [CHANGELOG.md](CHANGE
 
 ### Recent Releases
 
-- **v0.9.3**: Save queries now return the new entity
-- **v0.9.2**: Query rewrite with improved validation
-- **v0.9.1**: Performance improvements and metadata optimization
-- **v0.9.0**: Major codegen rewrite
+See GitHub Releases for notes and tags: https://github.com/dragginzgame/mimic/releases
 
 ## Support
 
-- **Documentation**: [docs.rs/mimic](https://docs.rs/mimic)
+- Source: `crates/mimic` (no crates.io/docs.rs)
 - **Issues**: [GitHub Issues](https://github.com/dragginzgame/mimic/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/dragginzgame/mimic/discussions) 
