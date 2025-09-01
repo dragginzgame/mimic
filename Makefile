@@ -55,6 +55,13 @@ release:
 # Development commands
 test:
 	cargo test --workspace
+	@# Optionally run canister tests if dfx and script are available
+	@if [ -x scripts/app/test.sh ] && command -v dfx >/dev/null 2>&1; then \
+		echo "Running canister tests via scripts/app/test.sh"; \
+		bash scripts/app/test.sh; \
+	else \
+		echo "Skipping canister tests (dfx not installed or script missing)"; \
+	fi
 
 build:
 	cargo build --release --workspace

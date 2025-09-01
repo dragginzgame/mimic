@@ -120,6 +120,7 @@ impl FromStr for Principal {
     type Err = PrincipalError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        // Parses textual principals (e.g., "aaaaa-aa"). Returns a detailed error on failure.
         let this = WrappedPrincipal::from_str(s)
             .map(Self)
             .map_err(|e| PrincipalError::Wrapped(e.to_string()))?;

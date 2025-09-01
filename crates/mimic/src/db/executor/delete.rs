@@ -120,7 +120,7 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
             .map(|l| l as usize);
         let filter_simplified = query.filter.as_ref().map(|f| f.clone().simplify());
 
-        let mut deleted_rows: Vec<Key> = Vec::new();
+        let mut deleted_rows: Vec<Key> = Vec::with_capacity(limit.unwrap_or(0));
         ctx.with_store_mut(|s| {
             for dk in keys {
                 // If we already hit the limit, bail early

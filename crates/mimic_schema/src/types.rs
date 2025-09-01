@@ -28,7 +28,7 @@ impl FromMeta for Cardinality {
 
 impl ToTokens for Cardinality {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = format_ident!("{}", self.to_string());
+        let ident = format_ident!("{self}");
 
         tokens.extend(quote!(::mimic::schema::types::Cardinality::#ident));
     }
@@ -84,7 +84,7 @@ impl FromMeta for ConstantType {
 
 impl ToTokens for ConstantType {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = format_ident!("{}", self.to_string());
+        let ident = format_ident!("{self}");
 
         tokens.extend(quote!(::mimic::schema::types::ConstantType::#ident));
     }
@@ -223,7 +223,7 @@ impl Primitive {
 
     #[must_use]
     pub fn as_type(self) -> TokenStream {
-        let ident = format_ident!("{}", self.to_string());
+        let ident = format_ident!("{self}");
 
         quote!(::mimic::core::types::#ident)
     }
@@ -257,7 +257,7 @@ impl FromMeta for Primitive {
 
 impl ToTokens for Primitive {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = format_ident!("{}", self.to_string());
+        let ident = format_ident!("{self}");
 
         tokens.extend(quote!(::mimic::schema::types::Primitive::#ident));
     }
@@ -282,7 +282,7 @@ impl FromMeta for StoreType {
 
 impl ToTokens for StoreType {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = format_ident!("{}", self.to_string());
+        let ident = format_ident!("{self}");
 
         tokens.extend(quote!(::mimic::schema::types::StoreType::#ident));
     }

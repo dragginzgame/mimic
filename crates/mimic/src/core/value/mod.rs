@@ -147,10 +147,16 @@ impl Value {
         matches!(self, Self::Text(_))
     }
 
-    /// Returns true if the value is Unit.
+    /// Returns true if the value is Unit (used for presence/null comparators).
     #[must_use]
-    pub fn is_unit(&self) -> bool {
+    pub const fn is_unit(&self) -> bool {
         matches!(self, Self::Unit)
+    }
+
+    /// Returns true if the value is a list and all elements are Text.
+    #[must_use]
+    pub fn is_list_of_text(&self) -> bool {
+        matches!(self, Self::List(items) if items.iter().all(Self::is_text))
     }
 
     ///

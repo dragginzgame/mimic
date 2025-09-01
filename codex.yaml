@@ -1,0 +1,100 @@
+version: 1
+project:
+  name: mimic
+  description: Core framework with codegen, tests, and utilities.
+  language: rust
+  edition: "2024"
+  toolchain: "1.89.0"
+
+workspace:
+  root: "."
+  packages:
+    - "crates/mimic"
+    - "crates/mimic_build"
+    - "crates/mimic_common"
+    - "crates/mimic_schema"
+    - "crates/mimic_tests"
+
+commands:
+  check:
+    run: "make check"
+    description: "Fast type-check for all crates."
+  test:
+    run: "make test"
+    description: "Run all unit/integration tests."
+  build:
+    run: "make build"
+    description: "Release build for the workspace."
+  clippy:
+    run: "make clippy"
+    description: "Lints with warnings denied."
+  fmt:
+    run: "make fmt"
+    description: "Format source using rustfmt."
+  fmt_check:
+    run: "make fmt-check"
+    description: "Verify formatting."
+  security:
+    run: "make security-check"
+    description: "Tag immutability and security checks."
+  version:
+    run: "make version"
+    description: "Show current version."
+  tags:
+    run: "make tags"
+    description: "List version tags."
+  release_patch:
+    run: "make patch"
+    description: "Bump patch version and tag."
+  release_minor:
+    run: "make minor"
+    description: "Bump minor version and tag."
+  release_major:
+    run: "make major"
+    description: "Bump major version and tag."
+  release_publish:
+    run: "make release"
+    description: "Create and push release."
+
+workflows:
+  pre_commit:
+    - fmt_check
+    - clippy
+    - check
+    - test
+  ci_fast:
+    - check
+    - clippy
+  release:
+    - security
+    - release_publish
+
+defaults:
+  build_command: build
+  test_command: test
+  lint_command: clippy
+  format_command: fmt
+
+assistant:
+  rules:
+    - "Prefer '?' over 'unwrap()'; handle errors explicitly."
+    - "Keep public APIs documented; co-locate small unit tests."
+    - "Do not modify pushed release tags."
+    - "Keep changes minimal and focused; avoid unrelated fixes."
+    - "Style: space out comments — add a blank line before comment blocks and around multi-line comments for readability."
+    - "Style: prefer an explicit 'return' before the final line of a function to make the result stand out — but only when it does not trigger clippy warnings; otherwise keep idiomatic tail-expression."
+    - "Do not change clippy/rustfmt settings to satisfy stylistic preferences; keep code clippy-clean."
+  testing:
+    integration_dir: "crates/mimic_tests"
+    single_crate_example: "cargo test -p mimic <filter>"
+
+paths:
+  assets_dir: "assets"
+  scripts_dir: "scripts"
+
+ignore:
+  - "target/"
+  - ".git/"
+  - ".idea/"
+  - ".vscode/"
+  - "**/*.lock"

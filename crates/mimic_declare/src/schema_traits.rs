@@ -259,7 +259,7 @@ impl Traits {
 /// TraitList
 ///
 
-#[derive(Clone, Debug, Default, Deref, IntoIterator, DerefMut)]
+#[derive(Clone, Debug, Default, Deref, DerefMut, IntoIterator)]
 pub struct TraitList(pub Vec<Trait>);
 
 impl TraitList {

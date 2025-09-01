@@ -31,7 +31,7 @@ It was originally built for the Web3 game [Dragginz](https://dragginz.io/) and i
 
 ## ⚡ Quickstart
 
-1) Add dependency (pinned): `mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.2" }`
+1) Add dependency (pinned): `mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.4" }`
 2) Define an entity with `#[entity]` and a primary key.
 3) Load via `db().load::<Entity>().all().execute()?.entities()`.
 
@@ -137,6 +137,25 @@ make clippy     # lint (deny warnings)
 make fmt-check  # verify formatting
 make build      # release build
 ```
+
+### Using Codex CLI
+
+This repo includes a Codex CLI configuration at `codex.yaml` for common tasks.
+
+```bash
+# Run mapped commands
+codex run check
+codex run test
+codex run clippy
+codex run build
+
+# Run predefined workflows
+codex workflow pre_commit   # fmt-check, clippy, check, test
+codex workflow ci_fast      # check, clippy
+codex workflow release      # security checks, release
+```
+
+Tip: run `codex run fmt_check` locally before committing, or `codex workflow pre_commit` to run the full gate quickly.
 
 ### Versioning
 

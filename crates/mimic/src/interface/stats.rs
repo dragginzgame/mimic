@@ -6,7 +6,7 @@ use serde::Serialize;
 /// DbStats
 ///
 
-#[derive(Debug, Default, CandidType, Serialize)]
+#[derive(CandidType, Debug, Default, Serialize)]
 pub struct DbStats {
     pub data_stores: Vec<StoreStats>,
     pub index_stores: Vec<IndexStats>,
@@ -16,7 +16,7 @@ pub struct DbStats {
 /// StoreStats
 ///
 
-#[derive(Debug, Default, CandidType, Serialize)]
+#[derive(CandidType, Debug, Default, Serialize)]
 pub struct StoreStats {
     pub path: String,
     pub entries: u64,
@@ -29,7 +29,7 @@ pub struct StoreStats {
 /// IndexStats
 ///
 
-#[derive(Debug, Default, CandidType, Serialize)]
+#[derive(CandidType, Debug, Default, Serialize)]
 pub struct IndexStats {
     pub path: String,
     pub entries: u64,

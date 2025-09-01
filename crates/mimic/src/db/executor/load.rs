@@ -1,7 +1,7 @@
 use crate::{
     Error,
     core::{
-        Key, deserialize,
+        Key,
         traits::{EntityKind, FieldValue},
     },
     db::{
@@ -122,12 +122,18 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
         let ctx = self.context();
         let plan = self.plan(query);
 
+        // Fast path: if there is no filter or sort, and a limit is specified,
+        // apply pagination at the storage layer to avoid deserializing discarded rows.
+        let pre_paginated = query.filter.is_none() && query.sort.is_none() && query.limit.is_some();
+        let data_rows = if pre_paginated {
+            let lim = query.limit.as_ref().unwrap();
+            ctx.rows_from_plan_with_pagination(plan, lim.offset, lim.limit)?
+        } else {
+            ctx.rows_from_plan(plan)?
+        };
+
         // Convert data rows -> entity rows
-        let mut rows: Vec<(Key, E)> = ctx
-            .rows_from_plan(plan)?
-            .into_iter()
-            .map(|(k, v)| deserialize::<E>(&v).map(|entry| (k.key(), entry)))
-            .collect::<Result<_, _>>()?;
+        let mut rows: Vec<(Key, E)> = ctx.deserialize_rows(data_rows)?;
 
         // Filtering
         if let Some(f) = &query.filter {
@@ -142,7 +148,9 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
         }
 
         // Pagination
-        if let Some(lim) = &query.limit {
+        if let Some(lim) = &query.limit
+            && !pre_paginated
+        {
             Self::apply_pagination(&mut rows, lim.offset, lim.limit);
         }
 

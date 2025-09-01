@@ -33,7 +33,9 @@ impl Float32 {
     }
 
     #[must_use]
-    pub fn new_clamped(v: f32) -> Self {
+    /// Construct from an f32 or return 0.0 if the value is non‑finite.
+    /// Canonicalizes -0.0 → 0.0. Use `try_new` to handle errors explicitly.
+    pub fn new_or_zero(v: f32) -> Self {
         Self::try_new(v).unwrap_or(Self(0.0))
     }
 
@@ -146,7 +148,9 @@ impl TypeView for Float32 {
     }
 
     fn from_view(view: Self::View) -> Self {
-        Self(view)
+        // Preserve invariants: finite only, canonicalize -0.0 → 0.0
+        // Fallback to 0.0 for non‑finite inputs to avoid propagating NaN/Inf
+        Self::try_new(view).unwrap_or(Self(0.0))
     }
 }
 
@@ -282,7 +286,9 @@ impl TypeView for Float64 {
     }
 
     fn from_view(view: Self::View) -> Self {
-        Self(view)
+        // Preserve invariants: finite only, canonicalize -0.0 → 0.0
+        // Fallback to 0.0 for non‑finite inputs to avoid propagating NaN/Inf
+        Self::try_new(view).unwrap_or(Self(0.0))
     }
 }
 

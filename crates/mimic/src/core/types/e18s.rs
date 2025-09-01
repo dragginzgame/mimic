@@ -12,8 +12,14 @@ use std::fmt::{self, Display};
 ///
 /// E18s
 ///
-/// Ethereum-style fixed-point: u128 represents value × 1e18.
-/// For example, 1.25 = 1_250_000_000_000_000_000.
+/// Ethereum‑style fixed‑point with 18 fractional digits.
+/// Stores numbers as `u128` representing value × 1e18 (e.g., 1.25 → 1_250_000_000_000_000_000).
+///
+/// Constructors:
+/// - `from_atomic(raw)`: raw scaled integer (no scaling)
+/// - `from_units(units)`: scales by 1e18 (saturating on overflow)
+/// - `from_decimal(d)`: exact decimal → fixed‑point (None if negative/out of range)
+/// - `from_f64(v)`: rounded, for non‑critical conversions only
 ///
 
 #[derive(

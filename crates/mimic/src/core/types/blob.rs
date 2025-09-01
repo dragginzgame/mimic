@@ -10,6 +10,7 @@ use std::fmt::{self, Display};
 
 ///
 /// Blob
+/// Display prints a size summary; it does not print content.
 ///
 
 #[derive(

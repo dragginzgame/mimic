@@ -58,10 +58,17 @@ impl Ulid {
     }
 
     /// generate
-    /// Generate a ULID string with the current timestamp and a random value
+    /// Generate a ULID with the current timestamp and a random value.
+    /// Panics on generator overflow. Use `try_generate` to handle errors.
     #[must_use]
     pub fn generate() -> Self {
-        generator::generate().unwrap()
+        Self::try_generate().unwrap()
+    }
+
+    /// try_generate
+    /// Fallible ULID generation preserving error type (e.g., monotonic overflow).
+    pub fn try_generate() -> Result<Self, UlidError> {
+        generator::generate()
     }
 
     /// from_bytes
@@ -151,9 +158,10 @@ impl<'de> Deserialize<'de> for Ulid {
         D: Deserializer<'de>,
     {
         let deserialized_str = String::deserialize(deserializer)?;
-        let ulid = WrappedUlid::from_string(&deserialized_str).unwrap_or_default();
-
-        Ok(Self(ulid))
+        match WrappedUlid::from_string(&deserialized_str) {
+            Ok(u) => Ok(Self(u)),
+            Err(_) => Err(serde::de::Error::custom("invalid ulid string")),
+        }
     }
 }
 

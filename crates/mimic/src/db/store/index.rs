@@ -82,21 +82,21 @@ impl IndexStore {
         &mut self,
         entity: &impl EntityKind,
         index: &Index,
-    ) -> Option<IndexEntry> {
+    ) {
         // Skip if index key can't be built (e.g. optional fields missing)
-        let index_key = IndexKey::new(entity, index)?;
+        let Some(index_key) = IndexKey::new(entity, index) else {
+            return;
+        };
 
         if let Some(mut existing) = self.get(&index_key) {
             existing.remove_key(&entity.key()); // remove from the set
 
             if existing.is_empty() {
-                self.remove(&index_key)
+                self.remove(&index_key);
             } else {
-                self.insert(index_key.clone(), existing.clone());
-                Some(existing)
+                // Move the updated entry back without cloning
+                self.insert(index_key, existing);
             }
-        } else {
-            None
         }
     }
 
@@ -134,17 +134,7 @@ impl IndexStore {
         // Compute start..end bounds. If the prefix isn't indexable, construct an empty range
         // (same iterator type) by using identical start==end under the same index_id.
         let (start_key, end_key) = if let Some(hp) = hashed_prefix_opt {
-            let start = IndexKey {
-                index_id,
-                hashed_values: hp.clone(),
-            };
-            let mut end_vec = hp;
-            end_vec.push([0xFF; 16]);
-            let end = IndexKey {
-                index_id,
-                hashed_values: end_vec,
-            };
-            (start, end)
+            IndexKey::bounds_for_prefix(index_id, hp)
         } else {
             (
                 IndexKey {
@@ -195,7 +185,8 @@ impl IndexId {
     }
 
     fn from_path_and_fields(path: &str, fields: &[&str]) -> Self {
-        let mut buffer = Vec::new();
+        let cap = path.len() + fields.iter().map(|f| f.len() + 1).sum::<usize>();
+        let mut buffer = Vec::with_capacity(cap);
 
         // much more efficient than format
         buffer.extend_from_slice(path.as_bytes());
@@ -237,7 +228,7 @@ impl IndexKey {
 
     #[must_use]
     pub fn new<E: EntityKind>(entity: &E, index: &Index) -> Option<Self> {
-        let mut hashed_values = Vec::<[u8; 16]>::new();
+        let mut hashed_values = Vec::<[u8; 16]>::with_capacity(index.fields.len());
 
         // get each value and convert to key
         for field in index.fields {
@@ -260,6 +251,22 @@ impl IndexKey {
             index_id: IndexId::max_storable(),
             hashed_values: (0..MAX_INDEX_FIELDS).map(|_| [u8::MAX; 16]).collect(),
         }
+    }
+
+    /// Compute the bounded start..end keys for a given hashed prefix under an index id.
+    /// End is exclusive and created by appending a single 0xFF..0xFF block to the prefix.
+    #[must_use]
+    pub fn bounds_for_prefix(index_id: IndexId, mut prefix: Vec<[u8; 16]>) -> (Self, Self) {
+        let start = Self {
+            index_id,
+            hashed_values: prefix.clone(),
+        };
+        prefix.push([0xFF; 16]);
+        let end = Self {
+            index_id,
+            hashed_values: prefix,
+        };
+        (start, end)
     }
 }
 

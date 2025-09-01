@@ -342,16 +342,18 @@ impl DbTester {
         // Test various limits and offsets
         for limit in [10, 20, 50] {
             for offset in [0, 5, 10] {
-                let count = db!()
+                let results = db!()
                     .load::<Limit>()
                     .execute(&query::load().offset(offset).limit(limit))
-                    .unwrap()
-                    .count();
+                    .unwrap();
 
+                let count = results.count();
                 assert_eq!(count, limit, "{limit} not equal to {count}");
-                //    if !results.is_empty() {
-                //        assert_eq!(results[0].value, offset + 1);
-                //    }
+
+                // Verify first entity corresponds to offset (ascending key order)
+                if let Some(first) = results.entity() {
+                    assert_eq!(first.value, offset + 1);
+                }
             }
         }
     }

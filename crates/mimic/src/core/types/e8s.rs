@@ -12,8 +12,14 @@ use std::fmt::{self, Display};
 ///
 /// E8s
 ///
-/// Stores numbers as u64 representing value × 1e8
-/// For example: 1.25 = 125_000_000
+/// Fixed‑point with 8 fractional digits.
+/// Stores numbers as `u64` representing value × 1e8 (e.g., 1.25 → 125_000_000).
+///
+/// Constructors:
+/// - `from_atomic(raw)`: raw scaled integer (no scaling)
+/// - `from_units(units)`: scales by 1e8 (saturating on overflow)
+/// - `try_from_decimal_exact(d)`: fails if more than 8 fractional digits
+/// - `from_decimal_round(d)`: rounds to 8dp
 ///
 
 #[repr(transparent)]
@@ -58,7 +64,7 @@ impl E8s {
         Self(units.saturating_mul(Self::SCALE))
     }
 
-    /// Exact decimal → fixed-point, fails if more than 8 fractional digits.
+    /// Exact decimal → fixed‑point, fails if more than 8 fractional digits.
     #[must_use]
     pub fn try_from_decimal_exact(d: Decimal) -> Option<Self> {
         // multiply and require integer result (no leftover fractional part)
@@ -72,7 +78,7 @@ impl E8s {
         }
     }
 
-    /// Decimal → fixed-point with rounding to 8dp.
+    /// Decimal → fixed‑point with rounding to 8dp.
     #[must_use]
     pub fn from_decimal_round(d: Decimal) -> Option<Self> {
         let scaled = (d * Decimal::from(Self::SCALE)).round_dp(0);

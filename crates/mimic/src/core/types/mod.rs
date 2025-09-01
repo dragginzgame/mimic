@@ -34,3 +34,17 @@ pub type Nat16 = u16;
 pub type Nat32 = u32;
 pub type Nat64 = u64;
 pub type Text = String;
+
+//
+// TypeView Mapping Overview
+//
+// - Float32: view = f32 (sanitized; finite only, -0.0 → 0.0)
+// - Float64: view = f64 (sanitized; finite only, -0.0 → 0.0)
+// - E8s:     view = u64 (raw atomics)
+// - E18s:    view = u128 (raw atomics)
+// - Timestamp, Principal, Ulid, Blob, Decimal, Nat, Int, Unit: view = Self
+//
+// Notes
+// - Display for fixed‑point types prints normalized decimal (human‑readable),
+//   not raw atomics.
+// - Ulid serde deserialization fails on invalid strings.

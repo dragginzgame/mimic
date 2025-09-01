@@ -268,7 +268,7 @@ mimic = { workspace = true }
 - [Versioning Guide](VERSIONING.md) - Detailed versioning information
 - [Integration Guide](INTEGRATION.md) - Complete integration documentation
 - [Changelog](CHANGELOG.md) - Version history and changes
-- [Contributing Guide](CONTRIBUTING.md) - How to contribute
+
 
 ## 🆘 Support
 

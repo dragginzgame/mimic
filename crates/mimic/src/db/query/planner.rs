@@ -135,7 +135,7 @@ impl QueryPlanner {
 
         for index in E::INDEXES {
             // Build leftmost equality prefix (only == supported for hashed indexes)
-            let mut values: Vec<Value> = Vec::new();
+            let mut values: Vec<Value> = Vec::with_capacity(index.fields.len());
 
             for field in index.fields {
                 if let Some(v) = Self::find_eq_value(filter, field) {

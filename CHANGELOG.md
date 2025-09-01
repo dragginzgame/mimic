@@ -5,7 +5,33 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.15.4] - 2025-09-01
+
+### Added
+- Codex CLI configuration (`codex.yaml`) with common commands and workflows.
+- README "Using Codex CLI" section with sample invocations.
+- `make test` now conditionally runs `scripts/app/test.sh` when `dfx` is available.
+
+### Changed
+- Float TypeView: `Float32::from_view` and `Float64::from_view` now preserve invariants
+  (finite only; canonicalize -0.0 → 0.0) and fall back to `0.0` on NaN/Inf.
+- ULID: added `Ulid::try_generate()` and made `Deserialize` return a serde error on invalid strings.
+- API docs across core/types clarified constructor behavior and invariants
+  (E8s/E18s scaling; Blob Display semantics; Principal parsing).
+- Renamed `Float32::new_clamped` to `new_or_zero` for clarity.
+
+### Removed
+- `CONTRIBUTING.md` and its link from `RELEASE_GUIDE.md`.
+
+### Performance
+- Index store: avoid cloning `IndexEntry` in `remove_index_entry` by moving updated entry back.
+- Pre-allocations: reserve capacity where sizes are known (query planner index values; range pagination; delete executor; index id buffer).
+
+### Documentation
+- Added a TypeView mapping overview in `core/types/mod.rs`.
+- Expanded E8s/E18s docs to spell out constructors and behavior.
+
+## [0.15.3] - 2025-09-91
 
 ### Added
 - AGENTS.md contributor guide with structure, commands, and conventions.
