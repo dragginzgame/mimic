@@ -86,15 +86,26 @@ print_info "Checking remote tag integrity..."
 # Fetch latest tags
 git fetch --tags --quiet 2>/dev/null || print_warning "Could not fetch remote tags"
 
-# Check for any local tags that differ from remote
+# Check for any local tags that differ from remote (compare peeled targets)
 for tag in $(git tag); do
-    local_commit=$(git rev-parse "$tag")
-    remote_commit=$(git rev-parse "origin/$tag" 2>/dev/null || echo "")
-    
-    if [ -n "$remote_commit" ] && [ "$local_commit" != "$remote_commit" ]; then
+    # Local peeled target (commit) for the tag; works for both lightweight and annotated tags
+    local_target=$(git rev-parse "$tag^{}" 2>/dev/null || echo "")
+
+    # Remote peeled target commit for the tag. Prefer the peeled entry (^{}) if present; fall back to object id
+    remote_target=$(git ls-remote --tags origin "$tag^{}" | awk '{print $1}')
+    if [ -z "$remote_target" ]; then
+        remote_target=$(git ls-remote --tags origin "$tag" | awk '{print $1}')
+    fi
+
+    if [ -z "$remote_target" ]; then
+        print_warning "⚠ Remote tag not found: $tag (skipping integrity compare)"
+        continue
+    fi
+
+    if [ -n "$local_target" ] && [ "$local_target" != "$remote_target" ]; then
         print_security "🚨 SECURITY VIOLATION: Tag $tag differs between local and remote!"
-        print_security "   Local:  $local_commit"
-        print_security "   Remote: $remote_commit"
+        print_security "   Local:  $local_target"
+        print_security "   Remote: $remote_target"
         print_security "   This indicates tag tampering!"
         exit 1
     fi
