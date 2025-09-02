@@ -34,40 +34,25 @@ help:
 
 # Version management
 version:
-	@./scripts/app/version.sh current
+	@scripts/app/version.sh current
 
 current:
-	@./scripts/app/version.sh current
+	@scripts/app/version.sh current
 
 tags:
-	@./scripts/app/version.sh tags
+	@git tag --sort=-version:refname | head -10
 
 patch:
-	@if git rev-parse "v$$(./scripts/app/version.sh next-patch)" >/dev/null 2>&1; then \
-		echo "🚨 Tag already exists: v$$(./scripts/app/version.sh next-patch)"; \
-		exit 1; \
-	fi
-	@./scripts/app/version.sh patch
+	@scripts/app/version.sh patch
 
 minor:
-	@if git rev-parse "v$$(./scripts/app/version.sh next-minor)" >/dev/null 2>&1; then \
-		echo "🚨 Tag already exists: v$$(./scripts/app/version.sh next-minor)"; \
-		exit 1; \
-	fi
-	@./scripts/app/version.sh minor
+	@scripts/app/version.sh minor
 
 major:
-	@if git rev-parse "v$$(./scripts/app/version.sh next-major)" >/dev/null 2>&1; then \
-		echo "🚨 Tag already exists: v$$(./scripts/app/version.sh next-major)"; \
-		exit 1; \
-	fi
-	@./scripts/app/version.sh major
+	@scripts/app/version.sh major
 
 release:
-	@./scripts/app/version.sh release
-
-next:
-	@./scripts/app/version.sh next
+	@scripts/app/version.sh release
 
 # Development commands
 test:
