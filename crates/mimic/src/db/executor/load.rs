@@ -101,8 +101,7 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
         Ok(crate::db::executor::plan_for::<E>(query.filter.as_ref()))
     }
 
-    // response
-    // for the automated query endpoint, we will make this more flexible in the future
+    // response used by automated query endpoints
     pub fn response(&self, query: &LoadQuery) -> Result<Vec<Key>, Error> {
         let res = self.execute(query)?.keys();
 
@@ -149,8 +148,7 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
             Self::apply_pagination(&mut rows, lim.offset, lim.limit);
         }
 
-        let rows_len = rows.len() as u64;
-        span.set_rows(rows_len);
+        crate::db::executor::set_rows_from_len(&mut span, rows.len());
 
         Ok(LoadCollection(rows))
     }

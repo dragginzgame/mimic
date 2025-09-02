@@ -167,8 +167,7 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
 
         //   icu::cdk::println!("query.delete: deleted keys {deleted_rows:?}");
 
-        let deleted_count = deleted_rows.len() as u64;
-        span.set_rows(deleted_count);
+        crate::db::executor::set_rows_from_len(&mut span, deleted_rows.len());
 
         Ok(deleted_rows)
     }

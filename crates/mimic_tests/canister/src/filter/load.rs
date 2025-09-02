@@ -31,6 +31,9 @@ impl LoadFilterTester {
             ("filter_in_category", Self::filter_in_category),
             ("filter_allin_tags", Self::filter_allin_tags),
             ("filter_anyin_tags", Self::filter_anyin_tags),
+            ("filter_anyin_tags_no_match", Self::filter_anyin_tags_no_match),
+            ("filter_allin_tags_no_match", Self::filter_allin_tags_no_match),
+            ("filter_anyin_tags_with_duplicates", Self::filter_anyin_tags_with_duplicates),
             ("filter_eq_principal", Self::filter_eq_principal),
             ("filter_contains_tag", Self::filter_contains_tag),
             // opt
@@ -350,6 +353,43 @@ impl LoadFilterTester {
         }
 
         assert_eq!(results.len(), 5);
+    }
+
+
+    fn filter_anyin_tags_no_match() {
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|f| f.any_in("tags", ["orange", "black"]))
+            .unwrap()
+            .entities();
+
+        assert!(results.is_empty(), "Expected no results for ANY IN no-match");
+    }
+
+    fn filter_allin_tags_no_match() {
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|f| f.all_in("tags", ["blue", "black"]))
+            .unwrap()
+            .entities();
+
+        assert!(results.is_empty(), "Expected no results for ALL IN no-match");
+    }
+
+    fn filter_anyin_tags_with_duplicates() {
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|f| f.any_in("tags", ["blue", "blue", "green"]))
+            .unwrap()
+            .entities();
+
+        assert!(
+            !results.is_empty(),
+            "Expected results for ANY IN with duplicates, got none"
+        );
+
+        assert!(results.iter().all(|e| e.tags.contains(&"blue".to_string())
+            || e.tags.contains(&"green".to_string())));
     }
 
     fn filter_eq_principal() {

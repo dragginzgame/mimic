@@ -1,4 +1,4 @@
-use crate::core::traits::EntityKind;
+use crate::core::{Key, traits::EntityKind};
 use candid::CandidType;
 use icu::{cdk::api::performance_counter, utils::time};
 use serde::{Deserialize, Serialize};
@@ -273,8 +273,8 @@ pub struct MetricsReport {
 pub struct StoreMetrics {
     pub path: String,
     pub entries: u64,
-    pub min_key: Option<crate::core::Key>,
-    pub max_key: Option<crate::core::Key>,
+    pub min_key: Option<Key>,
+    pub max_key: Option<Key>,
     pub memory_bytes: u64,
 }
 

@@ -13,12 +13,18 @@ pub use save::*;
 use crate::{
     core::traits::EntityKind,
     db::query::{FilterExpr, QueryPlan, QueryPlanner},
+    metrics::Span,
 };
 
 /// Plan a query for an entity given an optional filter.
 #[must_use]
 pub fn plan_for<E: EntityKind>(filter: Option<&FilterExpr>) -> QueryPlan {
     QueryPlanner::new(filter).plan::<E>()
+}
+
+/// Convenience: set span rows from a usize length.
+pub const fn set_rows_from_len<E: EntityKind>(span: &mut Span<E>, len: usize) {
+    span.set_rows(len as u64);
 }
 
 use crate::db::store::DataKey;

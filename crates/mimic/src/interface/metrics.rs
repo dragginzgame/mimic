@@ -10,8 +10,15 @@ use std::cmp::Ordering;
 /// Library helpers that canister endpoints can delegate to.
 ///
 
-/// Build a metrics report by inspecting the provided `db` registries
-/// and the in-memory counters. Selection controls which sections to include.
+/// Build a metrics report by inspecting in-memory counters only.
+///
+/// Example (inside a canister):
+/// ```ignore
+/// #[query]
+/// fn my_metrics() -> Result<mimic::metrics::MetricsReport, mimic::Error> {
+///     Ok(mimic::interface::metrics::metrics_report(&db()))
+/// }
+/// ```
 #[must_use]
 pub fn metrics_report<C: CanisterKind>(_db: &Db<C>) -> MetricsReport {
     // counters only
