@@ -113,6 +113,26 @@ impl FilterDsl {
         Self::cmp_iter(field, Cmp::AllIn, vals)
     }
 
+    /// ANY element of `vals` is contained in the collection field (case-insensitive for Text).
+    #[inline]
+    pub fn any_in_ci<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
+    where
+        I: IntoIterator,
+        I::Item: FieldValue,
+    {
+        Self::cmp_iter(field, Cmp::AnyInCi, vals)
+    }
+
+    /// ALL elements of `vals` are contained in the collection field (case-insensitive for Text).
+    #[inline]
+    pub fn all_in_ci<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
+    where
+        I: IntoIterator,
+        I::Item: FieldValue,
+    {
+        Self::cmp_iter(field, Cmp::AllInCi, vals)
+    }
+
     //
     // Collectors
     //

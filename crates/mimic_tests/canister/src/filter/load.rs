@@ -31,6 +31,8 @@ impl LoadFilterTester {
             ("filter_in_category", Self::filter_in_category),
             ("filter_allin_tags", Self::filter_allin_tags),
             ("filter_anyin_tags", Self::filter_anyin_tags),
+            ("filter_allin_ci_tags", Self::filter_allin_ci_tags),
+            ("filter_anyin_ci_tags", Self::filter_anyin_ci_tags),
             ("filter_anyin_tags_no_match", Self::filter_anyin_tags_no_match),
             ("filter_allin_tags_no_match", Self::filter_allin_tags_no_match),
             ("filter_anyin_tags_with_duplicates", Self::filter_anyin_tags_with_duplicates),
@@ -390,6 +392,42 @@ impl LoadFilterTester {
 
         assert!(results.iter().all(|e| e.tags.contains(&"blue".to_string())
             || e.tags.contains(&"green".to_string())));
+    }
+
+    fn filter_allin_ci_tags() {
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|f| f.all_in_ci("tags", ["BLUE", "Green"]))
+            .unwrap()
+            .entities();
+
+        assert!(
+            !results.is_empty(),
+            "Expected results for ALL IN CI filter, got none"
+        );
+
+        assert!(results.iter().all(|e| {
+            e.tags.iter().any(|t| t.eq_ignore_ascii_case("blue"))
+                && e.tags.iter().any(|t| t.eq_ignore_ascii_case("green"))
+        }));
+    }
+
+    fn filter_anyin_ci_tags() {
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|f| f.any_in_ci("tags", ["BLUE", "Green"]))
+            .unwrap()
+            .entities();
+
+        assert!(
+            !results.is_empty(),
+            "Expected results for ANY IN CI filter, got none"
+        );
+
+        assert!(results.iter().all(|e| {
+            e.tags.iter().any(|t| t.eq_ignore_ascii_case("blue"))
+                || e.tags.iter().any(|t| t.eq_ignore_ascii_case("green"))
+        }));
     }
 
     fn filter_eq_principal() {
