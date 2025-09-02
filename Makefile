@@ -43,12 +43,24 @@ tags:
 	@./scripts/app/version.sh tags
 
 patch:
+	@if git rev-parse "v$$(./scripts/app/version.sh next-patch)" >/dev/null 2>&1; then \
+		echo "🚨 Tag already exists: v$$(./scripts/app/version.sh next-patch)"; \
+		exit 1; \
+	fi
 	@./scripts/app/version.sh patch
 
 minor:
+	@if git rev-parse "v$$(./scripts/app/version.sh next-minor)" >/dev/null 2>&1; then \
+		echo "🚨 Tag already exists: v$$(./scripts/app/version.sh next-minor)"; \
+		exit 1; \
+	fi
 	@./scripts/app/version.sh minor
 
 major:
+	@if git rev-parse "v$$(./scripts/app/version.sh next-major)" >/dev/null 2>&1; then \
+		echo "🚨 Tag already exists: v$$(./scripts/app/version.sh next-major)"; \
+		exit 1; \
+	fi
 	@./scripts/app/version.sh major
 
 release:
@@ -70,8 +82,6 @@ test:
 
 build:
 	cargo build --release --workspace
-
-
 
 check:
 	cargo check --workspace
@@ -114,9 +124,5 @@ check-versioning:
 git-versions:
 	@./scripts/app/check-git-versions.sh
 
-# Security check for tag immutability
-security-check:
-	@./scripts/app/security-check.sh
-
 # Build and test everything
-all: clean check fmt-check clippy test build 
+all: clean check fmt-check clippy test build
