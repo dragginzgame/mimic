@@ -38,12 +38,6 @@ case "${1:-}" in
     git push --follow-tags
     echo "Bumped: $current → $new"
     ;;
-  release)
-    version=$(get_current_version)
-    git tag -a "v$version" -m "Release $version"
-    git push origin "v$version"
-    echo "Tagged release $version"
-    ;;
   *)
     echo "Usage: $0 {current|major|minor|patch|release}"
     ;;

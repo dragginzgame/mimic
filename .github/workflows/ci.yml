@@ -1,15 +1,16 @@
 name: CI
 
 on:
-  # Only run on tags (bump commits will always create a tag)
   push:
+    branches:
+      - main
     tags:
       - 'v*'
-  pull_request:   # still test PRs into main before merge
+  pull_request:
 
 jobs:
   checks:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,5 +39,5 @@ jobs:
       - run: cargo fmt --all -- --check
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace --all-targets --verbose
-      - run: make build
-      - run: make release
+      - run: cargo build --release --workspace
+      # Later: cargo publish (when ready to push crate to crates.io)

@@ -1,4 +1,4 @@
-.PHONY: help version current patch minor major release test build clean plan
+.PHONY: help version current tags patch minor major release test build check clippy fmt fmt-check clean plan install-dev test-watch all
 
 # Default target
 help:
@@ -8,10 +8,9 @@ help:
 	@echo "  version          Show current version"
 	@echo "  tags             List available git tags"
 	@echo "  patch            Bump patch version (0.0.x)"
-	@echo "  next             Bump to next patch (no tag)"
 	@echo "  minor            Bump minor version (0.x.0)"
 	@echo "  major            Bump major version (x.0.0)"
-	@echo "  release          Create a release with current version"
+	@echo "  release          CI-driven release (local target is no-op)"
 	@echo ""
 	@echo "Development:"
 	@echo "  test             Run all tests"
@@ -19,13 +18,14 @@ help:
 	@echo "  check            Run cargo check"
 	@echo "  clippy           Run clippy checks"
 	@echo "  fmt              Format code"
+	@echo "  fmt-check        Check formatting"
 	@echo "  clean            Clean build artifacts"
 	@echo "  plan             Show the current project plan"
 	@echo ""
 	@echo "Utilities:"
-	@echo "  check-versioning Check versioning system setup"
-	@echo "  git-versions     Check available git dependency versions"
-	@echo "  security-check   Check tag immutability and version integrity"
+	@echo "  install-dev      Install development dependencies"
+	@echo "  test-watch       Run tests in watch mode"
+	@echo "  all              Run all checks, tests, and build"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make patch       # Bump patch version"
@@ -52,12 +52,11 @@ major:
 	@scripts/app/version.sh major
 
 release:
-	@scripts/app/version.sh release
+	@echo "Release handled by CI on tag push"
 
 # Development commands
 test:
 	cargo test --workspace
-	@# Optionally run canister tests if dfx and script are available
 	@if [ -x scripts/app/test.sh ] && command -v dfx >/dev/null 2>&1; then \
 		echo "Running canister tests via scripts/app/test.sh"; \
 		bash scripts/app/test.sh; \
@@ -84,7 +83,6 @@ clean:
 	cargo clean
 	rm -rf target/
 
-
 # Planning summary
 plan:
 	@echo "=== PLAN.md ==="
@@ -100,14 +98,6 @@ install-dev:
 # Run tests in watch mode
 test-watch:
 	cargo watch -x test
-
-# Check versioning system
-check-versioning:
-	@./scripts/app/check-versioning.sh
-
-# Check available git versions
-git-versions:
-	@./scripts/app/check-git-versions.sh
 
 # Build and test everything
 all: clean check fmt-check clippy test build
