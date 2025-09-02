@@ -1,16 +1,15 @@
 name: CI
 
 on:
+  # Only run on tags (bump commits will always create a tag)
   push:
-    branches:
-      - main
     tags:
       - 'v*'
-  pull_request:
+  pull_request:   # still test PRs into main before merge
 
 jobs:
   checks:
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
