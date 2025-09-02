@@ -60,27 +60,28 @@ print_info "Current version in Cargo.toml: $current_version"
 # Check if current version is already tagged
 current_tag="v$current_version"
 if git tag -l "$current_tag" | grep -q "$current_tag"; then
-    print_security "⚠️  CRITICAL: Current version $current_version is already tagged!"
-    print_security "   This means the code at this version should NEVER change."
-    
-    # Check if HEAD is at the tagged commit
     head_commit=$(git rev-parse HEAD)
     tag_commit=$(git rev-parse "$current_tag" 2>/dev/null || echo "")
-    
-    if [ "$head_commit" = "$tag_commit" ]; then
-        print_success "✓ HEAD is at the tagged commit - no changes detected"
-    else
-        print_security "🚨 SECURITY: HEAD is not at the tagged commit for v$current_version."
-        print_security "   This indicates code has changed since the version was tagged."
-        print_info "   Action: bump to a new version immediately (make patch/minor/major)."
 
-        # In CI on a tag ref, this must fail hard. Otherwise, warn but do not fail
-        # to allow local workflows and pre-bump commits to proceed.
-        if [ -n "${GITHUB_REF:-}" ] && [[ "$GITHUB_REF" == refs/tags/* ]]; then
+    if [ -n "${GITHUB_REF:-}" ] && [[ "$GITHUB_REF" == refs/tags/* ]]; then
+        print_security "⚠️  CRITICAL: Current version $current_version is already tagged!"
+        print_security "   This means the code at this version should NEVER change."
+
+        if [ "$head_commit" = "$tag_commit" ]; then
+            print_success "✓ HEAD is at the tagged commit - no changes detected"
+        else
+            print_security "🚨 SECURITY: HEAD is not at the tagged commit for v$current_version."
+            print_security "   This indicates code has changed since the version was tagged."
+            print_info "   Action: bump to a new version immediately (make patch/minor/major)."
             print_security "   CI is running on a tag ref ($GITHUB_REF): failing build."
             exit 1
+        fi
+    else
+        if [ "$head_commit" = "$tag_commit" ]; then
+            print_success "✓ Current version $current_version is already tagged locally (expected after bump)"
         else
-            print_warning "Proceeding without failure (non-tag ref). Ensure you bump the version next."
+            print_warning "⚠️ Current version is tagged, but HEAD is not at the tag commit."
+            print_info "   This usually means you need to bump again (patch/minor/major)."
         fi
     fi
 else
@@ -161,4 +162,4 @@ echo ""
 print_info "Remember:"
 echo "  - Once a tag is pushed, the code at that version must NEVER change"
 echo "  - Always bump to a new version for any code changes"
-echo "  - Use 'make patch', 'make minor', or 'make major' to create new versions" 
+echo "  - Use 'make patch', 'make minor', or 'make major' to create new versions"
