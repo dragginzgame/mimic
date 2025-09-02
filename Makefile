@@ -1,4 +1,11 @@
-.PHONY: help version current tags patch minor major release test build check clippy fmt fmt-check clean plan install-dev test-watch all
+.PHONY: help version current tags patch minor major release test build check clippy fmt fmt-check clean plan install-dev test-watch all ensure-clean
+
+# Check for clean git state
+ensure-clean:
+	@if ! git diff-index --quiet HEAD --; then \
+		echo "🚨 Working directory not clean! Please commit or stash your changes."; \
+		exit 1; \
+	fi
 
 # Default target
 help:
@@ -42,20 +49,20 @@ current:
 tags:
 	@git tag --sort=-version:refname | head -10
 
-patch:
+patch: ensure-clean
 	@scripts/app/version.sh patch
 
-minor:
+minor: ensure-clean
 	@scripts/app/version.sh minor
 
-major:
+major: ensure-clean
 	@scripts/app/version.sh major
 
-release:
+release: ensure-clean
 	@echo "Release handled by CI on tag push"
 
 # Development commands
-test:
+test: ensure-clean
 	cargo test --workspace
 	@if [ -x scripts/app/test.sh ] && command -v dfx >/dev/null 2>&1; then \
 		echo "Running canister tests via scripts/app/test.sh"; \
@@ -64,7 +71,7 @@ test:
 		echo "Skipping canister tests (dfx not installed or script missing)"; \
 	fi
 
-build:
+build: ensure-clean
 	cargo build --release --workspace
 
 check:
@@ -100,4 +107,4 @@ test-watch:
 	cargo watch -x test
 
 # Build and test everything
-all: clean check fmt-check clippy test build
+all: ensure-clean clean check fmt-check clippy test build
