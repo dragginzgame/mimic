@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Nothing yet.
 
-## [0.16.0] - 2025-09-02
+## [0.16.2] - 2025-09-02
 
 ### Added
 - `mimic_metrics(select)` query endpoint with `MetricsSelect` to choose data/index/counters/entities.

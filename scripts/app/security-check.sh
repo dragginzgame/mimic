@@ -70,11 +70,18 @@ if git tag -l "$current_tag" | grep -q "$current_tag"; then
     if [ "$head_commit" = "$tag_commit" ]; then
         print_success "✓ HEAD is at the tagged commit - no changes detected"
     else
-        print_security "🚨 SECURITY VIOLATION: HEAD is not at the tagged commit!"
-        print_security "   This indicates the tag has been modified or HEAD has moved."
-        print_security "   The code at version $current_version has changed!"
-        print_info "   You MUST bump to a new version immediately."
-        exit 1
+        print_security "🚨 SECURITY: HEAD is not at the tagged commit for v$current_version."
+        print_security "   This indicates code has changed since the version was tagged."
+        print_info "   Action: bump to a new version immediately (make patch/minor/major)."
+
+        # In CI on a tag ref, this must fail hard. Otherwise, warn but do not fail
+        # to allow local workflows and pre-bump commits to proceed.
+        if [ -n "${GITHUB_REF:-}" ] && [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            print_security "   CI is running on a tag ref ($GITHUB_REF): failing build."
+            exit 1
+        else
+            print_warning "Proceeding without failure (non-tag ref). Ensure you bump the version next."
+        fi
     fi
 else
     print_success "✓ Current version is not yet tagged"
