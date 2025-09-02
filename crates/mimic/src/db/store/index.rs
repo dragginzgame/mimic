@@ -64,11 +64,7 @@ impl IndexStore {
         if let Some(mut existing) = self.get(&index_key) {
             if index.unique {
                 if !existing.contains(&key) && !existing.is_empty() {
-                    metrics::with_metrics_mut(|m| {
-                        m.ops.unique_violations += 1;
-                        let entry = m.entities.entry(E::PATH.to_string()).or_default();
-                        entry.unique_violations = entry.unique_violations.saturating_add(1);
-                    });
+                    metrics::with_metrics_mut(|m| metrics::record_unique_violation_for::<E>(m));
                     return Err(ExecutorError::index_violation(E::PATH, index.fields));
                 }
                 self.insert(index_key.clone(), IndexEntry::new(index.fields, key));

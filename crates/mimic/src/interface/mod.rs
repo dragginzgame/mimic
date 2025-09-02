@@ -1,5 +1,6 @@
 pub mod metrics;
 pub mod query;
+pub mod storage;
 
 use thiserror::Error as ThisError;
 

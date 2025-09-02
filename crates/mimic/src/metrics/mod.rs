@@ -219,7 +219,7 @@ pub struct Span<E: EntityKind> {
     _marker: PhantomData<E>,
 }
 
-impl<E: crate::core::traits::EntityKind> Span<E> {
+impl<E: EntityKind> Span<E> {
     #[must_use]
     pub fn new(kind: ExecKind) -> Self {
         Self {
@@ -247,7 +247,7 @@ impl<E: crate::core::traits::EntityKind> Span<E> {
     }
 }
 
-impl<E: crate::core::traits::EntityKind> Drop for Span<E> {
+impl<E: EntityKind> Drop for Span<E> {
     fn drop(&mut self) {
         if !self.finished {
             exec_finish_for::<E>(self.kind, self.start, self.rows);
@@ -263,10 +263,10 @@ impl<E: crate::core::traits::EntityKind> Drop for Span<E> {
 
 #[derive(CandidType, Debug, Default, Serialize, Deserialize, Clone)]
 pub struct MetricsReport {
-    pub data_stores: Vec<StoreMetrics>,
-    pub index_stores: Vec<IndexMetrics>,
-    pub metrics: Option<Metrics>,
-    pub entity_stats: Vec<EntitySummary>,
+    /// Ephemeral runtime counters since `since_ms`.
+    pub counters: Option<Metrics>,
+    /// Per-entity ephemeral counters and averages.
+    pub entity_counters: Vec<EntitySummary>,
 }
 
 #[derive(CandidType, Debug, Default, Serialize, Deserialize, Clone)]
@@ -297,6 +297,38 @@ pub struct EntitySummary {
     pub index_inserts: u64,
     pub index_removes: u64,
     pub unique_violations: u64,
+}
+
+#[derive(CandidType, Debug, Default, Serialize, Deserialize, Clone)]
+pub struct EntityStorage {
+    /// Store path (e.g., test_design::schema::TestDataStore)
+    pub store: String,
+    /// Entity path (e.g., test_design::canister::db::Index)
+    pub path: String,
+    /// Number of rows for this entity in the store
+    pub entries: u64,
+    /// Approximate bytes used (key + value)
+    pub memory_bytes: u64,
+}
+
+#[derive(CandidType, Debug, Default, Serialize, Deserialize, Clone)]
+pub struct StorageReport {
+    /// Live storage inventory for data stores.
+    pub storage_data: Vec<StoreMetrics>,
+    /// Live storage inventory for index stores.
+    pub storage_index: Vec<IndexMetrics>,
+    /// Live per-entity storage breakdown by store and entity path.
+    pub entity_storage: Vec<EntityStorage>,
+}
+
+/// Increment unique-violation counters globally and for a specific entity type.
+pub fn record_unique_violation_for<E>(m: &mut Metrics)
+where
+    E: crate::core::traits::EntityKind,
+{
+    m.ops.unique_violations = m.ops.unique_violations.saturating_add(1);
+    let entry = m.entities.entry(E::PATH.to_string()).or_default();
+    entry.unique_violations = entry.unique_violations.saturating_add(1);
 }
 
 /// Select which parts of the metrics report to include.

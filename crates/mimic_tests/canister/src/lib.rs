@@ -3,6 +3,7 @@ mod default;
 mod filter;
 mod index;
 mod metrics;
+mod storage;
 mod ops;
 mod validate;
 
@@ -59,6 +60,7 @@ pub fn test() {
         ("index", index::IndexTester::test),
         ("ops", ops::OpsTester::test),
         ("metrics", metrics::MetricsTester::test),
+        ("storage", storage::StorageTester::test),
         ("validate", validate::ValidateTester::test),
     ];
 

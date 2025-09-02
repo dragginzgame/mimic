@@ -73,9 +73,23 @@ impl DataKey {
         }
     }
 
+    /// Return the primary key component of this data key.
     #[must_use]
     pub const fn key(&self) -> Key {
         self.key
+    }
+
+    /// Entity identifier (stable, compile-time constant per entity type).
+    #[must_use]
+    pub const fn entity_id(&self) -> u64 {
+        self.entity_id
+    }
+
+    /// Compute the on-disk size used by a single data entry from its value length.
+    /// Includes the bounded `DataKey` size and the value bytes.
+    #[must_use]
+    pub const fn entry_size_bytes(value_len: u64) -> u64 {
+        Self::STORABLE_MAX_SIZE as u64 + value_len
     }
 
     #[must_use]

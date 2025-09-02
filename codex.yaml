@@ -94,8 +94,9 @@ assistant:
     - "Functions: keep functions small and focused (aim < ~50 lines); extract helpers for clarity."
     - "Docs: add rustdoc to all public items, with a brief example when practical."
     - "Tests: unit tests near code; deterministic tests only; prefer descriptive names that express behavior (e.g., 'deletes_index_entries_on_remove')."
-    - "Perf: prefer pre-allocation with 'with_capacity' when sizes are known; minimize allocations in hot paths."
+    - "Perf: optimize only on proven hot paths; use pre-allocation or micro-opts when profiling shows a benefit."
     - "Imports: group per-crate and nest items in a single line when practical, e.g., `use crate::{a, b, c};` and `use icu::{cdk, prelude::*};`."
+    - "Imports: pull common std items into scope at the top (e.g., `use std::collections::BTreeMap;`) instead of fully qualifying (`std::collections::BTreeMap`) inline."
     - "Policy: no backward-compatibility guarantees at this stage — prioritize removing deprecated code and avoiding compatibility shims to reduce technical debt."
     - "Codegen (mimic_build): generate as little code as possible; prefer delegating behavior to `mimic::interface::*`. Use schema context to produce schema-driven glue (endpoints, signatures, paths), not business logic."
   testing:

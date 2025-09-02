@@ -140,20 +140,17 @@ make build      # release build
 
 ### Metrics
 
-- `mimic_metrics(select)`: returns a `MetricsReport` with selected sections:
-  - `data_stores` and/or `index_stores` when requested.
-  - `metrics` (global counters/perf) when `counters = true`.
-  - `entity_stats` (per-entity summary) when `entities = true`.
-- `mimic_metrics_reset`: clears counters and refreshes `since_ms`.
+- `mimic_storage()`: returns a `StorageReport` snapshot:
+  - `storage_data` and `storage_index` (live store snapshots).
+  - `entity_storage` (live per-entity breakdown by store, with entity path names).
+- `mimic_metrics()`: returns a `MetricsReport` of ephemeral counters since `since_ms`:
+  - `counters` (global ops/perf) and `entity_counters` (per-entity summary).
+- `mimic_metrics_reset()`: clears counters and refreshes `since_ms`.
 
 Examples
 ```bash
-# All sections
-dfx canister call <canister> mimic_metrics '(record { data=true; index=true; counters=true; entities=true })'
-
-# Only counters (no store listings)
-dfx canister call <canister> mimic_metrics '(record { data=false; index=false; counters=true; entities=false })'
-
+dfx canister call <canister> mimic_storage
+dfx canister call <canister> mimic_metrics
 dfx canister call <canister> mimic_metrics_reset
 ```
 
@@ -208,8 +205,9 @@ make release   # create release tag
 - Functions: keep functions small and focused; extract helpers for clarity.
 - Borrowing: avoid unnecessary clones; favor iterators and borrowing.
 - Imports: group per crate and nest items where practical; prefer a single `use crate::{ ... }` instead of multiple `use crate::...` lines.
+- Imports (std): pull common std items into scope at the top (e.g., `use std::collections::BTreeMap;`) rather than fully-qualifying inline.
 - Counters: use saturating arithmetic for totals; no wrapping arithmetic.
-- Perf: pre-allocate with `with_capacity` when sizes are known; avoid needless allocations in hot paths.
+- Perf: only optimize on proven hot paths (based on profiling); consider pre-allocation or other micro-optimizations when it clearly pays off.
 - Tests: co-locate small unit tests; keep them deterministic and behavior-named.
 - Compatibility: no backward-compatibility guarantees at this stage. Prefer clean breaks over shims to avoid technical debt. Document breaking changes briefly in the changelog.
 - Codegen (mimic_build): generate minimal glue and delegate to `mimic::interface::*`. The generator wires automatic endpoints in each actor root and can leverage the schema to emit schema-driven pieces (paths, signatures, derives), but core logic should live in library modules.

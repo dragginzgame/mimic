@@ -47,8 +47,8 @@ impl MetricsTester {
         assert_eq!(deleted.len(), 1);
 
         // Snapshot
-        let stats = crate::mimic_metrics(::mimic::metrics::MetricsSelect::all()).unwrap();
-        let m = stats.metrics.as_ref().expect("metrics snapshot present");
+        let stats = crate::mimic_metrics().unwrap();
+        let m = stats.counters.as_ref().expect("metrics snapshot present");
 
         // Global counters
         assert_eq!(m.ops.save_calls, 3, "save_calls should be 3");
@@ -70,7 +70,7 @@ impl MetricsTester {
 
         // Derived entity_stats entry contains correct averages
         let e_stat = stats
-            .entity_stats
+            .entity_counters
             .iter()
             .find(|e| e.path == path)
             .expect("entity_stats contains CreateBasic");
@@ -104,8 +104,8 @@ impl MetricsTester {
         db!().create(e3_ok).unwrap();
 
         // Snapshot
-        let stats = crate::mimic_metrics(::mimic::metrics::MetricsSelect::all()).unwrap();
-        let m = stats.metrics.as_ref().unwrap();
+        let stats = crate::mimic_metrics().unwrap();
+        let m = stats.counters.as_ref().unwrap();
 
         // Save calls include the failed attempt
         assert_eq!(m.ops.save_calls, 4, "save_calls counts failed attempt");
@@ -137,14 +137,14 @@ impl MetricsTester {
 
         // Bump something
         db!().create(CreateBasic::default()).unwrap();
-        let before = crate::mimic_metrics(::mimic::metrics::MetricsSelect::all()).unwrap();
-        assert!(before.metrics.as_ref().unwrap().ops.save_calls > 0);
+        let before = crate::mimic_metrics().unwrap();
+        assert!(before.counters.as_ref().unwrap().ops.save_calls > 0);
 
         // Endpoint reset
         crate::mimic_metrics_reset().unwrap();
 
-        let after = crate::mimic_metrics(::mimic::metrics::MetricsSelect::all()).unwrap();
-        let m = after.metrics.as_ref().unwrap();
+        let after = crate::mimic_metrics().unwrap();
+        let m = after.counters.as_ref().unwrap();
         assert_eq!(m.ops.save_calls, 0);
         assert_eq!(m.ops.load_calls, 0);
         assert_eq!(m.ops.delete_calls, 0);
