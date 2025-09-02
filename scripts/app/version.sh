@@ -92,6 +92,18 @@ CHANGELOG_EOF
     fi
 }
 
+# Run cargo fmt across the workspace
+run_fmt() {
+    if command -v cargo >/dev/null 2>&1; then
+        print_info "Running cargo fmt --all"
+        cargo fmt --all || {
+            print_warning "cargo fmt failed; continuing version bump"
+        }
+    else
+        print_warning "cargo not found; skipping cargo fmt"
+    fi
+}
+
 # Create git tag
 create_git_tag() {
     local version=$1
@@ -133,6 +145,7 @@ case "${1:-help}" in
         print_info "Bumping major version: $current_version -> $new_version"
         update_cargo_version "$new_version"
         update_changelog "$new_version"
+        run_fmt
         git add Cargo.toml CHANGELOG.md
         git commit -m "Bump version to $new_version"
         create_git_tag "$new_version"
@@ -151,6 +164,7 @@ case "${1:-help}" in
         print_info "Bumping minor version: $current_version -> $new_version"
         update_cargo_version "$new_version"
         update_changelog "$new_version"
+        run_fmt
         git add Cargo.toml CHANGELOG.md
         git commit -m "Bump version to $new_version"
         create_git_tag "$new_version"
@@ -169,6 +183,7 @@ case "${1:-help}" in
         print_info "Bumping patch version: $current_version -> $new_version"
         update_cargo_version "$new_version"
         update_changelog "$new_version"
+        run_fmt
         git add Cargo.toml CHANGELOG.md
         git commit -m "Bump version to $new_version"
         create_git_tag "$new_version"
@@ -187,6 +202,7 @@ case "${1:-help}" in
         print_info "Starting next development cycle: $current_version -> $new_version (no tag)"
         update_cargo_version "$new_version"
         # Do not tag; just commit Cargo.toml (and existing changelog if present)
+        run_fmt
         if [ -f CHANGELOG.md ]; then
           git add Cargo.toml CHANGELOG.md
         else
