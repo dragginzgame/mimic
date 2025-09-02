@@ -6,7 +6,7 @@ use crate::{
     types::{Cardinality, StoreType},
     visit::Visitor,
 };
-use mimic_common::error::ErrorTree;
+use mimic_common::{err, error::ErrorTree};
 use serde::Serialize;
 
 ///
@@ -54,7 +54,9 @@ impl ValidateNode for Entity {
 
         // store
         match schema.try_get_node_as::<Store>(self.store) {
-            Ok(store) if !matches!(store.ty, StoreType::Data) => errs.add("store is not type Data"),
+            Ok(store) if !matches!(store.ty, StoreType::Data) => {
+                err!(errs, "store is not type Data");
+            }
             Ok(_) => {}
             Err(e) => errs.add(e),
         }
@@ -68,10 +70,10 @@ impl ValidateNode for Entity {
             for field in index.fields {
                 if let Some(field) = self.fields.get(field) {
                     if field.value.cardinality == Cardinality::Many {
-                        errs.add("cannot add an index field with many cardinality");
+                        err!(errs, "cannot add an index field with many cardinality");
                     }
                 } else {
-                    errs.add(format!("index field '{field}' not found"));
+                    err!(errs, "index field '{field}' not found");
                 }
             }
             resolved_indexes.push(index);
@@ -82,15 +84,19 @@ impl ValidateNode for Entity {
             for b in resolved_indexes.iter().skip(i + 1) {
                 if a.unique == b.unique {
                     if a.is_prefix_of(b) {
-                        errs.add(format!(
+                        err!(
+                            errs,
                             "index {:?} is redundant (prefix of {:?})",
-                            a.fields, b.fields
-                        ));
+                            a.fields,
+                            b.fields
+                        );
                     } else if b.is_prefix_of(a) {
-                        errs.add(format!(
+                        err!(
+                            errs,
                             "index {:?} is redundant (prefix of {:?})",
-                            b.fields, a.fields
-                        ));
+                            b.fields,
+                            a.fields
+                        );
                     }
                 }
             }

@@ -5,7 +5,8 @@ use crate::{
     },
 };
 use candid::CandidType;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 ///
 /// DeleteQuery

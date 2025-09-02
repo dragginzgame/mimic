@@ -3,6 +3,7 @@ use crate::{
     visit::Visitor,
 };
 use mimic_common::{
+    err,
     error::ErrorTree,
     utils::case::{Case, Casing},
 };
@@ -50,14 +51,20 @@ impl ValidateNode for Enum {
 
         // Check if there's more than one unspecified variant
         if un_count > 1 {
-            errs.add("there should not be more than one unspecified variant");
+            err!(
+                errs,
+                "there should not be more than one unspecified variant"
+            );
         }
 
         // Check if the unspecified variant is not the first in the list
         if let Some(index) = un_first
             && index != 0
         {
-            errs.add("the unspecified variant must be the first in the list");
+            err!(
+                errs,
+                "the unspecified variant must be the first in the list"
+            );
         }
 
         errs.result()
@@ -102,10 +109,11 @@ impl ValidateNode for EnumVariant {
 
         // name
         if !self.name.is_case(Case::UpperCamel) {
-            errs.add(format!(
+            err!(
+                errs,
                 "variant name '{}' must be in UpperCamelCase",
                 self.name
-            ));
+            );
         }
 
         errs.result()

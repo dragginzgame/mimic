@@ -7,6 +7,7 @@ use crate::{
         query::{SaveMode, SaveQuery},
         store::DataKey,
     },
+    metrics,
 };
 use icu::utils::time::now_secs;
 use std::marker::PhantomData;
@@ -111,6 +112,7 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
 
     // save_entity
     fn save_entity(&self, mode: SaveMode, mut entity: E) -> Result<E, DbError> {
+        let mut span = metrics::Span::<E>::new(metrics::ExecKind::Save);
         let key = entity.key();
         let ctx = self.context();
 
@@ -158,21 +160,49 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
         // insert data row
         ctx.with_store_mut(|store| store.insert(data_key.clone(), bytes))?;
 
+        span.set_rows(1);
         Ok(entity)
     }
 
-    // replace_indexes
+    // replace_indexes: two-phase (validate, then mutate) to avoid partial updates
     fn replace_indexes(&self, old: Option<&E>, new: &E) -> Result<(), DbError> {
+        use crate::db::store::IndexKey;
+
+        // Phase 1: validate uniqueness for all indexes without mutating
+        for index in E::INDEXES {
+            // Only check when we can compute the new key and the index is unique
+            if index.unique
+                && let Some(new_idx_key) = IndexKey::new(new, index)
+            {
+                let store = self.db.with_index(|reg| reg.try_get_store(index.store))?;
+                let violates = store.with_borrow(|s| {
+                    if let Some(existing) = s.get(&new_idx_key) {
+                        let new_entity_key = new.key();
+                        !existing.contains(&new_entity_key) && !existing.is_empty()
+                    } else {
+                        false
+                    }
+                });
+                if violates {
+                    // Count the unique violation just like the store-level check would have
+                    crate::metrics::with_metrics_mut(|m| {
+                        m.ops.unique_violations = m.ops.unique_violations.saturating_add(1);
+                        let entry = m.entities.entry(E::PATH.to_string()).or_default();
+                        entry.unique_violations = entry.unique_violations.saturating_add(1);
+                    });
+                    return Err(ExecutorError::index_violation(E::PATH, index.fields).into());
+                }
+            }
+        }
+
+        // Phase 2: apply changes (remove old, insert new) for each index
         for index in E::INDEXES {
             let store = self.db.with_index(|reg| reg.try_get_store(index.store))?;
-
             store.with_borrow_mut(|s| {
-                // remove first
                 if let Some(old) = old {
                     s.remove_index_entry(old, index);
                 }
                 s.insert_index_entry(new, index)?;
-
                 Ok::<(), DbError>(())
             })?;
         }

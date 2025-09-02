@@ -2,6 +2,7 @@ use crate::node::{
     ArgNumber, Def, MacroNode, Type, TypeNode, ValidateNode, VisitableNode, Visitor,
 };
 use mimic_common::{
+    err,
     error::ErrorTree,
     utils::case::{Case, Casing},
 };
@@ -72,10 +73,11 @@ impl ValidateNode for EnumValueVariant {
 
         // name
         if !self.name.is_case(Case::UpperCamel) {
-            errs.add(format!(
+            err!(
+                errs,
                 "variant name '{}' must be in UpperCamelCase",
                 self.name
-            ));
+            );
         }
 
         errs.result()

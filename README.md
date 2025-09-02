@@ -138,6 +138,25 @@ make fmt-check  # verify formatting
 make build      # release build
 ```
 
+### Metrics
+
+- `mimic_metrics(select)`: returns a `MetricsReport` with selected sections:
+  - `data_stores` and/or `index_stores` when requested.
+  - `metrics` (global counters/perf) when `counters = true`.
+  - `entity_stats` (per-entity summary) when `entities = true`.
+- `mimic_metrics_reset`: clears counters and refreshes `since_ms`.
+
+Examples
+```bash
+# All sections
+dfx canister call <canister> mimic_metrics '(record { data=true; index=true; counters=true; entities=true })'
+
+# Only counters (no store listings)
+dfx canister call <canister> mimic_metrics '(record { data=false; index=false; counters=true; entities=false })'
+
+dfx canister call <canister> mimic_metrics_reset
+```
+
 ### Using Codex CLI
 
 This repo includes a Codex CLI configuration at `codex.yaml` for common tasks.
@@ -157,6 +176,14 @@ codex workflow release      # security checks, release
 
 Tip: run `codex run fmt_check` locally before committing, or `codex workflow pre_commit` to run the full gate quickly.
 
+### Planning
+
+We persist the working plan so it survives sessions:
+
+- Files: `.codex/plan.json` (source) and `PLAN.md` (readable).
+- Review: `make plan` prints both for a quick snapshot.
+- The assistant keeps these in sync when updating the in-session plan.
+
 ### Versioning
 
 We use semver with convenience scripts:
@@ -168,6 +195,26 @@ make minor     # bump 0.15.2 -> 0.16.0
 make major     # bump 0.15.2 -> 1.0.0
 make release   # create release tag
 ```
+
+---
+
+## 🧭 Style Guide
+
+- Naming: use "metrics" (not "stats") for types, modules, and endpoints (e.g., `MetricsReport`, `mimic_metrics`, `MetricsSelect`).
+- Errors: prefer `?` over `unwrap()/expect()`; return typed errors with `thiserror`.
+- Visibility: default to private; use `pub(crate)` unless needed publicly.
+- Docs: add rustdoc to all public items; include a brief example when practical.
+- Rustdoc style: use triple-slash `/// ` with a space, placed directly above important structs/enums/traits; leave a blank line before the doc block for readability.
+- Functions: keep functions small and focused; extract helpers for clarity.
+- Borrowing: avoid unnecessary clones; favor iterators and borrowing.
+- Imports: group per crate and nest items where practical; prefer a single `use crate::{ ... }` instead of multiple `use crate::...` lines.
+- Counters: use saturating arithmetic for totals; no wrapping arithmetic.
+- Perf: pre-allocate with `with_capacity` when sizes are known; avoid needless allocations in hot paths.
+- Tests: co-locate small unit tests; keep them deterministic and behavior-named.
+- Compatibility: no backward-compatibility guarantees at this stage. Prefer clean breaks over shims to avoid technical debt. Document breaking changes briefly in the changelog.
+- Codegen (mimic_build): generate minimal glue and delegate to `mimic::interface::*`. The generator wires automatic endpoints in each actor root and can leverage the schema to emit schema-driven pieces (paths, signatures, derives), but core logic should live in library modules.
+
+These complement clippy + rustfmt; run `make clippy` and `make fmt-check` before opening a PR.
 
 ---
 

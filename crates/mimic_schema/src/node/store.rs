@@ -5,6 +5,7 @@ use crate::{
     visit::Visitor,
 };
 use mimic_common::{
+    err,
     error::ErrorTree,
     utils::case::{Case, Casing},
 };
@@ -43,7 +44,7 @@ impl ValidateNode for Store {
 
         // ident
         if !self.ident.is_case(Case::UpperSnake) {
-            errs.add(format!("ident '{}' must be UPPER_SNAKE_CASE", self.ident));
+            err!(errs, "ident '{}' must be UPPER_SNAKE_CASE", self.ident);
         }
 
         errs.result()

@@ -1,0 +1,12 @@
+{
+  "updated_at": "2025-09-02T00:00:00Z",
+  "steps": [
+    { "step": "Inventory dead/duplicate code", "status": "in_progress" },
+    { "step": "DRY refactors across crates", "status": "pending" },
+    { "step": "Optimize hotspots (profiles/allocs)", "status": "pending" },
+    { "step": "Strengthen mimic_stats accuracy/edges", "status": "pending" },
+    { "step": "Expand tests for queries/indexes", "status": "pending" },
+    { "step": "CI: clippy, fmt, all tests", "status": "pending" },
+    { "step": "Document changes and upgrade notes", "status": "pending" }
+  ]
+}

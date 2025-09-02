@@ -7,6 +7,7 @@ use crate::{
         store::{DataKey, StoreRegistry},
     },
     export::icu::cdk::structures::{BTreeMap, DefaultMemoryImpl, memory::VirtualMemory},
+    metrics,
     schema::node::Index,
 };
 use candid::CandidType;
@@ -63,6 +64,11 @@ impl IndexStore {
         if let Some(mut existing) = self.get(&index_key) {
             if index.unique {
                 if !existing.contains(&key) && !existing.is_empty() {
+                    metrics::with_metrics_mut(|m| {
+                        m.ops.unique_violations += 1;
+                        let entry = m.entities.entry(E::PATH.to_string()).or_default();
+                        entry.unique_violations = entry.unique_violations.saturating_add(1);
+                    });
                     return Err(ExecutorError::index_violation(E::PATH, index.fields));
                 }
                 self.insert(index_key.clone(), IndexEntry::new(index.fields, key));
@@ -73,12 +79,17 @@ impl IndexStore {
         } else {
             self.insert(index_key, IndexEntry::new(index.fields, key));
         }
+        metrics::with_metrics_mut(|m| {
+            m.ops.index_inserts += 1;
+            let entry = m.entities.entry(E::PATH.to_string()).or_default();
+            entry.index_inserts = entry.index_inserts.saturating_add(1);
+        });
 
         Ok(())
     }
 
     // remove_index_entry
-    pub fn remove_index_entry(&mut self, entity: &impl EntityKind, index: &Index) {
+    pub fn remove_index_entry<E: EntityKind>(&mut self, entity: &E, index: &Index) {
         // Skip if index key can't be built (e.g. optional fields missing)
         let Some(index_key) = IndexKey::new(entity, index) else {
             return;
@@ -93,6 +104,11 @@ impl IndexStore {
                 // Move the updated entry back without cloning
                 self.insert(index_key, existing);
             }
+            metrics::with_metrics_mut(|m| {
+                m.ops.index_removes += 1;
+                let entry = m.entities.entry(E::PATH.to_string()).or_default();
+                entry.index_removes = entry.index_removes.saturating_add(1);
+            });
         }
     }
 

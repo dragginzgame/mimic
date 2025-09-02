@@ -149,16 +149,13 @@ impl<E: EntityKind> QueryValidate<E> for FilterExpr {
                     return Err(QueryError::InvalidFilterField(c.field.clone()));
                 }
 
-                // Comparator/value compatibility checks (best-effort)
-                use Cmp::*;
-
                 let v = &c.value;
                 let field = &c.field;
 
                 // Validate by comparator family
                 match c.cmp {
                     // Ordering requires a comparable RHS: numeric or text.
-                    Lt | Lte | Gt | Gte => {
+                    Cmp::Lt | Cmp::Lte | Cmp::Gt | Cmp::Gte => {
                         if !(v.is_numeric() || v.is_text()) {
                             return Err(QueryError::InvalidFilterValue(format!(
                                 "field '{field}' expects comparable RHS (numeric or text) for {cmp:?}",
@@ -168,11 +165,11 @@ impl<E: EntityKind> QueryValidate<E> for FilterExpr {
                     }
 
                     // Case-sensitive text
-                    StartsWith | EndsWith | Contains => {
+                    Cmp::StartsWith | Cmp::EndsWith | Cmp::Contains => {
                         // Allow Contains to be collection membership too; only enforce text when RHS is Text
                         if !v.is_text() {
                             // For Contains, we also allow non-text to support collection ops
-                            if !matches!(c.cmp, Contains) {
+                            if !matches!(c.cmp, Cmp::Contains) {
                                 return Err(QueryError::InvalidFilterValue(format!(
                                     "field '{field}' expects text RHS for {cmp:?}",
                                     cmp = c.cmp
@@ -182,7 +179,11 @@ impl<E: EntityKind> QueryValidate<E> for FilterExpr {
                     }
 
                     // Case-insensitive text must be text RHS
-                    EqCi | NeCi | ContainsCi | StartsWithCi | EndsWithCi => {
+                    Cmp::EqCi
+                    | Cmp::NeCi
+                    | Cmp::ContainsCi
+                    | Cmp::StartsWithCi
+                    | Cmp::EndsWithCi => {
                         if !v.is_text() {
                             return Err(QueryError::InvalidFilterValue(format!(
                                 "field '{field}' expects text RHS for {cmp:?}",
@@ -192,7 +193,7 @@ impl<E: EntityKind> QueryValidate<E> for FilterExpr {
                     }
 
                     // Presence/null checks: RHS should be Unit
-                    IsSome | IsNone | IsEmpty | IsNotEmpty => {
+                    Cmp::IsSome | Cmp::IsNone | Cmp::IsEmpty | Cmp::IsNotEmpty => {
                         if !v.is_unit() {
                             return Err(QueryError::InvalidFilterValue(format!(
                                 "field '{field}' expects unit RHS for {cmp:?}",
@@ -202,10 +203,10 @@ impl<E: EntityKind> QueryValidate<E> for FilterExpr {
                     }
 
                     // Membership
-                    In => { /* Allow arbitrary RHS (scalar or list). Execution will apply semantics. */
+                    Cmp::In | Cmp::Eq | Cmp::Ne => { /* Allow arbitrary or strict fallback; no strong typing here. */
                     }
 
-                    AnyIn | AllIn => {
+                    Cmp::AnyIn | Cmp::AllIn => {
                         // Expect list; allow scalar but no strong typing here
                         if !matches!(v, Value::List(_)) {
                             // allow scalar; no-op
@@ -213,7 +214,7 @@ impl<E: EntityKind> QueryValidate<E> for FilterExpr {
                     }
 
                     // CI collection membership requires text elements if list
-                    AnyInCi | AllInCi | InCi => match v {
+                    Cmp::AnyInCi | Cmp::AllInCi | Cmp::InCi => match v {
                         Value::List(items) => {
                             if !items.iter().all(Value::is_text) {
                                 return Err(QueryError::InvalidFilterValue(format!(
@@ -231,9 +232,6 @@ impl<E: EntityKind> QueryValidate<E> for FilterExpr {
                             }
                         }
                     },
-
-                    // Equality/inequality: permissive; no strong typing here
-                    Eq | Ne => {}
                 }
                 Ok(())
             }

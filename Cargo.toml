@@ -61,6 +61,7 @@ nursery = { level = "allow", priority = -1 }
 
 # always warn
 unnecessary_cast = "warn"
+missing_const_for_fn = "warn"
 must_use_candidate = "warn"
 redundant_clone = "warn"
 semicolon_if_nothing_returned = "warn"

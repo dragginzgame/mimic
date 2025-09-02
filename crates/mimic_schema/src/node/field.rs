@@ -5,6 +5,7 @@ use crate::{
     visit::Visitor,
 };
 use mimic_common::{
+    err,
     error::ErrorTree,
     utils::case::{Case, Casing},
 };
@@ -60,19 +61,20 @@ impl ValidateNode for Field {
 
         // snake case
         if !self.name.is_case(Case::Snake) {
-            errs.add(format!("field name '{}' must be in snake_case", self.name));
+            err!(errs, "field name '{}' must be in snake_case", self.name);
         }
 
         // relation naming
         if self.value.item.is_relation() {
             match self.value.cardinality {
                 Cardinality::One | Cardinality::Opt if !ident.ends_with("id") => {
-                    errs.add(format!(
+                    err!(
+                        errs,
                         "one or optional relationship '{ident}' should end with 'id'"
-                    ));
+                    );
                 }
                 Cardinality::Many if !ident.ends_with("ids") => {
-                    errs.add(format!("many relationship '{ident}' should end with 'ids'"));
+                    err!(errs, "many relationship '{ident}' should end with 'ids'");
                 }
 
                 _ => {}

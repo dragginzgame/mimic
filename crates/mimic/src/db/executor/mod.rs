@@ -10,6 +10,17 @@ pub use filter::*;
 pub use load::*;
 pub use save::*;
 
+use crate::{
+    core::traits::EntityKind,
+    db::query::{FilterExpr, QueryPlan, QueryPlanner},
+};
+
+/// Plan a query for an entity given an optional filter.
+#[must_use]
+pub fn plan_for<E: EntityKind>(filter: Option<&FilterExpr>) -> QueryPlan {
+    QueryPlanner::new(filter).plan::<E>()
+}
+
 use crate::db::store::DataKey;
 use thiserror::Error as ThisError;
 

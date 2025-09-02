@@ -5,6 +5,29 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+Nothing yet.
+
+## [0.16.0] - 2025-09-02
+
+### Added
+- `mimic_metrics(select)` query endpoint with `MetricsSelect` to choose data/index/counters/entities.
+- Library helpers: `mimic::interface::metrics::{metrics_report, metrics_reset}` for endpoint delegation.
+- Per-entity summaries (`EntitySummary`) including averages; global counters and perf totals remain.
+
+### Changed
+- Consolidated all “stats” naming under “metrics”; removed legacy `*Stats` type aliases.
+- Codegen generates minimal glue and delegates to `interface::metrics` (cleaner, DRYer endpoints).
+- Executors: atomic unique-index validation prevents partial index updates on failed saves; violation still counted.
+- DRY refactor: shared `executor::plan_for::<E>(filter)` used by load/delete.
+
+### Fixed
+- Canister tests now clear both data and index stores between tests to avoid stale unique entries.
+
+### Performance
+- Minor allocation reductions and borrow-first tweaks in planner/index paths.
+
 ## [0.15.6] - 2025-09-01
 
 ### Added

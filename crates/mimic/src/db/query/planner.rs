@@ -1,6 +1,7 @@
 use crate::{
     core::{Key, Value, traits::EntityKind},
     db::query::{Cmp, FilterExpr},
+    metrics,
     schema::node::Index,
 };
 use std::fmt::{self, Display};
@@ -78,6 +79,11 @@ impl QueryPlanner {
         // If filter is a primary key match
         // this would handle One and Many queries
         if let Some(plan) = self.extract_from_filter::<E>() {
+            metrics::with_metrics_mut(|m| match plan {
+                QueryPlan::Keys(_) => m.ops.plan_keys += 1,
+                QueryPlan::Index(_) => m.ops.plan_index += 1,
+                QueryPlan::Range(_, _) => m.ops.plan_range += 1,
+            });
             return plan;
         }
 
@@ -86,11 +92,13 @@ impl QueryPlanner {
         if !E::INDEXES.is_empty()
             && let Some(plan) = self.extract_from_index::<E>()
         {
+            metrics::with_metrics_mut(|m| m.ops.plan_index += 1);
             return plan;
         }
 
         // Fallback: if we have a real filter, do a full scan
         // No filter = full scan from Key::MIN to Key::MAX
+        metrics::with_metrics_mut(|m| m.ops.plan_range += 1);
         QueryPlan::Range(Key::MIN, Key::MAX)
     }
 

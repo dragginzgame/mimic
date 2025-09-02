@@ -1,4 +1,4 @@
-.PHONY: help version current patch minor major release test build clean
+.PHONY: help version current patch minor major release test build clean plan
 
 # Default target
 help:
@@ -20,6 +20,7 @@ help:
 	@echo "  clippy           Run clippy checks"
 	@echo "  fmt              Format code"
 	@echo "  clean            Clean build artifacts"
+	@echo "  plan             Show the current project plan"
 	@echo ""
 	@echo "Utilities:"
 	@echo "  check-versioning Check versioning system setup"
@@ -87,6 +88,15 @@ fmt-check:
 clean:
 	cargo clean
 	rm -rf target/
+
+
+# Planning summary
+plan:
+	@echo "=== PLAN.md ==="
+	@{ [ -f PLAN.md ] && sed -n '1,200p' PLAN.md; } || echo "No PLAN.md found."
+	@echo
+	@echo "=== .codex/plan.json ==="
+	@{ [ -f .codex/plan.json ] && sed -n '1,200p' .codex/plan.json; } || echo "No .codex/plan.json found."
 
 # Install development dependencies
 install-dev:

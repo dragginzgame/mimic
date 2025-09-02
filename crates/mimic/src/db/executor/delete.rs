@@ -7,10 +7,9 @@ use crate::{
     db::{
         Db, DbError,
         executor::{Context, FilterEvaluator},
-        query::{
-            DeleteQuery, FilterDsl, FilterExpr, FilterExt, QueryPlan, QueryPlanner, QueryValidate,
-        },
+        query::{DeleteQuery, FilterDsl, FilterExpr, FilterExt, QueryPlan, QueryValidate},
     },
+    metrics,
 };
 use std::marker::PhantomData;
 
@@ -78,13 +77,6 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
         Context::new(self.db)
     }
 
-    // plan
-    // chatgpt says cleaner to keep it a method
-    #[allow(clippy::unused_self)]
-    fn plan(&self, query: &DeleteQuery) -> QueryPlan {
-        QueryPlanner::new(query.filter.as_ref()).plan::<E>()
-    }
-
     ///
     /// EXECUTION METHODS
     ///
@@ -93,7 +85,7 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
     pub fn explain(self, query: &DeleteQuery) -> Result<QueryPlan, Error> {
         QueryValidate::<E>::validate(query).map_err(DbError::from)?;
 
-        Ok(self.plan(query))
+        Ok(crate::db::executor::plan_for::<E>(query.filter.as_ref()))
     }
 
     // response
@@ -106,10 +98,11 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
 
     // execute
     pub fn execute(self, query: &DeleteQuery) -> Result<Vec<Key>, Error> {
+        let mut span = metrics::Span::<E>::new(metrics::ExecKind::Delete);
         QueryValidate::<E>::validate(query).map_err(DbError::from)?;
 
         let ctx = self.context();
-        let plan = self.plan(query);
+        let plan = crate::db::executor::plan_for::<E>(query.filter.as_ref());
         let keys = ctx.candidates_from_plan(plan)?; // no deserialization here
 
         // query prep
@@ -173,6 +166,9 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
         })??;
 
         //   icu::cdk::println!("query.delete: deleted keys {deleted_rows:?}");
+
+        let deleted_count = deleted_rows.len() as u64;
+        span.set_rows(deleted_count);
 
         Ok(deleted_rows)
     }

@@ -56,7 +56,7 @@ impl ValidateNode for Index {
         // store
         match schema.try_get_node_as::<Store>(self.store) {
             Ok(store) if !matches!(store.ty, StoreType::Index) => {
-                errs.add("store is not type Index");
+                mimic_common::err!(errs, "store is not type Index");
             }
             Ok(_) => {}
             Err(e) => errs.add(e),

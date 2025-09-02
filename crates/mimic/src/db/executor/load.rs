@@ -8,11 +8,12 @@ use crate::{
         Db, DbError,
         executor::{Context, FilterEvaluator},
         query::{
-            FilterDsl, FilterExpr, FilterExt, IntoFilterOpt, LoadQuery, QueryPlan, QueryPlanner,
-            QueryValidate, SortDirection, SortExpr,
+            FilterDsl, FilterExpr, FilterExt, IntoFilterOpt, LoadQuery, QueryPlan, QueryValidate,
+            SortDirection, SortExpr,
         },
         response::LoadCollection,
     },
+    metrics,
 };
 use std::marker::PhantomData;
 
@@ -89,13 +90,6 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
         Context::new(self.db)
     }
 
-    // plan
-    // chatgpt says cleaner to keep it a method
-    #[allow(clippy::unused_self)]
-    fn plan(&self, query: &LoadQuery) -> QueryPlan {
-        QueryPlanner::new(query.filter.as_ref()).plan::<E>()
-    }
-
     ///
     /// EXECUTION METHODS
     ///
@@ -104,7 +98,7 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
     pub fn explain(self, query: &LoadQuery) -> Result<QueryPlan, Error> {
         QueryValidate::<E>::validate(query).map_err(DbError::from)?;
 
-        Ok(self.plan(query))
+        Ok(crate::db::executor::plan_for::<E>(query.filter.as_ref()))
     }
 
     // response
@@ -117,10 +111,11 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
 
     /// Execute a full query and return a collection of entities.
     pub fn execute(&self, query: &LoadQuery) -> Result<LoadCollection<E>, Error> {
+        let mut span = metrics::Span::<E>::new(metrics::ExecKind::Load);
         QueryValidate::<E>::validate(query).map_err(DbError::from)?;
 
         let ctx = self.context();
-        let plan = self.plan(query);
+        let plan = crate::db::executor::plan_for::<E>(query.filter.as_ref());
 
         // Fast path: if there is no filter or sort, and a limit is specified,
         // apply pagination at the storage layer to avoid deserializing discarded rows.
@@ -153,6 +148,9 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
         {
             Self::apply_pagination(&mut rows, lim.offset, lim.limit);
         }
+
+        let rows_len = rows.len() as u64;
+        span.set_rows(rows_len);
 
         Ok(LoadCollection(rows))
     }

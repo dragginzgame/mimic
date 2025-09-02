@@ -12,6 +12,10 @@ use crate::design::{base::validator, prelude::*};
 )]
 pub struct Code {}
 
+///
+/// TESTS
+///
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -34,6 +34,11 @@ impl ErrorTree {
         }
     }
 
+    // addf: format and add an error message
+    pub fn addf(&mut self, args: fmt::Arguments) {
+        self.messages.push(format!("{args}"));
+    }
+
     // add_for
     // add an error message under a specific key
     pub fn add_for<K: ToString, M: ToString>(&mut self, key: K, message: M) {
@@ -88,6 +93,13 @@ impl ErrorTree {
     pub fn result(self) -> Result<(), Self> {
         if self.is_empty() { Ok(()) } else { Err(self) }
     }
+}
+
+#[macro_export]
+macro_rules! err {
+    ($errs:expr, $($arg:tt)*) => {{
+        $errs.addf(format_args!($($arg)*));
+    }};
 }
 
 impl fmt::Display for ErrorTree {

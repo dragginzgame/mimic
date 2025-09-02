@@ -2,6 +2,7 @@ mod db;
 mod default;
 mod filter;
 mod index;
+mod metrics;
 mod ops;
 mod validate;
 
@@ -10,7 +11,7 @@ use mimic::{Error, db::query, prelude::*};
 use test_design::{
     canister::filter::{Filterable, FilterableView},
     fixture::rarity::{Rarity, RarityView},
-    schema::TestDataStore,
+    schema::{TestDataStore, TestIndexStore},
 };
 
 //
@@ -41,6 +42,9 @@ pub fn clear_test_data_store() {
     crate::DATA_REGISTRY.with(|reg| {
         let _ = reg.with_store_mut(TestDataStore::PATH, |s| s.clear());
     });
+    crate::INDEX_REGISTRY.with(|reg| {
+        let _ = reg.with_store_mut(TestIndexStore::PATH, |s| s.clear());
+    });
 }
 
 // test
@@ -54,6 +58,7 @@ pub fn test() {
         ("load_filter", filter::load::LoadFilterTester::test),
         ("index", index::IndexTester::test),
         ("ops", ops::OpsTester::test),
+        ("metrics", metrics::MetricsTester::test),
         ("validate", validate::ValidateTester::test),
     ];
 
