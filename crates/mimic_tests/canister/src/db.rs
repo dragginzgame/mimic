@@ -401,8 +401,10 @@ impl DbTester {
 
         // Retrieve rows in B-Tree order
         let keys = db!().load::<ContainsOpts>().all().unwrap().keys();
-
-        let _ = keys.len();
+        assert!(
+            !keys.is_empty(),
+            "perf_options: expected at least one row after inserts"
+        );
     }
 
     fn perf_many_relations() {
@@ -418,7 +420,9 @@ impl DbTester {
 
         // Retrieve rows in B-Tree order
         let rows = db!().load::<ContainsManyRelations>().all().unwrap();
-
-        let _ = rows.count();
+        assert!(
+            rows.count() > 0,
+            "perf_many_relations: expected at least one row after inserts"
+        );
     }
 }
