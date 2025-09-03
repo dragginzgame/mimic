@@ -4,7 +4,7 @@ use crate::{common::error::ErrorTree, core::traits::Visitable};
 /// Event
 ///
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum Event {
     Enter,
     Exit,
@@ -17,18 +17,12 @@ pub enum Event {
 #[derive(Debug)]
 pub enum PathSegment {
     Empty,
-    Field(String),
+    Field(&'static str),
     Index(usize),
 }
 
-impl From<&str> for PathSegment {
-    fn from(s: &str) -> Self {
-        Self::Field(s.to_string())
-    }
-}
-
-impl From<String> for PathSegment {
-    fn from(s: String) -> Self {
+impl From<&'static str> for PathSegment {
+    fn from(s: &'static str) -> Self {
         Self::Field(s)
     }
 }
@@ -39,10 +33,10 @@ impl From<usize> for PathSegment {
     }
 }
 
-impl From<Option<&str>> for PathSegment {
-    fn from(opt: Option<&str>) -> Self {
+impl From<Option<&'static str>> for PathSegment {
+    fn from(opt: Option<&'static str>) -> Self {
         match opt {
-            Some(s) if !s.is_empty() => Self::Field(s.to_string()),
+            Some(s) if !s.is_empty() => Self::Field(s),
             _ => Self::Empty,
         }
     }
@@ -70,11 +64,16 @@ pub fn perform_visit<S: Into<PathSegment>>(
     seg: S,
 ) {
     let seg = seg.into();
-    visitor.push(seg);
+    let should_push = !matches!(seg, PathSegment::Empty);
+    if should_push {
+        visitor.push(seg);
+    }
     visitor.visit(node, Event::Enter);
     node.drive(visitor);
     visitor.visit(node, Event::Exit);
-    visitor.pop();
+    if should_push {
+        visitor.pop();
+    }
 }
 
 ///
@@ -95,34 +94,50 @@ impl ValidateVisitor {
 
     #[inline]
     fn current_route(&self) -> String {
-        self.path
-            .iter()
-            .filter_map(|seg| match seg {
-                PathSegment::Empty => None,
-                PathSegment::Field(s) => Some(s.to_string()),
-                PathSegment::Index(i) => Some(i.to_string()),
-            })
-            .collect::<Vec<_>>()
-            .join(".")
+        let mut out = String::new();
+        let mut first = true;
+        for seg in &self.path {
+            match seg {
+                PathSegment::Empty => {}
+                PathSegment::Field(s) => {
+                    if !s.is_empty() {
+                        if !first {
+                            out.push('.');
+                        }
+                        out.push_str(s);
+                        first = false;
+                    }
+                }
+                PathSegment::Index(i) => {
+                    if !first {
+                        out.push('.');
+                    }
+                    // Fast integer formatting via to_string for simplicity
+                    out.push_str(&i.to_string());
+                    first = false;
+                }
+            }
+        }
+        out
     }
 }
 
 impl Visitor for ValidateVisitor {
     #[inline]
-    fn visit(&mut self, item: &dyn Visitable, event: Event) {
+    fn visit(&mut self, node: &dyn Visitable, event: Event) {
         match event {
             Event::Enter => {
                 let mut errs = ErrorTree::new();
 
                 // combine all validation types
                 // better to do it here and not in the trait
-                if let Err(e) = item.validate_self() {
+                if let Err(e) = node.validate_self() {
                     errs.merge(e);
                 }
-                if let Err(e) = item.validate_children() {
+                if let Err(e) = node.validate_children() {
                     errs.merge(e);
                 }
-                if let Err(e) = item.validate_custom() {
+                if let Err(e) = node.validate_custom() {
                     errs.merge(e);
                 }
 
@@ -144,7 +159,9 @@ impl Visitor for ValidateVisitor {
 
     #[inline]
     fn push(&mut self, seg: PathSegment) {
-        self.path.push(seg);
+        if !matches!(seg, PathSegment::Empty) {
+            self.path.push(seg);
+        }
     }
 
     #[inline]
@@ -165,7 +182,7 @@ mod tests {
     const ERR_MSG: &str = "leaf error";
 
     // A simple leaf type that can emit an error based on a flag.
-    #[derive(Debug, Clone, Default)]
+    #[derive(Clone, Debug, Default)]
     struct Leaf(bool);
 
     impl ValidateAuto for Leaf {}

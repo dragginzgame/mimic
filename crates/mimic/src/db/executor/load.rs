@@ -13,7 +13,7 @@ use crate::{
         },
         response::LoadCollection,
     },
-    metrics,
+    obs::metrics,
 };
 use std::marker::PhantomData;
 

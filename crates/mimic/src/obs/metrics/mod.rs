@@ -1,7 +1,9 @@
-use crate::core::{Key, traits::EntityKind};
+use crate::core::serialize;
+use crate::core::traits::EntityKind;
 use candid::CandidType;
 use icu::{cdk::api::performance_counter, utils::time};
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 use std::{cell::RefCell, collections::BTreeMap, marker::PhantomData};
 
 ///
@@ -10,18 +12,18 @@ use std::{cell::RefCell, collections::BTreeMap, marker::PhantomData};
 ///
 
 #[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
-pub struct Metrics {
-    pub ops: Ops,
-    pub perf: Perf,
-    pub entities: BTreeMap<String, EntityOps>,
+pub struct EventState {
+    pub ops: EventOps,
+    pub perf: EventPerf,
+    pub entities: BTreeMap<String, EntityCounters>,
     pub since_ms: u64,
 }
 
-impl Default for Metrics {
+impl Default for EventState {
     fn default() -> Self {
         Self {
-            ops: Ops::default(),
-            perf: Perf::default(),
+            ops: EventOps::default(),
+            perf: EventPerf::default(),
             entities: BTreeMap::new(),
             since_ms: time::now_millis(),
         }
@@ -29,15 +31,19 @@ impl Default for Metrics {
 }
 
 ///
-/// Ops
+/// EventOps
 ///
 
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
-pub struct Ops {
+pub struct EventOps {
     // Executor entrypoints
     pub load_calls: u64,
     pub save_calls: u64,
     pub delete_calls: u64,
+
+    // Serialization counters (sampled from core::serialize)
+    pub serialize_calls: u64,
+    pub deserialize_calls: u64,
 
     // Planner kinds
     pub plan_index: u64,
@@ -59,7 +65,7 @@ pub struct Ops {
 ///
 
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
-pub struct EntityOps {
+pub struct EntityCounters {
     pub load_calls: u64,
     pub save_calls: u64,
     pub delete_calls: u64,
@@ -75,7 +81,7 @@ pub struct EntityOps {
 ///
 
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
-pub struct Perf {
+pub struct EventPerf {
     // Instruction totals per executor (ic_cdk::api::performance_counter(1))
     pub load_inst_total: u128,
     pub save_inst_total: u128,
@@ -88,22 +94,28 @@ pub struct Perf {
 }
 
 thread_local! {
-    static METRICS: RefCell<Metrics> = RefCell::new(Metrics::default());
+    static EVENT_STATE: RefCell<EventState> = RefCell::new(EventState::default());
 }
 
 /// Borrow metrics immutably.
-pub fn with_metrics<R>(f: impl FnOnce(&Metrics) -> R) -> R {
-    METRICS.with(|m| f(&m.borrow()))
+pub fn with_state<R>(f: impl FnOnce(&EventState) -> R) -> R {
+    EVENT_STATE.with(|m| f(&m.borrow()))
 }
 
 /// Borrow metrics mutably.
-pub fn with_metrics_mut<R>(f: impl FnOnce(&mut Metrics) -> R) -> R {
-    METRICS.with(|m| f(&mut m.borrow_mut()))
+pub fn with_state_mut<R>(f: impl FnOnce(&mut EventState) -> R) -> R {
+    EVENT_STATE.with(|m| f(&mut m.borrow_mut()))
 }
 
 /// Reset all counters (useful in tests).
 pub fn reset() {
-    with_metrics_mut(|m| *m = Metrics::default());
+    with_state_mut(|m| *m = EventState::default());
+}
+
+/// Reset all event state: counters, perf, and serialize counters.
+pub fn reset_all() {
+    reset();
+    serialize::reset_serialize_counters();
 }
 
 /// Accumulate instruction counts and track a max.
@@ -130,7 +142,7 @@ pub enum ExecKind {
 /// Returns the start instruction counter value.
 #[must_use]
 pub fn exec_start(kind: ExecKind) -> u64 {
-    with_metrics_mut(|m| match kind {
+    with_state_mut(|m| match kind {
         ExecKind::Load => m.ops.load_calls = m.ops.load_calls.saturating_add(1),
         ExecKind::Save => m.ops.save_calls = m.ops.save_calls.saturating_add(1),
         ExecKind::Delete => m.ops.delete_calls = m.ops.delete_calls.saturating_add(1),
@@ -145,7 +157,7 @@ pub fn exec_finish(kind: ExecKind, start_inst: u64, rows_touched: u64) {
     let now = performance_counter(1);
     let delta = now.saturating_sub(start_inst);
 
-    with_metrics_mut(|m| match kind {
+    with_state_mut(|m| match kind {
         ExecKind::Load => {
             m.ops.rows_loaded = m.ops.rows_loaded.saturating_add(rows_touched);
             add_instructions(
@@ -179,7 +191,7 @@ where
     E: EntityKind,
 {
     let start = exec_start(kind);
-    with_metrics_mut(|m| {
+    with_state_mut(|m| {
         let entry = m.entities.entry(E::PATH.to_string()).or_default();
         match kind {
             ExecKind::Load => entry.load_calls = entry.load_calls.saturating_add(1),
@@ -195,7 +207,7 @@ where
     E: EntityKind,
 {
     exec_finish(kind, start_inst, rows_touched);
-    with_metrics_mut(|m| {
+    with_state_mut(|m| {
         let entry = m.entities.entry(E::PATH.to_string()).or_default();
         match kind {
             ExecKind::Load => entry.rows_loaded = entry.rows_loaded.saturating_add(rows_touched),
@@ -208,7 +220,8 @@ where
 }
 
 ///
-/// RAII span guard to simplify metrics instrumentation
+/// Span
+/// RAII guard to simplify metrics instrumentation
 ///
 
 pub struct Span<E: EntityKind> {
@@ -262,28 +275,14 @@ impl<E: EntityKind> Drop for Span<E> {
 //
 
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
-pub struct MetricsReport {
+pub struct EventReport {
     /// Ephemeral runtime counters since `since_ms`.
-    pub counters: Option<Metrics>,
+    pub counters: Option<EventState>,
     /// Per-entity ephemeral counters and averages.
     pub entity_counters: Vec<EntitySummary>,
 }
 
-#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
-pub struct StoreMetrics {
-    pub path: String,
-    pub entries: u64,
-    pub min_key: Option<Key>,
-    pub max_key: Option<Key>,
-    pub memory_bytes: u64,
-}
-
-#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
-pub struct IndexMetrics {
-    pub path: String,
-    pub entries: u64,
-    pub memory_bytes: u64,
-}
+// Storage snapshot types moved to crate::storage
 
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct EntitySummary {
@@ -299,30 +298,10 @@ pub struct EntitySummary {
     pub unique_violations: u64,
 }
 
-#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
-pub struct EntityStorage {
-    /// Store path (e.g., test_design::schema::TestDataStore)
-    pub store: String,
-    /// Entity path (e.g., test_design::canister::db::Index)
-    pub path: String,
-    /// Number of rows for this entity in the store
-    pub entries: u64,
-    /// Approximate bytes used (key + value)
-    pub memory_bytes: u64,
-}
-
-#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
-pub struct StorageReport {
-    /// Live storage inventory for data stores.
-    pub storage_data: Vec<StoreMetrics>,
-    /// Live storage inventory for index stores.
-    pub storage_index: Vec<IndexMetrics>,
-    /// Live per-entity storage breakdown by store and entity path.
-    pub entity_storage: Vec<EntityStorage>,
-}
+// Storage snapshot types moved to crate::storage
 
 /// Increment unique-violation counters globally and for a specific entity type.
-pub fn record_unique_violation_for<E>(m: &mut Metrics)
+pub fn record_unique_violation_for<E>(m: &mut EventState)
 where
     E: crate::core::traits::EntityKind,
 {
@@ -334,14 +313,14 @@ where
 /// Select which parts of the metrics report to include.
 #[derive(CandidType, Clone, Copy, Debug, Deserialize, Serialize)]
 #[allow(clippy::struct_excessive_bools)]
-pub struct MetricsSelect {
+pub struct EventSelect {
     pub data: bool,
     pub index: bool,
     pub counters: bool,
     pub entities: bool,
 }
 
-impl MetricsSelect {
+impl EventSelect {
     #[must_use]
     pub const fn all() -> Self {
         Self {
@@ -353,10 +332,63 @@ impl MetricsSelect {
     }
 }
 
-impl Default for MetricsSelect {
+impl Default for EventSelect {
     fn default() -> Self {
         Self::all()
     }
 }
 
-// Note: no backward-compat type aliases to avoid tech debt.
+/// Build a metrics report by inspecting in-memory counters only.
+#[must_use]
+pub fn report() -> EventReport {
+    // Snapshot counters and append live serialize/deserialize counts
+    let mut snap = with_state(|m| m.clone());
+    snap.ops.serialize_calls = serialize::serialize_call_count() as u64;
+    snap.ops.deserialize_calls = serialize::deserialize_call_count() as u64;
+
+    let mut entity_counters: Vec<EntitySummary> = Vec::new();
+    for (path, ops) in &snap.entities {
+        let avg_load = if ops.load_calls > 0 {
+            ops.rows_loaded as f64 / ops.load_calls as f64
+        } else {
+            0.0
+        };
+        let avg_delete = if ops.delete_calls > 0 {
+            ops.rows_deleted as f64 / ops.delete_calls as f64
+        } else {
+            0.0
+        };
+
+        entity_counters.push(EntitySummary {
+            path: path.clone(),
+            load_calls: ops.load_calls,
+            delete_calls: ops.delete_calls,
+            rows_loaded: ops.rows_loaded,
+            rows_deleted: ops.rows_deleted,
+            avg_rows_per_load: avg_load,
+            avg_rows_per_delete: avg_delete,
+            index_inserts: ops.index_inserts,
+            index_removes: ops.index_removes,
+            unique_violations: ops.unique_violations,
+        });
+    }
+
+    entity_counters.sort_by(|a, b| {
+        match b
+            .avg_rows_per_load
+            .partial_cmp(&a.avg_rows_per_load)
+            .unwrap_or(Ordering::Equal)
+        {
+            Ordering::Equal => match b.rows_loaded.cmp(&a.rows_loaded) {
+                Ordering::Equal => a.path.cmp(&b.path),
+                other => other,
+            },
+            other => other,
+        }
+    });
+
+    EventReport {
+        counters: Some(snap),
+        entity_counters,
+    }
+}

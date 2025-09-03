@@ -20,7 +20,7 @@ use crate::{
     core::{
         Key, Value,
         types::Ulid,
-        visit::{PathSegment, Visitor, perform_visit},
+        visit::{Visitor, perform_visit},
     },
     db::{Db, service::EntityService},
     schema::node::Index,
@@ -427,7 +427,8 @@ pub trait Visitable: Validate {
 impl<T: Visitable> Visitable for Option<T> {
     fn drive(&self, visitor: &mut dyn crate::core::visit::Visitor) {
         if let Some(value) = self {
-            perform_visit(visitor, value, "?");
+            // Do not contribute a path segment for optional wrappers.
+            perform_visit(visitor, value, crate::core::visit::PathSegment::Empty);
         }
     }
 }
@@ -450,7 +451,7 @@ impl<T: Visitable> Visitable for HashSet<T> {
 
 impl<K: Visitable, V: Visitable> Visitable for HashMap<K, V> {
     fn drive(&self, visitor: &mut dyn Visitor) {
-        for (k, v) in self.iter() {
+        for (k, v) in self {
             perform_visit(visitor, k, "key");
             perform_visit(visitor, v, "value");
         }

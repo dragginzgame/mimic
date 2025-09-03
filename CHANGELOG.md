@@ -12,7 +12,7 @@ Nothing yet.
 ## [0.16.2] - 2025-09-02
 
 ### Added
-- `mimic_metrics(select)` query endpoint with `MetricsSelect` to choose data/index/counters/entities.
+- `mimic_metrics(select)` query endpoint with `EventSelect` to choose data/index/counters/entities.
 - Library helpers: `mimic::interface::metrics::{metrics_report, metrics_reset}` for endpoint delegation.
 - Per-entity summaries (`EntitySummary`) including averages; global counters and perf totals remain.
 

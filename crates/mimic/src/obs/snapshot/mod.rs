@@ -1,14 +1,66 @@
 use crate::{
-    core::traits::CanisterKind,
+    core::{Key, traits::CanisterKind},
     db::{Db, store::DataKey},
-    metrics::{EntityStorage, IndexMetrics, StorageReport, StoreMetrics},
 };
+use candid::CandidType;
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 ///
-/// storage_report
-/// build storage snapshot and per-entity breakdown; enrich path names using id→path map
+/// StorageReport
+/// Live storage snapshot report
 ///
+
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
+pub struct StorageReport {
+    /// Live storage inventory for data stores.
+    pub storage_data: Vec<DataStoreSnapshot>,
+    /// Live storage inventory for index stores.
+    pub storage_index: Vec<IndexStoreSnapshot>,
+    /// Live per-entity storage breakdown by store and entity path.
+    pub entity_storage: Vec<EntitySnapshot>,
+}
+
+/// Store-level snapshot metrics.
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
+pub struct DataStoreSnapshot {
+    pub path: String,
+    pub entries: u64,
+    pub min_key: Option<Key>,
+    pub max_key: Option<Key>,
+    pub memory_bytes: u64,
+}
+
+///
+/// IndexStoreSnapshot
+/// Index-store snapshot metrics
+///
+
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
+pub struct IndexStoreSnapshot {
+    pub path: String,
+    pub entries: u64,
+    pub memory_bytes: u64,
+}
+
+///
+/// EntitySnapshot
+/// Per-entity storage breakdown across stores
+///
+
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
+pub struct EntitySnapshot {
+    /// Store path (e.g., test_design::schema::TestDataStore)
+    pub store: String,
+    /// Entity path (e.g., test_design::canister::db::Index)
+    pub path: String,
+    /// Number of rows for this entity in the store
+    pub entries: u64,
+    /// Approximate bytes used (key + value)
+    pub memory_bytes: u64,
+}
+
+/// Build storage snapshot and per-entity breakdown; enrich path names using id→path map
 #[must_use]
 pub fn storage_report<C: CanisterKind>(
     db: &Db<C>,
@@ -16,11 +68,11 @@ pub fn storage_report<C: CanisterKind>(
 ) -> StorageReport {
     let mut data = Vec::new();
     let mut index = Vec::new();
-    let mut entity_storage: Vec<EntityStorage> = Vec::new();
+    let mut entity_storage: Vec<EntitySnapshot> = Vec::new();
 
     db.with_data(|reg| {
         reg.for_each(|path, store| {
-            data.push(StoreMetrics {
+            data.push(DataStoreSnapshot {
                 path: path.to_string(),
                 entries: store.len(),
                 min_key: store.first_key_value().map(|(k, _)| k.into()),
@@ -43,7 +95,7 @@ pub fn storage_report<C: CanisterKind>(
 
             for (entity_id, (count, mem)) in by_entity {
                 let path_name = map.get(&entity_id).copied().unwrap_or("");
-                entity_storage.push(EntityStorage {
+                entity_storage.push(EntitySnapshot {
                     store: path.to_string(),
                     path: path_name.to_string(),
                     entries: count,
@@ -55,7 +107,7 @@ pub fn storage_report<C: CanisterKind>(
 
     db.with_index(|reg| {
         reg.for_each(|path, store| {
-            index.push(IndexMetrics {
+            index.push(IndexStoreSnapshot {
                 path: path.to_string(),
                 entries: store.len(),
                 memory_bytes: store.memory_bytes(),

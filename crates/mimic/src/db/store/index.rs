@@ -7,7 +7,7 @@ use crate::{
         store::{DataKey, StoreRegistry},
     },
     export::icu::cdk::structures::{BTreeMap, DefaultMemoryImpl, memory::VirtualMemory},
-    metrics,
+    obs::metrics,
     schema::node::Index,
 };
 use candid::CandidType;
@@ -64,7 +64,7 @@ impl IndexStore {
         if let Some(mut existing) = self.get(&index_key) {
             if index.unique {
                 if !existing.contains(&key) && !existing.is_empty() {
-                    metrics::with_metrics_mut(|m| metrics::record_unique_violation_for::<E>(m));
+                    metrics::with_state_mut(|m| metrics::record_unique_violation_for::<E>(m));
                     return Err(ExecutorError::index_violation(E::PATH, index.fields));
                 }
                 self.insert(index_key.clone(), IndexEntry::new(index.fields, key));
@@ -75,7 +75,7 @@ impl IndexStore {
         } else {
             self.insert(index_key, IndexEntry::new(index.fields, key));
         }
-        metrics::with_metrics_mut(|m| {
+        metrics::with_state_mut(|m| {
             m.ops.index_inserts += 1;
             let entry = m.entities.entry(E::PATH.to_string()).or_default();
             entry.index_inserts = entry.index_inserts.saturating_add(1);
@@ -100,7 +100,7 @@ impl IndexStore {
                 // Move the updated entry back without cloning
                 self.insert(index_key, existing);
             }
-            metrics::with_metrics_mut(|m| {
+            metrics::with_state_mut(|m| {
                 m.ops.index_removes += 1;
                 let entry = m.entities.entry(E::PATH.to_string()).or_default();
                 entry.index_removes = entry.index_removes.saturating_add(1);

@@ -21,21 +21,29 @@ pub fn generate(builder: &ActorBuilder) -> TokenStream {
         /// Storage snapshot (live view).
         /// Includes data/index store stats and per-entity breakdown by store.
         #[::mimic::export::icu::cdk::query]
-        pub fn mimic_storage() -> Result<::mimic::metrics::StorageReport, ::mimic::Error> {
-            Ok(::mimic::interface::storage::storage_report(&db(), MIMIC_ENTITY_ID_PATH))
+        pub fn mimic_snapshot() -> Result<::mimic::obs::snapshot::StorageReport, ::mimic::Error> {
+            Ok(::mimic::obs::snapshot::storage_report(&db(), MIMIC_ENTITY_ID_PATH))
         }
 
-        /// Ephemeral metrics since `since_ms` (counters + per-entity summaries).
+        /// Runtime event logs (oldest → newest). Ephemeral, in-memory buffer.
         #[::mimic::export::icu::cdk::query]
-        pub fn mimic_metrics() -> Result<::mimic::metrics::MetricsReport, ::mimic::Error> {
-            Ok(::mimic::interface::metrics::metrics_report(&db()))
+        pub fn mimic_logs() -> Result<Vec<String>, ::mimic::Error> {
+            Ok(::mimic::obs::log::logs_snapshot())
         }
 
-        /// Reset ephemeral metrics and refresh `since_ms`.
+        /// Ephemeral event report since `since_ms` (counters + per-entity summaries).
+        #[::mimic::export::icu::cdk::query]
+        pub fn mimic_metrics() -> Result<::mimic::obs::metrics::EventReport, ::mimic::Error> {
+            Ok(::mimic::obs::metrics::report())
+        }
+
+        /// Reset ephemeral event state and refresh `since_ms`.
         #[::mimic::export::icu::cdk::update]
         pub fn mimic_metrics_reset() -> Result<(), ::mimic::Error> {
-            ::mimic::interface::metrics::metrics_reset();
+            ::mimic::obs::metrics::reset_all();
             Ok(())
         }
+
+
     }
 }

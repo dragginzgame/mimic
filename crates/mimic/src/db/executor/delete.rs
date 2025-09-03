@@ -9,7 +9,7 @@ use crate::{
         executor::{Context, FilterEvaluator},
         query::{DeleteQuery, FilterDsl, FilterExpr, FilterExt, QueryPlan, QueryValidate},
     },
-    metrics,
+    obs::metrics,
 };
 use std::marker::PhantomData;
 

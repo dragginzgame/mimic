@@ -143,7 +143,7 @@ make build      # release build
 - `mimic_storage()`: returns a `StorageReport` snapshot:
   - `storage_data` and `storage_index` (live store snapshots).
   - `entity_storage` (live per-entity breakdown by store, with entity path names).
-- `mimic_metrics()`: returns a `MetricsReport` of ephemeral counters since `since_ms`:
+- `mimic_metrics()`: returns an `EventReport` of ephemeral counters since `since_ms`:
   - `counters` (global ops/perf) and `entity_counters` (per-entity summary).
 - `mimic_metrics_reset()`: clears counters and refreshes `since_ms`.
 
@@ -197,7 +197,7 @@ make release   # create release tag
 
 ## 🧭 Style Guide
 
-- Naming: use "metrics" (not "stats") for types, modules, and endpoints (e.g., `MetricsReport`, `mimic_metrics`, `MetricsSelect`).
+- Naming: use "event" for runtime counters/logs (e.g., `EventReport`, `mimic_metrics`, `EventSelect`), and "snapshot" for storage views.
 - Errors: prefer `?` over `unwrap()/expect()`; return typed errors with `thiserror`.
 - Visibility: default to private; use `pub(crate)` unless needed publicly.
 - Docs: add rustdoc to all public items; include a brief example when practical.

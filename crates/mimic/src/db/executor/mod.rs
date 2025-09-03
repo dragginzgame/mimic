@@ -16,7 +16,7 @@ use crate::{
         query::{FilterExpr, QueryPlan, QueryPlanner},
         store::DataKey,
     },
-    metrics::Span,
+    obs::metrics::Span,
 };
 use thiserror::Error as ThisError;
 

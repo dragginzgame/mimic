@@ -17,7 +17,7 @@ macro_rules! mimic_start {
 #[macro_export]
 macro_rules! mimic_build {
     ($actor:expr) => {
-        use std::{fs::File, io::Write, path::PathBuf};
+        use std::{env::var, fs::File, io::Write, path::PathBuf};
 
         //
         // CARGO
@@ -27,13 +27,13 @@ macro_rules! mimic_build {
         //
 
         // Retrieve the target triple from the environment
-        let target = std::env::var("TARGET").unwrap();
+        let target = var("TARGET").unwrap();
 
         // all
         println!("cargo:rerun-if-changed=build.rs");
 
         // Get the output directory set by Cargo
-        let out_dir = ::std::env::var("OUT_DIR").expect("OUT_DIR not set");
+        let out_dir = var("OUT_DIR").expect("OUT_DIR not set");
 
         //
         // ACTOR CODE

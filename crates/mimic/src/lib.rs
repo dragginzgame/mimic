@@ -8,7 +8,7 @@ pub mod db;
 pub mod design;
 pub mod interface;
 pub mod macros;
-pub mod metrics;
+pub mod obs;
 
 ///
 /// MIMIC CRATE EXPORTS

@@ -1,4 +1,4 @@
-use mimic::{core::traits::EntityKind, metrics, prelude::*};
+use mimic::{core::traits::EntityKind, obs::metrics, prelude::*};
 
 ///
 /// MetricsTester

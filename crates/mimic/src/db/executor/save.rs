@@ -7,7 +7,7 @@ use crate::{
         query::{SaveMode, SaveQuery},
         store::DataKey,
     },
-    metrics,
+    obs::metrics,
 };
 use icu::utils::time::now_secs;
 use std::marker::PhantomData;
@@ -185,8 +185,8 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
                 });
                 if violates {
                     // Count the unique violation just like the store-level check would have
-                    crate::metrics::with_metrics_mut(|m| {
-                        crate::metrics::record_unique_violation_for::<E>(m);
+                    metrics::with_state_mut(|m| {
+                        metrics::record_unique_violation_for::<E>(m);
                     });
                     return Err(ExecutorError::index_violation(E::PATH, index.fields).into());
                 }

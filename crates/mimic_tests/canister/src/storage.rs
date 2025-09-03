@@ -16,7 +16,7 @@ impl StorageTester {
 
     fn fixture_breakdown() {
         // Call storage snapshot
-        let snap = crate::mimic_storage().expect("mimic_storage ok");
+        let snap = crate::mimic_snapshot().expect("mimic_storage ok");
 
         // Should include the FixtureStore with >0 entries in storage_data
         let fixture_store = snap

@@ -1,6 +1,5 @@
-pub mod metrics;
 pub mod query;
-pub mod storage;
+// event and snapshot endpoints now call modules directly via codegen; query helpers remain
 
 use thiserror::Error as ThisError;
 
