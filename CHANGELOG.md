@@ -7,7 +7,31 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-Nothing yet.
+## [0.17.0] - 2025-09-03
+
+### Added
+- obs module consolidating observability:
+  - obs::metrics: runtime counters/perf with `EventReport`, `EventState`, `EventOps`, `EventPerf`, `EntityCounters`, `EntitySummary`, `EventSelect` and helpers (`report()`, `reset_all()`).
+  - obs::log: in-memory ring-buffer logs with `log_push`, `logs_snapshot`, `logs_reset`.
+  - obs::snapshot: storage inventory with `StorageReport` (`DataStoreSnapshot`, `IndexStoreSnapshot`, `EntitySnapshot`) and `storage_report()`.
+- Codegen endpoints:
+  - `mimic_snapshot()` → `obs::snapshot::StorageReport`.
+  - `mimic_metrics()` → `obs::metrics::EventReport`.
+  - `mimic_metrics_reset()` resets runtime counters.
+  - `mimic_logs()` returns current event logs.
+- core/serialize counters: `serialize_call_count()`, `deserialize_call_count()`, `reset_serialize_counters()` using thread‑local `Cell` (no atomics).
+- core/visit tests asserting dotted error paths for root, record+vec, nested record/tuple/map.
+
+### Changed
+- Visitor optimizations: `Event` is `Copy+Clone`; `perform_visit` inlined; avoid route build at root; Option wrappers do not push a path segment; path segments use `Field(&'static str)` and `Index(usize)`; faster `current_route` builder.
+- Renamed report/selector types: `MetricsReport` → `EventReport`, `MetricsSelect` → `EventSelect`.
+- Moved metrics/logs/snapshot under `obs/`; removed interface glue for metrics/snapshot (endpoints call modules directly). Query client helpers remain under `interface/query`.
+- Executors/planner/store now record counters via `obs::metrics` (unique violation, plan kinds, index ops).
+
+### Performance
+- Reduced string allocations in visitor path building and validation routing.
+- Single‑threaded serialize/deserialize counters remove atomic overhead.
+
 
 ## [0.16.2] - 2025-09-02
 

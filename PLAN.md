@@ -12,7 +12,7 @@ Current Plan
 1. Inventory dead/duplicate code — in progress
 2. DRY refactors across crates — pending
 3. Optimize hotspots (profiles/allocs) — pending
-4. Strengthen `mimic_stats` accuracy/edges — pending
+4. Strengthen `mimic_metrics` accuracy/edges — pending
 5. Expand tests for queries/indexes — pending
 6. CI: clippy, fmt, all tests — pending
 7. Document changes and upgrade notes — pending

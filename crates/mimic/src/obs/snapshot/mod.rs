@@ -66,6 +66,8 @@ pub fn storage_report<C: CanisterKind>(
     db: &Db<C>,
     id_to_path: &[(u64, &'static str)],
 ) -> StorageReport {
+    // Build id→path map once, reuse across stores
+    let id_map: std::collections::BTreeMap<u64, &str> = id_to_path.iter().copied().collect();
     let mut data = Vec::new();
     let mut index = Vec::new();
     let mut entity_storage: Vec<EntitySnapshot> = Vec::new();
@@ -91,10 +93,8 @@ pub fn storage_report<C: CanisterKind>(
                 *mem = mem.saturating_add(DataKey::entry_size_bytes(bytes_len));
             }
 
-            let map: BTreeMap<u64, &str> = id_to_path.iter().copied().collect();
-
             for (entity_id, (count, mem)) in by_entity {
-                let path_name = map.get(&entity_id).copied().unwrap_or("");
+                let path_name = id_map.get(&entity_id).copied().unwrap_or("");
                 entity_storage.push(EntitySnapshot {
                     store: path.to_string(),
                     path: path_name.to_string(),

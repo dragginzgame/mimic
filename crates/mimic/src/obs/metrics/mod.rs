@@ -340,9 +340,10 @@ impl Default for EventSelect {
 
 /// Build a metrics report by inspecting in-memory counters only.
 #[must_use]
+#[allow(clippy::cast_precision_loss)]
 pub fn report() -> EventReport {
     // Snapshot counters and append live serialize/deserialize counts
-    let mut snap = with_state(|m| m.clone());
+    let mut snap = with_state(Clone::clone);
     snap.ops.serialize_calls = serialize::serialize_call_count() as u64;
     snap.ops.deserialize_calls = serialize::deserialize_call_count() as u64;
 

@@ -3,7 +3,7 @@ use mimic::{core::traits::EntityKind, obs::metrics, prelude::*};
 ///
 /// MetricsTester
 /// Verifies global and per-entity counters, index ops, unique violations,
-/// and reset behavior surfaced by `mimic_stats`.
+/// and reset behavior surfaced by the `mimic_metrics` endpoint.
 ///
 pub struct MetricsTester;
 

@@ -145,7 +145,7 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
         if let Some(lim) = &query.limit
             && !pre_paginated
         {
-            Self::apply_pagination(&mut rows, lim.offset, lim.limit);
+            apply_pagination(&mut rows, lim.offset, lim.limit);
         }
 
         crate::db::executor::set_rows_from_len(&mut span, rows.len());
@@ -186,16 +186,60 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
         });
     }
 
-    pub fn apply_pagination<T>(rows: &mut Vec<T>, offset: u32, limit: Option<u32>) {
-        let total = rows.len();
-        let start = usize::min(offset as usize, total);
-        let end = limit.map_or(total, |l| usize::min(start + l as usize, total));
+}
 
-        if start >= end {
-            rows.clear();
-        } else {
-            rows.drain(..start);
-            rows.truncate(end - start);
-        }
+/// Apply offset/limit pagination to an in-memory vector, in-place.
+pub fn apply_pagination<T>(rows: &mut Vec<T>, offset: u32, limit: Option<u32>) {
+    let total = rows.len();
+    let start = usize::min(offset as usize, total);
+    let end = limit.map_or(total, |l| usize::min(start + l as usize, total));
+
+    if start >= end {
+        rows.clear();
+    } else {
+        rows.drain(..start);
+        rows.truncate(end - start);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::apply_pagination;
+
+    #[test]
+    fn pagination_empty_vec() {
+        let mut v: Vec<i32> = vec![];
+        apply_pagination(&mut v, 0, Some(10));
+        assert!(v.is_empty());
+    }
+
+    #[test]
+    fn pagination_offset_beyond_len_clears() {
+        let mut v = vec![1, 2, 3];
+        apply_pagination(&mut v, 10, Some(5));
+        assert!(v.is_empty());
+    }
+
+    #[test]
+    fn pagination_no_limit_from_offset() {
+        let mut v = vec![1, 2, 3, 4, 5];
+        apply_pagination(&mut v, 2, None);
+        assert_eq!(v, vec![3, 4, 5]);
+    }
+
+    #[test]
+    fn pagination_exact_window() {
+        let mut v = vec![10, 20, 30, 40, 50];
+        // offset 1, limit 3 -> elements [20,30,40]
+        apply_pagination(&mut v, 1, Some(3));
+        assert_eq!(v, vec![20, 30, 40]);
+    }
+
+    #[test]
+    fn pagination_limit_exceeds_tail() {
+        let mut v = vec![10, 20, 30];
+        // offset 1, limit large -> [20,30]
+        apply_pagination(&mut v, 1, Some(999));
+        assert_eq!(v, vec![20, 30]);
     }
 }

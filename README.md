@@ -31,19 +31,19 @@ It was originally built for the Web3 game [Dragginz](https://dragginz.io/) and i
 
 ## ⚡ Quickstart
 
-1) Add dependency (pinned): `mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.15.4" }`
+1) Add dependency (pin to a release tag): `mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.17.0" }`
 2) Define an entity with `#[entity]` and a primary key.
-3) Load via `db().load::<Entity>().all().execute()?.entities()`.
+3) Query with `db().load::<Entity>().filter(|f| ...).sort(|s| ...).limit(...).execute()?`.
 
 ---
 
 ## ✨ Features
 
 - **Entity macros** — define entities declaratively with schema attributes
-- **Query builder** — type-safe filters, ordering, offsets, limits
+- **Query builder** — type-safe filters, sorting, offsets, limits
 - **Stable storage** — powered by `ic-stable-structures` B-Trees
 - **Automatic endpoints** — `mimic_build` generates `mimic_query_load`, `mimic_query_save`, `mimic_query_delete`
-- **Stats API** — optional `mimic_stats` endpoint for inspecting stores
+- **Observability endpoints** — `mimic_snapshot`, `mimic_logs`, `mimic_metrics`, `mimic_metrics_reset`
 - **Integration with IC canisters** — ergonomic `mimic_start!` and `mimic_build!` macros
 - **Testability** — fixtures, query validation, and index testing
 
@@ -73,22 +73,17 @@ pub struct Rarity {}
 
 ```rust
 #[query]
-pub fn rarities(
-    offset: usize,
-    limit: Option<usize>,
-    filter: FilterExpr,
-    order: OrderExpr,
-) -> Result<Vec<Rarity>, mimic::Error> {
-    db().load::<Rarity>()
-        .debug()
-        .all()
-        .offset(offset)
-        .filter(filter)
-        .order(order)
-        .limit_option(limit)
-        .execute()?
-        .entities()
-        .collect()
+pub fn rarities() -> Result<Vec<RarityView>, mimic::Error> {
+    let query = mimic::db::query::load()
+        .filter(|f| {
+            // (level >= 2 AND level <= 4) OR (name CONTAINS "ncon")
+            (f.gte("level", 2) & f.lte("level", 4)) | f.contains("name", "ncon")
+        })
+        .sort(|s| s.desc("level"))
+        .limit(100);
+
+    let rows = db().load::<Rarity>().debug().execute(&query)?;
+    Ok(rows.views())
 }
 ```
 
@@ -107,13 +102,12 @@ pub fn rarities(
 
 ## 🔧 Modules (in `mimic`)
 
-* `core` — traits, keys, type system, validation.
-* `db` — query execution, stores, registries, persistence.
-* `design` — schema macros and design-time structures.
-* `interface` — canister endpoints, errors, stats API.
-* `macros` — procedural macros (`#[entity]`, `mimic_start!`, etc).
-* `types` — reusable types (ULID, Cardinality, colors, etc).
-* `utils` — helper libraries.
+- `core` — traits, keys, type system, validation.
+- `db` — query execution, stores, registries, persistence.
+- `design` — schema macros and design-time structures.
+- `interface` — canister call helpers for query endpoints.
+- `macros` — crate macros (`mimic_start!`, `mimic_build!`, `db!`).
+- `obs` — observability: metrics, logs, and storage snapshots.
 
 ---
 
@@ -138,18 +132,20 @@ make fmt-check  # verify formatting
 make build      # release build
 ```
 
-### Metrics
+### Observability
 
-- `mimic_storage()`: returns a `StorageReport` snapshot:
-  - `storage_data` and `storage_index` (live store snapshots).
-  - `entity_storage` (live per-entity breakdown by store, with entity path names).
+- `mimic_snapshot()`: returns a live `StorageReport` snapshot:
+  - `storage_data` and `storage_index` (store snapshots),
+  - `entity_storage` (per-entity breakdown by store, using path names).
+- `mimic_logs()`: returns the in-memory log buffer (oldest → newest).
 - `mimic_metrics()`: returns an `EventReport` of ephemeral counters since `since_ms`:
   - `counters` (global ops/perf) and `entity_counters` (per-entity summary).
 - `mimic_metrics_reset()`: clears counters and refreshes `since_ms`.
 
 Examples
 ```bash
-dfx canister call <canister> mimic_storage
+dfx canister call <canister> mimic_snapshot
+dfx canister call <canister> mimic_logs
 dfx canister call <canister> mimic_metrics
 dfx canister call <canister> mimic_metrics_reset
 ```

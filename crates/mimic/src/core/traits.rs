@@ -381,8 +381,8 @@ pub trait ValidateAuto {
 impl<T: ValidateAuto> ValidateAuto for Box<T> {}
 impl<T: ValidateAuto> ValidateAuto for Option<T> {}
 impl<T: ValidateAuto> ValidateAuto for Vec<T> {}
-impl<T: ValidateAuto> ValidateAuto for HashSet<T> {}
-impl<K: ValidateAuto, V: ValidateAuto> ValidateAuto for HashMap<K, V> {}
+impl<T: ValidateAuto, S> ValidateAuto for HashSet<T, S> {}
+impl<K: ValidateAuto, V: ValidateAuto, S> ValidateAuto for HashMap<K, V, S> {}
 
 impl_primitive!(ValidateAuto);
 
@@ -401,8 +401,8 @@ pub trait ValidateCustom {
 impl<T: ValidateCustom> ValidateCustom for Box<T> {}
 impl<T: ValidateCustom> ValidateCustom for Option<T> {}
 impl<T: ValidateCustom> ValidateCustom for Vec<T> {}
-impl<T: ValidateCustom> ValidateCustom for HashSet<T> {}
-impl<K: ValidateCustom, V: ValidateCustom> ValidateCustom for HashMap<K, V> {}
+impl<T: ValidateCustom, S> ValidateCustom for HashSet<T, S> {}
+impl<K: ValidateCustom, V: ValidateCustom, S> ValidateCustom for HashMap<K, V, S> {}
 
 impl_primitive!(ValidateCustom);
 
@@ -441,7 +441,7 @@ impl<T: Visitable> Visitable for Vec<T> {
     }
 }
 
-impl<T: Visitable> Visitable for HashSet<T> {
+impl<T: Visitable, S> Visitable for HashSet<T, S> {
     fn drive(&self, visitor: &mut dyn Visitor) {
         for (i, item) in self.iter().enumerate() {
             perform_visit(visitor, item, i);
@@ -449,7 +449,7 @@ impl<T: Visitable> Visitable for HashSet<T> {
     }
 }
 
-impl<K: Visitable, V: Visitable> Visitable for HashMap<K, V> {
+impl<K: Visitable, V: Visitable, S> Visitable for HashMap<K, V, S> {
     fn drive(&self, visitor: &mut dyn Visitor) {
         for (k, v) in self {
             perform_visit(visitor, k, "key");

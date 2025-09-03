@@ -58,3 +58,37 @@ where
     DESERIALIZE_CALLS.with(|c| c.set(c.get() + 1));
     icu::serialize::deserialize(bytes).map_err(SerializeError::from)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn counters_increment_and_reset() {
+        reset_serialize_counters();
+        assert_eq!(serialize_call_count(), 0);
+        assert_eq!(deserialize_call_count(), 0);
+
+        // Simple values serialize/deserialize
+        let buf = serialize(&123u64).expect("serialize u64");
+        assert_eq!(serialize_call_count(), 1);
+        assert_eq!(deserialize_call_count(), 0);
+
+        let n: u64 = deserialize(&buf).expect("deserialize u64");
+        assert_eq!(n, 123);
+        assert_eq!(serialize_call_count(), 1);
+        assert_eq!(deserialize_call_count(), 1);
+
+        // Another round to ensure counters keep increasing
+        let buf2 = serialize(&"hello").expect("serialize str");
+        let s: String = deserialize(&buf2).expect("deserialize String");
+        assert_eq!(s, "hello");
+        assert_eq!(serialize_call_count(), 2);
+        assert_eq!(deserialize_call_count(), 2);
+
+        // Reset back to zero
+        reset_serialize_counters();
+        assert_eq!(serialize_call_count(), 0);
+        assert_eq!(deserialize_call_count(), 0);
+    }
+}

@@ -1,5 +1,5 @@
 mod dsl;
-mod expr;
+pub mod expr;
 mod ext;
 
 pub use dsl::*;

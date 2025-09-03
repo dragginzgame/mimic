@@ -358,7 +358,7 @@ impl_storable_unbounded!(IndexEntry);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::traits::Storable;
+    use crate::core::traits::*;
 
     #[test]
     fn index_key_max_size_is_bounded() {

@@ -105,12 +105,12 @@ echo ""
 print_info "Example with features:"
 echo '```toml'
 echo "[dependencies]"
-echo "mimic = { git = \"$REPO_URL\", tag = \"v0.15.2\", features = [\"serde\"] }"
+echo "mimic = { git = \"$REPO_URL\", tag = \"v0.17.0\", features = [\"serde\"] }"
 echo '```'
 echo ""
 
 print_info "To check if a specific version exists:"
-echo "  git ls-remote --tags $REPO_URL | grep v0.15"
+echo "  git ls-remote --tags $REPO_URL | grep v0.17"
 echo ""
 
 print_info "For more information:"
