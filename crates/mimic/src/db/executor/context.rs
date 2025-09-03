@@ -110,17 +110,21 @@ where
                 let mut keys = keys;
                 let total = keys.len();
                 let (start, end) = Self::slice_bounds(total, offset, limit);
+
                 if start >= end {
                     return Ok(Vec::new());
                 }
+
                 let paged = keys.drain(start..end).collect::<Vec<_>>();
                 let data_keys = Self::to_data_keys(paged);
+
                 self.load_many(&data_keys)
             }
 
             QueryPlan::Range(start, end) => {
                 let start = Self::to_data_key(start);
                 let end = Self::to_data_key(end);
+
                 self.with_store(|s| {
                     let base = s.range((Bound::Included(start), Bound::Included(end)));
                     let cap = take.unwrap_or(0);
@@ -146,10 +150,13 @@ where
                 let mut data_keys = self.candidates_from_plan(plan)?;
                 let total = data_keys.len();
                 let (start, end) = Self::slice_bounds(total, offset, limit);
+
                 if start >= end {
                     return Ok(Vec::new());
                 }
+
                 let paged = data_keys.drain(start..end).collect::<Vec<_>>();
+
                 self.load_many(&paged)
             }
         }
@@ -174,6 +181,7 @@ where
             Some(l) => start.saturating_add(l as usize).min(total),
             None => total,
         };
+
         (start, end)
     }
 

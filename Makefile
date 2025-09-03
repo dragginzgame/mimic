@@ -62,7 +62,7 @@ release: ensure-clean
 	@echo "Release handled by CI on tag push"
 
 # Development commands
-test: ensure-clean
+test:
 	cargo test --workspace
 	@if [ -x scripts/app/test.sh ] && command -v dfx >/dev/null 2>&1; then \
 		echo "Running canister tests via scripts/app/test.sh"; \

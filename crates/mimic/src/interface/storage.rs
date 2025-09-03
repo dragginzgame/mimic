@@ -5,15 +5,10 @@ use crate::{
 };
 use std::collections::BTreeMap;
 
-/// Build storage snapshot and per-entity breakdown; enrich path names using id→path map.
 ///
-/// Example (inside a canister):
-/// ```ignore
-/// #[query]
-/// fn my_storage() -> Result<mimic::metrics::StorageReport, mimic::Error> {
-///     Ok(mimic::interface::storage::storage_report(&db(), MIMIC_ENTITY_ID_PATH))
-/// }
-/// ```
+/// storage_report
+/// build storage snapshot and per-entity breakdown; enrich path names using id→path map
+///
 #[must_use]
 pub fn storage_report<C: CanisterKind>(
     db: &Db<C>,

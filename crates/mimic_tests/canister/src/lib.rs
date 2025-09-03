@@ -3,8 +3,8 @@ mod default;
 mod filter;
 mod index;
 mod metrics;
-mod storage;
 mod ops;
+mod storage;
 mod validate;
 
 use icu::{cdk::export_candid, prelude::*};

@@ -2,7 +2,7 @@ use crate::{
     common::error::ErrorTree,
     core::{
         traits::Visitable,
-        visit::{ValidateVisitor, perform_visit},
+        visit::{PathSegment, ValidateVisitor, perform_visit},
     },
 };
 use thiserror::Error as ThisError;
@@ -20,7 +20,7 @@ pub enum ValidationError {
 // validate
 pub fn validate(node: &dyn Visitable) -> Result<(), ValidationError> {
     let mut visitor = ValidateVisitor::new();
-    perform_visit(&mut visitor, node, None);
+    perform_visit(&mut visitor, node, PathSegment::Empty);
 
     visitor
         .errors

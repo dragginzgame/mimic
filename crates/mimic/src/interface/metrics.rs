@@ -10,15 +10,10 @@ use std::cmp::Ordering;
 /// Library helpers that canister endpoints can delegate to.
 ///
 
+///
+/// metrics_report
 /// Build a metrics report by inspecting in-memory counters only.
 ///
-/// Example (inside a canister):
-/// ```ignore
-/// #[query]
-/// fn my_metrics() -> Result<mimic::metrics::MetricsReport, mimic::Error> {
-///     Ok(mimic::interface::metrics::metrics_report(&db()))
-/// }
-/// ```
 #[must_use]
 pub fn metrics_report<C: CanisterKind>(_db: &Db<C>) -> MetricsReport {
     // counters only
@@ -47,11 +42,13 @@ fn build_entity_counters(out: &mut Vec<EntitySummary>, snap: &metrics::Metrics) 
         } else {
             0.0
         };
+
         let avg_delete = if ops.delete_calls > 0 {
             ops.rows_deleted as f64 / ops.delete_calls as f64
         } else {
             0.0
         };
+
         out.push(EntitySummary {
             path: path.clone(),
             load_calls: ops.load_calls,
@@ -65,15 +62,17 @@ fn build_entity_counters(out: &mut Vec<EntitySummary>, snap: &metrics::Metrics) 
             unique_violations: ops.unique_violations,
         });
     }
-    out.sort_by(|a, b| match b
-        .avg_rows_per_load
-        .partial_cmp(&a.avg_rows_per_load)
-        .unwrap_or(Ordering::Equal)
-    {
-        Ordering::Equal => match b.rows_loaded.cmp(&a.rows_loaded) {
-            Ordering::Equal => a.path.cmp(&b.path),
+    out.sort_by(|a, b| {
+        match b
+            .avg_rows_per_load
+            .partial_cmp(&a.avg_rows_per_load)
+            .unwrap_or(Ordering::Equal)
+        {
+            Ordering::Equal => match b.rows_loaded.cmp(&a.rows_loaded) {
+                Ordering::Equal => a.path.cmp(&b.path),
+                other => other,
+            },
             other => other,
-        },
-        other => other,
+        }
     });
 }

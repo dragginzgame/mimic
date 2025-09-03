@@ -51,7 +51,7 @@ pub enum DbError {
 ///
 /// A handle to the set of stores registered for a specific canister domain.
 ///
-/// - `C` is the [`CanisterKind`] (schema/domain marker).
+/// - `C` is the [`CanisterKind`] (schema canister marker).
 ///
 /// The `Db` acts as the entry point for querying, saving, and deleting entities
 /// within a single canister's store registry.

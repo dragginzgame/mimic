@@ -9,7 +9,7 @@ use std::{cell::RefCell, collections::BTreeMap, marker::PhantomData};
 /// Ephemeral, in-memory counters and simple perf totals for operations.
 ///
 
-#[derive(CandidType, Clone, Debug, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
 pub struct Metrics {
     pub ops: Ops,
     pub perf: Perf,
@@ -32,7 +32,7 @@ impl Default for Metrics {
 /// Ops
 ///
 
-#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Ops {
     // Executor entrypoints
     pub load_calls: u64,
@@ -58,7 +58,7 @@ pub struct Ops {
 /// EntityOps
 ///
 
-#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct EntityOps {
     pub load_calls: u64,
     pub save_calls: u64,
@@ -74,7 +74,7 @@ pub struct EntityOps {
 /// Perf
 ///
 
-#[derive(CandidType, Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Perf {
     // Instruction totals per executor (ic_cdk::api::performance_counter(1))
     pub load_inst_total: u128,
@@ -261,7 +261,7 @@ impl<E: EntityKind> Drop for Span<E> {
 // Kept here under metrics to consolidate naming: everything is "metrics".
 //
 
-#[derive(CandidType, Debug, Default, Serialize, Deserialize, Clone)]
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct MetricsReport {
     /// Ephemeral runtime counters since `since_ms`.
     pub counters: Option<Metrics>,
@@ -269,7 +269,7 @@ pub struct MetricsReport {
     pub entity_counters: Vec<EntitySummary>,
 }
 
-#[derive(CandidType, Debug, Default, Serialize, Deserialize, Clone)]
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct StoreMetrics {
     pub path: String,
     pub entries: u64,
@@ -278,14 +278,14 @@ pub struct StoreMetrics {
     pub memory_bytes: u64,
 }
 
-#[derive(CandidType, Debug, Default, Serialize, Deserialize, Clone)]
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct IndexMetrics {
     pub path: String,
     pub entries: u64,
     pub memory_bytes: u64,
 }
 
-#[derive(CandidType, Debug, Default, Serialize, Deserialize, Clone)]
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct EntitySummary {
     pub path: String,
     pub load_calls: u64,
@@ -299,7 +299,7 @@ pub struct EntitySummary {
     pub unique_violations: u64,
 }
 
-#[derive(CandidType, Debug, Default, Serialize, Deserialize, Clone)]
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct EntityStorage {
     /// Store path (e.g., test_design::schema::TestDataStore)
     pub store: String,
@@ -311,7 +311,7 @@ pub struct EntityStorage {
     pub memory_bytes: u64,
 }
 
-#[derive(CandidType, Debug, Default, Serialize, Deserialize, Clone)]
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct StorageReport {
     /// Live storage inventory for data stores.
     pub storage_data: Vec<StoreMetrics>,
@@ -332,7 +332,7 @@ where
 }
 
 /// Select which parts of the metrics report to include.
-#[derive(CandidType, Debug, Serialize, Deserialize, Clone, Copy)]
+#[derive(CandidType, Clone, Copy, Debug, Deserialize, Serialize)]
 #[allow(clippy::struct_excessive_bools)]
 pub struct MetricsSelect {
     pub data: bool,

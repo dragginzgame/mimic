@@ -11,6 +11,9 @@ pub mod test {
         log!(Log::Info, "icu v{}", icu::VERSION);
         log!(Log::Info, "mimic v{}", mimic::VERSION);
         assert!(!icu::VERSION.is_empty(), "icu VERSION should be non-empty");
-        assert!(!mimic::VERSION.is_empty(), "mimic VERSION should be non-empty");
+        assert!(
+            !mimic::VERSION.is_empty(),
+            "mimic VERSION should be non-empty"
+        );
     }
 }

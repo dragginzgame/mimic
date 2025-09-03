@@ -17,7 +17,11 @@ pub use std::{
 
 use crate::{
     common::error::ErrorTree,
-    core::{Key, Value, types::Ulid, visit::Visitor},
+    core::{
+        Key, Value,
+        types::Ulid,
+        visit::{PathSegment, Visitor, perform_visit},
+    },
     db::{Db, service::EntityService},
     schema::node::Index,
 };
@@ -374,9 +378,11 @@ pub trait ValidateAuto {
     }
 }
 
+impl<T: ValidateAuto> ValidateAuto for Box<T> {}
 impl<T: ValidateAuto> ValidateAuto for Option<T> {}
 impl<T: ValidateAuto> ValidateAuto for Vec<T> {}
-impl<T: ValidateAuto> ValidateAuto for Box<T> {}
+impl<T: ValidateAuto> ValidateAuto for HashSet<T> {}
+impl<K: ValidateAuto, V: ValidateAuto> ValidateAuto for HashMap<K, V> {}
 
 impl_primitive!(ValidateAuto);
 
@@ -392,9 +398,11 @@ pub trait ValidateCustom {
     }
 }
 
+impl<T: ValidateCustom> ValidateCustom for Box<T> {}
 impl<T: ValidateCustom> ValidateCustom for Option<T> {}
 impl<T: ValidateCustom> ValidateCustom for Vec<T> {}
-impl<T: ValidateCustom> ValidateCustom for Box<T> {}
+impl<T: ValidateCustom> ValidateCustom for HashSet<T> {}
+impl<K: ValidateCustom, V: ValidateCustom> ValidateCustom for HashMap<K, V> {}
 
 impl_primitive!(ValidateCustom);
 
@@ -419,7 +427,7 @@ pub trait Visitable: Validate {
 impl<T: Visitable> Visitable for Option<T> {
     fn drive(&self, visitor: &mut dyn crate::core::visit::Visitor) {
         if let Some(value) = self {
-            crate::core::visit::perform_visit(visitor, value, None);
+            perform_visit(visitor, value, "?");
         }
     }
 }
@@ -427,8 +435,24 @@ impl<T: Visitable> Visitable for Option<T> {
 impl<T: Visitable> Visitable for Vec<T> {
     fn drive(&self, visitor: &mut dyn crate::core::visit::Visitor) {
         for (i, value) in self.iter().enumerate() {
-            let key = i.to_string();
-            crate::core::visit::perform_visit(visitor, value, Some(&key));
+            perform_visit(visitor, value, i);
+        }
+    }
+}
+
+impl<T: Visitable> Visitable for HashSet<T> {
+    fn drive(&self, visitor: &mut dyn Visitor) {
+        for (i, item) in self.iter().enumerate() {
+            perform_visit(visitor, item, i);
+        }
+    }
+}
+
+impl<K: Visitable, V: Visitable> Visitable for HashMap<K, V> {
+    fn drive(&self, visitor: &mut dyn Visitor) {
+        for (k, v) in self.iter() {
+            perform_visit(visitor, k, "key");
+            perform_visit(visitor, v, "value");
         }
     }
 }

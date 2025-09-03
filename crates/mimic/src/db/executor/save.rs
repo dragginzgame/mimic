@@ -185,7 +185,9 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
                 });
                 if violates {
                     // Count the unique violation just like the store-level check would have
-                    crate::metrics::with_metrics_mut(|m| crate::metrics::record_unique_violation_for::<E>(m));
+                    crate::metrics::with_metrics_mut(|m| {
+                        crate::metrics::record_unique_violation_for::<E>(m);
+                    });
                     return Err(ExecutorError::index_violation(E::PATH, index.fields).into());
                 }
             }

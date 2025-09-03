@@ -6,7 +6,7 @@ use crate::{
     },
     db::{
         Db, DbError,
-        executor::{Context, FilterEvaluator},
+        executor::{Context, FilterEvaluator, plan_for},
         query::{
             FilterDsl, FilterExpr, FilterExt, IntoFilterOpt, LoadQuery, QueryPlan, QueryValidate,
             SortDirection, SortExpr,
@@ -98,7 +98,7 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
     pub fn explain(self, query: &LoadQuery) -> Result<QueryPlan, Error> {
         QueryValidate::<E>::validate(query).map_err(DbError::from)?;
 
-        Ok(crate::db::executor::plan_for::<E>(query.filter.as_ref()))
+        Ok(plan_for::<E>(query.filter.as_ref()))
     }
 
     // response used by automated query endpoints
@@ -114,7 +114,7 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
         QueryValidate::<E>::validate(query).map_err(DbError::from)?;
 
         let ctx = self.context();
-        let plan = crate::db::executor::plan_for::<E>(query.filter.as_ref());
+        let plan = plan_for::<E>(query.filter.as_ref());
 
         // Fast path: if there is no filter or sort, and a limit is specified,
         // apply pagination at the storage layer to avoid deserializing discarded rows.

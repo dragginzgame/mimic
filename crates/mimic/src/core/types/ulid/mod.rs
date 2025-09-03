@@ -9,12 +9,12 @@ use crate::{
         value::Value,
     },
 };
-use ::ulid::Ulid as WrappedUlid;
 use candid::CandidType;
 use derive_more::{Deref, DerefMut, Display, FromStr};
 use icu::cdk::structures::storable::Bound;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::borrow::Cow;
+use ulid::Ulid as WrappedUlid;
 
 ///
 /// Error

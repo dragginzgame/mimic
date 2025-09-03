@@ -1,6 +1,6 @@
 use crate::{
     imp::{Imp, Implementor, Trait, TraitStrategy},
-    node::{Entity, Enum, EnumVariant, FieldList, List, Map, Newtype, Record, Set, Tuple},
+    node::{Entity, Enum, EnumVariant, FieldList, Newtype, Record, Tuple},
     traits::HasIdent,
 };
 use proc_macro2::{Span, TokenStream};
@@ -58,58 +58,13 @@ impl Imp<Enum> for VisitableTrait {
 }
 
 ///
-/// List
-///
-
-impl Imp<List> for VisitableTrait {
-    fn strategy(node: &List) -> Option<TraitStrategy> {
-        let inner = quote! {
-            for (i, value) in self.iter().enumerate() {
-                perform_visit(visitor, value, Some(&i.to_string()));
-            }
-        };
-
-        let q = quote_drive_method(&inner);
-
-        let tokens = Implementor::new(node.ident(), Trait::Visitable)
-            .set_tokens(q)
-            .to_token_stream();
-
-        Some(TraitStrategy::from_impl(tokens))
-    }
-}
-
-///
-/// Map
-///
-
-impl Imp<Map> for VisitableTrait {
-    fn strategy(node: &Map) -> Option<TraitStrategy> {
-        let inner = quote! {
-            for (k, v) in self.iter() {
-                perform_visit(visitor, k, Some("key"));
-                perform_visit(visitor, v, Some("value"));
-            }
-        };
-
-        let q = quote_drive_method(&inner);
-
-        let tokens = Implementor::new(node.ident(), Trait::Visitable)
-            .set_tokens(q)
-            .to_token_stream();
-
-        Some(TraitStrategy::from_impl(tokens))
-    }
-}
-
-///
 /// Newtype
 ///
 
 impl Imp<Newtype> for VisitableTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
         let inner = quote! {
-            perform_visit(visitor, &self.0, None);
+           perform_visit(visitor, &self.0, None);
         };
 
         let q = quote_drive_method(&inner);
@@ -139,27 +94,6 @@ impl Imp<Record> for VisitableTrait {
 }
 
 ///
-/// Set
-///
-
-impl Imp<Set> for VisitableTrait {
-    fn strategy(node: &Set) -> Option<TraitStrategy> {
-        let inner = quote! {
-            for (i, item) in self.iter().enumerate() {
-                perform_visit(visitor, item, Some(&i.to_string()));
-            }
-        };
-        let q = quote_drive_method(&inner);
-
-        let tokens = Implementor::new(node.ident(), Trait::Visitable)
-            .set_tokens(q)
-            .to_token_stream();
-
-        Some(TraitStrategy::from_impl(tokens))
-    }
-}
-
-///
 /// Tuple
 ///
 
@@ -172,7 +106,7 @@ impl Imp<Tuple> for VisitableTrait {
             let key_lit = LitStr::new(&i.to_string(), Span::call_site());
 
             inner.extend(quote! {
-                perform_visit(visitor, &self.#index, Some(#key_lit));
+                perform_visit(visitor, &self.#index, #key_lit);
             });
         }
 
@@ -202,7 +136,7 @@ pub fn field_list(fields: &FieldList) -> TokenStream {
         let field_ident_s = field_ident.to_string();
 
         inner.extend(quote! {
-            perform_visit(visitor, &self.#field_ident, Some(#field_ident_s));
+            perform_visit(visitor, &self.#field_ident, #field_ident_s);
         });
     }
 
@@ -217,7 +151,7 @@ pub fn enum_variant(variant: &EnumVariant) -> TokenStream {
         let name_string = name.to_string();
 
         quote! {
-            Self::#name(value) => perform_visit(visitor, value, Some(#name_string)),
+            Self::#name(value) => perform_visit(visitor, value, #name_string),
         }
     } else {
         quote!(Self::#name => {})
