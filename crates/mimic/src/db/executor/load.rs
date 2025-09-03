@@ -185,7 +185,6 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
             core::cmp::Ordering::Equal
         });
     }
-
 }
 
 /// Apply offset/limit pagination to an in-memory vector, in-place.

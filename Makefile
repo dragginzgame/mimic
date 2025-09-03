@@ -1,4 +1,6 @@
-.PHONY: help version current tags patch minor major release test build check clippy fmt fmt-check clean plan install-dev test-watch all ensure-clean
+.PHONY: help version current tags patch minor major release \
+        test build check clippy fmt fmt-check clean plan install-dev \
+        test-watch all ensure-clean
 
 # Check for clean git state
 ensure-clean:
@@ -39,7 +41,7 @@ help:
 	@echo "  make test        # Run tests"
 	@echo "  make build       # Build project"
 
-# Version management
+# Version management (always format first)
 version:
 	@scripts/app/version.sh current
 
@@ -49,13 +51,13 @@ current:
 tags:
 	@git tag --sort=-version:refname | head -10
 
-patch: ensure-clean
+patch: ensure-clean fmt
 	@scripts/app/version.sh patch
 
-minor: ensure-clean
+minor: ensure-clean fmt
 	@scripts/app/version.sh minor
 
-major: ensure-clean
+major: ensure-clean fmt
 	@scripts/app/version.sh major
 
 release: ensure-clean
@@ -74,7 +76,7 @@ test:
 build: ensure-clean
 	cargo build --release --workspace
 
-check:
+check: fmt-check
 	cargo check --workspace
 
 clippy:
@@ -107,4 +109,4 @@ test-watch:
 	cargo watch -x test
 
 # Build and test everything
-all: ensure-clean clean check fmt-check clippy test build
+all: ensure-clean clean fmt-check clippy check test build

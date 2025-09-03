@@ -6,11 +6,11 @@ pub mod metrics;
 pub mod snapshot;
 
 // Convenient re-exports
+pub use log::{log_push, logs_reset, logs_snapshot};
 pub use metrics::{
-    EventPerf, EventReport, EventSelect, EventState, EventOps, EntityCounters, EntitySummary, Span,
+    EntityCounters, EntitySummary, EventOps, EventPerf, EventReport, EventSelect, EventState, Span,
     report as event_report, reset_all as event_reset_all,
 };
-pub use log::{log_push, logs_reset, logs_snapshot};
 pub use snapshot::{
     DataStoreSnapshot, EntitySnapshot, IndexStoreSnapshot, StorageReport, storage_report,
 };
