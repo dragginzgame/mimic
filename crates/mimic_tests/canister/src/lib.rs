@@ -19,20 +19,14 @@ use test_design::{
 // INIT
 //
 
-icu_start_root!();
 mimic_start!();
 
-pub static WASMS: &[(CanisterType, &[u8])] = &[];
-
-const fn icu_setup() {}
-
-#[allow(clippy::unused_async)]
-async fn icu_install() {
+#[init]
+fn init() {
     mimic_init();
 }
 
-#[allow(clippy::unused_async)]
-async fn icu_upgrade() {}
+pub static WASMS: &[(CanisterType, &[u8])] = &[];
 
 ///
 /// ENDPOINTS
