@@ -10,31 +10,9 @@ on:
 
 jobs:
   checks:
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    env:
-      CARGO_NET_GIT_FETCH_WITH_CLI: true
-      SSH_PRIVATE_KEY: ${{ secrets.READONLY_SSH_KEY }}
     steps:
       - uses: actions/checkout@v4
-      - name: Check SSH secret configured
-        if: ${{ env.SSH_PRIVATE_KEY == '' }}
-        run: |
-          echo "::error::Missing secret READONLY_SSH_KEY. Add a read-only private key with access to dragginzgame/icu in repo settings under Actions secrets." && exit 1
-      - name: Configure SSH for private git dependencies
-        if: ${{ env.SSH_PRIVATE_KEY != '' }}
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: 
-            ${{ env.SSH_PRIVATE_KEY }}
-      - name: Trust github.com host key
-        if: ${{ env.SSH_PRIVATE_KEY != '' }}
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -t rsa,ecdsa,ed25519 github.com >> ~/.ssh/known_hosts
-      - name: Prefer SSH for GitHub
-        if: ${{ env.SSH_PRIVATE_KEY != '' }}
-        run: git config --global url."ssh://git@github.com/".insteadOf "https://github.com/"
       - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: 1.89.0
@@ -55,23 +33,18 @@ jobs:
         with:
           fetch-depth: 0
           clean: true
-      - name: Check SSH secret configured
-        if: ${{ env.SSH_PRIVATE_KEY == '' }}
-        run: |
-          echo "::error::Missing secret READONLY_SSH_KEY. Add a read-only private key with access to dragginzgame/icu in repo settings under Actions secrets." && exit 1
       - name: Configure SSH for private git dependencies
-        if: ${{ env.SSH_PRIVATE_KEY != '' }}
+        if: env.SSH_PRIVATE_KEY != ''
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: 
-            ${{ env.SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ env.SSH_PRIVATE_KEY }}
       - name: Trust github.com host key
-        if: ${{ env.SSH_PRIVATE_KEY != '' }}
+        if: env.SSH_PRIVATE_KEY != ''
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -t rsa,ecdsa,ed25519 github.com >> ~/.ssh/known_hosts
       - name: Prefer SSH for GitHub
-        if: ${{ env.SSH_PRIVATE_KEY != '' }}
+        if: env.SSH_PRIVATE_KEY != ''
         run: git config --global url."ssh://git@github.com/".insteadOf "https://github.com/"
       - uses: dtolnay/rust-toolchain@v1
         with:
@@ -82,4 +55,4 @@ jobs:
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace --all-targets --verbose
       - run: cargo build --release --workspace
-      # Later: cargo publish (when ready to push crate to crates.io)
+      # Later: cargo publish
