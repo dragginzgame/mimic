@@ -1,9 +1,7 @@
 
 
 ![MSRV](https://img.shields.io/badge/rustc-1.89+-blue.svg)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/dragginzgame/mimic/actions/workflows/ci.yml/badge.svg)](https://github.com/dragginzgame/mimic/actions/workflows/ci.yml)
-[![Releases](https://img.shields.io/github/v/release/dragginzgame/mimic?sort=semver)](https://github.com/dragginzgame/mimic/releases)
 
 # Mimic — Data Model Framework for the Internet Computer
 
@@ -25,13 +23,13 @@ Make It [ Matter     ] on the Internet Computer
 
 **Mimic** is a Rust framework for building strongly-typed, queryable data models on the [Internet Computer](https://internetcomputer.org).
 
-It was originally built for the Web3 game [Dragginz](https://dragginz.io/) and is now open-sourced for the wider IC community. Mimic aims to make building **schemas, queries, and storage-backed entities** ergonomic, safe, and fun.
+It was originally built for the Web3 game [Dragginz](https://dragginz.io/). Mimic aims to make building **schemas, queries, and storage-backed entities** ergonomic, safe, and fun.
 
 ---
 
 ## ⚡ Quickstart
 
-1) Add dependency (pin to a release tag): `mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.17.0" }`
+1) Add dependency (pin to a release tag): `mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0" }` (or HTTPS with token)
 2) Define an entity with `#[entity]` and a primary key.
 3) Query with `db().load::<Entity>().filter(|f| ...).sort(|s| ...).limit(...).execute()?`.
 
@@ -221,6 +219,4 @@ These complement clippy + rustfmt; run `make clippy` and `make fmt-check` before
 * Reducing WASM size from codegen
 
 
-## 📜 License
-
-MIT — see [LICENSE](LICENSE.md).
+<!-- License intentionally omitted for internal/private use. -->

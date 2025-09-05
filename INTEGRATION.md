@@ -8,7 +8,7 @@ Add Mimic to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.17.0" }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0" }
 ```
 
 ## Integration Methods
@@ -17,7 +17,7 @@ mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.17.0" }
 
 ```toml
 [dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.17.0" }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0" }
 ```
 
 **Pros:**
@@ -35,7 +35,7 @@ mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.17.0" }
 
 ```toml
 [dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", branch = "main", features = [] }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", branch = "main", features = [] }
 ```
 
 **Pros:**
@@ -51,7 +51,7 @@ mimic = { git = "https://github.com/dragginzgame/mimic", branch = "main", featur
 
 ```toml
 [dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", rev = "abc123...", features = [] }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", rev = "abc123...", features = [] }
 ```
 
 **Pros:**
@@ -66,7 +66,7 @@ mimic = { git = "https://github.com/dragginzgame/mimic", rev = "abc123...", feat
 
 ```toml
 [dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.17.0", features = [
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0", features = [
   "serde",   # serde derive/support in types
 ] }
 ```
@@ -112,7 +112,7 @@ error: failed to select a version for `mimic`
 
 **Solution:** Ensure the tag exists and is spelled correctly:
 ```bash
-git ls-remote --tags https://github.com/dragginzgame/mimic
+git ls-remote --tags git@github.com:dragginzgame/mimic.git
 ```
 
 #### 2. Feature Not Found
@@ -131,14 +131,14 @@ error: failed to resolve dependencies
 
 **Solution:** Use exact version pinning with tags:
 ```toml
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.17.0" }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0" }
 ```
 
 ### Getting help
 
 1. Check the [changelog](CHANGELOG.md) for version-specific notes
 2. Review the [versioning guide](VERSIONING.md) for release information
-3. Open an issue on [GitHub](https://github.com/dragginzgame/mimic)
+3. Open an issue in this repo
 
 ## Security
 
@@ -154,10 +154,10 @@ Mimic enforces **tag immutability** - once a version is tagged and pushed, the c
 
 ```bash
 # Check if a specific version exists and is immutable
-git ls-remote --tags https://github.com/dragginzgame/mimic | grep v0.17
+git ls-remote --tags git@github.com:dragginzgame/mimic.git | grep v0.17
 
 # Verify the commit hash hasn't changed
-git ls-remote https://github.com/dragginzgame/mimic v0.17.0
+git ls-remote git@github.com:dragginzgame/mimic.git v0.17.0
 ```
 
 ## Best Practices
@@ -168,10 +168,10 @@ Always use tag-based dependencies for production:
 
 ```toml
 # ✅ Good - pinned version
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.17.0" }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0" }
 
 # ❌ Bad - floating version
-mimic = { git = "https://github.com/dragginzgame/mimic", branch = "main", features = [] }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", branch = "main", features = [] }
 ```
 
 ### 2. Feature Selection
@@ -180,10 +180,10 @@ Only enable features you need:
 
 ```toml
 # ✅ Good - minimal features
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.17.0", features = ["serde"] }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0", features = ["serde"] }
 
 # ❌ Bad - unnecessary features
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.17.0", features = ["serde"] }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0", features = ["serde"] }
 ```
 
 ### 3. Regular Updates
@@ -192,7 +192,7 @@ Keep your dependency updated:
 
 ```bash
 # Check for new versions
-git ls-remote --tags https://github.com/dragginzgame/mimic | grep "v0.17"
+git ls-remote --tags git@github.com:dragginzgame/mimic.git | grep "v0.17"
 
 # Update to latest patch version
 # Change tag from v0.17.0 to v0.17.1
@@ -215,7 +215,7 @@ For workspace projects, add Mimic to the workspace dependencies:
 
 ```toml
 [workspace.dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.17.0" }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0" }
 
 [workspace.members]
 member1 = "crates/member1"
@@ -232,7 +232,7 @@ For testing and development:
 
 ```toml
 [dev-dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.17.0" }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0" }
 ```
 
 ## Version History
@@ -241,10 +241,10 @@ For a complete version history and detailed changelog, see [CHANGELOG.md](CHANGE
 
 ### Recent Releases
 
-See GitHub Releases for notes and tags: https://github.com/dragginzgame/mimic/releases
+See this repo’s Releases page for notes and tags.
 
 ## Support
 
 - Source: `crates/mimic` (no crates.io/docs.rs)
-- **Issues**: [GitHub Issues](https://github.com/dragginzgame/mimic/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/dragginzgame/mimic/discussions) 
+- **Issues**: Open an issue in this repo
+- **Discussions**: Use internal channels (e.g., Slack/Teams)

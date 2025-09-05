@@ -8,14 +8,14 @@ This guide covers the complete workflow for developing, versioning, and releasin
 
 ```toml
 [dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.17.0" }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0" }
 ```
 
 ### Check Available Versions
 
 ```bash
 # From your project directory
-git ls-remote --tags https://github.com/dragginzgame/mimic | grep "v0.17"
+git ls-remote --tags git@github.com:dragginzgame/mimic.git | grep "v0.17"
 
 # Or use our helper script (if you have the repo cloned)
 ./scripts/app/check-git-versions.sh
@@ -207,10 +207,10 @@ make patch
 
 ```bash
 # Check if tag exists
-git ls-remote --tags https://github.com/dragginzgame/mimic | grep v1.0.0
+git ls-remote --tags git@github.com:dragginzgame/mimic.git | grep v1.0.0
 
 # Verify repository access
-git ls-remote https://github.com/dragginzgame/mimic
+git ls-remote git@github.com:dragginzgame/mimic.git
 ```
 
 ## 📚 Integration Examples
@@ -219,28 +219,28 @@ git ls-remote https://github.com/dragginzgame/mimic
 
 ```toml
 [dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.17.0" }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0" }
 ```
 
 ### With Features
 
 ```toml
 [dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.17.0", features = ["serde"] }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0", features = ["serde"] }
 ```
 
 ### Development Version
 
 ```toml
 [dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", branch = "main", features = [] }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", branch = "main", features = [] }
 ```
 
 ### Workspace Integration
 
 ```toml
 [workspace.dependencies]
-mimic = { git = "https://github.com/dragginzgame/mimic", tag = "v0.17.0" }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0" }
 
 [dependencies]
 mimic = { workspace = true }
@@ -272,6 +272,6 @@ mimic = { workspace = true }
 
 ## 🆘 Support
 
-- **Issues**: [GitHub Issues](https://github.com/dragginzgame/mimic/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/dragginzgame/mimic/discussions)
+- **Issues**: Open an issue in this repo
+- **Discussions**: Use internal channels (e.g., Slack/Teams)
 - Source: `crates/mimic` (no crates.io/docs.rs)
