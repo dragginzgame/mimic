@@ -1,6 +1,6 @@
 .PHONY: help version current tags patch minor major release \
         test build check clippy fmt fmt-check clean plan install-dev \
-        test-watch all ensure-clean
+        test-watch all ensure-clean security-check check-versioning
 
 # Check for clean git state
 ensure-clean:
@@ -35,6 +35,7 @@ help:
 	@echo "  install-dev      Install development dependencies"
 	@echo "  test-watch       Run tests in watch mode"
 	@echo "  all              Run all checks, tests, and build"
+	@echo "  security-check   Verify GitHub Protected Tags (informational)"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make patch       # Bump patch version"
@@ -99,6 +100,16 @@ plan:
 	@echo
 	@echo "=== .codex/plan.json ==="
 	@{ [ -f .codex/plan.json ] && sed -n '1,200p' .codex/plan.json; } || echo "No .codex/plan.json found."
+
+# Security and versioning checks
+security-check:
+	@echo "Security checks are enforced via GitHub settings:"
+	@echo "- Enable Protected Tags for pattern 'v*' (Settings → Tags)"
+	@echo "- Restrict who can create tags and disable force pushes"
+	@echo "- Require PR + CI on 'main' via branch protection"
+	@echo "This target is informational only; no local script runs."
+
+check-versioning: security-check
 
 # Install development dependencies
 install-dev:

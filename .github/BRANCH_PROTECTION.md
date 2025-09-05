@@ -10,16 +10,22 @@ Configure branch protection for `main` to gate merges on reviews and CI.
 - Require status checks to pass before merging: enabled
   - Select checks:
     - `CI` (workflow running fmt, clippy, tests)
-    - `Security Check` (workflow validating tag immutability)
 - Require branches to be up to date before merging: enabled
 - Include administrators: enabled (recommended)
 - Restrict who can push to matching branches: enabled (optional; maintainers only)
 - Require signed commits: enabled (optional, if your org enforces it)
 - Do not allow force pushes and deletions: enabled
 
+Protected Tags
+
+- Settings → Tags → Add protection rule
+  - Tag name pattern: `v*`
+  - Restrict who can create matching tags: maintainers only
+  - Disallow updates (prevents rewriting existing tags)
+  - Prefer annotated tags (enforced by release process)
+
 Notes
 
-- Status check names correspond to workflow names in `.github/workflows/ci.yml` and `.github/workflows/security.yml`.
+- Status check names correspond to workflow names in `.github/workflows/ci.yml`.
 - After saving, GitHub will surface these required checks on each PR into `main`.
 - Combine with CODEOWNERS if you want specific reviewers to be auto‑required.
-
