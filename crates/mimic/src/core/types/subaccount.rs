@@ -3,13 +3,11 @@ use crate::core::{
     types::Principal,
     value::Value,
 };
+use candid::CandidType;
 use derive_more::{Deref, DerefMut};
 use icu::{
-    cdk::{
-        candid::CandidType, ledger_types::Subaccount as WrappedSubaccount,
-        principal::Principal as WrappedPrincipal,
-    },
     impl_storable_bounded,
+    types::{Principal as WrappedPrincipal, Subaccount as WrappedSubaccount},
 };
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};

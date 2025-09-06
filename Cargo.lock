@@ -657,8 +657,8 @@ dependencies = [
 
 [[package]]
 name = "icu"
-version = "0.6.7"
-source = "git+ssh://git@github.com/dragginzgame/icu.git?tag=v0.6.7#56ec051dc2070ee0130b99791a1de2a32d1f330d"
+version = "0.7.2"
+source = "git+ssh://git@github.com/dragginzgame/icu.git?tag=v0.7.2#334a8acde564b5d476a279a14c45981f8bc7b029"
 dependencies = [
  "candid",
  "defer",
@@ -666,9 +666,7 @@ dependencies = [
  "ic-cdk",
  "ic-cdk-timers",
  "ic-ledger-types",
- "ic-management-canister-types",
  "ic-stable-structures 0.7.0",
- "ic_principal",
  "icrc-ledger-types",
  "minicbor-serde",
  "remain",

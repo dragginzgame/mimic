@@ -7,7 +7,8 @@ use crate::{
 };
 use derive_more::{Deref, DerefMut, Display};
 use icu::cdk::{
-    api::msg_caller, candid::CandidType, principal::Principal as WrappedPrincipal,
+    api::msg_caller,
+    candid::{CandidType, Principal as WrappedPrincipal},
     structures::storable::Bound,
 };
 use serde::{Deserialize, Serialize};
