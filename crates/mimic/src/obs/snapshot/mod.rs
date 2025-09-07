@@ -12,11 +12,8 @@ use std::collections::BTreeMap;
 ///
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct StorageReport {
-    /// Live storage inventory for data stores.
     pub storage_data: Vec<DataStoreSnapshot>,
-    /// Live storage inventory for index stores.
     pub storage_index: Vec<IndexStoreSnapshot>,
-    /// Live per-entity storage breakdown by store and entity path.
     pub entity_storage: Vec<EntitySnapshot>,
 }
 

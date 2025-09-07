@@ -140,7 +140,9 @@ impl PartialEq<Ulid> for WrappedUlid {
     }
 }
 
-// Serialize and Deserialize from the ulid crate just don't compile
+// The ulid crate's serde impls are gated behind its `serde` feature.
+// With default-features disabled (to avoid pulling in `rand`), we implement
+// Serialize/Deserialize here explicitly.
 impl Serialize for Ulid {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where

@@ -63,10 +63,17 @@ impl IndexStore {
 
         if let Some(mut existing) = self.get(&index_key) {
             if index.unique {
-                if !existing.contains(&key) && !existing.is_empty() {
+                // Already present → skip redundant write
+                if existing.contains(&key) {
+                    return Ok(());
+                }
+
+                // Any different existing key violates UNIQUE
+                if !existing.is_empty() {
                     metrics::with_state_mut(|m| metrics::record_unique_violation_for::<E>(m));
                     return Err(ExecutorError::index_violation(E::PATH, index.fields));
                 }
+
                 self.insert(index_key.clone(), IndexEntry::new(index.fields, key));
             } else {
                 existing.insert_key(key); // <-- add to the set
@@ -231,7 +238,7 @@ pub struct IndexKey {
 }
 
 impl IndexKey {
-    // currently works out at 166
+    // Sized with headroom for worst‑case hashed key payload
     pub const STORABLE_MAX_SIZE: u32 = 180;
 
     #[must_use]

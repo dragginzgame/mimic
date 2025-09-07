@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- Value: unified collection/text helpers via small internal comparators (`contains_by`, `contains_any_by`, `contains_all_by`, `in_list_by`) and a `text_op` helper, reducing duplication while preserving behavior.
+- Value (CI text ops): centralized case-insensitive equality via `eq_ci`; clarified Unicode folding note (temporary `to_lowercase`, future NFKC+casefold).
+- Metrics docs: clarified `EventReport` comment to reflect event/counter focus; codegen `mimic_metrics` comment now references internal `since_ms` and reset.
+- Schema Store docs: clarified that the type describes a stable IC BTreeMap store (schema node), not a runtime store.
+- ULID docs: clarified why Serialize/Deserialize are implemented locally (crate features off by default to avoid `rand`).
+
+### Performance
+- IndexStore (UNIQUE): skip redundant write when the key is already indexed; still records unique violations for conflicts.
+- Value (CI membership): precompute folded strings once in `contains_ci`/`in_list_ci` to reduce allocations; generic helpers simplify `contains_any_ci`/`contains_all_ci`.
+- Visitor: small pre-allocation in `ValidateVisitor::current_route`.
+
 ## [0.17.0] - 2025-09-03
 
 ### Added

@@ -276,6 +276,7 @@ impl Value {
         if let (Some(a), Some(b)) = (self.to_f64_lossless(), other.to_f64_lossless()) {
             return a.partial_cmp(&b);
         }
+
         None
     }
 
@@ -288,48 +289,111 @@ impl Value {
         if s.is_ascii() {
             return std::borrow::Cow::Owned(s.to_ascii_lowercase());
         }
-        // TODO: swap to proper NFKC+casefold helper when you add it
+        // NOTE: Unicode fallback — temporary to_lowercase for non‑ASCII.
+        // Future: replace with proper NFKC + full casefold when available.
         std::borrow::Cow::Owned(s.to_lowercase())
+    }
+
+    #[inline]
+    fn text_with_mode<'a>(s: &'a str, mode: TextMode) -> std::borrow::Cow<'a, str> {
+        match mode {
+            TextMode::Cs => std::borrow::Cow::Borrowed(s),
+            TextMode::Ci => Self::fold_ci(s),
+        }
+    }
+
+    #[inline]
+    fn text_op(
+        &self,
+        other: &Self,
+        mode: TextMode,
+        f: impl Fn(&str, &str) -> bool,
+    ) -> Option<bool> {
+        let (a, b) = (self.as_text()?, other.as_text()?);
+        let a = Self::text_with_mode(a, mode);
+        let b = Self::text_with_mode(b, mode);
+        Some(f(&a, &b))
+    }
+
+    #[inline]
+    fn eq_ci(a: &Self, b: &Self) -> bool {
+        match (a, b) {
+            (Self::Text(x), Self::Text(y)) => Self::fold_ci(x) == Self::fold_ci(y),
+            _ => a == b,
+        }
+    }
+
+    #[inline]
+    fn normalize_list_ref(v: &Self) -> Vec<&Self> {
+        match v {
+            Self::List(vs) => vs.iter().collect(),
+            v => vec![v],
+        }
+    }
+
+    #[inline]
+    fn contains_by<F>(&self, needle: &Self, eq: F) -> Option<bool>
+    where
+        F: Fn(&Self, &Self) -> bool,
+    {
+        self.as_list()
+            .map(|items| items.iter().any(|v| eq(v, needle)))
+    }
+
+    #[inline]
+    fn contains_any_by<F>(&self, needles: &Self, eq: F) -> Option<bool>
+    where
+        F: Fn(&Self, &Self) -> bool,
+    {
+        let needles = Self::normalize_list_ref(needles);
+        match self {
+            Self::List(items) => Some(needles.iter().any(|n| items.iter().any(|v| eq(v, n)))),
+            scalar => Some(needles.iter().any(|n| eq(scalar, n))),
+        }
+    }
+
+    #[inline]
+    fn contains_all_by<F>(&self, needles: &Self, eq: F) -> Option<bool>
+    where
+        F: Fn(&Self, &Self) -> bool,
+    {
+        let needles = Self::normalize_list_ref(needles);
+        match self {
+            Self::List(items) => Some(needles.iter().all(|n| items.iter().any(|v| eq(v, n)))),
+            scalar => Some(needles.len() == 1 && eq(scalar, needles[0])),
+        }
+    }
+
+    #[inline]
+    fn in_list_by<F>(&self, haystack: &Self, eq: F) -> Option<bool>
+    where
+        F: Fn(&Self, &Self) -> bool,
+    {
+        if let Self::List(items) = haystack {
+            Some(items.iter().any(|h| eq(h, self)))
+        } else {
+            None
+        }
     }
 
     #[must_use]
     pub fn text_eq(&self, other: &Self, mode: TextMode) -> Option<bool> {
-        let (a, b) = (self.as_text()?, other.as_text()?);
-
-        Some(match mode {
-            TextMode::Cs => a == b,
-            TextMode::Ci => Self::fold_ci(a) == Self::fold_ci(b),
-        })
+        self.text_op(other, mode, |a, b| a == b)
     }
 
     #[must_use]
     pub fn text_contains(&self, needle: &Self, mode: TextMode) -> Option<bool> {
-        let (a, b) = (self.as_text()?, needle.as_text()?);
-
-        Some(match mode {
-            TextMode::Cs => a.contains(b),
-            TextMode::Ci => Self::fold_ci(a).contains(&*Self::fold_ci(b)),
-        })
+        self.text_op(needle, mode, |a, b| a.contains(b))
     }
 
     #[must_use]
     pub fn text_starts_with(&self, needle: &Self, mode: TextMode) -> Option<bool> {
-        let (a, b) = (self.as_text()?, needle.as_text()?);
-
-        Some(match mode {
-            TextMode::Cs => a.starts_with(b),
-            TextMode::Ci => Self::fold_ci(a).starts_with(&*Self::fold_ci(b)),
-        })
+        self.text_op(needle, mode, |a, b| a.starts_with(b))
     }
 
     #[must_use]
     pub fn text_ends_with(&self, needle: &Self, mode: TextMode) -> Option<bool> {
-        let (a, b) = (self.as_text()?, needle.as_text()?);
-
-        Some(match mode {
-            TextMode::Cs => a.ends_with(b),
-            TextMode::Ci => Self::fold_ci(a).ends_with(&*Self::fold_ci(b)),
-        })
+        self.text_op(needle, mode, |a, b| a.ends_with(b))
     }
 
     ///
@@ -357,124 +421,58 @@ impl Value {
 
     #[must_use]
     pub fn contains(&self, needle: &Self) -> Option<bool> {
-        self.as_list()
-            .map(|items| items.iter().any(|v| v == needle))
+        self.contains_by(needle, |a, b| a == b)
     }
 
     #[must_use]
     pub fn contains_any(&self, needles: &Self) -> Option<bool> {
-        // normalize RHS → list
-        let needles: Vec<&Self> = match needles {
-            Self::List(vs) => vs.iter().collect(),
-            v => vec![v],
-        };
-
-        match self {
-            // Case 1: actual is a list → check any overlap
-            Self::List(items) => Some(needles.iter().any(|n| items.iter().any(|v| v == *n))),
-
-            // Case 2: actual is scalar → does it appear in RHS list?
-            scalar => Some(needles.contains(&scalar)),
-        }
+        self.contains_any_by(needles, |a, b| a == b)
     }
 
     #[must_use]
     pub fn contains_all(&self, needles: &Self) -> Option<bool> {
-        let needles: Vec<&Self> = match needles {
-            Self::List(vs) => vs.iter().collect(),
-            v => vec![v],
-        };
-
-        match self {
-            // Case 1: actual is a list → does it contain all RHS?
-            Self::List(items) => Some(needles.iter().all(|n| items.iter().any(|v| v == *n))),
-
-            // Case 2: actual is scalar → only true if RHS is exactly one matching element
-            scalar => Some(needles.len() == 1 && needles[0] == scalar),
-        }
+        self.contains_all_by(needles, |a, b| a == b)
     }
 
     #[must_use]
     pub fn in_list(&self, haystack: &Self) -> Option<bool> {
-        if let Self::List(items) = haystack {
-            Some(items.iter().any(|h| h == self))
-        } else {
-            None
-        }
+        self.in_list_by(haystack, |a, b| a == b)
     }
 
     #[must_use]
     pub fn contains_ci(&self, needle: &Self) -> Option<bool> {
-        self.as_list().map(|items| {
-            items.iter().any(|v| match (v, needle) {
-                (Self::Text(a), Self::Text(b)) => Self::fold_ci(a) == Self::fold_ci(b),
-                _ => v == needle,
-            })
+        // Precompute folded needle and capture in comparator
+        let folded_needle = match needle {
+            Self::Text(b) => Some(Self::fold_ci(b)),
+            _ => None,
+        };
+        self.contains_by(needle, |a, b| match (a, b, &folded_needle) {
+            (Self::Text(x), Self::Text(_), Some(bf)) => Self::fold_ci(x) == *bf,
+            _ => a == b,
         })
     }
 
     #[must_use]
     pub fn contains_any_ci(&self, needles: &Self) -> Option<bool> {
-        // normalize RHS → list
-        let needles: Vec<&Self> = match needles {
-            Self::List(vs) => vs.iter().collect(),
-            v => vec![v],
-        };
-
-        match self {
-            // Case 1: actual is a list → check any overlap
-            Self::List(items) => Some(needles.iter().any(|n| {
-                items.iter().any(|v| match (v, *n) {
-                    (Self::Text(a), Self::Text(b)) => Self::fold_ci(a) == Self::fold_ci(b),
-                    _ => v == *n,
-                })
-            })),
-
-            // Case 2: actual is scalar → does it appear in RHS list?
-            scalar => Some(needles.iter().any(|n| match (scalar, *n) {
-                (Self::Text(a), Self::Text(b)) => Self::fold_ci(a) == Self::fold_ci(b),
-                _ => scalar == *n,
-            })),
-        }
+        self.contains_any_by(needles, Self::eq_ci)
     }
 
     #[must_use]
     pub fn contains_all_ci(&self, needles: &Self) -> Option<bool> {
-        let needles: Vec<&Self> = match needles {
-            Self::List(vs) => vs.iter().collect(),
-            v => vec![v],
-        };
-
-        match self {
-            // Case 1: actual is a list → does it contain all RHS?
-            Self::List(items) => Some(needles.iter().all(|n| {
-                items.iter().any(|v| match (v, *n) {
-                    (Self::Text(a), Self::Text(b)) => Self::fold_ci(a) == Self::fold_ci(b),
-                    _ => v == *n,
-                })
-            })),
-
-            // Case 2: actual is scalar → only true if RHS is exactly one matching element
-            scalar => Some(
-                needles.len() == 1
-                    && match (scalar, needles[0]) {
-                        (Self::Text(a), Self::Text(b)) => Self::fold_ci(a) == Self::fold_ci(b),
-                        _ => scalar == needles[0],
-                    },
-            ),
-        }
+        self.contains_all_by(needles, Self::eq_ci)
     }
 
     #[must_use]
     pub fn in_list_ci(&self, haystack: &Self) -> Option<bool> {
-        if let Self::List(items) = haystack {
-            Some(items.iter().any(|h| match (h, self) {
-                (Self::Text(a), Self::Text(b)) => Self::fold_ci(a) == Self::fold_ci(b),
-                _ => h == self,
-            }))
-        } else {
-            None
-        }
+        // Precompute folded self and capture in comparator
+        let folded_self = match self {
+            Self::Text(b) => Some(Self::fold_ci(b)),
+            _ => None,
+        };
+        self.in_list_by(haystack, |a, b| match (a, b, &folded_self) {
+            (Self::Text(x), Self::Text(_), Some(sf)) => Self::fold_ci(x) == *sf,
+            _ => a == b,
+        })
     }
 }
 

@@ -14,7 +14,7 @@ use serde::Serialize;
 ///
 /// Store
 ///
-/// A stable IC BTreeMap that stores Entity data
+/// Schema node describing a stable IC BTreeMap that stores entity data.
 ///
 
 #[derive(Clone, Debug, Serialize)]

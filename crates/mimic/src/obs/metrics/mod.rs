@@ -269,10 +269,10 @@ impl<E: EntityKind> Drop for Span<E> {
     }
 }
 
-//
-// Snapshot types (formerly metrics::db)
-// Kept here under metrics to consolidate naming: everything is "metrics".
-//
+///
+/// EventReport
+/// Event/counter report; storage snapshot types live in snapshot/storage modules.
+///
 
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct EventReport {
@@ -282,7 +282,9 @@ pub struct EventReport {
     pub entity_counters: Vec<EntitySummary>,
 }
 
-// Storage snapshot types moved to crate::storage
+///
+/// EntitySummary
+///
 
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct EntitySummary {
@@ -298,8 +300,6 @@ pub struct EntitySummary {
     pub unique_violations: u64,
 }
 
-// Storage snapshot types moved to crate::storage
-
 /// Increment unique-violation counters globally and for a specific entity type.
 pub fn record_unique_violation_for<E>(m: &mut EventState)
 where
@@ -310,7 +310,11 @@ where
     entry.unique_violations = entry.unique_violations.saturating_add(1);
 }
 
+///
+/// EventSelect
 /// Select which parts of the metrics report to include.
+///
+
 #[derive(CandidType, Clone, Copy, Debug, Deserialize, Serialize)]
 #[allow(clippy::struct_excessive_bools)]
 pub struct EventSelect {

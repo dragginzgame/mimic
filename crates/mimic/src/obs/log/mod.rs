@@ -11,6 +11,7 @@ thread_local! {
 /// Append a log line to the event buffer (fixed-size ring).
 pub fn log_push(line: impl Into<String>) {
     const CAP: usize = 256;
+
     LOG_BUFFER.with(|b| {
         let mut buf = b.borrow_mut();
         if buf.len() >= CAP {

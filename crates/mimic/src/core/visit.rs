@@ -94,7 +94,8 @@ impl ValidateVisitor {
 
     #[inline]
     fn current_route(&self) -> String {
-        let mut out = String::new();
+        // Small pre-alloc to reduce growth for common nested paths
+        let mut out = String::with_capacity(64);
         let mut first = true;
         for seg in &self.path {
             match seg {
