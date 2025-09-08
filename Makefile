@@ -1,6 +1,7 @@
 .PHONY: help version current tags patch minor major release \
         test build check clippy fmt fmt-check clean plan install-dev \
-        test-watch all ensure-clean security-check check-versioning
+        test-watch all ensure-clean security-check check-versioning \
+        ensure-hooks install-hooks
 
 # Check for clean git state
 ensure-clean:
@@ -65,7 +66,7 @@ release: ensure-clean
 	@echo "Release handled by CI on tag push"
 
 # Development commands
-test:
+test: ensure-hooks
 	cargo test --workspace
 	@if [ -x scripts/app/test.sh ] && command -v dfx >/dev/null 2>&1; then \
 		echo "Running canister tests via scripts/app/test.sh"; \
@@ -74,19 +75,19 @@ test:
 		echo "Skipping canister tests (dfx not installed or script missing)"; \
 	fi
 
-build: ensure-clean
+build: ensure-clean ensure-hooks
 	cargo build --release --workspace
 
-check: fmt-check
+check: ensure-hooks fmt-check
 	cargo check --workspace
 
-clippy:
+clippy: ensure-hooks
 	cargo clippy --workspace -- -D warnings
 
-fmt:
+fmt: ensure-hooks
 	cargo fmt --all
 
-fmt-check:
+fmt-check: ensure-hooks
 	cargo fmt --all -- --check
 
 clean:
@@ -112,12 +113,24 @@ security-check:
 check-versioning: security-check
 
 # Install development dependencies
-install-dev:
+install-dev: ensure-hooks
 	cargo install cargo-watch
+	cargo install cargo-sort cargo-sort-derives
 
 # Run tests in watch mode
 test-watch:
 	cargo watch -x test
 
 # Build and test everything
-all: ensure-clean clean fmt-check clippy check test build
+all: ensure-clean ensure-hooks clean fmt-check clippy check test build
+
+# Ensure repository uses scripts/git-hooks as hooksPath
+ensure-hooks:
+	@# Set hooksPath locally to use repo-tracked hooks
+	@git config --local core.hooksPath scripts/git-hooks || true
+	@chmod +x scripts/git-hooks/pre-commit 2>/dev/null || true
+	@echo "hooksPath set to: $$(git config --local --get core.hooksPath 2>/dev/null || echo 'scripts/git-hooks')"
+
+# Optional explicit install target (idempotent)
+install-hooks: ensure-hooks
+	@echo "Git hooks configured (core.hooksPath -> scripts/git-hooks)"
