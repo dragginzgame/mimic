@@ -25,4 +25,3 @@ cargo sort --check
 cargo sort-derives --check
 
 echo "Pre-commit checks passed."
-

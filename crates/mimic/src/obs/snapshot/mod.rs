@@ -10,6 +10,7 @@ use std::collections::BTreeMap;
 /// StorageReport
 /// Live storage snapshot report
 ///
+
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct StorageReport {
     pub storage_data: Vec<DataStoreSnapshot>,

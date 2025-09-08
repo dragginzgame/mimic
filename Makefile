@@ -124,13 +124,13 @@ test-watch:
 # Build and test everything
 all: ensure-clean ensure-hooks clean fmt-check clippy check test build
 
-# Ensure repository uses scripts/git-hooks as hooksPath
+# Ensure repository uses .githooks as hooksPath
 ensure-hooks:
 	@# Set hooksPath locally to use repo-tracked hooks
-	@git config --local core.hooksPath scripts/git-hooks || true
-	@chmod +x scripts/git-hooks/pre-commit 2>/dev/null || true
-	@echo "hooksPath set to: $$(git config --local --get core.hooksPath 2>/dev/null || echo 'scripts/git-hooks')"
+	@git config --local core.hooksPath .githooks || true
+	@chmod +x .githooks/pre-commit 2>/dev/null || true
+	@echo "hooksPath set to: $$(git config --local --get core.hooksPath 2>/dev/null || echo '.githooks')"
 
 # Optional explicit install target (idempotent)
 install-hooks: ensure-hooks
-	@echo "Git hooks configured (core.hooksPath -> scripts/git-hooks)"
+	@echo "Git hooks configured (core.hooksPath -> .githooks)"

@@ -5,12 +5,12 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.19.0] - 2025-09-08
 
 ### Added
-- Git hooks: repository-tracked pre-commit at `scripts/git-hooks/pre-commit` running `cargo fmt --check`, `cargo sort --check`, and `cargo sort-derives --check`.
-- Tooling: `Makefile` `ensure-hooks` auto-configures `core.hooksPath` for the repo; `install-dev` installs `cargo-sort` and `cargo-sort-derives`.
-- Env: `scripts/env/update.sh` now sets local `core.hooksPath` to `scripts/git-hooks`.
+- Git hooks: repository-tracked pre-commit at `.githooks/pre-commit` running `cargo fmt --check`, `cargo sort --check`, and `cargo sort-derives --check`.
+- Tooling: `Makefile` `ensure-hooks` auto-configures `core.hooksPath` to `.githooks`; `install-dev` installs `cargo-sort` and `cargo-sort-derives`.
+- Env: `scripts/env/update.sh` now sets local `core.hooksPath` to `.githooks`.
 
 ### Changed
 - Value: unified collection/text helpers via small internal comparators (`contains_by`, `contains_any_by`, `contains_all_by`, `in_list_by`) and a `text_op` helper, reducing duplication while preserving behavior.
