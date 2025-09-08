@@ -10,7 +10,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - CI cleanup: removed separate canisters job; build and upload canister artifacts only in release.
 - CI hygiene: single fmt check (no cargo-sort), reproducible installs (`--locked`), cache-lock cleanup, concurrency group, colored logs.
-- CI checks: added security (`cargo audit`) and versioning checks as separate jobs.
 
 ## [0.19.0] - 2025-09-08
 

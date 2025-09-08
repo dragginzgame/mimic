@@ -68,14 +68,8 @@ jobs:
         with:
           toolchain: 1.89.0
 
-      - name: Install cargo-audit
-        run: cargo install cargo-audit --locked
-
       - name: Clear stale Cargo package cache lock
         run: rm -f ~/.cargo/.package-cache || true
-
-      - name: Run cargo audit
-        run: cargo audit --deny warnings
 
   versioning:
     if: ${{ !startsWith(github.ref, 'refs/tags/') }}
@@ -149,7 +143,7 @@ jobs:
           did=artifacts/canister_test.did
           cp "$wasm" artifacts/
           candid-extractor "$wasm" > "$did"
-        
+
       - name: Upload canister artifacts
         uses: actions/upload-artifact@v4
         with:

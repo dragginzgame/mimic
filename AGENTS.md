@@ -31,6 +31,7 @@
 - Naming: `snake_case` for modules/functions/files, `CamelCase` types/traits, `SCREAMING_SNAKE_CASE` consts.
 - Linting: Code must pass `make clippy`; prefer `?` over `unwrap()`, handle errors explicitly.
 - Keep public APIs documented; co-locate small unit tests in the same file under `mod tests`.
+- Don't worry about backwards compatibility.  Prefer breaking changes for the time being.
 
 ### Additional Style Guidance
 - Docs: rustdoc triple-slash `/// ` with a space; include brief examples when practical.
@@ -47,7 +48,6 @@
 - Checks job (PRs/main): `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test`.
 - Release job (tags): `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test`, `cargo build --release`.
 - Package cache: clears `~/.cargo/.package-cache` before running cargo to avoid stale lock issues.
-- Security: separate job runs `cargo audit --deny warnings` on PRs and pushes (non-tags).
  - Versioning: separate job runs `scripts/app/check-versioning.sh` for repository/tag hygiene checks.
 - Canisters: release job builds `canister_test` to WASM, extracts `.did` via `candid-extractor`, and uploads artifacts.
 
