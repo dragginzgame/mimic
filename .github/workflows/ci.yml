@@ -42,7 +42,12 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
+      - name: Install cargo utilities (sort)
+        run: cargo install cargo-sort cargo-sort-derives
+
       - run: cargo fmt --all -- --check
+      - run: cargo sort --check
+      - run: cargo sort-derives --check
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - run: cargo test --workspace --all-targets --verbose --locked
 
@@ -83,6 +88,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - run: cargo fmt --all -- --check
+      - run: cargo sort --check
+      - run: cargo sort-derives --check
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - run: cargo test --workspace --all-targets --verbose --locked
       - run: cargo build --release --workspace --locked
