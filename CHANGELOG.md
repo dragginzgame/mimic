@@ -5,6 +5,13 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.19.1] - 2025-09-08
+
+### Changed
+- CI cleanup: removed separate canisters job; build and upload canister artifacts only in release.
+- CI hygiene: single fmt check (no cargo-sort), reproducible installs (`--locked`), cache-lock cleanup, concurrency group, colored logs.
+- CI checks: added security (`cargo audit`) and versioning checks as separate jobs.
+
 ## [0.19.0] - 2025-09-08
 
 ### Added
@@ -20,6 +27,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - ULID docs: clarified why Serialize/Deserialize are implemented locally (crate features off by default to avoid `rand`).
 - CI: removed `cargo sort` checks (enforced via pre-commit); keep a single `cargo fmt --check`.
 - CI: clear stale Cargo package cache lock (`~/.cargo/.package-cache`) before running cargo.
+- CI: add `security` job running `cargo audit --deny warnings` for PRs and non-tag pushes.
+- CI: build `canister_test` to WASM in release; extract `.did` and upload artifacts.
+
+### Removed
+- Codex CLI config `codex.yaml`; guidance folded into `AGENTS.md` and README updated.
 
 ### Performance
 - IndexStore (UNIQUE): skip redundant write when the key is already indexed; still records unique violations for conflicts.

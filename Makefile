@@ -111,6 +111,7 @@ security-check:
 	@echo "This target is informational only; no local script runs."
 
 check-versioning: security-check
+	bash scripts/app/check-versioning.sh
 
 # Install development dependencies
 install-dev: ensure-hooks

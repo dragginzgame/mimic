@@ -113,7 +113,7 @@ pub fn rarities() -> Result<Vec<RarityView>, mimic::Error> {
 
 ### Install
 
-See [INSTALLING.md](INSTALLING.md).
+See [INTEGRATION.md](INTEGRATION.md) for installation and integration details.
 
 ### Workspace
 
@@ -147,25 +147,6 @@ dfx canister call <canister> mimic_logs
 dfx canister call <canister> mimic_metrics
 dfx canister call <canister> mimic_metrics_reset
 ```
-
-### Using Codex CLI
-
-This repo includes a Codex CLI configuration at `codex.yaml` for common tasks.
-
-```bash
-# Run mapped commands
-codex run check
-codex run test
-codex run clippy
-codex run build
-
-# Run predefined workflows
-codex workflow pre_commit   # fmt-check, clippy, check, test
-codex workflow ci_fast      # check, clippy
-codex workflow release      # security checks, release
-```
-
-Tip: run `codex run fmt_check` locally before committing, or `codex workflow pre_commit` to run the full gate quickly.
 
 ### Planning
 

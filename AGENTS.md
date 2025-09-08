@@ -15,11 +15,41 @@
 - `make fmt` / `make fmt-check`: Format or verify formatting.
 - Versioning: `make version|tags|patch|minor|major|release` (see `VERSIONING.md`).
 
+## Common Workflows
+- Pre-commit gate (local): `make fmt-check && make clippy && make check && make test`.
+- Fast CI gate (local): `make check && make clippy`.
+- Release (local): `make security-check && make release`.
+
+## Git Hooks
+- Hooks path: `.githooks` (auto-configured via `core.hooksPath`).
+- Pre-commit runs: `cargo fmt --all -- --check`, `cargo sort --check`, `cargo sort-derives --check`.
+- Auto-setup: running common Make targets (`fmt`, `fmt-check`, `clippy`, `check`, `test`, `build`, `install-dev`) ensures hooks are enabled.
+- Tools: install with `make install-dev` (installs `cargo-sort` and `cargo-sort-derives`).
+
 ## Coding Style & Naming Conventions
 - Rustfmt: 4-space indent, edition 2024; run `cargo fmt --all` before committing.
 - Naming: `snake_case` for modules/functions/files, `CamelCase` types/traits, `SCREAMING_SNAKE_CASE` consts.
 - Linting: Code must pass `make clippy`; prefer `?` over `unwrap()`, handle errors explicitly.
 - Keep public APIs documented; co-locate small unit tests in the same file under `mod tests`.
+
+### Additional Style Guidance
+- Docs: rustdoc triple-slash `/// ` with a space; include brief examples when practical.
+- Errors: prefer typed errors (thiserror); avoid panics in library code.
+- Functions: keep small and focused; extract helpers for clarity.
+- Borrowing: avoid unnecessary clones; prefer iterator adapters.
+- Imports: group per-crate, nest items (e.g., `use crate::{a, b};`); pull common std items into scope at top.
+- Counters: use saturating arithmetic for totals; avoid wrapping arithmetic.
+- Performance: only optimize on proven hot paths; consider pre-allocation when it clearly pays off.
+- Codegen (mimic_build): generate minimal glue and delegate to `mimic::interface::*`.
+
+## CI Overview
+- Toolchain: Rust `1.89.0` with `rustfmt` and `clippy`.
+- Checks job (PRs/main): `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test`.
+- Release job (tags): `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test`, `cargo build --release`.
+- Package cache: clears `~/.cargo/.package-cache` before running cargo to avoid stale lock issues.
+- Security: separate job runs `cargo audit --deny warnings` on PRs and pushes (non-tags).
+ - Versioning: separate job runs `scripts/app/check-versioning.sh` for repository/tag hygiene checks.
+- Canisters: release job builds `canister_test` to WASM, extracts `.did` via `candid-extractor`, and uploads artifacts.
 
 ## Testing Guidelines
 - Framework: Rust test harness. Place unit tests near code; integration tests live in `crates/mimic_tests`.
@@ -36,4 +66,3 @@
 - Tag immutability: run `make security-check`; never modify pushed release tags.
 - Pin git dependencies by tag in downstream projects.
 - Toolchain: install Rust `1.89.0` (`rustup toolchain install 1.89.0`) and ensure CI matches.
-
