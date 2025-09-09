@@ -1,4 +1,7 @@
-use crate::{core::traits::Validator, design::prelude::*};
+use crate::{
+    core::traits::{NumCast, Validator},
+    design::prelude::*,
+};
 
 const MAX_DISPLAY_CHARS: usize = 20;
 
