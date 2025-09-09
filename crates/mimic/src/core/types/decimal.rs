@@ -6,7 +6,7 @@ use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign};
 use num_traits::{FromPrimitive, NumCast, ToPrimitive};
 use rust_decimal::Decimal as WrappedDecimal;
-use serde::{Deserialize, Serialize, ser::Error};
+use serde::{Deserialize, Serialize};
 use std::ops::{Div, Mul};
 
 ///
@@ -70,19 +70,14 @@ impl Decimal {
 
 impl CandidType for Decimal {
     fn _ty() -> candid::types::Type {
-        candid::types::TypeInner::Float64.into()
+        candid::types::TypeInner::Text.into()
     }
 
     fn idl_serialize<S>(&self, serializer: S) -> Result<(), S::Error>
     where
         S: candid::types::Serializer,
     {
-        let v: f64 = self
-            .0
-            .to_f64()
-            .ok_or_else(|| S::Error::custom("Failed to convert Decimal to f64"))?;
-
-        serializer.serialize_float64(v)
+        serializer.serialize_text(&self.0.to_string())
     }
 }
 
@@ -218,3 +213,42 @@ impl ValidateAuto for Decimal {}
 impl ValidateCustom for Decimal {}
 
 impl Visitable for Decimal {}
+
+///
+/// TESTS
+///
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use candid::{decode_one, encode_one};
+    use std::str::FromStr;
+
+    #[test]
+    fn decimal_candid_roundtrip() {
+        let cases = [
+            "0",
+            "1",
+            "-1",
+            "42.5",
+            "1234567890.123456789",
+            "0.00000001",
+            "1000000000000000000000000.000000000000000000000001",
+        ];
+
+        for s in cases {
+            let d1 = Decimal::from_str(s).expect("parse decimal");
+
+            // encode via Candid (should encode as text)
+            let bytes = encode_one(d1).expect("candid encode");
+
+            // decode back to Decimal
+            let d2: Decimal = decode_one(&bytes).expect("candid decode to Decimal");
+            assert_eq!(d2, d1, "roundtrip mismatch for {s}");
+
+            // also ensure the on-wire representation is text by decoding as String
+            let wire_str: String = decode_one(&bytes).expect("candid decode to String");
+            assert_eq!(wire_str, d1.0.to_string(), "wire text mismatch for {s}");
+        }
+    }
+}
