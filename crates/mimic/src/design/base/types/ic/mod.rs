@@ -39,13 +39,6 @@ impl<P: Into<Principal>> From<P> for Account {
 pub struct Memo {}
 
 ///
-/// Icrc1 PaymentList
-///
-
-#[list(item(is = "Payment"))]
-pub struct PaymentList {}
-
-///
 /// Payment
 ///
 

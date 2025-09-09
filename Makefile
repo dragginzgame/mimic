@@ -1,5 +1,5 @@
 .PHONY: help version current tags patch minor major release \
-        test build check clippy fmt fmt-check clean plan install-dev \
+        test build check clippy fmt fmt-check clean install-dev \
         test-watch all ensure-clean security-check check-versioning \
         ensure-hooks install-hooks
 
@@ -30,7 +30,6 @@ help:
 	@echo "  fmt              Format code"
 	@echo "  fmt-check        Check formatting"
 	@echo "  clean            Clean build artifacts"
-	@echo "  plan             Show the current project plan"
 	@echo ""
 	@echo "Utilities:"
 	@echo "  install-dev      Install development dependencies"
@@ -95,12 +94,7 @@ clean:
 	rm -rf target/
 
 # Planning summary
-plan:
-	@echo "=== PLAN.md ==="
-	@{ [ -f PLAN.md ] && sed -n '1,200p' PLAN.md; } || echo "No PLAN.md found."
-	@echo
-	@echo "=== .codex/plan.json ==="
-	@{ [ -f .codex/plan.json ] && sed -n '1,200p' .codex/plan.json; } || echo "No .codex/plan.json found."
+
 
 # Security and versioning checks
 security-check:

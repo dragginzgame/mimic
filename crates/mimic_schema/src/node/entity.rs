@@ -8,6 +8,7 @@ use crate::{
 };
 use mimic_common::{err, error::ErrorTree};
 use serde::Serialize;
+use std::collections::HashSet;
 
 ///
 /// Entity
@@ -52,6 +53,22 @@ impl ValidateNode for Entity {
         let mut errs = ErrorTree::new();
         let schema = schema_read();
 
+        // primary key must exist and be single-valued
+        match self.fields.get(self.primary_key) {
+            Some(pk) => {
+                if !matches!(pk.value.cardinality, Cardinality::One) {
+                    err!(
+                        errs,
+                        "primary key '{0}' must have cardinality One",
+                        self.primary_key
+                    );
+                }
+            }
+            None => {
+                err!(errs, "missing primary key field '{0}'", self.primary_key);
+            }
+        }
+
         // store
         match schema.try_get_node_as::<Store>(self.store) {
             Ok(store) if !matches!(store.ty, StoreType::Data) => {
@@ -66,8 +83,27 @@ impl ValidateNode for Entity {
 
         // check indexes have proper fields
         for index in self.indexes {
+            // basic length checks
+            if index.fields.is_empty() {
+                err!(errs, "index must reference at least one field");
+            }
+            const MAX_INDEX_FIELDS: usize = 4;
+            if index.fields.len() > MAX_INDEX_FIELDS {
+                err!(
+                    errs,
+                    "index has {} fields; maximum is {}",
+                    index.fields.len(),
+                    MAX_INDEX_FIELDS
+                );
+            }
+
+            // no duplicate fields in a single index definition
+            let mut seen = HashSet::new();
             // Check all fields in the index exist on the entity
             for field in index.fields {
+                if !seen.insert(*field) {
+                    err!(errs, "index contains duplicate field '{field}'");
+                }
                 if let Some(field) = self.fields.get(field) {
                     if field.value.cardinality == Cardinality::Many {
                         err!(errs, "cannot add an index field with many cardinality");

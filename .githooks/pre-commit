@@ -19,6 +19,15 @@ if ! command -v cargo-sort-derives >/dev/null 2>&1; then
   exit 1
 fi
 
+# Auto-format before checks
+cargo fmt --all
+
+# Stage any formatting changes so they are included in the commit
+if ! git diff --quiet; then
+  echo "Formatting changed files; staging updates..."
+  git add -A
+fi
+
 # Run checks
 cargo fmt --all -- --check
 cargo sort --check

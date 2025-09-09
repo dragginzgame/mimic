@@ -148,14 +148,6 @@ dfx canister call <canister> mimic_metrics
 dfx canister call <canister> mimic_metrics_reset
 ```
 
-### Planning
-
-We persist the working plan so it survives sessions:
-
-- Files: `.codex/plan.json` (source) and `PLAN.md` (readable).
-- Review: `make plan` prints both for a quick snapshot.
-- The assistant keeps these in sync when updating the in-session plan.
-
 ### Versioning
 
 We use semver with convenience scripts:

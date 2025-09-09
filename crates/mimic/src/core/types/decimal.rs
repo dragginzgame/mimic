@@ -30,8 +30,6 @@ use std::ops::{Div, Mul};
     Hash,
     Ord,
     PartialOrd,
-    Serialize,
-    Deserialize,
     Sub,
     SubAssign,
 )]
@@ -79,6 +77,30 @@ impl CandidType for Decimal {
         S: candid::types::Serializer,
     {
         serializer.serialize_text(&self.0.to_string())
+    }
+}
+
+// Serde: always serialize as a string, and deserialize from a string.
+// This ensures a stable textual representation across formats and avoids
+// lossy float conversions.
+impl Serialize for Decimal {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&self.0.to_string())
+    }
+}
+
+impl<'de> Deserialize<'de> for Decimal {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        s.parse::<WrappedDecimal>()
+            .map(Decimal)
+            .map_err(serde::de::Error::custom)
     }
 }
 
@@ -250,6 +272,32 @@ mod tests {
             // also ensure the on-wire representation is text by decoding as String
             let wire_str: String = decode_one(&bytes).expect("candid decode to String");
             assert_eq!(wire_str, d1.0.to_string(), "wire text mismatch for {s}");
+        }
+    }
+
+    #[test]
+    fn decimal_serde_json_string_roundtrip() {
+        let cases = [
+            "0",
+            "1",
+            "-1",
+            "42.5",
+            "1234567890.123456789",
+            "0.00000001",
+            "1000000000000000000000000.000000000000000000000001",
+        ];
+
+        for s in cases {
+            let d = Decimal::from_str(s).expect("parse decimal");
+
+            // Serialize to JSON: must be a JSON string containing the decimal text
+            let json = serde_json::to_string(&d).expect("serde_json serialize");
+            let expected = serde_json::to_string(&d.0.to_string()).unwrap();
+            assert_eq!(json, expected, "JSON encoding should be a string for {s}");
+
+            // Deserialize back and compare
+            let back: Decimal = serde_json::from_str(&json).expect("serde_json deserialize");
+            assert_eq!(back, d, "serde_json roundtrip mismatch for {s}");
         }
     }
 }

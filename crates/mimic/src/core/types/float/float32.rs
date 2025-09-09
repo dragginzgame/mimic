@@ -123,7 +123,7 @@ impl ToPrimitive for Float32 {
 
 impl Hash for Float32 {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        state.write_u32(self.0.to_bits()); // stable 8-byte IEEE-754
+        state.write_u32(self.0.to_bits()); // stable 4-byte IEEE-754
     }
 }
 

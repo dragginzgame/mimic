@@ -184,7 +184,7 @@ impl Primitive {
     }
 
     // is_numeric
-    // no floats, this is the check for all the arithmetic traits
+    // Includes ints, floats, fixed‑point (E8s/E18s), and Decimal.
     #[must_use]
     pub const fn is_numeric(self) -> bool {
         self.is_int() || self.is_float() || self.is_fixed_point() || self.is_decimal()

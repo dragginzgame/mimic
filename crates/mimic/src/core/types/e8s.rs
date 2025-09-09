@@ -129,8 +129,8 @@ impl FieldValue for E8s {
 #[allow(clippy::cast_possible_wrap)]
 impl From<E8s> for Decimal {
     fn from(v: E8s) -> Self {
-        // mantissa = raw atomic units, scale = 8
-        Self::new(v.get() as i64, 8)
+        // Use i128 mantissa to avoid overflow for large u64 values
+        Self::from_i128_with_scale(i128::from(v.get()), 8)
     }
 }
 
