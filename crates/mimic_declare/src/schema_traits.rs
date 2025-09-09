@@ -51,6 +51,7 @@ pub enum Trait {
     Serialize,
     Sub,
     SubAssign,
+    Sum,
 
     // kind
     // traits for the implementation of specific Schema Nodes
@@ -147,6 +148,7 @@ impl Trait {
             Self::Serialize => Some(quote!(::serde::Serialize)),
             Self::Sub => Some(quote!(::mimic::export::derive_more::Sub)),
             Self::SubAssign => Some(quote!(::mimic::export::derive_more::SubAssign)),
+            Self::Sum => Some(quote!(::mimic::export::derive_more::Sum)),
 
             _ => None,
         }

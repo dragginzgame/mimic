@@ -79,6 +79,7 @@ impl HasTraits for Newtype {
                 Trait::MulAssign,
                 Trait::Sub,
                 Trait::SubAssign,
+                Trait::Sum,
             ]);
         }
         if self.primitive.supports_copy() {

@@ -10,6 +10,7 @@ use candid::{CandidType, Int as WrappedInt};
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign};
 use icu::impl_storable_unbounded;
 use serde::{Deserialize, Serialize};
+use std::iter::Sum;
 
 ///
 /// Int
@@ -61,6 +62,12 @@ impl From<WrappedInt> for Int {
 }
 
 impl_storable_unbounded!(Int);
+
+impl Sum for Int {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Self::default(), |acc, x| acc + x)
+    }
+}
 
 impl TypeView for Int {
     type View = Self;

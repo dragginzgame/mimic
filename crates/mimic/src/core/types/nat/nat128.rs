@@ -3,7 +3,7 @@ use crate::core::{
     traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
 };
 use candid::CandidType;
-use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign};
+use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign, Sum};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 
@@ -30,6 +30,7 @@ use std::cmp::Ordering;
     PartialOrd,
     Sub,
     SubAssign,
+    Sum,
 )]
 pub struct Nat128(u128);
 

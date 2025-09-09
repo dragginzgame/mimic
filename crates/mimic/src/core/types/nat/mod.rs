@@ -9,6 +9,7 @@ use crate::core::{
 use candid::{CandidType, Nat as WrappedNat};
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign};
 use serde::{Deserialize, Serialize};
+use std::iter::Sum;
 
 ///
 /// Nat
@@ -56,6 +57,12 @@ impl FieldValue for Nat {
 impl From<WrappedNat> for Nat {
     fn from(n: WrappedNat) -> Self {
         Self(n)
+    }
+}
+
+impl Sum for Nat {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Self::default(), |acc, x| acc + x)
     }
 }
 
