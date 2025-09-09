@@ -3,7 +3,7 @@ use crate::core::{
     value::Value,
 };
 use candid::CandidType;
-use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign};
+use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign, Sum};
 use num_traits::{FromPrimitive, NumCast, ToPrimitive};
 use rust_decimal::Decimal as WrappedDecimal;
 use serde::{Deserialize, Serialize};
@@ -26,6 +26,7 @@ use std::ops::{Div, Mul};
     Eq,
     FromStr,
     PartialEq,
+    Sum,
     Hash,
     Ord,
     PartialOrd,
