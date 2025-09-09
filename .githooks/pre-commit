@@ -24,8 +24,8 @@ cargo fmt --all
 
 # Stage any formatting changes so they are included in the commit
 if ! git diff --quiet; then
-  echo "Formatting changed files; staging updates..."
-  git add -A
+  echo "Formatting changed files; staging tracked updates..."
+  git add -u
 fi
 
 # Run checks
