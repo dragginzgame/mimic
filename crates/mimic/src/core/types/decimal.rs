@@ -5,7 +5,7 @@ use crate::core::{
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign, Sum};
 use num_traits::{FromPrimitive, NumCast, ToPrimitive};
-use rust_decimal::Decimal as WrappedDecimal;
+use rust_decimal::{Decimal as WrappedDecimal, MathematicalOps};
 use serde::{Deserialize, Serialize};
 use std::ops::{Div, Mul};
 
@@ -54,6 +54,12 @@ impl Decimal {
 
     pub fn checked_rem(self, rhs: Self) -> Option<Self> {
         self.0.checked_rem(*rhs).map(Self)
+    }
+
+    // via the MathematicalOps trait
+    #[must_use]
+    pub fn powu(&self, exp: u64) -> Self {
+        Self(self.0.powu(exp))
     }
 
     #[must_use]

@@ -5,8 +5,9 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.19.6] - 2025-09-09
+## [0.19.8] - 2025-09-09
 - Decimals now serialize as strings
+- added powu to Decimal plus the MathematicalOps trait
 - added Sum to numeric types
 
 ## [0.19.1] - 2025-09-08
