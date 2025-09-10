@@ -38,7 +38,8 @@ proc-macro2 = "1.0"
 quote = "1.0"
 remain = "0.2"
 rust_decimal = { version = "1.37", default-features = false, features = [
-    "serde"
+    "serde",
+    "maths",
 ] }
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 serde_bytes = "0.11"
