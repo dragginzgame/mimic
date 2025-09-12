@@ -14,6 +14,8 @@ use std::collections::HashSet;
 /// Entity
 ///
 
+const MAX_INDEX_FIELDS: usize = 4;
+
 #[derive(Clone, Debug, Serialize)]
 pub struct Entity {
     pub def: Def,
@@ -87,7 +89,6 @@ impl ValidateNode for Entity {
             if index.fields.is_empty() {
                 err!(errs, "index must reference at least one field");
             }
-            const MAX_INDEX_FIELDS: usize = 4;
             if index.fields.len() > MAX_INDEX_FIELDS {
                 err!(
                     errs,

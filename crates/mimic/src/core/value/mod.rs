@@ -295,7 +295,7 @@ impl Value {
     }
 
     #[inline]
-    fn text_with_mode<'a>(s: &'a str, mode: TextMode) -> std::borrow::Cow<'a, str> {
+    fn text_with_mode(s: &'_ str, mode: TextMode) -> std::borrow::Cow<'_, str> {
         match mode {
             TextMode::Cs => std::borrow::Cow::Borrowed(s),
             TextMode::Ci => Self::fold_ci(s),
@@ -341,6 +341,7 @@ impl Value {
     }
 
     #[inline]
+    #[allow(clippy::unnecessary_wraps)]
     fn contains_any_by<F>(&self, needles: &Self, eq: F) -> Option<bool>
     where
         F: Fn(&Self, &Self) -> bool,
@@ -353,6 +354,7 @@ impl Value {
     }
 
     #[inline]
+    #[allow(clippy::unnecessary_wraps)]
     fn contains_all_by<F>(&self, needles: &Self, eq: F) -> Option<bool>
     where
         F: Fn(&Self, &Self) -> bool,

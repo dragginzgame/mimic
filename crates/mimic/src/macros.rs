@@ -26,9 +26,6 @@ macro_rules! mimic_build {
         // different targets working
         //
 
-        // Retrieve the target triple from the environment
-        let target = var("TARGET").unwrap();
-
         // all
         println!("cargo:rerun-if-changed=build.rs");
 
