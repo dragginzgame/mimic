@@ -10,4 +10,4 @@ use crate::design::{base::validator, prelude::*};
     item(prim = "Text"),
     ty(validator(path = "validator::iso::Iso3166_1A2"))
 )]
-pub struct Code {}
+pub struct Country {}
