@@ -1,6 +1,5 @@
 pub mod case;
 pub mod color;
-pub mod iso;
 pub mod len;
 
 use crate::{core::traits::Validator, design::prelude::*};
