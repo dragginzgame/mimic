@@ -20,6 +20,7 @@ num-traits = { workspace = true }
 remain = { workspace = true }
 rust_decimal = { workspace = true }
 serde = { workspace = true }
+phonenumber = { workspace = true }
 serde_bytes = { workspace = true }
 thiserror = { workspace = true }
 ulid = { workspace = true }

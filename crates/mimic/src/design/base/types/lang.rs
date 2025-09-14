@@ -8,7 +8,7 @@ use crate::design::{base::validator, prelude::*};
 #[newtype(
     primitive = "Text",
     item(prim = "Text"),
-    ty(validator(path = "validator::iso::Iso639_1"))
+    ty(validator(path = "validator::intl::iso::Iso639_1"))
 )]
 pub struct Code {}
 

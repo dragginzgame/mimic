@@ -2,12 +2,22 @@ use crate::design::{base::validator, prelude::*};
 
 ///
 /// Country
-/// ISO 3166-1 country codes
 ///
 
 #[newtype(
     primitive = "Text",
     item(prim = "Text"),
-    ty(validator(path = "validator::iso::Iso3166_1A2"))
+    ty(validator(path = "validator::intl::iso::Iso3166_1A2"))
 )]
 pub struct Country {}
+
+///
+/// PhoneNumber
+///
+
+#[newtype(
+    primitive = "Text",
+    item(prim = "Text"),
+    ty(validator(path = "validator::intl::phone::E164PhoneNumber"))
+)]
+pub struct PhoneNumber {}
