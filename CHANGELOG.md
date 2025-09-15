@@ -5,7 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.19.11] - 2025-09-14
+## [0.19.13] = 2025-09-15
+- pinned serde to an older version
+
+## [0.19.12] - 2025-09-14
 - added more validation to the ISO validators and added 3166
 - added the phonenumber crate for phone number validation, split iso into intl/iso
 
