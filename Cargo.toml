@@ -27,7 +27,7 @@ ctor = "0.5"
 darling = "0.21"
 derive_more = { version = "2.0", default-features = false, features = ["full"] }
 ic-cdk = "0.18.7"
-icu = { git = "ssh://git@github.com/dragginzgame/icu.git", tag = "v0.7.5" }
+icu = { git = "ssh://git@github.com/dragginzgame/icu.git", tag = "v0.8.0" }
 mimic = { path = "crates/mimic" }
 mimic_build = { path = "crates/mimic_build" }
 mimic_common = { path = "crates/mimic_common" }
@@ -42,7 +42,7 @@ rust_decimal = { version = "1.37", default-features = false, features = [
     "serde",
     "maths",
 ] }
-serde = { version = "=1.0.219", default-features = false }
+serde = { version = "1.0", default-features = false }
 serde_bytes = "0.11"
 syn = "2.0"
 test_canister = { path = "crates/mimic_tests/canister" }
