@@ -21,6 +21,8 @@ fi
 
 # Auto-format before checks
 cargo fmt --all
+cargo sort
+cargo sort-derives
 
 # Stage any formatting changes so they are included in the commit
 if ! git diff --quiet; then

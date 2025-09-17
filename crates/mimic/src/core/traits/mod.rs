@@ -1,3 +1,11 @@
+#[macro_use]
+mod macros;
+mod sanitize;
+mod validate;
+
+pub use sanitize::*;
+pub use validate::*;
+
 // re-exports of other traits
 // for the standard traits::X pattern
 pub use icu::cdk::structures::storable::Storable;
@@ -5,7 +13,6 @@ pub use num_traits::{FromPrimitive as NumFromPrimitive, NumCast, ToPrimitive as 
 pub use serde::{Deserialize, Serialize, de::DeserializeOwned};
 pub use std::{
     cmp::{Eq, Ordering, PartialEq},
-    collections::{HashMap, HashSet},
     convert::{AsRef, From, Into},
     default::Default,
     fmt::{Debug, Display},
@@ -16,7 +23,6 @@ pub use std::{
 };
 
 use crate::{
-    common::error::ErrorTree,
     core::{
         Key, Value,
         types::Ulid,
@@ -25,29 +31,7 @@ use crate::{
     db::{Db, service::EntityService},
     schema::node::Index,
 };
-
-///
-/// MACROS
-///
-
-// impl_primitive
-#[macro_export]
-macro_rules! impl_primitive {
-    ($trait:ident) => {
-        impl $trait for i8 {}
-        impl $trait for i16 {}
-        impl $trait for i32 {}
-        impl $trait for i64 {}
-        impl $trait for u8 {}
-        impl $trait for u16 {}
-        impl $trait for u32 {}
-        impl $trait for u64 {}
-        impl $trait for f32 {}
-        impl $trait for f64 {}
-        impl $trait for bool {}
-        impl $trait for String {}
-    };
-}
+use std::collections::{HashMap, HashSet};
 
 ///
 /// KIND TRAITS
@@ -349,62 +333,6 @@ macro_rules! impl_primitive_type_view {
 }
 
 impl_primitive_type_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
-
-///
-/// Validate
-///
-
-pub trait Validate: ValidateAuto + ValidateCustom {}
-
-impl<T> Validate for T where T: ValidateAuto + ValidateCustom {}
-
-///
-/// ValidateAuto
-///
-/// derived code that is used to generate the validation rules for a type and
-/// its children, via schema validation rules
-///
-/// this shouldn't be used with primitive types, it's only really for validation
-/// rules put in by macros
-///
-
-pub trait ValidateAuto {
-    fn validate_self(&self) -> Result<(), ErrorTree> {
-        Ok(())
-    }
-
-    fn validate_children(&self) -> Result<(), ErrorTree> {
-        Ok(())
-    }
-}
-
-impl<T: ValidateAuto> ValidateAuto for Box<T> {}
-impl<T: ValidateAuto> ValidateAuto for Option<T> {}
-impl<T: ValidateAuto> ValidateAuto for Vec<T> {}
-impl<T: ValidateAuto, S> ValidateAuto for HashSet<T, S> {}
-impl<K: ValidateAuto, V: ValidateAuto, S> ValidateAuto for HashMap<K, V, S> {}
-
-impl_primitive!(ValidateAuto);
-
-///
-/// ValidateCustom
-///
-/// custom validation behaviour that can be added to any type
-///
-
-pub trait ValidateCustom {
-    fn validate_custom(&self) -> Result<(), ErrorTree> {
-        Ok(())
-    }
-}
-
-impl<T: ValidateCustom> ValidateCustom for Box<T> {}
-impl<T: ValidateCustom> ValidateCustom for Option<T> {}
-impl<T: ValidateCustom> ValidateCustom for Vec<T> {}
-impl<T: ValidateCustom, S> ValidateCustom for HashSet<T, S> {}
-impl<K: ValidateCustom, V: ValidateCustom, S> ValidateCustom for HashMap<K, V, S> {}
-
-impl_primitive!(ValidateCustom);
 
 ///
 /// Validator

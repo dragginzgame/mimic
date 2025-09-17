@@ -21,6 +21,20 @@ impl ErrorTree {
         Self::default()
     }
 
+    pub fn collect<I>(iter: I) -> Result<(), Self>
+    where
+        I: IntoIterator<Item = Result<(), Self>>,
+    {
+        let mut errs = Self::new();
+        for res in iter {
+            if let Err(e) = res {
+                errs.merge(e);
+            }
+        }
+
+        errs.result()
+    }
+
     // add
     // add an error message to the current level
     pub fn add<M: ToString>(&mut self, message: M) {
