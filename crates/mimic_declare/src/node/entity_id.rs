@@ -2,7 +2,7 @@ use crate::{
     imp::TraitStrategy,
     node::Def,
     schema_traits::{Trait, TraitList, Traits},
-    traits::{HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart},
+    traits::{HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart},
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
@@ -25,9 +25,9 @@ pub struct EntityId {
     pub traits: Traits,
 }
 
-impl HasIdent for EntityId {
-    fn ident(&self) -> Ident {
-        self.def.ident.clone()
+impl HasDef for EntityId {
+    fn def(&self) -> &Def {
+        &self.def
     }
 }
 
@@ -65,7 +65,7 @@ impl HasType for EntityId {}
 
 impl HasTypePart for EntityId {
     fn type_part(&self) -> TokenStream {
-        let ident = self.ident();
+        let ident = self.def.ident();
         let keys = self.keys.iter().map(ToTokens::to_token_stream);
 
         quote! {

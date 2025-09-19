@@ -4,15 +4,13 @@ use crate::{
     node::{Arg, Def, Item, Type},
     schema_traits::{Trait, TraitList, Traits},
     traits::{
-        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
-        SchemaNodeKind,
+        HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart, SchemaNodeKind,
     },
 };
 use darling::FromMeta;
 use mimic_schema::types::Primitive;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::Ident;
 
 ///
 /// Newtype
@@ -36,11 +34,12 @@ pub struct Newtype {
     pub traits: Traits,
 }
 
-impl HasIdent for Newtype {
-    fn ident(&self) -> Ident {
-        self.def.ident.clone()
+impl HasDef for Newtype {
+    fn def(&self) -> &Def {
+        &self.def
     }
 }
+
 impl HasSchema for Newtype {
     fn schema_node_kind() -> SchemaNodeKind {
         SchemaNodeKind::Newtype
@@ -131,7 +130,7 @@ impl HasType for Newtype {}
 
 impl HasTypePart for Newtype {
     fn type_part(&self) -> TokenStream {
-        let ident = self.ident();
+        let ident = self.def.ident();
         let item = &self.item.type_part();
 
         quote! {

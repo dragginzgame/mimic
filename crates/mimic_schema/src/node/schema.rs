@@ -2,7 +2,8 @@ use crate::{
     SchemaError,
     node::{
         Canister, Constant, Def, Entity, Enum, EnumValue, List, MacroNode, Map, Newtype, NodeError,
-        Record, Selector, Set, Store, Tuple, TypeNode, ValidateNode, Validator, VisitableNode,
+        Record, Sanitizer, Selector, Set, Store, Tuple, TypeNode, ValidateNode, Validator,
+        VisitableNode,
     },
     visit::Visitor,
 };
@@ -25,6 +26,7 @@ pub enum SchemaNode {
     Map(Map),
     Newtype(Newtype),
     Record(Record),
+    Sanitizer(Sanitizer),
     Selector(Selector),
     Set(Set),
     Store(Store),
@@ -62,6 +64,7 @@ impl SchemaNode {
             Self::Map(n) => &n.def,
             Self::Newtype(n) => &n.def,
             Self::Record(n) => &n.def,
+            Self::Sanitizer(n) => &n.def,
             Self::Selector(n) => &n.def,
             Self::Set(n) => &n.def,
             Self::Store(n) => &n.def,
@@ -83,6 +86,7 @@ impl MacroNode for SchemaNode {
             Self::Map(n) => n.as_any(),
             Self::Newtype(n) => n.as_any(),
             Self::Record(n) => n.as_any(),
+            Self::Sanitizer(n) => n.as_any(),
             Self::Selector(n) => n.as_any(),
             Self::Set(n) => n.as_any(),
             Self::Store(n) => n.as_any(),
@@ -106,6 +110,7 @@ impl VisitableNode for SchemaNode {
             Self::Map(n) => n.accept(v),
             Self::Newtype(n) => n.accept(v),
             Self::Record(n) => n.accept(v),
+            Self::Sanitizer(n) => n.accept(v),
             Self::Selector(n) => n.accept(v),
             Self::Set(n) => n.accept(v),
             Self::Store(n) => n.accept(v),
@@ -156,49 +161,25 @@ impl Schema {
         Ok(node)
     }
 
-    // get_node_as
-    #[must_use]
-    pub fn get_node_as<'a, T: 'static>(&'a self, path: &str) -> Option<&'a T> {
-        self.nodes
-            .get(path)
-            .and_then(|node| node.as_any().downcast_ref::<T>())
-    }
+    // cast_node
+    pub fn cast_node<'a, T: 'static>(&'a self, path: &str) -> Result<&'a T, SchemaError> {
+        let node = self.try_get_node(path)?;
 
-    // try_get_node_as
-    pub fn try_get_node_as<'a, T: 'static>(&'a self, path: &str) -> Result<&'a T, SchemaError> {
-        let node = self
-            .get_node_as(path)
-            .ok_or_else(|| NodeError::PathNotFound(path.to_string()))?;
-
-        Ok(node)
+        node.as_any()
+            .downcast_ref::<T>()
+            .ok_or_else(|| NodeError::IncorrectNodeType(path.to_string()).into())
     }
 
     // check_node_as
     pub fn check_node_as<T: 'static>(&self, path: &str) -> Result<(), SchemaError> {
-        self.try_cast_node::<T>(path).map(|_| ())
-    }
-
-    // try_cast_node
-    // attempts to downcast the node to the specified type `T` and returns Result
-    pub fn try_cast_node<'a, T: 'static>(&'a self, path: &str) -> Result<&'a T, SchemaError> {
-        let Some(node) = self.nodes.get(path) else {
-            return Err(NodeError::PathNotFound(path.to_string()))?;
-        };
-
-        if let Some(typed) = node.as_any().downcast_ref::<T>() {
-            Ok(typed)
-        } else {
-            Err(NodeError::IncorrectNodeType(path.to_string()))?
-        }
+        self.cast_node::<T>(path).map(|_| ())
     }
 
     // get_nodes
-    pub fn get_nodes<T: 'static>(&'_ self) -> impl Iterator<Item = (&'_ str, &'_ T)> + '_ {
-        self.nodes.iter().filter_map(|(key, node)| {
-            node.as_any()
-                .downcast_ref::<T>()
-                .map(|node| (key.as_str(), node))
-        })
+    pub fn get_nodes<T: 'static>(&self) -> impl Iterator<Item = (&str, &T)> {
+        self.nodes
+            .iter()
+            .filter_map(|(key, node)| node.as_any().downcast_ref::<T>().map(|n| (key.as_str(), n)))
     }
 
     // get_node_values

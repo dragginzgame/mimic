@@ -16,7 +16,7 @@ pub struct PartialEqTrait {}
 
 impl Imp<Newtype> for PartialEqTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
-        let ident = &node.def.ident;
+        let ident = &node.def.ident();
         let prim = &node.primitive.as_type();
 
         let tokens = quote! {

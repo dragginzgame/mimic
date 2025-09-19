@@ -1,6 +1,6 @@
 use crate::core::{
     Value,
-    traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldValue, Sanitize, TypeView, ValidateAuto, ValidateCustom, Visitable},
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -30,6 +30,8 @@ impl FieldValue for Unit {
         Value::Unit
     }
 }
+
+impl Sanitize for Unit {}
 
 impl TypeView for Unit {
     type View = Self;

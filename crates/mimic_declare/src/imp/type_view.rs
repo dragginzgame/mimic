@@ -1,7 +1,7 @@
 use crate::{
     imp::{Imp, Implementor, Trait, TraitStrategy},
     node::{Entity, Enum, EnumValue, FieldList, List, Map, Newtype, Record, Set, Tuple},
-    traits::{HasIdent, HasType, HasTypePart},
+    traits::{HasDef, HasType, HasTypePart},
 };
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
@@ -23,7 +23,7 @@ impl Imp<Entity> for TypeViewTrait {
 
         // tokens
         let q = field_list(view_ident, &node.fields);
-        let tokens = Implementor::new(node.ident(), Trait::TypeView)
+        let tokens = Implementor::new(node.def(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
@@ -88,7 +88,7 @@ impl Imp<Enum> for TypeViewTrait {
         };
 
         // tokens
-        let tokens = Implementor::new(node.ident(), Trait::TypeView)
+        let tokens = Implementor::new(node.def(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
@@ -139,7 +139,7 @@ impl Imp<EnumValue> for TypeViewTrait {
         };
 
         // tokens
-        let tokens = Implementor::new(node.ident(), Trait::TypeView)
+        let tokens = Implementor::new(node.def(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
@@ -157,7 +157,7 @@ impl Imp<List> for TypeViewTrait {
 
         // tokens
         let q = quote_typeview_linear(view_ident);
-        let tokens = Implementor::new(node.ident(), Trait::TypeView)
+        let tokens = Implementor::new(node.def(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
@@ -177,7 +177,7 @@ impl Imp<Map> for TypeViewTrait {
 
         // tokens
         let q = quote_typeview_map(view_ident, &quote!(#key), &quote!(#value));
-        let tokens = Implementor::new(node.ident(), Trait::TypeView)
+        let tokens = Implementor::new(node.def(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
@@ -220,7 +220,7 @@ impl Imp<Newtype> for TypeViewTrait {
         };
 
         // tokens
-        let tokens = Implementor::new(node.ident(), Trait::TypeView)
+        let tokens = Implementor::new(node.def(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
@@ -237,7 +237,7 @@ impl Imp<Record> for TypeViewTrait {
         let view_ident = &node.view_ident();
         let q = field_list(view_ident, &node.fields);
 
-        let tokens = Implementor::new(node.ident(), Trait::TypeView)
+        let tokens = Implementor::new(node.def(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
@@ -254,7 +254,7 @@ impl Imp<Set> for TypeViewTrait {
         let view_ident = &node.view_ident();
 
         let q = quote_typeview_linear(view_ident);
-        let tokens = Implementor::new(node.ident(), Trait::TypeView)
+        let tokens = Implementor::new(node.def(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 
@@ -268,7 +268,7 @@ impl Imp<Set> for TypeViewTrait {
 
 impl Imp<Tuple> for TypeViewTrait {
     fn strategy(node: &Tuple) -> Option<TraitStrategy> {
-        let ident = node.ident();
+        let ident = node.def.ident();
         let view_ident = node.view_ident();
 
         let indices: Vec<_> = (0..node.values.len()).collect();
@@ -303,7 +303,7 @@ impl Imp<Tuple> for TypeViewTrait {
             }
         };
 
-        let tokens = Implementor::new(ident, Trait::TypeView)
+        let tokens = Implementor::new(node.def(), Trait::TypeView)
             .set_tokens(q)
             .to_token_stream();
 

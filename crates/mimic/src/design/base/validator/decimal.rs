@@ -1,17 +1,24 @@
 use crate::{core::traits::Validator, design::prelude::*};
-use num_traits::NumCast;
+use std::convert::TryInto;
 
 ///
 /// MaxDecimalPlaces
 ///
 
-#[validator(fields(field(name = "target", value(item(prim = "Nat32")))))]
-pub struct MaxDecimalPlaces {}
+#[validator]
+pub struct MaxDecimalPlaces {
+    target: u32,
+}
 
 impl MaxDecimalPlaces {
-    pub fn new<N: NumCast>(target: N) -> Self {
+    /// Create a new validator with the given maximum number of decimal places.
+    pub fn new<N>(target: N) -> Self
+    where
+        N: TryInto<u32>,
+        N::Error: std::fmt::Debug,
+    {
         Self {
-            target: NumCast::from(target).expect("valid numeric cast"),
+            target: target.try_into().expect("invalid number of decimal places"),
         }
     }
 }
@@ -21,9 +28,11 @@ impl Validator<Decimal> for MaxDecimalPlaces {
         if n.scale() <= self.target {
             Ok(())
         } else {
+            let plural = if self.target == 1 { "" } else { "s" };
+
             Err(format!(
-                "{n} must not have more than {} decimal place(s)",
-                self.target
+                "{n} must not have more than {} decimal place{}",
+                self.target, plural
             ))
         }
     }

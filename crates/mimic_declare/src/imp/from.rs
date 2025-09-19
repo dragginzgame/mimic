@@ -1,7 +1,7 @@
 use crate::{
     imp::{Imp, Implementor, Trait, TraitStrategy},
     node::{Entity, Enum, EnumValue, List, Map, Newtype, Record, Set, Tuple},
-    traits::{HasIdent, HasType, HasTypePart},
+    traits::{HasDef, HasType, HasTypePart},
 };
 use quote::{ToTokens, quote};
 
@@ -58,7 +58,7 @@ impl Imp<List> for FromTrait {
             }
         };
 
-        let tokens = Implementor::new(node.ident(), Trait::From)
+        let tokens = Implementor::new(node.def(), Trait::From)
             .set_tokens(q)
             .add_impl_constraint(quote!(I: Into<#item>))
             .add_impl_generic(quote!(I))
@@ -87,7 +87,7 @@ impl Imp<Map> for FromTrait {
             }
         };
 
-        let tokens = Implementor::new(node.ident(), Trait::From)
+        let tokens = Implementor::new(node.def(), Trait::From)
             .set_tokens(q)
             .add_impl_constraint(quote!(IK: Into<#key>))
             .add_impl_constraint(quote!(IV: Into<#value>))
@@ -114,7 +114,7 @@ impl Imp<Newtype> for FromTrait {
             }
         };
 
-        let tokens = Implementor::new(node.ident(), Trait::From)
+        let tokens = Implementor::new(node.def(), Trait::From)
             .set_tokens(q)
             .add_impl_constraint(quote!(T: Into<#item>))
             .add_impl_generic(quote!(T))
@@ -152,7 +152,7 @@ impl Imp<Set> for FromTrait {
             }
         };
 
-        let tokens = Implementor::new(node.ident(), Trait::From)
+        let tokens = Implementor::new(node.def(), Trait::From)
             .set_tokens(q)
             .add_impl_constraint(quote!(I: Into<#item>))
             .add_impl_generic(quote!(I))
@@ -174,9 +174,8 @@ impl Imp<Tuple> for FromTrait {
 }
 
 /// from_type_view
-fn from_type_view(m: &impl HasType) -> TraitStrategy {
-    let ident = m.ident();
-    let view_ident = m.view_ident();
+fn from_type_view(node: &impl HasType) -> TraitStrategy {
+    let view_ident = node.view_ident();
 
     let q = quote! {
         fn from(view: #view_ident) -> Self {
@@ -184,7 +183,7 @@ fn from_type_view(m: &impl HasType) -> TraitStrategy {
         }
     };
 
-    let tokens = Implementor::new(ident, Trait::From)
+    let tokens = Implementor::new(node.def(), Trait::From)
         .set_tokens(q)
         .add_trait_generic(quote!(#view_ident))
         .to_token_stream();

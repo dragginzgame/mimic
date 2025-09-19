@@ -16,7 +16,7 @@ pub struct IntoTrait {}
 
 impl Imp<EntityId> for IntoTrait {
     fn strategy(node: &EntityId) -> Option<TraitStrategy> {
-        let ident = &node.def.ident;
+        let ident = &node.def.ident();
 
         // into ulid
         let tokens = quote! {
@@ -37,7 +37,7 @@ impl Imp<EntityId> for IntoTrait {
 
 impl Imp<Selector> for IntoTrait {
     fn strategy(node: &Selector) -> Option<TraitStrategy> {
-        let ident = &node.def.ident;
+        let ident = &node.def.ident();
         let target = &node.target;
 
         // arms

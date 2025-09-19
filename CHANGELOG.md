@@ -5,10 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.20.0] - Return of the Sanitizer
+## [0.20.3] - Return of the Sanitizer
 - serde / candid issue fixed
 - moved validate traits to separate file and fixed a bug with Box, Vec, Option etc.
-- but i have to emergency push so sanitizer not working yet
+- changed numeric validators to use Clone instead of Copy
 
 ## [0.19.13] - 2025-09-15
 - pinned serde to an older version

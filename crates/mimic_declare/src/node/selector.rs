@@ -4,8 +4,7 @@ use crate::{
     node::{Arg, Def},
     schema_traits::{Trait, TraitList, Traits},
     traits::{
-        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
-        SchemaNodeKind,
+        HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart, SchemaNodeKind,
     },
 };
 use darling::FromMeta;
@@ -29,9 +28,9 @@ pub struct Selector {
     pub variants: Vec<SelectorVariant>,
 }
 
-impl HasIdent for Selector {
-    fn ident(&self) -> Ident {
-        self.def.ident.clone()
+impl HasDef for Selector {
+    fn def(&self) -> &Def {
+        &self.def
     }
 }
 
@@ -80,7 +79,7 @@ impl HasType for Selector {}
 
 impl HasTypePart for Selector {
     fn type_part(&self) -> TokenStream {
-        let ident = self.ident();
+        let ident = self.def.ident();
         let variants = &self.variants;
 
         quote! {

@@ -72,7 +72,7 @@ impl ValidateNode for Entity {
         }
 
         // store
-        match schema.try_get_node_as::<Store>(self.store) {
+        match schema.cast_node::<Store>(self.store) {
             Ok(store) if !matches!(store.ty, StoreType::Data) => {
                 err!(errs, "store is not type Data");
             }

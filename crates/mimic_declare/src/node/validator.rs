@@ -1,15 +1,13 @@
 use crate::{
-    node::{Def, FieldList},
+    node::Def,
     schema_traits::{Trait, TraitList, Traits},
     traits::{
-        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
-        SchemaNodeKind,
+        HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart, SchemaNodeKind,
     },
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::Ident;
 
 ///
 /// Validator
@@ -19,14 +17,11 @@ use syn::Ident;
 pub struct Validator {
     #[darling(default, skip)]
     pub def: Def,
-
-    #[darling(default)]
-    pub fields: FieldList,
 }
 
-impl HasIdent for Validator {
-    fn ident(&self) -> Ident {
-        self.def.ident.clone()
+impl HasDef for Validator {
+    fn def(&self) -> &Def {
+        &self.def
     }
 }
 
@@ -39,12 +34,10 @@ impl HasSchema for Validator {
 impl HasSchemaPart for Validator {
     fn schema_part(&self) -> TokenStream {
         let def = self.def.schema_part();
-        let fields = self.fields.schema_part();
 
         quote! {
             ::mimic::schema::node::Validator {
                 def: #def,
-                fields: #fields,
             }
         }
     }
@@ -63,14 +56,9 @@ impl HasType for Validator {}
 
 impl HasTypePart for Validator {
     fn type_part(&self) -> TokenStream {
-        let Def { ident, .. } = &self.def;
-        let fields = self.fields.type_part();
+        let item = &self.def.item;
 
-        quote! {
-            pub struct #ident {
-                #fields
-            }
-        }
+        quote!(#item)
     }
 }
 

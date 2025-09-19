@@ -1,7 +1,7 @@
 use crate::{
     imp::{Imp, Implementor, Trait, TraitStrategy},
     node::EnumValue,
-    traits::HasIdent,
+    traits::HasDef,
 };
 use quote::{ToTokens, quote};
 
@@ -38,7 +38,7 @@ impl Imp<EnumValue> for EnumValueKindTrait {
             }
         };
 
-        let tokens = Implementor::new(node.ident(), Trait::EnumValueKind)
+        let tokens = Implementor::new(node.def(), Trait::EnumValueKind)
             .set_tokens(q)
             .to_token_stream();
 

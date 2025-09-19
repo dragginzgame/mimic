@@ -1,7 +1,9 @@
 use crate::{
     ThisError,
     core::{
-        traits::{FieldValue, Storable, TypeView, ValidateAuto, ValidateCustom, Visitable},
+        traits::{
+            FieldValue, Sanitize, Storable, TypeView, ValidateAuto, ValidateCustom, Visitable,
+        },
         value::Value,
     },
 };
@@ -141,6 +143,8 @@ impl PartialEq<Principal> for WrappedPrincipal {
         *self == other.0
     }
 }
+
+impl Sanitize for Principal {}
 
 impl Storable for Principal {
     const BOUND: Bound = Bound::Bounded {

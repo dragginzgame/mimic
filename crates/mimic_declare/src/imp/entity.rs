@@ -1,7 +1,7 @@
 use crate::{
     imp::{Imp, Implementor, Trait, TraitStrategy},
     node::{Entity, Index},
-    traits::{HasIdent, HasSchemaPart},
+    traits::{HasDef, HasSchemaPart},
 };
 use mimic_common::utils::case::{Case, Casing};
 use proc_macro2::{Ident, TokenStream};
@@ -49,7 +49,7 @@ impl Imp<Entity> for EntityKindTrait {
         // impls
         q.extend(key(node));
 
-        let tokens = Implementor::new(node.ident(), Trait::EntityKind)
+        let tokens = Implementor::new(&node.def, Trait::EntityKind)
             .set_tokens(q)
             .to_token_stream();
 
@@ -81,8 +81,6 @@ pub struct EntityLifecycleTrait;
 
 impl Imp<Entity> for EntityLifecycleTrait {
     fn strategy(node: &Entity) -> Option<TraitStrategy> {
-        let ident = node.ident();
-
         let q = quote! {
             fn touch_created(&mut self, now: u64) {
                 self.created_at = now.into();
@@ -94,7 +92,7 @@ impl Imp<Entity> for EntityLifecycleTrait {
             }
         };
 
-        let tokens = Implementor::new(ident, Trait::EntityLifecycle)
+        let tokens = Implementor::new(node.def(), Trait::EntityLifecycle)
             .set_tokens(q)
             .to_token_stream();
 

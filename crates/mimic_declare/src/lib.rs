@@ -36,17 +36,14 @@ macro_rules! macro_node {
                     }
 
                     // build def
+                    let debug = item.attrs.iter().any(|attr| attr.path().is_ident("debug"));
                     let mut node = <$node_type>::from_list(&args).unwrap();
-                    node.def = Def {
-                        comments,
-                        ident: item.ident.clone(),
-                    };
+                    node.def = Def::new(item, comments);
 
                     // quote
                     let q = quote!(#node);
 
                     // Check if the `#[debug]` attribute is present
-                    let debug = item.attrs.iter().any(|attr| attr.path().is_ident("debug"));
                     if debug {
                         quote! {
                             compile_error!(stringify! { #q });
@@ -72,6 +69,7 @@ macro_node!(list, node::List);
 macro_node!(map, node::Map);
 macro_node!(newtype, node::Newtype);
 macro_node!(record, node::Record);
+macro_node!(sanitizer, node::Sanitizer);
 macro_node!(selector, node::Selector);
 macro_node!(set, node::Set);
 macro_node!(store, node::Store);

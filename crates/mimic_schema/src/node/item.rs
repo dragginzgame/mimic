@@ -77,8 +77,8 @@ impl ValidateNode for Item {
             }
 
             // Step 1: Ensure the relation path exists and is an Entity
-            match schema.get_node_as::<Entity>(relation) {
-                Some(entity) => {
+            match schema.cast_node::<Entity>(relation) {
+                Ok(entity) => {
                     // Step 2: Get target of the relation entity (usually from its primary key field)
                     let primary_field = entity.get_pk_field();
                     let relation_target = &primary_field.value.item.target;
@@ -93,7 +93,7 @@ impl ValidateNode for Item {
                         );
                     }
                 }
-                None => {
+                Err(_) => {
                     err!(errs, "relation entity '{relation}' not found");
                 }
             }
@@ -101,7 +101,7 @@ impl ValidateNode for Item {
 
         // selector
         if let Some(selector) = &self.selector
-            && schema.get_node_as::<Selector>(selector).is_none()
+            && schema.cast_node::<Selector>(selector).is_ok()
         {
             err!(errs, "selector path '{selector}' not found");
         }

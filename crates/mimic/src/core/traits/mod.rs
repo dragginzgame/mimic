@@ -2,9 +2,11 @@
 mod macros;
 mod sanitize;
 mod validate;
+mod visitable;
 
 pub use sanitize::*;
 pub use validate::*;
+pub use visitable::*;
 
 // re-exports of other traits
 // for the standard traits::X pattern
@@ -23,15 +25,10 @@ pub use std::{
 };
 
 use crate::{
-    core::{
-        Key, Value,
-        types::Ulid,
-        visit::{Visitor, perform_visit},
-    },
+    core::{Key, Value, types::Ulid},
     db::{Db, service::EntityService},
     schema::node::Index,
 };
-use std::collections::{HashMap, HashSet};
 
 ///
 /// KIND TRAITS
@@ -113,7 +110,16 @@ pub trait StoreKind: Kind {
 ///
 
 pub trait TypeKind:
-    Kind + Clone + Default + Serialize + DeserializeOwned + Validate + Visitable + PartialEq + TypeView
+    Kind
+    + Clone
+    + Default
+    + Serialize
+    + DeserializeOwned
+    + Sanitize
+    + Validate
+    + Visitable
+    + PartialEq
+    + TypeView
 {
 }
 
@@ -125,6 +131,7 @@ impl<T> TypeKind for T where
         + PartialEq
         + Serialize
         + TypeView
+        + Sanitize
         + Validate
         + Visitable
 {
@@ -335,6 +342,16 @@ macro_rules! impl_primitive_type_view {
 impl_primitive_type_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
 
 ///
+/// Sanitizer
+/// transforms a value into a sanitized version
+///
+
+pub trait Sanitizer<T: ?Sized> {
+    /// Takes ownership of `value` and returns a sanitized version.
+    fn sanitize(&self, value: T) -> T;
+}
+
+///
 /// Validator
 /// allows a node to validate different types of primitives
 ///
@@ -342,58 +359,3 @@ impl_primitive_type_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
 pub trait Validator<T: ?Sized> {
     fn validate(&self, value: &T) -> Result<(), String>;
 }
-
-///
-/// Visitable
-///
-
-pub trait Visitable: Validate {
-    fn drive(&self, _: &mut dyn Visitor) {}
-    fn drive_mut(&mut self, _: &mut dyn Visitor) {}
-}
-
-impl<T: Visitable> Visitable for Option<T> {
-    fn drive(&self, visitor: &mut dyn crate::core::visit::Visitor) {
-        if let Some(value) = self {
-            // Do not contribute a path segment for optional wrappers.
-            perform_visit(visitor, value, crate::core::visit::PathSegment::Empty);
-        }
-    }
-}
-
-impl<T: Visitable> Visitable for Vec<T> {
-    fn drive(&self, visitor: &mut dyn crate::core::visit::Visitor) {
-        for (i, value) in self.iter().enumerate() {
-            perform_visit(visitor, value, i);
-        }
-    }
-}
-
-impl<T: Visitable, S> Visitable for HashSet<T, S> {
-    fn drive(&self, visitor: &mut dyn Visitor) {
-        for (i, item) in self.iter().enumerate() {
-            perform_visit(visitor, item, i);
-        }
-    }
-}
-
-impl<K: Visitable, V: Visitable, S> Visitable for HashMap<K, V, S> {
-    fn drive(&self, visitor: &mut dyn Visitor) {
-        for (k, v) in self {
-            perform_visit(visitor, k, "key");
-            perform_visit(visitor, v, "value");
-        }
-    }
-}
-
-impl<T: Visitable> Visitable for Box<T> {
-    fn drive(&self, visitor: &mut dyn Visitor) {
-        (**self).drive(visitor);
-    }
-
-    fn drive_mut(&mut self, visitor: &mut dyn Visitor) {
-        (**self).drive_mut(visitor);
-    }
-}
-
-impl_primitive!(Visitable);

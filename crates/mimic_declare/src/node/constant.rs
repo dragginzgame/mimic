@@ -1,15 +1,13 @@
 use crate::{
     node::{Arg, Def},
     traits::{
-        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
-        SchemaNodeKind,
+        HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart, SchemaNodeKind,
     },
 };
 use darling::FromMeta;
 use mimic_schema::types::ConstantType;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::Ident;
 
 ///
 /// Constant
@@ -24,9 +22,9 @@ pub struct Constant {
     pub value: Arg,
 }
 
-impl HasIdent for Constant {
-    fn ident(&self) -> Ident {
-        self.def.ident.clone()
+impl HasDef for Constant {
+    fn def(&self) -> &Def {
+        &self.def
     }
 }
 
@@ -58,7 +56,7 @@ impl HasType for Constant {}
 
 impl HasTypePart for Constant {
     fn type_part(&self) -> TokenStream {
-        let ident = self.ident();
+        let ident = self.def.ident();
         let ty = &self.ty.as_type();
         let value = &self.value;
 

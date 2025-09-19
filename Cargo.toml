@@ -14,7 +14,7 @@ resolver = "2"
 [workspace.package]
 rust-version = "1.89.0"
 edition = "2024"
-version = "0.19.10"
+version = "0.20.4"
 authors = ["borovan <84897664+borovan@users.noreply.github.com>"]
 description = "A type-safe, embedded ORM and schema system for the Internet Computer"
 categories = ["database", "web-programming", "wasm"]
@@ -27,7 +27,7 @@ ctor = "0.5"
 darling = "0.21"
 derive_more = { version = "2.0", default-features = false, features = ["full"] }
 ic-cdk = "0.18.7"
-icu = { git = "ssh://git@github.com/dragginzgame/icu.git", tag = "v0.9.0" }
+icu = { git = "ssh://git@github.com/dragginzgame/icu.git", tag = "v0.9.3" }
 mimic = { path = "crates/mimic" }
 mimic_build = { path = "crates/mimic_build" }
 mimic_common = { path = "crates/mimic_common" }

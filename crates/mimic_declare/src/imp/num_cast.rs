@@ -1,7 +1,7 @@
 use crate::{
     imp::{Imp, Implementor, Trait, TraitStrategy},
     node::Newtype,
-    traits::{HasIdent, HasTypePart},
+    traits::{HasDef, HasTypePart},
 };
 use quote::{ToTokens, format_ident, quote};
 
@@ -28,7 +28,7 @@ impl Imp<Newtype> for NumCastTrait {
             }
         };
 
-        let tokens = Implementor::new(node.ident(), Trait::NumCast)
+        let tokens = Implementor::new(node.def(), Trait::NumCast)
             .set_tokens(q)
             .to_token_stream();
 
@@ -69,7 +69,7 @@ impl Imp<Newtype> for NumFromPrimitiveTrait {
             });
         }
 
-        let tokens = Implementor::new(node.ident(), Trait::NumFromPrimitive)
+        let tokens = Implementor::new(node.def(), Trait::NumFromPrimitive)
             .set_tokens(q)
             .to_token_stream();
 
@@ -99,7 +99,7 @@ impl Imp<Newtype> for NumToPrimitiveTrait {
             }
         };
 
-        let tokens = Implementor::new(node.ident(), Trait::NumToPrimitive)
+        let tokens = Implementor::new(node.def(), Trait::NumToPrimitive)
             .set_tokens(q)
             .to_token_stream();
 

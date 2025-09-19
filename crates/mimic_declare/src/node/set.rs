@@ -3,14 +3,12 @@ use crate::{
     node::{Def, Item, Type},
     schema_traits::{Trait, TraitList, Traits},
     traits::{
-        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
-        SchemaNodeKind,
+        HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart, SchemaNodeKind,
     },
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::Ident;
 
 ///
 /// Set
@@ -30,9 +28,9 @@ pub struct Set {
     pub traits: Traits,
 }
 
-impl HasIdent for Set {
-    fn ident(&self) -> Ident {
-        self.def.ident.clone()
+impl HasDef for Set {
+    fn def(&self) -> &Def {
+        &self.def
     }
 }
 
@@ -84,7 +82,7 @@ impl HasType for Set {}
 
 impl HasTypePart for Set {
     fn type_part(&self) -> TokenStream {
-        let ident = self.ident();
+        let ident = self.def.ident();
         let item = &self.item.type_part();
 
         quote! {

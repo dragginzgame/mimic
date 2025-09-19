@@ -1,6 +1,6 @@
 use crate::core::{
     Value,
-    traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldValue, Sanitize, TypeView, ValidateAuto, ValidateCustom, Visitable},
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
@@ -71,6 +71,8 @@ impl<const N: usize> From<&[u8; N]> for Blob {
         Self(ByteBuf::from(&bytes[..]))
     }
 }
+
+impl Sanitize for Blob {}
 
 impl TypeView for Blob {
     type View = Self;

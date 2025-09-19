@@ -4,8 +4,7 @@ use crate::{
     node::Def,
     schema_traits::{Trait, TraitList, Traits},
     traits::{
-        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
-        SchemaNodeKind,
+        HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart, SchemaNodeKind,
     },
 };
 use darling::FromMeta;
@@ -29,9 +28,9 @@ pub struct Store {
     pub memory_id: u8,
 }
 
-impl HasIdent for Store {
-    fn ident(&self) -> Ident {
-        self.def.ident.clone()
+impl HasDef for Store {
+    fn def(&self) -> &Def {
+        &self.def
     }
 }
 
@@ -83,10 +82,10 @@ impl HasType for Store {}
 
 impl HasTypePart for Store {
     fn type_part(&self) -> TokenStream {
-        let ident = self.ident();
+        let ident = self.def.ident();
 
         quote! {
-            pub struct #ident {}
+            pub struct #ident;
         }
     }
 }

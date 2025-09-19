@@ -1,7 +1,7 @@
 use crate::{
     imp::{Imp, Implementor, Trait, TraitStrategy},
     node::Entity,
-    traits::HasIdent,
+    traits::HasDef,
 };
 use mimic_schema::types::Cardinality;
 use proc_macro2::Span;
@@ -65,7 +65,7 @@ impl Imp<Entity> for FieldValuesTrait {
             }
         };
 
-        let tokens = Implementor::new(node.ident(), Trait::FieldValues)
+        let tokens = Implementor::new(node.def(), Trait::FieldValues)
             .set_tokens(q)
             .to_token_stream();
 

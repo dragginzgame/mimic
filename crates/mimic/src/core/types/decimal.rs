@@ -1,9 +1,9 @@
 use crate::core::{
-    traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldValue, Sanitize, TypeView, ValidateAuto, ValidateCustom, Visitable},
     value::Value,
 };
 use candid::CandidType;
-use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign, Sum};
+use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Rem, Sub, SubAssign, Sum};
 use num_traits::{FromPrimitive, NumCast, ToPrimitive};
 use rust_decimal::{Decimal as WrappedDecimal, MathematicalOps};
 use serde::{Deserialize, Serialize};
@@ -30,6 +30,7 @@ use std::ops::{Div, Mul};
     Hash,
     Ord,
     PartialOrd,
+    Rem,
     Sub,
     SubAssign,
 )]
@@ -224,6 +225,8 @@ impl ToPrimitive for Decimal {
         self.0.to_f64()
     }
 }
+
+impl Sanitize for Decimal {}
 
 impl TypeView for Decimal {
     type View = Self;

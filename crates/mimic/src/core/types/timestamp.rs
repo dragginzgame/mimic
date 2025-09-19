@@ -1,6 +1,6 @@
 use crate::core::{
     Value,
-    traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldValue, Sanitize, TypeView, ValidateAuto, ValidateCustom, Visitable},
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Display, FromStr, Sub, SubAssign};
@@ -60,6 +60,8 @@ impl From<u64> for Timestamp {
         Self(u)
     }
 }
+
+impl Sanitize for Timestamp {}
 
 impl TypeView for Timestamp {
     type View = Self;

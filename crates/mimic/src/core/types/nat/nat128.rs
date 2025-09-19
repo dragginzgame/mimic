@@ -1,6 +1,6 @@
 use crate::core::{
     Value,
-    traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldValue, Sanitize, TypeView, ValidateAuto, ValidateCustom, Visitable},
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign, Sum};
@@ -76,6 +76,8 @@ impl PartialOrd<Nat128> for u128 {
         self.partial_cmp(&other.0)
     }
 }
+
+impl Sanitize for Nat128 {}
 
 impl Serialize for Nat128 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

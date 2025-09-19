@@ -54,7 +54,7 @@ impl ValidateNode for Index {
         let schema = schema_read();
 
         // store
-        match schema.try_get_node_as::<Store>(self.store) {
+        match schema.cast_node::<Store>(self.store) {
             Ok(store) if !matches!(store.ty, StoreType::Index) => {
                 mimic_common::err!(errs, "store is not type Index");
             }

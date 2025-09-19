@@ -8,7 +8,7 @@ use crate::design::{base::validator, prelude::*};
     primitive = "Text",
     item(prim = "Text"),
     ty(
-        validator(path = "validator::text::len::Range", args(1, 40)),
+        validator(path = "validator::len::Range", args(1, 40)),
         validator(path = "validator::text::case::UpperSnake"),
     )
 )]
@@ -22,7 +22,7 @@ pub struct Constant {}
     primitive = "Text",
     item(prim = "Text"),
     ty(
-        validator(path = "validator::text::len::Range", args(2, 40)),
+        validator(path = "validator::len::Range", args(2, 40)),
         validator(path = "validator::text::case::Snake"),
     )
 )]
@@ -38,7 +38,7 @@ pub struct Field {}
     primitive = "Text",
     item(prim = "Text"),
     ty(
-        validator(path = "validator::text::len::Range", args(2, 64)),
+        validator(path = "validator::len::Range", args(2, 64)),
         validator(path = "validator::text::case::Snake"),
     )
 )]
@@ -52,7 +52,7 @@ pub struct Function {}
     primitive = "Text",
     item(prim = "Text"),
     ty(
-        validator(path = "validator::text::len::Range", args(2, 40)),
+        validator(path = "validator::len::Range", args(2, 40)),
         validator(path = "validator::text::case::Snake"),
     )
 )]
@@ -66,7 +66,7 @@ pub struct Variable {}
     primitive = "Text",
     item(prim = "Text"),
     ty(
-        validator(path = "validator::text::len::Range", args(1, 40)),
+        validator(path = "validator::len::Range", args(1, 40)),
         validator(path = "validator::text::case::UpperCamel"),
     )
 )]

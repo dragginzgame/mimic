@@ -1,7 +1,7 @@
 use crate::{
     imp::{Imp, Implementor, Trait, TraitStrategy},
     node::{Arg, Entity, FieldList, Newtype, Record},
-    traits::HasIdent,
+    traits::HasDef,
 };
 use mimic_schema::types::Cardinality;
 use proc_macro2::TokenStream;
@@ -24,7 +24,7 @@ impl Imp<Entity> for DefaultTrait {
             return Some(TraitStrategy::from_derive(Trait::Default));
         }
 
-        let tokens = Implementor::new(node.ident(), Trait::Default)
+        let tokens = Implementor::new(node.def(), Trait::Default)
             .set_tokens(field_list(&node.fields))
             .to_token_stream();
 
@@ -43,7 +43,7 @@ impl Imp<Record> for DefaultTrait {
             return Some(TraitStrategy::from_derive(Trait::Default));
         }
 
-        let tokens = Implementor::new(node.ident(), Trait::Default)
+        let tokens = Implementor::new(node.def(), Trait::Default)
             .set_tokens(field_list(&node.fields))
             .to_token_stream();
 
@@ -85,7 +85,7 @@ impl Imp<Newtype> for DefaultTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
         let inner = match &node.default {
             Some(arg) => format_default(arg),
-            None => panic!("newtype {} is missing a default value", node.def.ident),
+            None => panic!("newtype {} is missing a default value", node.def.ident()),
         };
 
         // quote
@@ -95,7 +95,7 @@ impl Imp<Newtype> for DefaultTrait {
             }
         };
 
-        let tokens = Implementor::new(node.ident(), Trait::Default)
+        let tokens = Implementor::new(node.def(), Trait::Default)
             .set_tokens(q)
             .to_token_stream();
 

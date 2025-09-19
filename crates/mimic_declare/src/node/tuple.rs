@@ -4,14 +4,12 @@ use crate::{
     node::{Def, Type, Value},
     schema_traits::{Trait, TraitList, Traits},
     traits::{
-        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
-        SchemaNodeKind,
+        HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart, SchemaNodeKind,
     },
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::Ident;
 
 ///
 /// Tuple
@@ -32,9 +30,9 @@ pub struct Tuple {
     pub traits: Traits,
 }
 
-impl HasIdent for Tuple {
-    fn ident(&self) -> Ident {
-        self.def.ident.clone()
+impl HasDef for Tuple {
+    fn def(&self) -> &Def {
+        &self.def
     }
 }
 
@@ -82,7 +80,7 @@ impl HasType for Tuple {}
 
 impl HasTypePart for Tuple {
     fn type_part(&self) -> TokenStream {
-        let ident = self.ident();
+        let ident = self.def.ident();
         let values = self.values.iter().map(HasTypePart::type_part);
 
         quote! {

@@ -1,5 +1,5 @@
 use crate::core::{
-    traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldValue, Sanitize, TypeView, ValidateAuto, ValidateCustom, Visitable},
     types::Principal,
     value::Value,
 };
@@ -116,6 +116,8 @@ impl PartialEq<WrappedSubaccount> for Subaccount {
         &self.0 == other
     }
 }
+
+impl Sanitize for Subaccount {}
 
 impl_storable_bounded!(Subaccount, Subaccount::STORABLE_MAX_SIZE, true);
 

@@ -4,8 +4,7 @@ use crate::{
     node::{Def, Field, FieldList, Index, Type},
     schema_traits::{Trait, TraitList, Traits},
     traits::{
-        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
-        SchemaNodeKind,
+        HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart, SchemaNodeKind,
     },
 };
 use darling::FromMeta;
@@ -49,9 +48,9 @@ impl Entity {
     }
 }
 
-impl HasIdent for Entity {
-    fn ident(&self) -> Ident {
-        self.def.ident.clone()
+impl HasDef for Entity {
+    fn def(&self) -> &Def {
+        &self.def
     }
 }
 
@@ -128,7 +127,7 @@ impl HasType for Entity {}
 
 impl HasTypePart for Entity {
     fn type_part(&self) -> TokenStream {
-        let ident = self.ident();
+        let ident = self.def.ident();
         let fields = self.fields.type_part();
 
         quote! {
@@ -140,7 +139,7 @@ impl HasTypePart for Entity {
 
     fn view_type_part(&self) -> TokenStream {
         let derives = self.view_derives();
-        let ident = self.ident();
+        let ident = self.def.ident();
         let view_ident = self.view_ident();
         let view_field_list = HasTypePart::view_type_part(&self.fields);
 

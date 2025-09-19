@@ -4,7 +4,7 @@ pub mod self_;
 use crate::{
     imp::{Imp, ImpFn, Implementor, Trait, TraitStrategy},
     node::{Entity, Enum, List, Map, Newtype, Record, Set},
-    traits::HasIdent,
+    traits::HasDef,
 };
 use children::ValidateChildrenFn;
 use quote::ToTokens;
@@ -24,7 +24,7 @@ impl Imp<Entity> for ValidateAutoTrait {
     fn strategy(node: &Entity) -> Option<TraitStrategy> {
         let q = ValidateChildrenFn::tokens(node);
 
-        let tokens = Implementor::new(node.ident(), Trait::ValidateAuto)
+        let tokens = Implementor::new(node.def(), Trait::ValidateAuto)
             .set_tokens(q)
             .to_token_stream();
 
@@ -40,7 +40,7 @@ impl Imp<Enum> for ValidateAutoTrait {
     fn strategy(node: &Enum) -> Option<TraitStrategy> {
         let q = ValidateSelfFn::tokens(node);
 
-        let tokens = Implementor::new(node.ident(), Trait::ValidateAuto)
+        let tokens = Implementor::new(node.def(), Trait::ValidateAuto)
             .set_tokens(q)
             .to_token_stream();
 
@@ -56,7 +56,7 @@ impl Imp<List> for ValidateAutoTrait {
     fn strategy(node: &List) -> Option<TraitStrategy> {
         let q = ValidateChildrenFn::tokens(node);
 
-        let tokens = Implementor::new(node.ident(), Trait::ValidateAuto)
+        let tokens = Implementor::new(node.def(), Trait::ValidateAuto)
             .set_tokens(q)
             .to_token_stream();
 
@@ -72,7 +72,7 @@ impl Imp<Map> for ValidateAutoTrait {
     fn strategy(node: &Map) -> Option<TraitStrategy> {
         let q = ValidateChildrenFn::tokens(node);
 
-        let tokens = Implementor::new(node.ident(), Trait::ValidateAuto)
+        let tokens = Implementor::new(node.def(), Trait::ValidateAuto)
             .set_tokens(q)
             .to_token_stream();
 
@@ -88,7 +88,7 @@ impl Imp<Newtype> for ValidateAutoTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
         let q = ValidateChildrenFn::tokens(node);
 
-        let tokens = Implementor::new(node.ident(), Trait::ValidateAuto)
+        let tokens = Implementor::new(node.def(), Trait::ValidateAuto)
             .set_tokens(q)
             .to_token_stream();
 
@@ -104,7 +104,7 @@ impl Imp<Record> for ValidateAutoTrait {
     fn strategy(node: &Record) -> Option<TraitStrategy> {
         let q = ValidateChildrenFn::tokens(node);
 
-        let tokens = Implementor::new(node.ident(), Trait::ValidateAuto)
+        let tokens = Implementor::new(node.def(), Trait::ValidateAuto)
             .set_tokens(q)
             .to_token_stream();
 
@@ -120,7 +120,7 @@ impl Imp<Set> for ValidateAutoTrait {
     fn strategy(node: &Set) -> Option<TraitStrategy> {
         let q = ValidateChildrenFn::tokens(node);
 
-        let tokens = Implementor::new(node.ident(), Trait::ValidateAuto)
+        let tokens = Implementor::new(node.def(), Trait::ValidateAuto)
             .set_tokens(q)
             .to_token_stream();
 

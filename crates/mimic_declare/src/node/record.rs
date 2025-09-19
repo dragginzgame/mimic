@@ -3,14 +3,12 @@ use crate::{
     node::{Def, FieldList, Type},
     schema_traits::{Trait, TraitList, Traits},
     traits::{
-        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
-        SchemaNodeKind,
+        HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart, SchemaNodeKind,
     },
 };
 use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::Ident;
 
 ///
 /// Record
@@ -31,9 +29,9 @@ pub struct Record {
     pub ty: Type,
 }
 
-impl HasIdent for Record {
-    fn ident(&self) -> Ident {
-        self.def.ident.clone()
+impl HasDef for Record {
+    fn def(&self) -> &Def {
+        &self.def
     }
 }
 
@@ -91,7 +89,7 @@ impl HasType for Record {}
 
 impl HasTypePart for Record {
     fn type_part(&self) -> TokenStream {
-        let ident = self.ident();
+        let ident = self.def.ident();
         let fields = self.fields.type_part();
 
         quote! {
@@ -102,7 +100,7 @@ impl HasTypePart for Record {
     }
 
     fn view_type_part(&self) -> TokenStream {
-        let ident = self.ident();
+        let ident = self.def.ident();
         let view_ident = self.view_ident();
         let derives = self.view_derives();
         let view_field_list = &self.fields.view_type_part();

@@ -1,7 +1,7 @@
 use crate::{
     imp::{Imp, Implementor, Trait, TraitStrategy},
     node::{Enum, List, Newtype, Set},
-    traits::HasIdent,
+    traits::HasDef,
 };
 use quote::{ToTokens, quote};
 
@@ -52,7 +52,7 @@ impl Imp<Enum> for FieldValueTrait {
             }
         };
 
-        let tokens = Implementor::new(node.ident(), Trait::FieldValue)
+        let tokens = Implementor::new(node.def(), Trait::FieldValue)
             .set_tokens(q)
             .to_token_stream();
 
@@ -76,7 +76,7 @@ impl Imp<List> for FieldValueTrait {
             }
         };
 
-        let tokens = Implementor::new(node.ident(), Trait::FieldValue)
+        let tokens = Implementor::new(node.def(), Trait::FieldValue)
             .set_tokens(q)
             .to_token_stream();
 
@@ -96,7 +96,7 @@ impl Imp<Newtype> for FieldValueTrait {
             }
         };
 
-        let tokens = Implementor::new(node.ident(), Trait::FieldValue)
+        let tokens = Implementor::new(node.def(), Trait::FieldValue)
             .set_tokens(q)
             .to_token_stream();
 
@@ -120,7 +120,7 @@ impl Imp<Set> for FieldValueTrait {
             }
         };
 
-        let tokens = Implementor::new(node.ident(), Trait::FieldValue)
+        let tokens = Implementor::new(node.def(), Trait::FieldValue)
             .set_tokens(q)
             .to_token_stream();
 

@@ -1,5 +1,5 @@
 use crate::core::{
-    traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldValue, Sanitize, TypeView, ValidateAuto, ValidateCustom, Visitable},
     types::Decimal,
     value::Value,
 };
@@ -139,6 +139,8 @@ impl From<u64> for E8s {
         Self(n)
     }
 }
+
+impl Sanitize for E8s {}
 
 impl TypeView for E8s {
     type View = u64;

@@ -1,7 +1,7 @@
 use crate::{
     imp::{Imp, Implementor, Trait, TraitStrategy},
     node::Store,
-    traits::HasIdent,
+    traits::HasDef,
 };
 use quote::{ToTokens, quote};
 
@@ -20,7 +20,7 @@ impl Imp<Store> for StoreKindTrait {
             type Canister = #canister;
         };
 
-        let tokens = Implementor::new(node.ident(), Trait::StoreKind)
+        let tokens = Implementor::new(node.def(), Trait::StoreKind)
             .set_tokens(q)
             .to_token_stream();
 

@@ -1,80 +1,10 @@
-use crate::{common::error::ErrorTree, core::traits::Visitable};
-
-///
-/// Event
-///
-
-#[derive(Clone, Copy, Debug)]
-pub enum Event {
-    Enter,
-    Exit,
-}
-
-///
-/// PathSegment
-///
-
-#[derive(Debug)]
-pub enum PathSegment {
-    Empty,
-    Field(&'static str),
-    Index(usize),
-}
-
-impl From<&'static str> for PathSegment {
-    fn from(s: &'static str) -> Self {
-        Self::Field(s)
-    }
-}
-
-impl From<usize> for PathSegment {
-    fn from(i: usize) -> Self {
-        Self::Index(i)
-    }
-}
-
-impl From<Option<&'static str>> for PathSegment {
-    fn from(opt: Option<&'static str>) -> Self {
-        match opt {
-            Some(s) if !s.is_empty() => Self::Field(s),
-            _ => Self::Empty,
-        }
-    }
-}
-
-///
-/// Visitor
-/// plus helper functions that allow navigation of the tree in an object-safe way
-///
-
-pub trait Visitor {
-    // nodes
-    fn visit(&mut self, node: &dyn Visitable, event: Event);
-
-    // path
-    fn push(&mut self, _: PathSegment) {}
-    fn pop(&mut self) {}
-}
-
-// perform_visit
-#[inline]
-pub fn perform_visit<S: Into<PathSegment>>(
-    visitor: &mut dyn Visitor,
-    node: &dyn Visitable,
-    seg: S,
-) {
-    let seg = seg.into();
-    let should_push = !matches!(seg, PathSegment::Empty);
-    if should_push {
-        visitor.push(seg);
-    }
-    visitor.visit(node, Event::Enter);
-    node.drive(visitor);
-    visitor.visit(node, Event::Exit);
-    if should_push {
-        visitor.pop();
-    }
-}
+use crate::{
+    common::error::ErrorTree,
+    core::{
+        traits::Visitable,
+        visit::{Event, PathSegment, Visitor},
+    },
+};
 
 ///
 /// ValidateVisitor
@@ -171,12 +101,17 @@ impl Visitor for ValidateVisitor {
     }
 }
 
+///
+/// TESTS
+///
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::core::{
-        traits::{ValidateAuto, ValidateCustom, Visitable},
+        traits::{Sanitize, ValidateAuto, ValidateCustom, Visitable},
         validate::validate,
+        visit::perform_visit,
     };
     use mimic_common::error::ErrorTree;
 
@@ -197,6 +132,7 @@ mod tests {
         }
     }
 
+    impl Sanitize for Leaf {}
     impl Visitable for Leaf {}
 
     // Helper: get flattened errors from validate()
@@ -226,6 +162,7 @@ mod tests {
             nums: Vec<Leaf>,
         }
 
+        impl Sanitize for Container {}
         impl Visitable for Container {
             fn drive(&self, visitor: &mut dyn Visitor) {
                 // Record field key then Vec indices
@@ -252,31 +189,36 @@ mod tests {
             leaf: Leaf,
         }
 
+        impl Sanitize for Inner {}
+        impl ValidateAuto for Inner {}
+        impl ValidateCustom for Inner {}
         impl Visitable for Inner {
             fn drive(&self, visitor: &mut dyn Visitor) {
                 perform_visit(visitor, &self.leaf, "leaf");
             }
         }
-        impl ValidateAuto for Inner {}
-        impl ValidateCustom for Inner {}
 
         // Tuple-like struct with two leaves; use indices "0", "1"
         #[derive(Debug, Default)]
         struct Tup2(Leaf, Leaf);
 
+        impl Sanitize for Tup2 {}
+        impl ValidateAuto for Tup2 {}
+        impl ValidateCustom for Tup2 {}
         impl Visitable for Tup2 {
             fn drive(&self, visitor: &mut dyn Visitor) {
                 perform_visit(visitor, &self.0, 0);
                 perform_visit(visitor, &self.1, 1);
             }
         }
-        impl ValidateAuto for Tup2 {}
-        impl ValidateCustom for Tup2 {}
 
         // Simple map-like wrapper iterating key/value pairs
         #[derive(Debug, Default)]
         struct MyMap(Vec<(String, Leaf)>);
 
+        impl Sanitize for MyMap {}
+        impl ValidateAuto for MyMap {}
+        impl ValidateCustom for MyMap {}
         impl Visitable for MyMap {
             fn drive(&self, visitor: &mut dyn Visitor) {
                 for (_k, v) in &self.0 {
@@ -285,8 +227,6 @@ mod tests {
                 }
             }
         }
-        impl ValidateAuto for MyMap {}
-        impl ValidateCustom for MyMap {}
 
         #[derive(Debug, Default)]
         struct Outer {
@@ -295,6 +235,9 @@ mod tests {
             map: MyMap,
         }
 
+        impl Sanitize for Outer {}
+        impl ValidateAuto for Outer {}
+        impl ValidateCustom for Outer {}
         impl Visitable for Outer {
             fn drive(&self, visitor: &mut dyn Visitor) {
                 perform_visit(visitor, &self.rec, "rec");
@@ -302,8 +245,6 @@ mod tests {
                 perform_visit(visitor, &self.map, "map");
             }
         }
-        impl ValidateAuto for Outer {}
-        impl ValidateCustom for Outer {}
 
         let node = Outer {
             rec: Inner { leaf: Leaf(true) },

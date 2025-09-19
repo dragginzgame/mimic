@@ -1,7 +1,7 @@
 use crate::{
     imp::{Imp, Implementor, Trait, TraitStrategy},
     node::{Entity, Enum, EnumVariant, FieldList, Newtype, Record, Tuple},
-    traits::HasIdent,
+    traits::HasDef,
 };
 use proc_macro2::{Span, TokenStream};
 use quote::{ToTokens, format_ident, quote};
@@ -21,7 +21,7 @@ impl Imp<Entity> for VisitableTrait {
     fn strategy(node: &Entity) -> Option<TraitStrategy> {
         let q = field_list(&node.fields);
 
-        let tokens = Implementor::new(node.ident(), Trait::Visitable)
+        let tokens = Implementor::new(node.def(), Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -49,7 +49,7 @@ impl Imp<Enum> for VisitableTrait {
 
         let q = quote_drive_method(&inner);
 
-        let tokens = Implementor::new(node.ident(), Trait::Visitable)
+        let tokens = Implementor::new(node.def(), Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -69,7 +69,7 @@ impl Imp<Newtype> for VisitableTrait {
 
         let q = quote_drive_method(&inner);
 
-        let tokens = Implementor::new(node.ident(), Trait::Visitable)
+        let tokens = Implementor::new(node.def(), Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -85,7 +85,7 @@ impl Imp<Record> for VisitableTrait {
     fn strategy(node: &Record) -> Option<TraitStrategy> {
         let q = field_list(&node.fields);
 
-        let tokens = Implementor::new(node.ident(), Trait::Visitable)
+        let tokens = Implementor::new(node.def(), Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -112,7 +112,7 @@ impl Imp<Tuple> for VisitableTrait {
 
         let q = quote_drive_method(&inner);
 
-        let tokens = Implementor::new(node.ident(), Trait::Visitable)
+        let tokens = Implementor::new(node.def(), Trait::Visitable)
             .set_tokens(q)
             .to_token_stream();
 

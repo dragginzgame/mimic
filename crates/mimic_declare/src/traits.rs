@@ -1,6 +1,7 @@
 use crate::{
     helper::format_view_ident,
     imp::{Implementor, TraitStrategy},
+    node::Def,
     schema_traits::{Trait, TraitList},
 };
 use mimic_common::utils::case::{Case, Casing};
@@ -89,15 +90,14 @@ pub trait HasMacro: HasSchema + HasTraits + HasType {
     }
 }
 
-impl<T> HasMacro for T where T: HasIdent + HasSchema + HasTraits + HasType + HasTypePart {}
+impl<T> HasMacro for T where T: HasDef + HasSchema + HasTraits + HasType + HasTypePart {}
 
 ///
-/// HasIdent
+/// HasDef
 ///
 
-pub trait HasIdent {
-    /// Returns the primary identifier for the item
-    fn ident(&self) -> Ident;
+pub trait HasDef {
+    fn def(&self) -> &Def;
 }
 
 ///
@@ -105,7 +105,7 @@ pub trait HasIdent {
 /// a schema node that has traits (derives or impls)
 ///
 
-pub trait HasTraits: HasIdent + ToTokens {
+pub trait HasTraits: HasDef + ToTokens {
     /// Returns a list of traits to implement
     fn traits(&self) -> TraitList {
         TraitList::new()
@@ -123,7 +123,8 @@ pub trait HasTraits: HasIdent + ToTokens {
 
     /// Provides a default strategy for built-in traits
     fn default_strategy(&self, tr: Trait) -> Option<TraitStrategy> {
-        let ident = self.ident();
+        let def = self.def();
+        let ident = self.def().ident();
 
         match tr {
             // Generates a `const PATH` string pointing to the module + type name
@@ -132,7 +133,7 @@ pub trait HasTraits: HasIdent + ToTokens {
                     const PATH: &'static str = concat!(module_path!(), "::", stringify!(#ident));
                 };
 
-                let tokens = Implementor::new(ident, tr).set_tokens(q).to_token_stream();
+                let tokens = Implementor::new(def, tr).set_tokens(q).to_token_stream();
 
                 Some(TraitStrategy::from_impl(tokens))
             }
@@ -142,10 +143,11 @@ pub trait HasTraits: HasIdent + ToTokens {
             | Trait::EntityFixture
             | Trait::EntityIdKind
             | Trait::FieldValue
+            | Trait::Sanitize
             | Trait::ValidateAuto
             | Trait::ValidateCustom
             | Trait::Visitable => {
-                let tokens = Implementor::new(ident, tr).to_token_stream();
+                let tokens = Implementor::new(def, tr).to_token_stream();
 
                 Some(TraitStrategy::from_impl(tokens))
             }
@@ -161,13 +163,13 @@ pub trait HasTraits: HasIdent + ToTokens {
 /// an element that can generate schema tokens
 ///
 
-pub trait HasSchema: HasSchemaPart + HasIdent {
+pub trait HasSchema: HasSchemaPart + HasDef {
     fn schema_node_kind() -> SchemaNodeKind {
         unreachable!();
     }
 
     fn schema_const(&self) -> Ident {
-        let ident_s = &self.ident().to_string().to_case(Case::UpperSnake);
+        let ident_s = &self.def().ident().to_string().to_case(Case::UpperSnake);
 
         format_ident!("{ident_s}_CONST")
     }
@@ -213,6 +215,7 @@ pub enum SchemaNodeKind {
     Map,
     Newtype,
     Record,
+    Sanitizer,
     Selector,
     Set,
     Store,
@@ -243,9 +246,9 @@ pub trait HasSchemaPart {
 /// an element that can define a rust type
 ///
 
-pub trait HasType: HasTypePart + HasIdent {
+pub trait HasType: HasTypePart + HasDef {
     fn view_ident(&self) -> Ident {
-        format_view_ident(&self.ident())
+        format_view_ident(&self.def().ident())
     }
 
     fn view_derives(&self) -> TraitList {

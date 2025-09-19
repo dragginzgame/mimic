@@ -38,7 +38,7 @@ impl ValidateNode for Store {
         let schema = schema_read();
 
         // canister
-        if let Err(e) = schema.try_get_node_as::<Canister>(self.canister) {
+        if let Err(e) = schema.cast_node::<Canister>(self.canister) {
             errs.add(e);
         }
 

@@ -10,62 +10,59 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 
 ///
-/// Canister
-/// regardless of the path, the name is used to uniquely identify each canister
+/// Sanitizer
 ///
 
 #[derive(Debug, FromMeta)]
-pub struct Canister {
-    #[darling(skip, default)]
+pub struct Sanitizer {
+    #[darling(default, skip)]
     pub def: Def,
 }
 
-impl HasDef for Canister {
+impl HasDef for Sanitizer {
     fn def(&self) -> &Def {
         &self.def
     }
 }
 
-impl HasSchema for Canister {
+impl HasSchema for Sanitizer {
     fn schema_node_kind() -> SchemaNodeKind {
-        SchemaNodeKind::Canister
+        SchemaNodeKind::Sanitizer
     }
 }
 
-impl HasSchemaPart for Canister {
+impl HasSchemaPart for Sanitizer {
     fn schema_part(&self) -> TokenStream {
         let def = self.def.schema_part();
 
         quote! {
-            ::mimic::schema::node::Canister{
+            ::mimic::schema::node::Sanitizer {
                 def: #def,
             }
         }
     }
 }
 
-impl HasTraits for Canister {
+impl HasTraits for Sanitizer {
     fn traits(&self) -> TraitList {
-        let mut traits = Traits::default().with_path_trait();
-        traits.add(Trait::CanisterKind);
+        let mut traits = Traits::default().with_default_traits();
+        traits.add(Trait::Default);
 
         traits.list()
     }
 }
 
-impl HasType for Canister {}
+impl HasType for Sanitizer {}
 
-impl HasTypePart for Canister {
+impl HasTypePart for Sanitizer {
     fn type_part(&self) -> TokenStream {
-        let ident = self.def.ident();
+        let item = &self.def.item;
 
-        quote! {
-            pub struct #ident;
-        }
+        quote!(#item)
     }
 }
 
-impl ToTokens for Canister {
+impl ToTokens for Sanitizer {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         tokens.extend(self.all_tokens());
     }

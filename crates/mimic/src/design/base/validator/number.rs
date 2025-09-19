@@ -1,37 +1,33 @@
-use crate::{core::traits::Validator, design::prelude::*};
-use num_traits::NumCast;
-
-///
-/// Helper Functions
-///
-
-fn cast_to_decimal<N: Copy + NumCast>(n: &N) -> Result<Decimal, String> {
-    NumCast::from(*n).ok_or_else(|| "failed to cast value to decimal".to_string())
-}
+use crate::{
+    core::traits::{NumCast, Validator},
+    design::prelude::*,
+};
 
 ///
 /// Lt
 ///
 
-#[validator(fields(field(name = "target", value(item(prim = "Decimal")))))]
-pub struct Lt {}
+#[validator]
+pub struct Lt {
+    target: Decimal,
+}
 
 impl Lt {
     pub fn new<N: NumCast>(target: N) -> Self {
-        Self {
-            target: NumCast::from(target).expect("valid numeric cast"),
-        }
+        let target = <Decimal as NumCast>::from(target).unwrap();
+
+        Self { target }
     }
 }
 
-impl<N: Copy + NumCast> Validator<N> for Lt {
-    fn validate(&self, n: &N) -> Result<(), String> {
-        let n_cast = cast_to_decimal(n)?;
+impl<N: NumCast + Clone> Validator<N> for Lt {
+    fn validate(&self, value: &N) -> Result<(), String> {
+        let v = <Decimal as NumCast>::from(value.clone()).unwrap();
 
-        if n_cast < self.target {
+        if v < self.target {
             Ok(())
         } else {
-            Err(format!("{n_cast} must be less than {}", self.target))
+            Err(format!("{} must be < {}", v, self.target))
         }
     }
 }
@@ -40,25 +36,27 @@ impl<N: Copy + NumCast> Validator<N> for Lt {
 /// Gt
 ///
 
-#[validator(fields(field(name = "target", value(item(prim = "Decimal")))))]
-pub struct Gt {}
+#[validator]
+pub struct Gt {
+    target: Decimal,
+}
 
 impl Gt {
     pub fn new<N: NumCast>(target: N) -> Self {
-        Self {
-            target: NumCast::from(target).expect("valid numeric cast"),
-        }
+        let target = <Decimal as NumCast>::from(target).unwrap();
+
+        Self { target }
     }
 }
 
-impl<N: Copy + NumCast> Validator<N> for Gt {
-    fn validate(&self, n: &N) -> Result<(), String> {
-        let n_cast = cast_to_decimal(n)?;
+impl<N: NumCast + Clone> Validator<N> for Gt {
+    fn validate(&self, value: &N) -> Result<(), String> {
+        let v = <Decimal as NumCast>::from(value.clone()).unwrap();
 
-        if n_cast > self.target {
+        if v > self.target {
             Ok(())
         } else {
-            Err(format!("{n_cast} must be greater than {}", self.target))
+            Err(format!("{} must be > {}", v, self.target))
         }
     }
 }
@@ -67,58 +65,56 @@ impl<N: Copy + NumCast> Validator<N> for Gt {
 /// Lte
 ///
 
-#[validator(fields(field(name = "target", value(item(prim = "Decimal")))))]
-pub struct Lte {}
+#[validator]
+pub struct Lte {
+    target: Decimal,
+}
 
 impl Lte {
     pub fn new<N: NumCast>(target: N) -> Self {
-        Self {
-            target: NumCast::from(target).expect("valid numeric cast"),
-        }
+        let target = <Decimal as NumCast>::from(target).unwrap();
+
+        Self { target }
     }
 }
 
-impl<N: Copy + NumCast> Validator<N> for Lte {
-    fn validate(&self, n: &N) -> Result<(), String> {
-        let n_cast = cast_to_decimal(n)?;
+impl<N: NumCast + Clone> Validator<N> for Lte {
+    fn validate(&self, value: &N) -> Result<(), String> {
+        let v = <Decimal as NumCast>::from(value.clone()).unwrap();
 
-        if n_cast <= self.target {
+        if v <= self.target {
             Ok(())
         } else {
-            Err(format!(
-                "{n_cast} must be less than or equal to {}",
-                self.target
-            ))
+            Err(format!("{} must be <= {}", v, self.target))
         }
     }
 }
 
 ///
-/// Gtoe
+/// Gte
 ///
 
-#[validator(fields(field(name = "target", value(item(prim = "Decimal")))))]
-pub struct Gtoe {}
+#[validator]
+pub struct Gte {
+    target: Decimal,
+}
 
-impl Gtoe {
+impl Gte {
     pub fn new<N: NumCast>(target: N) -> Self {
-        Self {
-            target: NumCast::from(target).expect("valid numeric cast"),
-        }
+        let target = <Decimal as NumCast>::from(target).unwrap();
+
+        Self { target }
     }
 }
 
-impl<N: Copy + NumCast> Validator<N> for Gtoe {
-    fn validate(&self, n: &N) -> Result<(), String> {
-        let n_cast = cast_to_decimal(n)?;
+impl<N: NumCast + Clone> Validator<N> for Gte {
+    fn validate(&self, value: &N) -> Result<(), String> {
+        let v = <Decimal as NumCast>::from(value.clone()).unwrap();
 
-        if n_cast >= self.target {
+        if v >= self.target {
             Ok(())
         } else {
-            Err(format!(
-                "{n_cast} must be greater than or equal to {}",
-                self.target
-            ))
+            Err(format!("{} must be >= {}", v, self.target))
         }
     }
 }
@@ -127,25 +123,27 @@ impl<N: Copy + NumCast> Validator<N> for Gtoe {
 /// Equal
 ///
 
-#[validator(fields(field(name = "target", value(item(prim = "Decimal")))))]
-pub struct Equal {}
+#[validator]
+pub struct Equal {
+    target: Decimal,
+}
 
 impl Equal {
     pub fn new<N: NumCast>(target: N) -> Self {
-        Self {
-            target: NumCast::from(target).expect("valid numeric cast"),
-        }
+        let target = <Decimal as NumCast>::from(target).unwrap();
+
+        Self { target }
     }
 }
 
-impl<N: Copy + NumCast> Validator<N> for Equal {
-    fn validate(&self, n: &N) -> Result<(), String> {
-        let n_cast = cast_to_decimal(n)?;
+impl<N: NumCast + Clone> Validator<N> for Equal {
+    fn validate(&self, value: &N) -> Result<(), String> {
+        let v = <Decimal as NumCast>::from(value.clone()).unwrap();
 
-        if n_cast == self.target {
+        if v == self.target {
             Ok(())
         } else {
-            Err(format!("{n_cast} must be equal to {}", self.target))
+            Err(format!("{} must be == {}", v, self.target))
         }
     }
 }
@@ -154,23 +152,25 @@ impl<N: Copy + NumCast> Validator<N> for Equal {
 /// NotEqual
 ///
 
-#[validator(fields(field(name = "target", value(item(prim = "Decimal")))))]
-pub struct NotEqual {}
+#[validator]
+pub struct NotEqual {
+    target: Decimal,
+}
 
 impl NotEqual {
     pub fn new<N: NumCast>(target: N) -> Self {
-        Self {
-            target: NumCast::from(target).unwrap(),
-        }
+        let target = <Decimal as NumCast>::from(target).unwrap();
+
+        Self { target }
     }
 }
 
-impl<N: Copy + NumCast> Validator<N> for NotEqual {
-    fn validate(&self, n: &N) -> Result<(), String> {
-        let n_cast = cast_to_decimal(n)?;
+impl<N: NumCast + Clone> Validator<N> for NotEqual {
+    fn validate(&self, value: &N) -> Result<(), String> {
+        let v = <Decimal as NumCast>::from(value.clone()).unwrap();
 
-        if n_cast == self.target {
-            Err(format!("{n_cast} must not be equal to {}", self.target))
+        if v == self.target {
+            Err(format!("{} must be != {}", v, self.target))
         } else {
             Ok(())
         }
@@ -181,35 +181,33 @@ impl<N: Copy + NumCast> Validator<N> for NotEqual {
 /// Range
 ///
 
-#[validator(fields(
-    field(name = "min", value(item(prim = "Decimal"))),
-    field(name = "max", value(item(prim = "Decimal"))),
-))]
-pub struct Range {}
+#[validator]
+pub struct Range {
+    min: Decimal,
+    max: Decimal,
+}
 
 impl Range {
-    pub fn new<N>(min: N, max: N) -> Self
-    where
-        N: NumCast,
-    {
-        Self {
-            min: NumCast::from(min).expect("valid numeric cast"),
-            max: NumCast::from(max).expect("valid numeric cast"),
-        }
+    pub fn new<N: NumCast>(min: N, max: N) -> Self {
+        let min = <Decimal as NumCast>::from(min).unwrap();
+        let max = <Decimal as NumCast>::from(max).unwrap();
+        assert!(min <= max, "range requires min <= max");
+
+        Self { min, max }
     }
 }
 
-impl<N: Copy + NumCast> Validator<N> for Range {
+impl<N: NumCast + Clone> Validator<N> for Range {
     fn validate(&self, n: &N) -> Result<(), String> {
-        let n_cast = cast_to_decimal(n)?;
+        let v = <Decimal as NumCast>::from(n.clone()).unwrap();
 
-        if n_cast >= self.min && n_cast <= self.max {
-            Ok(())
-        } else {
+        if v < self.min || v > self.max {
             Err(format!(
-                "{n_cast} must be in the range {} to {}",
-                self.min, self.max
+                "{} must be between {} and {}",
+                v, self.min, self.max
             ))
+        } else {
+            Ok(())
         }
     }
 }
@@ -218,61 +216,30 @@ impl<N: Copy + NumCast> Validator<N> for Range {
 /// MultipleOf
 ///
 
-#[validator(fields(field(name = "target", value(item(prim = "Decimal")))))]
-pub struct MultipleOf {}
+#[validator]
+pub struct MultipleOf {
+    target: Decimal,
+}
 
 impl MultipleOf {
     pub fn new<N: NumCast>(target: N) -> Self {
-        Self {
-            target: NumCast::from(target).expect("valid numeric cast"),
-        }
+        let target = <Decimal as NumCast>::from(target).unwrap();
+        Self { target }
     }
 }
 
-impl<N: Copy + NumCast> Validator<N> for MultipleOf {
+impl<N: NumCast + Clone> Validator<N> for MultipleOf {
     fn validate(&self, n: &N) -> Result<(), String> {
-        let n_cast = cast_to_decimal(n)?;
+        let v = <Decimal as NumCast>::from(n.clone()).unwrap();
 
-        if n_cast.checked_rem(self.target) == Some(Decimal::ZERO) {
+        if (*v % *self.target).is_zero() {
             Ok(())
         } else {
-            Err(format!("{n_cast} is not a multiple of {}", self.target))
+            Err(format!("{v} is not a multiple of {}", self.target))
         }
     }
 }
 
-///
-/// InArray
-///
-
-#[validator(fields(field(name = "values", value(many, item(prim = "Int32")))))]
-pub struct InArray {}
-
-impl InArray {
-    #[must_use]
-    pub fn new(values: &[i32]) -> Self {
-        Self {
-            values: values.to_vec(),
-        }
-    }
-}
-
-impl<N: Copy + NumCast> Validator<N> for InArray {
-    fn validate(&self, n: &N) -> Result<(), String> {
-        if let Some(n_cast) = <i32 as NumCast>::from(*n) {
-            if self.values.contains(&n_cast) {
-                Ok(())
-            } else {
-                Err(format!(
-                    "{n_cast} is not in the allowed values: {:?}",
-                    self.values
-                ))
-            }
-        } else {
-            Err("failed cast to i32".to_string())
-        }
-    }
-}
 ///
 /// TESTS
 ///
@@ -286,7 +253,7 @@ mod tests {
         let result = Lt::new(10).validate(&5);
         assert!(result.is_ok());
 
-        let result = Lt::new(5.1).validate(&5);
+        let result = Lt::new(5.1).validate(&5.0);
         assert!(result.is_ok());
     }
 

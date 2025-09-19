@@ -4,7 +4,7 @@ pub use nat128::*;
 
 use crate::core::{
     Value,
-    traits::{FieldValue, TypeView, ValidateAuto, ValidateCustom, Visitable},
+    traits::{FieldValue, Sanitize, TypeView, ValidateAuto, ValidateCustom, Visitable},
 };
 use candid::{CandidType, Nat as WrappedNat};
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign};
@@ -59,6 +59,8 @@ impl From<WrappedNat> for Nat {
         Self(n)
     }
 }
+
+impl Sanitize for Nat {}
 
 impl Sum for Nat {
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {

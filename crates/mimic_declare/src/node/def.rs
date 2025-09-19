@@ -3,8 +3,8 @@ use crate::{
     traits::HasSchemaPart,
 };
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
-use syn::{Ident, LitStr};
+use quote::quote;
+use syn::{Ident, ItemStruct, LitStr};
 
 ///
 /// Def
@@ -13,25 +13,29 @@ use syn::{Ident, LitStr};
 /// the schema doesn't care about the generics as they're not useful as static text
 ///
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Def {
+    pub item: Option<ItemStruct>,
     pub comments: Option<LitStr>,
-    pub ident: Ident,
 }
 
-impl Default for Def {
-    fn default() -> Self {
+impl Def {
+    pub const fn new(item: ItemStruct, comments: Option<LitStr>) -> Self {
         Self {
-            comments: None,
-            ident: format_ident!("_"),
+            item: Some(item),
+            comments,
         }
+    }
+
+    pub fn ident(&self) -> Ident {
+        self.item.as_ref().unwrap().ident.clone()
     }
 }
 
 impl HasSchemaPart for Def {
     fn schema_part(&self) -> TokenStream {
         let comments = quote_option(self.comments.as_ref(), as_tokens);
-        let ident = quote_one(&self.ident, to_str_lit);
+        let ident = quote_one(&self.ident(), to_str_lit);
 
         quote! {
             ::mimic::schema::node::Def {

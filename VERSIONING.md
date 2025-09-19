@@ -42,10 +42,11 @@ We provide a convenient script for managing versions: `scripts/app/version.sh`
 
 ### What the script does
 
-1. **Version bumping**: Updates the version in `Cargo.toml`
-2. **Changelog updates**: Adds a new version entry to `CHANGELOG.md`
-3. **Git operations**: Creates a commit and git tag
-4. **Validation**: Ensures working directory is clean before proceeding
+1. **Version bumping**: Updates the workspace version in `Cargo.toml` and syncs workspace crates in `Cargo.lock`
+2. **Git operations**: Creates a release commit and annotated tag
+3. **Validation**: Ensures the working directory is clean before proceeding
+
+> **Tip:** Update `CHANGELOG.md` manually before running the version script.
 
 ## Release Process
 

@@ -1,7 +1,7 @@
 use crate::{
     imp::{Imp, Implementor, Trait, TraitStrategy},
     node::Entity,
-    traits::HasIdent,
+    traits::HasDef,
 };
 use mimic_common::utils::case::{Case, Casing};
 use proc_macro2::TokenStream;
@@ -40,7 +40,7 @@ impl Imp<Entity> for InherentTrait {
         };
 
         // IMPORTANT: pass Trait::Inherent so Implementor will do `impl Entity { … }`
-        let tokens = Implementor::new(node.ident(), Trait::Inherent)
+        let tokens = Implementor::new(node.def(), Trait::Inherent)
             .set_tokens(tokens)
             .to_token_stream();
 

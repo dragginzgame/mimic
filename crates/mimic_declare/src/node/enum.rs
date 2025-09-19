@@ -4,8 +4,7 @@ use crate::{
     node::{Def, Type, Value},
     schema_traits::{Trait, TraitList, Traits},
     traits::{
-        HasIdent, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
-        SchemaNodeKind,
+        HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart, SchemaNodeKind,
     },
 };
 use darling::FromMeta;
@@ -38,9 +37,9 @@ impl Enum {
     }
 }
 
-impl HasIdent for Enum {
-    fn ident(&self) -> Ident {
-        self.def.ident.clone()
+impl HasDef for Enum {
+    fn def(&self) -> &Def {
+        &self.def
     }
 }
 
@@ -122,7 +121,7 @@ impl HasType for Enum {
 
 impl HasTypePart for Enum {
     fn type_part(&self) -> TokenStream {
-        let ident = self.ident();
+        let ident = self.def.ident();
         let variants = self.variants.iter().map(HasTypePart::type_part);
 
         quote! {
@@ -134,7 +133,7 @@ impl HasTypePart for Enum {
 
     fn view_type_part(&self) -> TokenStream {
         let derives = self.view_derives();
-        let ident = self.ident();
+        let ident = self.def.ident();
         let view_ident = self.view_ident();
         let view_variants = self.variants.iter().map(HasTypePart::view_type_part);
 
