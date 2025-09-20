@@ -88,6 +88,9 @@ jobs:
       - name: Clear stale Cargo package cache lock
         run: rm -f ~/.cargo/.package-cache || true
 
+      - name: Install cargo-edit
+        run: cargo install cargo-edit --locked
+
       - name: Run repository versioning checks
         run: bash scripts/ci/security-check.sh
 
