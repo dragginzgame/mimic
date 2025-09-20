@@ -14,8 +14,8 @@ use crate::design::{
     primitive = "Text",
     item(prim = "Text"),
     ty(
-        validator(path = "validator::intl::iso::Iso3166_1A2"),
         sanitizer(path = "sanitizer::intl::iso::Iso3166_1A2"),
+        validator(path = "validator::intl::iso::Iso3166_1A2"),
     )
 )]
 pub struct CountryCode {}
@@ -31,8 +31,8 @@ pub struct CountryCode {}
     primitive = "Text",
     item(prim = "Text"),
     ty(
-        validator(path = "validator::intl::iso::Iso639_1"),
         sanitizer(path = "sanitizer::intl::iso::Iso639_1"),
+        validator(path = "validator::intl::iso::Iso639_1"),
     )
 )]
 pub struct LanguageCode {}
@@ -48,8 +48,8 @@ pub struct LanguageCode {}
     primitive = "Text",
     item(prim = "Text"),
     ty(
+        sanitizer(path = "sanitizer::intl::phone::E164PhoneNumber"),
         validator(path = "validator::intl::phone::E164PhoneNumber"),
-        sanitizer(path = "sanitizer::intl::phone::E164PhoneNumber")
     )
 )]
 pub struct PhoneNumber {}
