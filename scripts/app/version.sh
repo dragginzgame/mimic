@@ -95,8 +95,13 @@ bump_version() {
 apply_version_with_cargo() {
     local new_version=$1
 
+    if ! cargo set-version --help >/dev/null 2>&1; then
+        echo "'cargo set-version' is not available. Install it via 'cargo install cargo-edit' or upgrade to Rust 1.75+." >&2
+        exit 1
+    fi
+
     if ! cargo set-version --workspace "$new_version" >/dev/null; then
-        echo "cargo set-version failed. Ensure Rust 1.75+ is installed." >&2
+        echo "cargo set-version failed. Ensure Rust 1.75+ is installed or cargo-edit is available." >&2
         exit 1
     fi
 

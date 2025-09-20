@@ -111,6 +111,7 @@ check-versioning: security-check
 install-dev: ensure-hooks
 	cargo install cargo-watch
 	cargo install cargo-sort cargo-sort-derives
+	cargo install cargo-edit
 
 # Run tests in watch mode
 test-watch:
