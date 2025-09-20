@@ -54,8 +54,8 @@ xxhash-rust = { version = "0.8", default-features = false, features = ["xxh3"] }
 # clippy
 [workspace.lints.clippy]
 all = { level = "warn", priority = -1 }
-pedantic = { level = "warn", priority = -1 }
-nursery = { level = "warn", priority = -1 }
+pedantic = { level = "allow", priority = -1 }
+nursery = { level = "allow", priority = -1 }
 
 # always warn
 unnecessary_cast = "warn"
