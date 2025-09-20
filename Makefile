@@ -53,13 +53,13 @@ tags:
 	@git tag --sort=-version:refname | head -10
 
 patch: ensure-clean fmt
-	@scripts/app/bump-version.sh patch
+	@scripts/ci/bump-version.sh patch
 
 minor: ensure-clean fmt
-	@scripts/app/bump-version.sh minor
+	@scripts/ci/bump-version.sh minor
 
 major: ensure-clean fmt
-	@scripts/app/bump-version.sh major
+	@scripts/ci/bump-version.sh major
 
 release: ensure-clean
 	@echo "Release handled by CI on tag push"
@@ -105,7 +105,7 @@ security-check:
 	@echo "This target is informational only; no local script runs."
 
 check-versioning: security-check
-	bash scripts/app/check-versioning.sh
+	bash scripts/ci/security-check.sh
 
 # Install development dependencies
 install-dev: ensure-hooks
