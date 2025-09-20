@@ -14,7 +14,7 @@ PREV=$(cargo metadata --no-deps --format-version=1 \
 
 
 # Bump
-cargo set-version --workspace --bump "$BUMP_TYPE" >/dev/null
+cargo set-version --bump "$BUMP_TYPE" >/dev/null
 
 # New version
 NEW=$(cargo pkgid | cut -d# -f2 | cut -d: -f2)
