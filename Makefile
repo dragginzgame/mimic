@@ -53,13 +53,13 @@ tags:
 	@git tag --sort=-version:refname | head -10
 
 patch: ensure-clean fmt
-	./scripts/bump-version.sh patch
+	scripts/bump-version.sh patch
 
 minor: ensure-clean fmt
-	./scripts/bump-version.sh minor
+	scripts/bump-version.sh minor
 
 major: ensure-clean fmt
-	./scripts/bump-version.sh major
+	scripts/bump-version.sh major
 
 release: ensure-clean
 	@echo "Release handled by CI on tag push"
