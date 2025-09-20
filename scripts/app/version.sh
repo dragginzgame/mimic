@@ -17,7 +17,7 @@ workspace_manifest_version() {
         /^\[workspace\.package\]/ { in_section=1; next }
         /^\[/ { in_section=0 }
         in_section {
-            if (match($0, /version[[:space:]]*=[[:space:]]*"([^"]+)"/, m)) {
+            if (match($0, /^[[:space:]]*version[[:space:]]*=[[:space:]]*"([^"]+)"/, m)) {
                 print m[1]
                 exit
             }
