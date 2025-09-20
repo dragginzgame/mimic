@@ -13,26 +13,16 @@ if [ ! -f "${CARGO_TOML}" ]; then
 fi
 
 workspace_manifest_version() {
-    python3 - "$CARGO_TOML" <<'PY'
-from pathlib import Path
-import sys
-
-manifest = Path(sys.argv[1])
-if not manifest.exists():
-    sys.exit(1)
-in_workspace_package = False
-for raw_line in manifest.read_text().splitlines():
-    line = raw_line.strip()
-    if line.startswith("["):
-        in_workspace_package = line == "[workspace.package]"
-        continue
-    if in_workspace_package and line.startswith("version"):
-        parts = line.split("=", 1)
-        if len(parts) == 2:
-            print(parts[1].strip().strip('"'))
-            sys.exit(0)
-print("", end="")
-PY
+    awk '
+        /^\[workspace\.package\]/ { in_section=1; next }
+        /^\[/ { in_section=0 }
+        in_section {
+            if (match($0, /version[[:space:]]*=[[:space:]]*"([^"]+)"/, m)) {
+                print m[1]
+                exit
+            }
+        }
+    ' "$CARGO_TOML"
 }
 
 current_version() {
@@ -56,51 +46,23 @@ current_version() {
         return 0
     fi
 
-    python3 - "$manifest" "$latest_version" <<'PY'
-import sys
+    if [ "$manifest" = "$latest_version" ]; then
+        echo "$manifest"
+        return 0
+    fi
 
-def parse(version: str):
-    parts = [int(p) for p in version.split('.')]
-    while len(parts) < 3:
-        parts.append(0)
-    return parts[:3]
-
-manifest, tag = sys.argv[1], sys.argv[2]
-print(manifest if parse(manifest) >= parse(tag) else tag)
-PY
+    printf '%s\n%s\n' "$manifest" "$latest_version" | LC_ALL=C sort -V | tail -n1
 }
 
-bump_version() {
-    local current=$1 type=$2
-    IFS='.' read -ra parts <<< "$current"
-    local major=${parts[0]:-0} minor=${parts[1]:-0} patch=${parts[2]:-0}
-
-    case "$type" in
-        major)
-            echo "$((major + 1)).0.0"
-            ;;
-        minor)
-            echo "$major.$((minor + 1)).0"
-            ;;
-        patch)
-            echo "$major.$minor.$((patch + 1))"
-            ;;
-        *)
-            echo "Unknown bump type: $type" >&2
-            exit 1
-            ;;
-    esac
-}
-
-apply_version_with_cargo() {
-    local new_version=$1
+apply_version_with_cargo_bump() {
+    local bump_kind=$1
 
     if ! cargo set-version --help >/dev/null 2>&1; then
         echo "'cargo set-version' is not available. Install it via 'cargo install cargo-edit' or upgrade to Rust 1.75+." >&2
         exit 1
     fi
 
-    if ! cargo set-version --workspace "$new_version" >/dev/null; then
+    if ! cargo set-version --workspace --bump "$bump_kind" >/dev/null; then
         echo "cargo set-version failed. Ensure Rust 1.75+ is installed or cargo-edit is available." >&2
         exit 1
     fi
@@ -143,9 +105,12 @@ case "$type" in
     ;;
   major|minor|patch)
     cur=$(current_version)
-    new=$(bump_version "$cur" "$type")
-
-    apply_version_with_cargo "$new"
+    apply_version_with_cargo_bump "$type"
+    new=$(workspace_manifest_version)
+    if [ -z "$new" ]; then
+        echo "Failed to determine new version after bump." >&2
+        exit 1
+    fi
 
     create_release_commit_and_tag "$new"
     echo "Bumped: $cur → $new"
