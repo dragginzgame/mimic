@@ -22,6 +22,26 @@ use crate::design::{
 pub struct AddressLine {}
 
 ///
+/// CityName
+///
+/// - Trim
+/// - TitleCase (optional, e.g. “new york” → “New York”)
+/// - Length: 1–100
+/// - Allowed: letters, spaces, apostrophes, hyphens   TODO
+///
+
+#[newtype(
+    primitive = "Text",
+    item(prim = "Text"),
+    ty(
+        sanitizer(path = "sanitizer::text::Trim"),
+        sanitizer(path = "sanitizer::text::case::Title"),
+        validator(path = "validator::len::Range", args(1, 100)),
+    )
+)]
+pub struct CityName {}
+
+///
 /// PostalCode
 ///
 /// - Trim whitespace
