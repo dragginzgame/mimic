@@ -3,7 +3,7 @@ use phonenumber::{Mode, parse};
 
 ///
 /// E164PhoneNumber
-/// Ensures the number parses and formats correctly in international form
+/// Ensures phone number is valid and E.164 compliant
 ///
 
 #[validator]
@@ -11,22 +11,16 @@ pub struct E164PhoneNumber;
 
 impl Validator<str> for E164PhoneNumber {
     fn validate(&self, s: &str) -> Result<(), String> {
-        // Try parsing with unknown region (forces full international form)
         match parse(None, s) {
-            Ok(num) => {
-                if num.is_valid() {
-                    // enforce E.164 max length (15 digits)
-                    let e164 = num.format().mode(Mode::E164).to_string();
-                    if e164.len() > 16 {
-                        // '+' plus up to 15 digits
-                        Err(format!("phone number too long for E.164: {s}"))
-                    } else {
-                        Ok(())
-                    }
+            Ok(num) if num.is_valid() => {
+                let e164 = num.format().mode(Mode::E164).to_string();
+                if e164.len() > 16 {
+                    Err(format!("phone number too long for E.164: {s}"))
                 } else {
-                    Err(format!("invalid phone number: {s}"))
+                    Ok(())
                 }
             }
+            Ok(_) => Err(format!("invalid phone number: {s}")),
             Err(e) => Err(format!("failed to parse phone number {s}: {e}")),
         }
     }

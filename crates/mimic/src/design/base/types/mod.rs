@@ -1,9 +1,9 @@
 pub mod bytes;
 pub mod color;
-pub mod geo;
 pub mod hash;
 pub mod ic;
 pub mod ident;
+pub mod intl;
 pub mod lang;
 pub mod math;
 pub mod time;
