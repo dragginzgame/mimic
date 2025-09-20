@@ -46,7 +46,7 @@ impl Imp<Selector> for IntoTrait {
             let value = &variant.value;
             let ty = &variant.value.as_type();
 
-            quote! { #ident::#variant_ident => <#ty as Into<#target>>::into(#value) }
+            quote! { Self::#variant_ident => <#ty as Into<#target>>::into(#value) }
         });
 
         // into ulid

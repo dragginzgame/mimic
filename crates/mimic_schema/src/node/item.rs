@@ -104,7 +104,7 @@ impl ValidateNode for Item {
 
         // selector
         if let Some(selector) = &self.selector
-            && schema.cast_node::<Selector>(selector).is_ok()
+            && schema.cast_node::<Selector>(selector).is_err()
         {
             err!(errs, "selector path '{selector}' not found");
         }
