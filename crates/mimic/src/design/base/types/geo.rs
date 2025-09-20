@@ -8,7 +8,7 @@ use crate::design::{
 ///
 /// - Trim
 /// - Length: 1–100
-/// - Allowed: letters, digits, spaces, commas, periods, hyphens, apostrophes, #
+/// - Allowed: letters, digits, spaces, commas, periods, hyphens, apostrophes, #  TODO
 ///
 
 #[newtype(
@@ -27,7 +27,7 @@ pub struct StreetLine {}
 /// - Trim whitespace
 /// - Uppercase
 /// - Length: 3–12 chars
-/// - Allowed: letters, digits, space, dash
+/// - Allowed: letters, digits, space, dash  TODO
 ///
 
 #[newtype(
@@ -48,7 +48,7 @@ pub struct PostalCode {}
 /// - Trim
 /// - Uppercase
 /// - Length: 2–50
-/// - Allowed: letters, spaces, hyphens
+/// - Allowed: letters, spaces, hyphens  TODO
 ///
 
 #[newtype(
