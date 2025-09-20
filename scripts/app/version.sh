@@ -36,15 +36,38 @@ PY
 }
 
 current_version() {
+    local manifest
+    manifest=$(workspace_manifest_version || true)
+
+    local latest_tag=""
     if git rev-parse --git-dir >/dev/null 2>&1; then
-        if latest_tag=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1); then
-            if [ -n "${latest_tag:-}" ]; then
-                echo "${latest_tag#v}"
-                return 0
-            fi
-        fi
+        latest_tag=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
     fi
-    workspace_manifest_version
+
+    local latest_version="${latest_tag#v}"
+
+    if [ -z "${manifest}" ]; then
+        echo "${latest_version}"
+        return 0
+    fi
+
+    if [ -z "${latest_version}" ]; then
+        echo "${manifest}"
+        return 0
+    fi
+
+    python3 - "$manifest" "$latest_version" <<'PY'
+import sys
+
+def parse(version: str):
+    parts = [int(p) for p in version.split('.')]
+    while len(parts) < 3:
+        parts.append(0)
+    return parts[:3]
+
+manifest, tag = sys.argv[1], sys.argv[2]
+print(manifest if parse(manifest) >= parse(tag) else tag)
+PY
 }
 
 bump_version() {
@@ -69,83 +92,17 @@ bump_version() {
     esac
 }
 
-update_workspace_manifest_version() {
+apply_version_with_cargo() {
     local new_version=$1
-    python3 - "$CARGO_TOML" "$new_version" <<'PY'
-from pathlib import Path
-import sys
 
-manifest = Path(sys.argv[1])
-new_version = sys.argv[2]
-text = manifest.read_text().splitlines()
-output = []
-in_workspace_package = False
-updated = False
-for raw_line in text:
-    line = raw_line.strip()
-    if line.startswith("["):
-        in_workspace_package = line == "[workspace.package]"
-        output.append(raw_line)
-        continue
-    if in_workspace_package and line.startswith("version"):
-        indent = raw_line[: len(raw_line) - len(raw_line.lstrip())]
-        output.append(f"{indent}version = \"{new_version}\"")
-        updated = True
-        continue
-    output.append(raw_line)
-
-if not updated:
-    raise SystemExit("version field not found in [workspace.package]")
-
-manifest.write_text("\n".join(output) + "\n")
-PY
-}
-
-update_lockfile_versions() {
-    local new_version=$1
-    if [ ! -f "${CARGO_LOCK}" ]; then
-        return 0
+    if ! cargo set-version --workspace "$new_version" >/dev/null; then
+        echo "cargo set-version failed. Ensure Rust 1.75+ is installed." >&2
+        exit 1
     fi
-    python3 - "$CARGO_LOCK" "$ROOT_DIR" "$new_version" <<'PY'
-from pathlib import Path
-import subprocess
-import sys
-import json
 
-lock_path = Path(sys.argv[1])
-root_dir = Path(sys.argv[2])
-new_version = sys.argv[3]
-
-result = subprocess.run(
-    ["cargo", "metadata", "--format-version", "1", "--no-deps"],
-    cwd=root_dir,
-    check=True,
-    capture_output=True,
-    text=True,
-)
-metadata = json.loads(result.stdout)
-workspace_ids = set(metadata["workspace_members"])
-workspace_names = {pkg["name"] for pkg in metadata["packages"] if pkg["id"] in workspace_ids}
-
-lines = lock_path.read_text().splitlines()
-changed = False
-index = 0
-while index < len(lines):
-    line = lines[index]
-    if line.startswith("name = \""):
-        name = line.split('"')[1]
-        if name in workspace_names:
-            j = index + 1
-            while j < len(lines) and not lines[j].startswith("version = "):
-                j += 1
-            if j < len(lines):
-                lines[j] = f'version = "{new_version}"'
-                changed = True
-    index += 1
-
-if changed:
-    lock_path.write_text("\n".join(lines) + "\n")
-PY
+    if [ -f "$CARGO_LOCK" ]; then
+        cargo generate-lockfile >/dev/null
+    fi
 }
 
 stage_release_artifacts() {
@@ -153,6 +110,7 @@ stage_release_artifacts() {
     if [ -f "$CARGO_LOCK" ]; then
         git add "$CARGO_LOCK"
     fi
+    git ls-files -m -- '*/Cargo.toml' | xargs -r git add
 }
 
 create_release_commit_and_tag() {
@@ -182,8 +140,7 @@ case "$type" in
     cur=$(current_version)
     new=$(bump_version "$cur" "$type")
 
-    update_workspace_manifest_version "$new"
-    update_lockfile_versions "$new"
+    apply_version_with_cargo "$new"
 
     create_release_commit_and_tag "$new"
     echo "Bumped: $cur → $new"
