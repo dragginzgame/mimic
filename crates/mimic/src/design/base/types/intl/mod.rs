@@ -4,7 +4,7 @@ use crate::design::{
 };
 
 ///
-/// Iso3166_1A2
+/// CountryCode
 /// two-letter country codes defined in ISO 3166-1
 ///
 /// https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
@@ -18,10 +18,10 @@ use crate::design::{
         sanitizer(path = "sanitizer::intl::iso::Iso3166_1A2"),
     )
 )]
-pub struct Iso3166_1A2 {}
+pub struct CountryCode {}
 
 ///
-/// Iso639_1
+/// LanguageCode
 /// two letter language code
 ///
 /// https://en.wikipedia.org/wiki/ISO_639-1
@@ -35,10 +35,10 @@ pub struct Iso3166_1A2 {}
         sanitizer(path = "sanitizer::intl::iso::Iso639_1"),
     )
 )]
-pub struct Iso639_1 {}
+pub struct LanguageCode {}
 
 ///
-/// E164PhoneNumber
+/// PhoneNumber
 /// standardised international phone number
 ///
 /// https://en.wikipedia.org/wiki/E.164
@@ -52,4 +52,4 @@ pub struct Iso639_1 {}
         sanitizer(path = "sanitizer::intl::phone::E164PhoneNumber")
     )
 )]
-pub struct E164PhoneNumber {}
+pub struct PhoneNumber {}
