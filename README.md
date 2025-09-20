@@ -29,7 +29,7 @@ It was originally built for the Web3 game [Dragginz](https://dragginz.io/). Mimi
 
 ## ⚡ Quickstart
 
-1) Add dependency (pin to a release tag): `mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0" }` (or HTTPS with token)
+1) Add dependency (pin to a release tag): `mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0" }` (or HTTPS with token)
 2) Define an entity with `#[entity]` and a primary key.
 3) Query with `db().load::<Entity>().filter(|f| ...).sort(|s| ...).limit(...).execute()?`.
 
@@ -42,6 +42,7 @@ It was originally built for the Web3 game [Dragginz](https://dragginz.io/). Mimi
 - **Stable storage** — powered by `ic-stable-structures` B-Trees
 - **Automatic endpoints** — `mimic_build` generates `mimic_query_load`, `mimic_query_save`, `mimic_query_delete`
 - **Observability endpoints** — `mimic_snapshot`, `mimic_logs`, `mimic_metrics`, `mimic_metrics_reset`
+- **Text casing toolkit** — sanitizers and validators for lower/upper/snake/kebab/title/camel cases (works across lists, maps, sets)
 - **Integration with IC canisters** — ergonomic `mimic_start!` and `mimic_build!` macros
 - **Testability** — fixtures, query validation, and index testing
 
@@ -154,10 +155,10 @@ We use semver with convenience scripts:
 
 ```bash
 make version   # current version
-make patch     # bump 0.15.2 -> 0.15.3
-make minor     # bump 0.15.2 -> 0.16.0
-make major     # bump 0.15.2 -> 1.0.0
-make release   # create release tag
+make patch     # bump 0.15.2 -> 0.15.3 (updates manifests + tags)
+make minor     # bump 0.15.2 -> 0.16.0 (updates manifests + tags)
+make major     # bump 0.15.2 -> 1.0.0 (updates manifests + tags)
+make release   # no-op; CI releases on tag push
 ```
 
 ---

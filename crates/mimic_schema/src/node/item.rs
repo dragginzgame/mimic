@@ -1,6 +1,6 @@
 use crate::{
     build::schema_read,
-    node::{Entity, Selector, TypeValidator, ValidateNode, VisitableNode},
+    node::{Entity, Selector, TypeSanitizer, TypeValidator, ValidateNode, VisitableNode},
     types::Primitive,
     visit::Visitor,
 };
@@ -24,6 +24,9 @@ pub struct Item {
 
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub validators: &'static [TypeValidator],
+
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub sanitizers: &'static [TypeSanitizer],
 
     #[serde(default, skip_serializing_if = "Not::not")]
     pub indirect: bool,

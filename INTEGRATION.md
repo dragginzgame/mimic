@@ -8,7 +8,7 @@ Add Mimic to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.19.1" }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0" }
 ```
 
 ### Toolchain
@@ -27,7 +27,7 @@ Use the Quick Start snippet above (pinned tag) for production.
 - Exact version pinning
 - Reproducible builds
 - No dependency on crates.io availability
-- **Immutable tags** - code at `v0.17.0` will never change
+- **Immutable tags** - code at `v0.21.0` will never change
 - **Security** - prevents supply chain attacks
 
 **Cons:**
@@ -69,7 +69,7 @@ mimic = { git = "git@github.com:dragginzgame/mimic.git", rev = "abc123...", feat
 
 ```toml
 [dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.19.1", features = [
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0", features = [
   "serde",   # serde derive/support in types
 ] }
 ```
@@ -146,7 +146,7 @@ error: failed to resolve dependencies
 
 Mimic enforces **tag immutability** - once a version is tagged and pushed, the code at that version will never change. This ensures:
 
-- **Reproducible builds** - `v0.17.0` always contains the same code
+- **Reproducible builds** - `v0.21.0` always contains the same code
 - **Supply chain security** - prevents malicious code injection
 - **Dependency stability** - your builds won't break unexpectedly
 
@@ -154,10 +154,10 @@ Mimic enforces **tag immutability** - once a version is tagged and pushed, the c
 
 ```bash
 # Check if a specific version exists and is immutable
-git ls-remote --tags git@github.com:dragginzgame/mimic.git | grep v0.19
+git ls-remote --tags git@github.com:dragginzgame/mimic.git | grep v0.21
 
 # Verify the commit hash hasn't changed
-git ls-remote git@github.com:dragginzgame/mimic.git v0.19.1
+git ls-remote git@github.com:dragginzgame/mimic.git v0.21.0
 ```
 
 ## Best Practices
@@ -168,7 +168,7 @@ Always use tag-based dependencies for production:
 
 ```toml
 # ✅ Good - pinned version
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.19.1" }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0" }
 
 # ❌ Bad - floating version
 mimic = { git = "git@github.com:dragginzgame/mimic.git", branch = "main", features = [] }
@@ -180,10 +180,10 @@ Only enable features you need:
 
 ```toml
 # ✅ Good - minimal features
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.19.1", features = ["serde"] }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0", features = ["serde"] }
 
 # ❌ Bad - unnecessary features
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0", features = ["serde"] }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0", features = ["serde"] }
 ```
 
 ### 3. Regular Updates
@@ -192,10 +192,10 @@ Keep your dependency updated:
 
 ```bash
 # Check for new versions
-git ls-remote --tags git@github.com:dragginzgame/mimic.git | grep "v0.19"
+git ls-remote --tags git@github.com:dragginzgame/mimic.git | grep "v0.21"
 
 # Update to latest patch version
-# Change tag from v0.19.0 to v0.19.1
+# Change tag from v0.20.4 to v0.21.0
 ```
 
 ### 4. Testing
@@ -215,7 +215,7 @@ For workspace projects, add Mimic to the workspace dependencies:
 
 ```toml
 [workspace.dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.19.1" }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0" }
 
 [workspace.members]
 member1 = "crates/member1"
@@ -232,7 +232,7 @@ For testing and development:
 
 ```toml
 [dev-dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.19.1" }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0" }
 ```
 
 ## Version History

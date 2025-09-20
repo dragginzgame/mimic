@@ -70,7 +70,7 @@ impl Imp<List> for FieldValueTrait {
             fn to_value(&self) -> ::mimic::core::value::Value {
                 ::mimic::core::value::Value::List(
                     self.iter()
-                        .map(|item| item.to_value())
+                        .map(::mimic::core::traits::FieldValue::to_value)
                         .collect()
                 )
             }
@@ -114,7 +114,7 @@ impl Imp<Set> for FieldValueTrait {
             fn to_value(&self) -> ::mimic::core::value::Value {
                 ::mimic::core::value::Value::List(
                     self.iter()
-                        .map(|item| item.to_value())
+                        .map(::mimic::core::traits::FieldValue::to_value)
                         .collect()
                 )
             }

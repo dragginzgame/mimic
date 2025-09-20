@@ -1,6 +1,8 @@
 use crate::core::{
     Value,
-    traits::{FieldValue, Sanitize, TypeView, ValidateAuto, ValidateCustom, Visitable},
+    traits::{
+        FieldValue, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom, Visitable,
+    },
 };
 use candid::CandidType;
 use derive_more::Display;
@@ -129,7 +131,9 @@ impl PartialOrd for Float64 {
     }
 }
 
-impl Sanitize for Float64 {}
+impl SanitizeAuto for Float64 {}
+
+impl SanitizeCustom for Float64 {}
 
 impl TypeView for Float64 {
     type View = f64;

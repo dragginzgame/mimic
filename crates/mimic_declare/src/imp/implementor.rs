@@ -45,6 +45,11 @@ impl<'a> Implementor<'a> {
         self
     }
 
+    pub fn add_tokens(mut self, tokens: TokenStream) -> Self {
+        self.tokens.extend(tokens);
+        self
+    }
+
     pub fn set_tokens(mut self, tokens: TokenStream) -> Self {
         self.tokens = tokens;
         self

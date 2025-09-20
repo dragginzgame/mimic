@@ -4,7 +4,9 @@ pub use int128::*;
 
 use crate::core::{
     Value,
-    traits::{FieldValue, Sanitize, TypeView, ValidateAuto, ValidateCustom, Visitable},
+    traits::{
+        FieldValue, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom, Visitable,
+    },
 };
 use candid::{CandidType, Int as WrappedInt};
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign};
@@ -61,7 +63,9 @@ impl From<WrappedInt> for Int {
     }
 }
 
-impl Sanitize for Int {}
+impl SanitizeAuto for Int {}
+
+impl SanitizeCustom for Int {}
 
 impl_storable_unbounded!(Int);
 

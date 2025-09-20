@@ -1,6 +1,6 @@
 use crate::{
     imp::{Imp, Implementor, Trait, TraitStrategy},
-    node::{Entity, Enum, EnumVariant, FieldList, Newtype, Record, Tuple},
+    node::{Entity, Enum, EnumVariant, FieldList, List, Map, Newtype, Record, Set, Tuple},
     traits::HasDef,
 };
 use proc_macro2::{Span, TokenStream};
@@ -35,19 +35,68 @@ impl Imp<Entity> for VisitableTrait {
 
 impl Imp<Enum> for VisitableTrait {
     fn strategy(node: &Enum) -> Option<TraitStrategy> {
-        // build inner
-        let mut variant_tokens = quote!();
-        for variant in &node.variants {
-            variant_tokens.extend(enum_variant(variant));
-        }
+        // Collect both immutable and mutable match arms
+        let (arms, arms_mut): (TokenStream, TokenStream) =
+            node.variants.iter().map(enum_variant).unzip();
 
+        let inner = quote! { match self { #arms } };
+        let inner_mut = quote! { match self { #arms_mut } };
+
+        let tokens = Implementor::new(node.def(), Trait::Visitable)
+            .set_tokens(quote_drives(&inner, &inner_mut))
+            .to_token_stream();
+
+        Some(TraitStrategy::from_impl(tokens))
+    }
+}
+
+///
+/// List
+///
+
+impl Imp<List> for VisitableTrait {
+    fn strategy(node: &List) -> Option<TraitStrategy> {
         let inner = quote! {
-            match self {
-                #variant_tokens
+            for (i, v) in self.0.iter().enumerate() {
+                perform_visit(visitor, v, i);
             }
         };
 
-        let q = quote_drive_method(&inner);
+        let inner_mut = quote! {
+            for (i, v) in self.0.iter_mut().enumerate() {
+                perform_visit_mut(visitor, v, i);
+            }
+        };
+
+        let q = quote_drives(&inner, &inner_mut);
+
+        let tokens = Implementor::new(node.def(), Trait::Visitable)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(TraitStrategy::from_impl(tokens))
+    }
+}
+
+///
+/// Map
+///
+
+impl Imp<Map> for VisitableTrait {
+    fn strategy(node: &Map) -> Option<TraitStrategy> {
+        let inner = quote! {
+            for (i, (_k, v)) in self.0.iter().enumerate() {
+                perform_visit(visitor, v, i);
+            }
+        };
+
+        let inner_mut = quote! {
+            for (i, (_k, v)) in self.0.iter_mut().enumerate() {
+                perform_visit_mut(visitor, v, i);
+            }
+        };
+
+        let q = quote_drives(&inner, &inner_mut);
 
         let tokens = Implementor::new(node.def(), Trait::Visitable)
             .set_tokens(q)
@@ -66,8 +115,11 @@ impl Imp<Newtype> for VisitableTrait {
         let inner = quote! {
            perform_visit(visitor, &self.0, None);
         };
+        let inner_mut = quote! {
+           perform_visit_mut(visitor, &mut self.0, None);
+        };
 
-        let q = quote_drive_method(&inner);
+        let q = quote_drives(&inner, &inner_mut);
 
         let tokens = Implementor::new(node.def(), Trait::Visitable)
             .set_tokens(q)
@@ -94,23 +146,50 @@ impl Imp<Record> for VisitableTrait {
 }
 
 ///
+/// Set
+///
+
+impl Imp<Set> for VisitableTrait {
+    fn strategy(node: &Set) -> Option<TraitStrategy> {
+        let inner = quote! {
+            for (i, v) in self.0.iter().enumerate() {
+                perform_visit(visitor, v, i);
+            }
+        };
+
+        let q = quote_drive(&inner); // only immutable
+
+        let tokens = Implementor::new(node.def(), Trait::Visitable)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(TraitStrategy::from_impl(tokens))
+    }
+}
+
+///
 /// Tuple
 ///
 
 impl Imp<Tuple> for VisitableTrait {
     fn strategy(node: &Tuple) -> Option<TraitStrategy> {
         let mut inner = quote!();
+        let mut inner_mut = quote!();
 
         for (i, _) in node.values.iter().enumerate() {
+            let key = LitStr::new(&i.to_string(), Span::call_site());
             let index = Index::from(i);
-            let key_lit = LitStr::new(&i.to_string(), Span::call_site());
 
             inner.extend(quote! {
-                perform_visit(visitor, &self.#index, #key_lit);
+                perform_visit(visitor, &self.#index, #key);
+            });
+
+            inner_mut.extend(quote! {
+                perform_visit_mut(visitor, &mut self.#index, #key);
             });
         }
 
-        let q = quote_drive_method(&inner);
+        let q = quote_drives(&inner, &inner_mut);
 
         let tokens = Implementor::new(node.def(), Trait::Visitable)
             .set_tokens(q)
@@ -130,6 +209,7 @@ impl Imp<Tuple> for VisitableTrait {
 // field_list
 pub fn field_list(fields: &FieldList) -> TokenStream {
     let mut inner = quote!();
+    let mut inner_mut = quote!();
 
     for f in fields {
         let field_ident = format_ident!("{}", f.ident);
@@ -138,23 +218,26 @@ pub fn field_list(fields: &FieldList) -> TokenStream {
         inner.extend(quote! {
             perform_visit(visitor, &self.#field_ident, #field_ident_s);
         });
+
+        inner_mut.extend(quote! {
+            perform_visit_mut(visitor, &mut self.#field_ident, #field_ident_s);
+        });
     }
 
-    quote_drive_method(&inner)
+    quote_drives(&inner, &inner_mut)
 }
 
 // enum_variant
-pub fn enum_variant(variant: &EnumVariant) -> TokenStream {
+pub fn enum_variant(variant: &EnumVariant) -> (TokenStream, TokenStream) {
     let name = &variant.name;
-
     if variant.value.is_some() {
-        let name_string = name.to_string();
-
-        quote! {
-            Self::#name(value) => perform_visit(visitor, value, #name_string),
-        }
+        let name_str = name.to_string();
+        (
+            quote! { Self::#name(value) => perform_visit(visitor, value, #name_str), },
+            quote! { Self::#name(value) => perform_visit_mut(visitor, value, #name_str), },
+        )
     } else {
-        quote!(Self::#name => {})
+        (quote! { Self::#name => {} }, quote! { Self::#name => {} })
     }
 }
 
@@ -162,13 +245,33 @@ pub fn enum_variant(variant: &EnumVariant) -> TokenStream {
 /// HELPERS
 ///
 
-// quote_drive_method
-// to eliminate a lot of repeating code shared between Node types
-fn quote_drive_method(inner: &TokenStream) -> TokenStream {
+fn quote_drives(inner: &TokenStream, inner_mut: &TokenStream) -> TokenStream {
+    let q = quote_drive(inner);
+    let qm = quote_drive_mut(inner_mut);
+
+    quote! {
+        #q
+        #qm
+    }
+}
+
+// quote_drive
+// (immutable)
+fn quote_drive(inner: &TokenStream) -> TokenStream {
     quote! {
         fn drive(&self, visitor: &mut dyn ::mimic::core::visit::Visitor) {
             use ::mimic::core::visit::perform_visit;
+            #inner
+        }
+    }
+}
 
+// quote_drive_mut
+// (mutable)
+fn quote_drive_mut(inner: &TokenStream) -> TokenStream {
+    quote! {
+        fn drive_mut(&mut self, visitor: &mut dyn ::mimic::core::visit::VisitorMut) {
+            use ::mimic::core::visit::perform_visit_mut;
             #inner
         }
     }

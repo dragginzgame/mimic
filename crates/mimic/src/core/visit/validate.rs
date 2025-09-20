@@ -109,9 +109,8 @@ impl Visitor for ValidateVisitor {
 mod tests {
     use super::*;
     use crate::core::{
-        traits::{Sanitize, ValidateAuto, ValidateCustom, Visitable},
-        validate::validate,
-        visit::perform_visit,
+        traits::{SanitizeAuto, SanitizeCustom, ValidateAuto, ValidateCustom, Visitable},
+        visit::{perform_visit, validate},
     };
     use mimic_common::error::ErrorTree;
 
@@ -121,6 +120,9 @@ mod tests {
     #[derive(Clone, Debug, Default)]
     struct Leaf(bool);
 
+    impl SanitizeAuto for Leaf {}
+    impl SanitizeCustom for Leaf {}
+    impl Visitable for Leaf {}
     impl ValidateAuto for Leaf {}
     impl ValidateCustom for Leaf {
         fn validate_custom(&self) -> Result<(), ErrorTree> {
@@ -132,16 +134,11 @@ mod tests {
         }
     }
 
-    impl Sanitize for Leaf {}
-    impl Visitable for Leaf {}
-
     // Helper: get flattened errors from validate()
     fn flatten_errs(node: &dyn Visitable) -> Vec<(String, String)> {
         match validate(node) {
             Ok(()) => Vec::new(),
-            Err(crate::core::validate::ValidationError::ValidationFailed(tree)) => {
-                tree.flatten_ref()
-            }
+            Err(crate::core::ValidateError::ValidationFailed(tree)) => tree.flatten_ref(),
         }
     }
 
@@ -162,15 +159,16 @@ mod tests {
             nums: Vec<Leaf>,
         }
 
-        impl Sanitize for Container {}
+        impl SanitizeAuto for Container {}
+        impl SanitizeCustom for Container {}
+        impl ValidateAuto for Container {}
+        impl ValidateCustom for Container {}
         impl Visitable for Container {
             fn drive(&self, visitor: &mut dyn Visitor) {
                 // Record field key then Vec indices
                 perform_visit(visitor, &self.nums, "nums");
             }
         }
-        impl ValidateAuto for Container {}
-        impl ValidateCustom for Container {}
 
         let node = Container {
             nums: vec![Leaf(false), Leaf(true), Leaf(false)],
@@ -189,7 +187,8 @@ mod tests {
             leaf: Leaf,
         }
 
-        impl Sanitize for Inner {}
+        impl SanitizeAuto for Inner {}
+        impl SanitizeCustom for Inner {}
         impl ValidateAuto for Inner {}
         impl ValidateCustom for Inner {}
         impl Visitable for Inner {
@@ -202,7 +201,8 @@ mod tests {
         #[derive(Debug, Default)]
         struct Tup2(Leaf, Leaf);
 
-        impl Sanitize for Tup2 {}
+        impl SanitizeAuto for Tup2 {}
+        impl SanitizeCustom for Tup2 {}
         impl ValidateAuto for Tup2 {}
         impl ValidateCustom for Tup2 {}
         impl Visitable for Tup2 {
@@ -216,7 +216,8 @@ mod tests {
         #[derive(Debug, Default)]
         struct MyMap(Vec<(String, Leaf)>);
 
-        impl Sanitize for MyMap {}
+        impl SanitizeAuto for MyMap {}
+        impl SanitizeCustom for MyMap {}
         impl ValidateAuto for MyMap {}
         impl ValidateCustom for MyMap {}
         impl Visitable for MyMap {
@@ -235,7 +236,8 @@ mod tests {
             map: MyMap,
         }
 
-        impl Sanitize for Outer {}
+        impl SanitizeAuto for Outer {}
+        impl SanitizeCustom for Outer {}
         impl ValidateAuto for Outer {}
         impl ValidateCustom for Outer {}
         impl Visitable for Outer {

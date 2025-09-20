@@ -1,16 +1,14 @@
 mod db;
-mod default;
 mod filter;
 mod index;
 mod metrics;
 mod ops;
 mod storage;
-mod validate;
 
 use icu::{cdk::export_candid, prelude::*};
 use mimic::{Error, db::query, prelude::*};
 use test_design::{
-    canister::filter::{Filterable, FilterableView},
+    e2e::filter::{Filterable, FilterableView},
     fixture::rarity::{Rarity, RarityView},
     schema::{TestDataStore, TestIndexStore},
 };
@@ -46,7 +44,6 @@ pub fn clear_test_data_store() {
 #[update]
 pub fn test() {
     let tests: Vec<(&str, fn())> = vec![
-        ("default", default::DefaultTester::test),
         ("db", db::DbTester::test),
         ("delete_filter", filter::delete::DeleteFilterTester::test),
         ("index_filter", filter::index::IndexFilterTester::test),
@@ -55,7 +52,6 @@ pub fn test() {
         ("ops", ops::OpsTester::test),
         ("metrics", metrics::MetricsTester::test),
         ("storage", storage::StorageTester::test),
-        ("validate", validate::ValidateTester::test),
     ];
 
     // run tests

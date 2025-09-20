@@ -5,8 +5,7 @@ use crate::core::{
 
 ///
 /// SanitizeVisitor
-/// Walks a tree and applies `sanitize_self` + `sanitize_children` + `sanitize_custom`
-/// on every node.
+/// Walks a tree and applies sanitize() on every node
 ///
 
 #[derive(Debug, Default)]
@@ -27,7 +26,9 @@ impl SanitizeVisitor {
 impl VisitorMut for SanitizeVisitor {
     fn visit(&mut self, node: &mut dyn Visitable, event: Event) {
         if matches!(event, Event::Enter) {
-            node.sanitize();
+            node.sanitize_self();
+            node.sanitize_children();
+            node.sanitize_custom();
         }
     }
 }

@@ -4,7 +4,47 @@ pub mod validate;
 pub use sanitize::*;
 pub use validate::*;
 
-use crate::core::traits::Visitable;
+use crate::{
+    common::error::ErrorTree,
+    core::{
+        traits::Visitable,
+        visit::{SanitizeVisitor, ValidateVisitor},
+    },
+};
+use thiserror::Error as ThisError;
+
+///
+/// MAIN FUNCTIONS
+///
+
+// sanitize
+pub fn sanitize(node: &mut dyn Visitable) {
+    let mut visitor = SanitizeVisitor::new();
+    perform_visit_mut(&mut visitor, node, PathSegment::Empty);
+}
+
+///
+/// ValidateError
+///
+
+#[derive(Debug, ThisError)]
+pub enum ValidateError {
+    #[error("validation failed: {0}")]
+    ValidationFailed(ErrorTree),
+}
+
+// validate
+pub fn validate(node: &dyn Visitable) -> Result<(), ValidateError> {
+    let mut visitor = ValidateVisitor::new();
+    perform_visit(&mut visitor, node, PathSegment::Empty);
+
+    visitor
+        .errors
+        .result()
+        .map_err(ValidateError::ValidationFailed)?;
+
+    Ok(())
+}
 
 ///
 /// Event
@@ -102,7 +142,7 @@ pub fn perform_visit_mut<S: Into<PathSegment>>(
 }
 
 ///
-/// Visitor
+/// VisitorMut
 /// (adapted for mutable sanitization)
 ///
 

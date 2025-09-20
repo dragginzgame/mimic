@@ -5,6 +5,15 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.21.0] - Sanitizers Working
+
+### Added
+- Expanded the text case sanitizers with snake, kebab, title, and upper-camel converters so all common case transforms are reusable in schema definitions.
+- Introduced design-test newtypes that exercise case validators and sanitizers inside lists, maps, and sets to verify the visitor implementations.
+
+### Docs
+- Updated the README quickstart to reference the `v0.21.0` tag and documented the text casing toolkit alongside the core feature list.
+
 ## [0.20.3] - Return of the Sanitizer
 - serde / candid issue fixed
 - moved validate traits to separate file and fixed a bug with Box, Vec, Option etc.

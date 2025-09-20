@@ -1,24 +1,102 @@
 use crate::{
-    imp::ImpFn,
-    node::{Entity, FieldList, List, Map, Newtype, Record, Set, TypeValidator, Value},
+    imp::{Imp, Implementor, Trait, TraitStrategy},
+    node::{Entity, Enum, FieldList, List, Map, Newtype, Record, Set, TypeValidator, Value},
+    traits::HasDef,
 };
 use mimic_schema::types::Cardinality;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{ToTokens, format_ident, quote};
 
 ///
-/// ValidateChildrenFn
+/// ValidateAuto
 ///
 
-pub struct ValidateChildrenFn {}
+pub struct ValidateAutoTrait;
+
+pub trait ValidateAutoFn {
+    fn self_tokens(_: &Self) -> TokenStream {
+        quote!()
+    }
+
+    fn child_tokens(_: &Self) -> TokenStream {
+        quote!()
+    }
+}
+
+macro_rules! impl_validate_auto {
+    ($ty:ty) => {
+        impl Imp<$ty> for ValidateAutoTrait {
+            fn strategy(node: &$ty) -> Option<TraitStrategy> {
+                let self_tokens = ValidateAutoFn::self_tokens(node);
+                let child_tokens = ValidateAutoFn::child_tokens(node);
+
+                let tokens = Implementor::new(node.def(), Trait::ValidateAuto)
+                    .add_tokens(self_tokens)
+                    .add_tokens(child_tokens)
+                    .to_token_stream();
+
+                Some(TraitStrategy::from_impl(tokens))
+            }
+        }
+    };
+}
+
+impl_validate_auto!(Entity);
+impl_validate_auto!(Enum);
+impl_validate_auto!(List);
+impl_validate_auto!(Map);
+impl_validate_auto!(Newtype);
+impl_validate_auto!(Record);
+impl_validate_auto!(Set);
 
 ///
 /// Entity
 ///
 
-impl ImpFn<Entity> for ValidateChildrenFn {
-    fn tokens(node: &Entity) -> TokenStream {
+impl ValidateAutoFn for Entity {
+    fn child_tokens(node: &Self) -> TokenStream {
         fn_wrap(field_list(&node.fields))
+    }
+}
+
+///
+/// Enum
+/// any variants that have the invalid flag set should not
+/// pass validation if selected
+///
+
+impl ValidateAutoFn for Enum {
+    fn self_tokens(node: &Self) -> TokenStream {
+        let invalid_arms: TokenStream = node
+            .variants
+            .iter()
+            .filter(|v| v.unspecified)
+            .map(|v| {
+                let name = format!("{}", v.name);
+                let ident = format_ident!("{}", v.name);
+                quote! {
+                    Self::#ident => Err(format!("unspecified variant: {}", #name).into()),
+                }
+            })
+            .collect();
+
+        // inner
+        let inner = if invalid_arms.is_empty() {
+            quote!(Ok(()))
+        } else {
+            quote! {
+                match &self {
+                    #invalid_arms
+                    _ => Ok(()),
+                }
+            }
+        };
+
+        quote! {
+            fn validate_self(&self) -> ::std::result::Result<(), ::mimic::common::error::ErrorTree> {
+                #inner
+            }
+        }
     }
 }
 
@@ -26,8 +104,8 @@ impl ImpFn<Entity> for ValidateChildrenFn {
 /// List
 ///
 
-impl ImpFn<List> for ValidateChildrenFn {
-    fn tokens(node: &List) -> TokenStream {
+impl ValidateAutoFn for List {
+    fn child_tokens(node: &Self) -> TokenStream {
         let inner = generate_validators_inner(&node.item.validators, quote!(v)).map(|block| {
             quote! {
                 for v in &self.0 {
@@ -44,8 +122,8 @@ impl ImpFn<List> for ValidateChildrenFn {
 /// Map
 ///
 
-impl ImpFn<Map> for ValidateChildrenFn {
-    fn tokens(node: &Map) -> TokenStream {
+impl ValidateAutoFn for Map {
+    fn child_tokens(node: &Self) -> TokenStream {
         let key_rules = generate_validators_inner(&node.key.validators, quote!(k));
         let value_rules = generate_value_validation_inner(&node.value, quote!(v));
 
@@ -69,8 +147,8 @@ impl ImpFn<Map> for ValidateChildrenFn {
 /// Newtype
 ///
 
-impl ImpFn<Newtype> for ValidateChildrenFn {
-    fn tokens(node: &Newtype) -> TokenStream {
+impl ValidateAutoFn for Newtype {
+    fn child_tokens(node: &Self) -> TokenStream {
         let type_rules = generate_validators_inner(&node.ty.validators, quote!(&self.0));
         let item_rules = generate_validators_inner(&node.item.validators, quote!(&self.0));
 
@@ -92,8 +170,8 @@ impl ImpFn<Newtype> for ValidateChildrenFn {
 /// Record
 ///
 
-impl ImpFn<Record> for ValidateChildrenFn {
-    fn tokens(node: &Record) -> TokenStream {
+impl ValidateAutoFn for Record {
+    fn child_tokens(node: &Self) -> TokenStream {
         fn_wrap(field_list(&node.fields))
     }
 }
@@ -102,8 +180,8 @@ impl ImpFn<Record> for ValidateChildrenFn {
 /// Set
 ///
 
-impl ImpFn<Set> for ValidateChildrenFn {
-    fn tokens(node: &Set) -> TokenStream {
+impl ValidateAutoFn for Set {
+    fn child_tokens(node: &Self) -> TokenStream {
         let inner = generate_validators_inner(&node.item.validators, quote!(v)).map(|block| {
             quote! {
                 for v in &self.0 {

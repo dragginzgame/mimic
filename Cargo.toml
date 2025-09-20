@@ -5,7 +5,6 @@ members = [
     "crates/mimic_common",
     "crates/mimic_declare",
     "crates/mimic_schema",
-    "crates/mimic_tests",
     "crates/mimic_tests/canister",
     "crates/mimic_tests/design",
 ]
@@ -14,7 +13,7 @@ resolver = "2"
 [workspace.package]
 rust-version = "1.89.0"
 edition = "2024"
-version = "0.20.4"
+version = "0.21.0"
 authors = ["borovan <84897664+borovan@users.noreply.github.com>"]
 description = "A type-safe, embedded ORM and schema system for the Internet Computer"
 categories = ["database", "web-programming", "wasm"]

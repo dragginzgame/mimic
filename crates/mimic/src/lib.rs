@@ -73,7 +73,7 @@ pub mod prelude {
     pub use ::candid::CandidType;
 }
 
-use crate::core::{serialize::SerializeError, validate::ValidationError};
+use crate::core::{SerializeError, ValidateError};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use thiserror::Error as ThisError;
@@ -97,7 +97,7 @@ pub enum Error {
     InterfaceError(String),
 
     #[error("{0}")]
-    ValidationError(String),
+    ValidateError(String),
 
     #[error("{0}")]
     SerializeError(String),
@@ -117,5 +117,5 @@ from_to_string!(icu::IcuError, IcuError);
 
 from_to_string!(db::DbError, DbError);
 from_to_string!(interface::InterfaceError, InterfaceError);
-from_to_string!(ValidationError, ValidationError);
+from_to_string!(ValidateError, ValidateError);
 from_to_string!(SerializeError, SerializeError);

@@ -1,18 +1,42 @@
 pub mod admin;
-pub mod canister;
+pub mod e2e;
 pub mod fixture;
 pub mod schema;
-pub mod simple;
+pub mod test;
 
 ///
 /// Prelude
 ///
 
 pub(crate) mod prelude {
-    pub use crate::schema::{TestDataStore, TestIndexStore};
+    pub use crate::{
+        assert_invalid, assert_valid,
+        schema::{TestDataStore, TestIndexStore},
+    };
     pub use mimic::design::{
-        base::{types, validator},
+        base::{sanitizer, types, validator},
         prelude::*,
     };
 }
-pub use prelude::*;
+
+#[macro_export]
+macro_rules! assert_valid {
+    ($value:expr) => {
+        assert!(
+            mimic::core::validate(&$value).is_ok(),
+            "expected valid: {:?}",
+            &$value
+        );
+    };
+}
+
+#[macro_export]
+macro_rules! assert_invalid {
+    ($value:expr) => {
+        assert!(
+            mimic::core::validate(&$value).is_err(),
+            "expected invalid: {:?}",
+            &$value
+        );
+    };
+}

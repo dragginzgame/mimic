@@ -6,7 +6,8 @@ use crate::{
     common::error::ErrorTree,
     core::{
         traits::{
-            FieldValue, Sanitize, Storable, TypeView, ValidateAuto, ValidateCustom, Visitable,
+            FieldValue, SanitizeAuto, SanitizeCustom, Storable, TypeView, ValidateAuto,
+            ValidateCustom, Visitable,
         },
         value::Value,
     },
@@ -169,7 +170,9 @@ impl<'de> Deserialize<'de> for Ulid {
     }
 }
 
-impl Sanitize for Ulid {}
+impl SanitizeAuto for Ulid {}
+
+impl SanitizeCustom for Ulid {}
 
 impl Storable for Ulid {
     const BOUND: Bound = Bound::Bounded {

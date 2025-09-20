@@ -33,11 +33,7 @@ We provide a convenient script for managing versions: `scripts/app/version.sh`
 # Bump major version (0.15.2 -> 1.0.0)
 ./scripts/app/version.sh major
 
-# Create a release with current version
-./scripts/app/version.sh release
-
-# Create a release with specific version
-./scripts/app/version.sh release 1.0.0
+# The script supports semver increments (patch/minor/major) and updates manifests automatically.
 ```
 
 ### What the script does
@@ -125,18 +121,7 @@ All crates in the workspace share the same version. When you bump the version:
 
 ## Pre-release Versions
 
-For pre-releases (alpha, beta, rc), you can use the release command with a specific version:
-
-```bash
-# Create alpha release
-./scripts/app/version.sh release 1.0.0-alpha.1
-
-# Create beta release
-./scripts/app/version.sh release 1.0.0-beta.1
-
-# Create release candidate
-./scripts/app/version.sh release 1.0.0-rc.1
-```
+The helper script currently supports strict patch/minor/major bumps. For pre-release identifiers (e.g., `1.0.0-beta.1`), update `Cargo.toml` manually, regenerate `Cargo.lock`, and create the annotated tag yourself.
 
 ## Troubleshooting
 

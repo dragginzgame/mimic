@@ -3,7 +3,7 @@ use mimic::{
     db::query::{self, LoadQuery, QueryPlan, QueryPlanner},
     prelude::*,
 };
-use test_design::canister::index::{Indexable, IndexableOptText, NotIndexable};
+use test_design::e2e::index::{Indexable, IndexableOptText, NotIndexable};
 
 pub struct IndexTester;
 

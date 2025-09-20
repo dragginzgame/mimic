@@ -10,6 +10,7 @@ mod into;
 mod num_cast;
 mod partial_eq;
 mod partial_ord;
+mod sanitize;
 mod store;
 mod type_view;
 mod validate;
@@ -27,6 +28,7 @@ pub use into::*;
 pub use num_cast::*;
 pub use partial_eq::*;
 pub use partial_ord::*;
+pub use sanitize::*;
 pub use store::*;
 pub use type_view::*;
 pub use validate::*;
@@ -41,15 +43,6 @@ use proc_macro2::TokenStream;
 
 pub trait Imp<N> {
     fn strategy(node: &N) -> Option<TraitStrategy>;
-}
-
-///
-/// ImpFn
-/// for breaking down traits even further
-///
-
-pub trait ImpFn<N> {
-    fn tokens(node: &N) -> TokenStream;
 }
 
 ///

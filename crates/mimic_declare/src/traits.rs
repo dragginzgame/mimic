@@ -143,7 +143,8 @@ pub trait HasTraits: HasDef + ToTokens {
             | Trait::EntityFixture
             | Trait::EntityIdKind
             | Trait::FieldValue
-            | Trait::Sanitize
+            | Trait::SanitizeAuto
+            | Trait::SanitizeCustom
             | Trait::ValidateAuto
             | Trait::ValidateCustom
             | Trait::Visitable => {

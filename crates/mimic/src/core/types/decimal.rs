@@ -1,5 +1,7 @@
 use crate::core::{
-    traits::{FieldValue, Sanitize, TypeView, ValidateAuto, ValidateCustom, Visitable},
+    traits::{
+        FieldValue, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom, Visitable,
+    },
     value::Value,
 };
 use candid::CandidType;
@@ -42,6 +44,11 @@ impl Decimal {
     #[must_use]
     pub fn new(num: i64, scale: u32) -> Self {
         Self(WrappedDecimal::new(num, scale))
+    }
+
+    // NumCast::from gives a disambiguation
+    pub fn from_num<N: NumCast>(n: N) -> Option<Self> {
+        <Self as NumCast>::from(n)
     }
 
     ///
@@ -226,7 +233,9 @@ impl ToPrimitive for Decimal {
     }
 }
 
-impl Sanitize for Decimal {}
+impl SanitizeAuto for Decimal {}
+
+impl SanitizeCustom for Decimal {}
 
 impl TypeView for Decimal {
     type View = Self;

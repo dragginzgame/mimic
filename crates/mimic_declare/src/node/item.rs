@@ -1,6 +1,6 @@
 use crate::{
     helper::{quote_one, quote_option, quote_slice, to_path},
-    node::TypeValidator,
+    node::{TypeSanitizer, TypeValidator},
     traits::{HasSchemaPart, HasTypePart},
 };
 use darling::FromMeta;
@@ -26,6 +26,9 @@ pub struct Item {
 
     #[darling(default)]
     pub selector: Option<Path>,
+
+    #[darling(multiple, rename = "sanitizer")]
+    pub sanitizers: Vec<TypeSanitizer>,
 
     #[darling(multiple, rename = "validator")]
     pub validators: Vec<TypeValidator>,
@@ -71,6 +74,7 @@ impl HasSchemaPart for Item {
         let relation = quote_option(self.relation.as_ref(), to_path);
         let selector = quote_option(self.selector.as_ref(), to_path);
         let validators = quote_slice(&self.validators, TypeValidator::schema_part);
+        let sanitizers = quote_slice(&self.sanitizers, TypeSanitizer::schema_part);
         let indirect = self.indirect;
         let todo = self.todo;
 
@@ -80,6 +84,7 @@ impl HasSchemaPart for Item {
                 relation: #relation,
                 selector: #selector,
                 validators: #validators,
+                sanitizers: #sanitizers,
                 indirect: #indirect,
                 todo: #todo,
             }

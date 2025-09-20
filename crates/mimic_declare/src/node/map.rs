@@ -72,8 +72,10 @@ impl HasTraits for Map {
 
         match t {
             Trait::From => FromTrait::strategy(self),
+            Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
             Trait::TypeView => TypeViewTrait::strategy(self),
             Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
+            Trait::Visitable => VisitableTrait::strategy(self),
 
             _ => None,
         }

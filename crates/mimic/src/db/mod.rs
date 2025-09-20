@@ -7,9 +7,8 @@ pub mod store;
 use crate::{
     Error,
     core::{
-        serialize::SerializeError,
+        SerializeError, ValidateError,
         traits::{CanisterKind, EntityKind},
-        validate::ValidationError,
     },
     db::{
         executor::{DeleteExecutor, ExecutorError, LoadExecutor, SaveExecutor},
@@ -43,7 +42,7 @@ pub enum DbError {
     StoreError(#[from] StoreError),
 
     #[error(transparent)]
-    ValidationError(#[from] ValidationError),
+    ValidateError(#[from] ValidateError),
 }
 
 ///

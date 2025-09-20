@@ -1,6 +1,6 @@
 use crate::{
     Error,
-    core::{Key, deserialize, serialize, traits::EntityKind, validate::validate},
+    core::{Key, deserialize, sanitize, serialize, traits::EntityKind, validate},
     db::{
         Db, DbError,
         executor::{Context, ExecutorError},
@@ -116,7 +116,8 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
         let key = entity.key();
         let ctx = self.context();
 
-        // validate
+        // sanitize & validate
+        sanitize(&mut entity);
         validate(&entity)?;
 
         // debug

@@ -23,7 +23,7 @@ impl OpsTester {
 
     // missing_field
     fn missing_field() {
-        use test_design::canister::db::{MissingFieldLarge, MissingFieldSmall};
+        use test_design::e2e::db::{MissingFieldLarge, MissingFieldSmall};
 
         let small = MissingFieldSmall {
             a_id: Ulid::generate(),

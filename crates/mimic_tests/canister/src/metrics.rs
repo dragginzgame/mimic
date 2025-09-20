@@ -30,7 +30,7 @@ impl MetricsTester {
 
     // basic load/save/delete counters and rows touched
     fn counters_basic() {
-        use test_design::canister::db::CreateBasic;
+        use test_design::e2e::db::CreateBasic;
 
         // 3 creates → 3 save calls
         for _ in 0..3 {
@@ -80,7 +80,7 @@ impl MetricsTester {
 
     // index insert/remove and unique violation are counted
     fn index_counters_and_violation() {
-        use test_design::canister::db::Index;
+        use test_design::e2e::db::Index;
 
         // Insert e1, e2 (each has 2 indexes) → index_inserts += 4
         let e1 = Index::new(1, 10);
@@ -133,7 +133,7 @@ impl MetricsTester {
 
     // verify reset clears counters via the endpoint as well
     fn reset_metrics() {
-        use test_design::canister::db::CreateBasic;
+        use test_design::e2e::db::CreateBasic;
 
         // Bump something
         db!().create(CreateBasic::default()).unwrap();

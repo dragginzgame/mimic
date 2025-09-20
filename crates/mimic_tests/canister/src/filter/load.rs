@@ -2,9 +2,7 @@ use mimic::{
     core::types::{Decimal, Principal},
     prelude::*,
 };
-use test_design::canister::filter::{
-    Filterable, FilterableEnum, FilterableEnumFake, FilterableOpt,
-};
+use test_design::e2e::filter::{Filterable, FilterableEnum, FilterableEnumFake, FilterableOpt};
 
 ///
 /// LoadFilterTester

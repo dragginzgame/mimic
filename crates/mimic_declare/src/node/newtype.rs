@@ -117,6 +117,7 @@ impl HasTraits for Newtype {
             Trait::NumCast => NumCastTrait::strategy(self),
             Trait::NumToPrimitive => NumToPrimitiveTrait::strategy(self),
             Trait::NumFromPrimitive => NumFromPrimitiveTrait::strategy(self),
+            Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
             Trait::TypeView => TypeViewTrait::strategy(self),
             Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
             Trait::Visitable => VisitableTrait::strategy(self),

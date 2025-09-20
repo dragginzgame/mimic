@@ -43,7 +43,7 @@ impl DbTester {
     //
 
     fn query_fail_filter() {
-        use test_design::canister::db::CreateBasic;
+        use test_design::e2e::db::CreateBasic;
 
         let query = query::load().filter(|f| f.eq("wefwefasd", "A"));
         let res = db!().load::<CreateBasic>().execute(&query);
@@ -52,7 +52,7 @@ impl DbTester {
     }
 
     fn query_fail_sort() {
-        use test_design::canister::db::CreateBasic;
+        use test_design::e2e::db::CreateBasic;
 
         let res = db!()
             .load::<CreateBasic>()
@@ -62,7 +62,7 @@ impl DbTester {
     }
 
     fn blob() {
-        use test_design::canister::db::ContainsBlob;
+        use test_design::e2e::db::ContainsBlob;
 
         const ROWS: usize = 100;
 
@@ -93,7 +93,7 @@ impl DbTester {
 
     // create
     fn create() {
-        use test_design::canister::db::CreateBasic;
+        use test_design::e2e::db::CreateBasic;
 
         let e = CreateBasic::default();
         db!().create(e).unwrap();
@@ -112,7 +112,7 @@ impl DbTester {
 
     // create_lots
     fn create_lots() {
-        use test_design::canister::db::CreateBasic;
+        use test_design::e2e::db::CreateBasic;
         const ROWS: u32 = 1_000;
 
         // insert rows
@@ -130,7 +130,7 @@ impl DbTester {
 
     // create_lots_blob
     fn create_lots_blob() {
-        use test_design::canister::db::CreateBlob;
+        use test_design::e2e::db::CreateBlob;
         const ROWS: u32 = 500;
         const BLOB_SIZE: usize = 1024 * 2;
 
@@ -153,7 +153,7 @@ impl DbTester {
 
     // data_key_order
     fn data_key_order() {
-        use test_design::canister::db::DataKeyOrder;
+        use test_design::e2e::db::DataKeyOrder;
 
         const ROWS: u16 = 1_000;
 
@@ -178,7 +178,7 @@ impl DbTester {
 
     // delete_lots
     fn delete_lots() {
-        use test_design::canister::db::CreateBasic;
+        use test_design::e2e::db::CreateBasic;
 
         const ROWS: usize = 500;
 
@@ -210,7 +210,7 @@ impl DbTester {
 
     // index_create_and_delete
     fn index_create_and_delete() {
-        use test_design::canister::db::Index;
+        use test_design::e2e::db::Index;
 
         // Step 1: Insert entity e1 with x=1, y=10
         let e1 = Index::new(1, 10);
@@ -262,7 +262,7 @@ impl DbTester {
     }
 
     fn index_option() {
-        use test_design::canister::db::IndexUniqueOpt;
+        use test_design::e2e::db::IndexUniqueOpt;
 
         // Insert entity with Some(10)
         let e1 = IndexUniqueOpt {
@@ -327,7 +327,7 @@ impl DbTester {
     }
 
     fn limit_query() {
-        use test_design::canister::db::Limit;
+        use test_design::e2e::db::Limit;
 
         // Insert 100 rows
         // overwrite the ulid with replace()
@@ -359,7 +359,7 @@ impl DbTester {
     }
 
     fn load_one() {
-        use test_design::canister::db::CreateBasic;
+        use test_design::e2e::db::CreateBasic;
 
         let saved = db!().create(CreateBasic::default()).unwrap();
 
@@ -369,7 +369,7 @@ impl DbTester {
     }
 
     fn load_many() {
-        use test_design::canister::db::CreateBasic;
+        use test_design::e2e::db::CreateBasic;
 
         let key1 = db!().create(CreateBasic::default()).unwrap().key();
         let key2 = db!().create(CreateBasic::default()).unwrap().key();
@@ -389,7 +389,7 @@ impl DbTester {
     }
 
     fn perf_options() {
-        use test_design::canister::db::ContainsOpts;
+        use test_design::e2e::db::ContainsOpts;
 
         const ROWS: u16 = 500;
 
@@ -408,7 +408,7 @@ impl DbTester {
     }
 
     fn perf_many_relations() {
-        use test_design::canister::db::ContainsManyRelations;
+        use test_design::e2e::db::ContainsManyRelations;
 
         const ROWS: u16 = 500;
 

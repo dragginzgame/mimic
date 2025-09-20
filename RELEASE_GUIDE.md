@@ -8,14 +8,14 @@ This guide covers the complete workflow for developing, versioning, and releasin
 
 ```toml
 [dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0" }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0" }
 ```
 
 ### Check Available Versions
 
 ```bash
 # From your project directory
-git ls-remote --tags git@github.com:dragginzgame/mimic.git | grep "v0.17"
+git ls-remote --tags git@github.com:dragginzgame/mimic.git | grep "v0.21"
 
 # Or use our helper script (if you have the repo cloned)
 ./scripts/app/check-git-versions.sh
@@ -51,13 +51,12 @@ make tags
 ### 3. Create Release
 
 ```bash
-# Bump version (choose one)
+# Bump version (choose one; updates Cargo.toml/Cargo.lock and tags)
 make patch    # 0.17.0 -> 0.17.1
 make minor    # 0.17.0 -> 0.18.0
 make major    # 0.17.0 -> 1.0.0
 
-# Or create a specific version
-./scripts/app/version.sh release 1.0.0
+# The script stages manifest changes before committing and tagging.
 ```
 
 ### 4. Push Release
@@ -93,8 +92,7 @@ make major            # 0.17.0 -> 1.0.0
 ### Create Releases
 
 ```bash
-make release          # Create release with current version
-./scripts/app/version.sh release 1.0.0  # Specific version
+make release          # No-op; CI runs on tag push
 ```
 
 ## 📦 Release Workflow
@@ -219,14 +217,14 @@ git ls-remote git@github.com:dragginzgame/mimic.git
 
 ```toml
 [dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0" }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0" }
 ```
 
 ### With Features
 
 ```toml
 [dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0", features = ["serde"] }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0", features = ["serde"] }
 ```
 
 ### Development Version
@@ -240,7 +238,7 @@ mimic = { git = "git@github.com:dragginzgame/mimic.git", branch = "main", featur
 
 ```toml
 [workspace.dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.17.0" }
+mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0" }
 
 [dependencies]
 mimic = { workspace = true }

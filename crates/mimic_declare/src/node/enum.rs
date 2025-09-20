@@ -62,6 +62,7 @@ impl HasTraits for Enum {
             Trait::FieldValue => FieldValueTrait::strategy(self),
             Trait::From => FromTrait::strategy(self),
             Trait::TypeView => TypeViewTrait::strategy(self),
+            Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
             Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
             Trait::Visitable => VisitableTrait::strategy(self),
 
