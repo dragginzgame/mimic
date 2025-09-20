@@ -12,31 +12,27 @@ fi
 PREV=$(cargo metadata --no-deps --format-version=1 \
   | jq -r '.workspace_metadata.workspace.package.version // .packages[0].version')
 
-
 # Bump
-cargo set-version --bump "$BUMP_TYPE" >/dev/null
+cargo set-version --workspace --bump "$BUMP_TYPE" >/dev/null
 
 # New version
-NEW=$(cargo pkgid | cut -d# -f2 | cut -d: -f2)
+NEW=$(cargo metadata --no-deps --format-version=1 \
+  | jq -r '.workspace_metadata.workspace.package.version // .packages[0].version')
 
 if [[ "$PREV" == "$NEW" ]]; then
   echo "Version unchanged ($NEW)"
   exit 0
 fi
 
-# Update lockfile if present
 [[ -f Cargo.lock ]] && cargo generate-lockfile >/dev/null
 
-# Stage changes
 git add Cargo.toml Cargo.lock $(git ls-files -m -- */Cargo.toml || true)
 
-# Ensure tag doesn't already exist
 if git rev-parse "v$NEW" >/dev/null 2>&1; then
   echo "❌ Tag v$NEW already exists. Aborting." >&2
   exit 1
 fi
 
-# Commit + tag + push
 git commit -m "Release $NEW"
 git tag -a "v$NEW" -m "Release $NEW"
 git push --follow-tags
