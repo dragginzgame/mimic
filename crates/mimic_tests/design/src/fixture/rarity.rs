@@ -24,8 +24,8 @@ impl EntityFixture for Rarity {
         use RarityId as Id;
 
         let data = [
-            (Id::Common, "Common", 1, "111111"),
-            (Id::Uncommon, "Uncommon", 2, "222222"),
+            (Id::Common, "Common", 1, "aaaaaa"),
+            (Id::Uncommon, "Uncommon", 2, "bbbbbb"),
             (Id::Rare, "Rare", 3, "333333"),
             (Id::Epic, "Epic", 4, "444444"),
             (Id::Legendary, "Legendary", 5, "555555"),

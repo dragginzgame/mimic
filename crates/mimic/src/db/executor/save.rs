@@ -160,8 +160,8 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
 
         // insert data row
         ctx.with_store_mut(|store| store.insert(data_key.clone(), bytes))?;
-
         span.set_rows(1);
+
         Ok(entity)
     }
 
@@ -189,6 +189,7 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
                     metrics::with_state_mut(|m| {
                         metrics::record_unique_violation_for::<E>(m);
                     });
+
                     return Err(ExecutorError::index_violation(E::PATH, index.fields).into());
                 }
             }
@@ -202,6 +203,7 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
                     s.remove_index_entry(old, index);
                 }
                 s.insert_index_entry(new, index)?;
+
                 Ok::<(), DbError>(())
             })?;
         }

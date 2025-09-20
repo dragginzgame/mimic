@@ -1,4 +1,5 @@
 pub mod case;
+pub mod color;
 
 use crate::{core::traits::Sanitizer, design::prelude::*};
 
