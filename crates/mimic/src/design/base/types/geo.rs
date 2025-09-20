@@ -19,7 +19,7 @@ use crate::design::{
         validator(path = "validator::len::Range", args(1, 100)),
     )
 )]
-pub struct StreetLine {}
+pub struct AddressLine {}
 
 ///
 /// PostalCode
