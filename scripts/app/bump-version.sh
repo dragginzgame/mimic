@@ -8,8 +8,10 @@ if ! cargo set-version --help >/dev/null 2>&1; then
   exit 1
 fi
 
-# Current version
-PREV=$(cargo pkgid | cut -d# -f2 | cut -d: -f2)
+# Current version (from [workspace.package])
+PREV=$(cargo metadata --no-deps --format-version=1 \
+  | jq -r '.workspace_metadata.workspace.package.version // .packages[0].version')
+
 
 # Bump
 cargo set-version --workspace --bump "$BUMP_TYPE" >/dev/null
