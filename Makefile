@@ -44,22 +44,22 @@ help:
 
 # Version management (always format first)
 version:
-	@scripts/app/version.sh current
+	@awk '$(VERSION_AWK)' Cargo.toml
 
 current:
-	@scripts/app/version.sh current
+	@$(MAKE) --no-print-directory version
 
 tags:
 	@git tag --sort=-version:refname | head -10
 
 patch: ensure-clean fmt
-	@scripts/app/version.sh patch
+	./scripts/bump-version.sh patch
 
 minor: ensure-clean fmt
-	@scripts/app/version.sh minor
+	./scripts/bump-version.sh minor
 
 major: ensure-clean fmt
-	@scripts/app/version.sh major
+	./scripts/bump-version.sh major
 
 release: ensure-clean
 	@echo "Release handled by CI on tag push"

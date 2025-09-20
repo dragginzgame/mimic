@@ -30,23 +30,16 @@ print_error() {
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)"
 CARGO_TOML="$ROOT/Cargo.toml"
 CHANGELOG="$ROOT/CHANGELOG.md"
-VERSION_SCRIPT="$ROOT/scripts/app/version.sh"
 MAKEFILE="$ROOT/Makefile"
 
 echo "🔍 Checking versioning system setup..."
 echo ""
 
-# Check if version script exists and is executable
-if [ -f "$VERSION_SCRIPT" ]; then
-    if [ -x "$VERSION_SCRIPT" ]; then
-        print_success "Version script exists and is executable"
-    else
-        print_error "Version script exists but is not executable"
-        chmod +x "$VERSION_SCRIPT"
-        print_info "Made version script executable"
-    fi
+# Check that cargo set-version is available
+if cargo set-version --help >/dev/null 2>&1; then
+    print_success "cargo set-version is available"
 else
-    print_error "Version script not found at $VERSION_SCRIPT"
+    print_error "cargo set-version not found. Install cargo-edit or upgrade Rust (>= 1.75)."
     exit 1
 fi
 
@@ -60,11 +53,11 @@ fi
 
 # Check if Cargo.toml exists and has version
 if [ -f "$CARGO_TOML" ]; then
-    if grep -q '^version = ' "$CARGO_TOML"; then
-        current_version=$(grep '^version = ' "$CARGO_TOML" | sed 's/version = "\(.*\)"/\1/')
+    current_version=$(awk '/^\[workspace\.package\]/{in_section=1;next}/^\[/{in_section=0} in_section && match($0,/^[[:space:]]*version[[:space:]]*=[[:space:]]*"([^"]+)"/,m){print m[1]; exit}' "$CARGO_TOML")
+    if [ -n "$current_version" ]; then
         print_success "Cargo.toml exists with version: $current_version"
     else
-        print_error "Cargo.toml exists but has no version field"
+        print_error "Cargo.toml exists but workspace version could not be determined"
         exit 1
     fi
 else
@@ -97,22 +90,14 @@ else
     print_warning ".github/workflows directory not found"
 fi
 
-# Test version script functionality
+# Test cargo set-version functionality
 echo ""
-print_info "Testing version script functionality..."
+print_info "Testing cargo set-version (dry run)..."
 
-# Test current version command
-if ./scripts/app/version.sh current > /dev/null 2>&1; then
-    print_success "Version script 'current' command works"
+if cargo set-version --workspace --bump patch --dry-run >/dev/null 2>&1; then
+    print_success "cargo set-version dry run succeeded"
 else
-    print_error "Version script 'current' command failed"
-fi
-
-# Test help command
-if ./scripts/app/version.sh help > /dev/null 2>&1; then
-    print_success "Version script 'help' command works"
-else
-    print_error "Version script 'help' command failed"
+    print_error "cargo set-version dry run failed"
 fi
 
 # Test Makefile targets
@@ -188,7 +173,7 @@ print_success "Versioning system check complete!"
 echo ""
 print_info "Next steps:"
 echo "  1. Update CHANGELOG.md with your changes"
-echo "  2. Run 'make patch' (or minor/major) to bump version"
-echo "  3. Run 'git push --follow-tags' to create a release"
+echo "  2. Run 'make patch' (or minor/major) to bump and push the release"
+echo "  3. Verify CI workflows complete successfully"
 echo ""
 print_info "For more information, see VERSIONING.md" 

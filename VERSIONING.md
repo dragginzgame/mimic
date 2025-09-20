@@ -14,35 +14,32 @@ Mimic uses [Semantic Versioning](https://semver.org/) (SemVer) for all releases.
 
 The current version is managed in the workspace `Cargo.toml` file and is shared across all crates in the workspace.
 
-## Version Management Script
+## Version Management Commands
 
-We provide a convenient script for managing versions: `scripts/app/version.sh`
+Mimic’s release workflow is driven entirely from the Makefile and Cargo’s
+`set-version` subcommand.
 
-### Usage
+### Show the current version
 
 ```bash
-# Show current version
-./scripts/app/version.sh current
-
-# Bump patch version (0.15.2 -> 0.15.3)
-./scripts/app/version.sh patch
-
-# Bump minor version (0.15.2 -> 0.16.0)
-./scripts/app/version.sh minor
-
-# Bump major version (0.15.2 -> 1.0.0)
-./scripts/app/version.sh major
-
-# The script supports semver increments (patch/minor/major) and updates manifests automatically.
+make version
 ```
 
-### What the script does
+### Bump the version
 
-1. **Version bumping**: Updates the workspace version in `Cargo.toml` and syncs workspace crates in `Cargo.lock`
-2. **Git operations**: Creates a release commit and annotated tag
-3. **Validation**: Ensures the working directory is clean before proceeding
+Each command runs `cargo set-version --workspace --bump …`, regenerates the
+lockfile, commits the change, creates an annotated tag, and pushes to origin.
 
-> **Tip:** Update `CHANGELOG.md` manually before running the version script.
+```bash
+make patch    # 0.15.2 -> 0.15.3
+make minor    # 0.15.2 -> 0.16.0
+make major    # 0.15.2 -> 1.0.0
+```
+
+> **Tip:** Update `CHANGELOG.md` manually before running a bump command.
+
+These targets require `cargo-edit` (for `cargo set-version`) and will abort if
+the working tree is dirty or the resulting tag already exists.
 
 ## Release Process
 
@@ -58,25 +55,17 @@ Before creating a release:
 
 ```bash
 # For a patch release (bug fixes)
-./scripts/app/version.sh patch
+make patch
 
 # For a minor release (new features)
-./scripts/app/version.sh minor
+make minor
 
 # For a major release (breaking changes)
-./scripts/app/version.sh major
+make major
 ```
 
-### 3. Push Release
-
-```bash
-git push --follow-tags
-```
-
-This will:
-- Push the version bump commit
-- Push the git tag
-- Trigger the GitHub Actions release workflow
+The targets automatically create the release commit, tag, and push via
+`git push --follow-tags`, triggering the GitHub Actions release workflow.
 
 ## Automated Release Workflow
 
@@ -134,8 +123,8 @@ If you get an error about the working directory not being clean:
 git add .
 git commit -m "Your commit message"
 
-# Then run the version script
-./scripts/app/version.sh patch
+# Then run the version bump
+make patch
 ```
 
 ### Tag Already Exists
@@ -144,7 +133,7 @@ If a tag already exists for the version you're trying to create:
 
 1. Delete the local tag: `git tag -d v1.0.0`
 2. Delete the remote tag: `git push origin :refs/tags/v1.0.0`
-3. Run the version script again
+3. Run the version bump command again (`make patch`, `make minor`, or `make major`)
 
 ### Release Issues
 
