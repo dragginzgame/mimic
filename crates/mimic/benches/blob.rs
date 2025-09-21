@@ -16,7 +16,7 @@ const BYTES: usize = 4096;
 
 fn serialize_blob_round_trip(b: &mut Bencher) {
     // Prepare deterministic bytes (no RNG overhead in the hot loop)
-    let bytes: Vec<u8> = (0..BYTES as u32).map(|i| (i as u8)).collect();
+    let bytes: Vec<u8> = (0..BYTES as u32).map(|i| i as u8).collect();
     let blob = Blob::from(bytes);
 
     b.iter(|| {
@@ -31,7 +31,7 @@ fn serialize_blob_round_trip(b: &mut Bencher) {
 }
 
 fn serialize_blob(b: &mut Bencher) {
-    let bytes: Vec<u8> = (0..BYTES as u32).map(|i| (i as u8)).collect();
+    let bytes: Vec<u8> = (0..BYTES as u32).map(|i| i as u8).collect();
     let blob = Blob::from(bytes);
 
     b.iter(|| {
@@ -41,7 +41,7 @@ fn serialize_blob(b: &mut Bencher) {
 }
 
 fn deserialize_blob(b: &mut Bencher) {
-    let bytes: Vec<u8> = (0..BYTES as u32).map(|i| (i as u8)).collect();
+    let bytes: Vec<u8> = (0..BYTES as u32).map(|i| i as u8).collect();
     let blob = Blob::from(bytes);
     let encoded = serialize(&blob).expect("serialize Blob");
 

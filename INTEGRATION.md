@@ -13,8 +13,8 @@ mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0" }
 
 ### Toolchain
 
-- Rust 1.89.0 (edition 2024). Install with:
-  - `rustup toolchain install 1.89.0`
+- Rust 1.90.0 (edition 2024). Install with:
+  - `rustup toolchain install 1.90.0`
   - Ensure CI and local dev use the same toolchain.
 
 ## Integration Methods

@@ -14,6 +14,12 @@ ensure-clean:
 help:
 	@echo "Available commands:"
 	@echo ""
+	@echo "Setup / Installation:"
+	@echo "  install-all      Install both dev and canister dependencies"
+	@echo "  install-dev      Install Rust development dependencies"
+	@echo "  install-canister-deps  Install Wasm target + candid tools"
+	@echo "  install-hooks    Configure git hooks"
+	@echo ""
 	@echo "Version Management:"
 	@echo "  version          Show current version"
 	@echo "  tags             List available git tags"
@@ -32,7 +38,6 @@ help:
 	@echo "  clean            Clean build artifacts"
 	@echo ""
 	@echo "Utilities:"
-	@echo "  install-dev      Install development dependencies"
 	@echo "  test-watch       Run tests in watch mode"
 	@echo "  all              Run all checks, tests, and build"
 	@echo "  security-check   Verify GitHub Protected Tags (informational)"
@@ -42,12 +47,43 @@ help:
 	@echo "  make test        # Run tests"
 	@echo "  make build       # Build project"
 
-# Version management (always format first)
-version:
-	@awk '$(VERSION_AWK)' Cargo.toml
+#
+# Installing
+#
 
-current:
-	@$(MAKE) --no-print-directory version
+# Install everything (dev + canister deps)
+install-all: install-dev install-canister-deps install-hooks
+	@echo "✅ All development and canister dependencies installed"
+
+# Install Rust development tooling
+install-dev:
+	cargo install cargo-watch --locked || true
+	cargo install cargo-edit --locked || true
+	cargo install cargo-get cargo-sort cargo-sort-derives --locked || true
+
+# Install wasm target + candid tools
+install-canister-deps:
+	rustup toolchain install 1.90.0 || true
+	rustup target add wasm32-unknown-unknown
+	cargo install candid-extractor ic-wasm --locked || true
+
+# Optional explicit install target (idempotent)
+install-hooks ensure-hooks:
+	@if [ -d .git ]; then \
+		git config --local core.hooksPath .githooks || true; \
+		chmod +x .githooks/* 2>/dev/null || true; \
+		echo "✅ Git hooks configured (core.hooksPath -> .githooks)"; \
+	else \
+		echo "⚠️  Not a git repo, skipping hooks setup"; \
+	fi
+
+
+#
+# Version management (always format first)
+#
+
+version:
+	@cargo get workspace.package.version
 
 tags:
 	@git tag --sort=-version:refname | head -10
@@ -64,7 +100,10 @@ major: ensure-clean fmt
 release: ensure-clean
 	@echo "Release handled by CI on tag push"
 
+#
 # Development commands
+#
+
 test: ensure-hooks
 	cargo test --workspace
 	@if [ -x scripts/app/test.sh ] && command -v dfx >/dev/null 2>&1; then \
@@ -91,9 +130,6 @@ fmt-check: ensure-hooks
 
 clean:
 	cargo clean
-	rm -rf target/
-
-# Planning summary
 
 
 # Security and versioning checks
@@ -107,26 +143,9 @@ security-check:
 check-versioning: security-check
 	bash scripts/ci/security-check.sh
 
-# Install development dependencies
-install-dev: ensure-hooks
-	cargo install cargo-watch
-	cargo install cargo-sort cargo-sort-derives
-	cargo install cargo-edit
-
 # Run tests in watch mode
 test-watch:
 	cargo watch -x test
 
 # Build and test everything
 all: ensure-clean ensure-hooks clean fmt-check clippy check test build
-
-# Ensure repository uses .githooks as hooksPath
-ensure-hooks:
-	@# Set hooksPath locally to use repo-tracked hooks
-	@git config --local core.hooksPath .githooks || true
-	@chmod +x .githooks/pre-commit 2>/dev/null || true
-	@echo "hooksPath set to: $$(git config --local --get core.hooksPath 2>/dev/null || echo '.githooks')"
-
-# Optional explicit install target (idempotent)
-install-hooks: ensure-hooks
-	@echo "Git hooks configured (core.hooksPath -> .githooks)"

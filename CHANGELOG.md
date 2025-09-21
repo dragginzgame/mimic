@@ -5,6 +5,11 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Changed
+- Raised the minimum supported Rust version to 1.90.0 and refreshed CI/docs references.
+
 ## [0.21.0] - Sanitizers Working
 
 ### Added

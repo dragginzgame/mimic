@@ -19,8 +19,3 @@ cargo update --verbose
 # dfx
 dfxvm self update
 dfxvm update
-
-# git hooks (ensure local repo uses tracked hooks)
-if [ -d .git ]; then
-  git config --local core.hooksPath .githooks || true
-fi
