@@ -1,4 +1,3 @@
-use crate::core::serialize;
 use crate::core::traits::EntityKind;
 use candid::CandidType;
 use icu::{cdk::api::performance_counter, utils::time};
@@ -40,10 +39,6 @@ pub struct EventOps {
     pub load_calls: u64,
     pub save_calls: u64,
     pub delete_calls: u64,
-
-    // Serialization counters (sampled from core::serialize)
-    pub serialize_calls: u64,
-    pub deserialize_calls: u64,
 
     // Planner kinds
     pub plan_index: u64,
@@ -115,7 +110,6 @@ pub fn reset() {
 /// Reset all event state: counters, perf, and serialize counters.
 pub fn reset_all() {
     reset();
-    serialize::reset_serialize_counters();
 }
 
 /// Accumulate instruction counts and track a max.
@@ -346,10 +340,7 @@ impl Default for EventSelect {
 #[must_use]
 #[allow(clippy::cast_precision_loss)]
 pub fn report() -> EventReport {
-    // Snapshot counters and append live serialize/deserialize counts
-    let mut snap = with_state(Clone::clone);
-    snap.ops.serialize_calls = serialize::serialize_call_count() as u64;
-    snap.ops.deserialize_calls = serialize::deserialize_call_count() as u64;
+    let snap = with_state(Clone::clone);
 
     let mut entity_counters: Vec<EntitySummary> = Vec::new();
     for (path, ops) in &snap.entities {
