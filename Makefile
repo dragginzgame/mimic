@@ -100,18 +100,29 @@ major: ensure-clean fmt
 release: ensure-clean
 	@echo "Release handled by CI on tag push"
 
+
+#
+# Tests
+#
+
+test: test-unit test-canisters
+
+test-unit:
+	cargo test --workspace
+
+test-canisters:
+	@if command -v dfx >/dev/null 2>&1; then \
+		( dfx canister create --all -qq ); \
+		( dfx build --all ); \
+		( dfx canister install test --mode=reinstall -y ); \
+		( dfx canister call test test ); \
+	else \
+		echo "Skipping canister tests (dfx not installed)"; \
+	fi
+
 #
 # Development commands
 #
-
-test: ensure-hooks
-	cargo test --workspace
-	@if [ -x scripts/app/test.sh ] && command -v dfx >/dev/null 2>&1; then \
-		echo "Running canister tests via scripts/app/test.sh"; \
-		bash scripts/app/test.sh; \
-	else \
-		echo "Skipping canister tests (dfx not installed or script missing)"; \
-	fi
 
 build: ensure-clean ensure-hooks
 	cargo build --release --workspace
