@@ -137,7 +137,7 @@ dependencies = [
 
 [[package]]
 name = "canister_test"
-version = "0.22.17"
+version = "0.22.18"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -791,7 +791,7 @@ checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
 name = "mimic"
-version = "0.22.17"
+version = "0.22.18"
 dependencies = [
  "bencher",
  "candid",
@@ -815,7 +815,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_build"
-version = "0.22.17"
+version = "0.22.18"
 dependencies = [
  "mimic_schema",
  "proc-macro2",
@@ -825,7 +825,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_common"
-version = "0.22.17"
+version = "0.22.18"
 dependencies = [
  "candid",
  "convert_case 0.8.0",
@@ -837,7 +837,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_declare"
-version = "0.22.17"
+version = "0.22.18"
 dependencies = [
  "darling 0.21.3",
  "derive_more",
@@ -852,7 +852,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_schema"
-version = "0.22.17"
+version = "0.22.18"
 dependencies = [
  "candid",
  "darling 0.21.3",
@@ -1154,9 +1154,9 @@ checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
 
 [[package]]
 name = "serde"
-version = "1.0.225"
+version = "1.0.226"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd6c24dee235d0da097043389623fb913daddf92c76e9f5a1db88607a0bcbd1d"
+checksum = "0dca6411025b24b60bfa7ec1fe1f8e710ac09782dca409ee8237ba74b51295fd"
 dependencies = [
  "serde_core",
  "serde_derive",
@@ -1174,18 +1174,18 @@ dependencies = [
 
 [[package]]
 name = "serde_core"
-version = "1.0.225"
+version = "1.0.226"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "659356f9a0cb1e529b24c01e43ad2bdf520ec4ceaf83047b83ddcc2251f96383"
+checksum = "ba2ba63999edb9dac981fb34b3e5c0d111a69b0924e253ed29d83f7c99e966a4"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.225"
+version = "1.0.226"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ea936adf78b1f766949a4977b91d2f5595825bd6ec079aa9543ad2685fc4516"
+checksum = "8db53ae22f34573731bafa1db20f04027b2d25e02d8205921b569171699cdb33"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1311,7 +1311,7 @@ dependencies = [
 
 [[package]]
 name = "test_design"
-version = "0.22.17"
+version = "0.22.18"
 dependencies = [
  "candid",
  "ctor",
