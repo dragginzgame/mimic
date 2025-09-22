@@ -2,10 +2,10 @@
 
 # don't allow errors
 set -e
-export RUST_BACKTRACE=1
 
-# VARS
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)"
+# Set up environment
+source "$(dirname "$0")/../env.sh"
+cd "$SCRIPTS"
 
 # Check if an argument was provided
 if [ $# -eq 0 ]; then

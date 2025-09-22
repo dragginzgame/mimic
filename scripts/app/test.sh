@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# dir
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")"/../../ && pwd)"
-echo $PROJECT_ROOT
-cd $PROJECT_ROOT
+# Set up environment
+source "$(dirname "$0")/../env.sh"
+cd "$SCRIPTS"
 
 # build
 dfx canister create test
