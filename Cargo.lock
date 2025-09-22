@@ -675,8 +675,8 @@ dependencies = [
 
 [[package]]
 name = "icu"
-version = "0.9.11"
-source = "git+ssh://git@github.com/dragginzgame/icu.git?tag=v0.9.11#2e0c917279fb2497c4d38371eb4595bf18af77b8"
+version = "0.9.12"
+source = "git+ssh://git@github.com/dragginzgame/icu.git?tag=v0.9.12#ae40884470e91a06da3a4e410863d7d5ea9e2fa5"
 dependencies = [
  "candid",
  "defer",

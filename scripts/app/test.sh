@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set up environment
-source "$(dirname "$0")/../env.sh"
+$(dirname "$0")/../env.sh
 cd "$SCRIPTS"
 
 # build

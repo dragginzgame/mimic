@@ -3,12 +3,9 @@
 # Check versioning system setup
 set -e
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# Set up environment
+source "$(dirname "$0")/../env.sh"
+cd "$SCRIPTS"
 
 print_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
@@ -27,10 +24,9 @@ print_error() {
 }
 
 # VARS
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)"
-CARGO_TOML="$ROOT/Cargo.toml"
-CHANGELOG="$ROOT/CHANGELOG.md"
-MAKEFILE="$ROOT/Makefile"
+CARGO_TOML="$PROJECT_ROOT/Cargo.toml"
+CHANGELOG="$PROJECT_ROOT/CHANGELOG.md"
+MAKEFILE="$PROJECT_ROOT/Makefile"
 
 echo "🔍 Checking versioning system setup..."
 echo ""
@@ -74,14 +70,14 @@ else
 fi
 
 # Check if GitHub Actions workflows exist
-if [ -d "$ROOT/.github/workflows" ]; then
-    if [ -f "$ROOT/.github/workflows/ci.yml" ]; then
+if [ -d "$PROJECT_ROOT/.github/workflows" ]; then
+    if [ -f "$PROJECT_ROOT/.github/workflows/ci.yml" ]; then
         print_success "CI workflow exists"
     else
         print_warning "CI workflow not found"
     fi
-    
-    if [ -f "$ROOT/.github/workflows/release.yml" ]; then
+
+    if [ -f "$PROJECT_ROOT/.github/workflows/release.yml" ]; then
         print_success "Release workflow exists"
     else
         print_warning "Release workflow not found"
@@ -130,14 +126,14 @@ fi
 # Check if we're in a git repository
 if git rev-parse --git-dir > /dev/null 2>&1; then
     print_success "Git repository detected"
-    
+
     # Check for existing tags
     tag_count=$(git tag | wc -l)
     if [ "$tag_count" -gt 0 ]; then
         print_info "Found $tag_count existing git tags"
         latest_tag=$(git tag --sort=-version:refname | head -n1)
         print_info "Latest tag: $latest_tag"
-        
+
         # Check tag integrity
         print_info "Checking tag integrity..."
         for tag in $(git tag); do
@@ -153,7 +149,7 @@ if git rev-parse --git-dir > /dev/null 2>&1; then
                 print_error "✗ $tag (broken tag)"
             fi
         done
-        
+
         # Check if current HEAD matches any tag
         current_commit=$(git rev-parse HEAD)
         matching_tags=$(git tag --points-at HEAD)
@@ -176,4 +172,4 @@ echo "  1. Update CHANGELOG.md with your changes"
 echo "  2. Run 'make patch' (or minor/major) to bump and push the release"
 echo "  3. Verify CI workflows complete successfully"
 echo ""
-print_info "For more information, see VERSIONING.md" 
+print_info "For more information, see VERSIONING.md"
