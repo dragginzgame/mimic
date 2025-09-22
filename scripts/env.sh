@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # Root of the repo
-PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)}"
-SCRIPTS="${SCRIPTS:-$PROJECT_ROOT/scripts}"
+ROOT="${ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)}"
+SCRIPTS="${SCRIPTS:-$ROOT/scripts}"
 
 # Network: default to "local" if not set
 NETWORK="${NETWORK:-local}"
@@ -12,9 +12,9 @@ NETWORK="${NETWORK:-local}"
 ENV="${ENV:-dev}"
 
 # Export so other commands see them
-export PROJECT_ROOT SCRIPTS NETWORK ENV
+export ROOT SCRIPTS NETWORK ENV
 
-echo "📁 PROJECT_ROOT=$PROJECT_ROOT ($NETWORK/$ENV)"
+echo "📁 ROOT=$ROOT ($NETWORK/$ENV)"
 
 # Rust debug output
 export RUST_BACKTRACE=1

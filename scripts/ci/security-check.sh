@@ -3,9 +3,12 @@
 # Check versioning system setup
 set -e
 
-# Set up environment
-source "$(dirname "$0")/../env.sh"
-cd "$SCRIPTS"
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
 print_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
@@ -24,9 +27,10 @@ print_error() {
 }
 
 # VARS
-CARGO_TOML="$PROJECT_ROOT/Cargo.toml"
-CHANGELOG="$PROJECT_ROOT/CHANGELOG.md"
-MAKEFILE="$PROJECT_ROOT/Makefile"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)"
+CARGO_TOML="$ROOT/Cargo.toml"
+CHANGELOG="$ROOT/CHANGELOG.md"
+MAKEFILE="$ROOT/Makefile"
 
 echo "🔍 Checking versioning system setup..."
 echo ""
@@ -70,14 +74,14 @@ else
 fi
 
 # Check if GitHub Actions workflows exist
-if [ -d "$PROJECT_ROOT/.github/workflows" ]; then
-    if [ -f "$PROJECT_ROOT/.github/workflows/ci.yml" ]; then
+if [ -d "$ROOT/.github/workflows" ]; then
+    if [ -f "$ROOT/.github/workflows/ci.yml" ]; then
         print_success "CI workflow exists"
     else
         print_warning "CI workflow not found"
     fi
 
-    if [ -f "$PROJECT_ROOT/.github/workflows/release.yml" ]; then
+    if [ -f "$ROOT/.github/workflows/release.yml" ]; then
         print_success "Release workflow exists"
     else
         print_warning "Release workflow not found"

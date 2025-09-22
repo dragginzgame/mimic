@@ -651,9 +651,9 @@ dependencies = [
 
 [[package]]
 name = "icrc-ledger-types"
-version = "0.1.10"
+version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87c31beeee0e5ab964861a3d5ea2b5ed7b688b2b22400367a832b1fcf0db1fa4"
+checksum = "0a328670dc13ca5d3adadc8befb0882d0608533da4367ddc08280482a280e545"
 dependencies = [
  "base32",
  "candid",
@@ -675,8 +675,8 @@ dependencies = [
 
 [[package]]
 name = "icu"
-version = "0.9.12"
-source = "git+ssh://git@github.com/dragginzgame/icu.git?tag=v0.9.12#ae40884470e91a06da3a4e410863d7d5ea9e2fa5"
+version = "0.9.15"
+source = "git+ssh://git@github.com/dragginzgame/icu.git?tag=v0.9.15#2474021eccf779e7854648d3ea216f1639a2bb6d"
 dependencies = [
  "candid",
  "defer",

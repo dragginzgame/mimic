@@ -18,13 +18,12 @@ CAN=$1
 # Build Wasm
 #
 
-mkdir -p $PROJECT_ROOT/.dfx/local/canisters/$CAN
-WASM_TARGET=$PROJECT_ROOT/.dfx/local/canisters/$CAN/$CAN.wasm
+mkdir -p $ROOT/.dfx/local/canisters/$CAN
+WASM_TARGET=$ROOT/.dfx/local/canisters/$CAN/$CAN.wasm
 
 cargo build --target wasm32-unknown-unknown -p canister_$CAN
-cp -f $PROJECT_ROOT/target/wasm32-unknown-unknown/debug/canister_$CAN.wasm $WASM_TARGET
+cp -f $ROOT/target/wasm32-unknown-unknown/debug/canister_$CAN.wasm $WASM_TARGET
 
 # extract candid
-
-candid-extractor "$PROJECT_ROOT/.dfx/local/canisters/$CAN/$CAN.wasm" \
-    > "$PROJECT_ROOT/.dfx/local/canisters/$CAN/${CAN}.did"
+candid-extractor "$ROOT/.dfx/local/canisters/$CAN/$CAN.wasm" \
+    > "$ROOT/.dfx/local/canisters/$CAN/${CAN}.did"
