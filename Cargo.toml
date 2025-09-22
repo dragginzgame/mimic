@@ -26,7 +26,7 @@ ctor = "0.5"
 darling = "0.21"
 derive_more = { version = "2.0", default-features = false, features = ["full"] }
 ic-cdk = "0.18.7"
-icu = { git = "ssh://git@github.com/dragginzgame/icu.git", tag = "v0.9.15" }
+icu = { git = "ssh://git@github.com/dragginzgame/icu.git", tag = "v0.10.0" }
 mimic = { path = "crates/mimic" }
 mimic_build = { path = "crates/mimic_build" }
 mimic_common = { path = "crates/mimic_common" }

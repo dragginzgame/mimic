@@ -611,9 +611,9 @@ dependencies = [
 
 [[package]]
 name = "ic-stable-structures"
-version = "0.7.0"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e54aeb082293c69def5ab34c70593ba85ff000386f7d0eacdf73514daaeca031"
+checksum = "8ee3372ddc0cf2a747fc26ce2d075a240ed6bfab151e63bc70109e8967f7ce6f"
 dependencies = [
  "ic_principal",
 ]
@@ -675,8 +675,8 @@ dependencies = [
 
 [[package]]
 name = "icu"
-version = "0.9.15"
-source = "git+ssh://git@github.com/dragginzgame/icu.git?tag=v0.9.15#2474021eccf779e7854648d3ea216f1639a2bb6d"
+version = "0.10.0"
+source = "git+ssh://git@github.com/dragginzgame/icu.git?tag=v0.10.0#6309312773cbb82e2fda30579b48422a9aeaa211"
 dependencies = [
  "candid",
  "defer",
@@ -684,7 +684,7 @@ dependencies = [
  "ic-cdk",
  "ic-cdk-timers",
  "ic-ledger-types",
- "ic-stable-structures 0.7.0",
+ "ic-stable-structures 0.7.2",
  "icrc-ledger-types",
  "minicbor-serde",
  "num-traits",
