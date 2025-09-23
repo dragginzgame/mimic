@@ -31,6 +31,18 @@ impl Imp<Newtype> for PartialOrdTrait {
                     self.partial_cmp(&other.0)
                 }
             }
+
+            impl PartialOrd<#prim> for &#ident {
+                fn partial_cmp(&self, other: &#prim) -> Option<::std::cmp::Ordering> {
+                    <#ident as PartialOrd<#prim>>::partial_cmp(*self, other)
+                }
+            }
+
+            impl PartialOrd<&#ident> for #prim {
+                fn partial_cmp(&self, other: &&#ident) -> Option<::std::cmp::Ordering> {
+                    <#prim as PartialOrd<#ident>>::partial_cmp(self, *other)
+                }
+            }
         };
 
         Some(TraitStrategy::from_impl(tokens))

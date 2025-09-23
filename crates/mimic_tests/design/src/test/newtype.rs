@@ -54,6 +54,13 @@ pub struct Nat32W {}
 pub struct Nat32WW {}
 
 ///
+/// Nat64
+///
+
+#[newtype(primitive = "Nat64", item(prim = "Nat64"))]
+pub struct Nat64 {}
+
+///
 /// Nat128
 ///
 
@@ -87,3 +94,24 @@ pub struct Ulid {}
 
 #[newtype(primitive = "Unit", item(prim = "Unit"))]
 pub struct Unit {}
+
+///
+///  TESTS
+///
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn compares_references_with_primitive() {
+        let tokens = Nat64::from(5_u64);
+
+        assert_eq!(&tokens, 5_u64);
+        assert_eq!(5_u64, &tokens);
+        assert!(&tokens > 3_u64);
+        assert!(3_u64 < &tokens);
+        assert!(&tokens >= 5_u64);
+        assert!(5_u64 <= &tokens);
+    }
+}

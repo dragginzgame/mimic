@@ -31,6 +31,18 @@ impl Imp<Newtype> for PartialEqTrait {
                     *self == other.0
                 }
             }
+
+            impl PartialEq<#prim> for &#ident {
+                fn eq(&self, other: &#prim) -> bool {
+                    <#ident as PartialEq<#prim>>::eq(*self, other)
+                }
+            }
+
+            impl PartialEq<&#ident> for #prim {
+                fn eq(&self, other: &&#ident) -> bool {
+                    <#prim as PartialEq<#ident>>::eq(self, *other)
+                }
+            }
         };
 
         Some(TraitStrategy::from_impl(tokens))

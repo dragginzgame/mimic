@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - Raised the minimum supported Rust version to 1.90.0 and refreshed CI/docs references.
+- Added newtype PartialEq/PartialOrd combinations that were missing
 
 ## [0.21.0] - Sanitizers Working
 
