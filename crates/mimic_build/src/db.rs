@@ -7,7 +7,6 @@ use syn::parse_str;
 ///
 /// Entry point for codegen.
 /// Expands into:
-/// - `init_memory()` to reserve ICU memory range
 /// - thread-local Data/Index store definitions
 /// - registry wiring
 /// - a global `db()` accessor
@@ -16,36 +15,10 @@ use syn::parse_str;
 pub fn generate(builder: &ActorBuilder) -> TokenStream {
     let mut tokens = quote!();
 
-    // Generate memory reservation function
-    tokens.extend(reserve_memory(builder));
-
     // Generate store definitions + registries
     tokens.extend(stores(builder));
 
     tokens
-}
-
-///
-/// Emit a function that reserves this canister’s memory range
-/// with the ICU MemoryRegistry. Must be called once in
-/// `canister_init` / `post_upgrade`.
-///
-fn reserve_memory(builder: &ActorBuilder) -> TokenStream {
-    let canister = &builder.canister;
-    let canister_path = canister.def.path();
-    let memory_min = canister.memory_min;
-    let memory_max = canister.memory_max;
-
-    quote! {
-        /// Must be called once during canister init or upgrade
-        pub fn mimic_reserve_memory() {
-            ::icu::memory::registry::defer_reserve_range(
-                stringify!(#canister_path),
-                #memory_min,
-                #memory_max,
-            );
-        }
-    }
 }
 
 ///
@@ -94,8 +67,11 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
         }
     }
 
-    let canister_path: syn::Path = parse_str(&builder.canister.def.path())
+    let canister = &builder.canister;
+    let canister_path: syn::Path = parse_str(&canister.def.path())
         .unwrap_or_else(|_| panic!("invalid canister path: {}", builder.canister.def.path()));
+    let memory_min = canister.memory_min;
+    let memory_max = canister.memory_max;
 
     quote! {
         #data_defs
@@ -115,6 +91,15 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
                 let mut reg = ::mimic::db::store::IndexStoreRegistry::new();
                 #index_inits
                 reg
+            };
+
+            // reserve the icu memory range
+            static _RESERVE: () = {
+                ::icu::memory::registry::defer_reserve_range(
+                    stringify!(#canister_path),
+                    #memory_min,
+                    #memory_max,
+                );
             };
         }
 
