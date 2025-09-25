@@ -4,7 +4,7 @@ use crate::{
     db::query::{DeleteQuery, LoadQuery, SaveQuery},
 };
 use candid::Principal;
-use icu::{IcuError, cdk::call::Call};
+use icu::{Error as IcuError, cdk::call::Call};
 use thiserror::Error as ThisError;
 
 ///

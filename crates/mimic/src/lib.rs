@@ -113,8 +113,7 @@ macro_rules! from_to_string {
     };
 }
 
-from_to_string!(icu::IcuError, IcuError);
-
+from_to_string!(icu::Error, IcuError);
 from_to_string!(db::DbError, DbError);
 from_to_string!(interface::InterfaceError, InterfaceError);
 from_to_string!(ValidateError, ValidateError);

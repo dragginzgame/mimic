@@ -23,10 +23,12 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
         if matches!(store.ty, StoreType::Index) {
             // Index store
             index_defs.extend(quote! {
-                static #cell_ident: ::std::cell::RefCell<::mimic::db::store::IndexStore> =
-                    ::std::cell::RefCell::new(::mimic::db::store::IndexStore::init(
-                        ::icu::icu_register_memory!(#memory_id)
-                    ));
+                ::icu::thread_local_memory! {
+                    static #cell_ident: ::std::cell::RefCell<::mimic::db::store::IndexStore> =
+                        ::std::cell::RefCell::new(::mimic::db::store::IndexStore::init(
+                            ::icu::icu_memory!(IndexStore, #memory_id)
+                        ));
+                }
             });
 
             index_inits.extend(quote! {
@@ -35,10 +37,12 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
         } else {
             // Data store
             data_defs.extend(quote! {
-                static #cell_ident: ::std::cell::RefCell<::mimic::db::store::DataStore> =
-                    ::std::cell::RefCell::new(::mimic::db::store::DataStore::init(
-                        ::icu::icu_register_memory!(#memory_id)
-                    ));
+                ::icu::thread_local_memory! {
+                    static #cell_ident: ::std::cell::RefCell<::mimic::db::store::DataStore> =
+                        ::std::cell::RefCell::new(::mimic::db::store::DataStore::init(
+                            ::icu::icu_memory!(DataStore, #memory_id)
+                        ));
+                }
             });
 
             data_inits.extend(quote! {
@@ -51,10 +55,10 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
         .unwrap_or_else(|_| panic!("invalid canister path: {}", builder.canister.def.path()));
 
     quote! {
-        thread_local! {
-            #data_defs
-            #index_defs
+        #data_defs
+        #index_defs
 
+        thread_local! {
             // registries
             #[allow(unused_mut)]
             static DATA_REGISTRY: ::mimic::db::store::DataStoreRegistry = {
