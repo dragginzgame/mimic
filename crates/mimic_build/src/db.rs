@@ -39,11 +39,11 @@ fn reserve_memory(builder: &ActorBuilder) -> TokenStream {
     quote! {
         /// Must be called once during canister init or upgrade
         pub fn mimic_reserve_memory() {
-            ::icu::memory::MemoryRegistry::reserve_range(
+            ::icu::memory::registry::defer_reserve_range(
+                stringify!(#canister_path),
                 #memory_min,
                 #memory_max,
-                stringify!(#canister_path),
-            ).expect("failed to reserve canister memory range");
+            );
         }
     }
 }
