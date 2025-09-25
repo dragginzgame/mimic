@@ -92,16 +92,16 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
                 #index_inits
                 reg
             };
-
-            // reserve the icu memory range
-            static _RESERVE: () = {
-                ::icu::memory::registry::defer_reserve_range(
-                    stringify!(#canister_path),
-                    #memory_min,
-                    #memory_max,
-                );
-            };
         }
+
+        // reserve the icu memory range
+        ::icu::eager_init!({
+            ::icu::memory::registry::defer_reserve_range(
+                stringify!(#canister_path),
+                #memory_min,
+                #memory_max,
+            );
+        });
 
         /// Global accessor (fat handle) for this canister’s DB
         #[must_use]
