@@ -15,7 +15,7 @@ pub struct Canister {}
     ident = "TEST_DATA_STORE",
     ty = "Data",
     canister = "Canister",
-    memory_id = 20
+    memory_id = 50
 )]
 pub struct TestDataStore {}
 
@@ -27,7 +27,7 @@ pub struct TestDataStore {}
     ident = "TEST_INDEX_STORE",
     ty = "Index",
     canister = "Canister",
-    memory_id = 21
+    memory_id = 51
 )]
 pub struct TestIndexStore {}
 
@@ -39,6 +39,6 @@ pub struct TestIndexStore {}
     ident = "FIXTURE_STORE",
     ty = "Data",
     canister = "Canister",
-    memory_id = 22
+    memory_id = 60
 )]
 pub struct FixtureStore {}

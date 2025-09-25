@@ -27,8 +27,19 @@ impl ValidateNode for Store {
         let schema = schema_read();
 
         // canister
-        if let Err(e) = schema.cast_node::<Canister>(self.canister) {
-            errs.add(e);
+        match schema.cast_node::<Canister>(self.canister) {
+            Ok(canister) => {
+                if self.memory_id < canister.memory_min || self.memory_id > canister.memory_max {
+                    err!(
+                        errs,
+                        "memory_id {} outside of range {}-{}",
+                        self.memory_id,
+                        canister.memory_min,
+                        canister.memory_max,
+                    );
+                }
+            }
+            Err(e) => errs.add(e),
         }
 
         // ident
