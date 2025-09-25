@@ -1,11 +1,4 @@
-use crate::{
-    imp::{Imp, Implementor, Trait, TraitStrategy},
-    node::{Entity, Enum, EnumValue, FieldList, List, Map, Newtype, Record, Set, Tuple},
-    traits::{HasDef, HasType, HasTypePart},
-};
-use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
-use syn::Ident;
+use crate::prelude::*;
 
 ///
 /// TypeViewTrait

@@ -1,17 +1,5 @@
-use crate::{
-    helper::{quote_one, quote_slice, to_path},
-    imp::TraitStrategy,
-    node::{Arg, Def},
-    schema_traits::{Trait, TraitList, Traits},
-    traits::{
-        HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart, SchemaNodeKind,
-    },
-};
-use darling::FromMeta;
+use crate::prelude::*;
 use mimic_common::utils::case::{Case, Casing};
-use proc_macro2::{Span, TokenStream};
-use quote::{ToTokens, quote};
-use syn::{Ident, Path};
 
 ///
 /// Selector

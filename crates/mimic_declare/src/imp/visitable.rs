@@ -1,11 +1,4 @@
-use crate::{
-    imp::{Imp, Implementor, Trait, TraitStrategy},
-    node::{Entity, Enum, EnumVariant, FieldList, List, Map, Newtype, Record, Set, Tuple},
-    traits::HasDef,
-};
-use proc_macro2::{Span, TokenStream};
-use quote::{ToTokens, format_ident, quote};
-use syn::{Index, LitStr};
+use crate::prelude::*;
 
 ///
 /// VisitableTrait
@@ -178,7 +171,7 @@ impl Imp<Tuple> for VisitableTrait {
 
         for (i, _) in node.values.iter().enumerate() {
             let key = LitStr::new(&i.to_string(), Span::call_site());
-            let index = Index::from(i);
+            let index = syn::Index::from(i);
 
             inner.extend(quote! {
                 perform_visit(visitor, &self.#index, #key);

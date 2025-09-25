@@ -13,6 +13,36 @@ use quote::quote;
 use syn::{Attribute, ItemStruct, LitStr, Visibility, parse_macro_input};
 
 ///
+/// Prelude
+///
+/// Internal prelude for proc-macro and schema code generation.
+/// Pulls in crate helpers, core traits, schema types, and proc-macro essentials.
+/// Not exposed outside this crate.
+///
+
+mod prelude {
+    pub(crate) use crate::{
+        helper::{
+            as_tokens, quote_one, quote_option, quote_slice, split_idents, to_path, to_str_lit,
+        },
+        imp::{Imp, Implementor, TraitStrategy},
+        node::*,
+        schema_traits::{Trait, TraitList, Traits},
+        traits::{
+            HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
+            SchemaNodeKind,
+        },
+    };
+    pub(crate) use mimic_schema::types::{Cardinality, ConstantType, Primitive, StoreType};
+
+    // proc-macro essentials
+    pub(crate) use darling::FromMeta;
+    pub(crate) use proc_macro2::{Span, TokenStream};
+    pub(crate) use quote::{ToTokens, format_ident, quote};
+    pub(crate) use syn::{Ident, ItemStruct, Lit, LitStr, Path};
+}
+
+///
 /// Node Macros
 ///
 

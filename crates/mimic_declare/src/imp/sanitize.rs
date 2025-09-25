@@ -1,10 +1,4 @@
-use crate::{
-    imp::{Imp, Implementor, Trait, TraitStrategy},
-    node::{Entity, Enum, FieldList, List, Map, Newtype, Record, Set, TypeSanitizer},
-    traits::HasDef,
-};
-use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
+use crate::prelude::*;
 
 ///
 /// SanitizeAuto

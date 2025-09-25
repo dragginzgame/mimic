@@ -1,11 +1,5 @@
-use crate::{
-    imp::{Imp, Implementor, Trait, TraitStrategy},
-    node::{Entity, Index},
-    traits::{HasDef, HasSchemaPart},
-};
+use crate::prelude::*;
 use mimic_common::utils::case::{Case, Casing};
-use proc_macro2::{Ident, TokenStream};
-use quote::{ToTokens, format_ident, quote};
 
 ///
 /// EntityKindTrait

@@ -1,11 +1,4 @@
-use crate::{
-    imp::{Imp, Implementor, Trait, TraitStrategy},
-    node::{Entity, Enum, FieldList, List, Map, Newtype, Record, Set, TypeValidator, Value},
-    traits::HasDef,
-};
-use mimic_schema::types::Cardinality;
-use proc_macro2::TokenStream;
-use quote::{ToTokens, format_ident, quote};
+use crate::prelude::*;
 
 ///
 /// ValidateAuto

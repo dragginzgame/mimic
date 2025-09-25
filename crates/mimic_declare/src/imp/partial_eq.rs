@@ -1,8 +1,4 @@
-use crate::{
-    imp::{Imp, TraitStrategy},
-    node::Newtype,
-};
-use quote::quote;
+use crate::prelude::*;
 
 ///
 /// PartialEqTrait

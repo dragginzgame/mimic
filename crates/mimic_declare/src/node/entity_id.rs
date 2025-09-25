@@ -1,13 +1,4 @@
-use crate::{
-    imp::TraitStrategy,
-    node::Def,
-    schema_traits::{Trait, TraitList, Traits},
-    traits::{HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart},
-};
-use darling::FromMeta;
-use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
-use syn::Ident;
+use crate::prelude::*;
 
 ///
 /// EntityId

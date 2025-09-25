@@ -1,16 +1,4 @@
-use crate::{
-    helper::quote_option,
-    imp::TraitStrategy,
-    node::{Arg, Def, Item, Type},
-    schema_traits::{Trait, TraitList, Traits},
-    traits::{
-        HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart, SchemaNodeKind,
-    },
-};
-use darling::FromMeta;
-use mimic_schema::types::Primitive;
-use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
+use crate::prelude::*;
 
 ///
 /// Newtype

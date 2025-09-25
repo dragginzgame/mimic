@@ -1,11 +1,4 @@
-use crate::{
-    imp::{Imp, Implementor, Trait, TraitStrategy},
-    node::{Arg, Entity, FieldList, Newtype, Record},
-    traits::HasDef,
-};
-use mimic_schema::types::Cardinality;
-use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
+use crate::prelude::*;
 
 ///
 /// DefaultTrait
