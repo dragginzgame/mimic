@@ -1,14 +1,5 @@
-use crate::{
-    build::schema_read,
-    node::{
-        Def, Field, FieldList, Index, MacroNode, Store, Type, TypeNode, ValidateNode, VisitableNode,
-    },
-    types::{Cardinality, StoreType},
-    visit::Visitor,
-};
-use mimic_common::{err, error::ErrorTree};
-use serde::Serialize;
-use std::collections::HashSet;
+use crate::prelude::*;
+use std::{any::Any, collections::HashSet};
 
 ///
 /// Entity
@@ -39,7 +30,7 @@ impl Entity {
 }
 
 impl MacroNode for Entity {
-    fn as_any(&self) -> &dyn std::any::Any {
+    fn as_any(&self) -> &dyn Any {
         self
     }
 }

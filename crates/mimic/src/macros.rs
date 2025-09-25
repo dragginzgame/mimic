@@ -7,6 +7,7 @@ macro_rules! mimic_start {
         include!(concat!(env!("OUT_DIR"), "/actor.rs"));
 
         fn mimic_init() {
+            mimic_reserve_memory();
             mimic_init_fixtures().unwrap();
         }
     };
@@ -36,7 +37,7 @@ macro_rules! mimic_build {
         // ACTOR CODE
         //
 
-        let output = ::mimic::build::actor::generate($actor);
+        let output = ::mimic::build::generate($actor);
 
         // write the file
         let actor_file = PathBuf::from(out_dir.clone()).join("actor.rs");

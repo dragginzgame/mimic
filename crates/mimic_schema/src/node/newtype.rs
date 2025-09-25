@@ -1,8 +1,4 @@
-use crate::{
-    node::{Arg, Def, Item, MacroNode, Type, TypeNode, ValidateNode, VisitableNode},
-    visit::Visitor,
-};
-use serde::Serialize;
+use crate::prelude::*;
 
 ///
 /// Newtype

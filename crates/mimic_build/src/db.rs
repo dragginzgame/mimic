@@ -1,14 +1,57 @@
-use crate::actor::ActorBuilder;
+use crate::ActorBuilder;
 use mimic_schema::types::StoreType;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::parse_str;
 
+///
+/// Entry point for codegen.
+/// Expands into:
+/// - `init_memory()` to reserve ICU memory range
+/// - thread-local Data/Index store definitions
+/// - registry wiring
+/// - a global `db()` accessor
+///
 #[must_use]
 pub fn generate(builder: &ActorBuilder) -> TokenStream {
-    stores(builder)
+    let mut tokens = quote!();
+
+    // Generate memory reservation function
+    tokens.extend(reserve_memory(builder));
+
+    // Generate store definitions + registries
+    tokens.extend(stores(builder));
+
+    tokens
 }
 
+///
+/// Emit a function that reserves this canister’s memory range
+/// with the ICU MemoryRegistry. Must be called once in
+/// `canister_init` / `post_upgrade`.
+///
+fn reserve_memory(builder: &ActorBuilder) -> TokenStream {
+    let canister = &builder.canister;
+    let canister_path = canister.def.path();
+    let memory_min = canister.memory_min;
+    let memory_max = canister.memory_max;
+
+    quote! {
+        /// Must be called once during canister init or upgrade
+        pub fn mimic_reserve_memory() {
+            ::icu::memory::MemoryRegistry::reserve_range(
+                #memory_min,
+                #memory_max,
+                stringify!(#canister_path),
+            ).expect("failed to reserve canister memory range");
+        }
+    }
+}
+
+///
+/// Generate thread-local DataStores and IndexStores for this canister,
+/// along with their registries and the `db()` accessor.
+///
 fn stores(builder: &ActorBuilder) -> TokenStream {
     let mut data_defs = quote!();
     let mut index_defs = quote!();

@@ -1,6 +1,4 @@
-use crate::node::{Def, MacroNode, ValidateNode, VisitableNode};
-use candid::CandidType;
-use serde::Serialize;
+use crate::prelude::*;
 
 ///
 /// Canister
@@ -9,6 +7,8 @@ use serde::Serialize;
 #[derive(CandidType, Clone, Debug, Serialize)]
 pub struct Canister {
     pub def: Def,
+    pub memory_min: u8,
+    pub memory_max: u8,
 }
 
 impl MacroNode for Canister {
@@ -17,7 +17,18 @@ impl MacroNode for Canister {
     }
 }
 
-impl ValidateNode for Canister {}
+impl ValidateNode for Canister {
+    fn validate(&self) -> Result<(), ErrorTree> {
+        let mut errs = ErrorTree::new();
+
+        // store
+        if self.memory_min > self.memory_max {
+            err!(errs, "memory_min must be equal to or less than memory_max");
+        }
+
+        errs.result()
+    }
+}
 
 impl VisitableNode for Canister {
     fn route_key(&self) -> String {

@@ -18,6 +18,10 @@ use quote::{ToTokens, quote};
 pub struct Canister {
     #[darling(skip, default)]
     pub def: Def,
+
+    // inclusive range of icu memories
+    pub memory_min: u8,
+    pub memory_max: u8,
 }
 
 impl HasDef for Canister {
@@ -35,10 +39,14 @@ impl HasSchema for Canister {
 impl HasSchemaPart for Canister {
     fn schema_part(&self) -> TokenStream {
         let def = self.def.schema_part();
+        let memory_min = self.memory_min;
+        let memory_max = self.memory_max;
 
         quote! {
             ::mimic::schema::node::Canister{
                 def: #def,
+                memory_min: #memory_min,
+                memory_max: #memory_max,
             }
         }
     }

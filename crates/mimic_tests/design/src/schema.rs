@@ -4,7 +4,7 @@ pub use crate::prelude::*;
 /// Canister
 ///
 
-#[canister]
+#[canister(memory_min = 50, memory_max = 100)]
 pub struct Canister {}
 
 ///

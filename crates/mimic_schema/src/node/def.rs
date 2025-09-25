@@ -1,6 +1,4 @@
-use crate::node::{ValidateNode, VisitableNode};
-use candid::CandidType;
-use serde::Serialize;
+use crate::prelude::*;
 
 ///
 /// Def

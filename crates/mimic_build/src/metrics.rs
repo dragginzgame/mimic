@@ -1,4 +1,4 @@
-use crate::actor::ActorBuilder;
+use crate::ActorBuilder;
 use proc_macro2::TokenStream;
 use quote::quote;
 
@@ -44,7 +44,6 @@ pub fn generate(builder: &ActorBuilder) -> TokenStream {
             ::mimic::obs::metrics::reset_all();
             Ok(())
         }
-
 
     }
 }

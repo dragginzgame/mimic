@@ -7,6 +7,26 @@ use crate::{build::BuildError, node::NodeError};
 use thiserror::Error as ThisError;
 
 ///
+/// Prelude
+///
+
+pub mod prelude {
+    pub(crate) use crate::build::{schema_read, validate::validate_ident};
+    pub use crate::{
+        node::*,
+        types::{Cardinality, ConstantType, Primitive, StoreType},
+        visit::Visitor,
+    };
+    pub use candid::CandidType;
+    pub use mimic_common::{
+        err,
+        error::ErrorTree,
+        utils::case::{Case, Casing},
+    };
+    pub use serde::Serialize;
+}
+
+///
 /// SchemaError
 ///
 
