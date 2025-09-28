@@ -21,7 +21,7 @@ use syn::{Attribute, ItemStruct, LitStr, Visibility, parse_macro_input};
 ///
 
 mod prelude {
-    pub(crate) use crate::{
+    pub use crate::{
         helper::{
             as_tokens, quote_one, quote_option, quote_slice, split_idents, to_path, to_str_lit,
         },
@@ -33,13 +33,13 @@ mod prelude {
             SchemaNodeKind,
         },
     };
-    pub(crate) use mimic_schema::types::{Cardinality, ConstantType, Primitive, StoreType};
+    pub use mimic_schema::types::{Cardinality, ConstantType, Primitive, StoreType};
 
     // proc-macro essentials
-    pub(crate) use darling::FromMeta;
-    pub(crate) use proc_macro2::{Span, TokenStream};
-    pub(crate) use quote::{ToTokens, format_ident, quote};
-    pub(crate) use syn::{Ident, ItemStruct, Lit, LitStr, Path};
+    pub use darling::FromMeta;
+    pub use proc_macro2::{Span, TokenStream};
+    pub use quote::{ToTokens, format_ident, quote};
+    pub use syn::{Ident, ItemStruct, Lit, LitStr, Path};
 }
 
 ///
