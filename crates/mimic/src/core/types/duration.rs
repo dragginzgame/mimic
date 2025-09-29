@@ -50,6 +50,70 @@ impl Duration {
     pub const fn get(self) -> u64 {
         self.0
     }
+
+    // ---- Constructors ----
+
+    #[must_use]
+    pub const fn from_millis(ms: u64) -> Self {
+        Self(ms)
+    }
+
+    #[must_use]
+    pub const fn from_secs(secs: u64) -> Self {
+        Self(secs * 1_000)
+    }
+
+    #[must_use]
+    pub const fn from_minutes(mins: u64) -> Self {
+        Self(mins * 60 * 1_000)
+    }
+
+    #[must_use]
+    pub const fn from_hours(hours: u64) -> Self {
+        Self(hours * 60 * 60 * 1_000)
+    }
+
+    #[must_use]
+    pub const fn from_days(days: u64) -> Self {
+        Self(days * 24 * 60 * 60 * 1_000)
+    }
+
+    #[must_use]
+    pub const fn from_weeks(weeks: u64) -> Self {
+        Self(weeks * 24 * 60 * 60 * 1_000 * 7)
+    }
+
+    // ---- Conversion back to larger units ----
+
+    #[must_use]
+    pub const fn as_millis(self) -> u64 {
+        self.0
+    }
+
+    #[must_use]
+    pub const fn as_secs(self) -> u64 {
+        self.0 / 1_000
+    }
+
+    #[must_use]
+    pub const fn as_minutes(self) -> u64 {
+        self.0 / (60 * 1_000)
+    }
+
+    #[must_use]
+    pub const fn as_hours(self) -> u64 {
+        self.0 / (60 * 60 * 1_000)
+    }
+
+    #[must_use]
+    pub const fn as_days(self) -> u64 {
+        self.0 / (24 * 60 * 60 * 1_000)
+    }
+
+    #[must_use]
+    pub const fn as_weeks(self) -> u64 {
+        self.0 / (24 * 60 * 60 * 1_000 * 7)
+    }
 }
 
 impl FieldValue for Duration {
