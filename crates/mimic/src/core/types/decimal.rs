@@ -1,12 +1,12 @@
 use crate::core::{
     traits::{
-        FieldValue, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom, Visitable,
+        FieldValue, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
+        TypeView, ValidateAuto, ValidateCustom, Visitable,
     },
     value::Value,
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Rem, Sub, SubAssign, Sum};
-use num_traits::{FromPrimitive, NumCast, ToPrimitive};
 use rust_decimal::{Decimal as WrappedDecimal, MathematicalOps};
 use serde::{Deserialize, Serialize};
 use std::ops::{Div, Mul};
@@ -133,7 +133,7 @@ impl FieldValue for Decimal {
     }
 }
 
-impl FromPrimitive for Decimal {
+impl NumFromPrimitive for Decimal {
     fn from_i64(n: i64) -> Option<Self> {
         Some(WrappedDecimal::from(n).into())
     }
@@ -202,12 +202,13 @@ impl<D: Into<Self>> Mul<D> for Decimal {
 }
 
 impl NumCast for Decimal {
-    fn from<T: ToPrimitive>(n: T) -> Option<Self> {
+    fn from<T: NumToPrimitive>(n: T) -> Option<Self> {
         WrappedDecimal::from_f64(n.to_f64()?).map(Decimal)
     }
 }
 
-impl ToPrimitive for Decimal {
+// all of these are needed if you want things to work
+impl NumToPrimitive for Decimal {
     fn to_i32(&self) -> Option<i32> {
         self.0.to_i32()
     }

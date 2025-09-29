@@ -1,13 +1,13 @@
 use crate::core::{
     traits::{
-        FieldValue, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom, Visitable,
+        FieldValue, NumCast, NumToPrimitive, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto,
+        ValidateCustom, Visitable,
     },
     types::Decimal,
     value::Value,
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, FromStr, Sub, SubAssign};
-use num_traits::ToPrimitive;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
 
@@ -126,6 +126,22 @@ impl From<u128> for E18s {
     }
 }
 
+impl NumCast for E18s {
+    fn from<T: NumToPrimitive>(n: T) -> Option<Self> {
+        n.to_u128().map(Self)
+    }
+}
+
+impl NumToPrimitive for E18s {
+    fn to_i64(&self) -> Option<i64> {
+        self.0.to_i64()
+    }
+
+    fn to_u64(&self) -> Option<u64> {
+        self.0.to_u64()
+    }
+}
+
 impl SanitizeAuto for E18s {}
 
 impl SanitizeCustom for E18s {}
@@ -175,9 +191,9 @@ mod tests {
     #[test]
     fn test_from_u128() {
         let raw = 42 * E18s::SCALE;
-        let e18s = E18s::from(raw);
+        let e18s = <E18s as NumCast>::from(raw).unwrap();
 
-        assert_eq!(e18s.to_decimal(), Decimal::from(42));
+        assert_eq!(e18s.to_decimal(), <Decimal as NumCast>::from(42).unwrap());
     }
 
     #[test]

@@ -6,11 +6,10 @@
 mod tests {
     use crate::core::{
         Key,
-        traits::FieldValue,
+        traits::{FieldValue, NumFromPrimitive},
         types::{Decimal, E8s, E18s, Float32 as F32, Float64 as F64, Ulid},
         value::{TextMode, Value},
     };
-    use num_traits::FromPrimitive;
     use std::{cmp::Ordering, str::FromStr};
 
     // ---- helpers -----------------------------------------------------------

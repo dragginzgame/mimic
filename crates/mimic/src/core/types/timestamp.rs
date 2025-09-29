@@ -1,7 +1,8 @@
 use crate::core::{
     Value,
     traits::{
-        FieldValue, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom, Visitable,
+        FieldValue, NumCast, NumToPrimitive, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto,
+        ValidateCustom, Visitable,
     },
 };
 use candid::CandidType;
@@ -60,6 +61,22 @@ impl FieldValue for Timestamp {
 impl From<u64> for Timestamp {
     fn from(u: u64) -> Self {
         Self(u)
+    }
+}
+
+impl NumCast for Timestamp {
+    fn from<T: NumToPrimitive>(n: T) -> Option<Self> {
+        n.to_u64().map(Self)
+    }
+}
+
+impl NumToPrimitive for Timestamp {
+    fn to_i64(&self) -> Option<i64> {
+        self.0.to_i64()
+    }
+
+    fn to_u64(&self) -> Option<u64> {
+        self.0.to_u64()
     }
 }
 

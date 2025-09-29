@@ -1,12 +1,12 @@
 use crate::core::{
     Value,
     traits::{
-        FieldValue, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom, Visitable,
+        FieldValue, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom, TypeView,
+        ValidateAuto, ValidateCustom, Visitable,
     },
 };
 use candid::CandidType;
 use derive_more::Display;
-use num_traits::{FromPrimitive, ToPrimitive};
 use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,
@@ -81,7 +81,7 @@ impl From<Float32> for f32 {
 
 #[allow(clippy::cast_precision_loss)]
 #[allow(clippy::cast_possible_truncation)]
-impl FromPrimitive for Float32 {
+impl NumFromPrimitive for Float32 {
     fn from_i64(n: i64) -> Option<Self> {
         // i64 always finite in f32 (though not exact)
         Self::try_new(n as f32)
@@ -108,7 +108,7 @@ impl FromPrimitive for Float32 {
     }
 }
 
-impl ToPrimitive for Float32 {
+impl NumToPrimitive for Float32 {
     fn to_i64(&self) -> Option<i64> {
         self.0.to_i64()
     }

@@ -3,14 +3,13 @@ mod tests;
 
 use crate::core::{
     Key,
-    traits::FieldValue,
+    traits::{FieldValue, NumFromPrimitive},
     types::{
         Decimal, Duration, E8s, E18s, Float32, Float64, Int, Int128, Nat, Nat128, Principal,
         Subaccount, Timestamp, Ulid,
     },
 };
 use candid::CandidType;
-use num_traits::FromPrimitive;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 

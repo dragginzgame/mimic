@@ -1,13 +1,13 @@
 use crate::core::{
     traits::{
-        FieldValue, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom, Visitable,
+        FieldValue, NumCast, NumToPrimitive, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto,
+        ValidateCustom, Visitable,
     },
     types::Decimal,
     value::Value,
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, FromStr, Sub, SubAssign};
-use num_traits::ToPrimitive;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
 
@@ -70,7 +70,7 @@ impl E8s {
     #[must_use]
     pub fn try_from_decimal_exact(d: Decimal) -> Option<Self> {
         // multiply and require integer result (no leftover fractional part)
-        let scaled = d * Decimal::from(Self::SCALE);
+        let scaled: Decimal = d * Self::SCALE;
 
         // require exact integer: normalized equality with its 0dp rounding
         if scaled == scaled.round_dp(0) {
@@ -83,7 +83,7 @@ impl E8s {
     /// Decimal → fixed‑point with rounding to 8dp.
     #[must_use]
     pub fn from_decimal_round(d: Decimal) -> Option<Self> {
-        let scaled = (d * Decimal::from(Self::SCALE)).round_dp(0);
+        let scaled = (d * Self::SCALE).round_dp(0);
 
         scaled.to_u64().map(E8s)
     }
@@ -112,7 +112,7 @@ impl E8s {
 
     #[must_use]
     pub fn to_decimal(self) -> Decimal {
-        Decimal::from_i128_with_scale(i128::from(self.0), Self::DECIMALS).normalize()
+        Decimal::from_i128_with_scale(self.0.into(), Self::DECIMALS).normalize()
     }
 }
 
@@ -132,13 +132,29 @@ impl FieldValue for E8s {
 impl From<E8s> for Decimal {
     fn from(v: E8s) -> Self {
         // Use i128 mantissa to avoid overflow for large u64 values
-        Self::from_i128_with_scale(i128::from(v.get()), 8)
+        Self::from_i128_with_scale(v.get().into(), 8)
     }
 }
 
 impl From<u64> for E8s {
     fn from(n: u64) -> Self {
         Self(n)
+    }
+}
+
+impl NumCast for E8s {
+    fn from<T: NumToPrimitive>(n: T) -> Option<Self> {
+        n.to_u64().map(Self)
+    }
+}
+
+impl NumToPrimitive for E8s {
+    fn to_i64(&self) -> Option<i64> {
+        self.0.to_i64()
+    }
+
+    fn to_u64(&self) -> Option<u64> {
+        self.0.to_u64()
     }
 }
 
@@ -191,7 +207,7 @@ mod tests {
 
     #[test]
     fn e8s_raw_and_decimal() {
-        let one_atomic = E8s::from(1u64); // raw
+        let one_atomic: E8s = 1u64.into();
 
         assert_eq!(one_atomic.to_string(), "0.00000001");
     }
