@@ -1,195 +1,6 @@
 use crate::prelude::*;
-use darling::{Error as DarlingError, ast::NestedMeta};
-use derive_more::Deref;
-
-///
-/// Arg
-///
-/// String has been removed because it can be confused for Path or Number (negative
-/// numbers need to be in quotes)
-///
-/// If arguments need to be strings then we can revisit and maybe have an alternative
-///
-
-#[derive(Clone, Debug)]
-pub enum Arg {
-    Bool(bool),
-    Char(char),
-    Number(ArgNumber),
-    Path(Path),
-    String(LitStr),
-}
-
-impl Arg {
-    // as_type
-    pub fn as_type(&self) -> TokenStream {
-        match &self {
-            Self::Bool(_) => quote!(bool),
-            Self::Char(_) => quote!(char),
-            Self::Number(n) => n.as_type(),
-            Self::Path(_) | Self::String(_) => {
-                quote!(::core::compile_error!(
-                    "Path/String are not valid type args here"
-                ))
-            }
-        }
-    }
-}
-
-impl FromMeta for Arg {
-    fn from_value(value: &Lit) -> Result<Self, DarlingError> {
-        match value {
-            Lit::Bool(lit) => Ok(Self::Bool(lit.value)),
-            Lit::Char(lit) => Ok(Self::Char(lit.value())),
-
-            // Int
-            Lit::Int(_) | Lit::Float(_) => ArgNumber::from_value(value)
-                .map(Arg::Number)
-                .map_err(|_| DarlingError::custom("Invalid integer format")),
-
-            // Str
-            // Here, analyze the literal to decide if it's a path or a plain string
-            Lit::Str(lit) => {
-                if lit.value().contains("::") {
-                    // Simplistic check for path-like syntax
-                    syn::parse_str::<Path>(&lit.value())
-                        .map(Arg::Path)
-                        .map_err(|_| DarlingError::custom("Failed to parse path"))
-                } else {
-                    Ok(Self::String(lit.clone()))
-                }
-            }
-
-            _ => Err(DarlingError::custom(format!(
-                "Unsupported literal type: {value:?}",
-            ))),
-        }
-    }
-}
-
-impl HasSchemaPart for Arg {
-    fn schema_part(&self) -> TokenStream {
-        match self {
-            Self::Bool(v) => quote!(::mimic::schema::node::Arg::Bool(#v)),
-            Self::Char(v) => quote!(::mimic::schema::node::Arg::Char(#v)),
-            Self::Number(v) => {
-                let num = quote_one(v, ArgNumber::schema_part);
-                quote!(::mimic::schema::node::Arg::Number(#num))
-            }
-            Self::Path(v) => {
-                let path = quote_one(v, to_str_lit);
-                quote!(::mimic::schema::node::Arg::Path(#path))
-            }
-            Self::String(v) => quote!(::mimic::schema::node::Arg::String(#v)),
-        }
-    }
-}
-
-impl ToTokens for Arg {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        match self {
-            Self::Bool(v) => quote!(#v),
-            Self::Char(v) => quote!(#v),
-            Self::Number(v) => quote!(#v),
-            Self::Path(v) => quote!(#v),
-            Self::String(v) => quote!(#v),
-        }
-        .to_tokens(tokens);
-    }
-}
-
-///
-/// Args
-/// Generic re-useable list of arguments
-///
-
-#[derive(Clone, Debug, Default, Deref)]
-pub struct Args(Vec<Arg>);
-
-impl FromMeta for Args {
-    fn from_list(items: &[NestedMeta]) -> Result<Self, DarlingError> {
-        let mut args = Vec::new();
-
-        for item in items {
-            args.push(Arg::from_nested_meta(item)?);
-        }
-
-        Ok(Self(args))
-    }
-}
-
-impl HasSchemaPart for Args {
-    fn schema_part(&self) -> TokenStream {
-        let args = quote_slice(&self.0, Arg::schema_part);
-
-        quote! {
-            ::mimic::schema::node::Args(#args)
-        }
-    }
-}
-
-///
-/// TESTS
-///
-
-#[cfg(test)]
-mod arg_tests {
-    use super::*;
-    use syn::parse_quote;
-
-    #[test]
-    fn test_bool_parsing() {
-        let lit = parse_quote!(true);
-        if let Ok(Arg::Bool(b)) = Arg::from_value(&lit) {
-            assert!(b, "Parsed boolean should be true");
-        } else {
-            panic!("Expected Bool variant");
-        }
-    }
-
-    #[test]
-    fn test_char_parsing() {
-        let lit = parse_quote!('a');
-        if let Ok(Arg::Char(c)) = Arg::from_value(&lit) {
-            assert_eq!(c, 'a', "Parsed char should be 'a'");
-        } else {
-            panic!("Expected Char variant");
-        }
-    }
-
-    #[test]
-    fn test_number_parsing() {
-        let lit = parse_quote!(42);
-        if let Ok(Arg::Number(num)) = Arg::from_value(&lit) {
-            assert_eq!(num, ArgNumber::Int32(42), "Parsed number does not match");
-        } else {
-            panic!("Expected Number variant");
-        }
-    }
-
-    #[test]
-    fn test_path_parsing() {
-        let path_like_string_lit = parse_quote!("crate::module::Type");
-        if let Ok(Arg::Path(path)) = Arg::from_value(&path_like_string_lit) {
-            assert_eq!(
-                path.to_token_stream().to_string(),
-                "crate :: module :: Type",
-                "Parsed path-like string does not match."
-            );
-        } else {
-            panic!("Expected Path variant");
-        }
-    }
-
-    #[test]
-    fn test_invalid_input() {
-        let lit = parse_quote!(b"invalid");
-        assert!(
-            Arg::from_value(&lit).is_err(),
-            "Expected an error for unsupported literal type."
-        );
-    }
-}
+use darling::{Error as DarlingError, FromMeta};
+use syn::Lit;
 
 ///
 /// ArgNumber
@@ -250,7 +61,7 @@ impl ArgNumber {
     }
 
     // parse_numeric_string
-    fn parse_numeric_string(s: &str) -> Result<Self, DarlingError> {
+    pub fn parse_numeric_string(s: &str) -> Result<Self, DarlingError> {
         let s = s.replace('_', "");
 
         let suffixes = [
@@ -262,13 +73,13 @@ impl ArgNumber {
             if s.ends_with(suffix) {
                 let num_part = s.trim_end_matches(suffix);
 
-                let result = if num_part.contains('.') {
+                let result: Result<Self, DarlingError> = if num_part.contains('.') {
                     match suffix {
                         "f32" => num_part.parse::<f32>().map(Self::Float32),
                         "f64" => num_part.parse::<f64>().map(Self::Float64),
                         _ => unreachable!(),
                     }
-                    .map_err(|_| {})
+                    .map_err(|_| DarlingError::custom(format!("invalid float literal '{s}'")))
                 } else {
                     match suffix {
                         "i8" => num_part.parse::<i8>().map(Self::Int8),
@@ -281,9 +92,8 @@ impl ArgNumber {
                         "u64" => num_part.parse::<u64>().map(Self::Nat64),
                         _ => unreachable!(),
                     }
-                    .map_err(|_| {})
-                }
-                .map_err(|()| DarlingError::custom(format!("invalid numeric literal '{s}'")));
+                    .map_err(|_| DarlingError::custom(format!("invalid numeric literal '{s}'")))
+                };
 
                 return result;
             }
@@ -482,6 +292,29 @@ mod number_tests {
         assert_eq!(
             ArgNumber::parse_numeric_string("3.15").unwrap(),
             ArgNumber::Float64(3.15)
+        );
+    }
+
+    #[test]
+    fn test_large_integers() {
+        // Should overflow i32, fall back to i64
+        assert_eq!(
+            ArgNumber::parse_numeric_string("5000000000").unwrap(),
+            ArgNumber::Int64(5_000_000_000)
+        );
+
+        // Should fit in u64
+        assert_eq!(
+            ArgNumber::parse_numeric_string("18446744073709551615u64").unwrap(),
+            ArgNumber::Nat64(u64::MAX)
+        );
+    }
+
+    #[test]
+    fn test_negative_with_suffix() {
+        assert_eq!(
+            ArgNumber::parse_numeric_string("-128i8").unwrap(),
+            ArgNumber::Int8(-128)
         );
     }
 

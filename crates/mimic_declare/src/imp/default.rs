@@ -49,7 +49,7 @@ fn field_list(fields: &FieldList) -> TokenStream {
     let assignments = fields.iter().map(|field| {
         let ident = &field.ident;
         let expr = if let Some(default) = &field.default {
-            format_default(default)
+            quote!(#default)
         } else {
             match field.value.cardinality() {
                 Cardinality::One => quote!(Default::default()),
@@ -77,7 +77,7 @@ fn field_list(fields: &FieldList) -> TokenStream {
 impl Imp<Newtype> for DefaultTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
         let inner = match &node.default {
-            Some(arg) => format_default(arg),
+            Some(arg) => quote!(#arg),
             None => panic!("newtype {} is missing a default value", node.def.ident()),
         };
 
@@ -93,19 +93,5 @@ impl Imp<Newtype> for DefaultTrait {
             .to_token_stream();
 
         Some(TraitStrategy::from_impl(tokens))
-    }
-}
-
-// format_default
-// not 100% sure NumCast will always work here, may need some extra checks
-fn format_default(arg: &Arg) -> TokenStream {
-    match arg {
-        Arg::Bool(v) => quote!(#v),
-        Arg::Char(v) => quote!(#v),
-        Arg::Number(v) => {
-            quote!(::mimic::core::traits::NumCast::from(#v).expect("number is valid"))
-        }
-        Arg::Path(path) => quote!(#path()),
-        Arg::String(v) => quote!(#v),
     }
 }

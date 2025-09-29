@@ -39,7 +39,7 @@ mod prelude {
     pub use darling::FromMeta;
     pub use proc_macro2::{Span, TokenStream};
     pub use quote::{ToTokens, format_ident, quote};
-    pub use syn::{Ident, ItemStruct, Lit, LitStr, Path};
+    pub use syn::{Ident, ItemStruct, LitStr, Path};
 }
 
 ///

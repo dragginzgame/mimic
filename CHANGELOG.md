@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Added newtype PartialEq/PartialOrd combinations that were missing
 - Added a Duration primitive type to differentiate from Timestamp
 - Added Subaccount::random()
+- rewrote all the Arg/ArgNumber default/into traits, now they can also accept constants and paths
 
 ## [0.21.0] - Sanitizers Working
 

@@ -14,7 +14,8 @@ pub enum Arg {
     Bool(bool),
     Char(char),
     Number(ArgNumber),
-    Path(&'static str),
+    ConstPath(&'static str),
+    FuncPath(&'static str),
     String(&'static str),
 }
 
