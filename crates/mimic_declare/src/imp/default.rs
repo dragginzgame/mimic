@@ -49,7 +49,7 @@ fn field_list(fields: &FieldList) -> TokenStream {
     let assignments = fields.iter().map(|field| {
         let ident = &field.ident;
         let expr = if let Some(default) = &field.default {
-            quote!(#default)
+            quote!(#default.into())
         } else {
             match field.value.cardinality() {
                 Cardinality::One => quote!(Default::default()),
@@ -77,7 +77,7 @@ fn field_list(fields: &FieldList) -> TokenStream {
 impl Imp<Newtype> for DefaultTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
         let inner = match &node.default {
-            Some(arg) => quote!(#arg),
+            Some(arg) => quote!(#arg.into()),
             None => panic!("newtype {} is missing a default value", node.def.ident()),
         };
 
