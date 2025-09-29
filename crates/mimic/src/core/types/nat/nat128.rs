@@ -1,7 +1,8 @@
 use crate::core::{
     Value,
     traits::{
-        FieldValue, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom, Visitable,
+        FieldValue, NumCast, NumToPrimitive, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto,
+        ValidateCustom, Visitable,
     },
 };
 use candid::CandidType;
@@ -52,6 +53,30 @@ impl FieldValue for Nat128 {
 impl From<u128> for Nat128 {
     fn from(u: u128) -> Self {
         Self(u)
+    }
+}
+
+impl NumCast for Nat128 {
+    fn from<T: NumToPrimitive>(n: T) -> Option<Self> {
+        n.to_u128().map(Self)
+    }
+}
+
+impl NumToPrimitive for Nat128 {
+    fn to_i32(&self) -> Option<i32> {
+        self.0.to_i32()
+    }
+
+    fn to_i64(&self) -> Option<i64> {
+        self.0.to_i64()
+    }
+
+    fn to_u64(&self) -> Option<u64> {
+        self.0.to_u64()
+    }
+
+    fn to_u128(&self) -> Option<u128> {
+        self.0.to_u128()
     }
 }
 
@@ -137,7 +162,7 @@ mod tests {
     use crate::core::{deserialize, serialize};
 
     fn roundtrip(v: u128) {
-        let nat128 = Nat128::from(v);
+        let nat128: Nat128 = v.into();
 
         // serialize
         let bytes = serialize(&nat128).expect("serialize failed");
@@ -168,7 +193,7 @@ mod tests {
 
     #[test]
     fn test_manual_encoding() {
-        let v = Nat128::from(42);
+        let v: Nat128 = 42.into();
         let bytes = serialize(&v).unwrap();
         let encoded_inner = &bytes[bytes.len() - 16..];
         assert_eq!(encoded_inner, &42i128.to_be_bytes());
