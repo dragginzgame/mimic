@@ -1,5 +1,6 @@
 mod blob;
 mod decimal;
+mod duration;
 mod e18s;
 mod e8s;
 mod float;
@@ -13,6 +14,7 @@ mod unit;
 
 pub use blob::*;
 pub use decimal::*;
+pub use duration::*;
 pub use e8s::*;
 pub use e18s::*;
 pub use float::*;

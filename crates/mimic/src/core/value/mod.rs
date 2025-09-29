@@ -5,8 +5,8 @@ use crate::core::{
     Key,
     traits::FieldValue,
     types::{
-        Decimal, E8s, E18s, Float32, Float64, Int, Int128, Nat, Nat128, Principal, Subaccount,
-        Timestamp, Ulid,
+        Decimal, Duration, E8s, E18s, Float32, Float64, Int, Int128, Nat, Nat128, Principal,
+        Subaccount, Timestamp, Ulid,
     },
 };
 use candid::CandidType;
@@ -87,6 +87,7 @@ pub enum Value {
     Blob(Vec<u8>),
     Bool(bool),
     Decimal(Decimal),
+    Duration(Duration),
     Enum(ValueEnum),
     E8s(E8s),
     E18s(E18s),
@@ -129,6 +130,7 @@ impl Value {
         matches!(
             self,
             Self::Decimal(_)
+                | Self::Duration(_)
                 | Self::E8s(_)
                 | Self::E18s(_)
                 | Self::Float32(_)
@@ -169,6 +171,7 @@ impl Value {
             Self::Blob(_) => ValueTag::Blob,
             Self::Bool(_) => ValueTag::Bool,
             Self::Decimal(_) => ValueTag::Decimal,
+            Self::Duration(_) => ValueTag::Duration,
             Self::Enum(_) => ValueTag::Enum,
             Self::E8s(_) => ValueTag::E8s,
             Self::E18s(_) => ValueTag::E18s,
@@ -230,6 +233,7 @@ impl Value {
     fn to_decimal(&self) -> Option<Decimal> {
         match self {
             Self::Decimal(d) => Some(*d),
+            Self::Duration(d) => Decimal::from_u64(d.get()),
             Self::E8s(v) => Some(v.to_decimal()),
             Self::E18s(v) => Some(v.to_decimal()),
             Self::Float64(f) => Decimal::from_f64(f.get()),
@@ -248,12 +252,16 @@ impl Value {
     #[allow(clippy::cast_precision_loss)]
     fn to_f64_lossless(&self) -> Option<f64> {
         match self {
+            Self::Duration(d) if d.get() <= F64_SAFE_U64 => Some(d.get() as f64),
             Self::Float64(f) => Some(f.get()),
             Self::Float32(f) => Some(f64::from(f.get())),
             Self::Int(i) if (-F64_SAFE_I64..=F64_SAFE_I64).contains(i) => Some(*i as f64),
-            Self::Int128(i) if (-F64_SAFE_I128..=F64_SAFE_I128).contains(i) => Some(i.get() as f64),
+            Self::Int128(i) if (-F64_SAFE_I128..=F64_SAFE_I128).contains(&i.get()) => {
+                Some(i.get() as f64)
+            }
+            Self::Timestamp(t) if t.get() <= F64_SAFE_U64 => Some(t.get() as f64),
             Self::Uint(u) if *u <= F64_SAFE_U64 => Some(*u as f64),
-            Self::Uint128(u) if *u <= F64_SAFE_U128 => Some(u.get() as f64),
+            Self::Uint128(u) if u.get() <= F64_SAFE_U128 => Some(u.get() as f64),
 
             _ => None,
         }
@@ -501,6 +509,7 @@ impl PartialOrd for Value {
         match (self, other) {
             (Self::Bool(a), Self::Bool(b)) => a.partial_cmp(b),
             (Self::Decimal(a), Self::Decimal(b)) => a.partial_cmp(b),
+            (Self::Duration(a), Self::Duration(b)) => a.partial_cmp(b),
             (Self::E8s(a), Self::E8s(b)) => a.partial_cmp(b),
             (Self::E18s(a), Self::E18s(b)) => a.partial_cmp(b),
             (Self::Float32(a), Self::Float32(b)) => a.partial_cmp(b),
@@ -531,26 +540,27 @@ pub enum ValueTag {
     Blob = 1,
     Bool = 2,
     Decimal = 3,
-    Enum = 4,
-    E8s = 5,
-    E18s = 6,
-    Float32 = 7,
-    Float64 = 8,
-    Int = 9,
-    Int128 = 10,
-    IntBig = 11,
-    List = 12,
-    None = 13,
-    Principal = 14,
-    Subaccount = 15,
-    Text = 16,
-    Timestamp = 17,
-    Uint = 18,
-    Uint128 = 19,
-    UintBig = 20,
-    Ulid = 21,
-    Unit = 22,
-    Unsupported = 23,
+    Duration = 4,
+    Enum = 5,
+    E8s = 6,
+    E18s = 7,
+    Float32 = 8,
+    Float64 = 9,
+    Int = 10,
+    Int128 = 11,
+    IntBig = 12,
+    List = 13,
+    None = 14,
+    Principal = 15,
+    Subaccount = 16,
+    Text = 17,
+    Timestamp = 18,
+    Uint = 19,
+    Uint128 = 20,
+    UintBig = 21,
+    Ulid = 22,
+    Unit = 23,
+    Unsupported = 24,
 }
 
 impl ValueTag {

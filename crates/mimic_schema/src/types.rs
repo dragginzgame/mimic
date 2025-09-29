@@ -102,6 +102,7 @@ pub enum Primitive {
     Blob,
     Bool,
     Decimal,
+    Duration,
     E8s,
     E18s,
     Float32,
@@ -153,6 +154,7 @@ impl Primitive {
         matches!(
             self,
             Self::Decimal
+                | Self::Duration
                 | Self::E8s
                 | Self::E18s
                 | Self::Int8
@@ -165,6 +167,7 @@ impl Primitive {
                 | Self::Nat16
                 | Self::Nat32
                 | Self::Nat64
+                | Self::Timestamp
         )
     }
 
@@ -241,7 +244,7 @@ impl Primitive {
             Self::Nat8 => "u8",
             Self::Nat16 => "u16",
             Self::Nat32 => "u32",
-            Self::Nat64 | Self::E8s | Self::Timestamp => "u64",
+            Self::Nat64 | Self::Duration | Self::E8s | Self::Timestamp => "u64",
             _ => panic!("unexpected primitive type"),
         }
         .into()

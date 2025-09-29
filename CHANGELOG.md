@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Raised the minimum supported Rust version to 1.90.0 and refreshed CI/docs references.
 - Added newtype PartialEq/PartialOrd combinations that were missing
+- Added a Duration type to differentiate from Timestamp
 - Added Subaccount::random()
 
 ## [0.21.0] - Sanitizers Working
@@ -17,9 +18,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Expanded the text case sanitizers with snake, kebab, title, and upper-camel converters so all common case transforms are reusable in schema definitions.
 - Introduced design-test newtypes that exercise case validators and sanitizers inside lists, maps, and sets to verify the visitor implementations.
-
-### Docs
-- Updated the README quickstart to reference the `v0.21.0` tag and documented the text casing toolkit alongside the core feature list.
 
 ## [0.20.3] - Return of the Sanitizer
 - serde / candid issue fixed

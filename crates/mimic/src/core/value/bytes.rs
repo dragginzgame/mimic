@@ -77,6 +77,9 @@ impl Value {
                 feed_u32(h, d.scale());
                 feed_bytes(h, &d.mantissa().to_be_bytes());
             }
+            Self::Duration(t) => {
+                feed_u64(h, t.get());
+            }
             Self::Enum(v) => {
                 feed_u32(h, v.path.len() as u32);
                 feed_bytes(h, v.path.as_bytes());
