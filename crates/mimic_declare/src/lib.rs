@@ -33,7 +33,7 @@ mod prelude {
             SchemaNodeKind,
         },
     };
-    pub use mimic_schema::types::{Cardinality, ConstantType, Primitive, StoreType};
+    pub use mimic_schema::types::{Cardinality, Primitive, StoreType};
 
     // proc-macro essentials
     pub use darling::FromMeta;
@@ -90,7 +90,6 @@ macro_rules! macro_node {
 }
 
 macro_node!(canister, node::Canister);
-macro_node!(constant, node::Constant);
 macro_node!(entity, node::Entity);
 macro_node!(entity_id, node::EntityId);
 macro_node!(enum_, node::Enum);

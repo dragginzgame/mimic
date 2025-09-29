@@ -14,7 +14,7 @@ pub mod prelude {
     pub(crate) use crate::build::{schema_read, validate::validate_ident};
     pub use crate::{
         node::*,
-        types::{Cardinality, ConstantType, Primitive, StoreType},
+        types::{Cardinality, Primitive, StoreType},
         visit::Visitor,
     };
     pub use candid::CandidType;

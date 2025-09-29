@@ -5,14 +5,13 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
-
-### Changed
+## [0.23.0] - 2025-09-29
 - Raised the minimum supported Rust version to 1.90.0 and refreshed CI/docs references.
 - Added newtype PartialEq/PartialOrd combinations that were missing
 - Added a Duration primitive type to differentiate from Timestamp
 - Added Subaccount::random()
 - rewrote all the Arg/ArgNumber default/into traits, now they can also accept constants and paths
+- removed the Constant macro as it's not really part of the data model
 
 ## [0.21.0] - Sanitizers Working
 

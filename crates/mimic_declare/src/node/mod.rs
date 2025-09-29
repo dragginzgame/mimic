@@ -1,6 +1,5 @@
 mod arg;
 mod canister;
-mod constant;
 mod def;
 mod entity;
 mod entity_id;
@@ -22,10 +21,8 @@ mod r#type;
 mod validator;
 mod value;
 
-// mostly just one or two types in each file so wildcard should be ok
 pub use self::arg::*;
 pub use self::canister::*;
-pub use self::constant::*;
 pub use self::def::*;
 pub use self::entity::*;
 pub use self::entity_id::*;

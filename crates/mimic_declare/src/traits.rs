@@ -208,7 +208,6 @@ pub trait HasSchema: HasSchemaPart + HasDef {
 #[derive(Debug)]
 pub enum SchemaNodeKind {
     Canister,
-    Constant,
     Entity,
     Enum,
     EnumValue,

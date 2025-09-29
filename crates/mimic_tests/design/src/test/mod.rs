@@ -33,13 +33,6 @@ pub struct Map {}
 pub struct Set {}
 
 ///
-/// Constant
-///
-
-#[constant(ty = "Str", value = "Hello")]
-pub struct CONSTANT {}
-
-///
 /// EntityIdTest
 ///
 

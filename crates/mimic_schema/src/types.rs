@@ -35,62 +35,6 @@ impl ToTokens for Cardinality {
 }
 
 ///
-/// ConstantType
-///
-
-#[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, FromStr, Serialize)]
-#[remain::sorted]
-pub enum ConstantType {
-    Bool,
-    Float32,
-    Float64,
-    Int8,
-    Int16,
-    Int32,
-    Int64,
-    Nat8,
-    Nat16,
-    Nat32,
-    Nat64,
-    Str,
-}
-
-impl ConstantType {
-    #[must_use]
-    pub fn as_type(self) -> TokenStream {
-        match self {
-            Self::Bool => quote!(bool),
-            Self::Float32 => quote!(f32),
-            Self::Float64 => quote!(f64),
-            Self::Int8 => quote!(i8),
-            Self::Int16 => quote!(i16),
-            Self::Int32 => quote!(i32),
-            Self::Int64 => quote!(i64),
-            Self::Nat8 => quote!(u8),
-            Self::Nat16 => quote!(u16),
-            Self::Nat32 => quote!(u32),
-            Self::Nat64 => quote!(u64),
-            Self::Str => quote!(&str),
-        }
-    }
-}
-
-impl FromMeta for ConstantType {
-    fn from_string(s: &str) -> Result<Self, darling::Error> {
-        s.parse::<Self>()
-            .map_err(|_| darling::Error::unknown_value(s))
-    }
-}
-
-impl ToTokens for ConstantType {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = format_ident!("{self}");
-
-        tokens.extend(quote!(::mimic::schema::types::ConstantType::#ident));
-    }
-}
-
-///
 /// Primitive
 ///
 
