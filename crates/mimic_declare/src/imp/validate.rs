@@ -196,7 +196,12 @@ fn field_list(fields: &FieldList) -> Option<TokenStream> {
         .iter()
         .filter_map(|field| {
             let field_ident = &field.ident;
-            generate_value_validation_inner(&field.value, quote!(&self.#field_ident))
+            let field_key = quote_one(&field.ident, to_str_lit);
+            generate_field_value_validation_inner(
+                &field.value,
+                quote!(&self.#field_ident),
+                &field_key,
+            )
         })
         .collect();
 
@@ -279,6 +284,66 @@ fn generate_value_validation_inner(value: &Value, var_expr: TokenStream) -> Opti
     };
 
     Some(tokens)
+}
+
+///
+/// Generate validation logic for a specific record field so error entries carry the field key.
+///
+fn generate_field_value_validation_inner(
+    value: &Value,
+    var_expr: TokenStream,
+    field_key: &TokenStream,
+) -> Option<TokenStream> {
+    let rules = generate_field_validators(&value.item.validators, quote!(v), field_key);
+
+    if rules.is_empty() {
+        return None;
+    }
+
+    let tokens = match value.cardinality() {
+        Cardinality::One => {
+            quote! {
+                {
+                    let v = #var_expr;
+                    #(#rules)*
+                }
+            }
+        }
+        Cardinality::Opt => {
+            quote! {
+                if let Some(v) = #var_expr {
+                    #(#rules)*
+                }
+            }
+        }
+        Cardinality::Many => {
+            quote! {
+                for v in #var_expr {
+                    #(#rules)*
+                }
+            }
+        }
+    };
+
+    Some(tokens)
+}
+
+fn generate_field_validators(
+    validators: &[TypeValidator],
+    var_expr: TokenStream,
+    field_key: &TokenStream,
+) -> Vec<TokenStream> {
+    validators
+        .iter()
+        .map(|validator| {
+            let constructor = validator.quote_constructor();
+            quote! {
+                if let Err(err) = #constructor.validate(#var_expr) {
+                    errs.add_for(#field_key, err);
+                }
+            }
+        })
+        .collect()
 }
 
 // fn_wrap
