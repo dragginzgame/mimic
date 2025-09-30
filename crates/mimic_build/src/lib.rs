@@ -65,7 +65,7 @@ impl ActorBuilder {
         let canister_path = self.canister.def.path();
 
         self.schema
-            .filter_nodes::<Store, _>(|node| node.canister == canister_path)
+            .filter_nodes::<Store>(|node| node.canister == canister_path)
             .map(|(path, store)| (path.to_string(), store.clone()))
             .collect()
     }
@@ -79,11 +79,11 @@ impl ActorBuilder {
 
         for (store_path, _) in self
             .schema
-            .filter_nodes::<Store, _>(|node| node.canister == canister_path)
+            .filter_nodes::<Store>(|node| node.canister == canister_path)
         {
             for (entity_path, entity) in self
                 .schema
-                .filter_nodes::<Entity, _>(|node| node.store == store_path)
+                .filter_nodes::<Entity>(|node| node.store == store_path)
             {
                 entities.push((entity_path.to_string(), entity.clone()));
             }

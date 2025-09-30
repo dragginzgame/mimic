@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.23.3] - 2025-09-30
+- schema check for duplicate memory_ids in a Canister
+- made the filter_nodes() generic easier to use
+
 ## [0.23.0] - 2025-09-29
 - Raised the minimum supported Rust version to 1.90.0 and refreshed CI/docs references.
 - Added newtype PartialEq/PartialOrd combinations that were missing

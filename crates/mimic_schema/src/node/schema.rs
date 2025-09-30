@@ -178,13 +178,10 @@ impl Schema {
 
     // filter_nodes
     // Generic method to filter key, and nodes of any type with a predicate
-    pub fn filter_nodes<'a, T: 'static, F>(
+    pub fn filter_nodes<'a, T: 'static>(
         &'a self,
-        predicate: F,
-    ) -> impl Iterator<Item = (&'a str, &'a T)> + 'a
-    where
-        F: Fn(&T) -> bool + 'a,
-    {
+        predicate: impl Fn(&T) -> bool + 'a,
+    ) -> impl Iterator<Item = (&'a str, &'a T)> + 'a {
         self.nodes.iter().filter_map(move |(key, node)| {
             node.as_any()
                 .downcast_ref::<T>()
