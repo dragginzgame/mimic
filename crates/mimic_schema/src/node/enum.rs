@@ -82,7 +82,7 @@ impl VisitableNode for Enum {
 
 #[derive(Clone, Debug, Serialize)]
 pub struct EnumVariant {
-    pub name: &'static str,
+    pub ident: &'static str,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub value: Option<Value>,
@@ -99,11 +99,11 @@ impl ValidateNode for EnumVariant {
         let mut errs = ErrorTree::new();
 
         // name
-        if !self.name.is_case(Case::UpperCamel) {
+        if !self.ident.is_case(Case::UpperCamel) {
             err!(
                 errs,
-                "variant name '{}' must be in UpperCamelCase",
-                self.name
+                "variant ident '{}' must be in UpperCamelCase",
+                self.ident
             );
         }
 

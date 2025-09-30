@@ -15,15 +15,15 @@ impl Imp<Enum> for FieldValueTrait {
         // generate match arms
         let arms = node.variants.iter().map(|v| {
             let v_match = {
-                let v_name = &v.name;
+                let v_ident = &v.ident;
 
                 if v.value.is_some() {
-                    quote!(#v_name(_))
+                    quote!(#v_ident(_))
                 } else {
-                    quote!(#v_name)
+                    quote!(#v_ident)
                 }
             };
-            let v_name = &v.name.to_string(); // schema variant name (String)
+            let v_name = &v.ident.to_string(); // schema variant name (String)
 
             quote! {
                 Self::#v_match => {

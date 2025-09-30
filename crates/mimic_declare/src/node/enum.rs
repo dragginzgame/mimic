@@ -154,7 +154,7 @@ impl ToTokens for Enum {
 #[derive(Clone, Debug, FromMeta)]
 pub struct EnumVariant {
     #[darling(default = EnumVariant::unspecified_ident)]
-    pub name: Ident,
+    pub ident: Ident,
 
     #[darling(default)]
     pub value: Option<Value>,
@@ -169,6 +169,15 @@ pub struct EnumVariant {
 impl EnumVariant {
     fn unspecified_ident() -> Ident {
         format_ident!("Unspecified")
+    }
+
+    /// Pick the effective identifier for codegen
+    pub fn effective_ident(&self) -> Ident {
+        if self.unspecified {
+            Self::unspecified_ident()
+        } else {
+            self.ident.clone()
+        }
     }
 }
 
@@ -187,12 +196,12 @@ impl HasSchemaPart for EnumVariant {
         } = self;
 
         // quote
-        let name = quote_one(&self.name, to_str_lit);
+        let ident = quote_one(&self.ident, to_str_lit);
         let value = quote_option(self.value.as_ref(), Value::schema_part);
 
         quote! {
             ::mimic::schema::node::EnumVariant {
-                name: #name,
+                ident: #ident,
                 value : #value,
                 default: #default,
                 unspecified: #unspecified,
@@ -203,18 +212,14 @@ impl HasSchemaPart for EnumVariant {
 
 impl HasTypePart for EnumVariant {
     fn type_part(&self) -> TokenStream {
-        let name = if self.unspecified {
-            Self::unspecified_ident()
-        } else {
-            self.name.clone()
-        };
+        let ident = self.effective_ident();
         let default_attr = self.default.then(|| quote!(#[default]));
 
         let body = if let Some(value) = &self.value {
             let value = value.type_part();
-            quote!(#name(#value))
+            quote!(#ident(#value))
         } else {
-            quote!(#name)
+            quote!(#ident)
         };
 
         quote! {
@@ -224,17 +229,17 @@ impl HasTypePart for EnumVariant {
     }
 
     fn view_type_part(&self) -> TokenStream {
-        let name = &self.name;
+        let ident = &self.ident;
 
         if let Some(value) = &self.value {
             let value_view = HasTypePart::view_type_part(value);
 
             quote! {
-                #name(#value_view)
+                #ident(#value_view)
             }
         } else {
             quote! {
-                #name
+                #ident
             }
         }
     }

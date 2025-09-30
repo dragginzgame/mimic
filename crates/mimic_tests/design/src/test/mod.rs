@@ -44,10 +44,10 @@ pub struct EntityIdTest {}
 ///
 
 #[enum_(
-    variant(name = "A", default),
-    variant(name = "B"),
-    variant(name = "C"),
-    variant(name = "D"),
+    variant(ident = "A", default),
+    variant(ident = "B"),
+    variant(ident = "C"),
+    variant(ident = "D"),
     traits(add(Sorted))
 )]
 pub struct EnumSorted {}
@@ -58,10 +58,10 @@ pub struct EnumSorted {}
 
 #[enum_(
     variant(unspecified, default),
-    variant(name = "A"),
-    variant(name = "B"),
-    variant(name = "C"),
-    variant(name = "D")
+    variant(ident = "A"),
+    variant(ident = "B"),
+    variant(ident = "C"),
+    variant(ident = "D")
 )]
 pub struct EnumUnspecified {}
 

@@ -7,12 +7,12 @@ use crate::design::prelude::*;
 
 #[enum_(
     variant(unspecified, default),
-    variant(name = "Array", value(many, item(is = "Value", indirect))),
-    variant(name = "Blob", value(item(prim = "Blob"))),
-    variant(name = "Int", value(item(prim = "Int64"))),
-    variant(name = "Map", value(item(is = "value::Map", indirect))),
-    variant(name = "Nat", value(item(prim = "Nat64"))),
-    variant(name = "Text", value(item(prim = "Text")))
+    variant(ident = "Array", value(many, item(is = "Value", indirect))),
+    variant(ident = "Blob", value(item(prim = "Blob"))),
+    variant(ident = "Int", value(item(prim = "Int64"))),
+    variant(ident = "Map", value(item(is = "value::Map", indirect))),
+    variant(ident = "Nat", value(item(prim = "Nat64"))),
+    variant(ident = "Text", value(item(prim = "Text")))
 )]
 pub struct Value {}
 

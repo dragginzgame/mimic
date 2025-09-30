@@ -34,30 +34,30 @@ impl Imp<Enum> for TypeViewTrait {
 
         // to_view_arms
         let to_view_arms = node.variants.iter().map(|variant| {
-            let variant_name = &variant.name;
+            let variant_ident = &variant.ident;
 
             if variant.value.is_some() {
                 quote! {
-                    Self::#variant_name(v) => Self::View::#variant_name(v.to_view())
+                    Self::#variant_ident(v) => Self::View::#variant_ident(v.to_view())
                 }
             } else {
                 quote! {
-                    Self::#variant_name => Self::View::#variant_name
+                    Self::#variant_ident => Self::View::#variant_ident
                 }
             }
         });
 
         // from_view_arms
         let from_view_arms = node.variants.iter().map(|variant| {
-            let variant_name = &variant.name;
+            let variant_ident = &variant.ident;
 
             if variant.value.is_some() {
                 quote! {
-                    Self::View::#variant_name(v) => Self::#variant_name(TypeView::from_view(v))
+                    Self::View::#variant_ident(v) => Self::#variant_ident(TypeView::from_view(v))
                 }
             } else {
                 quote! {
-                    Self::View::#variant_name => Self::#variant_name
+                    Self::View::#variant_ident => Self::#variant_ident
                 }
             }
         });
@@ -99,27 +99,19 @@ impl Imp<EnumValue> for TypeViewTrait {
 
         // to_view_arms
         let to_view_arms = node.variants.iter().map(|variant| {
-            let variant_name = if variant.unspecified {
-                format_ident!("Unspecified")
-            } else {
-                variant.name.clone()
-            };
+            let ident = variant.effective_ident();
 
             quote! {
-                Self::#variant_name => Self::View::#variant_name
+                Self::#ident => Self::View::#ident
             }
         });
 
         // from_view_arms
         let from_view_arms = node.variants.iter().map(|variant| {
-            let variant_name = if variant.unspecified {
-                format_ident!("Unspecified")
-            } else {
-                variant.name.clone()
-            };
+            let ident = variant.effective_ident();
 
             quote! {
-                Self::View::#variant_name => Self::#variant_name
+                Self::View::#ident => Self::#ident
             }
         });
 

@@ -142,10 +142,10 @@ pub struct RecordC {}
 ///
 
 #[enum_(
-    variant(name = "A", default),
-    variant(name = "B", value(item(prim = "Text"))),
-    variant(name = "C", value(item(is = "RecordB"))),
-    variant(name = "D", value(item(is = "RecordC")))
+    variant(ident = "A", default),
+    variant(ident = "B", value(item(prim = "Text"))),
+    variant(ident = "C", value(item(is = "RecordB"))),
+    variant(ident = "D", value(item(is = "RecordC")))
 )]
 pub struct EnumA {}
 
@@ -153,7 +153,7 @@ pub struct EnumA {}
 /// EnumB
 ///
 
-#[enum_(variant(name = "F", default), variant(name = "G"))]
+#[enum_(variant(ident = "F", default), variant(ident = "G"))]
 pub struct EnumB {}
 
 ///
@@ -162,8 +162,8 @@ pub struct EnumB {}
 
 #[enum_(
     variant(unspecified, default),
-    variant(name = "F", value(item(prim = "Text"))),
-    variant(name = "I", value(item(is = "RecordB")))
+    variant(ident = "F", value(item(prim = "Text"))),
+    variant(ident = "I", value(item(is = "RecordB")))
 )]
 pub struct EnumC {}
 
@@ -172,10 +172,10 @@ pub struct EnumC {}
 ///
 
 #[enum_value(
-    variant(name = "M6", value = 1, default),
-    variant(name = "Y1", value = 5),
-    variant(name = "Y2", value = 10),
-    variant(name = "Y3", value = 10)
+    variant(ident = "M6", value = 1, default),
+    variant(ident = "Y1", value = 5),
+    variant(ident = "Y2", value = 10),
+    variant(ident = "Y3", value = 10)
 )]
 pub struct EnumValue {}
 

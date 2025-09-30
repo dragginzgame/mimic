@@ -116,7 +116,7 @@ impl ToTokens for EnumValue {
 #[derive(Debug, FromMeta)]
 pub struct EnumValueVariant {
     #[darling(default = EnumValueVariant::unspecified_ident)]
-    pub name: Ident,
+    pub ident: Ident,
 
     pub value: ArgNumber,
 
@@ -131,6 +131,15 @@ impl EnumValueVariant {
     fn unspecified_ident() -> Ident {
         format_ident!("Unspecified")
     }
+
+    /// Pick the effective identifier for codegen
+    pub fn effective_ident(&self) -> Ident {
+        if self.unspecified {
+            Self::unspecified_ident()
+        } else {
+            self.ident.clone()
+        }
+    }
 }
 
 impl HasSchemaPart for EnumValueVariant {
@@ -142,12 +151,12 @@ impl HasSchemaPart for EnumValueVariant {
         } = self;
 
         // quote
-        let name = quote_one(&self.name, to_str_lit);
+        let ident = quote_one(&self.ident, to_str_lit);
         let value = self.value.schema_part();
 
         quote! {
             ::mimic::schema::node::EnumValueVariant {
-                name: #name,
+                ident: #ident,
                 value : #value,
                 default: #default,
                 unspecified: #unspecified,
@@ -158,12 +167,7 @@ impl HasSchemaPart for EnumValueVariant {
 
 impl HasTypePart for EnumValueVariant {
     fn type_part(&self) -> TokenStream {
-        let name = if self.unspecified {
-            Self::unspecified_ident()
-        } else {
-            self.name.clone()
-        };
-
+        let ident = self.effective_ident();
         let default_attr = if self.default {
             quote!(#[default])
         } else {
@@ -172,19 +176,15 @@ impl HasTypePart for EnumValueVariant {
 
         quote! {
             #default_attr
-            #name
+            #ident
         }
     }
 
     fn view_type_part(&self) -> TokenStream {
-        let name = if self.unspecified {
-            Self::unspecified_ident()
-        } else {
-            self.name.clone()
-        };
+        let ident = self.effective_ident();
 
         quote! {
-            #name
+            #ident
         }
     }
 }

@@ -222,15 +222,16 @@ pub fn field_list(fields: &FieldList) -> TokenStream {
 
 // enum_variant
 pub fn enum_variant(variant: &EnumVariant) -> (TokenStream, TokenStream) {
-    let name = &variant.name;
+    let ident = &variant.ident;
+
     if variant.value.is_some() {
-        let name_str = name.to_string();
+        let ident_str = ident.to_string();
         (
-            quote! { Self::#name(value) => perform_visit(visitor, value, #name_str), },
-            quote! { Self::#name(value) => perform_visit_mut(visitor, value, #name_str), },
+            quote! { Self::#ident(value) => perform_visit(visitor, value, #ident_str), },
+            quote! { Self::#ident(value) => perform_visit_mut(visitor, value, #ident_str), },
         )
     } else {
-        (quote! { Self::#name => {} }, quote! { Self::#name => {} })
+        (quote! { Self::#ident => {} }, quote! { Self::#ident => {} })
     }
 }
 
