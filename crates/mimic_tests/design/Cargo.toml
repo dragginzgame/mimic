@@ -7,7 +7,6 @@ publish = false
 
 [dependencies]
 candid = { workspace = true }
-ctor = { workspace = true }
 mimic = { workspace = true }
 serde = { workspace = true }
 

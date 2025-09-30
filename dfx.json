@@ -1,10 +1,10 @@
 {
     "canisters": {
-        "test": {
+        "test_canister": {
             "type": "custom",
-            "candid": ".dfx/local/canisters/test/test.did",
-            "build": "bash -c 'scripts/app/build.sh test'",
-            "wasm": ".dfx/local/canisters/test/test.wasm",
+            "candid": ".dfx/local/canisters/test_canister/test_canister.did",
+            "build": "bash -c 'scripts/app/build.sh test_canister'",
+            "wasm": ".dfx/local/canisters/test_canister/test_canister.wasm",
             "shrink": true,
             "gzip": true,
             "metadata": [

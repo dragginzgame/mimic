@@ -9,7 +9,6 @@ publish = false
 candid = { workspace = true }
 convert_case = { workspace = true }
 derive_more = { workspace = true }
-ic-cdk = { workspace = true }
 serde = { workspace = true }
 xxhash-rust = { workspace = true }
 

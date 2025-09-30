@@ -99,7 +99,11 @@ impl Imp<EnumValue> for TypeViewTrait {
 
         // to_view_arms
         let to_view_arms = node.variants.iter().map(|variant| {
-            let variant_name = &variant.name;
+            let variant_name = if variant.unspecified {
+                format_ident!("Unspecified")
+            } else {
+                variant.name.clone()
+            };
 
             quote! {
                 Self::#variant_name => Self::View::#variant_name
@@ -108,7 +112,11 @@ impl Imp<EnumValue> for TypeViewTrait {
 
         // from_view_arms
         let from_view_arms = node.variants.iter().map(|variant| {
-            let variant_name = &variant.name;
+            let variant_name = if variant.unspecified {
+                format_ident!("Unspecified")
+            } else {
+                variant.name.clone()
+            };
 
             quote! {
                 Self::View::#variant_name => Self::#variant_name

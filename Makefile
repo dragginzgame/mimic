@@ -114,8 +114,8 @@ test-canisters:
 	@if command -v dfx >/dev/null 2>&1; then \
 		( dfx canister create --all -qq ); \
 		( dfx build --all ); \
-		( dfx canister install test --mode=reinstall -y ); \
-		( dfx canister call test test ); \
+		( dfx canister install test_canister --mode=reinstall -y ); \
+		( dfx canister call test_canister test ); \
 	else \
 		echo "Skipping canister tests (dfx not installed)"; \
 	fi

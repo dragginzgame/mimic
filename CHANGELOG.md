@@ -5,7 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.23.3] - 2025-09-30
+## [0.23.5] - 2025-09-30
+- subaccount now has to/from Ulid
+
+## [0.23.4] - 2025-09-30
 - schema check for duplicate memory_ids in a Canister
 - made the filter_nodes() generic easier to use
 

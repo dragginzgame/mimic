@@ -20,7 +20,6 @@ categories = ["database", "web-programming", "wasm"]
 
 [workspace.dependencies]
 candid = "0.10"
-canister_test = { path = "crates/mimic_tests/canister" }
 convert_case = "0.8"
 ctor = "0.5"
 darling = "0.21"

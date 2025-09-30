@@ -1,5 +1,5 @@
 [package]
-name = "canister_test"
+name = "test_canister"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }

@@ -136,18 +136,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "canister_test"
-version = "0.23.4"
-dependencies = [
- "candid",
- "ic-cdk",
- "icu",
- "mimic",
- "mimic_build",
- "test_design",
-]
-
-[[package]]
 name = "cc"
 version = "1.2.39"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -831,7 +819,6 @@ dependencies = [
  "candid",
  "convert_case 0.8.0",
  "derive_more",
- "ic-cdk",
  "serde",
  "xxhash-rust",
 ]
@@ -1311,11 +1298,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "test_canister"
+version = "0.23.4"
+dependencies = [
+ "candid",
+ "ic-cdk",
+ "icu",
+ "mimic",
+ "mimic_build",
+ "test_design",
+]
+
+[[package]]
 name = "test_design"
 version = "0.23.4"
 dependencies = [
  "candid",
- "ctor",
  "mimic",
  "serde",
 ]

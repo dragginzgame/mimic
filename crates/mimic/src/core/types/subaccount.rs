@@ -2,7 +2,7 @@ use crate::core::{
     traits::{
         FieldValue, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom, Visitable,
     },
-    types::Principal,
+    types::{Principal, Ulid},
     value::Value,
 };
 use candid::CandidType;
@@ -47,8 +47,29 @@ impl Subaccount {
     }
 
     #[must_use]
+    pub const fn to_array(&self) -> [u8; 32] {
+        self.0.0
+    }
+
+    #[must_use]
     pub const fn from_array(array: [u8; 32]) -> Self {
         Self(WrappedSubaccount(array))
+    }
+
+    #[must_use]
+    pub fn from_ulid(ulid: Ulid) -> Self {
+        let mut bytes = [0u8; 32];
+        bytes[16..].copy_from_slice(&ulid.to_bytes()); // right-align ULID
+
+        Self::from_array(bytes)
+    }
+
+    #[must_use]
+    pub fn to_ulid(&self) -> Ulid {
+        let bytes = self.to_array();
+        let ulid_bytes: [u8; 16] = bytes[16..].try_into().expect("slice has exactly 16 bytes");
+
+        Ulid::from_bytes(ulid_bytes)
     }
 
     /// Generate a random subaccount using two 128-bit draws.
@@ -216,5 +237,24 @@ mod tests {
 
         // Must be valid hex
         assert!(hex.chars().all(|c| c.is_ascii_hexdigit()));
+    }
+
+    #[test]
+    fn round_trip_ulid_to_subaccount_and_back() {
+        let ulid = Ulid::default();
+        let sub = Subaccount::from_ulid(ulid);
+        let ulid2 = sub.to_ulid();
+
+        assert_eq!(ulid, ulid2);
+    }
+
+    #[test]
+    fn different_ulids_produce_different_subaccounts() {
+        let ulid1 = Ulid::generate();
+        let ulid2 = Ulid::generate();
+        assert_ne!(
+            Subaccount::from_ulid(ulid1).to_array(),
+            Subaccount::from_ulid(ulid2).to_array()
+        );
     }
 }

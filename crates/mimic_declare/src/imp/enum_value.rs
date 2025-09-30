@@ -16,7 +16,11 @@ impl Imp<EnumValue> for EnumValueKindTrait {
 
         // iterate variants
         for variant in &node.variants {
-            let name = &variant.name;
+            let name = if variant.unspecified {
+                format_ident!("Unspecified")
+            } else {
+                variant.name.clone()
+            };
             let value = &variant.value;
 
             inner.extend(quote! {
