@@ -4,7 +4,7 @@ use crate::prelude::*;
 /// ListValidated
 ///
 
-#[list(item(prim = "Nat8", validator(path = "validator::number::Lt", args(10))))]
+#[list(item(prim = "Nat8", validator(path = "validator::num::Lt", args(10))))]
 pub struct ListValidated {}
 
 ///
@@ -12,8 +12,8 @@ pub struct ListValidated {}
 ///
 
 #[map(
-    key(prim = "Nat8", validator(path = "validator::number::Lt", args(10))),
-    value(item(prim = "Nat8", validator(path = "validator::number::Lt", args(10))))
+    key(prim = "Nat8", validator(path = "validator::num::Lt", args(10))),
+    value(item(prim = "Nat8", validator(path = "validator::num::Lt", args(10))))
 )]
 pub struct MapValidated {}
 
@@ -21,7 +21,7 @@ pub struct MapValidated {}
 /// SetValidated
 ///
 
-#[set(item(prim = "Nat8", validator(path = "validator::number::Lt", args(10))))]
+#[set(item(prim = "Nat8", validator(path = "validator::num::Lt", args(10))))]
 pub struct SetValidated {}
 
 ///

@@ -101,7 +101,7 @@ pub struct Todo {}
 #[newtype(
     primitive = "Int8",
     item(prim = "Int8"),
-    ty(validator(path = "validator::number::Range", args(-1, 3)))
+    ty(validator(path = "validator::num::Range", args(-1, 3)))
 )]
 pub struct Negative {}
 
@@ -124,7 +124,7 @@ pub struct Selector {}
 #[record(fields(field(
     name = "interval",
     value(item(is = "SelectorNewtype", selector = "Selector"))
-),))]
+)))]
 pub struct SelectorRecord {}
 
 ///
@@ -141,6 +141,6 @@ pub struct SelectorNewtype {}
 #[newtype(
     primitive = "Decimal",
     item(prim = "Decimal"),
-    ty(validator(path = "validator::number::Lte", args(5.0)))
+    ty(validator(path = "validator::num::Lte", args(5.0)))
 )]
 pub struct NewtypeValidated {}

@@ -12,11 +12,11 @@ use crate::prelude::*;
         field(name = "multiple_ten", value(item(is = "MultipleTenType"))),
         field(
             name = "lte_ten",
-            value(item(prim = "Nat8", validator(path = "validator::number::Lte", args(10)))),
+            value(item(prim = "Nat8", validator(path = "validator::num::Lte", args(10)))),
         ),
         field(
             name = "gt_fifty",
-            value(item(prim = "Nat8", validator(path = "validator::number::Gt", args(50)))),
+            value(item(prim = "Nat8", validator(path = "validator::num::Gt", args(50)))),
         )
     )
 )]
@@ -29,7 +29,7 @@ pub struct ValidateTest {}
 #[newtype(
     primitive = "Int32",
     item(prim = "Int32"),
-    ty(validator(path = "validator::number::MultipleOf", args(10)))
+    ty(validator(path = "validator::num::MultipleOf", args(10)))
 )]
 pub struct MultipleTenType {}
 

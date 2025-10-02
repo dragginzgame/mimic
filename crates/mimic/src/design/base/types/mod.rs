@@ -6,6 +6,6 @@ pub mod ic;
 pub mod ident;
 pub mod intl;
 pub mod lang;
-pub mod math;
+pub mod num;
 pub mod time;
 pub mod web;

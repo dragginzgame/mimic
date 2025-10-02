@@ -7,7 +7,7 @@ use crate::design::{base::validator, prelude::*};
 #[newtype(
     primitive = "Nat16",
     item(prim = "Nat16"),
-    ty(validator(path = "validator::number::Range", args(0, 360)))
+    ty(validator(path = "validator::num::Range", args(0, 360)))
 )]
 pub struct Degrees {}
 
@@ -20,7 +20,7 @@ pub struct Degrees {}
 #[newtype(
     primitive = "Nat8",
     item(prim = "Nat8"),
-    ty(validator(path = "validator::number::Range", args(0, 100)))
+    ty(validator(path = "validator::num::Range", args(0, 100)))
 )]
 pub struct Percent {}
 
@@ -31,7 +31,7 @@ pub struct Percent {}
 #[newtype(
     primitive = "Nat16",
     item(prim = "Nat16"),
-    ty(validator(path = "validator::number::Range", args(0, 10_000)))
+    ty(validator(path = "validator::num::Range", args(0, 10_000)))
 )]
 pub struct PercentModifier {}
 
@@ -57,7 +57,35 @@ impl DecimalRange {
 
 impl ValidateCustom for DecimalRange {
     fn validate_custom(&self) -> Result<(), ErrorTree> {
-        validator::number::Lte::new(self.max)
+        validator::num::Lte::new(self.max)
+            .validate(&self.min)
+            .map_err(ErrorTree::from)
+    }
+}
+
+///
+/// DurationRange
+///
+
+#[record(
+    fields(
+        field(name = "min", value(item(prim = "Duration"))),
+        field(name = "max", value(item(prim = "Duration"))),
+    ),
+    traits(remove(ValidateCustom))
+)]
+pub struct DurationRange {}
+
+impl DurationRange {
+    #[must_use]
+    pub const fn new(min: Duration, max: Duration) -> Self {
+        Self { min, max }
+    }
+}
+
+impl ValidateCustom for DurationRange {
+    fn validate_custom(&self) -> Result<(), ErrorTree> {
+        validator::num::Lte::new(self.max)
             .validate(&self.min)
             .map_err(ErrorTree::from)
     }
@@ -85,7 +113,7 @@ impl Int32Range {
 
 impl ValidateCustom for Int32Range {
     fn validate_custom(&self) -> Result<(), ErrorTree> {
-        validator::number::Lte::new(self.max)
+        validator::num::Lte::new(self.max)
             .validate(&self.min)
             .map_err(ErrorTree::from)
     }
@@ -113,7 +141,7 @@ impl Nat32Range {
 
 impl ValidateCustom for Nat32Range {
     fn validate_custom(&self) -> Result<(), ErrorTree> {
-        validator::number::Lte::new(self.max)
+        validator::num::Lte::new(self.max)
             .validate(&self.min)
             .map_err(ErrorTree::from)
     }

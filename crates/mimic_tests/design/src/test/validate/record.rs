@@ -5,15 +5,12 @@ use crate::prelude::*;
         name = "duration_ms",
         value(item(
             prim = "Nat32",
-            validator(path = "validator::number::Range", args(180000, 604800000))
+            validator(path = "validator::num::Range", args(180000, 604800000))
         ))
     ),
     field(
         name = "attempts",
-        value(item(
-            prim = "Nat32",
-            validator(path = "validator::number::Range", args(1, 20))
-        ))
+        value(item(prim = "Nat32", validator(path = "validator::num::Range", args(1, 20))))
     ),
 ))]
 pub struct VendorPolicy {}

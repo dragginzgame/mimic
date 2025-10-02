@@ -188,7 +188,7 @@ mod tests {
     #[test]
     fn upper_key_title_value_map_validation() {
         assert_valid!(UpperKeyTitleValueMapValidated::from(vec![
-            ("OWNER".to_string(), "The Fellowship".to_string(),),
+            ("OWNER".to_string(), "The Fellowship".to_string()),
             ("ADMIN".to_string(), "Guardians of the Gate".to_string()),
         ]));
 

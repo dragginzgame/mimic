@@ -4,6 +4,6 @@ pub mod decimal;
 pub mod hash;
 pub mod intl;
 pub mod len;
-pub mod number;
+pub mod num;
 pub mod text;
 pub mod web;

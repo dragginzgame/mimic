@@ -1,3 +1,3 @@
 pub mod intl;
-pub mod number;
+pub mod num;
 pub mod text;
