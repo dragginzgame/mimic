@@ -78,7 +78,8 @@ impl Imp<List> for VisitableTrait {
 impl Imp<Map> for VisitableTrait {
     fn strategy(node: &Map) -> Option<TraitStrategy> {
         let inner = quote! {
-            for (i, (_k, v)) in self.0.iter().enumerate() {
+            for (i, (k, v)) in self.0.iter().enumerate() {
+                perform_visit(visitor, k, i);
                 perform_visit(visitor, v, i);
             }
         };
