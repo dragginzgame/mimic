@@ -27,11 +27,11 @@ pub mod prelude {
 }
 
 ///
-/// SchemaError
+/// Error
 ///
 
 #[derive(Debug, ThisError)]
-pub enum SchemaError {
+pub enum Error {
     #[error(transparent)]
     BuildError(#[from] BuildError),
 

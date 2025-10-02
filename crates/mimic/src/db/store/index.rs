@@ -1,5 +1,5 @@
 use crate::{
-    MAX_INDEX_FIELDS,
+    Error, MAX_INDEX_FIELDS,
     common::utils::hash::hash_u64,
     core::{Key, Value, traits::EntityKind},
     db::{
@@ -54,7 +54,7 @@ impl IndexStore {
         &mut self,
         entity: &E,
         index: &Index,
-    ) -> Result<(), ExecutorError> {
+    ) -> Result<(), Error> {
         // Skip if index key can't be built (e.g. optional fields missing)
         let Some(index_key) = IndexKey::new(entity, index) else {
             return Ok(());
@@ -71,7 +71,8 @@ impl IndexStore {
                 // Any different existing key violates UNIQUE
                 if !existing.is_empty() {
                     metrics::with_state_mut(|m| metrics::record_unique_violation_for::<E>(m));
-                    return Err(ExecutorError::index_violation(E::PATH, index.fields));
+
+                    return Err(ExecutorError::index_violation(E::PATH, index.fields))?;
                 }
 
                 self.insert(index_key.clone(), IndexEntry::new(index.fields, key));

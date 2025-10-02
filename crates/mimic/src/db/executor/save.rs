@@ -2,7 +2,7 @@ use crate::{
     Error,
     core::{Key, deserialize, sanitize, serialize, traits::EntityKind, validate},
     db::{
-        Db, DbError,
+        Db,
         executor::{Context, ExecutorError},
         query::{SaveMode, SaveQuery},
         store::DataKey,
@@ -111,7 +111,7 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
     }
 
     // save_entity
-    fn save_entity(&self, mode: SaveMode, mut entity: E) -> Result<E, DbError> {
+    fn save_entity(&self, mode: SaveMode, mut entity: E) -> Result<E, Error> {
         let mut span = metrics::Span::<E>::new(metrics::ExecKind::Save);
         let key = entity.key();
         let ctx = self.context();
@@ -166,7 +166,7 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
     }
 
     // replace_indexes: two-phase (validate, then mutate) to avoid partial updates
-    fn replace_indexes(&self, old: Option<&E>, new: &E) -> Result<(), DbError> {
+    fn replace_indexes(&self, old: Option<&E>, new: &E) -> Result<(), Error> {
         use crate::db::store::IndexKey;
 
         // Phase 1: validate uniqueness for all indexes without mutating
@@ -204,7 +204,7 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
                 }
                 s.insert_index_entry(new, index)?;
 
-                Ok::<(), DbError>(())
+                Ok::<(), Error>(())
             })?;
         }
 

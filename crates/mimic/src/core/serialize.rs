@@ -1,3 +1,4 @@
+use crate::{Error, core::CoreError};
 use serde::{Serialize, de::DeserializeOwned};
 use thiserror::Error as ThisError;
 
@@ -11,21 +12,29 @@ pub enum SerializeError {
     SerializeError(#[from] icu::utils::cbor::SerializeError),
 }
 
-//
+impl From<SerializeError> for Error {
+    fn from(err: SerializeError) -> Self {
+        CoreError::from(err).into()
+    }
+}
 
 // serialize
 // passes through to the icu default serializer for efficiency
-pub fn serialize<T>(ty: &T) -> Result<Vec<u8>, SerializeError>
+pub fn serialize<T>(ty: &T) -> Result<Vec<u8>, Error>
 where
     T: Serialize,
 {
-    icu::utils::cbor::serialize(ty).map_err(SerializeError::from)
+    icu::utils::cbor::serialize(ty)
+        .map_err(SerializeError::from)
+        .map_err(Error::from)
 }
 
 // deserialize
-pub fn deserialize<T>(bytes: &[u8]) -> Result<T, SerializeError>
+pub fn deserialize<T>(bytes: &[u8]) -> Result<T, Error>
 where
     T: DeserializeOwned,
 {
-    icu::utils::cbor::deserialize(bytes).map_err(SerializeError::from)
+    icu::utils::cbor::deserialize(bytes)
+        .map_err(SerializeError::from)
+        .map_err(Error::from)
 }

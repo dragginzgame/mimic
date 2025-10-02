@@ -1,4 +1,4 @@
-use crate::{SchemaError, prelude::*};
+use crate::{Error, prelude::*};
 use std::{any::Any, collections::BTreeMap};
 
 ///
@@ -140,7 +140,7 @@ impl Schema {
     }
 
     // try_get_node
-    pub fn try_get_node<'a>(&'a self, path: &str) -> Result<&'a SchemaNode, SchemaError> {
+    pub fn try_get_node<'a>(&'a self, path: &str) -> Result<&'a SchemaNode, Error> {
         let node = self
             .get_node(path)
             .ok_or_else(|| NodeError::PathNotFound(path.to_string()))?;
@@ -149,7 +149,7 @@ impl Schema {
     }
 
     // cast_node
-    pub fn cast_node<'a, T: 'static>(&'a self, path: &str) -> Result<&'a T, SchemaError> {
+    pub fn cast_node<'a, T: 'static>(&'a self, path: &str) -> Result<&'a T, Error> {
         let node = self.try_get_node(path)?;
 
         node.as_any()
@@ -158,7 +158,7 @@ impl Schema {
     }
 
     // check_node_as
-    pub fn check_node_as<T: 'static>(&self, path: &str) -> Result<(), SchemaError> {
+    pub fn check_node_as<T: 'static>(&self, path: &str) -> Result<(), Error> {
         self.cast_node::<T>(path).map(|_| ())
     }
 

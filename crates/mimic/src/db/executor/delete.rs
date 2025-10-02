@@ -5,7 +5,7 @@ use crate::{
         traits::{EntityKind, FieldValue},
     },
     db::{
-        Db, DbError,
+        Db,
         executor::{Context, FilterEvaluator},
         query::{DeleteQuery, FilterDsl, FilterExpr, FilterExt, QueryPlan, QueryValidate},
     },
@@ -83,7 +83,7 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
 
     // explain
     pub fn explain(self, query: &DeleteQuery) -> Result<QueryPlan, Error> {
-        QueryValidate::<E>::validate(query).map_err(DbError::from)?;
+        QueryValidate::<E>::validate(query)?;
 
         Ok(crate::db::executor::plan_for::<E>(query.filter.as_ref()))
     }
@@ -99,7 +99,7 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
     // execute
     pub fn execute(self, query: &DeleteQuery) -> Result<Vec<Key>, Error> {
         let mut span = metrics::Span::<E>::new(metrics::ExecKind::Delete);
-        QueryValidate::<E>::validate(query).map_err(DbError::from)?;
+        QueryValidate::<E>::validate(query)?;
 
         let ctx = self.context();
         let plan = crate::db::executor::plan_for::<E>(query.filter.as_ref());
@@ -162,7 +162,7 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
                 deleted_rows.push(dk.key());
             }
 
-            Ok::<_, DbError>(())
+            Ok::<_, Error>(())
         })??;
 
         //   icu::cdk::println!("query.delete: deleted keys {deleted_rows:?}");
@@ -173,7 +173,7 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
     }
 
     // remove_indexes
-    fn remove_indexes(&self, entity: &E) -> Result<(), DbError> {
+    fn remove_indexes(&self, entity: &E) -> Result<(), Error> {
         for index in E::INDEXES {
             let store = self.db.with_index(|reg| reg.try_get_store(index.store))?;
 

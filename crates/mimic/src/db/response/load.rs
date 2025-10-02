@@ -2,7 +2,7 @@
 use crate::{
     Error,
     core::{Key, traits::EntityKind},
-    db::{DbError, response::ResponseError},
+    db::response::ResponseError,
 };
 use derive_more::Deref;
 use std::{borrow::Borrow, collections::HashMap};
@@ -43,8 +43,7 @@ where
     pub fn try_key(&self) -> Result<Key, Error> {
         let key = self
             .key()
-            .ok_or_else(|| ResponseError::NoRowsFound(E::PATH.to_string()))
-            .map_err(DbError::from)?;
+            .ok_or_else(|| ResponseError::NoRowsFound(E::PATH.to_string()))?;
 
         Ok(key)
     }
@@ -70,8 +69,7 @@ where
     pub fn try_entity(self) -> Result<E, Error> {
         let res = self
             .entity()
-            .ok_or_else(|| ResponseError::NoRowsFound(E::PATH.to_string()))
-            .map_err(DbError::from)?;
+            .ok_or_else(|| ResponseError::NoRowsFound(E::PATH.to_string()))?;
 
         Ok(res)
     }

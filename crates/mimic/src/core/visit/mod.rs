@@ -5,8 +5,10 @@ pub use sanitize::*;
 pub use validate::*;
 
 use crate::{
+    Error,
     common::error::ErrorTree,
     core::{
+        CoreError,
         traits::Visitable,
         visit::{SanitizeVisitor, ValidateVisitor},
     },
@@ -31,6 +33,12 @@ pub fn sanitize(node: &mut dyn Visitable) {
 pub enum ValidateError {
     #[error("validation failed: {0}")]
     ValidationFailed(ErrorTree),
+}
+
+impl From<ValidateError> for Error {
+    fn from(err: ValidateError) -> Self {
+        CoreError::from(err).into()
+    }
 }
 
 // validate

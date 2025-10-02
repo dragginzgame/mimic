@@ -31,7 +31,7 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
 
     let match_arms = if entities.is_empty() {
         quote! {
-            Err(::mimic::interface::InterfaceError::from(::mimic::interface::query::QueryError::EntityNotFound(path)))?
+            Err(::mimic::interface::query::QueryError::EntityNotFound(path))?
         }
     } else {
         let arms = entities.iter().map(|(entity_path, _)| {
@@ -54,7 +54,7 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
         quote! {
             let res = match path.as_str() {
                 #(#arms,)*
-                _ => Err(::mimic::interface::InterfaceError::from(::mimic::interface::query::QueryError::EntityNotFound(path)))?,
+                _ => Err(::mimic::interface::query::QueryError::EntityNotFound(path))?,
             }?;
 
             Ok(res)

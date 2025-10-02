@@ -2,6 +2,7 @@ use crate::{
     Error,
     core::Key,
     db::query::{DeleteQuery, LoadQuery, SaveQuery},
+    interface::InterfaceError,
 };
 use candid::Principal;
 use icu::{Error as IcuError, cdk::call::Call};
@@ -15,6 +16,12 @@ use thiserror::Error as ThisError;
 pub enum QueryError {
     #[error("entity not found: {0}")]
     EntityNotFound(String),
+}
+
+impl From<QueryError> for Error {
+    fn from(err: QueryError) -> Self {
+        InterfaceError::from(err).into()
+    }
 }
 
 // query_load

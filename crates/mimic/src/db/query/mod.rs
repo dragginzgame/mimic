@@ -27,8 +27,7 @@ pub mod prelude {
     };
 }
 
-use crate::core::traits::EntityKind;
-use thiserror::Error as ThisError;
+use crate::{Error, ThisError, core::traits::EntityKind, db::DbError};
 
 ///
 /// QueryError
@@ -50,6 +49,12 @@ pub enum QueryError {
 
     #[error("invalid comparator usage: {0}")]
     InvalidComparator(String),
+}
+
+impl From<QueryError> for Error {
+    fn from(err: QueryError) -> Self {
+        DbError::from(err).into()
+    }
 }
 
 ///

@@ -5,7 +5,7 @@ use crate::{
         traits::{EntityKind, FieldValue},
     },
     db::{
-        Db, DbError,
+        Db,
         executor::{Context, FilterEvaluator, plan_for},
         query::{
             FilterDsl, FilterExpr, FilterExt, IntoFilterOpt, LoadQuery, QueryPlan, QueryValidate,
@@ -96,7 +96,7 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
 
     // explain
     pub fn explain(self, query: &LoadQuery) -> Result<QueryPlan, Error> {
-        QueryValidate::<E>::validate(query).map_err(DbError::from)?;
+        QueryValidate::<E>::validate(query)?;
 
         Ok(plan_for::<E>(query.filter.as_ref()))
     }
@@ -111,7 +111,7 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
     /// Execute a full query and return a collection of entities.
     pub fn execute(&self, query: &LoadQuery) -> Result<LoadCollection<E>, Error> {
         let mut span = metrics::Span::<E>::new(metrics::ExecKind::Load);
-        QueryValidate::<E>::validate(query).map_err(DbError::from)?;
+        QueryValidate::<E>::validate(query)?;
 
         let ctx = self.context();
         let plan = plan_for::<E>(query.filter.as_ref());

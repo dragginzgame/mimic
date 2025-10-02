@@ -11,8 +11,10 @@ pub use load::*;
 pub use save::*;
 
 use crate::{
+    Error,
     core::traits::EntityKind,
     db::{
+        DbError,
         query::{FilterExpr, QueryPlan, QueryPlanner},
         store::DataKey,
     },
@@ -40,6 +42,12 @@ impl ExecutorError {
     #[must_use]
     pub fn index_violation(path: &str, index_fields: &[&str]) -> Self {
         Self::IndexViolation(path.to_string(), index_fields.join(", "))
+    }
+}
+
+impl From<ExecutorError> for Error {
+    fn from(err: ExecutorError) -> Self {
+        DbError::from(err).into()
     }
 }
 

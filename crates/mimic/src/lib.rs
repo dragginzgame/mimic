@@ -73,7 +73,6 @@ pub mod prelude {
     pub use ::candid::CandidType;
 }
 
-use crate::core::{SerializeError, ValidateError};
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use thiserror::Error as ThisError;
@@ -88,7 +87,7 @@ use thiserror::Error as ThisError;
 #[derive(CandidType, Debug, Deserialize, Serialize, ThisError)]
 pub enum Error {
     #[error("{0}")]
-    IcuError(String),
+    CoreError(String),
 
     #[error("{0}")]
     DbError(String),
@@ -96,11 +95,9 @@ pub enum Error {
     #[error("{0}")]
     InterfaceError(String),
 
+    // third party
     #[error("{0}")]
-    ValidateError(String),
-
-    #[error("{0}")]
-    SerializeError(String),
+    IcuError(String),
 }
 
 macro_rules! from_to_string {
@@ -113,8 +110,7 @@ macro_rules! from_to_string {
     };
 }
 
-from_to_string!(icu::Error, IcuError);
+from_to_string!(core::CoreError, CoreError);
 from_to_string!(db::DbError, DbError);
 from_to_string!(interface::InterfaceError, InterfaceError);
-from_to_string!(ValidateError, ValidateError);
-from_to_string!(SerializeError, SerializeError);
+from_to_string!(icu::Error, IcuError);

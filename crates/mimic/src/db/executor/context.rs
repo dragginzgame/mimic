@@ -1,10 +1,11 @@
 use crate::{
+    Error,
     core::{
         Key, deserialize,
         traits::{EntityKind, Path},
     },
     db::{
-        Db, DbError,
+        Db,
         query::QueryPlan,
         store::{DataKey, DataRow, DataStore},
     },
@@ -32,23 +33,20 @@ where
         }
     }
 
-    pub fn with_store<R>(&self, f: impl FnOnce(&DataStore) -> R) -> Result<R, DbError> {
-        self.db
-            .with_data(|reg| reg.with_store(E::Store::PATH, f))
-            .map_err(DbError::from)
+    pub fn with_store<R>(&self, f: impl FnOnce(&DataStore) -> R) -> Result<R, Error> {
+        self.db.with_data(|reg| reg.with_store(E::Store::PATH, f))
     }
 
-    pub fn with_store_mut<R>(&self, f: impl FnOnce(&mut DataStore) -> R) -> Result<R, DbError> {
+    pub fn with_store_mut<R>(&self, f: impl FnOnce(&mut DataStore) -> R) -> Result<R, Error> {
         self.db
             .with_data(|reg| reg.with_store_mut(E::Store::PATH, f))
-            .map_err(DbError::from)
     }
 
     ///
     /// Analyze Plan
     ///
 
-    pub fn candidates_from_plan(&self, plan: QueryPlan) -> Result<Vec<DataKey>, DbError> {
+    pub fn candidates_from_plan(&self, plan: QueryPlan) -> Result<Vec<DataKey>, Error> {
         let candidates = match plan {
             QueryPlan::Keys(keys) => Self::to_data_keys(keys),
 
@@ -75,7 +73,7 @@ where
         Ok(candidates)
     }
 
-    pub fn rows_from_plan(&self, plan: QueryPlan) -> Result<Vec<DataRow>, DbError> {
+    pub fn rows_from_plan(&self, plan: QueryPlan) -> Result<Vec<DataRow>, Error> {
         match plan {
             QueryPlan::Keys(keys) => {
                 let data_keys = Self::to_data_keys(keys);
@@ -100,7 +98,7 @@ where
         plan: QueryPlan,
         offset: u32,
         limit: Option<u32>,
-    ) -> Result<Vec<DataRow>, DbError> {
+    ) -> Result<Vec<DataRow>, Error> {
         let skip = offset as usize;
         let take = limit.map(|l| l as usize);
 
@@ -185,7 +183,7 @@ where
         (start, end)
     }
 
-    fn load_many(&self, keys: &[DataKey]) -> Result<Vec<DataRow>, DbError> {
+    fn load_many(&self, keys: &[DataKey]) -> Result<Vec<DataRow>, Error> {
         self.with_store(|s| {
             keys.iter()
                 .filter_map(|k| s.get(k).map(|entry| (k.clone(), entry)))
@@ -193,7 +191,7 @@ where
         })
     }
 
-    fn load_range(&self, start: DataKey, end: DataKey) -> Result<Vec<DataRow>, DbError> {
+    fn load_range(&self, start: DataKey, end: DataKey) -> Result<Vec<DataRow>, Error> {
         self.with_store(|s| {
             s.range((Bound::Included(start), Bound::Included(end)))
                 .map(|e| (e.key().clone(), e.value()))
@@ -202,13 +200,9 @@ where
     }
 
     /// Deserialize raw data rows into typed entity rows, mapping `DataKey` → `(Key, E)`.
-    pub fn deserialize_rows(&self, rows: Vec<DataRow>) -> Result<Vec<(Key, E)>, DbError> {
+    pub fn deserialize_rows(&self, rows: Vec<DataRow>) -> Result<Vec<(Key, E)>, Error> {
         rows.into_iter()
-            .map(|(k, v)| {
-                deserialize::<E>(&v)
-                    .map(|entry| (k.key(), entry))
-                    .map_err(DbError::from)
-            })
+            .map(|(k, v)| deserialize::<E>(&v).map(|entry| (k.key(), entry)))
             .collect()
     }
 }
