@@ -5,6 +5,7 @@ use crate::{
         visit::{Event, PathSegment, Visitor},
     },
 };
+use std::fmt::Write;
 
 ///
 /// ValidateVisitor
@@ -24,31 +25,27 @@ impl ValidateVisitor {
 
     #[inline]
     fn current_route(&self) -> String {
-        // Small pre-alloc to reduce growth for common nested paths
-        let mut out = String::with_capacity(64);
+        let mut out = String::new();
         let mut first = true;
+
         for seg in &self.path {
             match seg {
-                PathSegment::Empty => {}
-                PathSegment::Field(s) => {
-                    if !s.is_empty() {
-                        if !first {
-                            out.push('.');
-                        }
-                        out.push_str(s);
-                        first = false;
-                    }
-                }
-                PathSegment::Index(i) => {
+                PathSegment::Field(s) if !s.is_empty() => {
                     if !first {
                         out.push('.');
                     }
-                    // Fast integer formatting via to_string for simplicity
-                    out.push_str(&i.to_string());
+                    out.push_str(s);
                     first = false;
                 }
+                PathSegment::Index(i) => {
+                    // indices shown as [0], [1], ...
+                    let _ = write!(out, "[{i}]");
+                    first = false;
+                }
+                _ => {}
             }
         }
+
         out
     }
 }
