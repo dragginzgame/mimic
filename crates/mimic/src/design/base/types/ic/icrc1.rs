@@ -5,8 +5,8 @@ use crate::design::prelude::*;
 ///
 
 #[record(fields(
-    field(name = "recipient", value(item(prim = "Principal"))),
-    field(name = "tokens", value(item(is = "Tokens")))
+    field(ident = "recipient", value(item(prim = "Principal"))),
+    field(ident = "tokens", value(item(is = "Tokens")))
 ))]
 pub struct Payment {}
 
@@ -15,7 +15,7 @@ pub struct Payment {}
 ///
 
 #[record(fields(
-    field(name = "ledger_canister", value(item(prim = "Principal"))),
-    field(name = "tokens", value(item(prim = "Nat64")))
+    field(ident = "ledger_canister", value(item(prim = "Principal"))),
+    field(ident = "tokens", value(item(prim = "Nat64")))
 ))]
 pub struct Tokens {}

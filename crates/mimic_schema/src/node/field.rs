@@ -12,8 +12,8 @@ pub struct FieldList {
 impl FieldList {
     // get
     #[must_use]
-    pub fn get(&self, name: &str) -> Option<&Field> {
-        self.fields.iter().find(|f| f.name == name)
+    pub fn get(&self, ident: &str) -> Option<&Field> {
+        self.fields.iter().find(|f| f.ident == ident)
     }
 }
 
@@ -33,7 +33,7 @@ impl VisitableNode for FieldList {
 
 #[derive(Clone, Debug, Serialize)]
 pub struct Field {
-    pub name: &'static str,
+    pub ident: &'static str,
     pub value: Value,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -43,18 +43,18 @@ pub struct Field {
 impl ValidateNode for Field {
     fn validate(&self) -> Result<(), ErrorTree> {
         let mut errs = ErrorTree::new();
-        let ident = self.name;
 
         // idents
-        errs.add_result(validate_ident(self.name));
+        errs.add_result(validate_ident(self.ident));
 
         // snake case
-        if !self.name.is_case(Case::Snake) {
-            err!(errs, "field name '{}' must be in snake_case", self.name);
+        if !self.ident.is_case(Case::Snake) {
+            err!(errs, "field ident '{}' must be snake_case", self.ident);
         }
 
         // relation naming
         if self.value.item.is_relation() {
+            let ident = self.ident;
             match self.value.cardinality {
                 Cardinality::One | Cardinality::Opt if !ident.ends_with("id") => {
                     err!(
@@ -76,7 +76,7 @@ impl ValidateNode for Field {
 
 impl VisitableNode for Field {
     fn route_key(&self) -> String {
-        self.name.to_string()
+        self.ident.to_string()
     }
 
     fn drive<V: Visitor>(&self, v: &mut V) {

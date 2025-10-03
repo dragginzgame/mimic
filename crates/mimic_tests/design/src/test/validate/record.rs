@@ -2,14 +2,14 @@ use crate::prelude::*;
 
 #[record(fields(
     field(
-        name = "duration_ms",
+        ident = "duration_ms",
         value(item(
             prim = "Nat32",
             validator(path = "validator::num::Range", args(180000, 604800000))
         ))
     ),
     field(
-        name = "attempts",
+        ident = "attempts",
         value(item(prim = "Nat32", validator(path = "validator::num::Range", args(1, 20))))
     ),
 ))]

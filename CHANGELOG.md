@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.24.0] - RIP Fixtures - 2025-10-03
+- fixtures have been removed, if needed they should not be in the design/ crate
+- renamed name to ident just to keep the code consistente
+
 ## [0.23.5] - 2025-09-30
 - subaccount now has to/from Ulid
 

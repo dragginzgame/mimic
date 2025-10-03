@@ -6,9 +6,7 @@ macro_rules! mimic_start {
         // actor.rs
         include!(concat!(env!("OUT_DIR"), "/actor.rs"));
 
-        fn mimic_init() {
-            mimic_init_fixtures().unwrap();
-        }
+        fn mimic_init() {}
     };
 }
 

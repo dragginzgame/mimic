@@ -26,7 +26,6 @@ pub use std::{
 
 use crate::{
     core::{Key, Value, types::Ulid},
-    db::{Db, service::EntityService},
     schema::node::Index,
 };
 
@@ -140,31 +139,6 @@ impl<T> TypeKind for T where
 ///
 /// OTHER TRAITS
 ///
-
-///
-/// EntityFixture
-/// Trait implemented by enums or helper types that can insert fixture
-/// data for an entity into the correct Db.
-///
-
-pub trait EntityFixture: EntityKind + Sized {
-    /// Override if fixtures are purely self-contained
-    #[must_use]
-    fn fixtures() -> Vec<Self> {
-        Vec::new()
-    }
-
-    /// Insert fixtures. Default: use `fixtures()`
-    fn insert_fixtures(db: Db<Self::Canister>) {
-        for entity in Self::fixtures() {
-            EntityService::save_fixture(db, entity.clone());
-        }
-    }
-
-    fn insert(db: Db<Self::Canister>, entity: Self) {
-        EntityService::save_fixture(db, entity);
-    }
-}
 
 ///
 /// EntityLifecycle

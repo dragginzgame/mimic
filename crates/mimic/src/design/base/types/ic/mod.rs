@@ -8,8 +8,8 @@ use crate::design::prelude::*;
 ///
 
 #[record(fields(
-    field(name = "owner", value(item(prim = "Principal"))),
-    field(name = "subaccount", value(opt, item(prim = "Subaccount")))
+    field(ident = "owner", value(item(prim = "Principal"))),
+    field(ident = "subaccount", value(opt, item(prim = "Subaccount")))
 ))]
 pub struct Account {}
 
@@ -43,8 +43,8 @@ pub struct Memo {}
 ///
 
 #[record(fields(
-    field(name = "recipient", value(item(prim = "Principal"))),
-    field(name = "tokens", value(item(is = "Tokens")))
+    field(ident = "recipient", value(item(prim = "Principal"))),
+    field(ident = "tokens", value(item(is = "Tokens")))
 ))]
 pub struct Payment {}
 

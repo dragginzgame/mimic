@@ -8,10 +8,10 @@ use crate::prelude::*;
     store = "TestDataStore",
     pk = "id",
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "a_id", value(item(rel = "EntityA"))),
-        field(name = "b_id", value(item(rel = "EntityB", prim = "Nat16"))),
-        field(name = "c_id", value(item(rel = "EntityC", prim = "Principal"))),
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "a_id", value(item(rel = "EntityA"))),
+        field(ident = "b_id", value(item(rel = "EntityB", prim = "Nat16"))),
+        field(ident = "c_id", value(item(rel = "EntityC", prim = "Principal"))),
     )
 )]
 pub struct HasRelation {}
@@ -24,8 +24,8 @@ pub struct HasRelation {}
     store = "TestDataStore",
     pk = "id",
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "a_ids", value(many, item(rel = "EntityA"))),
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "a_ids", value(many, item(rel = "EntityA"))),
     )
 )]
 pub struct HasManyRelation {}
@@ -37,7 +37,7 @@ pub struct HasManyRelation {}
 #[entity(
     store = "TestDataStore",
     pk = "id",
-    fields(field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"))
+    fields(field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"))
 )]
 pub struct EntityA {}
 
@@ -48,7 +48,7 @@ pub struct EntityA {}
 #[entity(
     store = "TestDataStore",
     pk = "id",
-    fields(field(name = "id", value(item(prim = "Nat16"))))
+    fields(field(ident = "id", value(item(prim = "Nat16"))))
 )]
 pub struct EntityB {}
 
@@ -59,6 +59,6 @@ pub struct EntityB {}
 #[entity(
     store = "TestDataStore",
     pk = "id",
-    fields(field(name = "id", value(item(prim = "Principal"))))
+    fields(field(ident = "id", value(item(prim = "Principal"))))
 )]
 pub struct EntityC {}

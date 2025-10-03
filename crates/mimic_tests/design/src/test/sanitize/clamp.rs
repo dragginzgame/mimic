@@ -8,11 +8,11 @@ use crate::prelude::*;
     store = "TestDataStore",
     pk = "id",
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "cint32", value(item(is = "ClampInt32"))),
-        field(name = "cint32_opt", value(opt, item(is = "ClampInt32"))),
-        field(name = "cdec", value(item(is = "ClampDecimal"))),
-        field(name = "cdec_opt", value(opt, item(is = "ClampDecimal"))),
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "cint32", value(item(is = "ClampInt32"))),
+        field(ident = "cint32_opt", value(opt, item(is = "ClampInt32"))),
+        field(ident = "cdec", value(item(is = "ClampDecimal"))),
+        field(ident = "cdec_opt", value(opt, item(is = "ClampDecimal"))),
     )
 )]
 pub struct SanitizeTest {}

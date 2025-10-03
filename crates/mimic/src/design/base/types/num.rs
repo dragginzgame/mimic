@@ -41,8 +41,8 @@ pub struct PercentModifier {}
 
 #[record(
     fields(
-        field(name = "min", value(item(prim = "Decimal"))),
-        field(name = "max", value(item(prim = "Decimal"))),
+        field(ident = "min", value(item(prim = "Decimal"))),
+        field(ident = "max", value(item(prim = "Decimal"))),
     ),
     traits(remove(ValidateCustom))
 )]
@@ -69,8 +69,8 @@ impl ValidateCustom for DecimalRange {
 
 #[record(
     fields(
-        field(name = "min", value(item(prim = "Duration"))),
-        field(name = "max", value(item(prim = "Duration"))),
+        field(ident = "min", value(item(prim = "Duration"))),
+        field(ident = "max", value(item(prim = "Duration"))),
     ),
     traits(remove(ValidateCustom))
 )]
@@ -97,8 +97,8 @@ impl ValidateCustom for DurationRange {
 
 #[record(
     fields(
-        field(name = "min", value(item(prim = "Int32"))),
-        field(name = "max", value(item(prim = "Int32"))),
+        field(ident = "min", value(item(prim = "Int32"))),
+        field(ident = "max", value(item(prim = "Int32"))),
     ),
     traits(remove(ValidateCustom))
 )]
@@ -125,8 +125,8 @@ impl ValidateCustom for Int32Range {
 
 #[record(
     fields(
-        field(name = "min", value(item(prim = "Nat32"))),
-        field(name = "max", value(item(prim = "Nat32"))),
+        field(ident = "min", value(item(prim = "Nat32"))),
+        field(ident = "max", value(item(prim = "Nat32"))),
     ),
     traits(remove(ValidateCustom))
 )]

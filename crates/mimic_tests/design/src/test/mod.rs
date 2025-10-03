@@ -122,7 +122,7 @@ pub struct Selector {}
 ///
 
 #[record(fields(field(
-    name = "interval",
+    ident = "interval",
     value(item(is = "SelectorNewtype", selector = "Selector"))
 )))]
 pub struct SelectorRecord {}

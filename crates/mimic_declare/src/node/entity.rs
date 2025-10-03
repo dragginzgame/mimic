@@ -76,7 +76,6 @@ impl HasTraits for Entity {
         traits.extend(vec![
             Trait::Inherent,
             Trait::EntityKind,
-            Trait::EntityFixture,
             Trait::EntityLifecycle,
             Trait::FieldValues,
         ]);

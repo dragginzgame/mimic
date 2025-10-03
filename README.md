@@ -58,11 +58,11 @@ It was originally built for the Web3 game [Dragginz](https://dragginz.io/). Mimi
 #[entity(
     sk(field = "id"),
     fields(
-        field(name = "id", value(item(is = "types::Ulid"))),
-        field(name = "name", value(item(is = "text::Name"))),
-        field(name = "description", value(item(is = "text::Description"))),
-        field(name = "order", value(item(is = "game::Order"))),
-        field(name = "color", value(item(is = "types::color::RgbHex"))),
+        field(ident = "id", value(item(is = "types::Ulid"))),
+        field(ident = "name", value(item(is = "text::Name"))),
+        field(ident = "description", value(item(is = "text::Description"))),
+        field(ident = "order", value(item(is = "game::Order"))),
+        field(ident = "color", value(item(is = "types::color::RgbHex"))),
     ),
 )]
 pub struct Rarity {}

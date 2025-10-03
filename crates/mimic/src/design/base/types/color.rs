@@ -8,9 +8,9 @@ use crate::design::{
 ///
 
 #[record(fields(
-    field(name = "r", value(item(prim = "Nat8"))),
-    field(name = "g", value(item(prim = "Nat8"))),
-    field(name = "b", value(item(prim = "Nat8"))),
+    field(ident = "r", value(item(prim = "Nat8"))),
+    field(ident = "g", value(item(prim = "Nat8"))),
+    field(ident = "b", value(item(prim = "Nat8"))),
 ))]
 pub struct Rgb {}
 
@@ -29,10 +29,10 @@ impl From<&RgbHex> for Rgb {
 ///
 
 #[record(fields(
-    field(name = "r", value(item(prim = "Nat8"))),
-    field(name = "g", value(item(prim = "Nat8"))),
-    field(name = "b", value(item(prim = "Nat8"))),
-    field(name = "a", value(item(prim = "Nat8"))),
+    field(ident = "r", value(item(prim = "Nat8"))),
+    field(ident = "g", value(item(prim = "Nat8"))),
+    field(ident = "b", value(item(prim = "Nat8"))),
+    field(ident = "a", value(item(prim = "Nat8"))),
 ))]
 pub struct Rgba {}
 

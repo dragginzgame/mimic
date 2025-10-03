@@ -82,7 +82,6 @@ impl HasTypePart for FieldList {
 
 #[derive(Clone, Debug, FromMeta)]
 pub struct Field {
-    #[darling(rename = "name")]
     pub ident: Ident,
 
     pub value: Value,
@@ -119,13 +118,13 @@ impl Field {
 
 impl HasSchemaPart for Field {
     fn schema_part(&self) -> TokenStream {
-        let name = quote_one(&self.ident, to_str_lit);
+        let ident = quote_one(&self.ident, to_str_lit);
         let value = self.value.schema_part();
         let default = quote_option(self.default.as_ref(), Arg::schema_part);
 
         quote! {
             ::mimic::schema::node::Field {
-                name: #name,
+                ident: #ident,
                 value: #value,
                 default: #default,
             }

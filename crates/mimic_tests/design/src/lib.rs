@@ -1,6 +1,5 @@
 pub mod admin;
 pub mod e2e;
-pub mod fixture;
 pub mod schema;
 pub mod test;
 

@@ -140,7 +140,6 @@ pub trait HasTraits: HasDef + ToTokens {
 
             // Generate empty impl blocks for marker traits
             Trait::CanisterKind
-            | Trait::EntityFixture
             | Trait::EntityIdKind
             | Trait::FieldValue
             | Trait::SanitizeAuto

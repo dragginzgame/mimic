@@ -1,7 +1,6 @@
 pub mod executor;
 pub mod query;
 pub mod response;
-pub mod service;
 pub mod store;
 
 use crate::{

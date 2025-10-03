@@ -9,10 +9,10 @@ use crate::prelude::*;
     pk = "id",
     index(store = "TestIndexStore", fields = "pid, ulid, score"),
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "pid", value(item(prim = "Principal"))),
-        field(name = "ulid", value(item(prim = "Ulid"))),
-        field(name = "score", value(item(prim = "Nat32"))),
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "pid", value(item(prim = "Principal"))),
+        field(ident = "ulid", value(item(prim = "Ulid"))),
+        field(ident = "score", value(item(prim = "Nat32"))),
     )
 )]
 pub struct Indexable {}
@@ -25,10 +25,10 @@ pub struct Indexable {}
     store = "TestDataStore",
     pk = "id",
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "pid", value(item(prim = "Principal"))),
-        field(name = "ulid", value(item(prim = "Ulid"))),
-        field(name = "score", value(item(prim = "Nat32"))),
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "pid", value(item(prim = "Principal"))),
+        field(ident = "ulid", value(item(prim = "Ulid"))),
+        field(ident = "score", value(item(prim = "Nat32"))),
     )
 )]
 pub struct NotIndexable {}
@@ -42,8 +42,8 @@ pub struct NotIndexable {}
     pk = "id",
     index(store = "TestIndexStore", fields = "username", unique),
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "username", value(opt, item(prim = "Text"))),
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "username", value(opt, item(prim = "Text"))),
     )
 )]
 pub struct IndexableOptText {}

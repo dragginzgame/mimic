@@ -7,7 +7,7 @@ use crate::prelude::*;
 #[entity(
     store = "TestDataStore",
     pk = "id",
-    fields(field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"))
+    fields(field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"))
 )]
 pub struct CreateBasic {}
 
@@ -19,8 +19,8 @@ pub struct CreateBasic {}
     store = "TestDataStore",
     pk = "id",
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "bytes", value(item(prim = "Blob")))
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "bytes", value(item(prim = "Blob")))
     )
 )]
 pub struct CreateBlob {}
@@ -33,9 +33,9 @@ pub struct CreateBlob {}
     store = "TestDataStore",
     pk = "id",
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "name", value(item(prim = "Text"))),
-        field(name = "description", value(item(prim = "Text")))
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "name", value(item(prim = "Text"))),
+        field(ident = "description", value(item(prim = "Text")))
     )
 )]
 pub struct Searchable {}
@@ -47,7 +47,7 @@ pub struct Searchable {}
 #[entity(
     store = "TestDataStore",
     pk = "value",
-    fields(field(name = "value", value(item(prim = "Nat32"))))
+    fields(field(ident = "value", value(item(prim = "Nat32"))))
 )]
 pub struct Limit {}
 
@@ -58,7 +58,7 @@ pub struct Limit {}
 #[entity(
     store = "TestDataStore",
     pk = "id",
-    fields(field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"))
+    fields(field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"))
 )]
 pub struct DataKeyOrder {}
 
@@ -67,8 +67,8 @@ pub struct DataKeyOrder {}
 ///
 
 #[record(fields(
-    field(name = "a_id", value(item(prim = "Ulid"))),
-    field(name = "b_id", value(item(prim = "Ulid"))),
+    field(ident = "a_id", value(item(prim = "Ulid"))),
+    field(ident = "b_id", value(item(prim = "Ulid"))),
 ))]
 pub struct MissingFieldSmall {}
 
@@ -77,9 +77,9 @@ pub struct MissingFieldSmall {}
 ///
 
 #[record(fields(
-    field(name = "a_id", value(item(prim = "Ulid"))),
-    field(name = "b_id", value(item(prim = "Ulid"))),
-    field(name = "c_id", value(item(prim = "Ulid"))),
+    field(ident = "a_id", value(item(prim = "Ulid"))),
+    field(ident = "b_id", value(item(prim = "Ulid"))),
+    field(ident = "c_id", value(item(prim = "Ulid"))),
 ))]
 pub struct MissingFieldLarge {}
 
@@ -91,8 +91,8 @@ pub struct MissingFieldLarge {}
     store = "TestDataStore",
     pk = "id",
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "bytes", value(opt, item(prim = "Blob")))
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "bytes", value(opt, item(prim = "Blob")))
     )
 )]
 pub struct ContainsBlob {}
@@ -105,19 +105,19 @@ pub struct ContainsBlob {}
     store = "TestDataStore",
     pk = "id",
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "opt_a", value(opt, item(prim = "Principal"))),
-        field(name = "opt_b", value(opt, item(prim = "Principal"))),
-        field(name = "opt_c", value(opt, item(prim = "Principal"))),
-        field(name = "opt_d", value(opt, item(prim = "Principal"))),
-        field(name = "opt_e", value(opt, item(prim = "Principal"))),
-        field(name = "opt_f", value(opt, item(prim = "Principal"))),
-        field(name = "opt_g", value(opt, item(prim = "Principal"))),
-        field(name = "opt_h", value(opt, item(prim = "Principal"))),
-        field(name = "opt_i", value(opt, item(prim = "Principal"))),
-        field(name = "opt_j", value(opt, item(prim = "Principal"))),
-        field(name = "opt_k", value(opt, item(prim = "Principal"))),
-        field(name = "opt_l", value(opt, item(prim = "Principal")))
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "opt_a", value(opt, item(prim = "Principal"))),
+        field(ident = "opt_b", value(opt, item(prim = "Principal"))),
+        field(ident = "opt_c", value(opt, item(prim = "Principal"))),
+        field(ident = "opt_d", value(opt, item(prim = "Principal"))),
+        field(ident = "opt_e", value(opt, item(prim = "Principal"))),
+        field(ident = "opt_f", value(opt, item(prim = "Principal"))),
+        field(ident = "opt_g", value(opt, item(prim = "Principal"))),
+        field(ident = "opt_h", value(opt, item(prim = "Principal"))),
+        field(ident = "opt_i", value(opt, item(prim = "Principal"))),
+        field(ident = "opt_j", value(opt, item(prim = "Principal"))),
+        field(ident = "opt_k", value(opt, item(prim = "Principal"))),
+        field(ident = "opt_l", value(opt, item(prim = "Principal")))
     )
 )]
 pub struct ContainsOpts {}
@@ -130,17 +130,17 @@ pub struct ContainsOpts {}
     store = "TestDataStore",
     pk = "id",
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "a_ids", value(many, item(rel = "ContainsBlob"))),
-        field(name = "b_ids", value(many, item(rel = "ContainsBlob"))),
-        field(name = "c_ids", value(many, item(rel = "ContainsBlob"))),
-        field(name = "d_ids", value(many, item(rel = "ContainsBlob"))),
-        field(name = "e_ids", value(many, item(rel = "ContainsBlob"))),
-        field(name = "f_ids", value(many, item(rel = "ContainsBlob"))),
-        field(name = "g_ids", value(many, item(rel = "ContainsBlob"))),
-        field(name = "h_ids", value(many, item(rel = "ContainsBlob"))),
-        field(name = "i_ids", value(many, item(rel = "ContainsBlob"))),
-        field(name = "j_ids", value(many, item(rel = "ContainsBlob")))
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "a_ids", value(many, item(rel = "ContainsBlob"))),
+        field(ident = "b_ids", value(many, item(rel = "ContainsBlob"))),
+        field(ident = "c_ids", value(many, item(rel = "ContainsBlob"))),
+        field(ident = "d_ids", value(many, item(rel = "ContainsBlob"))),
+        field(ident = "e_ids", value(many, item(rel = "ContainsBlob"))),
+        field(ident = "f_ids", value(many, item(rel = "ContainsBlob"))),
+        field(ident = "g_ids", value(many, item(rel = "ContainsBlob"))),
+        field(ident = "h_ids", value(many, item(rel = "ContainsBlob"))),
+        field(ident = "i_ids", value(many, item(rel = "ContainsBlob"))),
+        field(ident = "j_ids", value(many, item(rel = "ContainsBlob")))
     )
 )]
 pub struct ContainsManyRelations {}
@@ -155,9 +155,9 @@ pub struct ContainsManyRelations {}
     index(store = "TestIndexStore", fields = "x"),
     index(store = "TestIndexStore", fields = "y", unique),
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "x", value(item(prim = "Int32"))),
-        field(name = "y", value(item(prim = "Int32")))
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "x", value(item(prim = "Int32"))),
+        field(ident = "y", value(item(prim = "Int32")))
     )
 )]
 pub struct Index {}
@@ -180,13 +180,10 @@ impl Index {
 #[entity(
     store = "TestDataStore",
     pk = "id",
-    index(store = "TestIndexStore", fields = "rarity_id"),
+    index(store = "TestIndexStore", fields = "create_blob_id"),
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(
-            name = "rarity_id",
-            value(item(rel = "crate::fixture::rarity::Rarity"))
-        )
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "create_blob_id", value(item(rel = "CreateBlob")))
     )
 )]
 pub struct IndexRelation {}
@@ -200,8 +197,8 @@ pub struct IndexRelation {}
     pk = "id",
     index(store = "TestIndexStore", fields = "value", unique),
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "value", value(opt, item(prim = "Nat8")))
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "value", value(opt, item(prim = "Nat8")))
     )
 )]
 pub struct IndexUniqueOpt {}

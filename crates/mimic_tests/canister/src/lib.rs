@@ -6,10 +6,9 @@ mod ops;
 mod storage;
 
 use icu::{cdk::export_candid, prelude::*};
-use mimic::{Error, db::query, prelude::*};
+use mimic::{Error, prelude::*};
 use test_design::{
     e2e::filter::{Filterable, FilterableView},
-    fixture::rarity::{Rarity, RarityView},
     schema::{TestDataStore, TestIndexStore},
 };
 
@@ -77,23 +76,6 @@ pub fn filterable() -> Result<Vec<FilterableView>, Error> {
     let res = db!().load::<Filterable>().all()?.entities().to_view();
 
     Ok(res)
-}
-
-// rarity
-#[query]
-pub fn rarity() -> Result<Vec<RarityView>, Error> {
-    perf_start!();
-
-    let query = query::load()
-        .filter(|f| {
-            // (level >= 2 AND level <= 4) OR (name CONTAINS "ncon")
-            (f.gte("level", 2) & f.lte("level", 4)) | f.contains("name", "ncon")
-        })
-        .sort(|s| s.desc("level"));
-
-    let rarities = db!().load::<Rarity>().debug().execute(&query)?.views();
-
-    Ok(rarities)
 }
 
 export_candid!();

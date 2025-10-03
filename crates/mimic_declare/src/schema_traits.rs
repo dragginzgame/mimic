@@ -64,7 +64,6 @@ pub enum Trait {
     StoreKind,
 
     // orm
-    EntityFixture,
     EntityLifecycle,
     FieldValue,
     FieldValues,

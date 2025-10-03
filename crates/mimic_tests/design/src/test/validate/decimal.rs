@@ -8,14 +8,14 @@ use crate::prelude::*;
     store = "TestDataStore",
     pk = "id",
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "multiple_ten", value(item(is = "MultipleTenType"))),
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "multiple_ten", value(item(is = "MultipleTenType"))),
         field(
-            name = "lte_ten",
+            ident = "lte_ten",
             value(item(prim = "Nat8", validator(path = "validator::num::Lte", args(10)))),
         ),
         field(
-            name = "gt_fifty",
+            ident = "gt_fifty",
             value(item(prim = "Nat8", validator(path = "validator::num::Gt", args(50)))),
         )
     )

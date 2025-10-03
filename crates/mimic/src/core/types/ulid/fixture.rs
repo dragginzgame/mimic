@@ -4,6 +4,9 @@ use ::ulid::Ulid as WrappedUlid;
 ///
 /// Fixtures
 ///
+/// even though fixtures are not part of core Mimic any longer, this code
+/// can be used in other modules
+///
 /// MAX = 1.099T ms, 2^40 - 1
 ///
 /// this gives us a large range where the maximum ULID value starts

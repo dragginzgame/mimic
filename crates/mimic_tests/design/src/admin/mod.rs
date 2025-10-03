@@ -13,41 +13,41 @@ use crate::prelude::*;
     store = "TestDataStore",
     pk = "id",
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "string_test", value(item(prim = "Text"))),
-        field(name = "principal_test", value(item(prim = "Principal"))),
-        field(name = "blob_test", value(item(prim = "Blob"))),
-        field(name = "int_candid", value(item(prim = "Int"))),
-        field(name = "int_8", value(item(prim = "Int8"))),
-        field(name = "int_16", value(item(prim = "Int16"))),
-        field(name = "int_32", value(item(prim = "Int32"))),
-        field(name = "int_64", value(item(prim = "Int64"))),
-        field(name = "nat_candid", value(item(prim = "Nat"))),
-        field(name = "nat_8", value(item(prim = "Nat8"))),
-        field(name = "nat_16", value(item(prim = "Nat16"))),
-        field(name = "nat_64", value(item(prim = "Nat64"))),
-        field(name = "e8s", value(item(prim = "E8s"))),
-        field(name = "e18s", value(item(prim = "E18s"))),
-        field(name = "float_32", value(item(prim = "Float32"))),
-        field(name = "float_64", value(item(prim = "Float64"))),
-        field(name = "bool_test", value(item(prim = "Bool"))),
-        field(name = "timestamp", value(item(prim = "Timestamp"))),
-        field(name = "utf8_test", value(item(is = "types::bytes::Utf8"))),
-        field(name = "tuple_test", value(item(is = "Tuple"))),
-        field(name = "name_many", value(many, item(prim = "Text"))),
-        field(name = "name_opt", value(opt, item(prim = "Text"))),
-        field(name = "record_a", value(item(is = "RecordA"))),
-        field(name = "record_opt", value(opt, item(is = "RecordB"))),
-        field(name = "record_many", value(many, item(is = "RecordB"))),
-        field(name = "list", value(item(is = "List"))),
-        field(name = "map", value(item(is = "Map"))),
-        field(name = "set", value(item(is = "Set"))),
-        field(name = "variant_complex", value(item(is = "EnumA"))),
-        field(name = "variant_complex_opt", value(opt, item(is = "EnumA"))),
-        field(name = "variant_complex_many", value(many, item(is = "EnumA"))),
-        field(name = "variant_simple", value(item(is = "EnumB"))),
-        field(name = "variant_simple_many", value(many, item(is = "EnumB"))),
-        field(name = "variant_simple_opt", value(opt, item(is = "EnumB")))
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "string_test", value(item(prim = "Text"))),
+        field(ident = "principal_test", value(item(prim = "Principal"))),
+        field(ident = "blob_test", value(item(prim = "Blob"))),
+        field(ident = "int_candid", value(item(prim = "Int"))),
+        field(ident = "int_8", value(item(prim = "Int8"))),
+        field(ident = "int_16", value(item(prim = "Int16"))),
+        field(ident = "int_32", value(item(prim = "Int32"))),
+        field(ident = "int_64", value(item(prim = "Int64"))),
+        field(ident = "nat_candid", value(item(prim = "Nat"))),
+        field(ident = "nat_8", value(item(prim = "Nat8"))),
+        field(ident = "nat_16", value(item(prim = "Nat16"))),
+        field(ident = "nat_64", value(item(prim = "Nat64"))),
+        field(ident = "e8s", value(item(prim = "E8s"))),
+        field(ident = "e18s", value(item(prim = "E18s"))),
+        field(ident = "float_32", value(item(prim = "Float32"))),
+        field(ident = "float_64", value(item(prim = "Float64"))),
+        field(ident = "bool_test", value(item(prim = "Bool"))),
+        field(ident = "timestamp", value(item(prim = "Timestamp"))),
+        field(ident = "utf8_test", value(item(is = "types::bytes::Utf8"))),
+        field(ident = "tuple_test", value(item(is = "Tuple"))),
+        field(ident = "name_many", value(many, item(prim = "Text"))),
+        field(ident = "name_opt", value(opt, item(prim = "Text"))),
+        field(ident = "record_a", value(item(is = "RecordA"))),
+        field(ident = "record_opt", value(opt, item(is = "RecordB"))),
+        field(ident = "record_many", value(many, item(is = "RecordB"))),
+        field(ident = "list", value(item(is = "List"))),
+        field(ident = "map", value(item(is = "Map"))),
+        field(ident = "set", value(item(is = "Set"))),
+        field(ident = "variant_complex", value(item(is = "EnumA"))),
+        field(ident = "variant_complex_opt", value(opt, item(is = "EnumA"))),
+        field(ident = "variant_complex_many", value(many, item(is = "EnumA"))),
+        field(ident = "variant_simple", value(item(is = "EnumB"))),
+        field(ident = "variant_simple_many", value(many, item(is = "EnumB"))),
+        field(ident = "variant_simple_opt", value(opt, item(is = "EnumB")))
     )
 )]
 pub struct ComplexEntity {}
@@ -60,21 +60,21 @@ pub struct ComplexEntity {}
     store = "TestDataStore",
     pk = "id",
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "simple_text", value(item(prim = "Text"))),
-        field(name = "tuple_test", value(item(is = "Tuple"))),
-        field(name = "text_many", value(many, item(prim = "Text"))),
-        field(name = "text_opt", value(opt, item(prim = "Text"))),
-        field(name = "nat_32", value(item(prim = "Nat32"))),
-        field(name = "record_a", value(item(is = "RecordA"))),
-        field(name = "record_opt", value(opt, item(is = "RecordB"))),
-        field(name = "record_many", value(many, item(is = "RecordB"))),
-        field(name = "variant_complex", value(item(is = "EnumA"))),
-        field(name = "variant_complex_opt", value(opt, item(is = "EnumA"))),
-        field(name = "variant_complex_many", value(many, item(is = "EnumA"))),
-        field(name = "variant_simple", value(item(is = "EnumB"))),
-        field(name = "variant_simple_opt", value(opt, item(is = "EnumB"))),
-        field(name = "variant_simple_many", value(many, item(is = "EnumB"))),
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "simple_text", value(item(prim = "Text"))),
+        field(ident = "tuple_test", value(item(is = "Tuple"))),
+        field(ident = "text_many", value(many, item(prim = "Text"))),
+        field(ident = "text_opt", value(opt, item(prim = "Text"))),
+        field(ident = "nat_32", value(item(prim = "Nat32"))),
+        field(ident = "record_a", value(item(is = "RecordA"))),
+        field(ident = "record_opt", value(opt, item(is = "RecordB"))),
+        field(ident = "record_many", value(many, item(is = "RecordB"))),
+        field(ident = "variant_complex", value(item(is = "EnumA"))),
+        field(ident = "variant_complex_opt", value(opt, item(is = "EnumA"))),
+        field(ident = "variant_complex_many", value(many, item(is = "EnumA"))),
+        field(ident = "variant_simple", value(item(is = "EnumB"))),
+        field(ident = "variant_simple_opt", value(opt, item(is = "EnumB"))),
+        field(ident = "variant_simple_many", value(many, item(is = "EnumB"))),
     )
 )]
 pub struct AdminEntity {}
@@ -87,10 +87,10 @@ pub struct AdminEntity {}
     store = "TestDataStore",
     pk = "id",
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "simple_id", value(item(rel = "SimpleEntity"))),
-        field(name = "opt_simple_id", value(opt, item(rel = "SimpleEntity"))),
-        field(name = "simple_ids", value(many, item(rel = "SimpleEntity")))
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "simple_id", value(item(rel = "SimpleEntity"))),
+        field(ident = "opt_simple_id", value(opt, item(rel = "SimpleEntity"))),
+        field(ident = "simple_ids", value(many, item(rel = "SimpleEntity")))
     )
 )]
 pub struct RelatedEntity {}
@@ -103,8 +103,8 @@ pub struct RelatedEntity {}
     store = "TestDataStore",
     pk = "id",
     fields(
-        field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(name = "name", value(item(prim = "Text")))
+        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+        field(ident = "name", value(item(prim = "Text")))
     )
 )]
 pub struct SimpleEntity {}
@@ -114,9 +114,9 @@ pub struct SimpleEntity {}
 ///
 
 #[record(fields(
-    field(name = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-    field(name = "variant_a", value(item(is = "EnumA"))),
-    field(name = "description", value(item(prim = "Text"))),
+    field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
+    field(ident = "variant_a", value(item(is = "EnumA"))),
+    field(ident = "description", value(item(prim = "Text"))),
 ))]
 pub struct RecordA {}
 
@@ -125,8 +125,8 @@ pub struct RecordA {}
 ///
 
 #[record(fields(
-    field(name = "name", value(item(prim = "Text"))),
-    field(name = "name_opt", value(opt, item(prim = "Text")))
+    field(ident = "name", value(item(prim = "Text"))),
+    field(ident = "name_opt", value(opt, item(prim = "Text")))
 ))]
 pub struct RecordB {}
 
@@ -134,7 +134,7 @@ pub struct RecordB {}
 /// RecordC
 ///
 
-#[record(fields(field(name = "prim", value(item(prim = "Text")))))]
+#[record(fields(field(ident = "prim", value(item(prim = "Text")))))]
 pub struct RecordC {}
 
 ///

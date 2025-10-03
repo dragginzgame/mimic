@@ -13,13 +13,13 @@ pub mod prelude {
         core::{
             Key, Value,
             traits::{
-                EntityFixture, EntityIdKind as _, EntityKind, FieldValue as _, Path as _,
-                Sanitize as _, Sanitizer as _, Serialize as _, TypeView as _, Validate as _,
-                ValidateCustom, Validator as _, Visitable as _,
+                EntityIdKind as _, EntityKind, FieldValue as _, Path as _, Sanitize as _,
+                Sanitizer as _, Serialize as _, TypeView as _, Validate as _, ValidateCustom,
+                Validator as _, Visitable as _,
             },
             types::*,
         },
-        db::{self, Db, service::EntityService},
+        db::{self, Db},
     };
     pub use ::candid::CandidType;
     pub use derive_more;
