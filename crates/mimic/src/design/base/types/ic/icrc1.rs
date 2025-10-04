@@ -12,6 +12,7 @@ pub struct Payment {}
 
 ///
 /// Icrc1 Tokens
+/// technically ICRC-1 includes ICP, but in that case the ledger_canister is implied
 ///
 
 #[record(fields(
