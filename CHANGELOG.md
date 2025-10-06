@@ -72,7 +72,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - CI: removed `cargo sort` checks (enforced via pre-commit); keep a single `cargo fmt --check`.
 - CI: clear stale Cargo package cache lock (`~/.cargo/.package-cache`) before running cargo.
 - CI: add `security` job running `cargo audit --deny warnings` for PRs and non-tag pushes.
-- CI: build `canister_test` to WASM in release; extract `.did` and upload artifacts.
+- CI: build `test_canister` to WASM in release; extract `.did` and upload artifacts.
 
 ### Removed
 - Codex CLI config `codex.yaml`; guidance folded into `AGENTS.md` and README updated.

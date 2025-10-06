@@ -49,7 +49,7 @@
 - Release job (tags): `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test`, `cargo build --release`.
 - Package cache: clears `~/.cargo/.package-cache` before running cargo to avoid stale lock issues.
  - Versioning: separate job runs `scripts/app/check-versioning.sh` for repository/tag hygiene checks.
-- Canisters: release job builds `canister_test` to WASM, extracts `.did` via `candid-extractor`, and uploads artifacts.
+- Canisters: release job builds `test_canister` to WASM, extracts `.did` via `candid-extractor`, and uploads artifacts.
 
 ## Testing Guidelines
 - Framework: Rust test harness. Place unit tests near code; integration tests live in `crates/mimic_tests`.

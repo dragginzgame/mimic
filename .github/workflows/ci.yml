@@ -140,8 +140,8 @@ jobs:
       - run: cargo test --workspace --all-targets --verbose --locked
       - run: cargo build --release --workspace --locked
 
-      - name: Build canister_test (WASM)
-        run: cargo build -p canister_test --target wasm32-unknown-unknown --release --locked
+      - name: Build test_canister (WASM)
+        run: cargo build -p test_canister --target wasm32-unknown-unknown --release --locked
 
       - name: Install candid-extractor
         run: cargo install candid-extractor --locked
@@ -149,13 +149,13 @@ jobs:
       - name: Extract and upload canister artifacts
         run: |
           mkdir -p artifacts
-          wasm=target/wasm32-unknown-unknown/release/canister_test.wasm
-          did=artifacts/canister_test.did
+          wasm=target/wasm32-unknown-unknown/release/test_canister.wasm
+          did=artifacts/test_canister.did
           cp "$wasm" artifacts/
           candid-extractor "$wasm" > "$did"
 
       - name: Upload canister artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: canister_test
+          name: test_canister
           path: artifacts/*
