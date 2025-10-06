@@ -165,7 +165,7 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
             Ok::<_, Error>(())
         })??;
 
-        //   icu::cdk::println!("query.delete: deleted keys {deleted_rows:?}");
+        //   canic::cdk::println!("query.delete: deleted keys {deleted_rows:?}");
 
         crate::db::executor::set_rows_from_len(&mut span, deleted_rows.len());
 

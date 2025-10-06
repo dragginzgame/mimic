@@ -1,6 +1,6 @@
 use crate::core::traits::EntityKind;
 use candid::CandidType;
-use icu::{cdk::api::performance_counter, utils::time};
+use canic::{cdk::api::performance_counter, utils::time};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::{cell::RefCell, collections::BTreeMap, marker::PhantomData};

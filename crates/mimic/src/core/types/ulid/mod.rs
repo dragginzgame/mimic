@@ -13,8 +13,8 @@ use crate::{
     },
 };
 use candid::CandidType;
+use canic::cdk::structures::storable::Bound;
 use derive_more::{Deref, DerefMut, Display, FromStr};
-use icu::cdk::structures::storable::Bound;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::borrow::Cow;
 use ulid::Ulid as WrappedUlid;

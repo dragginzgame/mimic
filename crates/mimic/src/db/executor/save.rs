@@ -9,7 +9,7 @@ use crate::{
     },
     obs::metrics,
 };
-use icu::utils::time::now_secs;
+use canic::utils::time::now_secs;
 use std::marker::PhantomData;
 
 ///

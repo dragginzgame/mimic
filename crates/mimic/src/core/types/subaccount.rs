@@ -6,12 +6,12 @@ use crate::core::{
     value::Value,
 };
 use candid::CandidType;
-use derive_more::{Deref, DerefMut};
-use icu::{
+use canic::{
     impl_storable_bounded,
     types::{Principal as WrappedPrincipal, Subaccount as WrappedSubaccount},
     utils::rand::next_u128,
 };
+use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
 

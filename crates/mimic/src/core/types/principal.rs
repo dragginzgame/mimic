@@ -8,12 +8,12 @@ use crate::{
         value::Value,
     },
 };
-use derive_more::{Deref, DerefMut, Display};
-use icu::cdk::{
+use canic::cdk::{
     api::msg_caller,
     candid::{CandidType, Principal as WrappedPrincipal},
     structures::storable::Bound,
 };
+use derive_more::{Deref, DerefMut, Display};
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, str::FromStr};
 

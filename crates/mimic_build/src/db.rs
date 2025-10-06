@@ -39,10 +39,10 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
         if matches!(store.ty, StoreType::Index) {
             // Index store
             index_defs.extend(quote! {
-                ::icu::icu_eager_static! {
+                ::canic::eager_static! {
                     static #cell_ident: ::std::cell::RefCell<::mimic::db::store::IndexStore> =
                         ::std::cell::RefCell::new(::mimic::db::store::IndexStore::init(
-                            ::icu::icu_memory!(IndexStore, #memory_id)
+                            ::canic::ic_memory!(IndexStore, #memory_id)
                         ));
                 }
             });
@@ -53,10 +53,10 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
         } else {
             // Data store
             data_defs.extend(quote! {
-                ::icu::icu_eager_static! {
+                ::canic::eager_static! {
                     static #cell_ident: ::std::cell::RefCell<::mimic::db::store::DataStore> =
                         ::std::cell::RefCell::new(::mimic::db::store::DataStore::init(
-                            ::icu::icu_memory!(DataStore, #memory_id)
+                            ::canic::ic_memory!(DataStore, #memory_id)
                         ));
                 }
             });
@@ -95,8 +95,8 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
         }
 
         // reserve the icu memory range
-        ::icu::eager_init!({
-            ::icu::icu_memory_range!(#memory_min, #memory_max);
+        ::canic::eager_init!({
+            ::canic::ic_memory_range!(#memory_min, #memory_max);
         });
 
         /// Global accessor (fat handle) for this canister’s DB

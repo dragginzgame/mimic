@@ -1,11 +1,13 @@
 use crate::{
     core::{Key, traits::EntityKind},
     db::store::StoreRegistry,
-    export::icu::cdk::structures::{BTreeMap, DefaultMemoryImpl, memory::VirtualMemory},
 };
 use candid::CandidType;
+use canic::{
+    cdk::structures::{BTreeMap, DefaultMemoryImpl, memory::VirtualMemory},
+    impl_storable_bounded,
+};
 use derive_more::{Deref, DerefMut};
-use icu::impl_storable_bounded;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
 

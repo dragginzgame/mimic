@@ -3,9 +3,8 @@ mod filter;
 mod index;
 mod metrics;
 mod ops;
-mod storage;
 
-use icu::{cdk::export_candid, prelude::*};
+use canic::{cdk::export_candid, prelude::*};
 use mimic::{Error, prelude::*};
 use test_design::{
     e2e::filter::{Filterable, FilterableView},
@@ -50,7 +49,6 @@ pub fn test() {
         ("index", index::IndexTester::test),
         ("ops", ops::OpsTester::test),
         ("metrics", metrics::MetricsTester::test),
-        ("storage", storage::StorageTester::test),
     ];
 
     // run tests

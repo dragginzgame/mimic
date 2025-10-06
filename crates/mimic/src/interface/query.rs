@@ -5,7 +5,7 @@ use crate::{
     interface::InterfaceError,
 };
 use candid::Principal;
-use icu::{Error as IcuError, cdk::call::Call};
+use canic::{Error as IcuError, cdk::call::Call};
 use thiserror::Error as ThisError;
 
 ///

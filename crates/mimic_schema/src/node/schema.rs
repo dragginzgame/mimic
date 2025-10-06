@@ -124,7 +124,7 @@ impl Schema {
         Self {
             nodes: BTreeMap::new(),
             hash: "",
-            timestamp: icu::utils::time::now_secs(),
+            timestamp: canic::utils::time::now_secs(),
         }
     }
 

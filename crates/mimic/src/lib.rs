@@ -33,9 +33,9 @@ pub use Error as MimicError;
 ///
 
 pub mod export {
+    pub use canic;
     pub use ctor;
     pub use derive_more;
-    pub use icu;
     pub use num_traits;
     pub use remain;
 }
@@ -86,6 +86,10 @@ use thiserror::Error as ThisError;
 
 #[derive(CandidType, Debug, Deserialize, Serialize, ThisError)]
 pub enum Error {
+    // third party
+    #[error("{0}")]
+    CanicError(String),
+
     #[error("{0}")]
     CoreError(String),
 
@@ -94,10 +98,6 @@ pub enum Error {
 
     #[error("{0}")]
     InterfaceError(String),
-
-    // third party
-    #[error("{0}")]
-    IcuError(String),
 }
 
 macro_rules! from_to_string {
@@ -110,7 +110,7 @@ macro_rules! from_to_string {
     };
 }
 
+from_to_string!(canic::Error, CanicError);
 from_to_string!(core::CoreError, CoreError);
 from_to_string!(db::DbError, DbError);
 from_to_string!(interface::InterfaceError, InterfaceError);
-from_to_string!(icu::Error, IcuError);

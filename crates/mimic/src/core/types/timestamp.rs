@@ -6,6 +6,7 @@ use crate::core::{
     },
 };
 use candid::CandidType;
+use canic::utils::time::now_secs;
 use derive_more::{Add, AddAssign, Display, FromStr, Sub, SubAssign};
 use serde::{Deserialize, Serialize};
 
@@ -43,7 +44,7 @@ impl Timestamp {
 
     #[must_use]
     pub fn now() -> Self {
-        Self(icu::utils::time::now_secs())
+        Self(now_secs())
     }
 
     #[must_use]

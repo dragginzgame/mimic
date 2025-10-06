@@ -172,7 +172,7 @@ mod tests {
         };
 
         let flat = flatten_errs(&node);
-        assert!(flat.iter().any(|(k, v)| k == "nums.1" && v == ERR_MSG));
+        assert!(flat.iter().any(|(k, v)| k == "nums[1]" && v == ERR_MSG));
     }
 
     // Nested record, tuple-like, and map-like structures should produce dotted keys.
@@ -255,7 +255,7 @@ mod tests {
 
         // Expect errors at specific dotted paths
         assert!(flat.iter().any(|(k, v)| k == "rec.leaf" && v == ERR_MSG));
-        assert!(flat.iter().any(|(k, v)| k == "tup.1" && v == ERR_MSG));
+        assert!(flat.iter().any(|(k, v)| k == "tup[1]" && v == ERR_MSG));
         assert!(flat.iter().any(|(k, v)| k == "map.value" && v == ERR_MSG));
     }
 }

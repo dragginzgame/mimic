@@ -9,7 +9,7 @@ use thiserror::Error as ThisError;
 #[derive(Debug, ThisError)]
 pub enum SerializeError {
     #[error(transparent)]
-    SerializeError(#[from] icu::utils::cbor::SerializeError),
+    SerializeError(#[from] canic::utils::cbor::SerializeError),
 }
 
 impl From<SerializeError> for Error {
@@ -24,7 +24,7 @@ pub fn serialize<T>(ty: &T) -> Result<Vec<u8>, Error>
 where
     T: Serialize,
 {
-    icu::utils::cbor::serialize(ty)
+    canic::utils::cbor::serialize(ty)
         .map_err(SerializeError::from)
         .map_err(Error::from)
 }
@@ -34,7 +34,7 @@ pub fn deserialize<T>(bytes: &[u8]) -> Result<T, Error>
 where
     T: DeserializeOwned,
 {
-    icu::utils::cbor::deserialize(bytes)
+    canic::utils::cbor::deserialize(bytes)
         .map_err(SerializeError::from)
         .map_err(Error::from)
 }

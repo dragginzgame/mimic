@@ -65,7 +65,7 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
     let fn_name = quote::format_ident!("{name}");
     let fn_sig = match kind {
         QueryKind::Load => quote! {
-            #[::mimic::export::icu::cdk::query]
+            #[::mimic::export::canic::cdk::query]
             pub fn #fn_name(
                 path: String,
                 query: ::mimic::db::query::LoadQuery,
@@ -73,7 +73,7 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
         },
 
         QueryKind::Save => quote! {
-            #[::mimic::export::icu::cdk::update]
+            #[::mimic::export::canic::cdk::update]
             pub fn #fn_name(
                 path: String,
                 query: ::mimic::db::query::SaveQuery,
@@ -81,7 +81,7 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
         },
 
         QueryKind::Delete => quote! {
-           #[::mimic::export::icu::cdk::update]
+           #[::mimic::export::canic::cdk::update]
             pub fn #fn_name(
                 path: String,
                 query: ::mimic::db::query::DeleteQuery,

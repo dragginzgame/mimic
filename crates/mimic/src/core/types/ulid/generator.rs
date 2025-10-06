@@ -1,5 +1,5 @@
 use crate::core::types::{Ulid, UlidError};
-use icu::utils;
+use canic::utils;
 use std::sync::{LazyLock, Mutex};
 
 ///

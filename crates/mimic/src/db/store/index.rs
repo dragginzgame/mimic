@@ -6,13 +6,15 @@ use crate::{
         executor::ExecutorError,
         store::{DataKey, StoreRegistry},
     },
-    export::icu::cdk::structures::{BTreeMap, DefaultMemoryImpl, memory::VirtualMemory},
     obs::metrics,
     schema::node::Index,
 };
 use candid::CandidType;
+use canic::{
+    cdk::structures::{BTreeMap, DefaultMemoryImpl, memory::VirtualMemory},
+    impl_storable_bounded, impl_storable_unbounded,
+};
 use derive_more::{Deref, DerefMut, Display};
-use icu::{impl_storable_bounded, impl_storable_unbounded};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashSet,

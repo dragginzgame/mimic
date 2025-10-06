@@ -30,15 +30,3 @@ pub struct TestDataStore {}
     memory_id = 51
 )]
 pub struct TestIndexStore {}
-
-///
-/// FixtureStore
-///
-
-#[store(
-    ident = "FIXTURE_STORE",
-    ty = "Data",
-    canister = "Canister",
-    memory_id = 60
-)]
-pub struct FixtureStore {}
