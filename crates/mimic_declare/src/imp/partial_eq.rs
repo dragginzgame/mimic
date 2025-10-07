@@ -36,7 +36,7 @@ impl Imp<Newtype> for PartialEqTrait {
 
             impl PartialEq<&#ident> for #prim {
                 fn eq(&self, other: &&#ident) -> bool {
-                    <#prim as PartialEq<#ident>>::eq(self, *other)
+                    <Self as PartialEq<#ident>>::eq(self, *other)
                 }
             }
         };

@@ -22,7 +22,7 @@ pub fn generate(builder: &ActorBuilder) -> TokenStream {
         /// Includes data/index store stats and per-entity breakdown by store.
         #[::mimic::export::canic::cdk::query]
         pub fn mimic_snapshot() -> Result<::mimic::obs::snapshot::StorageReport, ::mimic::Error> {
-            Ok(::mimic::obs::snapshot::storage_report(&db(), MIMIC_ENTITY_ID_PATH))
+            Ok(::mimic::obs::snapshot::storage_report(&DB, MIMIC_ENTITY_ID_PATH))
         }
 
         /// Runtime event logs (oldest → newest). Ephemeral, in-memory buffer.
@@ -42,6 +42,7 @@ pub fn generate(builder: &ActorBuilder) -> TokenStream {
         #[::mimic::export::canic::cdk::update]
         pub fn mimic_metrics_reset() -> Result<(), ::mimic::Error> {
             ::mimic::obs::metrics::reset_all();
+
             Ok(())
         }
 

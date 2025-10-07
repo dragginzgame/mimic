@@ -19,7 +19,7 @@ impl From<SerializeError> for Error {
 }
 
 // serialize
-// passes through to the icu default serializer for efficiency
+// passes through to the canic default serializer for efficiency
 pub fn serialize<T>(ty: &T) -> Result<Vec<u8>, Error>
 where
     T: Serialize,

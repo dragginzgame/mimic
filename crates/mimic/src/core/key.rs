@@ -27,12 +27,19 @@ pub enum Key {
 }
 
 impl Key {
-    pub const MIN: Self = Self::Int(i64::MIN); // global minimum
-    pub const MAX: Self = Self::Ulid(Ulid::MAX); // global maximum
-
     #[must_use]
     pub const fn max_storable() -> Self {
         Self::Principal(Principal::max_storable())
+    }
+
+    #[must_use]
+    pub const fn lower_bound() -> Self {
+        Self::Int(i64::MIN)
+    }
+
+    #[must_use]
+    pub const fn upper_bound() -> Self {
+        Self::Ulid(Ulid::max_storable())
     }
 
     const fn variant_rank(&self) -> u8 {

@@ -6,7 +6,7 @@ use crate::{
     },
     db::{
         Db,
-        executor::{Context, FilterEvaluator, plan_for},
+        executor::{FilterEvaluator, plan_for},
         query::{
             FilterDsl, FilterExpr, FilterExt, IntoFilterOpt, LoadQuery, QueryPlan, QueryValidate,
             SortDirection, SortExpr,
@@ -15,6 +15,7 @@ use crate::{
     },
     obs::metrics,
 };
+use canic::{Log, log};
 use std::marker::PhantomData;
 
 ///
@@ -30,19 +31,19 @@ pub struct LoadExecutor<'a, E: EntityKind> {
 
 impl<'a, E: EntityKind> LoadExecutor<'a, E> {
     #[must_use]
-    pub const fn from_db(db: &'a Db<E::Canister>) -> Self {
+    pub const fn new(db: &'a Db<E::Canister>, debug: bool) -> Self {
         Self {
             db,
-            debug: false,
+            debug,
             _marker: PhantomData,
         }
     }
 
-    // debug
-    #[must_use]
-    pub const fn debug(mut self) -> Self {
-        self.debug = true;
-        self
+    #[inline]
+    fn debug_log(&self, s: impl Into<String>) {
+        if self.debug {
+            log!(Log::Debug, "{}", s.into());
+        }
     }
 
     //
@@ -83,14 +84,6 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
     }
 
     ///
-    /// EXECUTION PREP
-    ///
-
-    const fn context(&self) -> Context<'_, E> {
-        Context::new(self.db)
-    }
-
-    ///
     /// EXECUTION METHODS
     ///
 
@@ -113,11 +106,14 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
         let mut span = metrics::Span::<E>::new(metrics::ExecKind::Load);
         QueryValidate::<E>::validate(query)?;
 
-        let ctx = self.context();
+        self.debug_log(format!("🧭 Executing query: {:?} on {}", query, E::PATH));
+
+        let ctx = self.db.context::<E>();
         let plan = plan_for::<E>(query.filter.as_ref());
 
-        // Fast path: if there is no filter or sort, and a limit is specified,
-        // apply pagination at the storage layer to avoid deserializing discarded rows.
+        self.debug_log(format!("📄 Query plan: {plan:?}"));
+
+        // Fast path: pre-pagination
         let pre_paginated = query.filter.is_none() && query.sort.is_none() && query.limit.is_some();
         let data_rows = if pre_paginated {
             let lim = query.limit.as_ref().unwrap();
@@ -126,12 +122,27 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
             ctx.rows_from_plan(plan)?
         };
 
-        // Convert data rows -> entity rows
+        self.debug_log(format!(
+            "📦 Loaded {} data rows before deserialization",
+            data_rows.len()
+        ));
+
+        // Deserialize
         let mut rows: Vec<(Key, E)> = ctx.deserialize_rows(data_rows)?;
+        self.debug_log(format!(
+            "🧩 Deserialized {} entities before filtering",
+            rows.len()
+        ));
 
         // Filtering
         if let Some(f) = &query.filter {
-            Self::apply_filter(&mut rows, &f.clone().simplify());
+            let simplified = f.clone().simplify();
+            Self::apply_filter(&mut rows, &simplified);
+
+            self.debug_log(format!(
+                "🔎 Applied filter -> {} entities remaining",
+                rows.len()
+            ));
         }
 
         // Sorting
@@ -139,6 +150,7 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
             && rows.len() > 1
         {
             Self::apply_sort(&mut rows, sort);
+            self.debug_log("↕️ Applied sort expression");
         }
 
         // Pagination
@@ -146,9 +158,16 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
             && !pre_paginated
         {
             apply_pagination(&mut rows, lim.offset, lim.limit);
+            self.debug_log(format!(
+                "📏 Applied pagination (offset={}, limit={:?}) -> {} entities",
+                lim.offset,
+                lim.limit,
+                rows.len()
+            ));
         }
 
         crate::db::executor::set_rows_from_len(&mut span, rows.len());
+        self.debug_log(format!("✅ Query complete -> {} final rows", rows.len()));
 
         Ok(LoadCollection(rows))
     }

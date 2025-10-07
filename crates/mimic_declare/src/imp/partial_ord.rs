@@ -36,7 +36,7 @@ impl Imp<Newtype> for PartialOrdTrait {
 
             impl PartialOrd<&#ident> for #prim {
                 fn partial_cmp(&self, other: &&#ident) -> Option<::std::cmp::Ordering> {
-                    <#prim as PartialOrd<#ident>>::partial_cmp(self, *other)
+                    <Self as PartialOrd<#ident>>::partial_cmp(self, *other)
                 }
             }
         };

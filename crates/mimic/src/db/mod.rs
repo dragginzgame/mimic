@@ -10,7 +10,7 @@ use crate::{
         traits::{CanisterKind, EntityKind},
     },
     db::{
-        executor::{DeleteExecutor, ExecutorError, LoadExecutor, SaveExecutor},
+        executor::{Context, DeleteExecutor, ExecutorError, LoadExecutor, SaveExecutor},
         query::QueryError,
         response::ResponseError,
         store::{DataStoreRegistry, IndexStoreRegistry, StoreError},
@@ -61,17 +61,6 @@ pub struct Db<C: CanisterKind> {
     _marker: PhantomData<C>,
 }
 
-// Manual Copy + Clone implementations.
-// Safe because Db only contains &'static LocalKey<_> handles,
-// duplicating them does not duplicate the contents.
-impl<C: CanisterKind> Copy for Db<C> {}
-
-impl<C: CanisterKind> Clone for Db<C> {
-    fn clone(&self) -> Self {
-        *self
-    }
-}
-
 impl<C: CanisterKind> Db<C> {
     #[must_use]
     pub const fn new(
@@ -85,12 +74,55 @@ impl<C: CanisterKind> Db<C> {
         }
     }
 
+    #[must_use]
+    pub const fn context<E>(&self) -> Context<'_, E>
+    where
+        E: EntityKind<Canister = C>,
+    {
+        Context::new(self)
+    }
+
     pub fn with_data<R>(&self, f: impl FnOnce(&DataStoreRegistry) -> R) -> R {
         self.data.with(|reg| f(reg))
     }
 
     pub fn with_index<R>(&self, f: impl FnOnce(&IndexStoreRegistry) -> R) -> R {
         self.index.with(|reg| f(reg))
+    }
+}
+
+// Manual Copy + Clone implementations.
+// Safe because Db only contains &'static LocalKey<_> handles,
+// duplicating them does not duplicate the contents.
+impl<C: CanisterKind> Copy for Db<C> {}
+
+impl<C: CanisterKind> Clone for Db<C> {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
+///
+/// DbSession
+/// database plus a debug boolean, as we don't want to store the bool
+/// inside the database handle
+///
+
+pub struct DbSession<'a, C: CanisterKind> {
+    db: &'a Db<C>,
+    debug: bool,
+}
+
+impl<'a, C: CanisterKind> DbSession<'a, C> {
+    #[must_use]
+    pub const fn new(db: &'a Db<C>) -> Self {
+        Self { db, debug: false }
+    }
+
+    #[must_use]
+    pub const fn debug(mut self) -> Self {
+        self.debug = true;
+        self
     }
 
     //
@@ -103,7 +135,7 @@ impl<C: CanisterKind> Db<C> {
     where
         E: EntityKind<Canister = C>,
     {
-        LoadExecutor::from_db(self)
+        LoadExecutor::new(self.db, self.debug)
     }
 
     /// Get a [`SaveExecutor`] for inserting or updating entities.
@@ -114,7 +146,7 @@ impl<C: CanisterKind> Db<C> {
     where
         E: EntityKind<Canister = C>,
     {
-        SaveExecutor::from_db(self)
+        SaveExecutor::new(self.db, self.debug)
     }
 
     /// Get a [`DeleteExecutor`] for deleting entities by key or query.
@@ -123,7 +155,7 @@ impl<C: CanisterKind> Db<C> {
     where
         E: EntityKind<Canister = C>,
     {
-        DeleteExecutor::from_db(self)
+        DeleteExecutor::new(self.db, self.debug)
     }
 
     //

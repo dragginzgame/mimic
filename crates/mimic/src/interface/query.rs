@@ -5,7 +5,7 @@ use crate::{
     interface::InterfaceError,
 };
 use candid::Principal;
-use canic::{Error as IcuError, cdk::call::Call};
+use canic::{Error as CanicError, cdk::call::Call};
 use thiserror::Error as ThisError;
 
 ///
@@ -49,9 +49,9 @@ async fn query_call<T: candid::CandidType + for<'de> candid::Deserialize<'de>>(
     let result = Call::unbounded_wait(pid, method)
         .with_arg(arg)
         .await
-        .map_err(IcuError::from)?;
+        .map_err(CanicError::from)?;
 
-    let response = result.candid::<T>().map_err(IcuError::from)?;
+    let response = result.candid::<T>().map_err(CanicError::from)?;
 
     Ok(response)
 }

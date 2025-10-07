@@ -94,15 +94,18 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
             };
         }
 
-        // reserve the icu memory range
+        static DB: ::mimic::db::Db<#canister_path> =
+            ::mimic::db::Db::<#canister_path>::new(&DATA_REGISTRY, &INDEX_REGISTRY);
+
+        // reserve the ic memory range
         ::canic::eager_init!({
             ::canic::ic_memory_range!(#memory_min, #memory_max);
         });
 
         /// Global accessor (fat handle) for this canister’s DB
         #[must_use]
-        pub const fn db() -> ::mimic::db::Db<#canister_path> {
-            ::mimic::db::Db::new(&DATA_REGISTRY, &INDEX_REGISTRY)
+        pub const fn db() -> ::mimic::db::DbSession<'static, #canister_path> {
+            ::mimic::db::DbSession::new(&DB)
         }
     }
 }

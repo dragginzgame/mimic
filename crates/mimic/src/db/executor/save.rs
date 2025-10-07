@@ -3,7 +3,7 @@ use crate::{
     core::{Key, deserialize, sanitize, serialize, traits::EntityKind, validate},
     db::{
         Db,
-        executor::{Context, ExecutorError},
+        executor::ExecutorError,
         query::{SaveMode, SaveQuery},
         store::DataKey,
     },
@@ -25,10 +25,10 @@ pub struct SaveExecutor<'a, E: EntityKind> {
 
 impl<'a, E: EntityKind> SaveExecutor<'a, E> {
     #[must_use]
-    pub const fn from_db(db: &'a Db<E::Canister>) -> Self {
+    pub const fn new(db: &'a Db<E::Canister>, debug: bool) -> Self {
         Self {
             db,
-            debug: false,
+            debug,
             _marker: PhantomData,
         }
     }
@@ -38,14 +38,6 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
     pub const fn debug(mut self) -> Self {
         self.debug = true;
         self
-    }
-
-    ///
-    /// EXECUTION PREP
-    ///
-
-    const fn context(&self) -> Context<'_, E> {
-        Context::new(self.db)
     }
 
     ///
@@ -114,7 +106,7 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
     fn save_entity(&self, mode: SaveMode, mut entity: E) -> Result<E, Error> {
         let mut span = metrics::Span::<E>::new(metrics::ExecKind::Save);
         let key = entity.key();
-        let ctx = self.context();
+        let ctx = self.db.context::<E>();
 
         // sanitize & validate
         sanitize(&mut entity);

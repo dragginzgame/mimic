@@ -50,4 +50,8 @@ macro_rules! db {
     () => {
         crate::db()
     };
+
+    (debug) => {
+        crate::db().debug()
+    };
 }

@@ -43,7 +43,7 @@ impl Imp<Enum> for FieldValueTrait {
                     #(#arms),*
                 };
 
-                ::mimic::core::value::Value::Enum(ev)
+                Value::Enum(ev)
             }
         };
 

@@ -12,6 +12,7 @@ use std::fmt::{self, Display};
 
 #[derive(Debug)]
 pub enum QueryPlan {
+    FullScan,
     Index(IndexPlan),
     Keys(Vec<Key>),
     Range(Key, Key),
@@ -36,6 +37,8 @@ impl fmt::Display for QueryPlan {
             Self::Range(start, end) => {
                 write!(f, "Range({start:?} → {end:?})")
             }
+
+            Self::FullScan => write!(f, "FullScan"),
         }
     }
 }
@@ -82,7 +85,7 @@ impl QueryPlanner {
             metrics::with_state_mut(|m| match plan {
                 QueryPlan::Keys(_) => m.ops.plan_keys += 1,
                 QueryPlan::Index(_) => m.ops.plan_index += 1,
-                QueryPlan::Range(_, _) => m.ops.plan_range += 1,
+                QueryPlan::Range(_, _) | QueryPlan::FullScan => m.ops.plan_range += 1,
             });
             return plan;
         }
@@ -96,10 +99,10 @@ impl QueryPlanner {
             return plan;
         }
 
-        // Fallback: if we have a real filter, do a full scan
-        // No filter = full scan from Key::MIN to Key::MAX
+        // Fallback: do a full scan
         metrics::with_state_mut(|m| m.ops.plan_range += 1);
-        QueryPlan::Range(Key::MIN, Key::MAX)
+
+        QueryPlan::FullScan
     }
 
     // extract_from_filter

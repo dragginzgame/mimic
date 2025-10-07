@@ -75,6 +75,22 @@ impl DataKey {
         }
     }
 
+    #[must_use]
+    pub const fn lower_bound<E: EntityKind>() -> Self {
+        Self {
+            entity_id: E::ENTITY_ID,
+            key: Key::lower_bound(),
+        }
+    }
+
+    #[must_use]
+    pub const fn upper_bound<E: EntityKind>() -> Self {
+        Self {
+            entity_id: E::ENTITY_ID,
+            key: Key::upper_bound(),
+        }
+    }
+
     /// Return the primary key component of this data key.
     #[must_use]
     pub const fn key(&self) -> Key {

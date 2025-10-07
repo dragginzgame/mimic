@@ -5,6 +5,12 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.24.2] - 2025-10-07
+- redid the debug for db!  so now you either do db!() or db!(debug) and it passes the top level
+debug boolean all the way through
+- much better query debugging for load queries
+- got rid of the sentinel values in Value and now use FullScan
+
 ## [0.24.1] - 2025-10-06
 - updated icu to canic 0.1!
 

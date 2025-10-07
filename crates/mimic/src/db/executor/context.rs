@@ -59,6 +59,15 @@ where
                     .collect()
             })?,
 
+            QueryPlan::FullScan => self.with_store(|s| {
+                let start = DataKey::lower_bound::<E>();
+                let end = DataKey::upper_bound::<E>();
+
+                s.range((Bound::Included(start), Bound::Included(end)))
+                    .map(|entry| entry.key().clone())
+                    .collect()
+            })?,
+
             QueryPlan::Index(index_plan) => {
                 let index_store = self
                     .db
@@ -84,6 +93,14 @@ where
                 let end = Self::to_data_key(end);
                 self.load_range(start, end)
             }
+            QueryPlan::FullScan => self.with_store(|s| {
+                let start = DataKey::lower_bound::<E>();
+                let end = DataKey::upper_bound::<E>();
+
+                s.range((Bound::Included(start), Bound::Included(end)))
+                    .map(|entry| (entry.key().clone(), entry.value()))
+                    .collect()
+            }),
             QueryPlan::Index(_) => {
                 let data_keys = self.candidates_from_plan(plan)?;
                 self.load_many(&data_keys)
@@ -142,6 +159,28 @@ where
                     out
                 })
             }
+
+            QueryPlan::FullScan => self.with_store(|s| {
+                let start = DataKey::lower_bound::<E>();
+                let end = DataKey::upper_bound::<E>();
+
+                let base = s.range((Bound::Included(start), Bound::Included(end)));
+                let cap = take.unwrap_or(0);
+                let mut out = Vec::with_capacity(cap);
+                match take {
+                    Some(t) => {
+                        for entry in base.skip(skip).take(t) {
+                            out.push((entry.key().clone(), entry.value()));
+                        }
+                    }
+                    None => {
+                        for entry in base.skip(skip) {
+                            out.push((entry.key().clone(), entry.value()));
+                        }
+                    }
+                }
+                out
+            }),
 
             QueryPlan::Index(_) => {
                 // Resolve candidate keys from index, then paginate before loading

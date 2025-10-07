@@ -6,7 +6,7 @@ use crate::{
     },
     db::{
         Db,
-        executor::{Context, FilterEvaluator},
+        executor::FilterEvaluator,
         query::{DeleteQuery, FilterDsl, FilterExpr, FilterExt, QueryPlan, QueryValidate},
     },
     obs::metrics,
@@ -26,10 +26,10 @@ pub struct DeleteExecutor<'a, E: EntityKind> {
 
 impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
     #[must_use]
-    pub const fn from_db(db: &'a Db<E::Canister>) -> Self {
+    pub const fn new(db: &'a Db<E::Canister>, debug: bool) -> Self {
         Self {
             db,
-            debug: false,
+            debug,
             _marker: PhantomData,
         }
     }
@@ -70,14 +70,6 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
     }
 
     ///
-    /// EXECUTION PREP
-    ///
-
-    const fn context(&self) -> Context<'_, E> {
-        Context::new(self.db)
-    }
-
-    ///
     /// EXECUTION METHODS
     ///
 
@@ -101,7 +93,7 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
         let mut span = metrics::Span::<E>::new(metrics::ExecKind::Delete);
         QueryValidate::<E>::validate(query)?;
 
-        let ctx = self.context();
+        let ctx = self.db.context::<E>();
         let plan = crate::db::executor::plan_for::<E>(query.filter.as_ref());
         let keys = ctx.candidates_from_plan(plan)?; // no deserialization here
 

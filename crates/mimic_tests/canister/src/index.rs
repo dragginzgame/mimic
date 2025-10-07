@@ -111,7 +111,9 @@ impl IndexTester {
         let plan = planner.plan::<NotIndexable>();
 
         match plan {
-            QueryPlan::Range(_, _) => println!("✅ Fallback to range plan"),
+            QueryPlan::Range(_, _) | QueryPlan::FullScan => {
+                println!("✅ Fallback to range/full scan plan");
+            }
             _ => panic!("❌ Expected fallback Range plan, got: {plan:?}"),
         }
     }

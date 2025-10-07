@@ -71,7 +71,7 @@ pub fn test() {
 // filterable
 #[query]
 pub fn filterable() -> Result<Vec<FilterableView>, Error> {
-    let res = db!().load::<Filterable>().all()?.entities().to_view();
+    let res = db!(debug).load::<Filterable>().all()?.entities().to_view();
 
     Ok(res)
 }

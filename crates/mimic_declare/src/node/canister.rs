@@ -10,7 +10,7 @@ pub struct Canister {
     #[darling(skip, default)]
     pub def: Def,
 
-    // inclusive range of icu memories
+    // inclusive range of ic memories
     pub memory_min: u8,
     pub memory_max: u8,
 }
