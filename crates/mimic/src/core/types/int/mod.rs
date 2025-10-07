@@ -5,7 +5,8 @@ pub use int128::*;
 use crate::core::{
     Value,
     traits::{
-        FieldValue, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom, Visitable,
+        FieldValue, Inner, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom,
+        Visitable,
     },
 };
 use candid::{CandidType, Int as WrappedInt};
@@ -60,6 +61,16 @@ impl FieldValue for Int {
 impl From<WrappedInt> for Int {
     fn from(i: WrappedInt) -> Self {
         Self(i)
+    }
+}
+
+impl Inner<Self> for Int {
+    fn inner(&self) -> &Self {
+        self
+    }
+
+    fn into_inner(self) -> Self {
+        self
     }
 }
 

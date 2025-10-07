@@ -1,8 +1,8 @@
 use crate::core::{
     Value,
     traits::{
-        FieldValue, NumCast, NumToPrimitive, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto,
-        ValidateCustom, Visitable,
+        FieldValue, Inner, NumCast, NumToPrimitive, SanitizeAuto, SanitizeCustom, TypeView,
+        ValidateAuto, ValidateCustom, Visitable,
     },
 };
 use candid::CandidType;
@@ -53,6 +53,16 @@ impl FieldValue for Int128 {
 impl From<i128> for Int128 {
     fn from(i: i128) -> Self {
         Self(i)
+    }
+}
+
+impl Inner<Self> for Int128 {
+    fn inner(&self) -> &Self {
+        self
+    }
+
+    fn into_inner(self) -> Self {
+        self
     }
 }
 

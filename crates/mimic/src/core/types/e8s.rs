@@ -1,7 +1,7 @@
 use crate::core::{
     traits::{
-        FieldValue, NumCast, NumToPrimitive, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto,
-        ValidateCustom, Visitable,
+        FieldValue, Inner, NumCast, NumToPrimitive, SanitizeAuto, SanitizeCustom, TypeView,
+        ValidateAuto, ValidateCustom, Visitable,
     },
     types::Decimal,
     value::Value,
@@ -139,6 +139,16 @@ impl From<E8s> for Decimal {
 impl From<u64> for E8s {
     fn from(n: u64) -> Self {
         Self(n)
+    }
+}
+
+impl Inner<Self> for E8s {
+    fn inner(&self) -> &Self {
+        self
+    }
+
+    fn into_inner(self) -> Self {
+        self
     }
 }
 

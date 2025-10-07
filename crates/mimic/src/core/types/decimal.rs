@@ -1,6 +1,6 @@
 use crate::core::{
     traits::{
-        FieldValue, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
+        FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
         TypeView, ValidateAuto, ValidateCustom, Visitable,
     },
     value::Value,
@@ -130,6 +130,16 @@ impl<D: Into<Self>> Div<D> for Decimal {
 impl FieldValue for Decimal {
     fn to_value(&self) -> Value {
         Value::Decimal(*self)
+    }
+}
+
+impl Inner<Self> for Decimal {
+    fn inner(&self) -> &Self {
+        self
+    }
+
+    fn into_inner(self) -> Self {
+        self
     }
 }
 

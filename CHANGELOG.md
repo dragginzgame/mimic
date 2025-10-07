@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 debug boolean all the way through
 - much better query debugging for load queries
 - got rid of the sentinel values in Value and now use FullScan
+- added back the Inner trait, hopefully for the last time
 
 ## [0.24.1] - 2025-10-06
 - updated icu to canic 0.1!

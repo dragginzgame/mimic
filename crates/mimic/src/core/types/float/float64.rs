@@ -1,8 +1,8 @@
 use crate::core::{
     Value,
     traits::{
-        FieldValue, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom, TypeView,
-        ValidateAuto, ValidateCustom, Visitable,
+        FieldValue, Inner, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
+        TypeView, ValidateAuto, ValidateCustom, Visitable,
     },
 };
 use candid::CandidType;
@@ -56,6 +56,16 @@ impl PartialEq for Float64 {
 impl FieldValue for Float64 {
     fn to_value(&self) -> Value {
         Value::Float64(*self)
+    }
+}
+
+impl Inner<Self> for Float64 {
+    fn inner(&self) -> &Self {
+        self
+    }
+
+    fn into_inner(self) -> Self {
+        self
     }
 }
 

@@ -6,7 +6,7 @@ use crate::{
     common::error::ErrorTree,
     core::{
         traits::{
-            FieldValue, SanitizeAuto, SanitizeCustom, Storable, TypeView, ValidateAuto,
+            FieldValue, Inner, SanitizeAuto, SanitizeCustom, Storable, TypeView, ValidateAuto,
             ValidateCustom, Visitable,
         },
         value::Value,
@@ -122,6 +122,16 @@ impl Default for Ulid {
 impl FieldValue for Ulid {
     fn to_value(&self) -> Value {
         Value::Ulid(*self)
+    }
+}
+
+impl Inner<Self> for Ulid {
+    fn inner(&self) -> &Self {
+        self
+    }
+
+    fn into_inner(self) -> Self {
+        self
     }
 }
 

@@ -68,6 +68,7 @@ pub enum Trait {
     FieldValue,
     FieldValues,
     From,
+    Inner,
     Into,
     NumCast,
     NumFromPrimitive,

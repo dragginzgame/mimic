@@ -5,7 +5,8 @@ pub use nat128::*;
 use crate::core::{
     Value,
     traits::{
-        FieldValue, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom, Visitable,
+        FieldValue, Inner, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom,
+        Visitable,
     },
 };
 use candid::{CandidType, Nat as WrappedNat};
@@ -59,6 +60,16 @@ impl FieldValue for Nat {
 impl From<WrappedNat> for Nat {
     fn from(n: WrappedNat) -> Self {
         Self(n)
+    }
+}
+
+impl Inner<Self> for Nat {
+    fn inner(&self) -> &Self {
+        self
+    }
+
+    fn into_inner(self) -> Self {
+        self
     }
 }
 

@@ -1,7 +1,8 @@
 use crate::core::{
     Value,
     traits::{
-        FieldValue, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom, Visitable,
+        FieldValue, Inner, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom,
+        Visitable,
     },
 };
 use candid::CandidType;
@@ -71,6 +72,16 @@ impl From<&[u8]> for Blob {
 impl<const N: usize> From<&[u8; N]> for Blob {
     fn from(bytes: &[u8; N]) -> Self {
         Self(ByteBuf::from(&bytes[..]))
+    }
+}
+
+impl Inner<Self> for Blob {
+    fn inner(&self) -> &Self {
+        self
+    }
+
+    fn into_inner(self) -> Self {
+        self
     }
 }
 

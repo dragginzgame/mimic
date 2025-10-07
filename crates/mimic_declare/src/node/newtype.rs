@@ -55,7 +55,7 @@ impl HasSchemaPart for Newtype {
 impl HasTraits for Newtype {
     fn traits(&self) -> TraitList {
         let mut traits = self.traits.clone().with_type_traits();
-        traits.extend(vec![Trait::Deref, Trait::DerefMut]);
+        traits.extend(vec![Trait::Deref, Trait::DerefMut, Trait::Inner]);
 
         // primitive traits
         if self.primitive.supports_arithmetic() {
@@ -102,6 +102,7 @@ impl HasTraits for Newtype {
 
             Trait::FieldValue => FieldValueTrait::strategy(self),
             Trait::From => FromTrait::strategy(self),
+            Trait::Inner => InnerTrait::strategy(self),
             Trait::NumCast => NumCastTrait::strategy(self),
             Trait::NumToPrimitive => NumToPrimitiveTrait::strategy(self),
             Trait::NumFromPrimitive => NumFromPrimitiveTrait::strategy(self),

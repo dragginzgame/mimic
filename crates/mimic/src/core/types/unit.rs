@@ -1,7 +1,8 @@
 use crate::core::{
     Value,
     traits::{
-        FieldValue, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom, Visitable,
+        FieldValue, Inner, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom,
+        Visitable,
     },
 };
 use candid::CandidType;
@@ -30,6 +31,16 @@ pub struct Unit();
 impl FieldValue for Unit {
     fn to_value(&self) -> Value {
         Value::Unit
+    }
+}
+
+impl Inner<Self> for Unit {
+    fn inner(&self) -> &Self {
+        self
+    }
+
+    fn into_inner(self) -> Self {
+        self
     }
 }
 
