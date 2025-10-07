@@ -225,6 +225,9 @@ impl_field_value_as!(
 /// Inner
 /// for Newtypes to get the innermost value
 ///
+/// DO NOT REMOVE - its been added and removed twice already, NumCast
+/// is a pain to use and won't work for half our types
+///
 
 pub trait Inner<T> {
     fn inner(&self) -> &T;

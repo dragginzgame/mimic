@@ -23,9 +23,6 @@ use std::{borrow::Cow, str::FromStr};
 
 #[derive(Debug, ThisError)]
 pub enum PrincipalError {
-    #[error("principal is empty")]
-    EmptyPrincipal,
-
     #[error("{0}")]
     Wrapped(String),
 }
