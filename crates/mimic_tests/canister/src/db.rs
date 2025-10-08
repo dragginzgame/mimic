@@ -46,7 +46,7 @@ impl DbTester {
         use test_design::e2e::db::CreateBasic;
 
         let query = query::load().filter(|f| f.eq("wefwefasd", "A"));
-        let res = db!().load::<CreateBasic>().execute(&query);
+        let res = db!().load::<CreateBasic>().execute(query);
 
         assert!(res.is_err(), "filter query should fail");
     }
@@ -56,7 +56,7 @@ impl DbTester {
 
         let res = db!()
             .load::<CreateBasic>()
-            .execute(&query::load().sort(|s| s.asc("jwjehrjrh")));
+            .execute(query::load().sort(|s| s.asc("jwjehrjrh")));
 
         assert!(res.is_err(), "sort query should fail");
     }
@@ -75,7 +75,7 @@ impl DbTester {
         // Retrieve rows in B-Tree order
         let keys = db!()
             .load::<ContainsBlob>()
-            .execute(&query::load().sort(|s| s.asc("id")))
+            .execute(query::load().sort(|s| s.asc("id")))
             .unwrap()
             .keys();
 
@@ -166,7 +166,7 @@ impl DbTester {
         // Retrieve rows in B-Tree order
         let keys = db!()
             .load::<DataKeyOrder>()
-            .execute(&query::load().sort(|s| s.asc("id")))
+            .execute(query::load().sort(|s| s.asc("id")))
             .unwrap()
             .keys();
 
@@ -344,7 +344,7 @@ impl DbTester {
             for offset in [0, 5, 10] {
                 let results = db!()
                     .load::<Limit>()
-                    .execute(&query::load().offset(offset).limit(limit))
+                    .execute(query::load().offset(offset).limit(limit))
                     .unwrap();
 
                 let count = results.count();

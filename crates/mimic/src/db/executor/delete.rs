@@ -48,7 +48,7 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
 
     pub fn one(self, value: impl FieldValue) -> Result<Vec<Key>, Error> {
         let query = DeleteQuery::new().one::<E>(value);
-        self.execute(&query)
+        self.execute(query)
     }
 
     pub fn many(
@@ -56,17 +56,17 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
         values: impl IntoIterator<Item = impl FieldValue>,
     ) -> Result<Vec<Key>, Error> {
         let query = DeleteQuery::new().many::<E>(values);
-        self.execute(&query)
+        self.execute(query)
     }
 
     pub fn all(self) -> Result<Vec<Key>, Error> {
         let query = DeleteQuery::new();
-        self.execute(&query)
+        self.execute(query)
     }
 
     pub fn filter(self, f: impl FnOnce(FilterDsl) -> FilterExpr) -> Result<Vec<Key>, Error> {
         let query = DeleteQuery::new().filter(f);
-        self.execute(&query)
+        self.execute(query)
     }
 
     ///
@@ -74,24 +74,24 @@ impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
     ///
 
     // explain
-    pub fn explain(self, query: &DeleteQuery) -> Result<QueryPlan, Error> {
-        QueryValidate::<E>::validate(query)?;
+    pub fn explain(self, query: DeleteQuery) -> Result<QueryPlan, Error> {
+        QueryValidate::<E>::validate(&query)?;
 
         Ok(crate::db::executor::plan_for::<E>(query.filter.as_ref()))
     }
 
     // response
     // for the automated query endpoint, we will make this more flexible in the future
-    pub fn response(self, query: &DeleteQuery) -> Result<Vec<Key>, Error> {
+    pub fn response(self, query: DeleteQuery) -> Result<Vec<Key>, Error> {
         let res = self.execute(query)?;
 
         Ok(res)
     }
 
     // execute
-    pub fn execute(self, query: &DeleteQuery) -> Result<Vec<Key>, Error> {
+    pub fn execute(self, query: DeleteQuery) -> Result<Vec<Key>, Error> {
         let mut span = metrics::Span::<E>::new(metrics::ExecKind::Delete);
-        QueryValidate::<E>::validate(query)?;
+        QueryValidate::<E>::validate(&query)?;
 
         let ctx = self.db.context::<E>();
         let plan = crate::db::executor::plan_for::<E>(query.filter.as_ref());

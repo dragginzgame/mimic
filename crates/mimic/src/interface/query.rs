@@ -26,17 +26,17 @@ impl From<QueryError> for Error {
 
 // query_load
 pub async fn query_load(pid: Principal, query: LoadQuery) -> Result<Vec<Key>, Error> {
-    query_call(pid, "mimic_query_load", &query).await
+    query_call(pid, "mimic_query_load", query).await
 }
 
 // query_save
 pub async fn query_save(pid: Principal, query: SaveQuery) -> Result<Key, Error> {
-    query_call(pid, "mimic_query_save", &query).await
+    query_call(pid, "mimic_query_save", query).await
 }
 
 // query_delete
 pub async fn query_delete(pid: Principal, query: DeleteQuery) -> Result<Vec<Key>, Error> {
-    query_call(pid, "mimic_query_delete", &query).await
+    query_call(pid, "mimic_query_delete", query).await
 }
 
 // query_call

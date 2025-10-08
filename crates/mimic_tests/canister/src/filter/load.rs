@@ -205,7 +205,7 @@ impl LoadFilterTester {
 
         let results = db!()
             .load::<Filterable>()
-            .execute(&query)
+            .execute(query)
             .unwrap()
             .entities();
 
@@ -222,7 +222,7 @@ impl LoadFilterTester {
 
         let results = db!()
             .load::<Filterable>()
-            .execute(&query)
+            .execute(query)
             .unwrap()
             .entities();
 
@@ -241,7 +241,7 @@ impl LoadFilterTester {
 
         let results = db!()
             .load::<Filterable>()
-            .execute(&query)
+            .execute(query)
             .unwrap()
             .entities();
 
@@ -264,7 +264,7 @@ impl LoadFilterTester {
 
         let results = db!()
             .load::<Filterable>()
-            .execute(&query)
+            .execute(query)
             .unwrap()
             .entities();
 
@@ -580,14 +580,16 @@ impl LoadFilterTester {
             core::value::Value,
             db::query::{Cmp, FilterClause, FilterExpr},
         };
+
         // tags is list of Text; AnyInCi expects list of Text on RHS
         let bad = FilterExpr::Clause(FilterClause::new(
             "tags",
             Cmp::AnyInCi,
             Value::from(vec![Value::Int(1), Value::Int(2)]),
         ));
+
         let q = query::load().filter_expr(bad);
-        let res = db!().load::<Filterable>().execute(&q);
+        let res = db!().load::<Filterable>().execute(q);
         assert!(
             res.is_err(),
             "Expected validation error for AnyInCi(tags, [ints])"
@@ -607,7 +609,7 @@ impl LoadFilterTester {
             Value::Text("x".into()),
         ));
         let q = query::load().filter_expr(bad);
-        let res = db!().load::<Filterable>().execute(&q);
+        let res = db!().load::<Filterable>().execute(q);
         assert!(
             res.is_err(),
             "Expected validation error for IsNone with non-Unit RHS"

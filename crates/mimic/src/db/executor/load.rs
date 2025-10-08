@@ -53,7 +53,7 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
 
     pub fn one(&self, value: impl FieldValue) -> Result<E, Error> {
         let query = LoadQuery::new().one::<E>(value);
-        self.execute(&query)?.try_entity()
+        self.execute(query)?.try_entity()
     }
 
     pub fn many(
@@ -61,12 +61,12 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
         values: impl IntoIterator<Item = impl FieldValue>,
     ) -> Result<LoadCollection<E>, Error> {
         let query = LoadQuery::new().many::<E>(values);
-        self.execute(&query)
+        self.execute(query)
     }
 
     pub fn all(&self) -> Result<LoadCollection<E>, Error> {
         let query = LoadQuery::new();
-        self.execute(&query)
+        self.execute(query)
     }
 
     pub fn filter<F, R>(self, f: F) -> Result<LoadCollection<E>, Error>
@@ -75,12 +75,12 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
         R: IntoFilterOpt,
     {
         let query = LoadQuery::new().filter(f);
-        self.execute(&query)
+        self.execute(query)
     }
 
     pub fn count_all(self) -> Result<u32, Error> {
         let query = LoadQuery::all();
-        self.count(&query)
+        self.count(query)
     }
 
     ///
@@ -88,23 +88,23 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
     ///
 
     // explain
-    pub fn explain(self, query: &LoadQuery) -> Result<QueryPlan, Error> {
-        QueryValidate::<E>::validate(query)?;
+    pub fn explain(self, query: LoadQuery) -> Result<QueryPlan, Error> {
+        QueryValidate::<E>::validate(&query)?;
 
         Ok(plan_for::<E>(query.filter.as_ref()))
     }
 
     // response used by automated query endpoints
-    pub fn response(&self, query: &LoadQuery) -> Result<Vec<Key>, Error> {
+    pub fn response(&self, query: LoadQuery) -> Result<Vec<Key>, Error> {
         let res = self.execute(query)?.keys();
 
         Ok(res)
     }
 
     /// Execute a full query and return a collection of entities.
-    pub fn execute(&self, query: &LoadQuery) -> Result<LoadCollection<E>, Error> {
+    pub fn execute(&self, query: LoadQuery) -> Result<LoadCollection<E>, Error> {
         let mut span = metrics::Span::<E>::new(metrics::ExecKind::Load);
-        QueryValidate::<E>::validate(query)?;
+        QueryValidate::<E>::validate(&query)?;
 
         self.debug_log(format!("🧭 Executing query: {:?} on {}", query, E::PATH));
 
@@ -175,7 +175,7 @@ impl<'a, E: EntityKind> LoadExecutor<'a, E> {
     /// currently just doing the same as execute()
     /// keeping it separate in case we can optimise count queries in the future
     #[allow(clippy::cast_possible_truncation)]
-    pub fn count(self, query: &LoadQuery) -> Result<u32, Error> {
+    pub fn count(self, query: LoadQuery) -> Result<u32, Error> {
         let count = self.execute(query)?.count();
 
         Ok(count)

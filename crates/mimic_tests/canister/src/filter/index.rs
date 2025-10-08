@@ -103,7 +103,10 @@ impl IndexFilterTester {
         let query = query::load().filter(|f| f.eq("name", "Alpha"));
 
         // explain plan
-        let plan = db!().load::<FilterableIndex>().explain(&query).unwrap();
+        let plan = db!()
+            .load::<FilterableIndex>()
+            .explain(query.clone())
+            .unwrap();
         println!("Plan for filter_eq_name_alpha: {plan}");
 
         match plan {
@@ -118,7 +121,7 @@ impl IndexFilterTester {
         // then execute
         let results = db!()
             .load::<FilterableIndex>()
-            .execute(&query)
+            .execute(query)
             .unwrap()
             .entities();
 
