@@ -5,6 +5,9 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.24.3] - 2025-10-08
+- changed the db api to consume query to match other ORMs
+
 ## [0.24.2] - 2025-10-07
 - redid the debug for db!  so now you either do db!() or db!(debug) and it passes the top level
 debug boolean all the way through
