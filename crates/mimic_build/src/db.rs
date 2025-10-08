@@ -80,6 +80,7 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
         thread_local! {
             // registries
             #[allow(unused_mut)]
+            #[allow(clippy::let_and_return)]
             static DATA_REGISTRY: ::mimic::db::store::DataStoreRegistry = {
                 let mut reg = ::mimic::db::store::DataStoreRegistry::new();
                 #data_inits
@@ -87,6 +88,7 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
             };
 
             #[allow(unused_mut)]
+            #[allow(clippy::let_and_return)]
             static INDEX_REGISTRY: ::mimic::db::store::IndexStoreRegistry = {
                 let mut reg = ::mimic::db::store::IndexStoreRegistry::new();
                 #index_inits
