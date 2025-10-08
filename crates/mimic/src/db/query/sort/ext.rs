@@ -89,4 +89,12 @@ pub trait SortExt: SortSlot + Sized {
 
         self
     }
+
+    #[must_use]
+    fn sort_by(self, field: &str, dir: SortDirection) -> Self {
+        match dir {
+            SortDirection::Asc => self.sort(|s| s.asc(field)),
+            SortDirection::Desc => self.sort(|s| s.desc(field)),
+        }
+    }
 }
