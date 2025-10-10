@@ -5,6 +5,9 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.24.6] - 2025-10-10
+- PartialEq and Ord for Decimal <-> WrappedDecimal
+
 ## [0.24.4] - 2025-10-08
 - added a sort_by helper (field, SortDirection) to make writing queries easier
 

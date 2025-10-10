@@ -9,7 +9,10 @@ use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Rem, Sub, SubAssign, Sum};
 use rust_decimal::{Decimal as WrappedDecimal, MathematicalOps};
 use serde::{Deserialize, Serialize};
-use std::ops::{Div, Mul};
+use std::{
+    cmp::Ordering,
+    ops::{Div, Mul},
+};
 
 ///
 /// Decimal
@@ -241,6 +244,32 @@ impl NumToPrimitive for Decimal {
 
     fn to_f64(&self) -> Option<f64> {
         self.0.to_f64()
+    }
+}
+
+// ----- Cross-type comparisons between Decimal and WrappedDecimal -----
+
+impl PartialEq<WrappedDecimal> for Decimal {
+    fn eq(&self, other: &WrappedDecimal) -> bool {
+        self.0 == *other
+    }
+}
+
+impl PartialEq<Decimal> for WrappedDecimal {
+    fn eq(&self, other: &Decimal) -> bool {
+        *self == other.0
+    }
+}
+
+impl PartialOrd<WrappedDecimal> for Decimal {
+    fn partial_cmp(&self, other: &WrappedDecimal) -> Option<Ordering> {
+        self.0.partial_cmp(other)
+    }
+}
+
+impl PartialOrd<Decimal> for WrappedDecimal {
+    fn partial_cmp(&self, other: &Decimal) -> Option<Ordering> {
+        self.partial_cmp(&other.0)
     }
 }
 
