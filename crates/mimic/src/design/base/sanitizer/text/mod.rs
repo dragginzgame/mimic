@@ -1,3 +1,4 @@
+pub mod ascii;
 pub mod case;
 pub mod color;
 

@@ -5,6 +5,9 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.24.7] - 2025-10-11
+- added Alphanumeric and Numeric sanitizers
+
 ## [0.24.6] - 2025-10-10
 - PartialEq and Ord for Decimal <-> WrappedDecimal
 
