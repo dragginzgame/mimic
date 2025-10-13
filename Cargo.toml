@@ -20,7 +20,7 @@ categories = ["database", "web-programming", "wasm"]
 
 [workspace.dependencies]
 candid = "0.10"
-canic = "0.1"
+canic = "0.2"
 convert_case = "0.8"
 ctor = "0.6"
 darling = "0.21"

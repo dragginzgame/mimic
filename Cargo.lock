@@ -137,17 +137,16 @@ dependencies = [
 
 [[package]]
 name = "canic"
-version = "0.1.6"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5bc4274c57bcbd601bca38581e3a59d0c94eed932947bb1ace4e21eafe77fd8e"
+checksum = "db05bedd938ff079051cbd5651705fc8786d636d79b040fdeed5fb2d74f9ae11"
 dependencies = [
  "candid",
- "ctor 0.5.0",
+ "ctor",
  "defer",
  "derive_more",
  "ic-cdk",
  "ic-cdk-timers",
- "ic-ledger-types",
  "ic-stable-structures 0.7.2",
  "icrc-ledger-types",
  "minicbor-serde",
@@ -225,29 +224,13 @@ dependencies = [
 
 [[package]]
 name = "ctor"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67773048316103656a637612c4a62477603b777d91d9c62ff2290f9cde178fdb"
-dependencies = [
- "ctor-proc-macro 0.0.6",
- "dtor",
-]
-
-[[package]]
-name = "ctor"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "59c9b8bdf64ee849747c1b12eb861d21aa47fa161564f48332f1afe2373bf899"
 dependencies = [
- "ctor-proc-macro 0.0.7",
+ "ctor-proc-macro",
  "dtor",
 ]
-
-[[package]]
-name = "ctor-proc-macro"
-version = "0.0.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2931af7e13dc045d8e9d26afccc6fa115d64e115c9c84b1166288b46f6782c2"
 
 [[package]]
 name = "ctor-proc-macro"
@@ -508,9 +491,9 @@ dependencies = [
 
 [[package]]
 name = "generic-array"
-version = "0.14.7"
+version = "0.14.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a"
+checksum = "1dc8f7d2ded5f9209535e4b3fd4d39c002f30902ff5ce9f64e2c33d549576500"
 dependencies = [
  "typenum",
  "version_check",
@@ -602,21 +585,6 @@ dependencies = [
  "serde",
  "strum",
  "strum_macros",
-]
-
-[[package]]
-name = "ic-ledger-types"
-version = "0.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "feb52826a353b583012628af6da762b52672350686c3275234febfadeca965ea"
-dependencies = [
- "candid",
- "crc32fast",
- "hex",
- "ic-cdk",
- "serde",
- "serde_bytes",
- "sha2",
 ]
 
 [[package]]
@@ -802,7 +770,7 @@ dependencies = [
  "bencher",
  "candid",
  "canic",
- "ctor 0.6.0",
+ "ctor",
  "derive_more",
  "mimic_build",
  "mimic_common",
@@ -1136,9 +1104,9 @@ dependencies = [
 
 [[package]]
 name = "rust_decimal"
-version = "1.38.0"
+version = "1.39.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c8975fc98059f365204d635119cf9c5a60ae67b841ed49b5422a9a7e56cdfac0"
+checksum = "35affe401787a9bd846712274d97654355d21b2a2c092a3139aabe31e9022282"
 dependencies = [
  "arrayvec 0.7.6",
  "num-traits",

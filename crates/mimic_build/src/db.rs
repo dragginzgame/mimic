@@ -42,7 +42,7 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
                 ::canic::eager_static! {
                     static #cell_ident: ::std::cell::RefCell<::mimic::db::store::IndexStore> =
                         ::std::cell::RefCell::new(::mimic::db::store::IndexStore::init(
-                            ::canic::ic_memory!(IndexStore, #memory_id)
+                            ::canic::ic_memory!(::mimic::db::store::IndexStore, #memory_id)
                         ));
                 }
             });
@@ -56,7 +56,7 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
                 ::canic::eager_static! {
                     static #cell_ident: ::std::cell::RefCell<::mimic::db::store::DataStore> =
                         ::std::cell::RefCell::new(::mimic::db::store::DataStore::init(
-                            ::canic::ic_memory!(DataStore, #memory_id)
+                            ::canic::ic_memory!(::mimic::db::store::DataStore, #memory_id)
                         ));
                 }
             });

@@ -8,9 +8,7 @@ use crate::core::{
 };
 use candid::CandidType;
 use canic::{
-    impl_storable_bounded,
-    types::{Principal as WrappedPrincipal, Subaccount as WrappedSubaccount},
-    utils::rand::next_u128,
+    impl_storable_bounded, types::Subaccount as WrappedSubaccount, utils::rand::next_u128,
 };
 use derive_more::{Deref, DerefMut};
 use serde::{Deserialize, Serialize};
@@ -24,6 +22,7 @@ use std::fmt::{self, Display};
     CandidType,
     Clone,
     Copy,
+    Default,
     Debug,
     Deref,
     DerefMut,
@@ -44,17 +43,17 @@ impl Subaccount {
 
     #[must_use]
     pub const fn new(bytes: [u8; 32]) -> Self {
-        Self(WrappedSubaccount(bytes))
+        Self(bytes)
     }
 
     #[must_use]
     pub const fn to_array(&self) -> [u8; 32] {
-        self.0.0
+        self.0
     }
 
     #[must_use]
     pub const fn from_array(array: [u8; 32]) -> Self {
-        Self(WrappedSubaccount(array))
+        Self(array)
     }
 
     #[must_use]
@@ -88,24 +87,18 @@ impl Subaccount {
 
     #[must_use]
     pub const fn to_bytes(self) -> [u8; 32] {
-        self.0.0
+        self.0
     }
 
     #[must_use]
     pub const fn max_storable() -> Self {
-        Self(WrappedSubaccount([0xFF; 32]))
-    }
-}
-
-impl Default for Subaccount {
-    fn default() -> Self {
-        Self(WrappedSubaccount([0u8; 32]))
+        Self([0xFF; 32])
     }
 }
 
 impl Display for Subaccount {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for byte in &self.0.0 {
+        for byte in &self.0 {
             write!(f, "{byte:02x}")?;
         }
 
@@ -119,15 +112,22 @@ impl FieldValue for Subaccount {
     }
 }
 
+/// code taken from
+/// https://docs.rs/ic-ledger-types/latest/src/ic_ledger_types/lib.rs.html#140-148
+#[allow(clippy::cast_possible_truncation)]
 impl From<Principal> for Subaccount {
     fn from(principal: Principal) -> Self {
-        Self((*principal).into())
-    }
-}
+        let mut bytes = [0u8; 32];
+        let p = principal.as_slice();
 
-impl From<WrappedPrincipal> for Subaccount {
-    fn from(principal: WrappedPrincipal) -> Self {
-        Self(principal.into())
+        // Defensive check: Principals are currently <= 29 bytes
+        let len = p.len().min(31); // reserve 1 byte for the length prefix
+        bytes[0] = len as u8;
+
+        // Copy safely without panic risk
+        bytes[1..=len].copy_from_slice(&p[..len]);
+
+        Self(bytes)
     }
 }
 

@@ -18,4 +18,3 @@ cargo update --verbose
 
 # dfx
 dfxvm self update
-dfxvm update
