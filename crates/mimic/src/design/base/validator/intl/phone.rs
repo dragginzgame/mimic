@@ -1,9 +1,11 @@
 use crate::{core::traits::Validator, design::prelude::*};
-use phonenumber::{Mode, parse};
 
 ///
 /// E164PhoneNumber
 /// Ensures phone number is valid and E.164 compliant
+///
+/// NOTE: not currently E.164 standard as the phonenumber crate is heavy
+/// and includes regex.  So it's rough E.164.
 ///
 
 #[validator]
@@ -11,18 +13,17 @@ pub struct E164PhoneNumber;
 
 impl Validator<str> for E164PhoneNumber {
     fn validate(&self, s: &str) -> Result<(), String> {
-        match parse(None, s) {
-            Ok(num) if num.is_valid() => {
-                let e164 = num.format().mode(Mode::E164).to_string();
-                if e164.len() > 16 {
-                    Err(format!("phone number too long for E.164: {s}"))
-                } else {
-                    Ok(())
-                }
-            }
-            Ok(_) => Err(format!("invalid phone number: {s}")),
-            Err(e) => Err(format!("failed to parse phone number {s}: {e}")),
+        if !s.starts_with('+') {
+            return Err(format!("phone number '{s}' must start with '+'"));
         }
+
+        let digits = s.chars().filter(char::is_ascii_digit).count();
+
+        if !(7..=15).contains(&digits) {
+            return Err(format!("phone number '{s}' has the wrong number of digits"));
+        }
+
+        Ok(())
     }
 }
 
@@ -50,12 +51,6 @@ mod tests {
     fn test_e164_invalid_format() {
         let v = E164PhoneNumber {};
         assert!(v.validate("4155552671").is_err()); // missing +
-        assert!(v.validate("+9999999999999999").is_err()); // too long (>15 digits)
-    }
-
-    #[test]
-    fn test_e164_invalid_number() {
-        let v = E164PhoneNumber {};
-        assert!(v.validate("+0001234567").is_err()); // 000 not a valid country code
+        assert!(v.validate("+99999999999999999").is_err()); // too long (>15 digits)
     }
 }

@@ -1,6 +1,5 @@
 use crate::core::traits::Sanitizer;
 use mimic::design::prelude::*;
-use phonenumber::{Mode, parse};
 
 ///
 /// E164PhoneNumber
@@ -12,10 +11,20 @@ pub struct E164PhoneNumber;
 
 impl Sanitizer<String> for E164PhoneNumber {
     fn sanitize(&self, value: String) -> String {
-        match parse(None, &value) {
-            Ok(num) => num.format().mode(Mode::E164).to_string(),
-            // if parsing fails, leave it unchanged (so validator will catch it)
-            Err(_) => value,
+        let mut out = String::with_capacity(value.len());
+
+        // Keep only digits
+        for c in value.chars() {
+            if c.is_ascii_digit() {
+                out.push(c);
+            }
+        }
+
+        // Always prefix with '+'
+        if out.is_empty() {
+            out
+        } else {
+            format!("+{out}")
         }
     }
 }
