@@ -27,6 +27,10 @@ macro_rules! mimic_build {
         // all
         println!("cargo:rerun-if-changed=build.rs");
 
+        // add the mimic cfg flag
+        println!("cargo:rustc-check-cfg=cfg(mimic)");
+        println!("cargo:rustc-cfg=mimic");
+
         // Get the output directory set by Cargo
         let out_dir = var("OUT_DIR").expect("OUT_DIR not set");
 
