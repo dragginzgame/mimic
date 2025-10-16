@@ -54,15 +54,15 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
         Ok(key)
     }
 
-    pub fn create(&self, entity: E) -> Result<E, Error> {
-        let entity = self.save_entity(SaveMode::Create, entity)?;
+    pub fn insert(&self, entity: E) -> Result<E, Error> {
+        let entity = self.save_entity(SaveMode::Insert, entity)?;
 
         Ok(entity)
     }
 
-    pub fn create_view<V>(&self, view: E::View) -> Result<E::View, Error> {
+    pub fn insert_view<V>(&self, view: E::View) -> Result<E::View, Error> {
         let entity = E::from_view(view);
-        let saved_view = self.create(entity)?.to_view();
+        let saved_view = self.insert(entity)?.to_view();
 
         Ok(saved_view)
     }
@@ -126,7 +126,7 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
 
         // did anything change?
         let old = match (mode, old_result) {
-            (SaveMode::Create | SaveMode::Replace, None) => {
+            (SaveMode::Insert | SaveMode::Replace, None) => {
                 entity.touch_created(now);
 
                 None
@@ -140,7 +140,7 @@ impl<'a, E: EntityKind> SaveExecutor<'a, E> {
             }
 
             // invalid
-            (SaveMode::Create, Some(_)) => return Err(ExecutorError::KeyExists(data_key))?,
+            (SaveMode::Insert, Some(_)) => return Err(ExecutorError::KeyExists(data_key))?,
             (SaveMode::Update, None) => return Err(ExecutorError::KeyNotFound(data_key))?,
         };
 

@@ -30,20 +30,20 @@ impl MetricsTester {
 
     // basic load/save/delete counters and rows touched
     fn counters_basic() {
-        use test_design::e2e::db::CreateBasic;
+        use test_design::e2e::db::SimpleEntity;
 
         // 3 creates → 3 save calls
         for _ in 0..3 {
-            db!().create(CreateBasic::default()).unwrap();
+            db!().insert(SimpleEntity::default()).unwrap();
         }
 
         // 1 load all → rows_loaded = 3
-        let loaded = db!().load::<CreateBasic>().all().unwrap();
+        let loaded = db!().load::<SimpleEntity>().all().unwrap();
         assert_eq!(loaded.count(), 3);
 
         // 1 delete one → rows_deleted = 1
         let first_key = loaded.keys()[0];
-        let deleted = db!().delete::<CreateBasic>().one(first_key).unwrap();
+        let deleted = db!().delete::<SimpleEntity>().one(first_key).unwrap();
         assert_eq!(deleted.len(), 1);
 
         // Snapshot
@@ -58,11 +58,11 @@ impl MetricsTester {
         assert_eq!(m.ops.rows_deleted, 1, "rows_deleted should be 1");
 
         // Per-entity counters
-        let path = CreateBasic::PATH.to_string();
+        let path = SimpleEntity::PATH.to_string();
         let e_ops = m
             .entities
             .get(&path)
-            .expect("per-entity counters present for CreateBasic");
+            .expect("per-entity counters present for SimpleEntity");
         assert_eq!(e_ops.load_calls, 1);
         assert_eq!(e_ops.delete_calls, 1);
         assert_eq!(e_ops.rows_loaded, 3);
@@ -73,7 +73,7 @@ impl MetricsTester {
             .entity_counters
             .iter()
             .find(|e| e.path == path)
-            .expect("entity_stats contains CreateBasic");
+            .expect("entity_stats contains SimpleEntity");
         assert!((e_stat.avg_rows_per_load - 3.0).abs() < f64::EPSILON);
         assert!((e_stat.avg_rows_per_delete - 1.0).abs() < f64::EPSILON);
     }
@@ -84,15 +84,15 @@ impl MetricsTester {
 
         // Insert e1, e2 (each has 2 indexes) → index_inserts += 4
         let e1 = Index::new(1, 10);
-        let id1 = db!().create(e1).unwrap().key();
+        let id1 = db!().insert(e1).unwrap().key();
 
         let e2 = Index::new(1, 20);
-        db!().create(e2).unwrap();
+        db!().insert(e2).unwrap();
 
         // Attempt conflicting unique y=10 → should fail and count unique_violation
         let e3_conflict = Index::new(2, 10);
         let err = db!()
-            .create(e3_conflict)
+            .insert(e3_conflict)
             .expect_err("expected unique violation");
         let _ = err; // just ensure it errored
 
@@ -101,7 +101,7 @@ impl MetricsTester {
 
         // Retry e3 with y=10 now free → success → index_inserts += 2
         let e3_ok = Index::new(2, 10);
-        db!().create(e3_ok).unwrap();
+        db!().insert(e3_ok).unwrap();
 
         // Snapshot
         let stats = crate::mimic_metrics().unwrap();
@@ -133,10 +133,10 @@ impl MetricsTester {
 
     // verify reset clears counters via the endpoint as well
     fn reset_metrics() {
-        use test_design::e2e::db::CreateBasic;
+        use test_design::e2e::db::SimpleEntity;
 
         // Bump something
-        db!().create(CreateBasic::default()).unwrap();
+        db!().insert(SimpleEntity::default()).unwrap();
         let before = crate::mimic_metrics().unwrap();
         assert!(before.counters.as_ref().unwrap().ops.save_calls > 0);
 

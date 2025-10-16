@@ -162,11 +162,11 @@ impl<'a, C: CanisterKind> DbSession<'a, C> {
     // High-level save shortcuts
     //
 
-    pub fn create<E>(&self, entity: E) -> Result<E, Error>
+    pub fn insert<E>(&self, entity: E) -> Result<E, Error>
     where
         E: EntityKind<Canister = C>,
     {
-        self.save::<E>().create(entity)
+        self.save::<E>().insert(entity)
     }
 
     pub fn replace<E>(&self, entity: E) -> Result<E, Error>
@@ -183,11 +183,11 @@ impl<'a, C: CanisterKind> DbSession<'a, C> {
         self.save::<E>().update(entity)
     }
 
-    pub fn create_view<E>(&self, view: E::View) -> Result<E::View, Error>
+    pub fn insert_view<E>(&self, view: E::View) -> Result<E::View, Error>
     where
         E: EntityKind<Canister = C>,
     {
-        self.save::<E>().create_view::<E::View>(view)
+        self.save::<E>().insert_view::<E::View>(view)
     }
 
     pub fn replace_view<E>(&self, view: E::View) -> Result<E::View, Error>

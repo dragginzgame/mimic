@@ -85,8 +85,8 @@ pub fn delete() -> DeleteQuery {
 
 // create
 #[must_use]
-pub fn create() -> SaveQuery {
-    SaveQuery::new(SaveMode::Create)
+pub fn insert() -> SaveQuery {
+    SaveQuery::new(SaveMode::Insert)
 }
 
 // update

@@ -17,9 +17,10 @@ use serde::{Deserialize, Serialize};
 #[derive(CandidType, Clone, Copy, Debug, Default, Deserialize, Display, Serialize)]
 pub enum SaveMode {
     #[default]
-    Create,
+    Insert,
     Replace,
     Update,
+    //    Upsert,
 }
 
 ///

@@ -102,7 +102,7 @@ impl LoadFilterTester {
 
         for (name, category, active, score, level, offset, tags, pid_index, abc) in fixtures {
             db!()
-                .create(Filterable {
+                .insert(Filterable {
                     name: name.into(),
                     category: category.into(),
                     active,
@@ -129,7 +129,7 @@ impl LoadFilterTester {
 
         for (name, level, offset, pid) in fixtures {
             db!()
-                .create(FilterableOpt {
+                .insert(FilterableOpt {
                     name: name.map(str::to_string),
                     level,
                     offset,

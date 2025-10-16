@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 ///
-/// CreateBasic
+/// SimpleEntity
 ///
 
 #[entity(
@@ -9,10 +9,10 @@ use crate::prelude::*;
     pk = "id",
     fields(field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"))
 )]
-pub struct CreateBasic {}
+pub struct SimpleEntity {}
 
 ///
-/// CreateBlob
+/// BlobEntity
 ///
 
 #[entity(
@@ -23,7 +23,7 @@ pub struct CreateBasic {}
         field(ident = "bytes", value(item(prim = "Blob")))
     )
 )]
-pub struct CreateBlob {}
+pub struct BlobEntity {}
 
 ///
 /// Searchable
@@ -183,7 +183,7 @@ impl Index {
     index(store = "TestIndexStore", fields = "create_blob_id"),
     fields(
         field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(ident = "create_blob_id", value(item(rel = "CreateBlob")))
+        field(ident = "create_blob_id", value(item(rel = "BlobEntity")))
     )
 )]
 pub struct IndexRelation {}

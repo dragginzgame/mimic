@@ -84,7 +84,7 @@ impl IndexFilterTester {
 
         for (name, name_opt, name_many) in fixtures {
             db!()
-                .create(FilterableIndex {
+                .insert(FilterableIndex {
                     name: name.into(),
                     name_opt: name_opt.map(ToString::to_string),
                     name_many: name_many.iter().map(ToString::to_string).collect(),

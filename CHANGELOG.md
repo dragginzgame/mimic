@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.24.13] - 2025-10-16
+- changed create() to insert() to align naming with SQL, as potentially one day the query and storage
+engines could be swapped out (plus makes more sense for the LLM)
+
 ## [0.24.7] - 2025-10-11
 - added Alphanumeric and Numeric sanitizers
 
