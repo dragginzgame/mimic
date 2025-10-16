@@ -1,6 +1,5 @@
 use crate::{
     Error, MAX_INDEX_FIELDS,
-    common::utils::hash::hash_u64,
     core::{Key, Value, traits::EntityKind},
     db::{
         executor::ExecutorError,
@@ -13,6 +12,7 @@ use candid::CandidType;
 use canic::{
     cdk::structures::{BTreeMap, DefaultMemoryImpl, memory::VirtualMemory},
     impl_storable_bounded, impl_storable_unbounded,
+    utils::hash::hash_u64,
 };
 use derive_more::{Deref, DerefMut, Display};
 use serde::{Deserialize, Serialize};

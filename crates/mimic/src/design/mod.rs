@@ -6,10 +6,7 @@ pub mod base;
 
 pub mod prelude {
     pub use crate::{
-        common::{
-            error::ErrorTree,
-            utils::case::{Case, Casing},
-        },
+        common::error::ErrorTree,
         core::{
             Key, Value,
             traits::{

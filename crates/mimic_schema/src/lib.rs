@@ -19,9 +19,9 @@ pub mod prelude {
     };
     pub use candid::CandidType;
     pub use mimic_common::{
+        case::{Case, Casing},
         err,
         error::ErrorTree,
-        utils::case::{Case, Casing},
     };
     pub use serde::Serialize;
 }

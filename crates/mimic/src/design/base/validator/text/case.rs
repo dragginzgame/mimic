@@ -1,4 +1,5 @@
 use crate::{core::traits::Validator, design::prelude::*};
+use mimic_common::case::{Case, Casing};
 
 ///
 /// Kebab

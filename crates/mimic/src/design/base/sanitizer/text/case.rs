@@ -1,5 +1,5 @@
 use crate::{core::traits::Sanitizer, design::prelude::*};
-use mimic_common::utils::case::{Case, Casing};
+use mimic_common::case::{Case, Casing};
 
 ///
 /// Kebab

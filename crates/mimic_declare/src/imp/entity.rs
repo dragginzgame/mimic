@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use mimic_common::utils::case::{Case, Casing};
+use mimic_common::case::{Case, Casing};
 
 ///
 /// EntityKindTrait
@@ -34,7 +34,7 @@ impl Imp<Entity> for EntityKindTrait {
             type Store = #store;
             type Canister = <Self::Store as ::mimic::core::traits::StoreKind>::Canister;
 
-            const ENTITY_ID: u64 = ::mimic::common::utils::hash::fnv1a_64(Self::PATH.as_bytes());
+            const ENTITY_ID: u64 = ::mimic::core::hash::fnv1a_64(Self::PATH.as_bytes());
             const PRIMARY_KEY: &'static str = #pk_field;
             const FIELDS: &'static [&'static str]  = &[ #( Self::#field_refs ),* ];
             const INDEXES: &'static [&'static ::mimic::schema::node::Index]  = &[#(&#indexes),*];

@@ -4,7 +4,7 @@ use crate::{
     node::Def,
     schema_traits::{Trait, TraitList},
 };
-use mimic_common::utils::case::{Case, Casing};
+use mimic_common::case::{Case, Casing};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 use syn::Ident;

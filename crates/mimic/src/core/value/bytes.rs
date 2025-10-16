@@ -1,5 +1,5 @@
 use crate::core::value::Value;
-use mimic_common::utils::hash::Xxh3;
+use canic::utils::hash::Xxh3;
 
 ///
 /// Canonical Byte Representation

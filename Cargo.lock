@@ -119,9 +119,9 @@ dependencies = [
 
 [[package]]
 name = "canic"
-version = "0.2.6"
+version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06790e60edf763c8b01581dfa293e5902d19a2a8258e47c349a552f5c2daedd2"
+checksum = "cb00a899cb79d137b5b7ae7fcea59a0a396a26508ed4d4113f467e79f31d695d"
 dependencies = [
  "candid",
  "ctor",
@@ -142,6 +142,7 @@ dependencies = [
  "thiserror 2.0.17",
  "tinyrand",
  "toml",
+ "xxhash-rust",
 ]
 
 [[package]]
@@ -896,7 +897,6 @@ dependencies = [
  "convert_case 0.8.0",
  "derive_more",
  "serde",
- "xxhash-rust",
 ]
 
 [[package]]

@@ -3,7 +3,7 @@ use crate::{
     node::Entity,
     traits::HasDef,
 };
-use mimic_common::utils::case::{Case, Casing};
+use mimic_common::case::{Case, Casing};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 

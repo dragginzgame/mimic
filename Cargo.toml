@@ -47,7 +47,6 @@ test_design = { path = "crates/mimic_tests/design" }
 thiserror = "2.0"
 # removed std because it imports rand.  serde feature doesn't compile without it
 ulid = { version = "1.2", default-features = false }
-xxhash-rust = { version = "0.8", default-features = false, features = ["xxh3"] }
 
 # clippy
 [workspace.lints.clippy]
