@@ -1,4 +1,5 @@
 use crate::{Error, core::CoreError};
+use canic::core::serialize::{deserialize as canic_deserialize, serialize as canic_serialize};
 use serde::{Serialize, de::DeserializeOwned};
 use thiserror::Error as ThisError;
 
@@ -9,7 +10,7 @@ use thiserror::Error as ThisError;
 #[derive(Debug, ThisError)]
 pub enum SerializeError {
     #[error(transparent)]
-    SerializeError(#[from] canic::utils::cbor::SerializeError),
+    SerializeError(#[from] canic::Error),
 }
 
 impl From<SerializeError> for Error {
@@ -24,7 +25,7 @@ pub fn serialize<T>(ty: &T) -> Result<Vec<u8>, Error>
 where
     T: Serialize,
 {
-    canic::utils::cbor::serialize(ty)
+    canic_serialize(ty)
         .map_err(SerializeError::from)
         .map_err(Error::from)
 }
@@ -34,7 +35,7 @@ pub fn deserialize<T>(bytes: &[u8]) -> Result<T, Error>
 where
     T: DeserializeOwned,
 {
-    canic::utils::cbor::deserialize(bytes)
+    canic_deserialize(bytes)
         .map_err(SerializeError::from)
         .map_err(Error::from)
 }
