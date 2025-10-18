@@ -23,9 +23,6 @@ pub struct Item {
 
     #[serde(default, skip_serializing_if = "Not::not")]
     pub indirect: bool,
-
-    #[serde(default, skip_serializing_if = "Not::not")]
-    pub todo: bool,
 }
 
 impl Item {
@@ -45,21 +42,6 @@ impl ValidateNode for Item {
                 // cannot be an entity
                 if schema.check_node_as::<Entity>(path).is_ok() {
                     err!(errs, "a non-relation Item cannot reference an Entity");
-                }
-
-                // todo
-                if let Some(node) = schema.get_node(path) {
-                    match node.get_type() {
-                        Some(tnode) => {
-                            if !self.todo && tnode.ty().todo {
-                                err!(
-                                    errs,
-                                    "you must specify todo if targeting a todo flagged item ({path})",
-                                );
-                            }
-                        }
-                        None => err!(errs, "node is not a valid type"),
-                    }
                 }
             }
 

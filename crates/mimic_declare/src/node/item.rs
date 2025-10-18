@@ -26,9 +26,6 @@ pub struct Item {
 
     #[darling(default)]
     pub indirect: bool,
-
-    #[darling(default)]
-    pub todo: bool,
 }
 
 impl Item {
@@ -67,7 +64,6 @@ impl HasSchemaPart for Item {
         let validators = quote_slice(&self.validators, TypeValidator::schema_part);
         let sanitizers = quote_slice(&self.sanitizers, TypeSanitizer::schema_part);
         let indirect = self.indirect;
-        let todo = self.todo;
 
         quote! {
             ::mimic::schema::node::Item{
@@ -77,7 +73,6 @@ impl HasSchemaPart for Item {
                 validators: #validators,
                 sanitizers: #sanitizers,
                 indirect: #indirect,
-                todo: #todo,
             }
         }
     }

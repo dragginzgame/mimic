@@ -73,27 +73,6 @@ pub struct EnumUnspecified {}
 pub struct DecimalNewtype {}
 
 ///
-/// TodoUnit
-///
-
-#[newtype(item(prim = "Unit", todo), primitive = "Unit")]
-pub struct TodoUnit {}
-
-///
-/// TodoTarget
-///
-
-#[newtype(item(todo, is = "Todo"), primitive = "Nat8")]
-pub struct TodoTarget {}
-
-///
-/// Todo
-///
-
-#[newtype(ty(todo), item(prim = "Nat8"), primitive = "Nat8")]
-pub struct Todo {}
-
-///
 /// Negative
 /// (just to check on the rust-analyzer error)
 ///

@@ -8,7 +8,7 @@ use crate::design::{
 ///
 /// - Trim
 /// - Length: 1–100
-/// - Allowed: letters, digits, spaces, commas, periods, hyphens, apostrophes, #  TODO
+/// - Allowed: letters, digits, spaces, commas, periods, hyphens, apostrophes, TODO
 ///
 
 #[newtype(

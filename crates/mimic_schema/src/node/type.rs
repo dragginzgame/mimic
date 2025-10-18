@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use std::ops::Not;
 
 ///
 /// Type
@@ -12,9 +11,6 @@ pub struct Type {
 
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub validators: &'static [TypeValidator],
-
-    #[serde(skip_serializing_if = "Not::not")]
-    pub todo: bool,
 }
 
 impl ValidateNode for Type {}

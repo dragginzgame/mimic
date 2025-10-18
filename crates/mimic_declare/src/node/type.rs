@@ -6,9 +6,6 @@ use crate::prelude::*;
 
 #[derive(Clone, Debug, Default, FromMeta)]
 pub struct Type {
-    #[darling(default)]
-    pub todo: bool,
-
     #[darling(multiple, rename = "sanitizer")]
     pub sanitizers: Vec<TypeSanitizer>,
 
@@ -20,13 +17,11 @@ impl HasSchemaPart for Type {
     fn schema_part(&self) -> TokenStream {
         let sanitizers = quote_slice(&self.sanitizers, TypeSanitizer::schema_part);
         let validators = quote_slice(&self.validators, TypeValidator::schema_part);
-        let todo = self.todo;
 
         quote! {
             ::mimic::schema::node::Type {
                 sanitizers: #sanitizers,
                 validators: #validators,
-                todo: #todo,
             }
         }
     }
