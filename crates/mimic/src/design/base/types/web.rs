@@ -1,4 +1,7 @@
-use crate::design::{base::validator, prelude::*};
+use crate::design::{
+    base::{sanitizer, validator},
+    prelude::*,
+};
 
 ///
 /// MimeType
@@ -7,7 +10,10 @@ use crate::design::{base::validator, prelude::*};
 #[newtype(
     primitive = "Text",
     item(prim = "Text"),
-    ty(validator(path = "validator::web::MimeType"))
+    ty(
+        sanitizer(path = "sanitizer::web::MimeType"),
+        validator(path = "validator::web::MimeType"),
+    )
 )]
 pub struct MimeType {}
 
@@ -18,6 +24,9 @@ pub struct MimeType {}
 #[newtype(
     primitive = "Text",
     item(prim = "Text"),
-    ty(validator(path = "validator::web::Url"))
+    ty(
+        sanitizer(path = "sanitizer::web::Url"),
+        validator(path = "validator::web::Url"),
+    )
 )]
 pub struct Url {}

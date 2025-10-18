@@ -5,8 +5,9 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.24.15] - 2025-10-18
+## [0.24.16] - 2025-10-18
 - removed todo functionality as it didn't feel like it was part of the data model
+- added web::{Url, MimeType} sanitizers
 
 ## [0.24.13] - 2025-10-16
 - changed create() to insert() to align naming with SQL, as potentially one day the query and storage
