@@ -10,6 +10,7 @@ doctest = false
 [dependencies]
 candid = { workspace = true }
 ctor = { workspace = true }
+chrono = { workspace = true }
 derive_more = { workspace = true }
 canic = { workspace = true }
 mimic_build = { workspace = true }

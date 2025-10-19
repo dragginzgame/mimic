@@ -5,7 +5,7 @@ use crate::core::{
     Key,
     traits::{FieldValue, NumFromPrimitive},
     types::{
-        Decimal, Duration, E8s, E18s, Float32, Float64, Int, Int128, Nat, Nat128, Principal,
+        Date, Decimal, Duration, E8s, E18s, Float32, Float64, Int, Int128, Nat, Nat128, Principal,
         Subaccount, Timestamp, Ulid,
     },
 };
@@ -74,8 +74,6 @@ impl ValueEnum {
 /// Value
 /// can be used in WHERE statements
 ///
-/// Cheatsheet
-///
 /// None        → the field’s value is Option::None (i.e., SQL NULL).
 /// Unit        → internal placeholder for RHS; not a real value.
 /// Unsupported → the field exists but isn’t filterable/indexable.
@@ -85,6 +83,7 @@ impl ValueEnum {
 pub enum Value {
     Blob(Vec<u8>),
     Bool(bool),
+    Date(Date),
     Decimal(Decimal),
     Duration(Duration),
     Enum(ValueEnum),
@@ -169,6 +168,7 @@ impl Value {
         match self {
             Self::Blob(_) => ValueTag::Blob,
             Self::Bool(_) => ValueTag::Bool,
+            Self::Date(_) => ValueTag::Date,
             Self::Decimal(_) => ValueTag::Decimal,
             Self::Duration(_) => ValueTag::Duration,
             Self::Enum(_) => ValueTag::Enum,
@@ -507,6 +507,7 @@ impl PartialOrd for Value {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         match (self, other) {
             (Self::Bool(a), Self::Bool(b)) => a.partial_cmp(b),
+            (Self::Date(a), Self::Date(b)) => a.partial_cmp(b),
             (Self::Decimal(a), Self::Decimal(b)) => a.partial_cmp(b),
             (Self::Duration(a), Self::Duration(b)) => a.partial_cmp(b),
             (Self::E8s(a), Self::E8s(b)) => a.partial_cmp(b),
@@ -514,12 +515,14 @@ impl PartialOrd for Value {
             (Self::Float32(a), Self::Float32(b)) => a.partial_cmp(b),
             (Self::Float64(a), Self::Float64(b)) => a.partial_cmp(b),
             (Self::Int(a), Self::Int(b)) => a.partial_cmp(b),
+            (Self::Int128(a), Self::Int128(b)) => a.partial_cmp(b),
             (Self::IntBig(a), Self::IntBig(b)) => a.partial_cmp(b),
             (Self::Principal(a), Self::Principal(b)) => a.partial_cmp(b),
             (Self::Subaccount(a), Self::Subaccount(b)) => a.partial_cmp(b),
             (Self::Text(a), Self::Text(b)) => a.partial_cmp(b),
             (Self::Timestamp(a), Self::Timestamp(b)) => a.partial_cmp(b),
             (Self::Uint(a), Self::Uint(b)) => a.partial_cmp(b),
+            (Self::Uint128(a), Self::Uint128(b)) => a.partial_cmp(b),
             (Self::UintBig(a), Self::UintBig(b)) => a.partial_cmp(b),
             (Self::Ulid(a), Self::Ulid(b)) => a.partial_cmp(b),
 
@@ -538,28 +541,29 @@ impl PartialOrd for Value {
 pub enum ValueTag {
     Blob = 1,
     Bool = 2,
-    Decimal = 3,
-    Duration = 4,
-    Enum = 5,
-    E8s = 6,
-    E18s = 7,
-    Float32 = 8,
-    Float64 = 9,
-    Int = 10,
-    Int128 = 11,
-    IntBig = 12,
-    List = 13,
-    None = 14,
-    Principal = 15,
-    Subaccount = 16,
-    Text = 17,
-    Timestamp = 18,
-    Uint = 19,
-    Uint128 = 20,
-    UintBig = 21,
-    Ulid = 22,
-    Unit = 23,
-    Unsupported = 24,
+    Date = 3,
+    Decimal = 4,
+    Duration = 5,
+    Enum = 6,
+    E8s = 7,
+    E18s = 8,
+    Float32 = 9,
+    Float64 = 10,
+    Int = 11,
+    Int128 = 12,
+    IntBig = 13,
+    List = 14,
+    None = 15,
+    Principal = 16,
+    Subaccount = 17,
+    Text = 18,
+    Timestamp = 19,
+    Uint = 20,
+    Uint128 = 21,
+    UintBig = 22,
+    Ulid = 23,
+    Unit = 24,
+    Unsupported = 25,
 }
 
 impl ValueTag {

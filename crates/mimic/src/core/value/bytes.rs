@@ -6,6 +6,10 @@ use canic::utils::hash::Xxh3;
 ///
 
 #[inline]
+fn feed_i32(h: &mut Xxh3, x: i32) {
+    h.update(&x.to_be_bytes());
+}
+#[inline]
 fn feed_i64(h: &mut Xxh3, x: i64) {
     h.update(&x.to_be_bytes());
 }
@@ -71,6 +75,7 @@ impl Value {
             Self::Bool(b) => {
                 feed_u8(h, u8::from(*b));
             }
+            Self::Date(d) => feed_i32(h, d.get()),
             Self::Decimal(d) => {
                 // encode (sign, scale, mantissa) deterministically:
                 feed_u8(h, u8::from(d.is_sign_negative()));

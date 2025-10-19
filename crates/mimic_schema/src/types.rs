@@ -45,6 +45,7 @@ impl ToTokens for Cardinality {
 pub enum Primitive {
     Blob,
     Bool,
+    Date,
     Decimal,
     Duration,
     E8s,
@@ -97,7 +98,8 @@ impl Primitive {
     pub const fn supports_num_cast(self) -> bool {
         matches!(
             self,
-            Self::Decimal
+            Self::Date
+                | Self::Decimal
                 | Self::Duration
                 | Self::E8s
                 | Self::E18s
@@ -180,10 +182,10 @@ impl Primitive {
         match self {
             Self::E18s => "u128",
             Self::Float32 => "f32",
-            Self::Decimal | Self::Float64 => "f64",
+            Self::Float64 | Self::Decimal => "f64",
             Self::Int8 => "i8",
             Self::Int16 => "i16",
-            Self::Int32 => "i32",
+            Self::Int32 | Self::Date => "i32",
             Self::Int64 => "i64",
             Self::Nat8 => "u8",
             Self::Nat16 => "u16",

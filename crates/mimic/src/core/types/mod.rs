@@ -1,4 +1,5 @@
 mod blob;
+mod date;
 mod decimal;
 mod duration;
 mod e18s;
@@ -13,6 +14,7 @@ mod ulid;
 mod unit;
 
 pub use blob::*;
+pub use date::*;
 pub use decimal::*;
 pub use duration::*;
 pub use e8s::*;

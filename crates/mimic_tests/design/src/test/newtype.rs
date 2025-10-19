@@ -7,6 +7,13 @@ pub(crate) mod prelude {
 pub use prelude::*;
 
 ///
+/// Date
+///
+
+#[newtype(primitive = "Date", item(prim = "Date"))]
+pub struct Date {}
+
+///
 /// Float32
 ///
 
