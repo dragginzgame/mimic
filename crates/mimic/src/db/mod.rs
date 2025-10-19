@@ -108,14 +108,14 @@ impl<C: CanisterKind> Clone for Db<C> {
 /// inside the database handle
 ///
 
-pub struct DbSession<'a, C: CanisterKind> {
-    db: &'a Db<C>,
+pub struct DbSession<C: CanisterKind> {
+    db: Db<C>,
     debug: bool,
 }
 
-impl<'a, C: CanisterKind> DbSession<'a, C> {
+impl<C: CanisterKind> DbSession<C> {
     #[must_use]
-    pub const fn new(db: &'a Db<C>) -> Self {
+    pub const fn new(db: Db<C>) -> Self {
         Self { db, debug: false }
     }
 
@@ -131,7 +131,7 @@ impl<'a, C: CanisterKind> DbSession<'a, C> {
 
     /// Get a [`LoadExecutor`] for building and executing queries that read entities.
     #[must_use]
-    pub const fn load<E>(&self) -> LoadExecutor<'_, E>
+    pub const fn load<E>(&self) -> LoadExecutor<E>
     where
         E: EntityKind<Canister = C>,
     {
@@ -142,7 +142,7 @@ impl<'a, C: CanisterKind> DbSession<'a, C> {
     ///
     /// Normally you will use the higher-level `create/replace/update` shortcuts instead.
     #[must_use]
-    pub const fn save<E>(&self) -> SaveExecutor<'_, E>
+    pub const fn save<E>(&self) -> SaveExecutor<E>
     where
         E: EntityKind<Canister = C>,
     {
@@ -151,7 +151,7 @@ impl<'a, C: CanisterKind> DbSession<'a, C> {
 
     /// Get a [`DeleteExecutor`] for deleting entities by key or query.
     #[must_use]
-    pub const fn delete<E>(&self) -> DeleteExecutor<'_, E>
+    pub const fn delete<E>(&self) -> DeleteExecutor<E>
     where
         E: EntityKind<Canister = C>,
     {

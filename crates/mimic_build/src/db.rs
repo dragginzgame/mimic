@@ -106,8 +106,8 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
 
         /// Global accessor (fat handle) for this canister’s DB
         #[must_use]
-        pub const fn db() -> ::mimic::db::DbSession<'static, #canister_path> {
-            ::mimic::db::DbSession::new(&DB)
+        pub const fn db() -> ::mimic::db::DbSession<#canister_path> {
+            ::mimic::db::DbSession::new(DB)
         }
     }
 }

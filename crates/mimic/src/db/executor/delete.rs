@@ -18,15 +18,15 @@ use std::marker::PhantomData;
 ///
 
 #[derive(Clone, Copy)]
-pub struct DeleteExecutor<'a, E: EntityKind> {
-    db: &'a Db<E::Canister>,
+pub struct DeleteExecutor<E: EntityKind> {
+    db: Db<E::Canister>,
     debug: bool,
     _marker: PhantomData<E>,
 }
 
-impl<'a, E: EntityKind> DeleteExecutor<'a, E> {
+impl<E: EntityKind> DeleteExecutor<E> {
     #[must_use]
-    pub const fn new(db: &'a Db<E::Canister>, debug: bool) -> Self {
+    pub const fn new(db: Db<E::Canister>, debug: bool) -> Self {
         Self {
             db,
             debug,

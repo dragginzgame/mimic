@@ -23,15 +23,15 @@ use std::marker::PhantomData;
 ///
 
 #[derive(Clone, Copy)]
-pub struct LoadExecutor<'a, E: EntityKind> {
-    db: &'a Db<E::Canister>,
+pub struct LoadExecutor<E: EntityKind> {
+    db: Db<E::Canister>,
     debug: bool,
     _marker: PhantomData<E>,
 }
 
-impl<'a, E: EntityKind> LoadExecutor<'a, E> {
+impl<E: EntityKind> LoadExecutor<E> {
     #[must_use]
-    pub const fn new(db: &'a Db<E::Canister>, debug: bool) -> Self {
+    pub const fn new(db: Db<E::Canister>, debug: bool) -> Self {
         Self {
             db,
             debug,
