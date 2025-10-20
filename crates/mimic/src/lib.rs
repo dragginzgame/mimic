@@ -62,7 +62,7 @@ pub mod prelude {
         core::{
             Key, Value,
             traits::{EntityKind as _, Path as _, TypeView as _, View},
-            types::Ulid,
+            types::{Account, Principal, Subaccount, Ulid},
         },
         db,
         db::{executor::SaveExecutor, query::prelude::*, response::LoadCollection},
