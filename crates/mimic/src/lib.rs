@@ -62,13 +62,12 @@ pub mod prelude {
         core::{
             Key, Value,
             traits::{EntityKind as _, Path as _, TypeView as _, View},
-            types::{Account, Principal, Subaccount, Ulid},
+            types::Ulid,
         },
         db,
         db::{executor::SaveExecutor, query::prelude::*, response::LoadCollection},
         mimic_start,
     };
-    pub use ::candid::CandidType;
 }
 
 use candid::CandidType;
