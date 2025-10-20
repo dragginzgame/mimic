@@ -43,6 +43,7 @@ impl ToTokens for Cardinality {
 )]
 #[remain::sorted]
 pub enum Primitive {
+    Account,
     Blob,
     Bool,
     Date,

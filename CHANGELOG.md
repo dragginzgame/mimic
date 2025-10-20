@@ -5,6 +5,10 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.24.21] - 2025-10-19
+- added a primitive Account type as we need to start using it in indexes
+- also added Account as a potential Key type
+
 ## [0.24.19] - 2025-10-19
 - added a primitive Date type (using i32 like chrono::NaiveDate)
 

@@ -1,7 +1,7 @@
 use crate::core::{
     Value,
     traits::FieldValue,
-    types::{Principal, Subaccount, Timestamp, Ulid},
+    types::{Account, Principal, Subaccount, Timestamp, Ulid},
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
 use derive_more::Display;
@@ -18,6 +18,7 @@ use std::cmp::Ordering;
 
 #[derive(CandidType, Clone, Copy, Debug, Deserialize, Display, Eq, Hash, PartialEq, Serialize)]
 pub enum Key {
+    Account(Account),
     Int(i64),
     Principal(Principal),
     Subaccount(Subaccount),
@@ -44,12 +45,13 @@ impl Key {
 
     const fn variant_rank(&self) -> u8 {
         match self {
-            Self::Int(_) => 0,
-            Self::Principal(_) => 1,
-            Self::Subaccount(_) => 2,
-            Self::Timestamp(_) => 3,
-            Self::Uint(_) => 4,
-            Self::Ulid(_) => 5,
+            Self::Account(_) => 0,
+            Self::Int(_) => 1,
+            Self::Principal(_) => 2,
+            Self::Subaccount(_) => 3,
+            Self::Timestamp(_) => 4,
+            Self::Uint(_) => 5,
+            Self::Ulid(_) => 6,
         }
     }
 }
@@ -57,6 +59,7 @@ impl Key {
 impl FieldValue for Key {
     fn to_value(&self) -> Value {
         match self {
+            Self::Account(v) => Value::Account(*v),
             Self::Int(v) => Value::Int(*v),
             Self::Uint(v) => Value::Uint(*v),
             Self::Principal(v) => Value::Principal(*v),
@@ -115,6 +118,7 @@ impl_from_key! {
 }
 
 impl_eq_key! {
+    Account => Account,
     i64 => Int,
     u64  => Uint,
     Ulid => Ulid,
@@ -125,6 +129,7 @@ impl_eq_key! {
 impl Ord for Key {
     fn cmp(&self, other: &Self) -> Ordering {
         match (self, other) {
+            (Self::Account(a), Self::Account(b)) => Ord::cmp(a, b),
             (Self::Int(a), Self::Int(b)) => Ord::cmp(a, b),
             (Self::Principal(a), Self::Principal(b)) => Ord::cmp(a, b),
             (Self::Uint(a), Self::Uint(b)) => Ord::cmp(a, b),

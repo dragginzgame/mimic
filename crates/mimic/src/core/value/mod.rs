@@ -5,8 +5,8 @@ use crate::core::{
     Key,
     traits::{FieldValue, NumFromPrimitive},
     types::{
-        Date, Decimal, Duration, E8s, E18s, Float32, Float64, Int, Int128, Nat, Nat128, Principal,
-        Subaccount, Timestamp, Ulid,
+        Account, Date, Decimal, Duration, E8s, E18s, Float32, Float64, Int, Int128, Nat, Nat128,
+        Principal, Subaccount, Timestamp, Ulid,
     },
 };
 use candid::CandidType;
@@ -81,6 +81,7 @@ impl ValueEnum {
 
 #[derive(CandidType, Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum Value {
+    Account(Account),
     Blob(Vec<u8>),
     Bool(bool),
     Date(Date),
@@ -166,6 +167,7 @@ impl Value {
     #[must_use]
     pub const fn tag(&self) -> u8 {
         match self {
+            Self::Account(_) => ValueTag::Account,
             Self::Blob(_) => ValueTag::Blob,
             Self::Bool(_) => ValueTag::Bool,
             Self::Date(_) => ValueTag::Date,
@@ -539,31 +541,32 @@ impl PartialOrd for Value {
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ValueTag {
-    Blob = 1,
-    Bool = 2,
-    Date = 3,
-    Decimal = 4,
-    Duration = 5,
-    Enum = 6,
-    E8s = 7,
-    E18s = 8,
-    Float32 = 9,
-    Float64 = 10,
-    Int = 11,
-    Int128 = 12,
-    IntBig = 13,
-    List = 14,
-    None = 15,
-    Principal = 16,
-    Subaccount = 17,
-    Text = 18,
-    Timestamp = 19,
-    Uint = 20,
-    Uint128 = 21,
-    UintBig = 22,
-    Ulid = 23,
-    Unit = 24,
-    Unsupported = 25,
+    Account = 1,
+    Blob = 2,
+    Bool = 3,
+    Date = 4,
+    Decimal = 5,
+    Duration = 6,
+    Enum = 7,
+    E8s = 8,
+    E18s = 9,
+    Float32 = 10,
+    Float64 = 11,
+    Int = 12,
+    Int128 = 13,
+    IntBig = 14,
+    List = 15,
+    None = 16,
+    Principal = 17,
+    Subaccount = 18,
+    Text = 19,
+    Timestamp = 20,
+    Uint = 21,
+    Uint128 = 22,
+    UintBig = 23,
+    Ulid = 24,
+    Unit = 25,
+    Unsupported = 26,
 }
 
 impl ValueTag {

@@ -108,7 +108,7 @@ impl Date {
 
 impl fmt::Debug for Date {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Date({})", self)
+        write!(f, "Date({self})")
     }
 }
 

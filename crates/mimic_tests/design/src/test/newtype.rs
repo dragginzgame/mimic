@@ -7,6 +7,13 @@ pub(crate) mod prelude {
 pub use prelude::*;
 
 ///
+/// Account
+///
+
+#[newtype(primitive = "Account", item(prim = "Account"))]
+pub struct Account {}
+
+///
 /// Date
 ///
 

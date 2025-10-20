@@ -68,6 +68,9 @@ impl Value {
         feed_u8(h, self.tag());
 
         match self {
+            Self::Account(a) => {
+                feed_bytes(h, &a.to_bytes());
+            }
             Self::Blob(v) => {
                 feed_u8(h, 0x01);
                 feed_bytes(h, v);
