@@ -119,9 +119,9 @@ dependencies = [
 
 [[package]]
 name = "canic"
-version = "0.2.11"
+version = "0.2.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1779245b1f9c15deb592fba04dcc455e22f58832e4033254e34e98e988d20cb3"
+checksum = "d3cc52d7e3afea2931ac1e45f72d3dc20f4ae320d9a02129fbca877381259aca"
 dependencies = [
  "candid",
  "ctor",
