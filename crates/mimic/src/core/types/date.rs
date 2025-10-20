@@ -21,7 +21,6 @@ use std::fmt::{self, Display};
     CandidType,
     Clone,
     Copy,
-    Debug,
     Default,
     Eq,
     FromStr,
@@ -104,6 +103,12 @@ impl Date {
     #[must_use]
     fn to_naive_date(self) -> NaiveDate {
         NaiveDate::from_ymd_opt(1970, 1, 1).unwrap() + ChronoDuration::days(self.0.into())
+    }
+}
+
+impl fmt::Debug for Date {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Date({})", self)
     }
 }
 
