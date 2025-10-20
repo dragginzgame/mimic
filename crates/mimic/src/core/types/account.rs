@@ -91,6 +91,15 @@ impl FieldValue for Account {
     }
 }
 
+impl From<IcrcAccount> for Account {
+    fn from(acc: IcrcAccount) -> Self {
+        Self {
+            owner: acc.owner.into(),
+            subaccount: acc.subaccount.map(Into::into),
+        }
+    }
+}
+
 impl<P: Into<Principal>> From<P> for Account {
     fn from(owner: P) -> Self {
         Self {
