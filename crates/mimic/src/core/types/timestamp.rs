@@ -96,14 +96,14 @@ impl SanitizeAuto for Timestamp {}
 impl SanitizeCustom for Timestamp {}
 
 impl TypeView for Timestamp {
-    type View = Self;
+    type View = u64;
 
     fn to_view(&self) -> Self::View {
-        *self
+        self.0
     }
 
     fn from_view(view: Self::View) -> Self {
-        view
+        Self(view)
     }
 }
 

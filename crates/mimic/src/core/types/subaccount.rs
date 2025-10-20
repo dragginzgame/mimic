@@ -172,14 +172,14 @@ impl SanitizeCustom for Subaccount {}
 impl_storable_bounded!(Subaccount, Subaccount::STORABLE_MAX_SIZE, true);
 
 impl TypeView for Subaccount {
-    type View = Self;
+    type View = WrappedSubaccount;
 
     fn to_view(&self) -> Self::View {
-        *self
+        self.0
     }
 
     fn from_view(view: Self::View) -> Self {
-        view
+        Self(view)
     }
 }
 

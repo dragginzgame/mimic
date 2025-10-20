@@ -177,14 +177,14 @@ impl Storable for Principal {
 }
 
 impl TypeView for Principal {
-    type View = Self;
+    type View = WrappedPrincipal;
 
     fn to_view(&self) -> Self::View {
-        *self
+        self.0
     }
 
     fn from_view(view: Self::View) -> Self {
-        view
+        Self(view)
     }
 }
 

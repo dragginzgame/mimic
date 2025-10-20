@@ -183,32 +183,19 @@ impl Imp<Map> for TypeViewTrait {
 
 impl Imp<Newtype> for TypeViewTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
-        let item = &node.item;
+        let item_ty = node.item.type_part();
+        let item_ty_for_from = item_ty.clone();
         let view_ident = &node.view_ident();
-
-        let to_view = if let Some(primitive) = item.primitive
-            && primitive.supports_copy()
-        {
-            quote!(self.0)
-        } else {
-            quote!(self.0.to_view())
-        };
-
-        let from_view = if item.is_primitive() {
-            quote!(Self(view))
-        } else {
-            quote!(Self(view.into()))
-        };
 
         let q = quote! {
             type View = #view_ident;
 
             fn to_view(&self) -> Self::View {
-                #to_view
+                <#item_ty as ::mimic::core::traits::TypeView>::to_view(&self.0)
             }
 
             fn from_view(view: Self::View) -> Self {
-                #from_view
+                Self(<#item_ty_for_from as ::mimic::core::traits::TypeView>::from_view(view))
             }
         };
 

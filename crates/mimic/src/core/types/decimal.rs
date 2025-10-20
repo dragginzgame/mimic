@@ -277,6 +277,7 @@ impl SanitizeAuto for Decimal {}
 
 impl SanitizeCustom for Decimal {}
 
+// WrappedDecimal does not use CandidType
 impl TypeView for Decimal {
     type View = Self;
 

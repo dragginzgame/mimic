@@ -161,14 +161,14 @@ impl SanitizeAuto for Duration {}
 impl SanitizeCustom for Duration {}
 
 impl TypeView for Duration {
-    type View = Self;
+    type View = u64;
 
     fn to_view(&self) -> Self::View {
-        *self
+        self.0
     }
 
     fn from_view(view: Self::View) -> Self {
-        view
+        Self(view)
     }
 }
 

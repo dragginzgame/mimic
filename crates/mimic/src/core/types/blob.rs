@@ -90,14 +90,14 @@ impl SanitizeAuto for Blob {}
 impl SanitizeCustom for Blob {}
 
 impl TypeView for Blob {
-    type View = Self;
+    type View = ByteBuf;
 
     fn to_view(&self) -> Self::View {
-        self.clone()
+        self.0.clone()
     }
 
     fn from_view(view: Self::View) -> Self {
-        view
+        Self(view)
     }
 }
 

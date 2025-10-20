@@ -131,7 +131,7 @@ impl HasTypePart for Newtype {
 
     fn view_type_part(&self) -> TokenStream {
         let view_ident = self.view_ident();
-        let view_type = self.primitive.as_type();
+        let view_type = self.item.view_type_part();
 
         quote! {
             pub type #view_ident = #view_type;
