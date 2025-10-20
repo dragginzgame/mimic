@@ -52,6 +52,7 @@ pub struct Principal(WrappedPrincipal);
 
 impl Principal {
     pub const STORABLE_MAX_SIZE: u32 = 29;
+
     pub const MIN: Self = Self::from_slice(&[0x00; 29]);
     pub const MAX: Self = Self::from_slice(&[0xFF; 29]);
 
