@@ -62,10 +62,14 @@ pub mod prelude {
         core::{
             Key, Value,
             traits::{EntityKind as _, Path as _, TypeView as _, View},
-            types::Ulid,
+            types::{Decimal, Ulid},
         },
         db,
-        db::{executor::SaveExecutor, query::prelude::*, response::LoadCollection},
+        db::{
+            executor::SaveExecutor,
+            query::{self, FilterDsl, FilterExt as _, LimitExt as _, SortExt as _},
+            response::LoadCollection,
+        },
         mimic_start,
     };
 }

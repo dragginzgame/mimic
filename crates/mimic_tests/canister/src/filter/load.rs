@@ -1,5 +1,5 @@
 use mimic::{
-    core::types::{Decimal, Principal},
+    core::{Value, types::Principal},
     prelude::*,
 };
 use test_design::e2e::filter::{Filterable, FilterableEnum, FilterableEnumFake, FilterableOpt};

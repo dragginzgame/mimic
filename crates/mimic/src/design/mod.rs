@@ -3,6 +3,9 @@ pub mod base;
 ///
 /// MIMIC DESIGN PRELUDE
 ///
+/// only meant to be used in mimic design/ directories
+/// it imports too much otherwise
+///
 
 pub mod prelude {
     pub use crate::{
