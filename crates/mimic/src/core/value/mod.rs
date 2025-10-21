@@ -204,6 +204,7 @@ impl Value {
     #[must_use]
     pub const fn as_key(&self) -> Option<Key> {
         match self {
+            Self::Account(v) => Some(Key::Account(*v)),
             Self::Int(v) => Some(Key::Int(*v)),
             Self::Uint(v) => Some(Key::Uint(*v)),
             Self::Principal(v) => Some(Key::Principal(*v)),
