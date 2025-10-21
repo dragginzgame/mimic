@@ -72,6 +72,8 @@ pub mod prelude {
         },
         mimic_start,
     };
+    pub use candid::CandidType;
+    pub use serde::{Deserialize, Serialize};
 }
 
 use candid::CandidType;
