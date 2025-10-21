@@ -4,6 +4,7 @@ use crate::core::{
     types::{Account, Principal, Subaccount, Timestamp, Ulid},
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
+use canic::impl_storable_bounded;
 use derive_more::Display;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -28,9 +29,11 @@ pub enum Key {
 }
 
 impl Key {
+    pub const STORABLE_MAX_SIZE: u32 = 128;
+
     #[must_use]
-    pub const fn max_storable() -> Self {
-        Self::Principal(Principal::max_storable())
+    pub fn max_storable() -> Self {
+        Self::Account(Account::max_storable())
     }
 
     #[must_use]
@@ -143,5 +146,29 @@ impl Ord for Key {
 impl PartialOrd for Key {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(Ord::cmp(self, other))
+    }
+}
+
+impl_storable_bounded!(Key, Self::STORABLE_MAX_SIZE, false);
+
+///
+/// TESTS
+///
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::traits::Storable;
+
+    #[test]
+    fn key_max_size_is_bounded() {
+        let key = Key::max_storable();
+        let size = Storable::to_bytes(&key).len();
+
+        assert!(
+            size <= Key::STORABLE_MAX_SIZE as usize,
+            "serialized Key too large: got {size} bytes (limit {})",
+            Key::STORABLE_MAX_SIZE
+        );
     }
 }

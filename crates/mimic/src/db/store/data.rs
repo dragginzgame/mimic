@@ -65,7 +65,7 @@ pub struct DataKey {
 }
 
 impl DataKey {
-    pub const STORABLE_MAX_SIZE: u32 = 72;
+    pub const STORABLE_MAX_SIZE: u32 = 160;
 
     #[must_use]
     pub fn new<E: EntityKind>(key: impl Into<Key>) -> Self {
@@ -111,7 +111,7 @@ impl DataKey {
     }
 
     #[must_use]
-    pub const fn max_storable() -> Self {
+    pub fn max_storable() -> Self {
         Self {
             entity_id: u64::MAX,
             key: Key::max_storable(),
@@ -132,3 +132,25 @@ impl From<DataKey> for Key {
 }
 
 impl_storable_bounded!(DataKey, Self::STORABLE_MAX_SIZE, false);
+
+///
+/// TESTS
+///
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::traits::Storable;
+
+    #[test]
+    fn data_key_max_size_is_bounded() {
+        let data_key = DataKey::max_storable();
+        let size = Storable::to_bytes(&data_key).len();
+
+        assert!(
+            size <= DataKey::STORABLE_MAX_SIZE as usize,
+            "serialized DataKey too large: got {size} bytes (limit {})",
+            DataKey::STORABLE_MAX_SIZE
+        );
+    }
+}

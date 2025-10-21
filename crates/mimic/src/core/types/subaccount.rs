@@ -203,7 +203,11 @@ mod tests {
         let subaccount = Subaccount::max_storable();
         let size = Storable::to_bytes(&subaccount).len();
 
-        assert!(size <= Subaccount::STORABLE_MAX_SIZE as usize);
+        assert!(
+            size <= Subaccount::STORABLE_MAX_SIZE as usize,
+            "serialized Subaccount too large: got {size} bytes (limit {})",
+            Subaccount::STORABLE_MAX_SIZE
+        );
     }
 
     #[test]

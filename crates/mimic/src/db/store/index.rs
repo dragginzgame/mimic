@@ -375,7 +375,11 @@ mod tests {
         let index_key = IndexKey::max_storable();
         let size = Storable::to_bytes(&index_key).len();
 
-        assert!(size <= IndexKey::STORABLE_MAX_SIZE as usize);
+        assert!(
+            size <= IndexKey::STORABLE_MAX_SIZE as usize,
+            "serialized IndexKey too large: got {size} bytes (limit {})",
+            IndexKey::STORABLE_MAX_SIZE
+        );
     }
 
     #[test]
