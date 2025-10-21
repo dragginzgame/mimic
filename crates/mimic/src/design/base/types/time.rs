@@ -12,6 +12,17 @@ use crate::design::{base::sanitizer, prelude::*};
 pub struct CreatedAt {}
 
 ///
+/// UpdatedAt
+///
+
+#[newtype(
+    primitive = "Timestamp",
+    item(prim = "Timestamp"),
+    ty(sanitizer(path = "sanitizer::time::UpdatedAt"))
+)]
+pub struct UpdatedAt {}
+
+///
 /// Milliseconds
 ///
 
