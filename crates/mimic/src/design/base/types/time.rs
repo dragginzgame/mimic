@@ -2,6 +2,7 @@ use crate::design::{base::sanitizer, prelude::*};
 
 ///
 /// CreatedAt
+/// if zero gets sanitized to the current Timestamp
 ///
 
 #[newtype(
@@ -13,6 +14,7 @@ pub struct CreatedAt {}
 
 ///
 /// UpdatedAt
+/// always gets sanitized to the current Timestamp
 ///
 
 #[newtype(
