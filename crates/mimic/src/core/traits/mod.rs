@@ -52,7 +52,7 @@ pub trait CanisterKind: Kind {}
 /// EntityKind
 ///
 
-pub trait EntityKind: Kind + TypeKind + EntityLifecycle + FieldValues {
+pub trait EntityKind: Kind + TypeKind + FieldValues {
     type Store: StoreKind;
     type Canister: CanisterKind; // Self::Store::Canister shortcut
 
@@ -139,15 +139,6 @@ impl<T> TypeKind for T where
 ///
 /// OTHER TRAITS
 ///
-
-///
-/// EntityLifecycle
-///
-
-pub trait EntityLifecycle {
-    fn touch_created(&mut self, now: u64);
-    fn touch_updated(&mut self, now: u64);
-}
 
 ///
 /// FieldValues

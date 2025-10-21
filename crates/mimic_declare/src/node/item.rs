@@ -40,9 +40,24 @@ impl Item {
         }
     }
 
-    pub fn primitive(prim: Primitive) -> Self {
+    pub fn created_at() -> Self {
         Self {
-            primitive: Some(prim),
+            primitive: Some(Primitive::Timestamp),
+            sanitizers: vec![TypeSanitizer::new(
+                "mimic::design::base::sanitizer::time::CreatedAt",
+                Args::none(),
+            )],
+            ..Default::default()
+        }
+    }
+
+    pub fn updated_at() -> Self {
+        Self {
+            primitive: Some(Primitive::Timestamp),
+            sanitizers: vec![TypeSanitizer::new(
+                "mimic::design::base::sanitizer::time::UpdatedAt",
+                Args::none(),
+            )],
             ..Default::default()
         }
     }

@@ -132,6 +132,13 @@ impl ToTokens for Arg {
 #[derive(Clone, Debug, Default, Deref)]
 pub struct Args(Vec<Arg>);
 
+impl Args {
+    #[must_use]
+    pub const fn none() -> Self {
+        Self(vec![])
+    }
+}
+
 impl FromMeta for Args {
     fn from_list(items: &[NestedMeta]) -> Result<Self, DarlingError> {
         let mut args = Vec::new();

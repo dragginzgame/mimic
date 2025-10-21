@@ -9,6 +9,31 @@ pub trait Sanitize: SanitizeAuto + SanitizeCustom {}
 impl<T> Sanitize for T where T: SanitizeAuto + SanitizeCustom {}
 
 ///
+/// SanitizeContext
+///
+/// Context that can be provided during sanitization.
+/// This may include runtime or request-specific data (timestamp, mode, actor, etc.).
+///
+/// NOTE: SanitizeContext is reserved for future context-aware sanitization.
+/// The *_with() methods are currently thin wrappers that delegate to the
+/// stateless versions. In the future, we may pass runtime data (e.g. now, is_new,
+/// actor) here so sanitizers can behave contextually without changing the trait shape.
+///
+
+#[derive(Clone, Debug, Default)]
+pub struct SanitizeContext {
+    pub now: Option<u64>,
+    pub is_new: Option<bool>,
+}
+
+impl SanitizeContext {
+    #[must_use]
+    pub const fn new(now: Option<u64>, is_new: Option<bool>) -> Self {
+        Self { now, is_new }
+    }
+}
+
+///
 /// SanitizeAuto
 ///
 /// Derived code that is used to generate sanitization rules for a type and
@@ -19,8 +44,15 @@ impl<T> Sanitize for T where T: SanitizeAuto + SanitizeCustom {}
 
 pub trait SanitizeAuto {
     fn sanitize_self(&mut self) {}
-
     fn sanitize_children(&mut self) {}
+
+    fn sanitize_self_with(&mut self, _ctx: &SanitizeContext) {
+        self.sanitize_self();
+    }
+
+    fn sanitize_children_with(&mut self, _ctx: &SanitizeContext) {
+        self.sanitize_children();
+    }
 }
 
 impl<T: SanitizeAuto> SanitizeAuto for Box<T> {
@@ -96,6 +128,10 @@ impl_primitive!(SanitizeAuto);
 
 pub trait SanitizeCustom {
     fn sanitize_custom(&mut self) {}
+
+    fn sanitize_custom_with(&mut self, _ctx: &SanitizeContext) {
+        self.sanitize_custom();
+    }
 }
 
 impl<T: SanitizeCustom> SanitizeCustom for Box<T> {

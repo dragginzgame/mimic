@@ -9,7 +9,6 @@ use crate::{
     },
     obs::metrics,
 };
-use canic::utils::time::now_secs;
 use std::marker::PhantomData;
 
 ///
@@ -120,22 +119,15 @@ impl<E: EntityKind> SaveExecutor<E> {
         // on Update and Replace compare old and new data
         //
 
-        let now = now_secs();
         let data_key = DataKey::new::<E>(key);
         let old_result = ctx.with_store(|store| store.get(&data_key))?;
 
         // did anything change?
         let old = match (mode, old_result) {
-            (SaveMode::Insert | SaveMode::Replace, None) => {
-                entity.touch_created(now);
-
-                None
-            }
+            (SaveMode::Insert | SaveMode::Replace, None) => None,
 
             (SaveMode::Update | SaveMode::Replace, Some(old_bytes)) => {
                 let old = deserialize::<E>(&old_bytes)?;
-                entity.touch_updated(now);
-
                 Some(old)
             }
 

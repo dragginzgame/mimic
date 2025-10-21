@@ -1,7 +1,7 @@
 use crate::core::{
     traits::{
-        FieldValue, Inner, NumCast, NumToPrimitive, SanitizeAuto, SanitizeCustom, TypeView,
-        ValidateAuto, ValidateCustom, Visitable,
+        FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
+        TypeView, ValidateAuto, ValidateCustom, Visitable,
     },
     types::Decimal,
     value::Value,
@@ -139,6 +139,17 @@ impl Inner<Self> for E18s {
 impl NumCast for E18s {
     fn from<T: NumToPrimitive>(n: T) -> Option<Self> {
         n.to_u128().map(Self)
+    }
+}
+
+impl NumFromPrimitive for E18s {
+    #[allow(clippy::cast_sign_loss)]
+    fn from_i64(n: i64) -> Option<Self> {
+        Some(Self(n as u128))
+    }
+
+    fn from_u64(n: u64) -> Option<Self> {
+        Some(Self(n.into()))
     }
 }
 

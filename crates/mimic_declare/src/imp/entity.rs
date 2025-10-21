@@ -66,30 +66,3 @@ fn key(node: &Entity) -> TokenStream {
         }
     }
 }
-
-///
-/// EntityLifecycle
-///
-
-pub struct EntityLifecycleTrait;
-
-impl Imp<Entity> for EntityLifecycleTrait {
-    fn strategy(node: &Entity) -> Option<TraitStrategy> {
-        let q = quote! {
-            fn touch_created(&mut self, now: u64) {
-                self.created_at = now.into();
-                self.updated_at = now.into();
-            }
-
-            fn touch_updated(&mut self, now: u64) {
-                self.updated_at = now.into();
-            }
-        };
-
-        let tokens = Implementor::new(node.def(), Trait::EntityLifecycle)
-            .set_tokens(q)
-            .to_token_stream();
-
-        Some(TraitStrategy::from_impl(tokens))
-    }
-}

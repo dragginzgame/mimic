@@ -1,4 +1,15 @@
-use crate::design::prelude::*;
+use crate::design::{base::sanitizer, prelude::*};
+
+///
+/// CreatedAt
+///
+
+#[newtype(
+    primitive = "Timestamp",
+    item(prim = "Timestamp"),
+    ty(sanitizer(path = "sanitizer::time::CreatedAt"))
+)]
+pub struct CreatedAt {}
 
 ///
 /// Milliseconds

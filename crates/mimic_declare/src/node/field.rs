@@ -95,7 +95,7 @@ impl Field {
         Self {
             ident: format_ident!("created_at"),
             value: Value {
-                item: Item::primitive(Primitive::Timestamp),
+                item: Item::created_at(),
                 ..Default::default()
             },
 
@@ -107,7 +107,7 @@ impl Field {
         Self {
             ident: format_ident!("updated_at"),
             value: Value {
-                item: Item::primitive(Primitive::Timestamp),
+                item: Item::updated_at(),
                 ..Default::default()
             },
 

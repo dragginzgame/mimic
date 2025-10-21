@@ -10,6 +10,20 @@ pub trait Validate: ValidateAuto + ValidateCustom {}
 impl<T> Validate for T where T: ValidateAuto + ValidateCustom {}
 
 ///
+/// ValidateContext
+///
+/// Context that can be provided during validation.
+///
+/// NOTE: ValidateContext is reserved for future context-aware sanitization.
+/// The *_with() methods are currently thin wrappers that delegate to the
+/// stateless versions. In the future, we may pass runtime data (e.g. now, is_new,
+/// actor) here so validators can behave contextually without changing the trait shape.
+///
+
+#[derive(Clone, Debug, Default)]
+pub struct ValidateContext {}
+
+///
 /// ValidateAuto
 ///
 /// derived code that is used to generate the validation rules for a type and
@@ -26,6 +40,14 @@ pub trait ValidateAuto {
 
     fn validate_children(&self) -> Result<(), ErrorTree> {
         Ok(())
+    }
+
+    fn validate_self_with(&self, _ctx: &ValidateContext) -> Result<(), ErrorTree> {
+        self.validate_self()
+    }
+
+    fn validate_children_with(&self, _ctx: &ValidateContext) -> Result<(), ErrorTree> {
+        self.validate_children()
     }
 }
 
@@ -97,6 +119,10 @@ impl_primitive!(ValidateAuto);
 pub trait ValidateCustom {
     fn validate_custom(&self) -> Result<(), ErrorTree> {
         Ok(())
+    }
+
+    fn validate_custom_with(&self, _ctx: &ValidateContext) -> Result<(), ErrorTree> {
+        self.validate_custom()
     }
 }
 

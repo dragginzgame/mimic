@@ -1,8 +1,8 @@
 use crate::core::{
     Value,
     traits::{
-        FieldValue, Inner, NumCast, NumToPrimitive, SanitizeAuto, SanitizeCustom, TypeView,
-        ValidateAuto, ValidateCustom, Visitable,
+        FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
+        TypeView, ValidateAuto, ValidateCustom, Visitable,
     },
 };
 use candid::CandidType;
@@ -39,6 +39,7 @@ use serde::{Deserialize, Serialize};
 pub struct Timestamp(u64);
 
 impl Timestamp {
+    pub const EPOCH: Self = Self(u64::MIN);
     pub const MIN: Self = Self(u64::MIN);
     pub const MAX: Self = Self(u64::MAX);
 
@@ -78,6 +79,17 @@ impl Inner<Self> for Timestamp {
 impl NumCast for Timestamp {
     fn from<T: NumToPrimitive>(n: T) -> Option<Self> {
         n.to_u64().map(Self)
+    }
+}
+
+impl NumFromPrimitive for Timestamp {
+    #[allow(clippy::cast_sign_loss)]
+    fn from_i64(n: i64) -> Option<Self> {
+        Some(Self(n as u64))
+    }
+
+    fn from_u64(n: u64) -> Option<Self> {
+        Some(Self(n))
     }
 }
 
