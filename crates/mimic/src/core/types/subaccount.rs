@@ -108,7 +108,7 @@ impl Display for Subaccount {
 
 impl FieldValue for Subaccount {
     fn to_value(&self) -> Value {
-        Value::Text(self.to_string())
+        Value::Subaccount(*self)
     }
 }
 
