@@ -35,7 +35,7 @@ impl Entity {
     }
 
     pub fn create_ident(&self) -> Ident {
-        format_ident!("{}New", self.def.ident())
+        format_ident!("{}Create", self.def.ident())
     }
 
     pub fn update_ident(&self) -> Ident {
