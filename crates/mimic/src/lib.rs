@@ -61,7 +61,7 @@ pub mod prelude {
     pub use crate::{
         core::{
             Key, Value,
-            traits::{EntityKind as _, Path as _, TypeView as _, View},
+            traits::{Create, EntityKind as _, Path as _, TypeView as _, View},
             types::{Decimal, Ulid},
         },
         db,
