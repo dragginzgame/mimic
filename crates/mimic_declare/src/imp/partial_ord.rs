@@ -12,9 +12,12 @@ pub struct PartialOrdTrait {}
 
 impl Imp<Newtype> for PartialOrdTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
-        let ident = &node.def.ident();
-        let prim = &node.primitive.as_type();
+        let primitive = node.primitive.as_ref()?; // bail early if no primitive
 
+        let ident = &node.def.ident();
+        let prim = &primitive.as_type();
+
+        // quote
         let tokens = quote! {
             impl PartialOrd<#prim> for #ident {
                 fn partial_cmp(&self, other: &#prim) -> Option<::std::cmp::Ordering> {

@@ -12,10 +12,13 @@ pub struct NumCastTrait {}
 
 impl Imp<Newtype> for NumCastTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
-        let num_fn = node.primitive.num_cast_fn();
+        let primitive = node.primitive.as_ref()?; // bail early if no primitive
+
+        let num_fn = primitive.num_cast_fn();
         let to_method = format_ident!("to_{}", num_fn);
         let from_method = format_ident!("from_{}", num_fn);
 
+        // quote
         let q = quote! {
             fn from<T: ::mimic::core::traits::NumToPrimitive>(n: T) -> Option<Self> {
                 let num = n.#to_method()?;
@@ -43,8 +46,11 @@ pub struct NumFromPrimitiveTrait {}
 
 impl Imp<Newtype> for NumFromPrimitiveTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
+        let primitive = node.primitive.as_ref()?; // bail early if no primitive
+
         let item = &node.item.type_part();
 
+        // quote
         let mut q = quote! {
             fn from_i64(n: i64) -> Option<Self> {
                 #item::from_i64(n).map(Self)
@@ -55,8 +61,8 @@ impl Imp<Newtype> for NumFromPrimitiveTrait {
             }
         };
 
-        // Decimal
-        if node.primitive.is_float() {
+        // floats
+        if primitive.is_float() {
             q.extend(quote! {
                 fn from_f64(n: f64) -> Option<Self> {
                     #item::from_f64(n).map(Self)

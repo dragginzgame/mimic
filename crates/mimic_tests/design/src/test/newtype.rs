@@ -21,6 +21,13 @@ pub struct Account {}
 pub struct Date {}
 
 ///
+/// Decimal
+///
+
+#[newtype(item(prim = "Decimal"), primitive = "Decimal")]
+pub struct Decimal {}
+
+///
 /// Float32
 ///
 
@@ -110,7 +117,17 @@ pub struct Ulid {}
 pub struct Unit {}
 
 ///
-///  TESTS
+/// Set
+///
+
+#[newtype(item(is = "SetInner"))]
+pub struct Set {}
+
+#[set(item(prim = "Nat8"))]
+pub struct SetInner {}
+
+///
+/// TESTS
 ///
 
 #[cfg(test)]

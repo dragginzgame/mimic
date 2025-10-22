@@ -9,7 +9,7 @@ pub struct Newtype {
     #[darling(default, skip)]
     pub def: Def,
 
-    pub primitive: Primitive,
+    pub primitive: Option<Primitive>,
     pub item: Item,
 
     #[darling(default)]
@@ -58,36 +58,38 @@ impl HasTraits for Newtype {
         traits.extend(vec![Trait::Deref, Trait::DerefMut, Trait::Inner]);
 
         // primitive traits
-        if self.primitive.supports_arithmetic() {
-            traits.extend(vec![
-                Trait::Add,
-                Trait::AddAssign,
-                Trait::Mul,
-                Trait::MulAssign,
-                Trait::Sub,
-                Trait::SubAssign,
-                Trait::Sum,
-            ]);
-        }
-        if self.primitive.supports_copy() {
-            traits.add(Trait::Copy);
-        }
-        if self.primitive.supports_display() {
-            traits.add(Trait::Display);
-        }
-        if self.primitive.supports_hash() {
-            traits.add(Trait::Hash);
-        }
-        if self.primitive.supports_num_cast() {
-            traits.extend(vec![
-                Trait::NumCast,
-                Trait::NumFromPrimitive,
-                Trait::NumToPrimitive,
-            ]);
-        }
-        if self.primitive.supports_ord() {
-            traits.add(Trait::Ord);
-            traits.add(Trait::PartialOrd);
+        if let Some(primitive) = self.primitive {
+            if primitive.supports_arithmetic() {
+                traits.extend(vec![
+                    Trait::Add,
+                    Trait::AddAssign,
+                    Trait::Mul,
+                    Trait::MulAssign,
+                    Trait::Sub,
+                    Trait::SubAssign,
+                    Trait::Sum,
+                ]);
+            }
+            if primitive.supports_copy() {
+                traits.add(Trait::Copy);
+            }
+            if primitive.supports_display() {
+                traits.add(Trait::Display);
+            }
+            if primitive.supports_hash() {
+                traits.add(Trait::Hash);
+            }
+            if primitive.supports_num_cast() {
+                traits.extend(vec![
+                    Trait::NumCast,
+                    Trait::NumFromPrimitive,
+                    Trait::NumToPrimitive,
+                ]);
+            }
+            if primitive.supports_ord() {
+                traits.add(Trait::Ord);
+                traits.add(Trait::PartialOrd);
+            }
         }
 
         traits.list()

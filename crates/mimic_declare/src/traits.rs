@@ -63,10 +63,9 @@ pub trait HasMacro: HasSchema + HasTraits + HasType {
                 }
                 None => {
                     // No impl strategy; fallback to deriving the trait if it supports it
+                    // otherwise the trait has returned no strategy, so we skip
                     if let Some(path) = tr.derive_path() {
                         derived_traits.push(path);
-                    } else if attr.is_none() {
-                        panic!("Trait `{tr:?}` has no impl, derive, or attributes.");
                     }
                 }
             }

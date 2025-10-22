@@ -66,13 +66,6 @@ pub struct EnumSorted {}
 pub struct EnumUnspecified {}
 
 ///
-/// DecimalNewtype
-///
-
-#[newtype(item(prim = "Decimal"), primitive = "Decimal")]
-pub struct DecimalNewtype {}
-
-///
 /// Negative
 /// (just to check on the rust-analyzer error)
 ///

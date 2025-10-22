@@ -5,6 +5,9 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.24.35] - 2025-10-22
+- it wasn't possible to create a newtype around a non-Primitive but that functionality is now back
+
 ## [0.24.29] - 2025-10-21
 - removed the EntityLifecycle traits, and now we just have a simple CreatedAt/UpdatedAt
 that mutates via the sanitizer that can be used multiple places
