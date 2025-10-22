@@ -70,22 +70,22 @@ impl HasTraits for Set {
     }
 }
 
-impl HasType for Set {}
-
-impl HasTypePart for Set {
+impl HasType for Set {
     fn type_part(&self) -> TokenStream {
         let ident = self.def.ident();
-        let item = &self.item.type_part();
+        let item = &self.item.type_expr();
 
         quote! {
             #[repr(transparent)]
             pub struct #ident(pub ::std::collections::HashSet<#item>);
         }
     }
+}
 
-    fn view_type_part(&self) -> TokenStream {
+impl HasViewTypes for Set {
+    fn view_parts(&self) -> TokenStream {
         let view_ident = &self.view_ident();
-        let item_view = HasTypePart::view_type_part(&self.item);
+        let item_view = HasTypeExpr::view_type_expr(&self.item);
 
         quote! {
             pub type #view_ident = Vec<#item_view>;

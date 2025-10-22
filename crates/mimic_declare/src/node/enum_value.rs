@@ -68,12 +68,10 @@ impl HasTraits for EnumValue {
     }
 }
 
-impl HasType for EnumValue {}
-
-impl HasTypePart for EnumValue {
+impl HasType for EnumValue {
     fn type_part(&self) -> TokenStream {
         let ident = self.def.ident();
-        let variants = self.variants.iter().map(HasTypePart::type_part);
+        let variants = self.variants.iter().map(HasTypeExpr::type_expr);
 
         quote! {
             pub enum #ident {
@@ -81,11 +79,13 @@ impl HasTypePart for EnumValue {
             }
         }
     }
+}
 
-    fn view_type_part(&self) -> TokenStream {
+impl HasViewTypes for EnumValue {
+    fn view_parts(&self) -> TokenStream {
         let ident = self.def.ident();
         let view_ident = self.view_ident();
-        let view_variants = self.variants.iter().map(HasTypePart::view_type_part);
+        let view_variants = self.variants.iter().map(HasTypeExpr::view_type_expr);
         let derives = self.view_derives();
 
         quote! {
@@ -165,8 +165,8 @@ impl HasSchemaPart for EnumValueVariant {
     }
 }
 
-impl HasTypePart for EnumValueVariant {
-    fn type_part(&self) -> TokenStream {
+impl HasTypeExpr for EnumValueVariant {
+    fn type_expr(&self) -> TokenStream {
         let ident = self.effective_ident();
         let default_attr = if self.default {
             quote!(#[default])
@@ -180,7 +180,7 @@ impl HasTypePart for EnumValueVariant {
         }
     }
 
-    fn view_type_part(&self) -> TokenStream {
+    fn view_type_expr(&self) -> TokenStream {
         let ident = self.effective_ident();
 
         quote! {

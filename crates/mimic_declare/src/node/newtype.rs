@@ -118,22 +118,22 @@ impl HasTraits for Newtype {
     }
 }
 
-impl HasType for Newtype {}
-
-impl HasTypePart for Newtype {
+impl HasType for Newtype {
     fn type_part(&self) -> TokenStream {
         let ident = self.def.ident();
-        let item = &self.item.type_part();
+        let item = &self.item.type_expr();
 
         quote! {
             #[repr(transparent)]
             pub struct #ident(pub #item);
         }
     }
+}
 
-    fn view_type_part(&self) -> TokenStream {
+impl HasViewTypes for Newtype {
+    fn view_parts(&self) -> TokenStream {
         let view_ident = self.view_ident();
-        let view_type = self.item.view_type_part();
+        let view_type = self.item.view_type_expr();
 
         quote! {
             pub type #view_ident = #view_type;

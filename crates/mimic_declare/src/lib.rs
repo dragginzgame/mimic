@@ -29,8 +29,8 @@ mod prelude {
         node::*,
         schema_traits::{Trait, TraitList, Traits},
         traits::{
-            HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypePart,
-            SchemaNodeKind,
+            HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypeExpr,
+            HasViewTypes, SchemaNodeKind,
         },
     };
     pub use mimic_schema::types::{Cardinality, Primitive, StoreType};

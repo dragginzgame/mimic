@@ -42,7 +42,7 @@ impl Imp<EnumValue> for FromTrait {
 
 impl Imp<List> for FromTrait {
     fn strategy(node: &List) -> Option<TraitStrategy> {
-        let item = &node.item.type_part();
+        let item = &node.item.type_expr();
 
         let q = quote! {
             fn from(entries: Vec<I>) -> Self {
@@ -70,8 +70,8 @@ impl Imp<List> for FromTrait {
 
 impl Imp<Map> for FromTrait {
     fn strategy(node: &Map) -> Option<TraitStrategy> {
-        let key = &node.key.type_part();
-        let value = &node.value.type_part();
+        let key = &node.key.type_expr();
+        let value = &node.value.type_expr();
 
         let q = quote! {
             fn from(entries: Vec<(IK, IV)>) -> Self {
@@ -101,7 +101,7 @@ impl Imp<Map> for FromTrait {
 
 impl Imp<Newtype> for FromTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
-        let item = &node.item.type_part();
+        let item = &node.item.type_expr();
 
         let q = quote! {
             fn from(t: T) -> Self {
@@ -136,7 +136,7 @@ impl Imp<Record> for FromTrait {
 
 impl Imp<Set> for FromTrait {
     fn strategy(node: &Set) -> Option<TraitStrategy> {
-        let item = &node.item.type_part();
+        let item = &node.item.type_expr();
 
         let q = quote! {
             fn from(entries: Vec<I>) -> Self {

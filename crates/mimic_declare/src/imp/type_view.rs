@@ -165,8 +165,8 @@ impl Imp<List> for TypeViewTrait {
 impl Imp<Map> for TypeViewTrait {
     fn strategy(node: &Map) -> Option<TraitStrategy> {
         let view_ident = &node.view_ident();
-        let key = &node.key.type_part();
-        let value = &node.value.type_part();
+        let key = &node.key.type_expr();
+        let value = &node.value.type_expr();
 
         // tokens
         let q = quote_typeview_map(view_ident, &quote!(#key), &quote!(#value));
@@ -183,7 +183,7 @@ impl Imp<Map> for TypeViewTrait {
 
 impl Imp<Newtype> for TypeViewTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
-        let item_ty = node.item.type_part();
+        let item_ty = node.item.type_expr();
         let item_ty_for_from = item_ty.clone();
         let view_ident = &node.view_ident();
 

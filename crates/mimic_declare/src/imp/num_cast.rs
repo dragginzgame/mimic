@@ -48,7 +48,7 @@ impl Imp<Newtype> for NumFromPrimitiveTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
         let primitive = node.primitive.as_ref()?; // bail early if no primitive
 
-        let item = &node.item.type_part();
+        let item = &node.item.type_expr();
 
         // quote
         let mut q = quote! {

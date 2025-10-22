@@ -93,9 +93,9 @@ impl HasSchemaPart for Item {
     }
 }
 
-impl HasTypePart for Item {
-    fn type_part(&self) -> TokenStream {
-        let ty = self.target().type_part();
+impl HasTypeExpr for Item {
+    fn type_expr(&self) -> TokenStream {
+        let ty = self.target().type_expr();
 
         if self.indirect {
             quote!(Box<#ty>)
@@ -104,8 +104,8 @@ impl HasTypePart for Item {
         }
     }
 
-    fn view_type_part(&self) -> TokenStream {
-        let view = self.target().view_type_part();
+    fn view_type_expr(&self) -> TokenStream {
+        let view = self.target().view_type_expr();
 
         if self.indirect {
             quote!(Box<#view>)
@@ -142,8 +142,8 @@ impl HasSchemaPart for ItemTarget {
     }
 }
 
-impl HasTypePart for ItemTarget {
-    fn type_part(&self) -> TokenStream {
+impl HasTypeExpr for ItemTarget {
+    fn type_expr(&self) -> TokenStream {
         match self {
             Self::Is(path) => quote!(#path),
             Self::Primitive(prim) => {
@@ -153,7 +153,7 @@ impl HasTypePart for ItemTarget {
         }
     }
 
-    fn view_type_part(&self) -> TokenStream {
+    fn view_type_expr(&self) -> TokenStream {
         match self {
             Self::Is(path) => {
                 quote!(<#path as ::mimic::core::traits::TypeView>::View)

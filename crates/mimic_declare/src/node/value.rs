@@ -41,9 +41,9 @@ impl HasSchemaPart for Value {
     }
 }
 
-impl HasTypePart for Value {
-    fn type_part(&self) -> TokenStream {
-        let item = &self.item.type_part();
+impl HasTypeExpr for Value {
+    fn type_expr(&self) -> TokenStream {
+        let item = &self.item.type_expr();
 
         match self.cardinality() {
             Cardinality::One => quote!(#item),
@@ -52,8 +52,8 @@ impl HasTypePart for Value {
         }
     }
 
-    fn view_type_part(&self) -> TokenStream {
-        let item_view = &self.item.view_type_part();
+    fn view_type_expr(&self) -> TokenStream {
+        let item_view = &self.item.view_type_expr();
 
         match self.cardinality() {
             Cardinality::One => quote!(#item_view),

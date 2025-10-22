@@ -28,6 +28,63 @@ pub struct Entity {
 }
 
 impl Entity {
+    pub fn iter_without_pk(&self) -> impl Iterator<Item = &Field> {
+        self.fields
+            .iter()
+            .filter(move |f| f.ident != self.primary_key)
+    }
+
+    pub fn create_ident(&self) -> Ident {
+        format_ident!("{}New", self.def.ident())
+    }
+
+    pub fn update_ident(&self) -> Ident {
+        format_ident!("{}Update", self.def.ident())
+    }
+
+    /// Generates the `EntityCreate` struct (excluding PK)
+    pub fn create_type_part(&self) -> TokenStream {
+        let derives = self.view_derives();
+        let create_ident = self.create_ident();
+
+        let field_tokens = self.iter_without_pk().map(|f| {
+            let ident = &f.ident;
+            let ty = f.value.view_type_expr();
+
+            quote!(pub #ident: #ty,)
+        });
+
+        quote! {
+            #derives
+            pub struct #create_ident {
+                #(#field_tokens)*
+            }
+        }
+    }
+
+    /// Generates the `EntityUpdate` struct (excluding PK, all Option<>)
+    pub fn update_type_part(&self) -> TokenStream {
+        /*
+        let derives = self.view_derives();
+        let update_ident = self.update_ident();
+
+        let field_tokens = self.iter_without_pk().map(|f| {
+            let ident = &f.ident;
+            let ty = f.value.view_type_expr();
+
+            quote!(pub #ident: Option<#ty>,)
+        });
+
+        quote! {
+            #derives
+            pub struct #update_ident {
+                #(#field_tokens)*
+            }
+        }*/
+
+        quote!()
+    }
+
     fn add_metadata(mut fields: FieldList) -> FieldList {
         fields.push(Field::created_at());
         fields.push(Field::updated_at());
@@ -35,6 +92,12 @@ impl Entity {
         fields
     }
 }
+
+//
+// ──────────────────────────
+// TRAIT IMPLEMENTATIONS
+// ──────────────────────────
+//
 
 impl HasDef for Entity {
     fn def(&self) -> &Def {
@@ -73,7 +136,12 @@ impl HasSchemaPart for Entity {
 impl HasTraits for Entity {
     fn traits(&self) -> TraitList {
         let mut traits = self.traits.clone().with_type_traits();
-        traits.extend(vec![Trait::Inherent, Trait::EntityKind, Trait::FieldValues]);
+        traits.extend(vec![
+            Trait::Inherent,
+            Trait::EntityKind,
+            Trait::EntityCreate,
+            Trait::FieldValues,
+        ]);
 
         traits.list()
     }
@@ -87,6 +155,8 @@ impl HasTraits for Entity {
             Trait::Default => DefaultTrait::strategy(self),
             Trait::From => FromTrait::strategy(self),
             Trait::EntityKind => EntityKindTrait::strategy(self),
+            Trait::EntityCreate => EntityCreateTrait::strategy(self),
+            Trait::EntityUpdate => EntityUpdateTrait::strategy(self),
             Trait::FieldValues => FieldValuesTrait::strategy(self),
             Trait::TypeView => TypeViewTrait::strategy(self),
             Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
@@ -105,12 +175,10 @@ impl HasTraits for Entity {
     }
 }
 
-impl HasType for Entity {}
-
-impl HasTypePart for Entity {
+impl HasType for Entity {
     fn type_part(&self) -> TokenStream {
         let ident = self.def.ident();
-        let fields = self.fields.type_part();
+        let fields = self.fields.type_expr();
 
         quote! {
             pub struct #ident {
@@ -118,17 +186,28 @@ impl HasTypePart for Entity {
             }
         }
     }
+}
 
-    fn view_type_part(&self) -> TokenStream {
+impl HasViewTypes for Entity {
+    fn view_parts(&self) -> TokenStream {
         let derives = self.view_derives();
         let ident = self.def.ident();
         let view_ident = self.view_ident();
-        let view_field_list = HasTypePart::view_type_part(&self.fields);
+
+        let fields = self.fields.iter().map(|f| {
+            let ident = &f.ident;
+            let ty = f.value.view_type_expr();
+            quote!(pub #ident: #ty,)
+        });
+
+        // other types
+        let create = self.create_type_part();
+        let update = self.update_type_part();
 
         quote! {
             #derives
             pub struct #view_ident {
-                #view_field_list
+                #(#fields)*
             }
 
             impl Default for #view_ident {
@@ -136,6 +215,9 @@ impl HasTypePart for Entity {
                     #ident::default().to_view()
                 }
             }
+
+            #create
+            #update
         }
     }
 }

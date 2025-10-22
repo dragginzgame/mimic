@@ -58,20 +58,18 @@ impl HasSchemaPart for FieldList {
     }
 }
 
-impl HasTypePart for FieldList {
-    fn type_part(&self) -> TokenStream {
-        let fields = self.fields.iter().map(HasTypePart::type_part);
-
+impl HasTypeExpr for FieldList {
+    fn type_expr(&self) -> TokenStream {
+        let fields = self.fields.iter().map(HasTypeExpr::type_expr);
         quote! {
             #(#fields,)*
         }
     }
 
-    fn view_type_part(&self) -> TokenStream {
-        let view_fields = self.fields.iter().map(HasTypePart::view_type_part);
-
+    fn view_type_expr(&self) -> TokenStream {
+        let fields = self.fields.iter().map(HasTypeExpr::view_type_expr);
         quote! {
-            #(#view_fields,)*
+            #(#fields,)*
         }
     }
 }
@@ -132,19 +130,19 @@ impl HasSchemaPart for Field {
     }
 }
 
-impl HasTypePart for Field {
-    fn type_part(&self) -> TokenStream {
+impl HasTypeExpr for Field {
+    fn type_expr(&self) -> TokenStream {
         let ident = &self.ident;
-        let value = &self.value.type_part();
+        let value = self.value.type_expr();
 
         quote! {
             pub #ident: #value
         }
     }
 
-    fn view_type_part(&self) -> TokenStream {
+    fn view_type_expr(&self) -> TokenStream {
         let ident = &self.ident;
-        let value_view = &self.value.view_type_part();
+        let value_view = self.value.view_type_expr();
 
         quote! {
             pub #ident: #value_view

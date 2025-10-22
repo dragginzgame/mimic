@@ -83,6 +83,39 @@ impl HasSchemaPart for Enum {
 }
 
 impl HasType for Enum {
+    fn type_part(&self) -> TokenStream {
+        let ident = self.def.ident();
+        let variants = self.variants.iter().map(HasTypeExpr::type_expr);
+
+        quote! {
+            pub enum #ident {
+                #(#variants,)*
+            }
+        }
+    }
+}
+
+impl HasViewTypes for Enum {
+    fn view_parts(&self) -> TokenStream {
+        let derives = self.view_derives();
+        let ident = self.def.ident();
+        let view_ident = self.view_ident();
+        let view_variants = self.variants.iter().map(HasTypeExpr::view_type_expr);
+
+        quote! {
+            #derives
+            pub enum #view_ident {
+                #(#view_variants,)*
+            }
+
+            impl Default for #view_ident {
+                fn default() -> Self {
+                    #ident::default().to_view()
+                }
+            }
+        }
+    }
+
     fn view_derives(&self) -> TraitList {
         let mut traits = vec![
             Trait::CandidType,
@@ -105,39 +138,6 @@ impl HasType for Enum {
         }
 
         TraitList(traits)
-    }
-}
-
-impl HasTypePart for Enum {
-    fn type_part(&self) -> TokenStream {
-        let ident = self.def.ident();
-        let variants = self.variants.iter().map(HasTypePart::type_part);
-
-        quote! {
-            pub enum #ident {
-                #(#variants,)*
-            }
-        }
-    }
-
-    fn view_type_part(&self) -> TokenStream {
-        let derives = self.view_derives();
-        let ident = self.def.ident();
-        let view_ident = self.view_ident();
-        let view_variants = self.variants.iter().map(HasTypePart::view_type_part);
-
-        quote! {
-            #derives
-            pub enum #view_ident {
-                #(#view_variants,)*
-            }
-
-            impl Default for #view_ident {
-                fn default() -> Self {
-                    #ident::default().to_view()
-                }
-            }
-        }
     }
 }
 
@@ -194,8 +194,6 @@ impl HasSchemaPart for EnumVariant {
             unspecified,
             ..
         } = self;
-
-        // quote
         let ident = quote_one(&self.ident, to_str_lit);
         let value = quote_option(self.value.as_ref(), Value::schema_part);
 
@@ -210,13 +208,13 @@ impl HasSchemaPart for EnumVariant {
     }
 }
 
-impl HasTypePart for EnumVariant {
-    fn type_part(&self) -> TokenStream {
+impl HasTypeExpr for EnumVariant {
+    fn type_expr(&self) -> TokenStream {
         let ident = self.effective_ident();
         let default_attr = self.default.then(|| quote!(#[default]));
 
         let body = if let Some(value) = &self.value {
-            let value = value.type_part();
+            let value = value.type_expr();
             quote!(#ident(#value))
         } else {
             quote!(#ident)
@@ -228,11 +226,11 @@ impl HasTypePart for EnumVariant {
         }
     }
 
-    fn view_type_part(&self) -> TokenStream {
+    fn view_type_expr(&self) -> TokenStream {
         let ident = &self.ident;
 
         if let Some(value) = &self.value {
-            let value_view = HasTypePart::view_type_part(value);
+            let value_view = HasTypeExpr::view_type_expr(value);
 
             quote! {
                 #ident(#value_view)

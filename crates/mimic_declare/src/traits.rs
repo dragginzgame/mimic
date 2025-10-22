@@ -9,9 +9,11 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 use syn::Ident;
 
-///
-/// TraitTokens
-///
+//
+// ──────────────────────────
+// CORE MACRO AGGREGATOR
+// ──────────────────────────
+//
 
 pub struct TraitTokens {
     pub derive: TokenStream,
@@ -20,28 +22,29 @@ pub struct TraitTokens {
 
 ///
 /// HasMacro
-/// for any schema node that has a derive macro
 ///
-
+/// High-level entrypoint for code generation.
+/// Combines schema, type definitions, and trait impls.
+///
 pub trait HasMacro: HasSchema + HasTraits + HasType {
     fn all_tokens(&self) -> TokenStream {
-        let schema = self.schema_tokens();
-        let main_type = self.type_part();
-        let view_type = self.view_type_part();
-
         let TraitTokens { derive, impls } = self.resolve_trait_tokens();
+        let schema = self.schema_tokens();
+        let type_part = self.type_part();
+        let view_parts = self.view_parts();
 
         quote! {
             #schema
             #derive
-            #main_type
-            #view_type
+            #type_part
             #impls
+
+            #view_parts
         }
     }
 
     fn resolve_trait_tokens(&self) -> TraitTokens {
-        let mut derived_traits = Vec::new();
+        let mut derive_traits = Vec::new();
         let mut attrs = Vec::new();
         let mut impls = TokenStream::new();
 
@@ -58,14 +61,12 @@ pub trait HasMacro: HasSchema + HasTraits + HasType {
                     if let Some(derive_tr) = strategy.derive
                         && let Some(path) = derive_tr.derive_path()
                     {
-                        derived_traits.push(path);
+                        derive_traits.push(path);
                     }
                 }
                 None => {
-                    // No impl strategy; fallback to deriving the trait if it supports it
-                    // otherwise the trait has returned no strategy, so we skip
                     if let Some(path) = tr.derive_path() {
-                        derived_traits.push(path);
+                        derive_traits.push(path);
                     }
                 }
             }
@@ -75,12 +76,10 @@ pub trait HasMacro: HasSchema + HasTraits + HasType {
             }
         }
 
-        let mut derive = if derived_traits.is_empty() {
+        let mut derive = if derive_traits.is_empty() {
             quote!()
         } else {
-            quote! {
-                #[derive(#(#derived_traits),*)]
-            }
+            quote!(#[derive(#(#derive_traits),*)])
         };
 
         derive.extend(attrs);
@@ -89,99 +88,42 @@ pub trait HasMacro: HasSchema + HasTraits + HasType {
     }
 }
 
-impl<T> HasMacro for T where T: HasDef + HasSchema + HasTraits + HasType + HasTypePart {}
+impl<T> HasMacro for T where T: HasDef + HasSchema + HasTraits + HasType {}
+
+//
+// ──────────────────────────
+// CORE SCHEMA TRAITS
+// ──────────────────────────
+//
 
 ///
 /// HasDef
 ///
-
 pub trait HasDef {
     fn def(&self) -> &Def;
 }
 
 ///
-/// HasTraits
-/// a schema node that has traits (derives or impls)
-///
-
-pub trait HasTraits: HasDef + ToTokens {
-    /// Returns a list of traits to implement
-    fn traits(&self) -> TraitList {
-        TraitList::new()
-    }
-
-    /// Maps a trait to its token implementation
-    fn map_trait(&self, _: Trait) -> Option<TraitStrategy> {
-        None
-    }
-
-    /// Maps a trait to its attribute-level implementation
-    fn map_attribute(&self, _: Trait) -> Option<TokenStream> {
-        None
-    }
-
-    /// Provides a default strategy for built-in traits
-    fn default_strategy(&self, tr: Trait) -> Option<TraitStrategy> {
-        let def = self.def();
-        let ident = self.def().ident();
-
-        match tr {
-            // Generates a `const PATH` string pointing to the module + type name
-            Trait::Path => {
-                let q = quote! {
-                    const PATH: &'static str = concat!(module_path!(), "::", stringify!(#ident));
-                };
-
-                let tokens = Implementor::new(def, tr).set_tokens(q).to_token_stream();
-
-                Some(TraitStrategy::from_impl(tokens))
-            }
-
-            // Generate empty impl blocks for marker traits
-            Trait::CanisterKind
-            | Trait::EntityIdKind
-            | Trait::FieldValue
-            | Trait::SanitizeAuto
-            | Trait::SanitizeCustom
-            | Trait::ValidateAuto
-            | Trait::ValidateCustom
-            | Trait::Visitable => {
-                let tokens = Implementor::new(def, tr).to_token_stream();
-
-                Some(TraitStrategy::from_impl(tokens))
-            }
-
-            // All others fallback to None
-            _ => None,
-        }
-    }
-}
-
-///
 /// HasSchema
-/// an element that can generate schema tokens
 ///
-
+/// Anything that can emit a schema constant.
+///
 pub trait HasSchema: HasSchemaPart + HasDef {
     fn schema_node_kind() -> SchemaNodeKind {
-        unreachable!();
+        unreachable!()
     }
 
     fn schema_const(&self) -> Ident {
         let ident_s = &self.def().ident().to_string().to_case(Case::UpperSnake);
-
         format_ident!("{ident_s}_CONST")
     }
 
-    // schema_tokens
-    // generates the structure passed via ctor to the static schema
     fn schema_tokens(&self) -> TokenStream {
         let schema = self.schema_part();
         if schema.is_empty() {
             return quote!();
         }
 
-        // insert statement
         let const_var = self.schema_const();
         let kind = Self::schema_node_kind();
 
@@ -198,10 +140,6 @@ pub trait HasSchema: HasSchemaPart + HasDef {
         }
     }
 }
-
-///
-/// SchemaNodeKind
-///
 
 #[derive(Debug)]
 pub enum SchemaNodeKind {
@@ -223,32 +161,54 @@ pub enum SchemaNodeKind {
 
 impl ToTokens for SchemaNodeKind {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = format_ident!("{self:?}");
-        ident.to_tokens(tokens);
+        format_ident!("{self:?}").to_tokens(tokens);
     }
 }
 
 ///
 /// HasSchemaPart
-/// for types that only emit parts of a schema
 ///
-
+/// Low-level helper for schema fragments.
+///
 pub trait HasSchemaPart {
     fn schema_part(&self) -> TokenStream {
         quote!()
     }
 }
 
+//
+// ──────────────────────────
+// TYPE GENERATION
+// ──────────────────────────
+//
+
 ///
 /// HasType
-/// an element that can define a rust type
 ///
+/// A node that emits a Rust type definition.
+///
+pub trait HasType: HasViewTypes {
+    /// Emits the main rust Type for this node
+    fn type_part(&self) -> TokenStream {
+        quote!()
+    }
+}
 
-pub trait HasType: HasTypePart + HasDef {
+///
+/// HasViewTypes
+///
+pub trait HasViewTypes: HasDef {
+    /// Emits only the View types (View, New, Update etc.)
+    fn view_parts(&self) -> TokenStream {
+        quote!()
+    }
+
+    /// Utility: default naming convention for view variant.
     fn view_ident(&self) -> Ident {
         format_view_ident(&self.def().ident())
     }
 
+    /// Utility: standard derives for generated types.
     fn view_derives(&self) -> TraitList {
         TraitList(vec![
             Trait::CandidType,
@@ -261,15 +221,73 @@ pub trait HasType: HasTypePart + HasDef {
 }
 
 ///
-/// HasTypePart
+/// HasTypeExpr
 ///
-
-pub trait HasTypePart {
-    fn type_part(&self) -> TokenStream {
+/// For schema nodes that emit *inline* type expressions, not full structs/enums.
+/// (e.g. Value, Item, Field)
+///
+pub trait HasTypeExpr {
+    fn type_expr(&self) -> TokenStream {
         quote!()
     }
 
-    fn view_type_part(&self) -> TokenStream {
+    fn view_type_expr(&self) -> TokenStream {
         quote!()
+    }
+}
+
+//
+// ──────────────────────────
+// TRAIT GENERATION
+// ──────────────────────────
+//
+
+///
+/// HasTraits
+///
+/// Describes which traits to derive or implement.
+///
+pub trait HasTraits: HasDef + ToTokens {
+    fn traits(&self) -> TraitList {
+        TraitList::new()
+    }
+
+    fn map_trait(&self, _: Trait) -> Option<TraitStrategy> {
+        None
+    }
+
+    fn map_attribute(&self, _: Trait) -> Option<TokenStream> {
+        None
+    }
+
+    fn default_strategy(&self, tr: Trait) -> Option<TraitStrategy> {
+        let def = self.def();
+        let ident = def.ident();
+
+        match tr {
+            // Inline `const PATH` impl
+            Trait::Path => {
+                let q = quote! {
+                    const PATH: &'static str = concat!(module_path!(), "::", stringify!(#ident));
+                };
+                let tokens = Implementor::new(def, tr).set_tokens(q).to_token_stream();
+                Some(TraitStrategy::from_impl(tokens))
+            }
+
+            // Marker traits (empty impl)
+            Trait::CanisterKind
+            | Trait::EntityIdKind
+            | Trait::FieldValue
+            | Trait::SanitizeAuto
+            | Trait::SanitizeCustom
+            | Trait::ValidateAuto
+            | Trait::ValidateCustom
+            | Trait::Visitable => {
+                let tokens = Implementor::new(def, tr).to_token_stream();
+                Some(TraitStrategy::from_impl(tokens))
+            }
+
+            _ => None,
+        }
     }
 }

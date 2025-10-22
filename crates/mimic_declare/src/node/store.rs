@@ -65,9 +65,7 @@ impl HasTraits for Store {
     }
 }
 
-impl HasType for Store {}
-
-impl HasTypePart for Store {
+impl HasType for Store {
     fn type_part(&self) -> TokenStream {
         let ident = self.def.ident();
 
@@ -76,6 +74,8 @@ impl HasTypePart for Store {
         }
     }
 }
+
+impl HasViewTypes for Store {}
 
 impl ToTokens for Store {
     fn to_tokens(&self, tokens: &mut TokenStream) {

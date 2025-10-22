@@ -52,9 +52,7 @@ impl HasTraits for EntityId {
     }
 }
 
-impl HasType for EntityId {}
-
-impl HasTypePart for EntityId {
+impl HasType for EntityId {
     fn type_part(&self) -> TokenStream {
         let ident = self.def.ident();
         let keys = self.keys.iter().map(ToTokens::to_token_stream);
@@ -66,6 +64,8 @@ impl HasTypePart for EntityId {
         }
     }
 }
+
+impl HasViewTypes for EntityId {}
 
 impl ToTokens for EntityId {
     fn to_tokens(&self, tokens: &mut TokenStream) {

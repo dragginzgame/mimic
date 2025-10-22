@@ -76,12 +76,10 @@ impl HasTraits for Record {
     }
 }
 
-impl HasType for Record {}
-
-impl HasTypePart for Record {
+impl HasType for Record {
     fn type_part(&self) -> TokenStream {
         let ident = self.def.ident();
-        let fields = self.fields.type_part();
+        let fields = self.fields.type_expr();
 
         quote! {
             pub struct #ident {
@@ -89,12 +87,14 @@ impl HasTypePart for Record {
             }
         }
     }
+}
 
-    fn view_type_part(&self) -> TokenStream {
+impl HasViewTypes for Record {
+    fn view_parts(&self) -> TokenStream {
         let ident = self.def.ident();
         let view_ident = self.view_ident();
         let derives = self.view_derives();
-        let view_field_list = &self.fields.view_type_part();
+        let view_field_list = &self.fields.view_type_expr();
 
         quote! {
             #derives

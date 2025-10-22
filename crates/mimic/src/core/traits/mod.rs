@@ -141,6 +141,30 @@ impl<T> TypeKind for T where
 ///
 
 ///
+/// EntityCreate
+///
+
+pub trait EntityCreate {
+    type Create;
+
+    fn from_create_view(create: Self::Create) -> Self;
+}
+
+pub type Create<T> = <T as EntityCreate>::Create;
+
+///
+/// EntityUpdate
+///
+
+pub trait EntityUpdate {
+    type Update;
+
+    fn apply_update_view(&mut self, update: Self::Update);
+}
+
+pub type Update<T> = <T as EntityUpdate>::Update;
+
+///
 /// FieldValues
 ///
 

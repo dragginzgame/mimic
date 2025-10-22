@@ -52,9 +52,7 @@ impl HasTraits for Canister {
     }
 }
 
-impl HasType for Canister {}
-
-impl HasTypePart for Canister {
+impl HasType for Canister {
     fn type_part(&self) -> TokenStream {
         let ident = self.def.ident();
 
@@ -63,6 +61,8 @@ impl HasTypePart for Canister {
         }
     }
 }
+
+impl HasViewTypes for Canister {}
 
 impl ToTokens for Canister {
     fn to_tokens(&self, tokens: &mut TokenStream) {

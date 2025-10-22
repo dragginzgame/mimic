@@ -63,9 +63,7 @@ impl HasTraits for Selector {
     }
 }
 
-impl HasType for Selector {}
-
-impl HasTypePart for Selector {
+impl HasType for Selector {
     fn type_part(&self) -> TokenStream {
         let ident = self.def.ident();
         let variants = &self.variants;
@@ -77,6 +75,8 @@ impl HasTypePart for Selector {
         }
     }
 }
+
+impl HasViewTypes for Selector {}
 
 impl ToTokens for Selector {
     fn to_tokens(&self, tokens: &mut TokenStream) {

@@ -64,6 +64,8 @@ pub enum Trait {
     StoreKind,
 
     // orm
+    EntityCreate,
+    EntityUpdate,
     FieldValue,
     FieldValues,
     From,

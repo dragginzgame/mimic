@@ -43,15 +43,15 @@ impl HasTraits for Sanitizer {
     }
 }
 
-impl HasType for Sanitizer {}
-
-impl HasTypePart for Sanitizer {
+impl HasType for Sanitizer {
     fn type_part(&self) -> TokenStream {
         let item = &self.def.item;
 
         quote!(#item)
     }
 }
+
+impl HasViewTypes for Sanitizer {}
 
 impl ToTokens for Sanitizer {
     fn to_tokens(&self, tokens: &mut TokenStream) {

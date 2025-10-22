@@ -72,24 +72,24 @@ impl HasTraits for Map {
     }
 }
 
-impl HasType for Map {}
-
-impl HasTypePart for Map {
+impl HasType for Map {
     fn type_part(&self) -> TokenStream {
         let ident = self.def.ident();
-        let key = &self.key.type_part();
-        let value = &self.value.type_part();
+        let key = &self.key.type_expr();
+        let value = &self.value.type_expr();
 
         quote! {
             #[repr(transparent)]
             pub struct #ident(pub ::std::collections::HashMap<#key, #value>);
         }
     }
+}
 
-    fn view_type_part(&self) -> TokenStream {
+impl HasViewTypes for Map {
+    fn view_parts(&self) -> TokenStream {
         let view_ident = self.view_ident();
-        let key_view = HasTypePart::view_type_part(&self.key);
-        let value_view = HasTypePart::view_type_part(&self.value);
+        let key_view = HasTypeExpr::view_type_expr(&self.key);
+        let value_view = HasTypeExpr::view_type_expr(&self.value);
 
         quote! {
             pub type #view_ident = Vec<(#key_view, #value_view)>;

@@ -65,21 +65,21 @@ impl HasTraits for Tuple {
     }
 }
 
-impl HasType for Tuple {}
-
-impl HasTypePart for Tuple {
+impl HasType for Tuple {
     fn type_part(&self) -> TokenStream {
         let ident = self.def.ident();
-        let values = self.values.iter().map(HasTypePart::type_part);
+        let values = self.values.iter().map(HasTypeExpr::type_expr);
 
         quote! {
             pub struct #ident(pub #(#values),*);
         }
     }
+}
 
-    fn view_type_part(&self) -> TokenStream {
+impl HasViewTypes for Tuple {
+    fn view_parts(&self) -> TokenStream {
         let view_ident = &self.view_ident();
-        let view_values = self.values.iter().map(HasTypePart::view_type_part);
+        let view_values = self.values.iter().map(HasTypeExpr::view_type_expr);
 
         quote! {
             pub type #view_ident = (#(#view_values),*);

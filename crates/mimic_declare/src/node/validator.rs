@@ -43,15 +43,15 @@ impl HasTraits for Validator {
     }
 }
 
-impl HasType for Validator {}
-
-impl HasTypePart for Validator {
+impl HasType for Validator {
     fn type_part(&self) -> TokenStream {
         let item = &self.def.item;
 
         quote!(#item)
     }
 }
+
+impl HasViewTypes for Validator {}
 
 impl ToTokens for Validator {
     fn to_tokens(&self, tokens: &mut TokenStream) {

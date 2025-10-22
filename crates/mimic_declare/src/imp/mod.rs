@@ -1,5 +1,7 @@
 mod default;
 mod entity;
+mod entity_create;
+mod entity_update;
 mod enum_value;
 mod field_value;
 mod field_values;
@@ -19,6 +21,8 @@ mod visitable;
 
 pub use default::*;
 pub use entity::*;
+pub use entity_create::*;
+pub use entity_update::*;
 pub use enum_value::*;
 pub use field_value::*;
 pub use field_values::*;
