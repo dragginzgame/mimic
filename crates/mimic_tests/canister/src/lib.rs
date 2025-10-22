@@ -17,11 +17,6 @@ use test_design::{
 
 mimic_start!();
 
-#[init]
-fn init() {
-    mimic_init();
-}
-
 pub static WASMS: &[(CanisterType, &[u8])] = &[];
 
 ///
