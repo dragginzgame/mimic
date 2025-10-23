@@ -136,7 +136,13 @@ impl HasSchemaPart for Entity {
 impl HasTraits for Entity {
     fn traits(&self) -> TraitList {
         let mut traits = self.traits.clone().with_type_traits();
-        traits.extend(vec![Trait::Inherent, Trait::EntityKind, Trait::FieldValues]);
+        traits.extend(vec![
+            Trait::Inherent,
+            Trait::CreateView,
+            Trait::EntityKind,
+            Trait::FieldValues,
+            Trait::UpdateView,
+        ]);
 
         traits.list()
     }
