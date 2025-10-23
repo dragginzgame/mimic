@@ -19,6 +19,7 @@ impl Imp<Entity> for FromTrait {
 
         // from_create_pairs
         // Build `field: TypeView::from_view(view.field)` for all non-PK fields
+        // UpdateView doesn't need From, as instead it's a merge
         let from_create_pairs: Vec<_> = node
             .iter_without_pk()
             .map(|field| {

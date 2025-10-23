@@ -12,14 +12,32 @@ pub struct UpdateViewTrait {}
 
 impl Imp<Entity> for UpdateViewTrait {
     fn strategy(node: &Entity) -> Option<TraitStrategy> {
-        let update_ident = &node.update_ident();
+        let def = node.def();
+        let update_ident = node.update_ident();
 
-        // tokens
+        // generate merge pairs for every updatable field
+        let merge_pairs: Vec<_> = node
+            .iter_without_pk()
+            .map(|field| {
+                let ident = &field.ident;
+                quote! {
+                    if let Some(value) = view.#ident {
+                        self.#ident = ::mimic::core::traits::TypeView::from_view(value);
+                    }
+                }
+            })
+            .collect();
+
         let q = quote! {
             type View = #update_ident;
+
+            fn merge(&mut self, view: Self::View) {
+                use ::mimic::core::traits::TypeView;
+                #(#merge_pairs)*
+            }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::UpdateView)
+        let tokens = Implementor::new(def, Trait::UpdateView)
             .set_tokens(q)
             .to_token_stream();
 

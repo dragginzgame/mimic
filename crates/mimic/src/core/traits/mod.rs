@@ -235,6 +235,9 @@ pub trait CreateView {
 
 pub trait UpdateView {
     type View;
+
+    /// Merge `view` into `self`, skipping `None` fields.
+    fn merge(&mut self, view: Self::View);
 }
 
 /// ------------------------

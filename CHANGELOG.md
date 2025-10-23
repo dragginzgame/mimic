@@ -5,8 +5,11 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.25.0] - 2025-10-22
+## [0.25] - 2025-10-22
 - new View type - Create<Entity> which takes off the primary key and provides handy from() functionality
+- added Update<Entity>
+- moved the Views out of traits:: into view::
+- added in merge() for CreateView
 
 ## [0.24.35] - 2025-10-22
 - it wasn't possible to create a newtype around a non-Primitive but that functionality is now back
