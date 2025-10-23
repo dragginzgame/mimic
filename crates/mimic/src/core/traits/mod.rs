@@ -151,8 +151,6 @@ pub trait TypeView {
     fn from_view(view: Self::View) -> Self;
 }
 
-pub type View<T> = <T as TypeView>::View;
-
 impl<T: TypeView> TypeView for Box<T> {
     type View = Box<T::View>;
 
@@ -231,8 +229,6 @@ pub trait CreateView {
     type View;
 }
 
-pub type Create<T> = <T as CreateView>::View;
-
 ///
 /// UpdateView
 ///
@@ -240,8 +236,6 @@ pub type Create<T> = <T as CreateView>::View;
 pub trait UpdateView {
     type View;
 }
-
-pub type Update<T> = <T as UpdateView>::View;
 
 /// ------------------------
 /// OTHER TRAITS

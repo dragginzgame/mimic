@@ -4,6 +4,7 @@ pub mod serialize;
 pub mod traits;
 pub mod types;
 pub mod value;
+pub mod view;
 pub mod visit;
 
 pub use key::Key;
