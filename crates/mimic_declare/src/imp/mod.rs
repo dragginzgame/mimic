@@ -1,7 +1,6 @@
+mod create_view;
 mod default;
 mod entity;
-mod entity_create;
-mod entity_update;
 mod enum_value;
 mod field_value;
 mod field_values;
@@ -16,13 +15,13 @@ mod partial_ord;
 mod sanitize;
 mod store;
 mod type_view;
+mod update_view;
 mod validate;
 mod visitable;
 
+pub use create_view::*;
 pub use default::*;
 pub use entity::*;
-pub use entity_create::*;
-pub use entity_update::*;
 pub use enum_value::*;
 pub use field_value::*;
 pub use field_values::*;
@@ -37,6 +36,7 @@ pub use partial_ord::*;
 pub use sanitize::*;
 pub use store::*;
 pub use type_view::*;
+pub use update_view::*;
 pub use validate::*;
 pub use visitable::*;
 

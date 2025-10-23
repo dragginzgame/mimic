@@ -12,7 +12,44 @@ pub struct FromTrait {}
 
 impl Imp<Entity> for FromTrait {
     fn strategy(node: &Entity) -> Option<TraitStrategy> {
-        Some(from_type_view(node))
+        let def = node.def();
+        let entity_ident = def.ident();
+        let view_ident = node.view_ident();
+        let create_ident = node.create_ident();
+
+        // from_create_pairs
+        // Build `field: TypeView::from_view(view.field)` for all non-PK fields
+        let from_create_pairs: Vec<_> = node
+            .iter_without_pk()
+            .map(|field| {
+                let ident = &field.ident;
+                quote! {
+                    #ident: ::mimic::core::traits::TypeView::from_view(view.#ident)
+                }
+            })
+            .collect();
+
+        // Single combined quote block — two From impls
+        let tokens = quote! {
+            impl From<#view_ident> for #entity_ident {
+                fn from(view: #view_ident) -> Self {
+                    <Self as ::mimic::core::traits::TypeView>::from_view(view)
+                }
+            }
+
+            impl From<#create_ident> for #entity_ident {
+                fn from(view: #create_ident) -> Self {
+                    use ::mimic::core::traits::TypeView;
+
+                    Self {
+                        #(#from_create_pairs),*,
+                        ..Default::default()
+                    }
+                }
+            }
+        };
+
+        Some(TraitStrategy::from_impl(tokens))
     }
 }
 

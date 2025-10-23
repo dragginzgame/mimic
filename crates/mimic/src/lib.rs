@@ -62,8 +62,8 @@ pub mod prelude {
         core::{
             Key, Value,
             traits::{
-                Create, EntityCreate as _, EntityKind as _, EntityUpdate as _, Path as _,
-                TypeView as _, View,
+                Create, CreateView as _, EntityKind as _, Path as _, TypeView as _, Update as _,
+                View,
             },
             types::{Decimal, Ulid},
         },

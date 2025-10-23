@@ -136,12 +136,7 @@ impl HasSchemaPart for Entity {
 impl HasTraits for Entity {
     fn traits(&self) -> TraitList {
         let mut traits = self.traits.clone().with_type_traits();
-        traits.extend(vec![
-            Trait::Inherent,
-            Trait::EntityKind,
-            Trait::EntityCreate,
-            Trait::FieldValues,
-        ]);
+        traits.extend(vec![Trait::Inherent, Trait::EntityKind, Trait::FieldValues]);
 
         traits.list()
     }
@@ -152,14 +147,14 @@ impl HasTraits for Entity {
         match t {
             Trait::Inherent => InherentTrait::strategy(self),
 
+            Trait::CreateView => CreateViewTrait::strategy(self),
             Trait::Default => DefaultTrait::strategy(self),
             Trait::From => FromTrait::strategy(self),
             Trait::EntityKind => EntityKindTrait::strategy(self),
-            Trait::EntityCreate => EntityCreateTrait::strategy(self),
-            Trait::EntityUpdate => EntityUpdateTrait::strategy(self),
             Trait::FieldValues => FieldValuesTrait::strategy(self),
             Trait::TypeView => TypeViewTrait::strategy(self),
             Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
+            Trait::UpdateView => UpdateViewTrait::strategy(self),
             Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
             Trait::Visitable => VisitableTrait::strategy(self),
 

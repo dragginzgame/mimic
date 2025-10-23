@@ -136,33 +136,116 @@ impl<T> TypeKind for T where
 {
 }
 
+/// ------------------------
+/// VIEW TRAITS
+/// ------------------------
+
 ///
+/// TypeView
+///
+
+pub trait TypeView {
+    type View;
+
+    fn to_view(&self) -> Self::View;
+    fn from_view(view: Self::View) -> Self;
+}
+
+pub type View<T> = <T as TypeView>::View;
+
+impl<T: TypeView> TypeView for Box<T> {
+    type View = Box<T::View>;
+
+    fn to_view(&self) -> Self::View {
+        Box::new((**self).to_view())
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        Self::new(T::from_view(*view))
+    }
+}
+
+impl<T: TypeView> TypeView for Option<T> {
+    type View = Option<T::View>;
+
+    fn to_view(&self) -> Self::View {
+        self.as_ref().map(TypeView::to_view)
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        view.map(T::from_view)
+    }
+}
+
+impl<T: TypeView> TypeView for Vec<T> {
+    type View = Vec<T::View>;
+
+    fn to_view(&self) -> Self::View {
+        self.iter().map(TypeView::to_view).collect()
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        view.into_iter().map(T::from_view).collect()
+    }
+}
+
+impl TypeView for String {
+    type View = Self;
+
+    fn to_view(&self) -> Self::View {
+        self.clone()
+    }
+
+    fn from_view(view: Self::View) -> Self {
+        view
+    }
+}
+
+// impl_primitive_type_view
+#[macro_export]
+macro_rules! impl_primitive_type_view {
+    ($($type:ty),*) => {
+        $(
+            impl TypeView for $type {
+                type View = $type;
+
+                fn to_view(&self) -> Self::View {
+                    *self
+                }
+
+                fn from_view(view: Self::View) -> Self {
+                    view
+                }
+            }
+        )*
+    };
+}
+
+impl_primitive_type_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
+
+///
+/// CreateView
+///
+
+pub trait CreateView {
+    type View;
+}
+
+pub type Create<T> = <T as CreateView>::View;
+
+///
+/// UpdateView
+///
+
+pub trait UpdateView {
+    type View;
+}
+
+pub type Update<T> = <T as UpdateView>::View;
+
+/// ------------------------
 /// OTHER TRAITS
-///
-
-///
-/// EntityCreate
-///
-
-pub trait EntityCreate {
-    type Create;
-
-    fn from_create_view(create: Self::Create) -> Self;
-}
-
-pub type Create<T> = <T as EntityCreate>::Create;
-
-///
-/// EntityUpdate
-///
-
-pub trait EntityUpdate {
-    type Update;
-
-    fn apply_update_view(&mut self, update: Self::Update);
-}
-
-pub type Update<T> = <T as EntityUpdate>::Update;
+/// ------------------------
 
 ///
 /// FieldValues
@@ -280,89 +363,6 @@ impl_primitive_inner!(
 pub trait Path {
     const PATH: &'static str;
 }
-
-///
-/// TypeView
-///
-
-pub trait TypeView {
-    type View;
-
-    fn to_view(&self) -> Self::View;
-    fn from_view(view: Self::View) -> Self;
-}
-
-pub type View<T> = <T as TypeView>::View;
-
-impl<T: TypeView> TypeView for Box<T> {
-    type View = Box<T::View>;
-
-    fn to_view(&self) -> Self::View {
-        Box::new((**self).to_view())
-    }
-
-    fn from_view(view: Self::View) -> Self {
-        Self::new(T::from_view(*view))
-    }
-}
-
-impl<T: TypeView> TypeView for Option<T> {
-    type View = Option<T::View>;
-
-    fn to_view(&self) -> Self::View {
-        self.as_ref().map(TypeView::to_view)
-    }
-
-    fn from_view(view: Self::View) -> Self {
-        view.map(T::from_view)
-    }
-}
-
-impl<T: TypeView> TypeView for Vec<T> {
-    type View = Vec<T::View>;
-
-    fn to_view(&self) -> Self::View {
-        self.iter().map(TypeView::to_view).collect()
-    }
-
-    fn from_view(view: Self::View) -> Self {
-        view.into_iter().map(T::from_view).collect()
-    }
-}
-
-impl TypeView for String {
-    type View = Self;
-
-    fn to_view(&self) -> Self::View {
-        self.clone()
-    }
-
-    fn from_view(view: Self::View) -> Self {
-        view
-    }
-}
-
-// impl_primitive_type_view
-#[macro_export]
-macro_rules! impl_primitive_type_view {
-    ($($type:ty),*) => {
-        $(
-            impl TypeView for $type {
-                type View = $type;
-
-                fn to_view(&self) -> Self::View {
-                    *self
-                }
-
-                fn from_view(view: Self::View) -> Self {
-                    view
-                }
-            }
-        )*
-    };
-}
-
-impl_primitive_type_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
 
 ///
 /// Sanitizer
