@@ -64,8 +64,11 @@ impl Entity {
 
     /// Generates the `EntityUpdate` struct (excluding PK, all Option<>)
     pub fn update_type_part(&self) -> TokenStream {
-        let derives = self.view_derives();
+        let mut derives = self.view_derives();
         let update_ident = self.update_ident();
+
+        // default, as they're all optional
+        derives.push(Trait::Default);
 
         let field_tokens = self.iter_without_pk().map(|f| {
             let ident = &f.ident;
