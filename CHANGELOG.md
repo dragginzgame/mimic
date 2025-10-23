@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - added Update<Entity>
 - moved the Views out of traits:: into view::
 - added in merge() for CreateView
+- added UpdateView for Record types
 
 ## [0.24.35] - 2025-10-22
 - it wasn't possible to create a newtype around a non-Primitive but that functionality is now back
