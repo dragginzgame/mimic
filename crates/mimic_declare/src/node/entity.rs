@@ -64,7 +64,6 @@ impl Entity {
 
     /// Generates the `EntityUpdate` struct (excluding PK, all Option<>)
     pub fn update_type_part(&self) -> TokenStream {
-        /*
         let derives = self.view_derives();
         let update_ident = self.update_ident();
 
@@ -80,9 +79,7 @@ impl Entity {
             pub struct #update_ident {
                 #(#field_tokens)*
             }
-        }*/
-
-        quote!()
+        }
     }
 
     fn add_metadata(mut fields: FieldList) -> FieldList {
