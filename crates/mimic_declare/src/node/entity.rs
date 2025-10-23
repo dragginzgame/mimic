@@ -34,14 +34,6 @@ impl Entity {
             .filter(move |f| f.ident != self.primary_key)
     }
 
-    pub fn create_ident(&self) -> Ident {
-        format_ident!("{}Create", self.def.ident())
-    }
-
-    pub fn update_ident(&self) -> Ident {
-        format_ident!("{}Update", self.def.ident())
-    }
-
     /// Generates the `EntityCreate` struct (excluding PK)
     pub fn create_type_part(&self) -> TokenStream {
         let derives = self.view_derives();

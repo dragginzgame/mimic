@@ -19,6 +19,31 @@ pub struct Record {
     pub ty: Type,
 }
 
+impl Record {
+    /// Generates the `EntityUpdate` struct (excluding PK, all Option<>)
+    pub fn update_type_part(&self) -> TokenStream {
+        let mut derives = self.view_derives();
+        let update_ident = self.update_ident();
+
+        // default, as they're all optional
+        derives.push(Trait::Default);
+
+        let field_tokens = self.fields.iter().map(|f| {
+            let ident = &f.ident;
+            let ty = f.value.view_type_expr();
+
+            quote!(pub #ident: Option<#ty>,)
+        });
+
+        quote! {
+            #derives
+            pub struct #update_ident {
+                #(#field_tokens)*
+            }
+        }
+    }
+}
+
 impl HasDef for Record {
     fn def(&self) -> &Def {
         &self.def
@@ -96,6 +121,9 @@ impl HasViewTypes for Record {
         let derives = self.view_derives();
         let view_field_list = &self.fields.view_type_expr();
 
+        // other types
+        let update = self.update_type_part();
+
         quote! {
             #derives
             pub struct #view_ident {
@@ -107,6 +135,8 @@ impl HasViewTypes for Record {
                     #ident::default().to_view()
                 }
             }
+
+            #update
         }
     }
 }

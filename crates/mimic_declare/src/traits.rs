@@ -1,5 +1,4 @@
 use crate::{
-    helper::format_view_ident,
     imp::{Implementor, TraitStrategy},
     node::Def,
     schema_traits::{Trait, TraitList},
@@ -205,7 +204,15 @@ pub trait HasViewTypes: HasDef {
 
     /// Utility: default naming convention for view variant.
     fn view_ident(&self) -> Ident {
-        format_view_ident(&self.def().ident())
+        format_ident!("{}View", self.def().ident())
+    }
+
+    fn create_ident(&self) -> Ident {
+        format_ident!("{}Create", self.def().ident())
+    }
+
+    fn update_ident(&self) -> Ident {
+        format_ident!("{}Update", self.def().ident())
     }
 
     /// Utility: standard derives for generated types.

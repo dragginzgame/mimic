@@ -3,15 +3,6 @@ use quote::{ToTokens, format_ident, quote};
 use syn::Ident;
 
 ///
-/// IDENT
-///
-
-// format_view_ident
-pub fn format_view_ident(ident: &Ident) -> Ident {
-    format_ident!("{}View", ident)
-}
-
-///
 /// QUOTING
 ///
 
