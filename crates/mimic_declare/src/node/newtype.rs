@@ -36,6 +36,19 @@ impl HasSchema for Newtype {
 
 impl HasSchemaPart for Newtype {
     fn schema_part(&self) -> TokenStream {
+        // panic on invalid primitive/item combinations
+        match (self.primitive, self.item.primitive) {
+            (Some(a), Some(b)) if a != b => {
+                panic!("invalid #[newtype] config: conflicting primitive ({a:?}) and item({b:?})");
+            }
+            (None, Some(_)) => {
+                panic!(
+                    "invalid #[newtype] config: item has a primitive but outer 'primitive' is not set"
+                );
+            }
+            _ => {}
+        }
+
         let def = self.def.schema_part();
         let item = self.item.schema_part();
         let default = quote_option(self.default.as_ref(), Arg::schema_part);
