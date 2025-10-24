@@ -176,15 +176,17 @@ impl Storable for Principal {
     }
 }
 
+// The WrappedPrincipal type doesn't have Default so we can't
+// use it as a TypeView
 impl TypeView for Principal {
-    type View = WrappedPrincipal;
+    type View = Self;
 
     fn to_view(&self) -> Self::View {
-        self.0
+        *self
     }
 
     fn from_view(view: Self::View) -> Self {
-        Self(view)
+        view
     }
 }
 

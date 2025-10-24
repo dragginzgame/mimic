@@ -36,8 +36,11 @@ impl Entity {
 
     /// Generates the `EntityCreate` struct (excluding PK)
     pub fn create_type_part(&self) -> TokenStream {
-        let derives = self.view_derives();
+        let mut derives = self.view_derives();
         let create_ident = self.create_ident();
+
+        // add default
+        derives.push(Trait::Default);
 
         let field_tokens = self.iter_without_pk().map(|f| {
             let ident = &f.ident;
@@ -59,7 +62,7 @@ impl Entity {
         let mut derives = self.view_derives();
         let update_ident = self.update_ident();
 
-        // default, as they're all optional
+        // add default
         derives.push(Trait::Default);
 
         let field_tokens = self.iter_without_pk().map(|f| {

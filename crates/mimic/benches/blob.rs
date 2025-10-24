@@ -1,7 +1,7 @@
 #![allow(clippy::cast_possible_truncation)]
 use bencher::*;
-use mimic::core::{
-    serialize::{deserialize, serialize},
+use mimic::{
+    core::serialize::{deserialize, serialize},
     types::Blob,
 };
 

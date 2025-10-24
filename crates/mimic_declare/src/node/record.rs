@@ -134,6 +134,7 @@ impl HasViewTypes for Record {
                 #view_field_list
             }
 
+            // add default manually
             impl Default for #view_ident {
                 fn default() -> Self {
                     #ident::default().to_view()

@@ -40,8 +40,6 @@ impl Imp<Entity> for FromTrait {
 
             impl From<#create_ident> for #entity_ident {
                 fn from(view: #create_ident) -> Self {
-                    use ::mimic::core::traits::TypeView;
-
                     Self {
                         #(#from_create_pairs),*,
                         ..Default::default()
