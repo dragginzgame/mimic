@@ -1,8 +1,10 @@
-use crate::core::{
-    Value,
-    traits::{
-        FieldValue, Inner, SanitizeAuto, SanitizeCustom, Storable, TypeView, ValidateAuto,
-        ValidateCustom, Visitable,
+use crate::{
+    core::{
+        Value,
+        traits::{
+            FieldValue, Inner, SanitizeAuto, SanitizeCustom, Storable, TypeView, ValidateAuto,
+            ValidateCustom, Visitable,
+        },
     },
     types::{Principal, Subaccount},
 };

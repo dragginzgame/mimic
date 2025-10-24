@@ -1,10 +1,12 @@
-use crate::core::{
-    traits::{
-        FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
-        TypeView, ValidateAuto, ValidateCustom, Visitable,
+use crate::{
+    core::{
+        traits::{
+            FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
+            SanitizeCustom, TypeView, ValidateAuto, ValidateCustom, Visitable,
+        },
+        value::Value,
     },
     types::Decimal,
-    value::Value,
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, FromStr, Sub, SubAssign};

@@ -9,6 +9,7 @@ pub mod design;
 pub mod interface;
 pub mod macros;
 pub mod obs;
+pub mod types;
 
 ///
 /// MIMIC CRATE EXPORTS
@@ -62,7 +63,6 @@ pub mod prelude {
         core::{
             Key, Value,
             traits::{CreateView as _, EntityKind as _, Path as _, TypeView as _, UpdateView as _},
-            types::{Decimal, Ulid},
             view::{Create, Update, View},
         },
         db,
@@ -72,6 +72,7 @@ pub mod prelude {
             response::LoadCollection,
         },
         mimic_start,
+        types::{Decimal, Ulid},
     };
     pub use candid::CandidType;
     pub use serde::{Deserialize, Serialize};

@@ -1,10 +1,12 @@
-use crate::core::{
-    traits::{
-        FieldValue, Inner, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom,
-        Visitable,
+use crate::{
+    core::{
+        traits::{
+            FieldValue, Inner, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto,
+            ValidateCustom, Visitable,
+        },
+        value::Value,
     },
     types::{Principal, Ulid},
-    value::Value,
 };
 use candid::CandidType;
 use canic::{

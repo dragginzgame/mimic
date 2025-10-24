@@ -1,6 +1,5 @@
-use crate::core::{
-    Value,
-    traits::FieldValue,
+use crate::{
+    core::{Value, traits::FieldValue},
     types::{Account, Principal, Subaccount, Timestamp, Ulid},
 };
 use candid::{CandidType, Principal as WrappedPrincipal};

@@ -1,7 +1,8 @@
 use mimic::{
-    core::{traits::EntityKind, types::Principal},
+    core::traits::EntityKind,
     db::query::{self, LoadQuery, QueryPlan, QueryPlanner},
     prelude::*,
+    types::Principal,
 };
 use test_design::e2e::index::{Indexable, IndexableOptText, NotIndexable};
 

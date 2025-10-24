@@ -1,4 +1,4 @@
-use crate::core::types::{Ulid, UlidError};
+use crate::types::{Ulid, UlidError};
 use canic::utils;
 use std::sync::{LazyLock, Mutex};
 

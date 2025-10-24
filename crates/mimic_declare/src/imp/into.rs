@@ -20,8 +20,8 @@ impl Imp<EntityId> for IntoTrait {
 
         // into ulid
         let tokens = quote! {
-            impl Into<::mimic::core::types::Ulid> for #ident {
-                fn into(self) -> ::mimic::core::types::Ulid {
+            impl Into<::mimic::types::Ulid> for #ident {
+                fn into(self) -> ::mimic::types::Ulid {
                     self.ulid()
                 }
             }

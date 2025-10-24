@@ -1,4 +1,4 @@
-use crate::core::types::Ulid;
+use crate::types::Ulid;
 use canic::utils::hash::hash_u128;
 use ulid::Ulid as WrappedUlid;
 

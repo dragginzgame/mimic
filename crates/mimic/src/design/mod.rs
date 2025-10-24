@@ -17,10 +17,10 @@ pub mod prelude {
                 Sanitize as _, Sanitizer as _, Serialize as _, TypeView as _, Validate as _,
                 ValidateCustom, Validator as _, Visitable as _,
             },
-            types::*,
             view::View,
         },
         db::{self, Db},
+        types::*,
     };
     pub use ::candid::CandidType;
     pub use derive_more;

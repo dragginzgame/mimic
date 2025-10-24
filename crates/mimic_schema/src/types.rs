@@ -175,7 +175,7 @@ impl Primitive {
     pub fn as_type(self) -> TokenStream {
         let ident = format_ident!("{self}");
 
-        quote!(::mimic::core::types::#ident)
+        quote!(::mimic::types::#ident)
     }
 
     #[must_use]

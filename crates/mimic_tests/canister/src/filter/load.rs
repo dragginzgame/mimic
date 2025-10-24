@@ -1,7 +1,4 @@
-use mimic::{
-    core::{Value, types::Principal},
-    prelude::*,
-};
+use mimic::{core::Value, prelude::*, types::Principal};
 use test_design::e2e::filter::{Filterable, FilterableEnum, FilterableEnumFake, FilterableOpt};
 
 ///
