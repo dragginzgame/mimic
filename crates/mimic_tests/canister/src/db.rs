@@ -175,10 +175,10 @@ impl DbTester {
     fn delete_lots() {
         use test_design::e2e::db::SimpleEntity;
 
-        const ROWS: usize = 500;
+        const ROWS: u32 = 500;
 
         // Step 1: Insert rows and collect keys
-        let mut keys = Vec::with_capacity(ROWS);
+        let mut keys = Vec::new();
         for _ in 0..ROWS {
             let key = db!().insert(SimpleEntity::default()).unwrap().key();
             keys.push(key);
@@ -186,16 +186,16 @@ impl DbTester {
 
         // Step 2: Ensure the count is correct
         let count_before = db!().load::<SimpleEntity>().count_all().unwrap();
-        assert_eq!(count_before as usize, ROWS, "Expected {ROWS} inserted rows");
+        assert_eq!(count_before, ROWS, "Expected {ROWS} inserted rows");
 
         // Step 3: Delete all inserted rows
         let deleted = db!().delete::<SimpleEntity>().many(keys.clone()).unwrap();
 
         assert_eq!(
-            deleted.len(),
+            deleted.count(),
             ROWS,
             "Expected to delete {ROWS} rows, but got {}",
-            deleted.len()
+            deleted.count()
         );
 
         // Step 4: Ensure all have been deleted

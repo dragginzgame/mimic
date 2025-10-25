@@ -110,7 +110,7 @@ impl DeleteFilterTester {
             .filter(|f| f.eq("category", "A"))
             .unwrap();
 
-        assert_eq!(deleted.len(), 3, "expected to delete 3 A-category rows");
+        assert_eq!(deleted.count(), 3, "expected to delete 3 A-category rows");
 
         let remaining = Self::remaining_count_filterable();
         assert_eq!(remaining, 7, "expected 7 remaining after deleting A");
@@ -132,7 +132,11 @@ impl DeleteFilterTester {
             .filter(|f| f.contains("tags", "green"))
             .unwrap();
 
-        assert_eq!(deleted.len(), 4, "expected to delete 4 rows with green tag");
+        assert_eq!(
+            deleted.count(),
+            4,
+            "expected to delete 4 rows with green tag"
+        );
 
         let remaining = Self::remaining_count_filterable();
         assert_eq!(remaining, 6);
@@ -145,7 +149,7 @@ impl DeleteFilterTester {
             .filter(|f| f.in_iter("category", ["A", "C"]))
             .unwrap();
 
-        assert_eq!(deleted.len(), 6, "expected to delete 6 rows (A or C)");
+        assert_eq!(deleted.count(), 6, "expected to delete 6 rows (A or C)");
 
         let remaining = Self::remaining_count_filterable();
         assert_eq!(remaining, 4);
@@ -160,7 +164,7 @@ impl DeleteFilterTester {
             .unwrap();
 
         assert_eq!(
-            deleted.len(),
+            deleted.count(),
             1,
             "expected to delete exactly one row by pid"
         );
@@ -178,7 +182,11 @@ impl DeleteFilterTester {
             .filter(|f| f.eq("name", Value::None))
             .unwrap();
 
-        assert_eq!(deleted.len(), 2, "expected to delete 2 rows with name=None");
+        assert_eq!(
+            deleted.count(),
+            2,
+            "expected to delete 2 rows with name=None"
+        );
         let remaining = Self::remaining_count_filterable_opt();
         assert_eq!(remaining, 3);
 
@@ -199,7 +207,7 @@ impl DeleteFilterTester {
             .filter(|f| f.eq("name", "Alice"))
             .unwrap();
 
-        assert_eq!(deleted.len(), 1, "expected to delete Alice only");
+        assert_eq!(deleted.count(), 1, "expected to delete Alice only");
         let remaining = Self::remaining_count_filterable_opt();
         assert_eq!(remaining, 4);
 

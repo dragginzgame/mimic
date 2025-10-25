@@ -69,7 +69,7 @@ pub mod prelude {
         db::{
             executor::SaveExecutor,
             query::{self, FilterDsl, FilterExt as _, LimitExt as _, SortExt as _},
-            response::LoadCollection,
+            response::Response,
         },
         mimic_start,
         types::{Decimal, Ulid},

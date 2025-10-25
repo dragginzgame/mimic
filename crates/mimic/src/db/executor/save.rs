@@ -1,6 +1,6 @@
 use crate::{
     Error,
-    core::{Key, deserialize, sanitize, serialize, traits::EntityKind, validate},
+    core::{deserialize, sanitize, serialize, traits::EntityKind, validate},
     db::{
         Db,
         executor::ExecutorError,
@@ -42,16 +42,6 @@ impl<E: EntityKind> SaveExecutor<E> {
     ///
     /// EXECUTION METHODS
     ///
-
-    // response
-    // a specific response used by the automated query endpoints that
-    // we will improve int he future
-    pub fn response(&self, query: SaveQuery) -> Result<Key, Error> {
-        let bytes: E = deserialize(&query.bytes)?;
-        let key = self.save_entity(query.mode, bytes)?.key();
-
-        Ok(key)
-    }
 
     pub fn insert(&self, entity: E) -> Result<E, Error> {
         let entity = self.save_entity(SaveMode::Insert, entity)?;

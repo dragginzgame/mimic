@@ -44,7 +44,7 @@ impl MetricsTester {
         // 1 delete one → rows_deleted = 1
         let first_key = loaded.keys()[0];
         let deleted = db!().delete::<SimpleEntity>().one(first_key).unwrap();
-        assert_eq!(deleted.len(), 1);
+        assert_eq!(deleted.count(), 1);
 
         // Snapshot
         let stats = crate::mimic_metrics().unwrap();

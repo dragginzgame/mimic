@@ -54,7 +54,7 @@ pub trait CanisterKind: Kind {}
 ///
 
 pub trait EntityKind: Kind + TypeKind + FieldValues {
-    type PrimaryKey: Into<Key>;
+    type PrimaryKey: Copy + Into<Key>;
     type Store: StoreKind;
     type Canister: CanisterKind; // Self::Store::Canister shortcut
 

@@ -11,7 +11,7 @@ use crate::{
             FilterDsl, FilterExpr, FilterExt, IntoFilterOpt, LoadQuery, QueryPlan, QueryValidate,
             SortDirection, SortExpr,
         },
-        response::LoadCollection,
+        response::Response,
     },
     obs::metrics,
 };
@@ -59,17 +59,17 @@ impl<E: EntityKind> LoadExecutor<E> {
     pub fn many(
         &self,
         values: impl IntoIterator<Item = impl FieldValue>,
-    ) -> Result<LoadCollection<E>, Error> {
+    ) -> Result<Response<E>, Error> {
         let query = LoadQuery::new().many::<E>(values);
         self.execute(query)
     }
 
-    pub fn all(&self) -> Result<LoadCollection<E>, Error> {
+    pub fn all(&self) -> Result<Response<E>, Error> {
         let query = LoadQuery::new();
         self.execute(query)
     }
 
-    pub fn filter<F, R>(self, f: F) -> Result<LoadCollection<E>, Error>
+    pub fn filter<F, R>(self, f: F) -> Result<Response<E>, Error>
     where
         F: FnOnce(FilterDsl) -> R,
         R: IntoFilterOpt,
@@ -94,15 +94,8 @@ impl<E: EntityKind> LoadExecutor<E> {
         Ok(plan_for::<E>(query.filter.as_ref()))
     }
 
-    // response used by automated query endpoints
-    pub fn response(&self, query: LoadQuery) -> Result<Vec<Key>, Error> {
-        let res = self.execute(query)?.keys();
-
-        Ok(res)
-    }
-
     /// Execute a full query and return a collection of entities.
-    pub fn execute(&self, query: LoadQuery) -> Result<LoadCollection<E>, Error> {
+    pub fn execute(&self, query: LoadQuery) -> Result<Response<E>, Error> {
         let mut span = metrics::Span::<E>::new(metrics::ExecKind::Load);
         QueryValidate::<E>::validate(&query)?;
 
@@ -169,7 +162,7 @@ impl<E: EntityKind> LoadExecutor<E> {
         crate::db::executor::set_rows_from_len(&mut span, rows.len());
         self.debug_log(format!("✅ Query complete -> {} final rows", rows.len()));
 
-        Ok(LoadCollection(rows))
+        Ok(Response(rows))
     }
 
     /// currently just doing the same as execute()

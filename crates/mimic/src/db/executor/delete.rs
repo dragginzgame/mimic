@@ -8,6 +8,7 @@ use crate::{
         Db,
         executor::FilterEvaluator,
         query::{DeleteQuery, FilterDsl, FilterExpr, FilterExt, QueryPlan, QueryValidate},
+        response::Response,
     },
     obs::metrics,
 };
@@ -46,7 +47,7 @@ impl<E: EntityKind> DeleteExecutor<E> {
     /// these will create an intermediate query
     ///
 
-    pub fn one(self, value: impl FieldValue) -> Result<Vec<Key>, Error> {
+    pub fn one(self, value: impl FieldValue) -> Result<Response<E>, Error> {
         let query = DeleteQuery::new().one::<E>(value);
         self.execute(query)
     }
@@ -54,17 +55,17 @@ impl<E: EntityKind> DeleteExecutor<E> {
     pub fn many(
         self,
         values: impl IntoIterator<Item = impl FieldValue>,
-    ) -> Result<Vec<Key>, Error> {
+    ) -> Result<Response<E>, Error> {
         let query = DeleteQuery::new().many::<E>(values);
         self.execute(query)
     }
 
-    pub fn all(self) -> Result<Vec<Key>, Error> {
+    pub fn all(self) -> Result<Response<E>, Error> {
         let query = DeleteQuery::new();
         self.execute(query)
     }
 
-    pub fn filter(self, f: impl FnOnce(FilterDsl) -> FilterExpr) -> Result<Vec<Key>, Error> {
+    pub fn filter(self, f: impl FnOnce(FilterDsl) -> FilterExpr) -> Result<Response<E>, Error> {
         let query = DeleteQuery::new().filter(f);
         self.execute(query)
     }
@@ -80,16 +81,8 @@ impl<E: EntityKind> DeleteExecutor<E> {
         Ok(crate::db::executor::plan_for::<E>(query.filter.as_ref()))
     }
 
-    // response
-    // for the automated query endpoint, we will make this more flexible in the future
-    pub fn response(self, query: DeleteQuery) -> Result<Vec<Key>, Error> {
-        let res = self.execute(query)?;
-
-        Ok(res)
-    }
-
     // execute
-    pub fn execute(self, query: DeleteQuery) -> Result<Vec<Key>, Error> {
+    pub fn execute(self, query: DeleteQuery) -> Result<Response<E>, Error> {
         let mut span = metrics::Span::<E>::new(metrics::ExecKind::Delete);
         QueryValidate::<E>::validate(&query)?;
 
@@ -105,53 +98,41 @@ impl<E: EntityKind> DeleteExecutor<E> {
             .map(|l| l as usize);
         let filter_simplified = query.filter.as_ref().map(|f| f.clone().simplify());
 
-        let mut deleted_rows: Vec<Key> = Vec::with_capacity(limit.unwrap_or(0));
+        let mut res: Vec<(Key, E)> = Vec::with_capacity(limit.unwrap_or(0));
         ctx.with_store_mut(|s| {
             for dk in keys {
-                // If we already hit the limit, bail early
+                // early limit
                 if let Some(max) = limit
-                    && deleted_rows.len() >= max
+                    && res.len() >= max
                 {
                     break;
                 }
 
-                // Peek the value once
+                // read value
                 let Some(bytes) = s.get(&dk) else {
                     continue;
                 };
 
-                // Decide if we need to deserialize:
-                // - Needed if we have a filter (to evaluate)
-                // - Or if we *might* delete and need to drop index entries
-                let mut entity_opt: Option<E> = None;
+                // deserialize once
+                let Ok(entity) = deserialize::<E>(&bytes) else {
+                    continue;
+                };
 
-                // Evaluate filter if present
-                if let Some(ref f) = filter_simplified {
-                    // deserialize once to evaluate
-                    match deserialize::<E>(&bytes) {
-                        Ok(ent) => {
-                            if !FilterEvaluator::new(&ent).eval(f) {
-                                continue; // not matched; skip
-                            }
-                            entity_opt = Some(ent); // reuse for index removal
-                        }
-                        Err(_) => continue,
-                    }
+                // filter check
+                if let Some(ref f) = filter_simplified
+                    && !FilterEvaluator::new(&entity).eval(f)
+                {
+                    continue;
                 }
 
-                // Passed filter (or no filter) → delete
+                // delete row and remove indexes
                 s.remove(&dk);
-
-                // Remove indexes if any. Only deserialize if we haven't yet and need it.
                 if !E::INDEXES.is_empty() {
-                    let ent = match entity_opt {
-                        Some(ent) => ent,
-                        None => deserialize::<E>(&bytes)?,
-                    };
-                    self.remove_indexes(&ent)?;
+                    self.remove_indexes(&entity)?;
                 }
 
-                deleted_rows.push(dk.key());
+                // store result (key + deleted entity)
+                res.push((dk.key(), entity));
             }
 
             Ok::<_, Error>(())
@@ -159,9 +140,9 @@ impl<E: EntityKind> DeleteExecutor<E> {
 
         //   canic::cdk::println!("query.delete: deleted keys {deleted_rows:?}");
 
-        crate::db::executor::set_rows_from_len(&mut span, deleted_rows.len());
+        crate::db::executor::set_rows_from_len(&mut span, res.len());
 
-        Ok(deleted_rows)
+        Ok(Response(res))
     }
 
     // remove_indexes
