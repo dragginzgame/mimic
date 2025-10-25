@@ -63,10 +63,10 @@ impl FieldValue for Key {
         match self {
             Self::Account(v) => Value::Account(*v),
             Self::Int(v) => Value::Int(*v),
-            Self::Uint(v) => Value::Uint(*v),
             Self::Principal(v) => Value::Principal(*v),
             Self::Subaccount(v) => Value::Subaccount(*v),
             Self::Timestamp(v) => Value::Timestamp(*v),
+            Self::Uint(v) => Value::Uint(*v),
             Self::Ulid(v) => Value::Ulid(*v),
         }
     }
@@ -105,27 +105,30 @@ macro_rules! impl_eq_key {
 }
 
 impl_from_key! {
+    Account => Account,
     i8  => Int,
     i16 => Int,
     i32 => Int,
     i64 => Int,
+    Principal => Principal,
+    WrappedPrincipal => Principal,
+    Subaccount => Subaccount,
+    Timestamp => Timestamp,
     u8  => Uint,
     u16 => Uint,
     u32 => Uint,
     u64 => Uint,
     Ulid => Ulid,
-    Principal => Principal,
-    WrappedPrincipal => Principal,
-    Subaccount => Subaccount,
 }
 
 impl_eq_key! {
     Account => Account,
     i64 => Int,
-    u64  => Uint,
-    Ulid => Ulid,
     Principal => Principal,
     Subaccount => Subaccount,
+    Timestamp => Timestamp,
+    u64  => Uint,
+    Ulid => Ulid,
 }
 
 impl Ord for Key {
@@ -136,6 +139,8 @@ impl Ord for Key {
             (Self::Principal(a), Self::Principal(b)) => Ord::cmp(a, b),
             (Self::Uint(a), Self::Uint(b)) => Ord::cmp(a, b),
             (Self::Ulid(a), Self::Ulid(b)) => Ord::cmp(a, b),
+            (Self::Subaccount(a), Self::Subaccount(b)) => Ord::cmp(a, b),
+            (Self::Timestamp(a), Self::Timestamp(b)) => Ord::cmp(a, b),
 
             _ => Ord::cmp(&self.variant_rank(), &other.variant_rank()), // fallback for cross-type comparison
         }
