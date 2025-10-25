@@ -53,7 +53,7 @@ impl Imp<Enum> for TypeViewTrait {
 
             if variant.value.is_some() {
                 quote! {
-                    Self::View::#variant_ident(v) => Self::#variant_ident(TypeView::from_view(v))
+                    Self::View::#variant_ident(v) => Self::#variant_ident(::mimic::core::traits::TypeView::from_view(v))
                 }
             } else {
                 quote! {
@@ -72,8 +72,6 @@ impl Imp<Enum> for TypeViewTrait {
                 }
 
                 fn from_view(view: Self::View) -> Self {
-                    use ::mimic::core::traits::TypeView;
-
                     match view {
                         #(#from_view_arms,)*
                     }
@@ -302,7 +300,7 @@ fn field_list(view_ident: &Ident, fields: &FieldList) -> TokenStream {
         .map(|field| {
             let ident = &field.ident;
             quote! {
-                #ident: TypeView::to_view(&self.#ident)
+                #ident: ::mimic::core::traits::TypeView::to_view(&self.#ident)
             }
         })
         .collect();
@@ -312,7 +310,7 @@ fn field_list(view_ident: &Ident, fields: &FieldList) -> TokenStream {
         .map(|field| {
             let ident = &field.ident;
             quote! {
-                #ident: TypeView::from_view(view.#ident)
+                #ident: ::mimic::core::traits::TypeView::from_view(view.#ident)
             }
         })
         .collect();
@@ -321,16 +319,12 @@ fn field_list(view_ident: &Ident, fields: &FieldList) -> TokenStream {
         type View = #view_ident;
 
         fn to_view(&self) -> Self::View {
-            use ::mimic::core::traits::TypeView;
-
             #view_ident {
                 #(#to_pairs),*
             }
         }
 
         fn from_view(view: Self::View) -> Self {
-            use ::mimic::core::traits::TypeView;
-
             Self {
                 #(#from_pairs),*
             }
@@ -343,18 +337,14 @@ fn quote_typeview_linear(view_ident: &Ident) -> TokenStream {
         type View = #view_ident;
 
         fn to_view(&self) -> Self::View {
-            use ::mimic::core::traits::TypeView;
-
             self.iter()
-                .map(TypeView::to_view)
+                .map(::mimic::core::traits::TypeView::to_view)
                 .collect()
         }
 
         fn from_view(view: Self::View) -> Self {
-            use ::mimic::core::traits::TypeView;
-
             Self(view.into_iter()
-                .map(TypeView::from_view)
+                .map(::mimic::core::traits::TypeView::from_view)
                 .collect())
         }
     }
@@ -365,23 +355,19 @@ fn quote_typeview_map(view_ident: &Ident, key: &TokenStream, value: &TokenStream
         type View = #view_ident;
 
         fn to_view(&self) -> Self::View {
-            use ::mimic::core::traits::TypeView;
-
             self.0.iter()
                 .map(|(k, v)| (
-                    TypeView::to_view(k),
-                    TypeView::to_view(v),
+                    ::mimic::core::traits::TypeView::to_view(k),
+                    ::mimic::core::traits::TypeView::to_view(v),
                 ))
                 .collect()
         }
 
         fn from_view(view: Self::View) -> Self {
-            use ::mimic::core::traits::TypeView;
-
             Self(view.into_iter()
                 .map(|(k, v)| (
-                    <#key as TypeView>::from_view(k),
-                    <#value as TypeView>::from_view(v),
+                    <#key as ::mimic::core::traits::TypeView>::from_view(k),
+                    <#value as ::mimic::core::traits::TypeView>::from_view(v),
                 ))
                 .collect())
         }

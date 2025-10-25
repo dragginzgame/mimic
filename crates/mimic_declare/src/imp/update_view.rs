@@ -54,7 +54,6 @@ where
         type View = #update_ident;
 
         fn merge(&mut self, view: Self::View) {
-            use ::mimic::core::traits::TypeView;
             #(#merge_pairs)*
         }
     };

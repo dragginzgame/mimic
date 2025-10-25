@@ -12,16 +12,7 @@ pub struct DefaultTrait {}
 
 impl Imp<Entity> for DefaultTrait {
     fn strategy(node: &Entity) -> Option<TraitStrategy> {
-        // If no fields have default, just derive Default
-        if node.fields.iter().all(|f| f.default.is_none()) {
-            return Some(TraitStrategy::from_derive(Trait::Default));
-        }
-
-        let tokens = Implementor::new(node.def(), Trait::Default)
-            .set_tokens(field_list(&node.fields))
-            .to_token_stream();
-
-        Some(TraitStrategy::from_impl(tokens))
+        Some(default_strategy(&node.def, &node.fields))
     }
 }
 
@@ -31,43 +22,36 @@ impl Imp<Entity> for DefaultTrait {
 
 impl Imp<Record> for DefaultTrait {
     fn strategy(node: &Record) -> Option<TraitStrategy> {
-        // If no fields have default, just derive Default
-        if node.fields.iter().all(|f| f.default.is_none()) {
-            return Some(TraitStrategy::from_derive(Trait::Default));
-        }
-
-        let tokens = Implementor::new(node.def(), Trait::Default)
-            .set_tokens(field_list(&node.fields))
-            .to_token_stream();
-
-        Some(TraitStrategy::from_impl(tokens))
+        Some(default_strategy(&node.def, &node.fields))
     }
 }
 
-// field_list
-fn field_list(fields: &FieldList) -> TokenStream {
-    let assignments = fields.iter().map(|field| {
-        let ident = &field.ident;
-        let expr = if let Some(default) = &field.default {
-            quote!(#default.into())
-        } else {
-            match field.value.cardinality() {
-                Cardinality::One => quote!(Default::default()),
-                Cardinality::Opt => quote!(Option::default()),
-                Cardinality::Many => quote!(Vec::default()),
-            }
-        };
+// default_strategy
+fn default_strategy(def: &Def, fields: &FieldList) -> TraitStrategy {
+    if fields.iter().all(|f| f.default.is_none()) {
+        return TraitStrategy::from_derive(Trait::Default);
+    }
 
-        quote! { #ident: #expr }
+    // assignments
+    let assignments = fields.into_iter().map(|f| {
+        let ident = &f.ident;
+        let expr = f.default_expr();
+
+        quote!(#ident: #expr)
     });
 
-    quote! {
+    // build default
+    let q = quote! {
         fn default() -> Self {
-            Self {
-                #(#assignments),*
-            }
+            Self { #(#assignments),* }
         }
-    }
+    };
+
+    let tokens = Implementor::new(def, Trait::Default)
+        .set_tokens(q)
+        .to_token_stream();
+
+    TraitStrategy::from_impl(tokens)
 }
 
 ///

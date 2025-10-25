@@ -37,12 +37,13 @@ impl FieldList {
     }
 }
 
-impl<'a> IntoIterator for &'a FieldList {
-    type Item = &'a Field;
-    type IntoIter = Iter<'a, Field>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.fields.iter()
+impl FieldList {
+    // default_assignments
+    // can be used to create different default views
+    pub fn default_assignments(&self) -> Vec<(Ident, TokenStream)> {
+        self.iter()
+            .map(|f| (f.ident.clone(), f.default_expr()))
+            .collect()
     }
 }
 
@@ -74,6 +75,15 @@ impl HasTypeExpr for FieldList {
     }
 }
 
+impl<'a> IntoIterator for &'a FieldList {
+    type Item = &'a Field;
+    type IntoIter = Iter<'a, Field>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.fields.iter()
+    }
+}
+
 ///
 /// Field
 ///
@@ -89,6 +99,16 @@ pub struct Field {
 }
 
 impl Field {
+    // default_expr
+    pub fn default_expr(&self) -> TokenStream {
+        match (&self.default, self.value.cardinality()) {
+            (Some(default), _) => quote!(#default.into()),
+            (None, Cardinality::One) => quote!(Default::default()),
+            (None, Cardinality::Opt) => quote!(None),
+            (None, Cardinality::Many) => quote!(Vec::new()),
+        }
+    }
+
     pub fn created_at() -> Self {
         Self {
             ident: format_ident!("created_at"),

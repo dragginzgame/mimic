@@ -57,11 +57,8 @@ impl SanitizeAutoFn for List {
             // no sanitizers → rely on blanket impl
             quote!()
         } else {
-            let stmts = generate_sanitizers(
-                &node.item.sanitizers,
-                quote!(self.0[i]),
-                quote!(self.0[i].clone()),
-            );
+            let stmts =
+                generate_sanitizers(&node.item.sanitizers, quote!(self.0[i]), quote!(self.0[i]));
 
             fn_wrap(Some(quote! {
                 for i in 0..self.0.len() {
