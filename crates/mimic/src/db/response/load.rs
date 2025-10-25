@@ -58,6 +58,32 @@ where
     }
 
     ///
+    /// Pk
+    ///
+
+    #[must_use]
+    pub fn pk(&self) -> Option<E::PrimaryKey> {
+        self.0.first().map(|(_, e)| e.primary_key())
+    }
+
+    pub fn try_pk(&self) -> Result<E::PrimaryKey, Error> {
+        let pk = self
+            .pk()
+            .ok_or_else(|| ResponseError::NoRowsFound(E::PATH.to_string()))?;
+
+        Ok(pk)
+    }
+
+    #[must_use]
+    pub fn pks(&self) -> Vec<E::PrimaryKey> {
+        self.0.iter().map(|(_, e)| e.primary_key()).collect()
+    }
+
+    pub fn pks_iter(self) -> impl Iterator<Item = E::PrimaryKey> {
+        self.0.into_iter().map(|(_, e)| e.primary_key())
+    }
+
+    ///
     /// Entity
     ///
 
