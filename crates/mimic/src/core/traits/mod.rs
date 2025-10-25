@@ -54,6 +54,7 @@ pub trait CanisterKind: Kind {}
 ///
 
 pub trait EntityKind: Kind + TypeKind + FieldValues {
+    type PrimaryKey: Into<Key>;
     type Store: StoreKind;
     type Canister: CanisterKind; // Self::Store::Canister shortcut
 
@@ -63,6 +64,7 @@ pub trait EntityKind: Kind + TypeKind + FieldValues {
     const INDEXES: &'static [&'static Index];
 
     fn key(&self) -> Key;
+    fn primary_key(&self) -> Self::PrimaryKey;
 }
 
 ///

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - added in merge() for CreateView
 - added UpdateView for Record types
 - added a Newtype check so that the provided inner Primitive type matches the inner Item
+- Entity now has ::PRIMARY_KEY and primary_key(), so we can skip Value->Key if we want
 
 ## [0.24.35] - 2025-10-22
 - it wasn't possible to create a newtype around a non-Primitive but that functionality is now back

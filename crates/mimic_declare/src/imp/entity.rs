@@ -11,6 +11,13 @@ impl Imp<Entity> for EntityKindTrait {
     fn strategy(node: &Entity) -> Option<TraitStrategy> {
         let store = &node.store;
         let pk_field = &node.primary_key.to_string();
+        let pk_type = &node
+            .fields
+            .get(&node.primary_key)
+            .unwrap()
+            .value
+            .item
+            .type_expr();
 
         // instead of string literals, reference the inherent const idents
         let field_refs: Vec<Ident> = node
@@ -31,6 +38,7 @@ impl Imp<Entity> for EntityKindTrait {
 
         // static definitions
         let mut q = quote! {
+            type PrimaryKey = #pk_type;
             type Store = #store;
             type Canister = <Self::Store as ::mimic::core::traits::StoreKind>::Canister;
 
@@ -57,12 +65,11 @@ fn key(node: &Entity) -> TokenStream {
 
     quote! {
         fn key(&self) -> Key {
-            use ::mimic::core::traits::FieldValue;
+            self.primary_key().into()
+        }
 
+        fn primary_key(&self) -> Self::PrimaryKey {
             self.#primary_key
-                .to_value()
-                .as_key()
-                .expect("primary key must be convertible to Key")
         }
     }
 }
