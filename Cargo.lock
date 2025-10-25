@@ -149,9 +149,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.42"
+version = "1.2.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81bbf3b3619004ad9bd139f62a9ab5cfe467f307455a0d307b0cf58bf070feaa"
+checksum = "739eb0f94557554b3ca9a86d2d37bebd49c5e6d0c1d2bda35ba5bdac830befc2"
 dependencies = [
  "find-msvc-tools",
  "shlex",
@@ -797,7 +797,7 @@ checksum = "f52b00d39961fc5b2736ea853c9cc86238e165017a493d1d5c8eac6bdc4cc273"
 
 [[package]]
 name = "mimic"
-version = "0.25.15"
+version = "0.25.16"
 dependencies = [
  "bencher",
  "candid",
@@ -821,7 +821,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_build"
-version = "0.25.15"
+version = "0.25.16"
 dependencies = [
  "mimic_schema",
  "proc-macro2",
@@ -831,7 +831,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_common"
-version = "0.25.15"
+version = "0.25.16"
 dependencies = [
  "candid",
  "convert_case 0.8.0",
@@ -841,7 +841,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_declare"
-version = "0.25.15"
+version = "0.25.16"
 dependencies = [
  "darling 0.21.3",
  "derive_more",
@@ -856,7 +856,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_schema"
-version = "0.25.15"
+version = "0.25.16"
 dependencies = [
  "candid",
  "canic",
@@ -1215,7 +1215,7 @@ dependencies = [
 
 [[package]]
 name = "test_canister"
-version = "0.25.15"
+version = "0.25.16"
 dependencies = [
  "candid",
  "canic",
@@ -1227,7 +1227,7 @@ dependencies = [
 
 [[package]]
 name = "test_design"
-version = "0.25.15"
+version = "0.25.16"
 dependencies = [
  "candid",
  "mimic",
