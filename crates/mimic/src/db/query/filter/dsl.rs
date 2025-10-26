@@ -63,10 +63,10 @@ impl FilterDsl {
     //
 
     pub fn is_some(self, field: impl AsRef<str>) -> FilterExpr {
-        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::IsSome, Value::Unit))
+        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::IsSome, ()))
     }
     pub fn is_none(self, field: impl AsRef<str>) -> FilterExpr {
-        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::IsNone, Value::Unit))
+        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::IsNone, ()))
     }
 
     //

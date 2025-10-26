@@ -6,6 +6,7 @@ use crate::core::{
     },
 };
 use candid::CandidType;
+use derive_more::Display;
 use serde::{Deserialize, Serialize};
 
 ///
@@ -18,6 +19,7 @@ use serde::{Deserialize, Serialize};
     Copy,
     Debug,
     Default,
+    Display,
     Eq,
     PartialEq,
     Hash,
@@ -26,11 +28,17 @@ use serde::{Deserialize, Serialize};
     Serialize,
     Deserialize,
 )]
-pub struct Unit();
+pub struct Unit;
+
+impl FieldValue for () {
+    fn to_value(&self) -> Value {
+        Value::Unit(Unit)
+    }
+}
 
 impl FieldValue for Unit {
     fn to_value(&self) -> Value {
-        Value::Unit
+        Value::Unit(*self)
     }
 }
 

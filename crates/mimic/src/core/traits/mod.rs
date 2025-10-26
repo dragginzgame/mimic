@@ -281,12 +281,6 @@ impl FieldValue for String {
     }
 }
 
-impl FieldValue for () {
-    fn to_value(&self) -> Value {
-        Value::Unit
-    }
-}
-
 impl<T: FieldValue + Clone> FieldValue for &T {
     fn to_value(&self) -> Value {
         (*self).clone().to_value()

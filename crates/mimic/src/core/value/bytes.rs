@@ -116,6 +116,13 @@ impl Value {
             Self::IntBig(v) => {
                 feed_bytes(h, &v.to_leb128());
             }
+            Self::List(xs) => {
+                feed_u32(h, xs.len() as u32);
+                for x in xs {
+                    feed_u8(h, 0xFF);
+                    x.write_to_hasher(h); // recurse, no sub-hash
+                }
+            }
             Self::Principal(p) => {
                 let raw = p.as_slice();
                 feed_u32(h, raw.len() as u32);
@@ -147,14 +154,7 @@ impl Value {
             Self::Ulid(u) => {
                 feed_bytes(h, &u.to_bytes());
             }
-            Self::List(xs) => {
-                feed_u32(h, xs.len() as u32);
-                for x in xs {
-                    feed_u8(h, 0xFF);
-                    x.write_to_hasher(h); // recurse, no sub-hash
-                }
-            }
-            Self::None | Self::Unit | Self::Unsupported => {}
+            Self::None | Self::Unit(_) | Self::Unsupported => {}
         }
     }
 

@@ -104,7 +104,7 @@ pub enum Value {
     Uint128(Nat128),
     UintBig(Nat),
     Ulid(Ulid),
-    Unit,
+    Unit(Unit),
     Unsupported,
 }
 
@@ -150,7 +150,7 @@ impl Value {
     /// Returns true if the value is Unit (used for presence/null comparators).
     #[must_use]
     pub const fn is_unit(&self) -> bool {
-        matches!(self, Self::Unit)
+        matches!(self, Self::Unit(_))
     }
 
     /// Returns true if the value is a list and all elements are Text.
@@ -190,7 +190,7 @@ impl Value {
             Self::Uint128(_) => ValueTag::Uint128,
             Self::UintBig(_) => ValueTag::UintBig,
             Self::Ulid(_) => ValueTag::Ulid,
-            Self::Unit => ValueTag::Unit,
+            Self::Unit(_) => ValueTag::Unit,
             Self::Unsupported => ValueTag::Unsupported,
         }
         .to_u8()
@@ -271,7 +271,7 @@ impl Value {
     #[must_use]
     pub fn to_index_fingerprint(&self) -> Option<[u8; 16]> {
         match self {
-            Self::None | Self::Unit | Self::Unsupported => None,
+            Self::None | Self::Unsupported => None,
             _ => Some(self.hash_value()),
         }
     }
@@ -501,7 +501,7 @@ impl From<Vec<Self>> for Value {
 
 impl From<()> for Value {
     fn from((): ()) -> Self {
-        Self::Unit
+        Self::Unit(Unit)
     }
 }
 

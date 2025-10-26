@@ -1,6 +1,6 @@
 use crate::{
     core::{Value, traits::FieldValue},
-    types::{Account, Principal, Subaccount, Timestamp, Ulid},
+    types::{Account, Principal, Subaccount, Timestamp, Ulid, Unit},
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
 use canic::impl_storable_bounded;
@@ -25,6 +25,7 @@ pub enum Key {
     Timestamp(Timestamp),
     Uint(u64),
     Ulid(Ulid),
+    Unit(Unit),
 }
 
 impl Key {
@@ -54,6 +55,7 @@ impl Key {
             Self::Timestamp(_) => 4,
             Self::Uint(_) => 5,
             Self::Ulid(_) => 6,
+            Self::Unit(_) => 7,
         }
     }
 }
@@ -68,6 +70,7 @@ impl FieldValue for Key {
             Self::Timestamp(v) => Value::Timestamp(*v),
             Self::Uint(v) => Value::Uint(*v),
             Self::Ulid(v) => Value::Ulid(*v),
+            Self::Unit(v) => Value::Unit(*v),
         }
     }
 }
@@ -119,6 +122,7 @@ impl_from_key! {
     u32 => Uint,
     u64 => Uint,
     Ulid => Ulid,
+    Unit => Unit,
 }
 
 impl_eq_key! {
@@ -129,6 +133,7 @@ impl_eq_key! {
     Timestamp => Timestamp,
     u64  => Uint,
     Ulid => Ulid,
+    Unit => Unit,
 }
 
 impl Ord for Key {
