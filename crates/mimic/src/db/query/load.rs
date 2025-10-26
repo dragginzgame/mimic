@@ -40,6 +40,11 @@ impl LoadQuery {
     }
 
     #[must_use]
+    pub fn only<E: EntityKind>(self) -> Self {
+        self.filter(|f| f.eq(E::PRIMARY_KEY, ()))
+    }
+
+    #[must_use]
     pub fn many<E: EntityKind>(self, values: impl IntoIterator<Item = impl FieldValue>) -> Self {
         self.filter(move |f| f.in_iter(E::PRIMARY_KEY, values))
     }

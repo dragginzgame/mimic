@@ -1,4 +1,5 @@
 pub mod collection;
+pub mod entity;
 pub mod newtype;
 pub mod relation;
 pub mod sanitize;
@@ -10,20 +11,6 @@ use crate::prelude::*;
 // SIMPLE TESTS
 // these types just test themselves by existing
 //
-
-///
-/// Entity
-///
-
-#[entity(
-    store = "TestDataStore",
-    pk = "id",
-    fields(
-        field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"),
-        field(ident = "a", value(item(prim = "Int32")), default = 3),
-    )
-)]
-pub struct Entity {}
 
 ///
 /// List

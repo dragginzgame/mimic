@@ -95,6 +95,11 @@ pub trait FilterExt: FilterSlot + Sized {
     }
 
     #[must_use]
+    fn only<E: EntityKind>(self) -> Self {
+        self.filter(|f| f.eq(E::PRIMARY_KEY, ()))
+    }
+
+    #[must_use]
     fn many<E, I>(self, values: I) -> Self
     where
         E: EntityKind,

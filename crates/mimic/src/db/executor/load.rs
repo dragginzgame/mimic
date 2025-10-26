@@ -56,6 +56,11 @@ impl<E: EntityKind> LoadExecutor<E> {
         self.execute(query)?.try_entity()
     }
 
+    pub fn only(&self) -> Result<E, Error> {
+        let query = LoadQuery::new().one::<E>(());
+        self.execute(query)?.try_entity()
+    }
+
     pub fn many(
         &self,
         values: impl IntoIterator<Item = impl FieldValue>,

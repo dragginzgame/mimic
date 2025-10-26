@@ -52,6 +52,11 @@ impl<E: EntityKind> DeleteExecutor<E> {
         self.execute(query)
     }
 
+    pub fn only(self) -> Result<Response<E>, Error> {
+        let query = DeleteQuery::new().one::<E>(());
+        self.execute(query)
+    }
+
     pub fn many(
         self,
         values: impl IntoIterator<Item = impl FieldValue>,
