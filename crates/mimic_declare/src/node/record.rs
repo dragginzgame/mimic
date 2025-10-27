@@ -22,23 +22,23 @@ pub struct Record {
 impl Record {
     /// Generates the `EntityUpdate` struct (excluding PK, all Option<>)
     pub fn update_type_part(&self) -> TokenStream {
-        let mut derives = self.view_derives();
         let update_ident = self.update_ident();
 
         // default, as they're all optional
+        let mut derives = self.view_derives();
         derives.push(Trait::Default);
 
         let field_tokens = self.fields.iter().map(|f| {
             let ident = &f.ident;
             let ty = f.value.view_type_expr();
 
-            quote!(pub #ident: Option<#ty>,)
+            quote!(pub #ident: Option<#ty>)
         });
 
         quote! {
             #derives
             pub struct #update_ident {
-                #(#field_tokens)*
+                #(#field_tokens),*
             }
         }
     }

@@ -12,7 +12,7 @@ pub struct UpdateViewTrait {}
 impl Imp<Entity> for UpdateViewTrait {
     fn strategy(node: &Entity) -> Option<TraitStrategy> {
         Some(update_impl(node, |n| {
-            n.iter_without_pk().map(|f| f.ident.clone()).collect()
+            n.iter_editable_fields().map(|f| f.ident.clone()).collect()
         }))
     }
 }

@@ -67,13 +67,13 @@ impl Imp<Enum> for TypeViewTrait {
 
                 fn to_view(&self) -> Self::View {
                     match self {
-                        #(#to_view_arms,)*
+                        #(#to_view_arms),*
                     }
                 }
 
                 fn from_view(view: Self::View) -> Self {
                     match view {
-                        #(#from_view_arms,)*
+                        #(#from_view_arms),*
                     }
                 }
         };
@@ -118,13 +118,13 @@ impl Imp<EnumValue> for TypeViewTrait {
 
             fn to_view(&self) -> Self::View {
                 match self {
-                    #(#to_view_arms,)*
+                    #(#to_view_arms),*
                 }
             }
 
             fn from_view(view: Self::View) -> Self {
                 match view {
-                    #(#from_view_arms,)*
+                    #(#from_view_arms),*
                 }
             }
         };

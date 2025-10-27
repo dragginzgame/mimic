@@ -30,10 +30,10 @@ use crate::{
     types::Ulid,
 };
 
-///
+/// ------------------------
 /// KIND TRAITS
 /// the Schema uses the term "Node" but when they're built it's "Kind"
-///
+/// ------------------------
 
 ///
 /// Kind
@@ -102,9 +102,9 @@ pub trait StoreKind: Kind {
     type Canister: CanisterKind;
 }
 
-///
-/// GROUPED KIND TRAITS
-///
+/// ------------------------
+/// TYPE TRAITS
+/// ------------------------
 
 ///
 /// TypeKind
@@ -202,9 +202,9 @@ impl TypeView for String {
     }
 }
 
-// impl_primitive_type_view
+// impl_type_view
 #[macro_export]
-macro_rules! impl_primitive_type_view {
+macro_rules! impl_type_view {
     ($($type:ty),*) => {
         $(
             impl TypeView for $type {
@@ -222,7 +222,7 @@ macro_rules! impl_primitive_type_view {
     };
 }
 
-impl_primitive_type_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
+impl_type_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
 
 ///
 /// CreateView
@@ -241,6 +241,22 @@ pub trait UpdateView {
 
     /// Merge `view` into `self`, skipping `None` fields.
     fn merge(&mut self, view: Self::View);
+}
+
+///
+/// FilterView
+///
+
+pub trait FilterView {
+    type View;
+}
+
+///
+/// SortView
+///
+
+pub trait SortView {
+    type View;
 }
 
 /// ------------------------
@@ -326,9 +342,9 @@ pub trait Inner<T> {
     fn into_inner(self) -> T;
 }
 
-// impl_primitive_inner
+// impl_inner
 #[macro_export]
-macro_rules! impl_primitive_inner {
+macro_rules! impl_inner {
     ($($type:ty),*) => {
         $(
             impl Inner<$type> for $type {
@@ -343,7 +359,7 @@ macro_rules! impl_primitive_inner {
     };
 }
 
-impl_primitive_inner!(
+impl_inner!(
     bool, f32, f64, i8, i16, i32, i64, i128, String, u8, u16, u32, u64, u128
 );
 

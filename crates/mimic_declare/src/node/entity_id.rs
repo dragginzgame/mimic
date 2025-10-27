@@ -59,7 +59,7 @@ impl HasType for EntityId {
 
         quote! {
             pub enum #ident {
-                #(#keys,)*
+                #(#keys),*
             }
         }
     }

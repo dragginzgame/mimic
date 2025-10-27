@@ -16,6 +16,22 @@ pub struct Value {
 }
 
 impl Value {
+    // is_filterable
+    // nothing changes currently based on the value's cardinality, so just
+    // pass through to item
+    pub fn is_filterable(&self) -> bool {
+        self.item.is_filterable()
+    }
+
+    // is_sortable
+    pub fn is_sortable(&self) -> bool {
+        if self.cardinality() == Cardinality::Many {
+            false
+        } else {
+            self.item.is_sortable()
+        }
+    }
+
     // cardinality
     pub fn cardinality(&self) -> Cardinality {
         match (&self.opt, &self.many) {

@@ -89,7 +89,7 @@ impl HasType for Enum {
 
         quote! {
             pub enum #ident {
-                #(#variants,)*
+                #(#variants),*
             }
         }
     }
@@ -105,7 +105,7 @@ impl HasViewTypes for Enum {
         quote! {
             #derives
             pub enum #view_ident {
-                #(#view_variants,)*
+                #(#view_variants),*
             }
 
             impl Default for #view_ident {

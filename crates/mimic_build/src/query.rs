@@ -40,20 +40,20 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
 
             match kind {
                 QueryKind::Load => quote! {
-                    #entity_path => db!().load::<#ty>().execute(query)?.keys()
+                    #entity_path => db!().load::<#ty>().execute(query)?.keys(),
                 },
                 QueryKind::Delete => quote! {
-                    #entity_path => db!().delete::<#ty>().execute(query)?.keys()
+                    #entity_path => db!().delete::<#ty>().execute(query)?.keys(),
                 },
                 QueryKind::Save => quote! {
-                    #entity_path => db!().save::<#ty>().execute(query)?.key()
+                    #entity_path => db!().save::<#ty>().execute(query)?.key(),
                 },
             }
         });
 
         quote! {
             let res = match path.as_str() {
-                #(#arms,)*
+                #(#arms)*
                 _ => Err(::mimic::interface::query::QueryError::EntityNotFound(path))?,
             };
 

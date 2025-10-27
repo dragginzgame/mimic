@@ -63,14 +63,14 @@ impl HasTypeExpr for FieldList {
     fn type_expr(&self) -> TokenStream {
         let fields = self.fields.iter().map(HasTypeExpr::type_expr);
         quote! {
-            #(#fields,)*
+            #(#fields),*
         }
     }
 
     fn view_type_expr(&self) -> TokenStream {
         let fields = self.fields.iter().map(HasTypeExpr::view_type_expr);
         quote! {
-            #(#fields,)*
+            #(#fields),*
         }
     }
 }
@@ -96,6 +96,9 @@ pub struct Field {
 
     #[darling(default)]
     pub default: Option<Arg>,
+
+    #[darling(skip, default)]
+    pub is_system: bool,
 }
 
 impl Field {
@@ -116,8 +119,8 @@ impl Field {
                 item: Item::created_at(),
                 ..Default::default()
             },
-
             default: None,
+            is_system: true,
         }
     }
 
@@ -128,8 +131,8 @@ impl Field {
                 item: Item::updated_at(),
                 ..Default::default()
             },
-
             default: None,
+            is_system: true,
         }
     }
 }

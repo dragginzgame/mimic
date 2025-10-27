@@ -15,7 +15,7 @@ pub fn generate(builder: &ActorBuilder) -> TokenStream {
 
     quote! {
         const MIMIC_ENTITY_ID_PATH: &[(u64, &str)] = &[
-            #(#pairs,)*
+            #(#pairs),*
         ];
 
         /// Storage snapshot (live view).

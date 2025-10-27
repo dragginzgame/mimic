@@ -280,7 +280,7 @@ mod tests {
     #[test]
     fn display_formats_as_iso_date() {
         let date = Date::new_checked(2025, 10, 19).unwrap();
-        assert_eq!(format!("{date}",), "2025-10-19");
+        assert_eq!(format!("{date}"), "2025-10-19");
     }
 
     #[test]

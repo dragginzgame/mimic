@@ -70,7 +70,7 @@ impl HasType for Selector {
 
         quote! {
             pub enum #ident {
-                #(#variants,)*
+                #(#variants),*
             }
         }
     }

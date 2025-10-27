@@ -215,6 +215,14 @@ pub trait HasViewTypes: HasDef {
         format_ident!("{}Update", self.def().ident())
     }
 
+    fn filter_ident(&self) -> Ident {
+        format_ident!("{}Filter", self.def().ident())
+    }
+
+    fn sort_ident(&self) -> Ident {
+        format_ident!("{}Sort", self.def().ident())
+    }
+
     /// Utility: standard derives for generated types.
     fn view_derives(&self) -> TraitList {
         TraitList(vec![

@@ -28,68 +28,109 @@ pub struct Entity {
 }
 
 impl Entity {
-    pub fn iter_without_pk(&self) -> impl Iterator<Item = &Field> {
+    /// All user-editable fields (no PK, no system fields).
+    pub fn iter_editable_fields(&self) -> impl Iterator<Item = &Field> {
         self.fields
             .iter()
-            .filter(move |f| f.ident != self.primary_key)
+            .filter(|f| f.ident != self.primary_key && !f.is_system)
     }
 
-    /// Generates the `EntityCreate` struct (excluding PK)
+    /// All filterable fields (includes PK).
+    pub fn iter_filter_fields(&self) -> impl Iterator<Item = &Field> {
+        self.fields.iter().filter(|f| f.value.is_filterable())
+    }
+
+    /// All sortable fields (includes PK).
+    pub fn iter_sort_fields(&self) -> impl Iterator<Item = &Field> {
+        self.fields.iter().filter(|f| f.value.is_sortable())
+    }
+
+    /// Generates the `EntityCreate` struct (excluding PK + system fields)
     pub fn create_type_part(&self) -> TokenStream {
         let derives = self.view_derives();
         let create_ident = self.create_ident();
 
-        // Struct field definitions
-        let field_defs = self.iter_without_pk().map(|f| {
+        let field_defs = self.iter_editable_fields().map(|f| {
             let ident = &f.ident;
             let ty = f.value.view_type_expr();
-
-            quote!(pub #ident: #ty,)
+            quote!(pub #ident: #ty)
         });
 
-        // Default field initializers — reuse field::default_expr()
-        let field_inits = self.iter_without_pk().map(|f| {
+        let field_inits = self.iter_editable_fields().map(|f| {
             let ident = &f.ident;
             let expr = f.default_expr();
-
             quote!(#ident: #expr)
         });
 
         quote! {
             #derives
             pub struct #create_ident {
-                #(#field_defs)*
+                #(#field_defs),*
             }
 
             impl Default for #create_ident {
                 fn default() -> Self {
-                    Self {
-                        #(#field_inits),*
-                    }
+                    Self { #(#field_inits),* }
                 }
             }
         }
     }
 
-    /// Generates the `EntityUpdate` struct (excluding PK, all Option<>)
+    /// Generates the `EntityUpdate` struct (excluding PK)
     pub fn update_type_part(&self) -> TokenStream {
-        let mut derives = self.view_derives();
         let update_ident = self.update_ident();
-
-        // add default as it's trivial
+        let mut derives = self.view_derives();
         derives.push(Trait::Default);
 
-        let field_tokens = self.iter_without_pk().map(|f| {
+        let field_tokens = self.iter_editable_fields().map(|f| {
             let ident = &f.ident;
             let ty = f.value.view_type_expr();
-
-            quote!(pub #ident: Option<#ty>,)
+            quote!(pub #ident: Option<#ty>)
         });
 
         quote! {
             #derives
             pub struct #update_ident {
-                #(#field_tokens)*
+                #(#field_tokens),*
+            }
+        }
+    }
+
+    /// Generates the `EntityFilter`
+    pub fn filter_type_part(&self) -> TokenStream {
+        let filter_ident = self.filter_ident();
+        let mut derives = self.view_derives();
+        derives.push(Trait::Default);
+
+        let field_tokens = self.iter_filter_fields().map(|f| {
+            let ident = &f.ident;
+            let ty = f.value.view_type_expr();
+            quote!(pub #ident: Option<#ty>)
+        });
+
+        quote! {
+            #derives
+            pub struct #filter_ident {
+                #(#field_tokens),*
+            }
+        }
+    }
+
+    /// Generates the `EntitySort`
+    pub fn sort_type_part(&self) -> TokenStream {
+        let sort_ident = self.sort_ident();
+        let mut derives = self.view_derives();
+        derives.push(Trait::Default);
+
+        let field_tokens = self.iter_sort_fields().map(|f| {
+            let ident = &f.ident;
+            quote!(pub #ident: Option<::mimic::db::query::Order>)
+        });
+
+        quote! {
+            #derives
+            pub struct #sort_ident {
+                #(#field_tokens),*
             }
         }
     }
@@ -207,17 +248,19 @@ impl HasViewTypes for Entity {
         let fields = self.fields.iter().map(|f| {
             let ident = &f.ident;
             let ty = f.value.view_type_expr();
-            quote!(pub #ident: #ty,)
+            quote!(pub #ident: #ty)
         });
 
         // other types
         let create = self.create_type_part();
         let update = self.update_type_part();
+        let filter = self.filter_type_part();
+        let sort = self.sort_type_part();
 
         quote! {
             #derives
             pub struct #view_ident {
-                #(#fields)*
+                #(#fields),*
             }
 
             impl Default for #view_ident {
@@ -228,6 +271,8 @@ impl HasViewTypes for Entity {
 
             #create
             #update
+            #filter
+            #sort
         }
     }
 }

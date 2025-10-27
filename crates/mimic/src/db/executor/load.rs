@@ -8,8 +8,8 @@ use crate::{
         Db,
         executor::{FilterEvaluator, plan_for},
         query::{
-            FilterDsl, FilterExpr, FilterExt, IntoFilterOpt, LoadQuery, QueryPlan, QueryValidate,
-            SortDirection, SortExpr,
+            FilterDsl, FilterExpr, FilterExt, IntoFilterOpt, LoadQuery, Order, QueryPlan,
+            QueryValidate, SortExpr,
         },
         response::Response,
     },
@@ -194,8 +194,8 @@ impl<E: EntityKind> LoadExecutor<E> {
 
                 if let Some(ordering) = va.partial_cmp(&vb) {
                     return match direction {
-                        SortDirection::Asc => ordering,
-                        SortDirection::Desc => ordering.reverse(),
+                        Order::Asc => ordering,
+                        Order::Desc => ordering.reverse(),
                     };
                 }
             }

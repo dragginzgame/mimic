@@ -21,7 +21,7 @@ impl Imp<Entity> for FromTrait {
         // Build `field: TypeView::from_view(view.field)` for all non-PK fields
         // UpdateView doesn't need From, as instead it's a merge
         let from_create_pairs: Vec<_> = node
-            .iter_without_pk()
+            .iter_editable_fields()
             .map(|field| {
                 let ident = &field.ident;
                 quote! {
@@ -29,6 +29,24 @@ impl Imp<Entity> for FromTrait {
                 }
             })
             .collect();
+
+        // Build the body for `From<Create>`; avoid emitting an empty field list.
+        let from_create_body = if from_create_pairs.is_empty() {
+            quote! {
+                Self {
+                    ..Default::default()
+                }
+            }
+        } else {
+            let pairs = &from_create_pairs;
+
+            quote! {
+                Self {
+                    #(#pairs),*,
+                    ..Default::default()
+                }
+            }
+        };
 
         // Single combined quote block — two From impls
         let tokens = quote! {
@@ -40,10 +58,7 @@ impl Imp<Entity> for FromTrait {
 
             impl From<#create_ident> for #entity_ident {
                 fn from(view: #create_ident) -> Self {
-                    Self {
-                        #(#from_create_pairs),*,
-                        ..Default::default()
-                    }
+                    #from_create_body
                 }
             }
         };

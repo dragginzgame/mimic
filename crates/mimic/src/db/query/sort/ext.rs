@@ -1,4 +1,4 @@
-use crate::db::query::{SortDirection, SortExpr};
+use crate::db::query::{Order, SortExpr};
 
 ///
 /// SortSlot
@@ -9,7 +9,7 @@ pub trait SortSlot {
 }
 
 pub trait IntoSortKey {
-    fn into_sort_key(self) -> (String, SortDirection);
+    fn into_sort_key(self) -> (String, Order);
 }
 
 ///
@@ -20,14 +20,14 @@ pub struct Asc<T: Into<String>>(pub T);
 pub struct Desc<T: Into<String>>(pub T);
 
 impl<T: Into<String>> IntoSortKey for Asc<T> {
-    fn into_sort_key(self) -> (String, SortDirection) {
-        (self.0.into(), SortDirection::Asc)
+    fn into_sort_key(self) -> (String, Order) {
+        (self.0.into(), Order::Asc)
     }
 }
 
 impl<T: Into<String>> IntoSortKey for Desc<T> {
-    fn into_sort_key(self) -> (String, SortDirection) {
-        (self.0.into(), SortDirection::Desc)
+    fn into_sort_key(self) -> (String, Order) {
+        (self.0.into(), Order::Desc)
     }
 }
 
@@ -37,7 +37,7 @@ impl<T: Into<String>> IntoSortKey for Desc<T> {
 
 #[derive(Default)]
 pub struct SortExprBuilder {
-    keys: Vec<(String, SortDirection)>,
+    keys: Vec<(String, Order)>,
 }
 
 impl SortExprBuilder {
@@ -48,13 +48,13 @@ impl SortExprBuilder {
 
     #[must_use]
     pub fn asc(mut self, field: impl Into<String>) -> Self {
-        self.keys.push((field.into(), SortDirection::Asc));
+        self.keys.push((field.into(), Order::Asc));
         self
     }
 
     #[must_use]
     pub fn desc(mut self, field: impl Into<String>) -> Self {
-        self.keys.push((field.into(), SortDirection::Desc));
+        self.keys.push((field.into(), Order::Desc));
         self
     }
 }
@@ -91,10 +91,10 @@ pub trait SortExt: SortSlot + Sized {
     }
 
     #[must_use]
-    fn sort_by(self, field: &str, dir: SortDirection) -> Self {
-        match dir {
-            SortDirection::Asc => self.sort(|s| s.asc(field)),
-            SortDirection::Desc => self.sort(|s| s.desc(field)),
+    fn sort_by(self, field: &str, order: Order) -> Self {
+        match order {
+            Order::Asc => self.sort(|s| s.asc(field)),
+            Order::Desc => self.sort(|s| s.desc(field)),
         }
     }
 }

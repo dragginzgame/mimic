@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - simplified queries, they all return Response<E> now, so its easy to do .keys(), .pks()
 - added the Unit type as a possible Key, for entities with only one row
 - added only() to go with one().  it calls one() with the unit type
+- added Filter and Sort views
 
 ## [0.24.35] - 2025-10-22
 - it wasn't possible to create a newtype around a non-Primitive but that functionality is now back

@@ -10,15 +10,26 @@ use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
 ///
+/// Order
+///
+
+#[derive(CandidType, Clone, Copy, Debug, Default, Deserialize, Serialize)]
+pub enum Order {
+    #[default]
+    Asc,
+    Desc,
+}
+
+///
 /// SortExpr
 ///
 
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
-pub struct SortExpr(Vec<(String, SortDirection)>);
+pub struct SortExpr(Vec<(String, Order)>);
 
 impl SortExpr {
     /// Add a single field + direction
-    pub fn push(&mut self, field: &str, dir: SortDirection) {
+    pub fn push(&mut self, field: &str, dir: Order) {
         self.0.push((field.to_string(), dir));
     }
 
@@ -26,7 +37,7 @@ impl SortExpr {
     pub fn extend<T, I>(&mut self, iter: I)
     where
         T: Into<String>,
-        I: IntoIterator<Item = (T, SortDirection)>,
+        I: IntoIterator<Item = (T, Order)>,
     {
         self.0.extend(iter.into_iter().map(|(f, d)| (f.into(), d)));
     }
@@ -38,7 +49,7 @@ impl SortExpr {
     }
 
     /// Iterate over the fields
-    pub fn iter(&self) -> impl Iterator<Item = &(String, SortDirection)> {
+    pub fn iter(&self) -> impl Iterator<Item = &(String, Order)> {
         self.0.iter()
     }
 }
@@ -54,19 +65,8 @@ impl<E: EntityKind> QueryValidate<E> for SortExpr {
     }
 }
 
-impl From<Vec<(String, SortDirection)>> for SortExpr {
-    fn from(v: Vec<(String, SortDirection)>) -> Self {
+impl From<Vec<(String, Order)>> for SortExpr {
+    fn from(v: Vec<(String, Order)>) -> Self {
         Self(v)
     }
-}
-
-///
-/// SortDirection
-///
-
-#[derive(CandidType, Clone, Copy, Debug, Default, Deserialize, Serialize)]
-pub enum SortDirection {
-    #[default]
-    Asc,
-    Desc,
 }
