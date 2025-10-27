@@ -1,4 +1,3 @@
-mod create_view;
 mod default;
 mod entity;
 mod enum_value;
@@ -14,12 +13,10 @@ mod partial_eq;
 mod partial_ord;
 mod sanitize;
 mod store;
-mod type_view;
-mod update_view;
 mod validate;
+mod view;
 mod visitable;
 
-pub use create_view::*;
 pub use default::*;
 pub use entity::*;
 pub use enum_value::*;
@@ -35,9 +32,8 @@ pub use partial_eq::*;
 pub use partial_ord::*;
 pub use sanitize::*;
 pub use store::*;
-pub use type_view::*;
-pub use update_view::*;
 pub use validate::*;
+pub use view::*;
 pub use visitable::*;
 
 use crate::schema_traits::Trait;
