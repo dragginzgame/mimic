@@ -192,7 +192,6 @@ impl HasTraits for Entity {
             Trait::EntityKind,
             Trait::FieldValues,
             Trait::FilterView,
-            Trait::SortView,
             Trait::UpdateView,
         ]);
 
@@ -213,7 +212,6 @@ impl HasTraits for Entity {
             Trait::FilterView => FilterViewTrait::strategy(self),
             Trait::TypeView => TypeViewTrait::strategy(self),
             Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
-            Trait::SortView => SortViewTrait::strategy(self),
             Trait::UpdateView => UpdateViewTrait::strategy(self),
             Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
             Trait::Visitable => VisitableTrait::strategy(self),

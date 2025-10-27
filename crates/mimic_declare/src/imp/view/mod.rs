@@ -111,27 +111,3 @@ impl Imp<Entity> for FilterViewTrait {
         Some(TraitStrategy::from_impl(tokens))
     }
 }
-
-///
-/// SortViewTrait
-///
-
-pub struct SortViewTrait {}
-
-/// Entity
-impl Imp<Entity> for SortViewTrait {
-    fn strategy(node: &Entity) -> Option<TraitStrategy> {
-        let view_ident = &node.sort_ident();
-
-        // tokens
-        let q = quote! {
-            type View = #view_ident;
-        };
-
-        let tokens = Implementor::new(node.def(), Trait::SortView)
-            .set_tokens(q)
-            .to_token_stream();
-
-        Some(TraitStrategy::from_impl(tokens))
-    }
-}

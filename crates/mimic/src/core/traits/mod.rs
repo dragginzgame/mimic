@@ -251,14 +251,6 @@ pub trait FilterView {
     type View;
 }
 
-///
-/// SortView
-///
-
-pub trait SortView {
-    type View;
-}
-
 /// ------------------------
 /// OTHER TRAITS
 /// ------------------------

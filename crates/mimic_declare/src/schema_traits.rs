@@ -78,7 +78,6 @@ pub enum Trait {
     Sorted,
     SanitizeAuto,
     SanitizeCustom,
-    SortView,
     TypeView,
     UpdateView,
     ValidateAuto,
