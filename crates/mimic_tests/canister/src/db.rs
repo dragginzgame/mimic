@@ -355,11 +355,15 @@ impl DbTester {
     fn load_one() {
         use test_design::e2e::db::SimpleEntity;
 
-        let saved = db!().insert(SimpleEntity::default()).unwrap();
+        let saved_key = db!().insert(SimpleEntity::default()).unwrap().key();
+        let loaded_key = db!()
+            .load::<SimpleEntity>()
+            .one(saved_key)
+            .unwrap()
+            .try_key()
+            .unwrap();
 
-        let loaded = db!().load::<SimpleEntity>().one(saved.key()).unwrap();
-
-        assert_eq!(loaded.key(), saved.key());
+        assert_eq!(saved_key, loaded_key);
     }
 
     fn load_many() {

@@ -47,19 +47,29 @@ impl<E: EntityKind> LoadExecutor<E> {
     }
 
     ///
-    /// HELPER METHODS
-    /// one and only skip the intermediate collection data structure
-    /// and error out if a row cannot be found
+    /// SHORTCUT METHODS
     ///
 
-    pub fn one(&self, value: impl FieldValue) -> Result<E, Error> {
-        let query = LoadQuery::new().one::<E>(value);
-        self.execute(query)?.try_entity()
+    pub fn one_key(self, value: impl FieldValue) -> Result<Key, Error> {
+        self.one(value)?.try_key()
     }
 
-    pub fn only(&self) -> Result<E, Error> {
+    pub fn one_entity(self, value: impl FieldValue) -> Result<E, Error> {
+        self.one(value)?.try_entity()
+    }
+
+    ///
+    /// BUILDER METHODS
+    ///
+
+    pub fn one(&self, value: impl FieldValue) -> Result<Response<E>, Error> {
+        let query = LoadQuery::new().one::<E>(value);
+        self.execute(query)
+    }
+
+    pub fn only(&self) -> Result<Response<E>, Error> {
         let query = LoadQuery::new().one::<E>(());
-        self.execute(query)?.try_entity()
+        self.execute(query)
     }
 
     pub fn many(

@@ -43,19 +43,29 @@ impl<E: EntityKind> DeleteExecutor<E> {
     }
 
     ///
-    /// HELPER METHODS
-    /// one and only skip the intermediate collection data structure
-    /// and error out if a row cannot be found
+    /// SHORTCUT METHODS
     ///
 
-    pub fn one(self, value: impl FieldValue) -> Result<Key, Error> {
-        let query = DeleteQuery::new().one::<E>(value);
-        self.execute(query)?.try_key()
+    pub fn one_key(self, value: impl FieldValue) -> Result<Key, Error> {
+        self.one(value)?.try_key()
     }
 
-    pub fn only(self) -> Result<Key, Error> {
+    pub fn one_entity(self, value: impl FieldValue) -> Result<E, Error> {
+        self.one(value)?.try_entity()
+    }
+
+    ///
+    /// HELPER METHODS
+    ///
+
+    pub fn one(self, value: impl FieldValue) -> Result<Response<E>, Error> {
+        let query = DeleteQuery::new().one::<E>(value);
+        self.execute(query)
+    }
+
+    pub fn only(self) -> Result<Response<E>, Error> {
         let query = DeleteQuery::new().one::<E>(());
-        self.execute(query)?.try_key()
+        self.execute(query)
     }
 
     pub fn many(
