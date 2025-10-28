@@ -1,5 +1,5 @@
 use crate::{Error, core::CoreError};
-use canic::core::serialize::{deserialize as canic_deserialize, serialize as canic_serialize};
+use canic::serialize::{deserialize as canic_deserialize, serialize as canic_serialize};
 use serde::{Serialize, de::DeserializeOwned};
 use thiserror::Error as ThisError;
 
