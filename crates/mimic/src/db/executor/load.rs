@@ -51,14 +51,14 @@ impl<E: EntityKind> LoadExecutor<E> {
     // these will create an intermediate query
     //
 
-    pub fn one(&self, value: impl FieldValue) -> Result<E, Error> {
+    pub fn one(&self, value: impl FieldValue) -> Result<Response<E>, Error> {
         let query = LoadQuery::new().one::<E>(value);
-        self.execute(query)?.try_entity()
+        self.execute(query)
     }
 
-    pub fn only(&self) -> Result<E, Error> {
+    pub fn only(&self) -> Result<Response<E>, Error> {
         let query = LoadQuery::new().one::<E>(());
-        self.execute(query)?.try_entity()
+        self.execute(query)
     }
 
     pub fn many(

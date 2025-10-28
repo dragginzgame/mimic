@@ -90,6 +90,7 @@ pub trait SortExt: SortSlot + Sized {
 
         self
     }
+
     #[must_use]
     fn sort_opt(mut self, expr: Option<SortExpr>) -> Self {
         if let Some(e) = expr {
