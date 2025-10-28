@@ -68,7 +68,10 @@ pub mod prelude {
         db,
         db::{
             executor::SaveExecutor,
-            query::{self, FilterDsl, FilterExt as _, LimitExt as _, SortExt as _},
+            query::{
+                self, FilterDsl, FilterExpr, FilterExt as _, LimitExpr, LimitExt as _, SortExpr,
+                SortExt as _,
+            },
             response::Response,
         },
         mimic_start,
