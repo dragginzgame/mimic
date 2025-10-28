@@ -97,4 +97,25 @@ pub trait SortExt: SortSlot + Sized {
             Order::Desc => self.sort(|s| s.desc(field)),
         }
     }
+
+    // apply a full SortExpr
+    #[must_use]
+    fn sort_expr(mut self, expr: SortExpr) -> Self {
+        let slot = self.sort_slot();
+        if let Some(existing) = slot.as_mut() {
+            existing.extend(expr.iter().cloned());
+        } else {
+            *slot = Some(expr);
+        }
+
+        self
+    }
+
+    // optional stricter version that replaces instead of merging
+    #[must_use]
+    fn set_sort_expr(mut self, expr: SortExpr) -> Self {
+        *self.sort_slot() = Some(expr);
+
+        self
+    }
 }
