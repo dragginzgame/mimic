@@ -74,9 +74,10 @@ impl<T: SortSlot> SortExt for T {}
 pub trait SortExt: SortSlot + Sized {
     /// Closure-based DSL (matches `.filter(|f| ...)`)
     #[must_use]
-    fn sort<F>(mut self, f: F) -> Self
+    fn sort<F, R>(mut self, f: F) -> Self
     where
-        F: FnOnce(SortExprBuilder) -> SortExprBuilder,
+        F: FnOnce(SortExprBuilder) -> R,
+        R: Into<SortExpr>,
     {
         let slot = self.sort_slot();
         let expr: SortExpr = f(SortExprBuilder::new()).into();
@@ -85,6 +86,14 @@ pub trait SortExt: SortSlot + Sized {
             existing.extend(expr.iter().cloned());
         } else {
             *slot = Some(expr);
+        }
+
+        self
+    }
+    #[must_use]
+    fn sort_opt(mut self, expr: Option<SortExpr>) -> Self {
+        if let Some(e) = expr {
+            self = self.sort(|_| e);
         }
 
         self
