@@ -357,14 +357,9 @@ impl DbTester {
 
         let saved = db!().insert(SimpleEntity::default()).unwrap();
 
-        let loaded = db!()
-            .load::<SimpleEntity>()
-            .one(saved.key())
-            .unwrap()
-            .try_entity()
-            .unwrap();
+        let loaded = db!().load::<SimpleEntity>().one(saved.key()).unwrap();
 
-        assert_eq!(saved.key(), loaded.key());
+        assert_eq!(loaded.key(), saved.key());
     }
 
     fn load_many() {

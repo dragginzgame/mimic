@@ -46,19 +46,20 @@ impl<E: EntityKind> LoadExecutor<E> {
         }
     }
 
-    //
-    // HELPER METHODS
-    // these will create an intermediate query
-    //
+    ///
+    /// HELPER METHODS
+    /// one and only skip the intermediate collection data structure
+    /// and error out if a row cannot be found
+    ///
 
-    pub fn one(&self, value: impl FieldValue) -> Result<Response<E>, Error> {
+    pub fn one(&self, value: impl FieldValue) -> Result<E, Error> {
         let query = LoadQuery::new().one::<E>(value);
-        self.execute(query)
+        self.execute(query)?.try_entity()
     }
 
-    pub fn only(&self) -> Result<Response<E>, Error> {
+    pub fn only(&self) -> Result<E, Error> {
         let query = LoadQuery::new().one::<E>(());
-        self.execute(query)
+        self.execute(query)?.try_entity()
     }
 
     pub fn many(
