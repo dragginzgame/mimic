@@ -3,6 +3,7 @@ use crate::{
     core::{
         Key, deserialize,
         traits::{EntityKind, FieldValue},
+        view::View,
     },
     db::{
         Db,
@@ -52,6 +53,10 @@ impl<E: EntityKind> DeleteExecutor<E> {
 
     pub fn one_entity(self, value: impl FieldValue) -> Result<E, Error> {
         self.one(value)?.try_entity()
+    }
+
+    pub fn one_view(self, value: impl FieldValue) -> Result<View<E>, Error> {
+        self.one(value)?.try_view()
     }
 
     ///

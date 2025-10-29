@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use quote::format_ident;
 
 ///
 /// ValidateAuto
@@ -23,9 +24,13 @@ macro_rules! impl_validate_auto {
                 let self_tokens = ValidateAutoFn::self_tokens(node);
                 let child_tokens = ValidateAutoFn::child_tokens(node);
 
+                let tokens = quote! {
+                    #self_tokens
+                    #child_tokens
+                };
+
                 let tokens = Implementor::new(node.def(), Trait::ValidateAuto)
-                    .add_tokens(self_tokens)
-                    .add_tokens(child_tokens)
+                    .add_tokens(tokens)
                     .to_token_stream();
 
                 Some(TraitStrategy::from_impl(tokens))
@@ -67,14 +72,12 @@ impl ValidateAutoFn for Enum {
             .map(|v| {
                 let ident = v.effective_ident();
                 let ident_str = format!("{ident}");
-
                 quote! {
                     Self::#ident => Err(format!("unspecified variant: {}", #ident_str).into()),
                 }
             })
             .collect();
 
-        // inner
         let inner = if invalid_arms.is_empty() {
             quote!(Ok(()))
         } else {
@@ -87,6 +90,7 @@ impl ValidateAutoFn for Enum {
         };
 
         quote! {
+            #[doc = "Auto-generated validation for unspecified variants."]
             fn validate_self(&self) -> ::std::result::Result<(), ::mimic::common::error::ErrorTree> {
                 #inner
             }
@@ -100,15 +104,25 @@ impl ValidateAutoFn for Enum {
 
 impl ValidateAutoFn for List {
     fn child_tokens(node: &Self) -> TokenStream {
-        let inner = generate_validators_inner(&node.item.validators, quote!(v)).map(|block| {
+        let list_rules = generate_validators_inner(&node.ty.validators, quote!(&self.0));
+        let item_rules = generate_validators_inner(&node.item.validators, quote!(v)).map(|block| {
+            let __item = format_ident!("__item");
             quote! {
-                for v in &self.0 {
+                for #__item in &self.0 {
+                    let v = #__item;
                     #block
                 }
             }
         });
 
-        fn_wrap(inner)
+        match (list_rules, item_rules) {
+            (None, None) => fn_wrap(None),
+            (l, i) => {
+                let l = l.unwrap_or_default();
+                let i = i.unwrap_or_default();
+                fn_wrap(Some(quote! { #l #i }))
+            }
+        }
     }
 }
 
@@ -121,19 +135,19 @@ impl ValidateAutoFn for Map {
         let key_rules = generate_validators_inner(&node.key.validators, quote!(k));
         let value_rules = generate_value_validation_inner(&node.value, quote!(v));
 
-        if key_rules.is_none() && value_rules.is_none() {
-            return fn_wrap(None);
-        }
-
-        let key_tokens = key_rules.unwrap_or_default();
-        let val_tokens = value_rules.unwrap_or_default();
-
-        fn_wrap(Some(quote! {
-            for (k, v) in &self.0 {
-                #key_tokens
-                #val_tokens
+        match (key_rules, value_rules) {
+            (None, None) => fn_wrap(None),
+            (k, v) => {
+                let k = k.unwrap_or_default();
+                let v = v.unwrap_or_default();
+                fn_wrap(Some(quote! {
+                    for (k, v) in &self.0 {
+                        #k
+                        #v
+                    }
+                }))
             }
-        }))
+        }
     }
 }
 
@@ -146,17 +160,14 @@ impl ValidateAutoFn for Newtype {
         let type_rules = generate_validators_inner(&node.ty.validators, quote!(&self.0));
         let item_rules = generate_validators_inner(&node.item.validators, quote!(&self.0));
 
-        if type_rules.is_none() && item_rules.is_none() {
-            return fn_wrap(None);
+        match (type_rules, item_rules) {
+            (None, None) => fn_wrap(None),
+            (t, i) => {
+                let t = t.unwrap_or_default();
+                let i = i.unwrap_or_default();
+                fn_wrap(Some(quote! { #t #i }))
+            }
         }
-
-        let type_tokens = type_rules.unwrap_or_default();
-        let item_tokens = item_rules.unwrap_or_default();
-
-        fn_wrap(Some(quote! {
-            #type_tokens
-            #item_tokens
-        }))
     }
 }
 
@@ -176,15 +187,25 @@ impl ValidateAutoFn for Record {
 
 impl ValidateAutoFn for Set {
     fn child_tokens(node: &Self) -> TokenStream {
-        let inner = generate_validators_inner(&node.item.validators, quote!(v)).map(|block| {
+        let set_rules = generate_validators_inner(&node.ty.validators, quote!(&self.0));
+        let item_rules = generate_validators_inner(&node.item.validators, quote!(v)).map(|block| {
+            let __item = format_ident!("__item");
             quote! {
-                for v in &self.0 {
+                for #__item in &self.0 {
+                    let v = #__item;
                     #block
                 }
             }
         });
 
-        fn_wrap(inner)
+        match (set_rules, item_rules) {
+            (None, None) => fn_wrap(None),
+            (s, i) => {
+                let s = s.unwrap_or_default();
+                let i = i.unwrap_or_default();
+                fn_wrap(Some(quote! { #s #i }))
+            }
+        }
     }
 }
 
@@ -209,9 +230,7 @@ fn field_list(fields: &FieldList) -> Option<TokenStream> {
     if field_validations.is_empty() {
         None
     } else {
-        Some(quote! {
-            #(#field_validations)*
-        })
+        Some(quote! { #(#field_validations)* })
     }
 }
 
@@ -241,12 +260,50 @@ fn generate_validators_inner(
         return None;
     }
 
-    let validator_exprs = generate_validators(validators, quote!(v));
+    let validator_exprs = generate_validators(validators, var_expr.clone());
 
     Some(quote! {
         let v = #var_expr;
-        #(#validator_exprs)*
+        #(#validator_exprs;)*
     })
+}
+
+///
+/// Shared cardinality wrapper
+///
+fn cardinality_wrapper(
+    card: Cardinality,
+    rules: Vec<TokenStream>,
+    var_expr: TokenStream,
+) -> Option<TokenStream> {
+    if rules.is_empty() {
+        return None;
+    }
+
+    let block = quote! { #(#rules;)* };
+
+    let tokens = match card {
+        Cardinality::One => quote! {
+            let v = #var_expr;
+            #block
+        },
+        Cardinality::Opt => quote! {
+            if let Some(v) = #var_expr {
+                #block
+            }
+        },
+        Cardinality::Many => {
+            let __item = format_ident!("__item");
+            quote! {
+                for #__item in #var_expr {
+                    let v = #__item;
+                    #block
+                }
+            }
+        }
+    };
+
+    Some(tokens)
 }
 
 ///
@@ -254,37 +311,7 @@ fn generate_validators_inner(
 ///
 fn generate_value_validation_inner(value: &Value, var_expr: TokenStream) -> Option<TokenStream> {
     let rules = generate_validators(&value.item.validators, quote!(v));
-
-    if rules.is_empty() {
-        return None;
-    }
-
-    let tokens = match value.cardinality() {
-        Cardinality::One => {
-            quote! {
-                {
-                    let v = #var_expr;
-                    #(#rules)*
-                }
-            }
-        }
-        Cardinality::Opt => {
-            quote! {
-                if let Some(v) = #var_expr {
-                    #(#rules)*
-                }
-            }
-        }
-        Cardinality::Many => {
-            quote! {
-                for v in #var_expr {
-                    #(#rules)*
-                }
-            }
-        }
-    };
-
-    Some(tokens)
+    cardinality_wrapper(value.cardinality(), rules, var_expr)
 }
 
 ///
@@ -296,37 +323,7 @@ fn generate_field_value_validation_inner(
     field_key: &TokenStream,
 ) -> Option<TokenStream> {
     let rules = generate_field_validators(&value.item.validators, quote!(v), field_key);
-
-    if rules.is_empty() {
-        return None;
-    }
-
-    let tokens = match value.cardinality() {
-        Cardinality::One => {
-            quote! {
-                {
-                    let v = #var_expr;
-                    #(#rules)*
-                }
-            }
-        }
-        Cardinality::Opt => {
-            quote! {
-                if let Some(v) = #var_expr {
-                    #(#rules)*
-                }
-            }
-        }
-        Cardinality::Many => {
-            quote! {
-                for v in #var_expr {
-                    #(#rules)*
-                }
-            }
-        }
-    };
-
-    Some(tokens)
+    cardinality_wrapper(value.cardinality(), rules, var_expr)
 }
 
 fn generate_field_validators(
@@ -351,10 +348,10 @@ fn generate_field_validators(
 fn fn_wrap(inner: Option<TokenStream>) -> TokenStream {
     if let Some(inner) = inner {
         quote! {
+            #[doc = "Auto-generated recursive validation method."]
             fn validate_children(&self) -> ::std::result::Result<(), ::mimic::common::error::ErrorTree> {
                 let mut errs = ::mimic::common::error::ErrorTree::new();
                 #inner
-
                 errs.result()
             }
         }

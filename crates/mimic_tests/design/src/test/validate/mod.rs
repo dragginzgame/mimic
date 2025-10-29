@@ -1,3 +1,17 @@
 pub mod case;
 pub mod decimal;
+pub mod list;
 pub mod record;
+
+use crate::prelude::*;
+
+///
+/// Entity
+///
+
+#[entity(
+    store = "TestDataStore",
+    pk = "id",
+    fields(field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"))
+)]
+pub struct Entity {}
