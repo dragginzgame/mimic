@@ -1,6 +1,10 @@
 #![allow(clippy::cast_possible_wrap, clippy::cast_possible_truncation)]
 
 use crate::{core::traits::Validator, design::prelude::*};
+use std::{
+    collections::{HashMap, HashSet},
+    hash::BuildHasher,
+};
 
 ///
 /// HasLen
@@ -30,6 +34,18 @@ impl<T> HasLen for [T] {
 }
 
 impl<T> HasLen for Vec<T> {
+    fn len(&self) -> usize {
+        Self::len(self)
+    }
+}
+
+impl<T, S: BuildHasher> HasLen for HashSet<T, S> {
+    fn len(&self) -> usize {
+        Self::len(self)
+    }
+}
+
+impl<K, V, S: BuildHasher> HasLen for HashMap<K, V, S> {
     fn len(&self) -> usize {
         Self::len(self)
     }

@@ -1,3 +1,6 @@
 [net]
 git-fetch-with-cli = true
 
+[env]
+TMPDIR = { value = "/tmp" }
+RUSTC_TMPDIR = { value = "/tmp" }

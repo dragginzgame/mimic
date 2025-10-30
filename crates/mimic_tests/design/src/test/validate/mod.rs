@@ -1,4 +1,5 @@
 pub mod case;
+pub mod collection;
 pub mod decimal;
 pub mod list;
 pub mod record;

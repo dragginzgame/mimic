@@ -132,20 +132,30 @@ impl ValidateAutoFn for List {
 
 impl ValidateAutoFn for Map {
     fn child_tokens(node: &Self) -> TokenStream {
+        let map_rules = generate_validators_inner(&node.ty.validators, quote!(&self.0));
         let key_rules = generate_validators_inner(&node.key.validators, quote!(k));
         let value_rules = generate_value_validation_inner(&node.value, quote!(v));
 
-        match (key_rules, value_rules) {
-            (None, None) => fn_wrap(None),
+        let entry_rules = match (key_rules, value_rules) {
+            (None, None) => None,
             (k, v) => {
                 let k = k.unwrap_or_default();
                 let v = v.unwrap_or_default();
-                fn_wrap(Some(quote! {
+                Some(quote! {
                     for (k, v) in &self.0 {
                         #k
                         #v
                     }
-                }))
+                })
+            }
+        };
+
+        match (map_rules, entry_rules) {
+            (None, None) => fn_wrap(None),
+            (m, e) => {
+                let m = m.unwrap_or_default();
+                let e = e.unwrap_or_default();
+                fn_wrap(Some(quote! { #m #e }))
             }
         }
     }
