@@ -1,6 +1,16 @@
 use crate::prelude::*;
 
 ///
+/// Set
+///
+
+#[newtype(item(is = "SetInner"))]
+pub struct Set {}
+
+#[set(item(prim = "Nat8"))]
+pub struct SetInner {}
+
+///
 /// ListValidated
 ///
 

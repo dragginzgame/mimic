@@ -16,7 +16,7 @@ use crate::{
     obs::metrics,
 };
 use canic::{Log, log};
-use std::marker::PhantomData;
+use std::{cmp::Ordering, marker::PhantomData};
 
 ///
 /// LoadExecutor
@@ -199,18 +199,33 @@ impl<E: EntityKind> LoadExecutor<E> {
     fn apply_sort(rows: &mut [(Key, E)], sort_expr: &SortExpr) {
         rows.sort_by(|(_, ea), (_, eb)| {
             for (field, direction) in sort_expr.iter() {
-                let (Some(va), Some(vb)) = (ea.get_value(field), eb.get_value(field)) else {
-                    continue;
+                let va = ea.get_value(field);
+                let vb = eb.get_value(field);
+
+                // Define how to handle missing values (None)
+                let ordering = match (va, vb) {
+                    (None, None) => continue,             // both missing → move to next field
+                    (None, Some(_)) => Ordering::Less,    // None sorts before Some(_)
+                    (Some(_), None) => Ordering::Greater, // Some(_) sorts after None
+                    (Some(va), Some(vb)) => match va.partial_cmp(&vb) {
+                        Some(ord) => ord,
+                        None => continue, // incomparable values → move to next field
+                    },
                 };
 
-                if let Some(ordering) = va.partial_cmp(&vb) {
-                    return match direction {
-                        Order::Asc => ordering,
-                        Order::Desc => ordering.reverse(),
-                    };
+                // Apply direction (Asc/Desc)
+                let ordering = match direction {
+                    Order::Asc => ordering,
+                    Order::Desc => ordering.reverse(),
+                };
+
+                if ordering != Ordering::Equal {
+                    return ordering;
                 }
             }
-            core::cmp::Ordering::Equal
+
+            // all fields equal
+            Ordering::Equal
         });
     }
 }
@@ -231,7 +246,108 @@ pub fn apply_pagination<T>(rows: &mut Vec<T>, offset: u32, limit: Option<u32>) {
 
 #[cfg(test)]
 mod tests {
-    use super::apply_pagination;
+    use super::{LoadExecutor, apply_pagination};
+    use crate::{
+        core::{
+            Key, Value,
+            traits::{
+                CanisterKind, EntityKind, FieldValues, Path, SanitizeAuto, SanitizeCustom,
+                StoreKind, TypeView, ValidateAuto, ValidateCustom, Visitable,
+            },
+        },
+        db::query::{Order, SortExpr},
+        schema::node::Index,
+    };
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+    struct SortableEntity {
+        id: u64,
+        primary: i32,
+        secondary: i32,
+        optional_blob: Option<Vec<u8>>,
+    }
+
+    impl SortableEntity {
+        fn new(id: u64, primary: i32, secondary: i32, optional_blob: Option<Vec<u8>>) -> Self {
+            Self {
+                id,
+                primary,
+                secondary,
+                optional_blob,
+            }
+        }
+    }
+
+    struct SortableCanister;
+    struct SortableStore;
+
+    impl Path for SortableCanister {
+        const PATH: &'static str = "test::canister";
+    }
+
+    impl CanisterKind for SortableCanister {}
+
+    impl Path for SortableStore {
+        const PATH: &'static str = "test::store";
+    }
+
+    impl StoreKind for SortableStore {
+        type Canister = SortableCanister;
+    }
+
+    impl Path for SortableEntity {
+        const PATH: &'static str = "test::sortable";
+    }
+
+    impl TypeView for SortableEntity {
+        type View = Self;
+
+        fn to_view(&self) -> Self::View {
+            self.clone()
+        }
+
+        fn from_view(view: Self::View) -> Self {
+            view
+        }
+    }
+
+    impl SanitizeAuto for SortableEntity {}
+    impl SanitizeCustom for SortableEntity {}
+    impl ValidateAuto for SortableEntity {}
+    impl ValidateCustom for SortableEntity {}
+    impl Visitable for SortableEntity {}
+
+    impl FieldValues for SortableEntity {
+        fn get_value(&self, field: &str) -> Option<Value> {
+            match field {
+                "id" => Some(Value::Uint(self.id)),
+                "primary" => Some(Value::Int(i64::from(self.primary))),
+                "secondary" => Some(Value::Int(i64::from(self.secondary))),
+                "optional_blob" => self.optional_blob.clone().map(Value::Blob),
+                _ => None,
+            }
+        }
+    }
+
+    impl EntityKind for SortableEntity {
+        type PrimaryKey = u64;
+        type Store = SortableStore;
+        type Canister = SortableCanister;
+
+        const ENTITY_ID: u64 = 99;
+        const PRIMARY_KEY: &'static str = "id";
+        const FIELDS: &'static [&'static str] = &["id", "primary", "secondary", "optional_blob"];
+        const INDEXES: &'static [&'static Index] = &[];
+
+        fn key(&self) -> Key {
+            self.id.into()
+        }
+
+        fn primary_key(&self) -> Self::PrimaryKey {
+            self.id
+        }
+    }
 
     #[test]
     fn pagination_empty_vec() {
@@ -268,5 +384,62 @@ mod tests {
         // offset 1, limit large -> [20,30]
         apply_pagination(&mut v, 1, Some(999));
         assert_eq!(v, vec![20, 30]);
+    }
+
+    #[test]
+    fn apply_sort_orders_descending() {
+        let mut rows = vec![
+            (Key::from(1_u64), SortableEntity::new(1, 10, 1, None)),
+            (Key::from(2_u64), SortableEntity::new(2, 30, 2, None)),
+            (Key::from(3_u64), SortableEntity::new(3, 20, 3, None)),
+        ];
+        let sort_expr = SortExpr::from(vec![("primary".to_string(), Order::Desc)]);
+
+        LoadExecutor::<SortableEntity>::apply_sort(rows.as_mut_slice(), &sort_expr);
+
+        let primary: Vec<i32> = rows.iter().map(|(_, e)| e.primary).collect();
+        assert_eq!(primary, vec![30, 20, 10]);
+    }
+
+    #[test]
+    fn apply_sort_uses_secondary_field_for_ties() {
+        let mut rows = vec![
+            (Key::from(1_u64), SortableEntity::new(1, 1, 5, None)),
+            (Key::from(2_u64), SortableEntity::new(2, 1, 8, None)),
+            (Key::from(3_u64), SortableEntity::new(3, 2, 3, None)),
+        ];
+        let sort_expr = SortExpr::from(vec![
+            ("primary".to_string(), Order::Asc),
+            ("secondary".to_string(), Order::Desc),
+        ]);
+
+        LoadExecutor::<SortableEntity>::apply_sort(rows.as_mut_slice(), &sort_expr);
+
+        let ids: Vec<u64> = rows.iter().map(|(_, e)| e.id).collect();
+        assert_eq!(ids, vec![2, 1, 3]);
+    }
+
+    #[test]
+    fn apply_sort_places_none_before_some_and_falls_back() {
+        let mut rows = vec![
+            (
+                Key::from(3_u64),
+                SortableEntity::new(3, 0, 0, Some(vec![3, 4])),
+            ),
+            (Key::from(1_u64), SortableEntity::new(1, 0, 0, None)),
+            (
+                Key::from(2_u64),
+                SortableEntity::new(2, 0, 0, Some(vec![2])),
+            ),
+        ];
+        let sort_expr = SortExpr::from(vec![
+            ("optional_blob".to_string(), Order::Asc),
+            ("id".to_string(), Order::Asc),
+        ]);
+
+        LoadExecutor::<SortableEntity>::apply_sort(rows.as_mut_slice(), &sort_expr);
+
+        let ids: Vec<u64> = rows.iter().map(|(_, e)| e.id).collect();
+        assert_eq!(ids, vec![1, 2, 3]);
     }
 }

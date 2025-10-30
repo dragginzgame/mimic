@@ -1,8 +1,8 @@
 use crate::core::{
     Value,
     traits::{
-        FieldValue, Inner, NumCast, NumToPrimitive, SanitizeAuto, SanitizeCustom, TypeView,
-        ValidateAuto, ValidateCustom, Visitable,
+        FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
+        TypeView, ValidateAuto, ValidateCustom, Visitable,
     },
 };
 use candid::CandidType;
@@ -143,6 +143,17 @@ impl Inner<Self> for Duration {
 impl NumCast for Duration {
     fn from<T: NumToPrimitive>(n: T) -> Option<Self> {
         n.to_u64().map(Self)
+    }
+}
+
+impl NumFromPrimitive for Duration {
+    #[allow(clippy::cast_sign_loss)]
+    fn from_i64(n: i64) -> Option<Self> {
+        Some(Self(n as u64))
+    }
+
+    fn from_u64(n: u64) -> Option<Self> {
+        Some(Self(n))
     }
 }
 

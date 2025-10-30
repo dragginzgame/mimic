@@ -9,7 +9,7 @@ use crate::{
     types::Decimal,
 };
 use candid::CandidType;
-use derive_more::{Add, AddAssign, FromStr, Sub, SubAssign};
+use derive_more::{Add, AddAssign, FromStr, Sub, SubAssign, Sum};
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
 
@@ -43,6 +43,7 @@ use std::fmt::{self, Display};
     Serialize,
     Deserialize,
     Sub,
+    Sum,
     SubAssign,
 )]
 pub struct E18s(u128);

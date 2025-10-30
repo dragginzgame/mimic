@@ -14,6 +14,13 @@ pub use prelude::*;
 pub struct Account {}
 
 ///
+/// Bool
+///
+
+#[newtype(primitive = "Bool", item(prim = "Bool"))]
+pub struct Bool {}
+
+///
 /// Date
 ///
 
@@ -28,6 +35,27 @@ pub struct Date {}
 pub struct Decimal {}
 
 ///
+/// Duration
+///
+
+#[newtype(item(prim = "Duration"), primitive = "Duration")]
+pub struct Duration {}
+
+///
+/// E8s
+///
+
+#[newtype(primitive = "E8s", item(prim = "E8s"))]
+pub struct E8s {}
+
+///
+/// E18s
+///
+
+#[newtype(primitive = "E18s", item(prim = "E18s"))]
+pub struct E18s {}
+
+///
 /// Float32
 ///
 
@@ -39,6 +67,13 @@ pub struct Float32W {}
 
 #[newtype(primitive = "Float32", item(is = "Float32W"))]
 pub struct Float32WW {}
+
+///
+/// Float64
+///
+
+#[newtype(primitive = "Float64", item(prim = "Float64"))]
+pub struct Float64 {}
 
 ///
 /// Int
@@ -103,6 +138,20 @@ pub struct Principal {}
 pub struct Subaccount {}
 
 ///
+/// Text
+///
+
+#[newtype(primitive = "Text", item(prim = "Text"))]
+pub struct Text {}
+
+///
+/// Timestamp
+///
+
+#[newtype(primitive = "Timestamp", item(prim = "Timestamp"))]
+pub struct Timestamp {}
+
+///
 /// Ulid
 ///
 
@@ -115,16 +164,6 @@ pub struct Ulid {}
 
 #[newtype(primitive = "Unit", item(prim = "Unit"))]
 pub struct Unit {}
-
-///
-/// Set
-///
-
-#[newtype(item(is = "SetInner"))]
-pub struct Set {}
-
-#[set(item(prim = "Nat8"))]
-pub struct SetInner {}
 
 ///
 /// TESTS
