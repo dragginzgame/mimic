@@ -18,20 +18,15 @@ use std::ops::{BitAnd, BitOr, Not};
 /// - Composite expressions: `And`, `Or`, and negation `Not`.
 ///
 
-#[derive(CandidType, Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 pub enum FilterExpr {
+    #[default]
     True,
     False,
     Clause(FilterClause),
     And(Vec<FilterExpr>),
     Or(Vec<FilterExpr>),
     Not(Box<FilterExpr>),
-}
-
-impl Default for FilterExpr {
-    fn default() -> Self {
-        Self::True
-    }
 }
 
 impl FilterExpr {
