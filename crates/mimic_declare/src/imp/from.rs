@@ -7,67 +7,6 @@ use crate::prelude::*;
 pub struct FromTrait {}
 
 ///
-/// Entity
-///
-
-impl Imp<Entity> for FromTrait {
-    fn strategy(node: &Entity) -> Option<TraitStrategy> {
-        let def = node.def();
-        let entity_ident = def.ident();
-        let view_ident = node.view_ident();
-        let create_ident = node.create_ident();
-
-        // from_create_pairs
-        // Build `field: TypeView::from_view(view.field)` for all non-PK fields
-        // UpdateView doesn't need From, as instead it's a merge
-        let from_create_pairs: Vec<_> = node
-            .iter_editable_fields()
-            .map(|field| {
-                let ident = &field.ident;
-                quote! {
-                    #ident: ::mimic::core::traits::TypeView::from_view(view.#ident)
-                }
-            })
-            .collect();
-
-        // Build the body for `From<Create>`; avoid emitting an empty field list.
-        let from_create_body = if from_create_pairs.is_empty() {
-            quote! {
-                Self {
-                    ..Default::default()
-                }
-            }
-        } else {
-            let pairs = &from_create_pairs;
-
-            quote! {
-                Self {
-                    #(#pairs),*,
-                    ..Default::default()
-                }
-            }
-        };
-
-        // Single combined quote block — two From impls
-        let tokens = quote! {
-            impl From<#view_ident> for #entity_ident {
-                fn from(view: #view_ident) -> Self {
-                    <Self as ::mimic::core::traits::TypeView>::from_view(view)
-                }
-            }
-
-            impl From<#create_ident> for #entity_ident {
-                fn from(view: #create_ident) -> Self {
-                    #from_create_body
-                }
-            }
-        };
-
-        Some(TraitStrategy::from_impl(tokens))
-    }
-}
-
-///
 /// Enum
 ///
 
@@ -219,8 +158,12 @@ impl Imp<Tuple> for FromTrait {
     }
 }
 
+///
+/// Helpers
+///
+
 /// from_type_view
-fn from_type_view(node: &impl HasType) -> TraitStrategy {
+fn from_type_view(node: &impl HasViewTypes) -> TraitStrategy {
     let view_ident = node.view_ident();
 
     let q = quote! {

@@ -3,8 +3,8 @@
 mod helper;
 mod imp;
 mod node;
-mod schema_traits;
 mod traits;
+mod types;
 
 use crate::node::Def;
 use darling::{Error as DarlingError, FromMeta, ast::NestedMeta};
@@ -27,11 +27,11 @@ mod prelude {
         },
         imp::{Imp, Implementor, TraitStrategy},
         node::*,
-        schema_traits::{Trait, TraitList, Traits},
         traits::{
             HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypeExpr,
-            HasViewTypes, SchemaNodeKind,
+            HasViewTypeExpr, HasViewTypes, SchemaNodeKind,
         },
+        types::ViewKind,
     };
     pub use mimic_schema::types::{Cardinality, Primitive, StoreType};
 

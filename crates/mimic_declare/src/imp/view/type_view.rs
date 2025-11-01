@@ -175,6 +175,7 @@ impl Imp<Map> for TypeViewTrait {
         Some(TraitStrategy::from_impl(tokens))
     }
 }
+
 ///
 /// Newtype
 ///

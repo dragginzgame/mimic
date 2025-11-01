@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.26] - 2025-11-01
 - Filter types now contain helpful filter structs depending on the field type
+- split and cleaned up the View traits in mimic_declare so there's a lot less mixed responsibility
+- merged Create and Update to EditView
 
 ## [0.25] - 2025-10-22
 - new View type - Create<Entity> which takes off the primary key and provides handy from() functionality

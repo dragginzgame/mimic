@@ -21,12 +21,9 @@ pub struct Record {
 
 impl Record {
     /// Generates the `EntityUpdate` struct (excluding PK, all Option<>)
-    pub fn update_type_part(&self) -> TokenStream {
-        let update_ident = self.update_ident();
-
-        // default, as they're all optional
-        let mut derives = self.view_derives();
-        derives.push(Trait::Default);
+    pub fn edit_type_part(&self) -> TokenStream {
+        let derives = self.view_derives();
+        let edit_ident = self.edit_ident();
 
         let field_tokens = self.fields.iter().map(|f| {
             let ident = &f.ident;
@@ -37,7 +34,7 @@ impl Record {
 
         quote! {
             #derives
-            pub struct #update_ident {
+            pub struct #edit_ident {
                 #(#field_tokens),*
             }
         }
@@ -75,7 +72,7 @@ impl HasSchemaPart for Record {
 impl HasTraits for Record {
     fn traits(&self) -> TraitList {
         let mut traits = self.traits.clone().with_type_traits();
-        traits.extend(vec![Trait::UpdateView]);
+        traits.extend(vec![Trait::EditView]);
 
         traits.list()
     }
@@ -85,10 +82,10 @@ impl HasTraits for Record {
 
         match t {
             Trait::Default => DefaultTrait::strategy(self),
+            Trait::EditView => EditViewTrait::strategy(self),
             Trait::From => FromTrait::strategy(self),
             Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
             Trait::TypeView => TypeViewTrait::strategy(self),
-            Trait::UpdateView => UpdateViewTrait::strategy(self),
             Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
             Trait::Visitable => VisitableTrait::strategy(self),
 
@@ -120,13 +117,12 @@ impl HasType for Record {
 
 impl HasViewTypes for Record {
     fn view_parts(&self) -> TokenStream {
-        let ident = self.def.ident();
         let view_ident = self.view_ident();
         let derives = self.view_derives();
         let view_field_list = &self.fields.view_type_expr();
 
         // other types
-        let update = self.update_type_part();
+        let edit = self.edit_type_part();
 
         quote! {
             #derives
@@ -134,14 +130,7 @@ impl HasViewTypes for Record {
                 #view_field_list
             }
 
-            // add default manually
-            impl Default for #view_ident {
-                fn default() -> Self {
-                    #ident::default().to_view()
-                }
-            }
-
-            #update
+            #edit
         }
     }
 }

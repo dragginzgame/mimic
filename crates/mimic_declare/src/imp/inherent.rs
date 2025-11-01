@@ -1,6 +1,6 @@
 use crate::{
-    imp::{Imp, Implementor, Trait, TraitStrategy},
-    node::Entity,
+    imp::{Imp, Implementor, TraitStrategy},
+    node::{Entity, Trait},
     traits::HasDef,
 };
 use mimic_common::case::{Case, Casing};

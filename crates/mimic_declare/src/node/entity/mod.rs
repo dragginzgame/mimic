@@ -1,4 +1,7 @@
+mod view;
+
 use crate::prelude::*;
+use view::EntityView;
 
 ///
 /// Entity
@@ -33,79 +36,6 @@ impl Entity {
         self.fields
             .iter()
             .filter(|f| f.ident != self.primary_key && !f.is_system)
-    }
-
-    /// Generates the `EntityCreate` struct (excluding PK + system fields)
-    pub fn create_type_part(&self) -> TokenStream {
-        let derives = self.view_derives();
-        let create_ident = self.create_ident();
-
-        let field_defs = self.iter_editable_fields().map(|f| {
-            let ident = &f.ident;
-            let ty = f.value.view_type_expr();
-            quote!(pub #ident: #ty)
-        });
-
-        let field_inits = self.iter_editable_fields().map(|f| {
-            let ident = &f.ident;
-            let expr = f.default_expr();
-            quote!(#ident: #expr)
-        });
-
-        quote! {
-            #derives
-            pub struct #create_ident {
-                #(#field_defs),*
-            }
-
-            impl Default for #create_ident {
-                fn default() -> Self {
-                    Self { #(#field_inits),* }
-                }
-            }
-        }
-    }
-
-    /// Generates the `EntityUpdate` struct (excluding PK)
-    pub fn update_type_part(&self) -> TokenStream {
-        let update_ident = self.update_ident();
-        let mut derives = self.view_derives();
-        derives.push(Trait::Default);
-
-        let field_tokens = self.iter_editable_fields().map(|f| {
-            let ident = &f.ident;
-            let ty = f.value.view_type_expr();
-            quote!(pub #ident: Option<#ty>)
-        });
-
-        quote! {
-            #derives
-            pub struct #update_ident {
-                #(#field_tokens),*
-            }
-        }
-    }
-
-    /// Generates the `EntityFilter`
-    pub fn filter_type_part(&self) -> TokenStream {
-        let filter_ident = self.filter_ident();
-        let mut derives = self.view_derives();
-        derives.push(Trait::Default);
-
-        // Only include fields that have a filter type
-        let field_tokens = self.fields.iter().filter_map(|f| {
-            let ident = &f.ident;
-            f.value
-                .filter_type_expr()
-                .map(|ty| quote!(pub #ident: Option<#ty>,))
-        });
-
-        quote! {
-            #derives
-            pub struct #filter_ident {
-                #(#field_tokens)*
-            }
-        }
     }
 
     fn add_metadata(mut fields: FieldList) -> FieldList {
@@ -161,11 +91,10 @@ impl HasTraits for Entity {
         let mut traits = self.traits.clone().with_type_traits();
         traits.extend(vec![
             Trait::Inherent,
-            Trait::CreateView,
+            Trait::EditView,
             Trait::EntityKind,
             Trait::FieldValues,
             Trait::FilterView,
-            Trait::UpdateView,
         ]);
 
         traits.list()
@@ -177,15 +106,13 @@ impl HasTraits for Entity {
         match t {
             Trait::Inherent => InherentTrait::strategy(self),
 
-            Trait::CreateView => CreateViewTrait::strategy(self),
             Trait::Default => DefaultTrait::strategy(self),
-            Trait::From => FromTrait::strategy(self),
+            Trait::EditView => EditViewTrait::strategy(self),
             Trait::EntityKind => EntityKindTrait::strategy(self),
             Trait::FieldValues => FieldValuesTrait::strategy(self),
             Trait::FilterView => FilterViewTrait::strategy(self),
-            Trait::TypeView => TypeViewTrait::strategy(self),
             Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
-            Trait::UpdateView => UpdateViewTrait::strategy(self),
+            Trait::TypeView => TypeViewTrait::strategy(self),
             Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
             Trait::Visitable => VisitableTrait::strategy(self),
 
@@ -216,37 +143,7 @@ impl HasType for Entity {
 
 impl HasViewTypes for Entity {
     fn view_parts(&self) -> TokenStream {
-        let derives = self.view_derives();
-        let ident = self.def.ident();
-        let view_ident = self.view_ident();
-
-        let fields = self.fields.iter().map(|f| {
-            let ident = &f.ident;
-            let ty = f.value.view_type_expr();
-            quote!(pub #ident: #ty)
-        });
-
-        // other types
-        let create = self.create_type_part();
-        let update = self.update_type_part();
-        let filter = self.filter_type_part();
-
-        quote! {
-            #derives
-            pub struct #view_ident {
-                #(#fields),*
-            }
-
-            impl Default for #view_ident {
-                fn default() -> Self {
-                    #ident::default().to_view()
-                }
-            }
-
-            #create
-            #update
-            #filter
-        }
+        EntityView(self).view_parts()
     }
 }
 

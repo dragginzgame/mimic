@@ -51,7 +51,9 @@ impl HasTypeExpr for Value {
             Cardinality::Many => quote!(Vec<#item>),
         }
     }
+}
 
+impl HasViewTypeExpr for Value {
     fn view_type_expr(&self) -> TokenStream {
         let item_view = &self.item.view_type_expr();
 
@@ -65,18 +67,7 @@ impl HasTypeExpr for Value {
     fn filter_type_expr(&self) -> Option<TokenStream> {
         match (self.cardinality(), self.item.target()) {
             (Cardinality::Many, _) => Some(quote!(::mimic::db::query::ContainsFilter)),
-
-            (_, ItemTarget::Primitive(prim)) => Some(match prim {
-                Primitive::Text => quote!(::mimic::db::query::TextFilter),
-                Primitive::Int | Primitive::Nat | Primitive::Timestamp => {
-                    quote!(::mimic::db::query::RangeFilter)
-                }
-                Primitive::Bool | Primitive::Ulid | Primitive::Principal => {
-                    quote!(::mimic::db::query::EqualityFilter)
-                }
-                _ => return None, // <-- unfilterable primitive, skip
-            }),
-
+            (_, ItemTarget::Primitive(p)) => p.filter_kind().map(|f| f.as_type()),
             (_, ItemTarget::Is(_)) => None,
         }
     }

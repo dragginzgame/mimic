@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use mimic_common::case::{Case, Casing};
 use std::slice::Iter;
 
 ///
@@ -66,9 +67,11 @@ impl HasTypeExpr for FieldList {
             #(#fields),*
         }
     }
+}
 
+impl HasViewTypeExpr for FieldList {
     fn view_type_expr(&self) -> TokenStream {
-        let fields = self.fields.iter().map(HasTypeExpr::view_type_expr);
+        let fields = self.fields.iter().map(HasViewTypeExpr::view_type_expr);
         quote! {
             #(#fields),*
         }
@@ -110,6 +113,11 @@ impl Field {
             (None, Cardinality::Opt) => quote!(None),
             (None, Cardinality::Many) => quote!(Vec::new()),
         }
+    }
+
+    pub fn const_ident(&self) -> Ident {
+        let constant = self.ident.to_string().to_case(Case::Constant);
+        format_ident!("{constant}")
     }
 
     pub fn created_at() -> Self {
@@ -162,7 +170,9 @@ impl HasTypeExpr for Field {
             pub #ident: #value
         }
     }
+}
 
+impl HasViewTypeExpr for Field {
     fn view_type_expr(&self) -> TokenStream {
         let ident = &self.ident;
         let value_view = self.value.view_type_expr();

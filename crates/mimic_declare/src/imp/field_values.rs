@@ -17,15 +17,15 @@ impl Imp<Entity> for FieldValuesTrait {
             .iter()
             .map(|field| {
                 let field_ident = &field.ident;
-                let field_lit = LitStr::new(&field_ident.to_string(), Span::call_site());
+                let field_const = &field.const_ident();
 
                 match field.value.cardinality() {
                     Cardinality::One => Some(quote! {
-                        #field_lit => Some(self.#field_ident.to_value()),
+                        Self::#field_const => Some(self.#field_ident.to_value()),
                     }),
 
                     Cardinality::Opt => Some(quote! {
-                        #field_lit => Some(
+                        Self::#field_const => Some(
                             self.#field_ident
                                 .as_ref()
                                 .map_or(Value::None, FieldValue::to_value)
@@ -33,10 +33,10 @@ impl Imp<Entity> for FieldValuesTrait {
                     }),
 
                     Cardinality::Many => Some(quote! {
-                        #field_lit => {
+                        Self::#field_const => {
                             let list = self.#field_ident
                                 .iter()
-                                .map(|v| v.to_value())
+                                .map(FieldValue::to_value)
                                 .collect::<Vec<_>>();
 
                             Some(Value::List(list))

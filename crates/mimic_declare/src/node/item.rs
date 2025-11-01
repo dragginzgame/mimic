@@ -103,7 +103,9 @@ impl HasTypeExpr for Item {
             quote!(#ty)
         }
     }
+}
 
+impl HasViewTypeExpr for Item {
     fn view_type_expr(&self) -> TokenStream {
         let view = self.target().view_type_expr();
 
@@ -152,7 +154,9 @@ impl HasTypeExpr for ItemTarget {
             }
         }
     }
+}
 
+impl HasViewTypeExpr for ItemTarget {
     fn view_type_expr(&self) -> TokenStream {
         match self {
             Self::Is(path) => {

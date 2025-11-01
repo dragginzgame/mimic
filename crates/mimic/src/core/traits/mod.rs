@@ -26,6 +26,7 @@ pub use std::{
 
 use crate::{
     core::{Key, Value},
+    db::query::FilterExpr,
     schema::node::Index,
     types::Ulid,
 };
@@ -225,19 +226,11 @@ macro_rules! impl_type_view {
 impl_type_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
 
 ///
-/// CreateView
+/// EditView
 ///
 
-pub trait CreateView {
-    type View;
-}
-
-///
-/// UpdateView
-///
-
-pub trait UpdateView {
-    type View;
+pub trait EditView {
+    type View: Default;
 
     /// Merge `view` into `self`, skipping `None` fields.
     fn merge(&mut self, view: Self::View);
@@ -248,7 +241,10 @@ pub trait UpdateView {
 ///
 
 pub trait FilterView {
-    type View;
+    type View: Default;
+
+    /// Converts the filter view into a `FilterExpr` suitable for execution.
+    fn into_expr(view: Self::View) -> Option<FilterExpr>;
 }
 
 /// ------------------------

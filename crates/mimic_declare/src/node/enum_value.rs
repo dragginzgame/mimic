@@ -83,21 +83,14 @@ impl HasType for EnumValue {
 
 impl HasViewTypes for EnumValue {
     fn view_parts(&self) -> TokenStream {
-        let ident = self.def.ident();
         let view_ident = self.view_ident();
-        let view_variants = self.variants.iter().map(HasTypeExpr::view_type_expr);
+        let view_variants = self.variants.iter().map(HasViewTypeExpr::view_type_expr);
         let derives = self.view_derives();
 
         quote! {
             #derives
             pub enum #view_ident {
                 #(#view_variants),*
-            }
-
-            impl Default for #view_ident {
-                fn default() -> Self {
-                    #ident::default().to_view()
-                }
             }
         }
     }
@@ -168,22 +161,22 @@ impl HasSchemaPart for EnumValueVariant {
 impl HasTypeExpr for EnumValueVariant {
     fn type_expr(&self) -> TokenStream {
         let ident = self.effective_ident();
-        let default_attr = if self.default {
-            quote!(#[default])
-        } else {
-            quote!()
-        };
+        let default_attr = self.default.then(|| quote!(#[default]));
 
         quote! {
             #default_attr
             #ident
         }
     }
+}
 
+impl HasViewTypeExpr for EnumValueVariant {
     fn view_type_expr(&self) -> TokenStream {
         let ident = self.effective_ident();
+        let default_attr = self.default.then(|| quote!(#[default]));
 
         quote! {
+            #default_attr
             #ident
         }
     }

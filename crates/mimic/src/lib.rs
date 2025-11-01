@@ -62,11 +62,8 @@ pub mod prelude {
     pub use crate::{
         core::{
             Key, Value,
-            traits::{
-                CreateView as _, EntityKind as _, Inner as _, Path as _, TypeView as _,
-                UpdateView as _,
-            },
-            view::{Create, Filter, Update, View},
+            traits::{EditView as _, EntityKind as _, Inner as _, Path as _, TypeView as _},
+            view::{Edit, Filter, View},
         },
         db,
         db::{

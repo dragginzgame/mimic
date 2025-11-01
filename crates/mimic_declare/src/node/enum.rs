@@ -97,37 +97,13 @@ impl HasType for Enum {
 
 impl HasViewTypes for Enum {
     fn view_parts(&self) -> TokenStream {
-        let derives = self.view_derives();
-        let ident = self.def.ident();
         let view_ident = self.view_ident();
-        let view_variants = self.variants.iter().map(HasTypeExpr::view_type_expr);
-
-        quote! {
-            #derives
-            pub enum #view_ident {
-                #(#view_variants),*
-            }
-
-            impl Default for #view_ident {
-                fn default() -> Self {
-                    #ident::default().to_view()
-                }
-            }
-        }
-    }
-
-    fn view_derives(&self) -> TraitList {
-        let mut traits = vec![
-            Trait::CandidType,
-            Trait::Clone,
-            Trait::Debug,
-            Trait::Serialize,
-            Trait::Deserialize,
-        ];
+        let view_variants = self.variants.iter().map(HasViewTypeExpr::view_type_expr);
 
         // extra traits
+        let mut derives = self.view_derives();
         if self.is_unit_enum() {
-            traits.extend(vec![
+            derives.extend(vec![
                 Trait::Copy,
                 Trait::Hash,
                 Trait::Eq,
@@ -137,7 +113,12 @@ impl HasViewTypes for Enum {
             ]);
         }
 
-        TraitList(traits)
+        quote! {
+            #derives
+            pub enum #view_ident {
+                #(#view_variants),*
+            }
+        }
     }
 }
 
@@ -225,18 +206,22 @@ impl HasTypeExpr for EnumVariant {
             #body
         }
     }
+}
 
+impl HasViewTypeExpr for EnumVariant {
     fn view_type_expr(&self) -> TokenStream {
         let ident = &self.ident;
+        let default_attr = self.default.then(|| quote!(#[default]));
 
         if let Some(value) = &self.value {
-            let value_view = HasTypeExpr::view_type_expr(value);
+            let value_view = HasViewTypeExpr::view_type_expr(value);
 
             quote! {
                 #ident(#value_view)
             }
         } else {
             quote! {
+                #default_attr
                 #ident
             }
         }

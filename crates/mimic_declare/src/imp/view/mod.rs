@@ -5,37 +5,13 @@ pub use type_view::*;
 use crate::prelude::*;
 
 ///
-/// CreateViewTrait
+/// EditViewTrait
 ///
 
-pub struct CreateViewTrait {}
+pub struct EditViewTrait {}
 
 /// Entity
-impl Imp<Entity> for CreateViewTrait {
-    fn strategy(node: &Entity) -> Option<TraitStrategy> {
-        let view_ident = &node.create_ident();
-
-        // tokens
-        let q = quote! {
-            type View = #view_ident;
-        };
-
-        let tokens = Implementor::new(node.def(), Trait::CreateView)
-            .set_tokens(q)
-            .to_token_stream();
-
-        Some(TraitStrategy::from_impl(tokens))
-    }
-}
-
-///
-/// UpdateViewTrait
-///
-
-pub struct UpdateViewTrait {}
-
-/// Entity
-impl Imp<Entity> for UpdateViewTrait {
+impl Imp<Entity> for EditViewTrait {
     fn strategy(node: &Entity) -> Option<TraitStrategy> {
         Some(update_impl(node, |n| {
             n.iter_editable_fields().map(|f| f.ident.clone()).collect()
@@ -44,7 +20,7 @@ impl Imp<Entity> for UpdateViewTrait {
 }
 
 /// Record
-impl Imp<Record> for UpdateViewTrait {
+impl Imp<Record> for EditViewTrait {
     fn strategy(node: &Record) -> Option<TraitStrategy> {
         Some(update_impl(node, |n| {
             n.fields.iter().map(|f| f.ident.clone()).collect()
@@ -59,7 +35,7 @@ where
     F: Fn(&N) -> Vec<syn::Ident>,
 {
     let def = node.def();
-    let view_ident = node.update_ident();
+    let edit_ident = node.edit_ident();
     let field_idents = iter_fields(node);
 
     let merge_pairs: Vec<_> = field_idents
@@ -74,14 +50,14 @@ where
         .collect();
 
     let q = quote! {
-        type View = #view_ident;
+        type View = #edit_ident;
 
         fn merge(&mut self, view: Self::View) {
             #(#merge_pairs)*
         }
     };
 
-    let tokens = Implementor::new(def, Trait::UpdateView)
+    let tokens = Implementor::new(def, Trait::EditView)
         .set_tokens(q)
         .to_token_stream();
 
@@ -97,11 +73,25 @@ pub struct FilterViewTrait {}
 /// Entity
 impl Imp<Entity> for FilterViewTrait {
     fn strategy(node: &Entity) -> Option<TraitStrategy> {
-        let view_ident = &node.filter_ident();
+        let filter_ident = node.filter_ident();
 
-        // tokens
+        let field_exprs = node.fields.iter().filter_map(|f| {
+            let ident = &f.ident;
+            let constant = &f.const_ident();
+
+            f.value
+                .filter_type_expr()
+                .map(|_| quote! {
+                    view.#ident.and_then(|f| ::mimic::db::query::IntoFilterExpr::into_expr(f, Self::#constant))
+                })
+        });
+
         let q = quote! {
-            type View = #view_ident;
+            type View = #filter_ident;
+
+            fn into_expr(view: Self::View) -> Option<::mimic::db::query::FilterExpr> {
+                ::mimic::db::query::FilterDsl::all([#(#field_exprs),*])
+            }
         };
 
         let tokens = Implementor::new(node.def(), Trait::FilterView)

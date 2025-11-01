@@ -85,7 +85,7 @@ impl HasType for Set {
 impl HasViewTypes for Set {
     fn view_parts(&self) -> TokenStream {
         let view_ident = &self.view_ident();
-        let item_view = HasTypeExpr::view_type_expr(&self.item);
+        let item_view = HasViewTypeExpr::view_type_expr(&self.item);
 
         quote! {
             pub type #view_ident = Vec<#item_view>;

@@ -64,7 +64,7 @@ pub enum Trait {
     StoreKind,
 
     // orm
-    CreateView,
+    EditView,
     FieldValue,
     FieldValues,
     From,
@@ -79,7 +79,6 @@ pub enum Trait {
     SanitizeAuto,
     SanitizeCustom,
     TypeView,
-    UpdateView,
     ValidateAuto,
     ValidateCustom,
     Visitable,

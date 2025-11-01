@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use mimic_common::case::{Case, Casing};
 
 ///
 /// EntityKindTrait
@@ -20,14 +19,7 @@ impl Imp<Entity> for EntityKindTrait {
             .type_expr();
 
         // instead of string literals, reference the inherent const idents
-        let field_refs: Vec<Ident> = node
-            .fields
-            .iter()
-            .map(|f| {
-                let constant = f.ident.to_string().to_case(Case::Constant);
-                format_ident!("{constant}")
-            })
-            .collect();
+        let field_refs: Vec<Ident> = node.fields.iter().map(Field::const_ident).collect();
 
         // indexes
         let indexes = &node
