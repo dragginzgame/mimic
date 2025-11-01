@@ -19,6 +19,12 @@ pub struct EnumValue {
     pub traits: Traits,
 }
 
+impl EnumValue {
+    pub fn default_variant(&self) -> Option<&EnumValueVariant> {
+        self.variants.iter().find(|v| v.default)
+    }
+}
+
 impl HasDef for EnumValue {
     fn def(&self) -> &Def {
         &self.def
@@ -59,6 +65,7 @@ impl HasTraits for EnumValue {
         use crate::imp::*;
 
         match t {
+            Trait::Default => DefaultTrait::strategy(self),
             Trait::EnumValueKind => EnumValueKindTrait::strategy(self),
             Trait::From => FromTrait::strategy(self),
             Trait::TypeView => TypeViewTrait::strategy(self),
@@ -161,10 +168,8 @@ impl HasSchemaPart for EnumValueVariant {
 impl HasTypeExpr for EnumValueVariant {
     fn type_expr(&self) -> TokenStream {
         let ident = self.effective_ident();
-        let default_attr = self.default.then(|| quote!(#[default]));
 
         quote! {
-            #default_attr
             #ident
         }
     }
@@ -173,10 +178,8 @@ impl HasTypeExpr for EnumValueVariant {
 impl HasViewTypeExpr for EnumValueVariant {
     fn view_type_expr(&self) -> TokenStream {
         let ident = self.effective_ident();
-        let default_attr = self.default.then(|| quote!(#[default]));
 
         quote! {
-            #default_attr
             #ident
         }
     }

@@ -56,3 +56,14 @@ pub trait HasViewTypeExpr {
         None
     }
 }
+
+///
+/// HasViewDefault
+/// just because these can't be derived easily
+///
+
+pub trait HasViewDefault {
+    fn view_default_impl(&self) -> Option<TokenStream> {
+        None
+    }
+}

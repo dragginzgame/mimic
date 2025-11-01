@@ -1,7 +1,16 @@
+use super::strategy::TraitStrategy;
 use crate::node::{Def, Trait};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use syn::{GenericParam, WherePredicate, parse2, punctuated::Punctuated, token::Comma};
+
+///
+/// Imp
+///
+
+pub trait Imp<N> {
+    fn strategy(node: &N) -> Option<TraitStrategy>;
+}
 
 ///
 /// Implementor

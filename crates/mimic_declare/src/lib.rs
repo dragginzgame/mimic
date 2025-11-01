@@ -1,5 +1,6 @@
 #![allow(clippy::wildcard_imports)]
 
+mod codegen;
 mod helper;
 mod imp;
 mod node;
@@ -22,14 +23,14 @@ use syn::{Attribute, ItemStruct, LitStr, Visibility, parse_macro_input};
 
 mod prelude {
     pub use crate::{
+        codegen::{Imp, Implementor, TraitStrategy},
         helper::{
             as_tokens, quote_one, quote_option, quote_slice, split_idents, to_path, to_str_lit,
         },
-        imp::{Imp, Implementor, TraitStrategy},
         node::*,
         traits::{
             HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypeExpr,
-            HasViewTypeExpr, HasViewTypes, SchemaNodeKind,
+            HasViewDefault, HasViewTypeExpr, HasViewTypes, SchemaNodeKind,
         },
         types::ViewKind,
     };

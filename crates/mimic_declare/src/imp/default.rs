@@ -17,6 +17,82 @@ impl Imp<Entity> for DefaultTrait {
 }
 
 ///
+/// Enum
+///
+
+impl Imp<Enum> for DefaultTrait {
+    fn strategy(node: &Enum) -> Option<TraitStrategy> {
+        let default_variant = node.default_variant()?;
+        let variant_ident = default_variant.effective_ident();
+
+        // if the default variant carries a value, generate it as `(Default::default())`
+        let value_expr = if default_variant.value.is_some() {
+            quote!((Default::default()))
+        } else {
+            quote!()
+        };
+
+        let q = quote! {
+            fn default() -> Self {
+                Self::#variant_ident #value_expr
+            }
+        };
+
+        let tokens = Implementor::new(node.def(), Trait::Default)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(TraitStrategy::from_impl(tokens))
+    }
+}
+
+///
+/// EnumValue
+///
+
+impl Imp<EnumValue> for DefaultTrait {
+    fn strategy(node: &EnumValue) -> Option<TraitStrategy> {
+        let default_variant = node.default_variant()?;
+        let variant_ident = default_variant.effective_ident();
+
+        let q = quote! {
+            fn default() -> Self {
+                Self::#variant_ident
+            }
+        };
+
+        let tokens = Implementor::new(node.def(), Trait::Default)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(TraitStrategy::from_impl(tokens))
+    }
+}
+
+///
+/// Selector
+///
+
+impl Imp<Selector> for DefaultTrait {
+    fn strategy(node: &Selector) -> Option<TraitStrategy> {
+        let default_variant = node.default_variant()?;
+        let variant_ident = default_variant.ident();
+
+        let q = quote! {
+            fn default() -> Self {
+                Self::#variant_ident
+            }
+        };
+
+        let tokens = Implementor::new(node.def(), Trait::Default)
+            .set_tokens(q)
+            .to_token_stream();
+
+        Some(TraitStrategy::from_impl(tokens))
+    }
+}
+
+///
 /// Record
 ///
 

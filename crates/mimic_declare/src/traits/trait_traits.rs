@@ -1,10 +1,4 @@
-use crate::{
-    imp::{Implementor, TraitStrategy},
-    node::{Trait, TraitList},
-    traits::HasDef,
-};
-use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
+use crate::prelude::*;
 
 ///
 /// HasTraits

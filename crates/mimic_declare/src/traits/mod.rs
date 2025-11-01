@@ -9,13 +9,3 @@ pub use schema_traits::*;
 pub use trait_traits::*;
 pub use type_traits::*;
 pub use view_traits::*;
-
-use crate::node::Def;
-
-///
-/// HasDef
-///
-
-pub trait HasDef {
-    fn def(&self) -> &Def;
-}

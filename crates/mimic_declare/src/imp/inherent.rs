@@ -1,5 +1,5 @@
 use crate::{
-    imp::{Imp, Implementor, TraitStrategy},
+    codegen::{Imp, Implementor, TraitStrategy},
     node::{Entity, Trait},
     traits::HasDef,
 };

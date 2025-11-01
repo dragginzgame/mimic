@@ -23,6 +23,10 @@ impl Enum {
     pub fn is_unit_enum(&self) -> bool {
         self.variants.iter().all(|v| v.value.is_none())
     }
+
+    pub fn default_variant(&self) -> Option<&EnumVariant> {
+        self.variants.iter().find(|v| v.default)
+    }
 }
 
 impl HasDef for Enum {
@@ -47,6 +51,7 @@ impl HasTraits for Enum {
         use crate::imp::*;
 
         match t {
+            Trait::Default => DefaultTrait::strategy(self),
             Trait::FieldValue => FieldValueTrait::strategy(self),
             Trait::From => FromTrait::strategy(self),
             Trait::TypeView => TypeViewTrait::strategy(self),
@@ -113,12 +118,40 @@ impl HasViewTypes for Enum {
             ]);
         }
 
+        let default_impl = self.view_default_impl();
+
         quote! {
             #derives
             pub enum #view_ident {
                 #(#view_variants),*
             }
+
+            #default_impl
         }
+    }
+}
+
+impl HasViewDefault for Enum {
+    fn view_default_impl(&self) -> Option<TokenStream> {
+        let default_variant = self.default_variant()?;
+        let variant_ident = default_variant.effective_ident();
+
+        // Handle payloads
+        let value_expr = if default_variant.value.is_some() {
+            quote!((Default::default()))
+        } else {
+            quote!()
+        };
+
+        let view_ident = self.view_ident();
+
+        Some(quote! {
+            impl Default for #view_ident {
+                fn default() -> Self {
+                    Self::#variant_ident #value_expr
+                }
+            }
+        })
     }
 }
 
@@ -192,7 +225,6 @@ impl HasSchemaPart for EnumVariant {
 impl HasTypeExpr for EnumVariant {
     fn type_expr(&self) -> TokenStream {
         let ident = self.effective_ident();
-        let default_attr = self.default.then(|| quote!(#[default]));
 
         let body = if let Some(value) = &self.value {
             let value = value.type_expr();
@@ -202,7 +234,6 @@ impl HasTypeExpr for EnumVariant {
         };
 
         quote! {
-            #default_attr
             #body
         }
     }
@@ -211,7 +242,6 @@ impl HasTypeExpr for EnumVariant {
 impl HasViewTypeExpr for EnumVariant {
     fn view_type_expr(&self) -> TokenStream {
         let ident = &self.ident;
-        let default_attr = self.default.then(|| quote!(#[default]));
 
         if let Some(value) = &self.value {
             let value_view = HasViewTypeExpr::view_type_expr(value);
@@ -221,7 +251,6 @@ impl HasViewTypeExpr for EnumVariant {
             }
         } else {
             quote! {
-                #default_attr
                 #ident
             }
         }

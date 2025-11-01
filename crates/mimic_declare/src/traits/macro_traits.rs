@@ -1,6 +1,28 @@
-use crate::traits::{HasDef, HasSchema, HasTraits, HasType, HasViewTypes};
+use crate::{
+    node::Def,
+    traits::{HasSchema, HasTraits, HasType, HasViewTypes},
+};
 use proc_macro2::TokenStream;
 use quote::quote;
+
+///
+/// HasDef
+///
+
+pub trait HasDef {
+    fn def(&self) -> &Def;
+}
+
+///
+/// TraitTokens
+///
+/// Result of trait resolution — combines derived traits and manual impls.
+///
+
+pub struct TraitTokens {
+    pub derive: TokenStream,
+    pub impls: TokenStream,
+}
 
 ///
 /// HasMacro
@@ -78,14 +100,3 @@ pub trait HasMacro: HasSchema + HasTraits + HasType + HasViewTypes {
 /// Blanket implementation so any node that satisfies the constraints
 /// automatically gets full macro generation.
 impl<T> HasMacro for T where T: HasDef + HasSchema + HasTraits + HasType + HasViewTypes {}
-
-///
-/// TraitTokens
-///
-/// Result of trait resolution — combines derived traits and manual impls.
-///
-
-pub struct TraitTokens {
-    pub derive: TokenStream,
-    pub impls: TokenStream,
-}

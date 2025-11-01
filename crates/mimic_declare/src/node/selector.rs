@@ -16,6 +16,12 @@ pub struct Selector {
     pub variants: Vec<SelectorVariant>,
 }
 
+impl Selector {
+    pub fn default_variant(&self) -> Option<&SelectorVariant> {
+        self.variants.iter().find(|v| v.default)
+    }
+}
+
 impl HasDef for Selector {
     fn def(&self) -> &Def {
         &self.def
@@ -56,6 +62,7 @@ impl HasTraits for Selector {
         use crate::imp::*;
 
         match t {
+            Trait::Default => DefaultTrait::strategy(self),
             Trait::Into => IntoTrait::strategy(self),
 
             _ => None,
@@ -118,14 +125,7 @@ impl ToTokens for SelectorVariant {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let ident = self.ident();
 
-        let attr = if self.default {
-            quote!(#[default])
-        } else {
-            quote!()
-        };
-
         tokens.extend(quote! {
-            #attr
             #ident
         });
     }
