@@ -112,6 +112,9 @@ impl<'a> FilterEvaluator<'a> {
             Cmp::Contains => actual.contains(expected),
             Cmp::In => actual.in_list(expected),
 
+            // Negated membership
+            Cmp::NotIn => actual.in_list(expected).map(|v| !v),
+
             // CI variants
             Cmp::AllInCi => actual.contains_all_ci(expected),
             Cmp::AnyInCi => actual.contains_any_ci(expected),
@@ -152,9 +155,8 @@ impl<E: EntityKind> QueryValidate<E> for FilterExpr {
                 let v = &c.value;
                 let field = &c.field;
 
-                // Validate by comparator family
                 match c.cmp {
-                    // Ordering requires a comparable RHS: numeric or text.
+                    // Ordering comparators
                     Cmp::Lt | Cmp::Lte | Cmp::Gt | Cmp::Gte => {
                         if !(v.is_numeric() || v.is_text()) {
                             return Err(QueryError::InvalidFilterValue(format!(
@@ -166,9 +168,8 @@ impl<E: EntityKind> QueryValidate<E> for FilterExpr {
 
                     // Case-sensitive text
                     Cmp::StartsWith | Cmp::EndsWith | Cmp::Contains => {
-                        // Allow Contains to be collection membership too; only enforce text when RHS is Text
                         if !v.is_text() {
-                            // For Contains, we also allow non-text to support collection ops
+                            // Allow non-text only for Contains (collection)
                             if !matches!(c.cmp, Cmp::Contains) {
                                 return Err(QueryError::InvalidFilterValue(format!(
                                     "field '{field}' expects text RHS for {cmp:?}",
@@ -178,7 +179,7 @@ impl<E: EntityKind> QueryValidate<E> for FilterExpr {
                         }
                     }
 
-                    // Case-insensitive text must be text RHS
+                    // Case-insensitive text
                     Cmp::EqCi
                     | Cmp::NeCi
                     | Cmp::ContainsCi
@@ -192,7 +193,7 @@ impl<E: EntityKind> QueryValidate<E> for FilterExpr {
                         }
                     }
 
-                    // Presence/null checks: RHS should be Unit
+                    // Null / presence
                     Cmp::IsSome | Cmp::IsNone | Cmp::IsEmpty | Cmp::IsNotEmpty => {
                         if !v.is_unit() {
                             return Err(QueryError::InvalidFilterValue(format!(
@@ -202,18 +203,20 @@ impl<E: EntityKind> QueryValidate<E> for FilterExpr {
                         }
                     }
 
-                    // Membership
-                    Cmp::In | Cmp::Eq | Cmp::Ne => { /* Allow arbitrary or strict fallback; no strong typing here. */
+                    // Membership & equality family
+                    Cmp::In | Cmp::NotIn | Cmp::Eq | Cmp::Ne => {
+                        // no strong type enforcement — allow scalar or list
                     }
 
+                    // Collection membership
                     Cmp::AnyIn | Cmp::AllIn => {
-                        // Expect list; allow scalar but no strong typing here
+                        // Allow list RHS; tolerate scalar
                         if !matches!(v, Value::List(_)) {
-                            // allow scalar; no-op
+                            // scalar fallback allowed
                         }
                     }
 
-                    // CI collection membership requires text elements if list
+                    // Case-insensitive collection membership
                     Cmp::AnyInCi | Cmp::AllInCi | Cmp::InCi => match v {
                         Value::List(items) => {
                             if !items.iter().all(Value::is_text) {

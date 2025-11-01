@@ -75,16 +75,6 @@ pub enum Primitive {
 
 impl Primitive {
     #[must_use]
-    pub const fn is_filterable(self) -> bool {
-        !matches!(self, Self::Blob | Self::Unit)
-    }
-
-    #[must_use]
-    pub const fn is_sortable(self) -> bool {
-        !matches!(self, Self::Blob | Self::Unit)
-    }
-
-    #[must_use]
     pub const fn supports_arithmetic(self) -> bool {
         self.is_int() || self.is_fixed_point() || self.is_decimal()
     }

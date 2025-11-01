@@ -29,22 +29,6 @@ pub struct Item {
 }
 
 impl Item {
-    pub fn is_filterable(&self) -> bool {
-        if let ItemTarget::Primitive(prim) = self.target() {
-            prim.is_filterable()
-        } else {
-            false
-        }
-    }
-
-    pub fn is_sortable(&self) -> bool {
-        if let ItemTarget::Primitive(prim) = self.target() {
-            prim.is_sortable()
-        } else {
-            false
-        }
-    }
-
     // if relation is Some and no type is set, we default to Ulid
     pub fn target(&self) -> ItemTarget {
         match (&self.is, &self.primitive, &self.relation) {

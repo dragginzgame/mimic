@@ -59,7 +59,18 @@ impl FilterDsl {
     }
 
     //
-    // Presence / Null
+    // Empty
+    //
+
+    pub fn is_empty(self, field: impl AsRef<str>) -> FilterExpr {
+        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::IsEmpty, ()))
+    }
+    pub fn is_not_empty(self, field: impl AsRef<str>) -> FilterExpr {
+        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::IsNotEmpty, ()))
+    }
+
+    //
+    // Presence / None
     //
 
     pub fn is_some(self, field: impl AsRef<str>) -> FilterExpr {
@@ -91,6 +102,16 @@ impl FilterDsl {
         I::Item: FieldValue,
     {
         Self::cmp_iter(field, Cmp::In, vals)
+    }
+
+    /// field NOT IN (v1, v2, ...)
+    #[inline]
+    pub fn not_in_iter<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
+    where
+        I: IntoIterator,
+        I::Item: FieldValue,
+    {
+        Self::cmp_iter(field, Cmp::NotIn, vals)
     }
 
     /// ANY element of `vals` is contained in the collection field.

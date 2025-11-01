@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{node::ItemTarget, prelude::*};
 
 ///
 /// Value
@@ -16,22 +16,6 @@ pub struct Value {
 }
 
 impl Value {
-    // is_filterable
-    // nothing changes currently based on the value's cardinality, so just
-    // pass through to item
-    pub fn is_filterable(&self) -> bool {
-        self.item.is_filterable()
-    }
-
-    // is_sortable
-    pub fn is_sortable(&self) -> bool {
-        if self.cardinality() == Cardinality::Many {
-            false
-        } else {
-            self.item.is_sortable()
-        }
-    }
-
     // cardinality
     pub fn cardinality(&self) -> Cardinality {
         match (&self.opt, &self.many) {
@@ -75,6 +59,25 @@ impl HasTypeExpr for Value {
             Cardinality::One => quote!(#item_view),
             Cardinality::Opt => quote!(Option<#item_view>),
             Cardinality::Many => quote!(Vec<#item_view>),
+        }
+    }
+
+    fn filter_type_expr(&self) -> Option<TokenStream> {
+        match (self.cardinality(), self.item.target()) {
+            (Cardinality::Many, _) => Some(quote!(::mimic::db::query::ContainsFilter)),
+
+            (_, ItemTarget::Primitive(prim)) => Some(match prim {
+                Primitive::Text => quote!(::mimic::db::query::TextFilter),
+                Primitive::Int | Primitive::Nat | Primitive::Timestamp => {
+                    quote!(::mimic::db::query::RangeFilter)
+                }
+                Primitive::Bool | Primitive::Ulid | Primitive::Principal => {
+                    quote!(::mimic::db::query::EqualityFilter)
+                }
+                _ => return None, // <-- unfilterable primitive, skip
+            }),
+
+            (_, ItemTarget::Is(_)) => None,
         }
     }
 }

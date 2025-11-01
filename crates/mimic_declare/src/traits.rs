@@ -219,10 +219,6 @@ pub trait HasViewTypes: HasDef {
         format_ident!("{}Filter", self.def().ident())
     }
 
-    fn sort_ident(&self) -> Ident {
-        format_ident!("{}Sort", self.def().ident())
-    }
-
     /// Utility: standard derives for generated types.
     fn view_derives(&self) -> TraitList {
         TraitList(vec![
@@ -248,6 +244,10 @@ pub trait HasTypeExpr {
 
     fn view_type_expr(&self) -> TokenStream {
         quote!()
+    }
+
+    fn filter_type_expr(&self) -> Option<TokenStream> {
+        None
     }
 }
 

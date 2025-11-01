@@ -35,16 +35,6 @@ impl Entity {
             .filter(|f| f.ident != self.primary_key && !f.is_system)
     }
 
-    /// All filterable fields (includes PK).
-    pub fn iter_filter_fields(&self) -> impl Iterator<Item = &Field> {
-        self.fields.iter().filter(|f| f.value.is_filterable())
-    }
-
-    /// All sortable fields (includes PK).
-    pub fn iter_sort_fields(&self) -> impl Iterator<Item = &Field> {
-        self.fields.iter().filter(|f| f.value.is_sortable())
-    }
-
     /// Generates the `EntityCreate` struct (excluding PK + system fields)
     pub fn create_type_part(&self) -> TokenStream {
         let derives = self.view_derives();
@@ -102,35 +92,18 @@ impl Entity {
         let mut derives = self.view_derives();
         derives.push(Trait::Default);
 
-        let field_tokens = self.iter_filter_fields().map(|f| {
+        // Only include fields that have a filter type
+        let field_tokens = self.fields.iter().filter_map(|f| {
             let ident = &f.ident;
-            let ty = f.value.view_type_expr();
-            quote!(pub #ident: Option<#ty>)
+            f.value
+                .filter_type_expr()
+                .map(|ty| quote!(pub #ident: Option<#ty>,))
         });
 
         quote! {
             #derives
             pub struct #filter_ident {
-                #(#field_tokens),*
-            }
-        }
-    }
-
-    /// Generates the `EntitySort`
-    pub fn sort_type_part(&self) -> TokenStream {
-        let sort_ident = self.sort_ident();
-        let mut derives = self.view_derives();
-        derives.push(Trait::Default);
-
-        let field_tokens = self.iter_sort_fields().map(|f| {
-            let ident = &f.ident;
-            quote!(pub #ident: Option<::mimic::db::query::Order>)
-        });
-
-        quote! {
-            #derives
-            pub struct #sort_ident {
-                #(#field_tokens),*
+                #(#field_tokens)*
             }
         }
     }
@@ -257,7 +230,6 @@ impl HasViewTypes for Entity {
         let create = self.create_type_part();
         let update = self.update_type_part();
         let filter = self.filter_type_part();
-        let sort = self.sort_type_part();
 
         quote! {
             #derives
@@ -274,7 +246,6 @@ impl HasViewTypes for Entity {
             #create
             #update
             #filter
-            #sort
         }
     }
 }

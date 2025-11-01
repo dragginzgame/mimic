@@ -5,6 +5,9 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.26] - 2025-11-01
+- Filter types now contain helpful filter structs depending on the field type
+
 ## [0.25] - 2025-10-22
 - new View type - Create<Entity> which takes off the primary key and provides handy from() functionality
 - added Update<Entity>
