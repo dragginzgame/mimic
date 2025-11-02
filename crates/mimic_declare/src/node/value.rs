@@ -1,4 +1,4 @@
-use crate::{node::ItemTarget, prelude::*};
+use crate::prelude::*;
 
 ///
 /// Value
@@ -49,26 +49,6 @@ impl HasTypeExpr for Value {
             Cardinality::One => quote!(#item),
             Cardinality::Opt => quote!(Option<#item>),
             Cardinality::Many => quote!(Vec<#item>),
-        }
-    }
-}
-
-impl HasViewExpr for Value {
-    fn view_type_expr(&self) -> TokenStream {
-        let item_view = &self.item.view_type_expr();
-
-        match self.cardinality() {
-            Cardinality::One => quote!(#item_view),
-            Cardinality::Opt => quote!(Option<#item_view>),
-            Cardinality::Many => quote!(Vec<#item_view>),
-        }
-    }
-
-    fn filter_type_expr(&self) -> Option<TokenStream> {
-        match (self.cardinality(), self.item.target()) {
-            (Cardinality::Many, _) => Some(quote!(::mimic::db::query::ContainsFilter)),
-            (_, ItemTarget::Primitive(p)) => p.filter_kind().map(|f| f.as_type()),
-            (_, ItemTarget::Is(_)) => None,
         }
     }
 }

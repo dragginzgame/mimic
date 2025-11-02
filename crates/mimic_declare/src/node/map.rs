@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{prelude::*, view::MapView};
 
 ///
 /// Map
@@ -63,8 +63,8 @@ impl HasTraits for Map {
         match t {
             Trait::From => FromTrait::strategy(self),
             Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
-            Trait::TypeView => TypeViewTrait::strategy(self),
             Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
+            Trait::View => ViewTrait::strategy(self),
             Trait::Visitable => VisitableTrait::strategy(self),
 
             _ => None,
@@ -85,15 +85,9 @@ impl HasType for Map {
     }
 }
 
-impl HasView for Map {
-    fn view_part(&self) -> TokenStream {
-        let view_ident = self.view_ident();
-        let key_view = HasViewExpr::view_type_expr(&self.key);
-        let value_view = HasViewExpr::view_type_expr(&self.value);
-
-        quote! {
-            pub type #view_ident = Vec<(#key_view, #value_view)>;
-        }
+impl HasViews for Map {
+    fn view_parts(&self) -> Vec<TokenStream> {
+        vec![MapView(self).view_part()]
     }
 }
 

@@ -2,7 +2,7 @@ use crate::{
     core::{
         traits::{
             FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
-            SanitizeCustom, TypeView, ValidateAuto, ValidateCustom, Visitable,
+            SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
         },
         value::Value,
     },
@@ -170,21 +170,21 @@ impl SanitizeAuto for E18s {}
 
 impl SanitizeCustom for E18s {}
 
-impl TypeView for E18s {
-    type View = u128;
-
-    fn to_view(&self) -> Self::View {
-        self.0
-    }
-
-    fn from_view(view: Self::View) -> Self {
-        Self(view)
-    }
-}
-
 impl ValidateAuto for E18s {}
 
 impl ValidateCustom for E18s {}
+
+impl View for E18s {
+    type ViewType = u128;
+
+    fn to_view(&self) -> Self::ViewType {
+        self.0
+    }
+
+    fn from_view(view: Self::ViewType) -> Self {
+        Self(view)
+    }
+}
 
 impl Visitable for E18s {}
 

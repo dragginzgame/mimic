@@ -1,6 +1,5 @@
 mod default;
 mod entity;
-mod enum_value;
 mod field_value;
 mod field_values;
 mod from;
@@ -18,7 +17,6 @@ mod visitable;
 
 pub use default::*;
 pub use entity::*;
-pub use enum_value::*;
 pub use field_value::*;
 pub use field_values::*;
 pub use from::*;

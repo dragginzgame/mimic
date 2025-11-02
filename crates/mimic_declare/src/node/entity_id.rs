@@ -65,7 +65,7 @@ impl HasType for EntityId {
     }
 }
 
-impl HasTypeViews for EntityId {}
+impl HasViews for EntityId {}
 
 impl ToTokens for EntityId {
     fn to_tokens(&self, tokens: &mut TokenStream) {

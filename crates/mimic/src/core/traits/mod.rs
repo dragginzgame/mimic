@@ -114,6 +114,7 @@ pub trait StoreKind: Kind {
 
 pub trait TypeKind:
     Kind
+    + View
     + Clone
     + Default
     + Serialize
@@ -122,18 +123,17 @@ pub trait TypeKind:
     + Validate
     + Visitable
     + PartialEq
-    + TypeView
 {
 }
 
 impl<T> TypeKind for T where
     T: Kind
+        + View
         + Clone
         + Default
         + DeserializeOwned
         + PartialEq
         + Serialize
-        + TypeView
         + Sanitize
         + Validate
         + Visitable
@@ -145,60 +145,60 @@ impl<T> TypeKind for T where
 /// ------------------------
 
 ///
-/// TypeView
+/// View
 ///
 
-pub trait TypeView {
-    type View;
+pub trait View {
+    type ViewType: Default;
 
-    fn to_view(&self) -> Self::View;
-    fn from_view(view: Self::View) -> Self;
+    fn to_view(&self) -> Self::ViewType;
+    fn from_view(view: Self::ViewType) -> Self;
 }
 
-impl<T: TypeView> TypeView for Box<T> {
-    type View = Box<T::View>;
+impl<T: View> View for Box<T> {
+    type ViewType = Box<T::ViewType>;
 
-    fn to_view(&self) -> Self::View {
+    fn to_view(&self) -> Self::ViewType {
         Box::new((**self).to_view())
     }
 
-    fn from_view(view: Self::View) -> Self {
+    fn from_view(view: Self::ViewType) -> Self {
         Self::new(T::from_view(*view))
     }
 }
 
-impl<T: TypeView> TypeView for Option<T> {
-    type View = Option<T::View>;
+impl<T: View> View for Option<T> {
+    type ViewType = Option<T::ViewType>;
 
-    fn to_view(&self) -> Self::View {
-        self.as_ref().map(TypeView::to_view)
+    fn to_view(&self) -> Self::ViewType {
+        self.as_ref().map(View::to_view)
     }
 
-    fn from_view(view: Self::View) -> Self {
+    fn from_view(view: Self::ViewType) -> Self {
         view.map(T::from_view)
     }
 }
 
-impl<T: TypeView> TypeView for Vec<T> {
-    type View = Vec<T::View>;
+impl<T: View> View for Vec<T> {
+    type ViewType = Vec<T::ViewType>;
 
-    fn to_view(&self) -> Self::View {
-        self.iter().map(TypeView::to_view).collect()
+    fn to_view(&self) -> Self::ViewType {
+        self.iter().map(View::to_view).collect()
     }
 
-    fn from_view(view: Self::View) -> Self {
+    fn from_view(view: Self::ViewType) -> Self {
         view.into_iter().map(T::from_view).collect()
     }
 }
 
-impl TypeView for String {
-    type View = Self;
+impl View for String {
+    type ViewType = Self;
 
-    fn to_view(&self) -> Self::View {
+    fn to_view(&self) -> Self::ViewType {
         self.clone()
     }
 
-    fn from_view(view: Self::View) -> Self {
+    fn from_view(view: Self::ViewType) -> Self {
         view
     }
 }
@@ -208,14 +208,14 @@ impl TypeView for String {
 macro_rules! impl_type_view {
     ($($type:ty),*) => {
         $(
-            impl TypeView for $type {
-                type View = $type;
+            impl View for $type {
+                type ViewType = $type;
 
-                fn to_view(&self) -> Self::View {
+                fn to_view(&self) -> Self::ViewType {
                     *self
                 }
 
-                fn from_view(view: Self::View) -> Self {
+                fn from_view(view: Self::ViewType) -> Self {
                     view
                 }
             }
@@ -230,10 +230,10 @@ impl_type_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
 ///
 
 pub trait EditView {
-    type View: Default;
+    type EditType: Default;
 
     /// Merge `view` into `self`, skipping `None` fields.
-    fn merge(&mut self, view: Self::View);
+    fn merge(&mut self, view: Self::EditType);
 }
 
 ///
@@ -241,10 +241,10 @@ pub trait EditView {
 ///
 
 pub trait FilterView {
-    type View: Default;
+    type FilterType: Default;
 
     /// Converts the filter view into a `FilterExpr` suitable for execution.
-    fn into_expr(view: Self::View) -> Option<FilterExpr>;
+    fn into_expr(view: Self::FilterType) -> Option<FilterExpr>;
 }
 
 /// ------------------------

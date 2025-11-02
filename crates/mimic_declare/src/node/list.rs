@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{prelude::*, view::ListView};
 
 ///
 /// List
@@ -61,8 +61,8 @@ impl HasTraits for List {
             Trait::FieldValue => FieldValueTrait::strategy(self),
             Trait::From => FromTrait::strategy(self),
             Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
-            Trait::TypeView => TypeViewTrait::strategy(self),
             Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
+            Trait::View => ViewTrait::strategy(self),
             Trait::Visitable => VisitableTrait::strategy(self),
 
             _ => None,
@@ -82,14 +82,9 @@ impl HasType for List {
     }
 }
 
-impl HasTypeViews for List {
-    fn view_parts(&self) -> TokenStream {
-        let view_ident = self.view_ident();
-        let item_view = HasViewExpr::view_type_expr(&self.item);
-
-        quote! {
-            pub type #view_ident = Vec<#item_view>;
-        }
+impl HasViews for List {
+    fn view_parts(&self) -> Vec<TokenStream> {
+        vec![ListView(self).view_part()]
     }
 }
 

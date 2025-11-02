@@ -252,7 +252,7 @@ mod tests {
             Key, Value,
             traits::{
                 CanisterKind, EntityKind, FieldValues, Path, SanitizeAuto, SanitizeCustom,
-                StoreKind, TypeView, ValidateAuto, ValidateCustom, Visitable,
+                StoreKind, ValidateAuto, ValidateCustom, View, Visitable,
             },
         },
         db::query::{Order, SortExpr},
@@ -300,14 +300,14 @@ mod tests {
         const PATH: &'static str = "test::sortable";
     }
 
-    impl TypeView for SortableEntity {
-        type View = Self;
+    impl View for SortableEntity {
+        type ViewType = Self;
 
-        fn to_view(&self) -> Self::View {
+        fn to_view(&self) -> Self::ViewType {
             self.clone()
         }
 
-        fn from_view(view: Self::View) -> Self {
+        fn from_view(view: Self::ViewType) -> Self {
             view
         }
     }

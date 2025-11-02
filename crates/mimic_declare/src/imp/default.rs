@@ -47,29 +47,6 @@ impl Imp<Enum> for DefaultTrait {
 }
 
 ///
-/// EnumValue
-///
-
-impl Imp<EnumValue> for DefaultTrait {
-    fn strategy(node: &EnumValue) -> Option<TraitStrategy> {
-        let default_variant = node.default_variant()?;
-        let variant_ident = default_variant.effective_ident();
-
-        let q = quote! {
-            fn default() -> Self {
-                Self::#variant_ident
-            }
-        };
-
-        let tokens = Implementor::new(node.def(), Trait::Default)
-            .set_tokens(q)
-            .to_token_stream();
-
-        Some(TraitStrategy::from_impl(tokens))
-    }
-}
-
-///
 /// Selector
 ///
 

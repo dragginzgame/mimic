@@ -1,7 +1,7 @@
 use crate::core::{
     Value,
     traits::{
-        FieldValue, Inner, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom,
+        FieldValue, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto, ValidateCustom, View,
         Visitable,
     },
 };
@@ -89,20 +89,20 @@ impl SanitizeAuto for Blob {}
 
 impl SanitizeCustom for Blob {}
 
-impl TypeView for Blob {
-    type View = ByteBuf;
-
-    fn to_view(&self) -> Self::View {
-        self.0.clone()
-    }
-
-    fn from_view(view: Self::View) -> Self {
-        Self(view)
-    }
-}
-
 impl ValidateAuto for Blob {}
 
 impl ValidateCustom for Blob {}
+
+impl View for Blob {
+    type ViewType = Self;
+
+    fn to_view(&self) -> Self::ViewType {
+        self.clone()
+    }
+
+    fn from_view(view: Self::ViewType) -> Self {
+        view
+    }
+}
 
 impl Visitable for Blob {}

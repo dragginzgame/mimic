@@ -58,7 +58,6 @@ pub enum Trait {
     CanisterKind,
     EntityKind,
     EntityIdKind,
-    EnumValueKind,
     IndexKind,
     PrimitiveKind,
     StoreKind,
@@ -78,9 +77,9 @@ pub enum Trait {
     Sorted,
     SanitizeAuto,
     SanitizeCustom,
-    TypeView,
     ValidateAuto,
     ValidateCustom,
+    View,
     Visitable,
 }
 
@@ -108,9 +107,9 @@ static TYPE_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
         Trait::SanitizeAuto,
         Trait::SanitizeCustom,
         Trait::Serialize,
-        Trait::TypeView,
         Trait::ValidateAuto,
         Trait::ValidateCustom,
+        Trait::View,
         Trait::Visitable,
     ]
 });

@@ -51,7 +51,7 @@ impl HasType for Validator {
     }
 }
 
-impl HasTypeViews for Validator {}
+impl HasViews for Validator {}
 
 impl ToTokens for Validator {
     fn to_tokens(&self, tokens: &mut TokenStream) {

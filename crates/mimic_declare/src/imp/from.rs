@@ -2,29 +2,10 @@ use crate::prelude::*;
 
 ///
 /// FromTrait
+/// to and from ::View types is handled with a blanket impl
 ///
 
 pub struct FromTrait {}
-
-///
-/// Enum
-///
-
-impl Imp<Enum> for FromTrait {
-    fn strategy(node: &Enum) -> Option<TraitStrategy> {
-        Some(from_type_view(node))
-    }
-}
-
-///
-/// EnumValue
-///
-
-impl Imp<EnumValue> for FromTrait {
-    fn strategy(node: &EnumValue) -> Option<TraitStrategy> {
-        Some(from_type_view(node))
-    }
-}
 
 ///
 /// List
@@ -111,16 +92,6 @@ impl Imp<Newtype> for FromTrait {
 }
 
 ///
-/// Record
-///
-
-impl Imp<Record> for FromTrait {
-    fn strategy(node: &Record) -> Option<TraitStrategy> {
-        Some(from_type_view(node))
-    }
-}
-
-///
 /// Set
 ///
 
@@ -146,36 +117,4 @@ impl Imp<Set> for FromTrait {
 
         Some(TraitStrategy::from_impl(tokens))
     }
-}
-
-///
-/// Tuple
-///
-
-impl Imp<Tuple> for FromTrait {
-    fn strategy(node: &Tuple) -> Option<TraitStrategy> {
-        Some(from_type_view(node))
-    }
-}
-
-///
-/// Helpers
-///
-
-/// from_type_view
-fn from_type_view(node: &impl HasView) -> TraitStrategy {
-    let view_ident = node.view_ident();
-
-    let q = quote! {
-        fn from(view: #view_ident) -> Self {
-            <Self as ::mimic::core::traits::TypeView>::from_view(view)
-        }
-    };
-
-    let tokens = Implementor::new(node.def(), Trait::From)
-        .set_tokens(q)
-        .add_trait_generic(quote!(#view_ident))
-        .to_token_stream();
-
-    TraitStrategy::from_impl(tokens)
 }

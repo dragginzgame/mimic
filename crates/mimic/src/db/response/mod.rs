@@ -127,20 +127,20 @@ where
     ///
 
     #[must_use]
-    pub fn view(self) -> Option<E::View> {
+    pub fn view(self) -> Option<E::ViewType> {
         self.entity().map(|e| e.to_view())
     }
 
-    pub fn try_view(self) -> Result<E::View, Error> {
+    pub fn try_view(self) -> Result<E::ViewType, Error> {
         self.try_entity().map(|e| e.to_view())
     }
 
     #[must_use]
-    pub fn views(self) -> Vec<E::View> {
+    pub fn views(self) -> Vec<E::ViewType> {
         self.entities().into_iter().map(|e| e.to_view()).collect()
     }
 
-    pub fn views_iter(self) -> impl Iterator<Item = E::View> {
+    pub fn views_iter(self) -> impl Iterator<Item = E::ViewType> {
         self.entities().into_iter().map(|e| e.to_view())
     }
 }

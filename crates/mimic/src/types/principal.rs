@@ -2,8 +2,8 @@ use crate::{
     ThisError,
     core::{
         traits::{
-            FieldValue, Inner, SanitizeAuto, SanitizeCustom, Storable, TypeView, ValidateAuto,
-            ValidateCustom, Visitable,
+            FieldValue, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
+            ValidateCustom, View, Visitable,
         },
         value::Value,
     },
@@ -176,23 +176,23 @@ impl Storable for Principal {
     }
 }
 
-// The WrappedPrincipal type doesn't have Default so we can't
-// use it as a TypeView
-impl TypeView for Principal {
-    type View = Self;
-
-    fn to_view(&self) -> Self::View {
-        *self
-    }
-
-    fn from_view(view: Self::View) -> Self {
-        view
-    }
-}
-
 impl ValidateAuto for Principal {}
 
 impl ValidateCustom for Principal {}
+
+// The WrappedPrincipal type doesn't have Default so we can't
+// use it as a View
+impl View for Principal {
+    type ViewType = Self;
+
+    fn to_view(&self) -> Self::ViewType {
+        *self
+    }
+
+    fn from_view(view: Self::ViewType) -> Self {
+        view
+    }
+}
 
 impl Visitable for Principal {}
 

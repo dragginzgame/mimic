@@ -83,7 +83,7 @@ impl HasType for Selector {
     }
 }
 
-impl HasTypeViews for Selector {}
+impl HasViews for Selector {}
 
 impl ToTokens for Selector {
     fn to_tokens(&self, tokens: &mut TokenStream) {

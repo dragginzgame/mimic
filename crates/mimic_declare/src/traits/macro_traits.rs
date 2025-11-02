@@ -26,7 +26,7 @@ pub struct TraitTokens {
 /// Coordinates schema emission, type emission, trait impls, and view generation.
 ///
 
-pub trait HasMacro: HasSchema + HasTraits + HasType + HasTypeViews {
+pub trait HasMacro: HasSchema + HasTraits + HasType + HasViews {
     /// Generate all Rust tokens for this node: schema consts, derives, impls, and view structs.
     fn all_tokens(&self) -> TokenStream {
         let TraitTokens { derive, impls } = self.resolve_trait_tokens();
@@ -94,4 +94,4 @@ pub trait HasMacro: HasSchema + HasTraits + HasType + HasTypeViews {
 
 /// Blanket implementation so any node that satisfies the constraints
 /// automatically gets full macro generation.
-impl<T> HasMacro for T where T: HasDef + HasSchema + HasTraits + HasType + HasTypeViews {}
+impl<T> HasMacro for T where T: HasDef + HasSchema + HasTraits + HasType + HasViews {}

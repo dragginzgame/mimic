@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{prelude::*, view::NewtypeView};
 
 ///
 /// Newtype
@@ -122,8 +122,8 @@ impl HasTraits for Newtype {
             Trait::NumToPrimitive => NumToPrimitiveTrait::strategy(self),
             Trait::NumFromPrimitive => NumFromPrimitiveTrait::strategy(self),
             Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
-            Trait::TypeView => TypeViewTrait::strategy(self),
             Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
+            Trait::View => ViewTrait::strategy(self),
             Trait::Visitable => VisitableTrait::strategy(self),
 
             _ => None,
@@ -143,14 +143,9 @@ impl HasType for Newtype {
     }
 }
 
-impl HasView for Newtype {
-    fn view_part(&self) -> TokenStream {
-        let view_ident = self.view_ident();
-        let view_type = self.item.view_type_expr();
-
-        quote! {
-            pub type #view_ident = #view_type;
-        }
+impl HasViews for Newtype {
+    fn view_parts(&self) -> Vec<TokenStream> {
+        vec![NewtypeView(self).view_part()]
     }
 }
 

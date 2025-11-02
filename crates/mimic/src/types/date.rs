@@ -2,7 +2,7 @@ use crate::core::{
     Value,
     traits::{
         FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
-        TypeView, ValidateAuto, ValidateCustom, Visitable,
+        ValidateAuto, ValidateCustom, View, Visitable,
     },
 };
 use candid::CandidType;
@@ -196,21 +196,21 @@ impl<'de> Deserialize<'de> for Date {
     }
 }
 
-impl TypeView for Date {
-    type View = Self;
-
-    fn to_view(&self) -> Self::View {
-        *self
-    }
-
-    fn from_view(view: Self::View) -> Self {
-        view
-    }
-}
-
 impl ValidateAuto for Date {}
 
 impl ValidateCustom for Date {}
+
+impl View for Date {
+    type ViewType = Self;
+
+    fn to_view(&self) -> Self::ViewType {
+        *self
+    }
+
+    fn from_view(view: Self::ViewType) -> Self {
+        view
+    }
+}
 
 impl Visitable for Date {}
 

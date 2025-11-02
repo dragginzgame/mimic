@@ -51,7 +51,6 @@ pub enum SchemaNodeKind {
     Canister,
     Entity,
     Enum,
-    EnumValue,
     List,
     Map,
     Newtype,

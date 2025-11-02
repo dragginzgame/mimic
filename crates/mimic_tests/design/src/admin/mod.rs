@@ -168,18 +168,6 @@ pub struct EnumB {}
 pub struct EnumC {}
 
 ///
-/// EnumValue
-///
-
-#[enum_value(
-    variant(ident = "M6", value = 1, default),
-    variant(ident = "Y1", value = 5),
-    variant(ident = "Y2", value = 10),
-    variant(ident = "Y3", value = 10)
-)]
-pub struct EnumValue {}
-
-///
 /// List
 ///
 

@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{prelude::*, view::TupleView};
 
 ///
 /// Tuple
@@ -56,8 +56,7 @@ impl HasTraits for Tuple {
         use crate::imp::*;
 
         match t {
-            Trait::From => FromTrait::strategy(self),
-            Trait::TypeView => TypeViewTrait::strategy(self),
+            Trait::View => ViewTrait::strategy(self),
             Trait::Visitable => VisitableTrait::strategy(self),
 
             _ => None,
@@ -76,14 +75,9 @@ impl HasType for Tuple {
     }
 }
 
-impl HasView for Tuple {
-    fn view_part(&self) -> TokenStream {
-        let view_ident = &self.view_ident();
-        let view_values = self.values.iter().map(HasViewExpr::view_type_expr);
-
-        quote! {
-            pub type #view_ident = (#(#view_values),*);
-        }
+impl HasViews for Tuple {
+    fn view_parts(&self) -> Vec<TokenStream> {
+        vec![TupleView(self).view_part()]
     }
 }
 

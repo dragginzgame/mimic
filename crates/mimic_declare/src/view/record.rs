@@ -1,20 +1,20 @@
-use crate::{node::Entity, prelude::*, view::ValueView};
+use crate::{node::Record, prelude::*, view::ValueView};
 
 ///
-/// EntityView
+/// RecordView
 ///
 
-pub struct EntityView<'a>(pub &'a Entity);
+pub struct RecordView<'a>(pub &'a Record);
 
-impl View for EntityView<'_> {
-    type Node = Entity;
+impl View for RecordView<'_> {
+    type Node = Record;
 
     fn node(&self) -> &Self::Node {
         self.0
     }
 }
 
-impl ViewType for EntityView<'_> {
+impl ViewType for RecordView<'_> {
     fn view_part(&self) -> TokenStream {
         let node = self.node();
         let ident = node.view_ident();
@@ -39,61 +39,23 @@ impl ViewType for EntityView<'_> {
 }
 
 ///
-/// EntityEdit
+/// RecordEdit
 ///
 
-pub struct EntityEdit<'a>(pub &'a Entity);
+pub struct RecordEdit<'a>(pub &'a Record);
 
-impl View for EntityEdit<'_> {
-    type Node = Entity;
+impl View for RecordEdit<'_> {
+    type Node = Record;
 
     fn node(&self) -> &Self::Node {
         self.0
     }
 }
 
-impl ViewType for EntityEdit<'_> {
+impl ViewType for RecordEdit<'_> {
     fn view_part(&self) -> TokenStream {
         let node = self.node();
         let ident = node.edit_ident();
-        let fields = node.iter_editable_fields().map(|f| {
-            let ident = &f.ident;
-            let ty = ValueView(&f.value).view_expr();
-
-            quote!(pub #ident: Option<#ty>)
-        });
-
-        // add in default manually
-        let mut derives = self.traits();
-        derives.push(Trait::Default);
-
-        quote! {
-            #derives
-            pub struct #ident {
-                #(#fields),*
-            }
-        }
-    }
-}
-
-///
-/// EntityFilter
-///
-
-pub struct EntityFilter<'a>(pub &'a Entity);
-
-impl View for EntityFilter<'_> {
-    type Node = Entity;
-
-    fn node(&self) -> &Self::Node {
-        self.0
-    }
-}
-
-impl ViewType for EntityFilter<'_> {
-    fn view_part(&self) -> TokenStream {
-        let node = self.node();
-        let ident = node.filter_ident();
         let fields = node.fields.iter().map(|f| {
             let ident = &f.ident;
             let ty = ValueView(&f.value).view_expr();

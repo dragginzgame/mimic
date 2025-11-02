@@ -1,4 +1,7 @@
-use crate::prelude::*;
+use crate::{
+    prelude::*,
+    view::{RecordEdit, RecordView},
+};
 
 ///
 /// Record
@@ -61,10 +64,9 @@ impl HasTraits for Record {
         match t {
             Trait::Default => DefaultTrait::strategy(self),
             Trait::EditView => EditViewTrait::strategy(self),
-            Trait::From => FromTrait::strategy(self),
             Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
-            Trait::TypeView => TypeViewTrait::strategy(self),
             Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
+            Trait::View => ViewTrait::strategy(self),
             Trait::Visitable => VisitableTrait::strategy(self),
 
             _ => None,
@@ -93,42 +95,11 @@ impl HasType for Record {
     }
 }
 
-impl HasView for Record {
-    fn view_part(&self) -> TokenStream {
-        let view_ident = self.view_ident();
-        let derives = self.view_derives();
-        let view_field_list = &self.fields.view_type_expr();
-
-        quote! {
-            #derives
-            pub struct #view_ident {
-                #view_field_list
-            }
-        }
-    }
-
-    /// Generates the `EntityUpdate` struct (excluding PK, all Option<>)
-    fn edit_part(&self) -> TokenStream {
-        let derives = self.view_derives();
-        let edit_ident = self.edit_ident();
-
-        let field_tokens = self.fields.iter().map(|f| {
-            let ident = &f.ident;
-            let ty = f.value.view_type_expr();
-
-            quote!(pub #ident: Option<#ty>)
-        });
-
-        quote! {
-            #derives
-            pub struct #edit_ident {
-                #(#field_tokens),*
-            }
-        }
+impl HasViews for Record {
+    fn view_parts(&self) -> Vec<TokenStream> {
+        vec![RecordView(self).view_part(), RecordEdit(self).view_part()]
     }
 }
-
-impl HasViewTraits for Record {}
 
 impl ToTokens for Record {
     fn to_tokens(&self, tokens: &mut TokenStream) {

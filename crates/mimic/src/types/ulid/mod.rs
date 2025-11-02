@@ -6,8 +6,8 @@ use crate::{
     common::error::ErrorTree,
     core::{
         traits::{
-            FieldValue, Inner, SanitizeAuto, SanitizeCustom, Storable, TypeView, ValidateAuto,
-            ValidateCustom, Visitable,
+            FieldValue, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
+            ValidateCustom, View, Visitable,
         },
         value::Value,
     },
@@ -212,18 +212,6 @@ impl Storable for Ulid {
     }
 }
 
-impl TypeView for Ulid {
-    type View = Self;
-
-    fn to_view(&self) -> Self::View {
-        *self
-    }
-
-    fn from_view(view: Self::View) -> Self {
-        Self(*view)
-    }
-}
-
 impl ValidateAuto for Ulid {
     fn validate_self(&self) -> Result<(), ErrorTree> {
         let mut errs = ErrorTree::default();
@@ -237,6 +225,18 @@ impl ValidateAuto for Ulid {
 }
 
 impl ValidateCustom for Ulid {}
+
+impl View for Ulid {
+    type ViewType = Self;
+
+    fn to_view(&self) -> Self::ViewType {
+        *self
+    }
+
+    fn from_view(view: Self::ViewType) -> Self {
+        Self(*view)
+    }
+}
 
 impl Visitable for Ulid {}
 

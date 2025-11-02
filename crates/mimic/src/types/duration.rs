@@ -2,7 +2,7 @@ use crate::core::{
     Value,
     traits::{
         FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
-        TypeView, ValidateAuto, ValidateCustom, Visitable,
+        ValidateAuto, ValidateCustom, View, Visitable,
     },
 };
 use candid::CandidType;
@@ -171,20 +171,20 @@ impl SanitizeAuto for Duration {}
 
 impl SanitizeCustom for Duration {}
 
-impl TypeView for Duration {
-    type View = u64;
-
-    fn to_view(&self) -> Self::View {
-        self.0
-    }
-
-    fn from_view(view: Self::View) -> Self {
-        Self(view)
-    }
-}
-
 impl ValidateAuto for Duration {}
 
 impl ValidateCustom for Duration {}
+
+impl View for Duration {
+    type ViewType = u64;
+
+    fn to_view(&self) -> Self::ViewType {
+        self.0
+    }
+
+    fn from_view(view: Self::ViewType) -> Self {
+        Self(view)
+    }
+}
 
 impl Visitable for Duration {}

@@ -24,12 +24,25 @@ pub trait HasTypeExpr {
 }
 
 ///
-/// HasTypeViews
+/// HasViews
 ///
 
-pub trait HasTypeViews: HasType {
+pub trait HasViews: HasType {
     fn view_parts(&self) -> Vec<TokenStream> {
         vec![]
+    }
+
+    // Naming shortcuts
+    fn view_ident(&self) -> Ident {
+        format_ident!("{}View", self.def().ident())
+    }
+
+    fn edit_ident(&self) -> Ident {
+        format_ident!("{}Edit", self.def().ident())
+    }
+
+    fn filter_ident(&self) -> Ident {
+        format_ident!("{}Filter", self.def().ident())
     }
 }
 

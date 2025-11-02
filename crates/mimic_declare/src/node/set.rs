@@ -61,8 +61,8 @@ impl HasTraits for Set {
             Trait::FieldValue => FieldValueTrait::strategy(self),
             Trait::From => FromTrait::strategy(self),
             Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
-            Trait::TypeView => TypeViewTrait::strategy(self),
             Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
+            Trait::View => ViewTrait::strategy(self),
             Trait::Visitable => VisitableTrait::strategy(self),
 
             _ => None,
@@ -82,7 +82,7 @@ impl HasType for Set {
     }
 }
 
-impl HasTypeViews for Set {
+impl HasViews for Set {
     fn view_parts(&self) -> Vec<TokenStream> {
         vec![SetView(self).view_part()]
     }

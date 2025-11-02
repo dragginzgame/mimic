@@ -5,7 +5,7 @@ pub use nat128::*;
 use crate::core::{
     Value,
     traits::{
-        FieldValue, Inner, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto, ValidateCustom,
+        FieldValue, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto, ValidateCustom, View,
         Visitable,
     },
 };
@@ -83,20 +83,20 @@ impl Sum for Nat {
     }
 }
 
-impl TypeView for Nat {
-    type View = Self;
-
-    fn to_view(&self) -> Self::View {
-        self.clone()
-    }
-
-    fn from_view(view: Self::View) -> Self {
-        view
-    }
-}
-
 impl ValidateAuto for Nat {}
 
 impl ValidateCustom for Nat {}
+
+impl View for Nat {
+    type ViewType = Self;
+
+    fn to_view(&self) -> Self::ViewType {
+        self.clone()
+    }
+
+    fn from_view(view: Self::ViewType) -> Self {
+        view
+    }
+}
 
 impl Visitable for Nat {}

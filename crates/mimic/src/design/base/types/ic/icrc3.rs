@@ -7,10 +7,10 @@ use crate::design::prelude::*;
 
 #[enum_(
     variant(unspecified, default),
-    variant(ident = "Array", value(many, item(is = "Value", indirect))),
+//    variant(ident = "Array", value(many, item(is = "Value", indirect))),
     variant(ident = "Blob", value(item(prim = "Blob"))),
     variant(ident = "Int", value(item(prim = "Int64"))),
-    variant(ident = "Map", value(item(is = "value::Map", indirect))),
+ //   variant(ident = "Map", value(item(is = "value::Map", indirect))),
     variant(ident = "Nat", value(item(prim = "Nat64"))),
     variant(ident = "Text", value(item(prim = "Text")))
 )]

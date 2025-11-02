@@ -183,24 +183,24 @@ impl<C: CanisterKind> DbSession<C> {
         self.save::<E>().update(entity)
     }
 
-    pub fn insert_view<E>(&self, view: E::View) -> Result<E::View, Error>
+    pub fn insert_view<E>(&self, view: E::ViewType) -> Result<E::ViewType, Error>
     where
         E: EntityKind<Canister = C>,
     {
-        self.save::<E>().insert_view::<E::View>(view)
+        self.save::<E>().insert_view::<E::ViewType>(view)
     }
 
-    pub fn replace_view<E>(&self, view: E::View) -> Result<E::View, Error>
+    pub fn replace_view<E>(&self, view: E::ViewType) -> Result<E::ViewType, Error>
     where
         E: EntityKind<Canister = C>,
     {
-        self.save::<E>().replace_view::<E::View>(view)
+        self.save::<E>().replace_view::<E::ViewType>(view)
     }
 
-    pub fn update_view<E>(&self, view: E::View) -> Result<E::View, Error>
+    pub fn update_view<E>(&self, view: E::ViewType) -> Result<E::ViewType, Error>
     where
         E: EntityKind<Canister = C>,
     {
-        self.save::<E>().update_view::<E::View>(view)
+        self.save::<E>().update_view::<E::ViewType>(view)
     }
 }

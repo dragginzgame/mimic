@@ -2,7 +2,7 @@ use crate::core::{
     Value,
     traits::{
         FieldValue, Inner, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
-        TypeView, ValidateAuto, ValidateCustom, Visitable,
+        ValidateAuto, ValidateCustom, View, Visitable,
     },
 };
 use candid::CandidType;
@@ -156,22 +156,22 @@ impl SanitizeAuto for Float32 {}
 
 impl SanitizeCustom for Float32 {}
 
-impl TypeView for Float32 {
-    type View = f32;
+impl ValidateAuto for Float32 {}
 
-    fn to_view(&self) -> Self::View {
+impl ValidateCustom for Float32 {}
+
+impl View for Float32 {
+    type ViewType = f32;
+
+    fn to_view(&self) -> Self::ViewType {
         self.0
     }
 
-    fn from_view(view: Self::View) -> Self {
+    fn from_view(view: Self::ViewType) -> Self {
         // Preserve invariants: finite only, canonicalize -0.0 → 0.0
         // Fallback to 0.0 for non‑finite inputs to avoid propagating NaN/Inf
         Self::try_new(view).unwrap_or(Self(0.0))
     }
 }
-
-impl ValidateAuto for Float32 {}
-
-impl ValidateCustom for Float32 {}
 
 impl Visitable for Float32 {}

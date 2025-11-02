@@ -112,8 +112,8 @@ impl HasTraits for Entity {
             Trait::FieldValues => FieldValuesTrait::strategy(self),
             Trait::FilterView => FilterViewTrait::strategy(self),
             Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
-            Trait::TypeView => TypeViewTrait::strategy(self),
             Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
+            Trait::View => ViewTrait::strategy(self),
             Trait::Visitable => VisitableTrait::strategy(self),
 
             _ => None,
@@ -141,7 +141,7 @@ impl HasType for Entity {
     }
 }
 
-impl HasTypeViews for Entity {
+impl HasViews for Entity {
     fn view_parts(&self) -> Vec<TokenStream> {
         vec![
             EntityView(self).view_part(),

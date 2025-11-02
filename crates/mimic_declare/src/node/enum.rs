@@ -35,39 +35,9 @@ impl HasDef for Enum {
     }
 }
 
-impl HasTraits for Enum {
-    fn traits(&self) -> TraitList {
-        let mut traits = self.traits.clone().with_type_traits();
-
-        // extra traits
-        if self.is_unit_enum() {
-            traits.extend(vec![Trait::Copy, Trait::Hash, Trait::PartialOrd]);
-        }
-
-        traits.list()
-    }
-
-    fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
-        use crate::imp::*;
-
-        match t {
-            Trait::Default => DefaultTrait::strategy(self),
-            Trait::FieldValue => FieldValueTrait::strategy(self),
-            Trait::From => FromTrait::strategy(self),
-            Trait::TypeView => TypeViewTrait::strategy(self),
-            Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
-            Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
-            Trait::Visitable => VisitableTrait::strategy(self),
-
-            _ => None,
-        }
-    }
-
-    fn map_attribute(&self, t: Trait) -> Option<TokenStream> {
-        match t {
-            Trait::Sorted => Trait::Sorted.derive_attribute(),
-            _ => None,
-        }
+impl HasSchema for Enum {
+    fn schema_node_kind() -> SchemaNodeKind {
+        SchemaNodeKind::Enum
     }
 }
 
@@ -87,6 +57,41 @@ impl HasSchemaPart for Enum {
     }
 }
 
+impl HasTraits for Enum {
+    fn traits(&self) -> TraitList {
+        let mut traits = self.traits.clone().with_type_traits();
+
+        // extra traits
+        if self.is_unit_enum() {
+            traits.extend(vec![Trait::Copy, Trait::Hash, Trait::PartialOrd]);
+        }
+
+        traits.list()
+    }
+
+    fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
+        use crate::imp::*;
+
+        match t {
+            Trait::Default => DefaultTrait::strategy(self),
+            Trait::FieldValue => FieldValueTrait::strategy(self),
+            Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
+            Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
+            Trait::View => ViewTrait::strategy(self),
+            Trait::Visitable => VisitableTrait::strategy(self),
+
+            _ => None,
+        }
+    }
+
+    fn map_attribute(&self, t: Trait) -> Option<TokenStream> {
+        match t {
+            Trait::Sorted => Trait::Sorted.derive_attribute(),
+            _ => None,
+        }
+    }
+}
+
 impl HasType for Enum {
     fn type_part(&self) -> TokenStream {
         let ident = self.def.ident();
@@ -100,7 +105,7 @@ impl HasType for Enum {
     }
 }
 
-impl HasTypeViews for Enum {
+impl HasViews for Enum {
     fn view_parts(&self) -> Vec<TokenStream> {
         vec![EnumView(self).view_part()]
     }
@@ -143,12 +148,6 @@ impl EnumVariant {
         } else {
             self.ident.clone()
         }
-    }
-}
-
-impl HasSchema for Enum {
-    fn schema_node_kind() -> SchemaNodeKind {
-        SchemaNodeKind::Enum
     }
 }
 

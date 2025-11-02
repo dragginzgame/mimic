@@ -14,8 +14,8 @@ pub mod prelude {
             Key, Value,
             traits::{
                 EntityIdKind as _, EntityKind, FieldValue as _, Inner as _, Path as _,
-                Sanitize as _, Sanitizer as _, Serialize as _, TypeView as _, Validate as _,
-                ValidateCustom, Validator as _, Visitable as _,
+                Sanitize as _, Sanitizer as _, Serialize as _, Validate as _, ValidateCustom,
+                Validator as _, View as _, Visitable as _,
             },
             view::View,
         },

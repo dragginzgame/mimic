@@ -1,8 +1,8 @@
 use crate::{
     core::{
         traits::{
-            FieldValue, Inner, SanitizeAuto, SanitizeCustom, TypeView, ValidateAuto,
-            ValidateCustom, Visitable,
+            FieldValue, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto, ValidateCustom, View,
+            Visitable,
         },
         value::Value,
     },
@@ -173,21 +173,21 @@ impl SanitizeCustom for Subaccount {}
 
 impl_storable_bounded!(Subaccount, Subaccount::STORABLE_MAX_SIZE, true);
 
-impl TypeView for Subaccount {
-    type View = WrappedSubaccount;
-
-    fn to_view(&self) -> Self::View {
-        self.0
-    }
-
-    fn from_view(view: Self::View) -> Self {
-        Self(view)
-    }
-}
-
 impl ValidateAuto for Subaccount {}
 
 impl ValidateCustom for Subaccount {}
+
+impl View for Subaccount {
+    type ViewType = WrappedSubaccount;
+
+    fn to_view(&self) -> Self::ViewType {
+        self.0
+    }
+
+    fn from_view(view: Self::ViewType) -> Self {
+        Self(view)
+    }
+}
 
 impl Visitable for Subaccount {}
 

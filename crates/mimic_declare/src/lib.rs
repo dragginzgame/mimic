@@ -29,8 +29,8 @@ mod prelude {
         },
         node::*,
         traits::{
-            HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypeExpr,
-            HasTypeViews, SchemaNodeKind, View, ViewType,
+            HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypeExpr, HasViews,
+            SchemaNodeKind, View, ViewType,
         },
     };
     pub use mimic_schema::types::{Cardinality, Primitive, StoreType};
@@ -93,7 +93,6 @@ macro_node!(canister, node::Canister);
 macro_node!(entity, node::Entity);
 macro_node!(entity_id, node::EntityId);
 macro_node!(enum_, node::Enum);
-macro_node!(enum_value, node::EnumValue);
 macro_node!(list, node::List);
 macro_node!(map, node::Map);
 macro_node!(newtype, node::Newtype);

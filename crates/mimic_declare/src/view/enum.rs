@@ -7,7 +7,7 @@ use crate::{node::Enum, prelude::*};
 pub struct EnumView<'a>(pub &'a Enum);
 
 impl View for EnumView<'_> {
-    type Node = Entity;
+    type Node = Enum;
 
     fn node(&self) -> &Self::Node {
         self.0
@@ -16,12 +16,13 @@ impl View for EnumView<'_> {
 
 impl ViewType for EnumView<'_> {
     fn view_part(&self) -> TokenStream {
-        let view_ident = self.view_ident();
-        let view_variants = self.variants.iter().map(HasTypeExpr::type_expr);
+        let node = self.node();
+        let view_ident = node.view_ident();
+        let view_variants = node.variants.iter().map(HasTypeExpr::type_expr);
 
         // extra traits
-        let mut derives = self.derives();
-        if self.is_unit_enum() {
+        let mut derives = self.traits();
+        if node.is_unit_enum() {
             derives.extend(vec![
                 Trait::Copy,
                 Trait::Hash,
@@ -32,6 +33,7 @@ impl ViewType for EnumView<'_> {
             ]);
         }
 
+        // handle default manually
         let default_impl = self.view_default_impl();
 
         quote! {
@@ -45,10 +47,11 @@ impl ViewType for EnumView<'_> {
     }
 }
 
-/*
-impl HasViewDefault for Enum {
+impl EnumView<'_> {
     fn view_default_impl(&self) -> Option<TokenStream> {
-        let default_variant = self.default_variant()?;
+        let node = self.node();
+        let view_ident = node.view_ident();
+        let default_variant = node.default_variant()?;
         let variant_ident = default_variant.effective_ident();
 
         // Handle payloads
@@ -57,8 +60,6 @@ impl HasViewDefault for Enum {
         } else {
             quote!()
         };
-
-        let view_ident = self.view_ident();
 
         Some(quote! {
             impl Default for #view_ident {
@@ -69,4 +70,3 @@ impl HasViewDefault for Enum {
         })
     }
 }
-*/

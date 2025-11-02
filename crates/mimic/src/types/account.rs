@@ -2,8 +2,8 @@ use crate::{
     core::{
         Value,
         traits::{
-            FieldValue, Inner, SanitizeAuto, SanitizeCustom, Storable, TypeView, ValidateAuto,
-            ValidateCustom, Visitable,
+            FieldValue, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
+            ValidateCustom, View, Visitable,
         },
     },
     types::{Principal, Subaccount},
@@ -161,21 +161,21 @@ impl Storable for Account {
     };
 }
 
-impl TypeView for Account {
-    type View = Self;
-
-    fn to_view(&self) -> Self::View {
-        *self
-    }
-
-    fn from_view(view: Self::View) -> Self {
-        view
-    }
-}
-
 impl ValidateAuto for Account {}
 
 impl ValidateCustom for Account {}
+
+impl View for Account {
+    type ViewType = Self;
+
+    fn to_view(&self) -> Self::ViewType {
+        *self
+    }
+
+    fn from_view(view: Self::ViewType) -> Self {
+        view
+    }
+}
 
 impl Visitable for Account {}
 

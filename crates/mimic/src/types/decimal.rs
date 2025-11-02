@@ -1,7 +1,7 @@
 use crate::core::{
     traits::{
         FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
-        TypeView, ValidateAuto, ValidateCustom, Visitable,
+        ValidateAuto, ValidateCustom, View, Visitable,
     },
     value::Value,
 };
@@ -277,22 +277,22 @@ impl SanitizeAuto for Decimal {}
 
 impl SanitizeCustom for Decimal {}
 
-// WrappedDecimal does not use CandidType
-impl TypeView for Decimal {
-    type View = Self;
-
-    fn to_view(&self) -> Self::View {
-        *self
-    }
-
-    fn from_view(view: Self::View) -> Self {
-        Self(*view)
-    }
-}
-
 impl ValidateAuto for Decimal {}
 
 impl ValidateCustom for Decimal {}
+
+// WrappedDecimal does not use CandidType
+impl View for Decimal {
+    type ViewType = Self;
+
+    fn to_view(&self) -> Self::ViewType {
+        *self
+    }
+
+    fn from_view(view: Self::ViewType) -> Self {
+        Self(*view)
+    }
+}
 
 impl Visitable for Decimal {}
 

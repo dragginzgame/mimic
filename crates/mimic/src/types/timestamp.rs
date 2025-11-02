@@ -2,7 +2,7 @@ use crate::core::{
     Value,
     traits::{
         FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
-        TypeView, ValidateAuto, ValidateCustom, Visitable,
+        ValidateAuto, ValidateCustom, View, Visitable,
     },
 };
 use candid::CandidType;
@@ -109,20 +109,20 @@ impl SanitizeAuto for Timestamp {}
 
 impl SanitizeCustom for Timestamp {}
 
-impl TypeView for Timestamp {
-    type View = u64;
-
-    fn to_view(&self) -> Self::View {
-        self.0
-    }
-
-    fn from_view(view: Self::View) -> Self {
-        Self(view)
-    }
-}
-
 impl ValidateAuto for Timestamp {}
 
 impl ValidateCustom for Timestamp {}
+
+impl View for Timestamp {
+    type ViewType = u64;
+
+    fn to_view(&self) -> Self::ViewType {
+        self.0
+    }
+
+    fn from_view(view: Self::ViewType) -> Self {
+        Self(view)
+    }
+}
 
 impl Visitable for Timestamp {}

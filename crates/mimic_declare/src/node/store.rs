@@ -75,7 +75,7 @@ impl HasType for Store {
     }
 }
 
-impl HasTypeViews for Store {}
+impl HasViews for Store {}
 
 impl ToTokens for Store {
     fn to_tokens(&self, tokens: &mut TokenStream) {

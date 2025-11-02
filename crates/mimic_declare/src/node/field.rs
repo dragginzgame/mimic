@@ -69,15 +69,6 @@ impl HasTypeExpr for FieldList {
     }
 }
 
-impl HasViewExpr for FieldList {
-    fn view_type_expr(&self) -> TokenStream {
-        let fields = self.fields.iter().map(HasViewExpr::view_type_expr);
-        quote! {
-            #(#fields),*
-        }
-    }
-}
-
 impl<'a> IntoIterator for &'a FieldList {
     type Item = &'a Field;
     type IntoIter = Iter<'a, Field>;

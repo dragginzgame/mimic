@@ -1,8 +1,8 @@
 use crate::core::{
     Value,
     traits::{
-        FieldValue, Inner, NumCast, NumToPrimitive, SanitizeAuto, SanitizeCustom, TypeView,
-        ValidateAuto, ValidateCustom, Visitable,
+        FieldValue, Inner, NumCast, NumToPrimitive, SanitizeAuto, SanitizeCustom, ValidateAuto,
+        ValidateCustom, View, Visitable,
     },
 };
 use candid::CandidType;
@@ -144,21 +144,21 @@ impl<'de> Deserialize<'de> for Nat128 {
     }
 }
 
-impl TypeView for Nat128 {
-    type View = Self;
-
-    fn to_view(&self) -> Self::View {
-        *self
-    }
-
-    fn from_view(view: Self::View) -> Self {
-        view
-    }
-}
-
 impl ValidateAuto for Nat128 {}
 
 impl ValidateCustom for Nat128 {}
+
+impl View for Nat128 {
+    type ViewType = Self;
+
+    fn to_view(&self) -> Self::ViewType {
+        *self
+    }
+
+    fn from_view(view: Self::ViewType) -> Self {
+        view
+    }
+}
 
 impl Visitable for Nat128 {}
 
