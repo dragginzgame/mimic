@@ -26,15 +26,15 @@ impl Imp<Enum> for DefaultTrait {
         let variant_ident = default_variant.effective_ident();
 
         // if the default variant carries a value, generate it as `(Default::default())`
-        let value_expr = if default_variant.value.is_some() {
-            quote!((Default::default()))
+        let inner = if default_variant.value.is_some() {
+            quote!(Self::#variant_ident(Default::default()))
         } else {
-            quote!()
+            quote!(Self::#variant_ident)
         };
 
         let q = quote! {
             fn default() -> Self {
-                Self::#variant_ident #value_expr
+                #inner
             }
         };
 

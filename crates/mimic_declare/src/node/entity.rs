@@ -1,7 +1,7 @@
-mod view;
-
-use crate::prelude::*;
-use view::EntityView;
+use crate::{
+    prelude::*,
+    view::{EntityEdit, EntityFilter, EntityView},
+};
 
 ///
 /// Entity
@@ -141,9 +141,13 @@ impl HasType for Entity {
     }
 }
 
-impl HasViewTypes for Entity {
-    fn view_parts(&self) -> TokenStream {
-        EntityView(self).view_parts()
+impl HasTypeViews for Entity {
+    fn view_parts(&self) -> Vec<TokenStream> {
+        vec![
+            EntityView(self).view_part(),
+            EntityEdit(self).view_part(),
+            EntityFilter(self).view_part(),
+        ]
     }
 }
 

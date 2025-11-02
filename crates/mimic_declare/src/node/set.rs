@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{prelude::*, view::SetView};
 
 ///
 /// Set
@@ -82,14 +82,9 @@ impl HasType for Set {
     }
 }
 
-impl HasViewTypes for Set {
-    fn view_parts(&self) -> TokenStream {
-        let view_ident = &self.view_ident();
-        let item_view = HasViewTypeExpr::view_type_expr(&self.item);
-
-        quote! {
-            pub type #view_ident = Vec<#item_view>;
-        }
+impl HasTypeViews for Set {
+    fn view_parts(&self) -> Vec<TokenStream> {
+        vec![SetView(self).view_part()]
     }
 }
 

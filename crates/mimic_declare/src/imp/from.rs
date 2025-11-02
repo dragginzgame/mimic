@@ -163,7 +163,7 @@ impl Imp<Tuple> for FromTrait {
 ///
 
 /// from_type_view
-fn from_type_view(node: &impl HasViewTypes) -> TraitStrategy {
+fn from_type_view(node: &impl HasView) -> TraitStrategy {
     let view_ident = node.view_ident();
 
     let q = quote! {

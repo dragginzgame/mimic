@@ -76,10 +76,10 @@ impl HasType for Tuple {
     }
 }
 
-impl HasViewTypes for Tuple {
-    fn view_parts(&self) -> TokenStream {
+impl HasView for Tuple {
+    fn view_part(&self) -> TokenStream {
         let view_ident = &self.view_ident();
-        let view_values = self.values.iter().map(HasViewTypeExpr::view_type_expr);
+        let view_values = self.values.iter().map(HasViewExpr::view_type_expr);
 
         quote! {
             pub type #view_ident = (#(#view_values),*);

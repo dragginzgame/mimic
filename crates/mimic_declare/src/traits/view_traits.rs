@@ -1,37 +1,43 @@
-use crate::{
-    node::{Trait, TraitList},
-    traits::HasDef,
-};
-use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
-use syn::Ident;
+use crate::prelude::*;
 
 ///
-/// HasViewTypes
+/// View
 ///
 /// A node that emits additional derived view representations
 /// (e.g., main View, Edit, Filter).
 ///
-pub trait HasViewTypes: HasDef {
-    fn view_parts(&self) -> TokenStream {
-        quote!()
-    }
 
-    // Naming
+pub trait View {
+    type Node;
+
+    fn node(&self) -> &Self::Node;
+}
+
+///
+/// ViewType
+/// a macro type that can emit the code for a view type
+///
+
+pub trait ViewType: View {
+    /// Generate the view's token stream.
+    fn view_part(&self) -> TokenStream;
+
+    // Naming shortcuts
     fn view_ident(&self) -> Ident {
-        format_ident!("{}View", self.def().ident())
+        format_ident!("{}View", self.node().def().ident())
     }
 
     fn edit_ident(&self) -> Ident {
-        format_ident!("{}Edit", self.def().ident())
+        format_ident!("{}Edit", self.node().def().ident())
     }
 
     fn filter_ident(&self) -> Ident {
-        format_ident!("{}Filter", self.def().ident())
+        format_ident!("{}Filter", self.node().def().ident())
     }
 
-    // Standard derives
-    fn view_derives(&self) -> TraitList {
+    /// List of traits this node participates in
+    /// (either derived or implemented).
+    fn traits(&self) -> TraitList {
         TraitList(vec![
             Trait::CandidType,
             Trait::Clone,
@@ -40,30 +46,5 @@ pub trait HasViewTypes: HasDef {
             Trait::Serialize,
             Trait::Deserialize,
         ])
-    }
-}
-
-///
-/// HasViewTypeExpr
-///
-
-pub trait HasViewTypeExpr {
-    fn view_type_expr(&self) -> TokenStream {
-        quote!()
-    }
-
-    fn filter_type_expr(&self) -> Option<TokenStream> {
-        None
-    }
-}
-
-///
-/// HasViewDefault
-/// just because these can't be derived easily
-///
-
-pub trait HasViewDefault {
-    fn view_default_impl(&self) -> Option<TokenStream> {
-        None
     }
 }

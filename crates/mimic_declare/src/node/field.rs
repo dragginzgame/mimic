@@ -69,9 +69,9 @@ impl HasTypeExpr for FieldList {
     }
 }
 
-impl HasViewTypeExpr for FieldList {
+impl HasViewExpr for FieldList {
     fn view_type_expr(&self) -> TokenStream {
-        let fields = self.fields.iter().map(HasViewTypeExpr::view_type_expr);
+        let fields = self.fields.iter().map(HasViewExpr::view_type_expr);
         quote! {
             #(#fields),*
         }
@@ -168,17 +168,6 @@ impl HasTypeExpr for Field {
 
         quote! {
             pub #ident: #value
-        }
-    }
-}
-
-impl HasViewTypeExpr for Field {
-    fn view_type_expr(&self) -> TokenStream {
-        let ident = &self.ident;
-        let value_view = self.value.view_type_expr();
-
-        quote! {
-            pub #ident: #value_view
         }
     }
 }

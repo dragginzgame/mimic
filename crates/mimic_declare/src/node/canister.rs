@@ -62,7 +62,7 @@ impl HasType for Canister {
     }
 }
 
-impl HasViewTypes for Canister {}
+impl HasTypeViews for Canister {}
 
 impl ToTokens for Canister {
     fn to_tokens(&self, tokens: &mut TokenStream) {

@@ -51,7 +51,7 @@ impl HasType for Sanitizer {
     }
 }
 
-impl HasViewTypes for Sanitizer {}
+impl HasTypeViews for Sanitizer {}
 
 impl ToTokens for Sanitizer {
     fn to_tokens(&self, tokens: &mut TokenStream) {

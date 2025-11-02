@@ -85,11 +85,11 @@ impl HasType for Map {
     }
 }
 
-impl HasViewTypes for Map {
-    fn view_parts(&self) -> TokenStream {
+impl HasView for Map {
+    fn view_part(&self) -> TokenStream {
         let view_ident = self.view_ident();
-        let key_view = HasViewTypeExpr::view_type_expr(&self.key);
-        let value_view = HasViewTypeExpr::view_type_expr(&self.value);
+        let key_view = HasViewExpr::view_type_expr(&self.key);
+        let value_view = HasViewExpr::view_type_expr(&self.value);
 
         quote! {
             pub type #view_ident = Vec<(#key_view, #value_view)>;

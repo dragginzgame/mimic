@@ -35,13 +35,3 @@ pub use view::*;
 pub use visitable::*;
 
 use crate::prelude::*;
-
-///
-/// DefaultImplBody
-///
-
-pub trait DefaultImplBody {
-    /// Emits the inner body of an impl Default for this node, e.g.:
-    /// `Self::Variant(Default::default())`
-    fn default_impl_body(&self) -> Option<TokenStream>;
-}

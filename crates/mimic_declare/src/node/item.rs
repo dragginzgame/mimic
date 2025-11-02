@@ -105,18 +105,6 @@ impl HasTypeExpr for Item {
     }
 }
 
-impl HasViewTypeExpr for Item {
-    fn view_type_expr(&self) -> TokenStream {
-        let view = self.target().view_type_expr();
-
-        if self.indirect {
-            quote!(Box<#view>)
-        } else {
-            quote!(#view)
-        }
-    }
-}
-
 ///
 /// ItemTarget
 ///
@@ -151,20 +139,6 @@ impl HasTypeExpr for ItemTarget {
             Self::Primitive(prim) => {
                 let ty = prim.as_type();
                 quote!(#ty)
-            }
-        }
-    }
-}
-
-impl HasViewTypeExpr for ItemTarget {
-    fn view_type_expr(&self) -> TokenStream {
-        match self {
-            Self::Is(path) => {
-                quote!(<#path as ::mimic::core::traits::TypeView>::View)
-            }
-            Self::Primitive(prim) => {
-                let ty = prim.as_type();
-                quote!(<#ty as ::mimic::core::traits::TypeView>::View)
             }
         }
     }

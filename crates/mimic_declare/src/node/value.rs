@@ -53,7 +53,7 @@ impl HasTypeExpr for Value {
     }
 }
 
-impl HasViewTypeExpr for Value {
+impl HasViewExpr for Value {
     fn view_type_expr(&self) -> TokenStream {
         let item_view = &self.item.view_type_expr();
 

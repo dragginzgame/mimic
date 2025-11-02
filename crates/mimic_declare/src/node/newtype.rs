@@ -143,8 +143,8 @@ impl HasType for Newtype {
     }
 }
 
-impl HasViewTypes for Newtype {
-    fn view_parts(&self) -> TokenStream {
+impl HasView for Newtype {
+    fn view_part(&self) -> TokenStream {
         let view_ident = self.view_ident();
         let view_type = self.item.view_type_expr();
 

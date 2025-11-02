@@ -1,9 +1,4 @@
-use crate::{
-    node::Def,
-    traits::{HasSchema, HasTraits, HasType, HasViewTypes},
-};
-use proc_macro2::TokenStream;
-use quote::quote;
+use crate::prelude::*;
 
 ///
 /// HasDef
@@ -31,7 +26,7 @@ pub struct TraitTokens {
 /// Coordinates schema emission, type emission, trait impls, and view generation.
 ///
 
-pub trait HasMacro: HasSchema + HasTraits + HasType + HasViewTypes {
+pub trait HasMacro: HasSchema + HasTraits + HasType + HasTypeViews {
     /// Generate all Rust tokens for this node: schema consts, derives, impls, and view structs.
     fn all_tokens(&self) -> TokenStream {
         let TraitTokens { derive, impls } = self.resolve_trait_tokens();
@@ -51,7 +46,7 @@ pub trait HasMacro: HasSchema + HasTraits + HasType + HasViewTypes {
             #impls
 
             // VIEW TYPES (Edit, Filter, etc.)
-            #view_parts
+            #(#view_parts)*
         }
     }
 
@@ -99,4 +94,4 @@ pub trait HasMacro: HasSchema + HasTraits + HasType + HasViewTypes {
 
 /// Blanket implementation so any node that satisfies the constraints
 /// automatically gets full macro generation.
-impl<T> HasMacro for T where T: HasDef + HasSchema + HasTraits + HasType + HasViewTypes {}
+impl<T> HasMacro for T where T: HasDef + HasSchema + HasTraits + HasType + HasTypeViews {}

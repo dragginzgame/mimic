@@ -31,7 +31,7 @@ impl Imp<Record> for EditViewTrait {
 /// Shared generator
 fn update_impl<N, F>(node: &N, iter_fields: F) -> TraitStrategy
 where
-    N: HasDef + HasViewTypes,
+    N: HasDef + HasView,
     F: Fn(&N) -> Vec<syn::Ident>,
 {
     let def = node.def();
