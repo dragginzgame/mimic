@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - split and cleaned up the View traits in mimic_declare so there's a lot less mixed responsibility
 - merged Create and Update to EditView
 - removed EnumValue as it should really just be an Enum
+- we arent deriving Default for enums as the serde code can get messy for multiple view types
 
 ## [0.25] - 2025-10-22
 - new View type - Create<Entity> which takes off the primary key and provides handy from() functionality

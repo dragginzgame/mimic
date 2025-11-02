@@ -12,13 +12,19 @@ pub struct ViewTrait {}
 
 impl Imp<Entity> for ViewTrait {
     fn strategy(node: &Entity) -> Option<TraitStrategy> {
+        let ident = node.def.ident();
         let view_ident = &node.view_ident();
 
         // tokens
         let q = field_list(view_ident, &node.fields);
-        let tokens = Implementor::new(node.def(), Trait::View)
+        let view_impl = Implementor::new(node.def(), Trait::View)
             .set_tokens(q)
             .to_token_stream();
+        let conversions = owned_view_conversions(&ident, view_ident);
+        let tokens = quote! {
+            #view_impl
+            #conversions
+        };
 
         Some(TraitStrategy::from_impl(tokens))
     }
@@ -30,6 +36,7 @@ impl Imp<Entity> for ViewTrait {
 
 impl Imp<Enum> for ViewTrait {
     fn strategy(node: &Enum) -> Option<TraitStrategy> {
+        let ident = node.def.ident();
         let view_ident = &node.view_ident();
 
         // to_view_arms
@@ -79,9 +86,14 @@ impl Imp<Enum> for ViewTrait {
         };
 
         // tokens
-        let tokens = Implementor::new(node.def(), Trait::View)
+        let view_impl = Implementor::new(node.def(), Trait::View)
             .set_tokens(q)
             .to_token_stream();
+        let conversions = owned_view_conversions(&ident, view_ident);
+        let tokens = quote! {
+            #view_impl
+            #conversions
+        };
 
         Some(TraitStrategy::from_impl(tokens))
     }
@@ -96,7 +108,7 @@ impl Imp<List> for ViewTrait {
         let view_ident = &node.view_ident();
 
         // tokens
-        let q = quote_typeview_linear(view_ident);
+        let q = quote_view_linear(view_ident);
         let tokens = Implementor::new(node.def(), Trait::View)
             .set_tokens(q)
             .to_token_stream();
@@ -116,7 +128,7 @@ impl Imp<Map> for ViewTrait {
         let value = &node.value.type_expr();
 
         // tokens
-        let q = quote_typeview_map(view_ident, &quote!(#key), &quote!(#value));
+        let q = quote_view_map(view_ident, &quote!(#key), &quote!(#value));
         let tokens = Implementor::new(node.def(), Trait::View)
             .set_tokens(q)
             .to_token_stream();
@@ -162,12 +174,18 @@ impl Imp<Newtype> for ViewTrait {
 
 impl Imp<Record> for ViewTrait {
     fn strategy(node: &Record) -> Option<TraitStrategy> {
+        let ident = node.def.ident();
         let view_ident = &node.view_ident();
         let q = field_list(view_ident, &node.fields);
 
-        let tokens = Implementor::new(node.def(), Trait::View)
+        let view_impl = Implementor::new(node.def(), Trait::View)
             .set_tokens(q)
             .to_token_stream();
+        let conversions = owned_view_conversions(&ident, view_ident);
+        let tokens = quote! {
+            #view_impl
+            #conversions
+        };
 
         Some(TraitStrategy::from_impl(tokens))
     }
@@ -181,7 +199,7 @@ impl Imp<Set> for ViewTrait {
     fn strategy(node: &Set) -> Option<TraitStrategy> {
         let view_ident = &node.view_ident();
 
-        let q = quote_typeview_linear(view_ident);
+        let q = quote_view_linear(view_ident);
         let tokens = Implementor::new(node.def(), Trait::View)
             .set_tokens(q)
             .to_token_stream();
@@ -282,7 +300,29 @@ fn field_list(view_ident: &Ident, fields: &FieldList) -> TokenStream {
     }
 }
 
-fn quote_typeview_linear(view_ident: &Ident) -> TokenStream {
+fn owned_view_conversions(ident: &Ident, view_ident: &Ident) -> TokenStream {
+    quote! {
+        impl From<#ident> for #view_ident {
+            fn from(value: #ident) -> Self {
+                ::mimic::core::traits::View::to_view(&value)
+            }
+        }
+
+        impl From<&#ident> for #view_ident {
+            fn from(value: &#ident) -> Self {
+                ::mimic::core::traits::View::to_view(value)
+            }
+        }
+
+        impl From<#view_ident> for #ident {
+            fn from(view: #view_ident) -> Self {
+                ::mimic::core::traits::View::from_view(view)
+            }
+        }
+    }
+}
+
+fn quote_view_linear(view_ident: &Ident) -> TokenStream {
     quote! {
         type ViewType = #view_ident;
 
@@ -300,7 +340,7 @@ fn quote_typeview_linear(view_ident: &Ident) -> TokenStream {
     }
 }
 
-fn quote_typeview_map(view_ident: &Ident, key: &TokenStream, value: &TokenStream) -> TokenStream {
+fn quote_view_map(view_ident: &Ident, key: &TokenStream, value: &TokenStream) -> TokenStream {
     quote! {
         type ViewType = #view_ident;
 
