@@ -2,12 +2,12 @@ use mimic::{core::traits::Path, prelude::*};
 use test_design::schema::TestDataStore;
 
 ///
-/// DbTester
+/// DbSuite
 ///
 
-pub struct DbTester {}
+pub struct DbSuite {}
 
-impl DbTester {
+impl DbSuite {
     pub fn test() {
         let tests: Vec<(&str, fn())> = vec![
             ("query_fail_filter", Self::query_fail_filter),

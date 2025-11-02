@@ -5,9 +5,9 @@ use mimic::{
 };
 use test_design::e2e::filter::{Filterable, FilterableOpt};
 
-pub struct DeleteFilterTester {}
+pub struct DeleteFilterSuite {}
 
-impl DeleteFilterTester {
+impl DeleteFilterSuite {
     pub fn test() {
         let tests: Vec<(&str, fn())> = vec![
             ("delete_eq_category_a", Self::delete_eq_category_a),

@@ -6,9 +6,9 @@ use mimic::{
 };
 use test_design::e2e::index::{Indexable, IndexableOptText, NotIndexable};
 
-pub struct IndexTester;
+pub struct IndexSuite;
 
-impl IndexTester {
+impl IndexSuite {
     pub fn test() {
         let tests: Vec<(&str, fn())> = vec![
             ("index_on_principal", Self::index_on_principal),

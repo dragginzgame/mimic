@@ -1,13 +1,13 @@
 use mimic::{core::traits::EntityKind, obs::metrics, prelude::*};
 
 ///
-/// MetricsTester
+/// MetricsSuite
 /// Verifies global and per-entity counters, index ops, unique violations,
 /// and reset behavior surfaced by the `mimic_metrics` endpoint.
 ///
-pub struct MetricsTester;
+pub struct MetricsSuite;
 
-impl MetricsTester {
+impl MetricsSuite {
     pub fn test() {
         let tests: Vec<(&str, fn())> = vec![
             ("counters_basic", Self::counters_basic),

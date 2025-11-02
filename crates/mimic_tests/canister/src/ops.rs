@@ -4,12 +4,12 @@ use mimic::{
 };
 
 ///
-/// OpsTester
+/// OpsSuite
 ///
 
-pub struct OpsTester {}
+pub struct OpsSuite {}
 
-impl OpsTester {
+impl OpsSuite {
     // test
     // best if these are kept in code order so we can see where it failed
     pub fn test() {

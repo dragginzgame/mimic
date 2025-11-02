@@ -2,12 +2,12 @@ use mimic::{core::Value, prelude::*, types::Principal};
 use test_design::e2e::filter::{Filterable, FilterableEnum, FilterableEnumFake, FilterableOpt};
 
 ///
-/// LoadFilterTester
+/// LoadFilterSuite
 ///
 
-pub struct LoadFilterTester {}
+pub struct LoadFilterSuite {}
 
-impl LoadFilterTester {
+impl LoadFilterSuite {
     pub fn test() {
         let tests: Vec<(&str, fn())> = vec![
             ("filter_eq_string", Self::filter_eq_string),

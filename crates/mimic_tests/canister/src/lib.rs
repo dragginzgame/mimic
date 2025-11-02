@@ -3,6 +3,7 @@ mod filter;
 mod index;
 mod metrics;
 mod ops;
+mod view_into;
 
 use canic::{cdk::export_candid, prelude::*};
 use mimic::{Error, prelude::*};
@@ -37,13 +38,14 @@ pub fn clear_test_data_store() {
 #[update]
 pub fn test() {
     let tests: Vec<(&str, fn())> = vec![
-        ("db", db::DbTester::test),
-        ("delete_filter", filter::delete::DeleteFilterTester::test),
-        ("index_filter", filter::index::IndexFilterTester::test),
-        ("load_filter", filter::load::LoadFilterTester::test),
-        ("index", index::IndexTester::test),
-        ("ops", ops::OpsTester::test),
-        ("metrics", metrics::MetricsTester::test),
+        ("db", db::DbSuite::test),
+        ("delete_filter", filter::delete::DeleteFilterSuite::test),
+        ("index_filter", filter::index::IndexFilterSuite::test),
+        ("load_filter", filter::load::LoadFilterSuite::test),
+        ("index", index::IndexSuite::test),
+        ("ops", ops::OpsSuite::test),
+        ("metrics", metrics::MetricsSuite::test),
+        ("view_into", view_into::ViewIntoSuite::test),
     ];
 
     // run tests

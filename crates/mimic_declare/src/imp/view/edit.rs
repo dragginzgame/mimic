@@ -25,10 +25,11 @@ impl Imp<Record> for EditViewTrait {
 /// Shared generator
 fn edit_impl<N, F>(node: &N, iter_fields: F) -> TraitStrategy
 where
-    N: HasViews,
+    N: HasViews + HasDef,
     F: Fn(&N) -> Vec<syn::Ident>,
 {
     let edit_ident = node.edit_ident();
+    let ident = node.def().ident();
     let field_idents = iter_fields(node);
 
     let merge_pairs: Vec<_> = field_idents
@@ -50,9 +51,26 @@ where
         }
     };
 
-    let tokens = Implementor::new(node.def(), Trait::EditView)
+    let edit_impl = Implementor::new(node.def(), Trait::EditView)
         .set_tokens(q)
         .to_token_stream();
+    let conversions = edit_into_conversions(&ident, &edit_ident);
+    let tokens = quote! {
+        #edit_impl
+        #conversions
+    };
 
     TraitStrategy::from_impl(tokens)
+}
+
+fn edit_into_conversions(ident: &syn::Ident, edit_ident: &syn::Ident) -> TokenStream {
+    quote! {
+        impl From<#edit_ident> for #ident {
+            fn from(edit: #edit_ident) -> Self {
+                let mut value = Self::default();
+                <Self as ::mimic::core::traits::EditView>::merge(&mut value, edit);
+                value
+            }
+        }
+    }
 }

@@ -4,6 +4,7 @@ pub mod newtype;
 pub mod relation;
 pub mod sanitize;
 pub mod validate;
+pub mod view_into;
 
 use crate::prelude::*;
 

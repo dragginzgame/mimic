@@ -2,12 +2,12 @@ use mimic::{core::traits::FieldValue, db::query::QueryPlan, prelude::*};
 use test_design::e2e::filter::FilterableIndex;
 
 ///
-/// IndexFilterTester
+/// IndexFilterSuite
 ///
 
-pub struct IndexFilterTester {}
+pub struct IndexFilterSuite {}
 
-impl IndexFilterTester {
+impl IndexFilterSuite {
     pub fn test() {
         let tests: Vec<(&str, fn())> = vec![
             // existing
