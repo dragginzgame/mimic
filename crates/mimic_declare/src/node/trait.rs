@@ -63,6 +63,7 @@ pub enum Trait {
     StoreKind,
 
     // orm
+    CreateView,
     EditView,
     FieldValue,
     FieldValues,

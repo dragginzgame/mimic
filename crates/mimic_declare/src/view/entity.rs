@@ -43,6 +43,44 @@ impl ViewType for EntityView<'_> {
 }
 
 ///
+/// EntityCreate
+///
+
+pub struct EntityCreate<'a>(pub &'a Entity);
+
+impl View for EntityCreate<'_> {
+    type Node = Entity;
+
+    fn node(&self) -> &Self::Node {
+        self.0
+    }
+}
+
+impl ViewType for EntityCreate<'_> {
+    fn view_part(&self) -> TokenStream {
+        let node = self.node();
+        let ident = node.create_ident();
+        let fields = node.iter_editable_fields().map(|f| {
+            let ident = &f.ident;
+            let ty = ValueView(&f.value).view_expr();
+
+            quote!(pub #ident: #ty)
+        });
+
+        // add in default manually
+        let mut derives = self.traits();
+        derives.push(Trait::Default);
+
+        quote! {
+            #derives
+            pub struct #ident {
+                #(#fields),*
+            }
+        }
+    }
+}
+
+///
 /// EntityEdit
 ///
 

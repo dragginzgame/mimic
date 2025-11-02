@@ -226,6 +226,14 @@ macro_rules! impl_type_view {
 impl_type_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
 
 ///
+/// CreateView
+///
+
+pub trait CreateView {
+    type CreateType: Default;
+}
+
+///
 /// EditView
 ///
 

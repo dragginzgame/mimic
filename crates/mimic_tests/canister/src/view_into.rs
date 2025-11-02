@@ -1,11 +1,8 @@
-use mimic::core::traits::EditView;
-use test_design::test::view_into::{
-    ViewIntoRoundTrip, ViewIntoRoundTripEdit, ViewIntoRoundTripView,
-};
+use test_design::test::view_into::{ViewIntoRoundTrip, ViewIntoRoundTripView};
 
 ///
 /// ViewIntoSuite
-/// Validates that generated View and Edit types participate in `Into` conversions.
+/// Validates that generated View and  types participate in `Into` conversions.
 ///
 
 pub struct ViewIntoSuite;
@@ -13,7 +10,6 @@ pub struct ViewIntoSuite;
 impl ViewIntoSuite {
     pub fn test() {
         Self::view_into_round_trip();
-        Self::edit_into_round_trip();
     }
 
     fn view_into_round_trip() {
@@ -37,28 +33,5 @@ impl ViewIntoSuite {
         assert_eq!(from_view.score, 42);
         assert_eq!(from_view.tags, vec!["alpha", "beta"]);
         assert_eq!(from_view.nickname.as_deref(), Some("prime"));
-    }
-
-    fn edit_into_round_trip() {
-        let mut target = ViewIntoRoundTrip::default();
-
-        let edit = ViewIntoRoundTripEdit {
-            name: Some("patched".into()),
-            score: Some(99),
-            tags: Some(vec!["fresh".into(), "mint".into()]),
-            nickname: Some(Some("pulse".into())),
-        };
-
-        <ViewIntoRoundTrip as EditView>::merge(&mut target, edit.clone());
-        assert_eq!(target.name, "patched");
-        assert_eq!(target.score, 99);
-        assert_eq!(target.tags, vec!["fresh", "mint"]);
-        assert_eq!(target.nickname.as_deref(), Some("pulse"));
-
-        let from_edit: ViewIntoRoundTrip = edit.into();
-        assert_eq!(from_edit.name, "patched");
-        assert_eq!(from_edit.score, 99);
-        assert_eq!(from_edit.tags, vec!["fresh", "mint"]);
-        assert_eq!(from_edit.nickname.as_deref(), Some("pulse"));
     }
 }

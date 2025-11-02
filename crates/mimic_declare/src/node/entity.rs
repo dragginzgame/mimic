@@ -1,6 +1,6 @@
 use crate::{
     prelude::*,
-    view::{EntityEdit, EntityFilter, EntityView},
+    view::{EntityCreate, EntityEdit, EntityFilter, EntityView},
 };
 
 ///
@@ -91,6 +91,7 @@ impl HasTraits for Entity {
         let mut traits = self.traits.clone().with_type_traits();
         traits.extend(vec![
             Trait::Inherent,
+            Trait::CreateView,
             Trait::EditView,
             Trait::EntityKind,
             Trait::FieldValues,
@@ -106,6 +107,7 @@ impl HasTraits for Entity {
         match t {
             Trait::Inherent => InherentTrait::strategy(self),
 
+            Trait::CreateView => CreateViewTrait::strategy(self),
             Trait::Default => DefaultTrait::strategy(self),
             Trait::EditView => EditViewTrait::strategy(self),
             Trait::EntityKind => EntityKindTrait::strategy(self),
@@ -145,6 +147,7 @@ impl HasViews for Entity {
     fn view_parts(&self) -> Vec<TokenStream> {
         vec![
             EntityView(self).view_part(),
+            EntityCreate(self).view_part(),
             EntityEdit(self).view_part(),
             EntityFilter(self).view_part(),
         ]
