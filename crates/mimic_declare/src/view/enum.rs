@@ -24,6 +24,7 @@ impl ViewType for EnumView<'_> {
             let ident = variant.effective_ident();
             if let Some(value) = &variant.value {
                 let value_expr = ValueView(value).view_expr();
+
                 quote!(#ident(#value_expr))
             } else {
                 quote!(#ident)

@@ -58,6 +58,15 @@ impl ValidateNode for Enum {
             );
         }
 
+        // Check for multiple defaults
+        let default_count = self.variants.iter().filter(|v| v.default).count();
+        if default_count > 1 {
+            err!(
+                errs,
+                "exactly one variant must be marked as default, found {default_count}"
+            );
+        }
+
         errs.result()
     }
 }
