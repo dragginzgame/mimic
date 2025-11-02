@@ -1,4 +1,4 @@
-use crate::{node::Enum, prelude::*};
+use crate::{node::Enum, prelude::*, view::ValueView};
 
 ///
 /// EnumView
@@ -18,7 +18,17 @@ impl ViewType for EnumView<'_> {
     fn view_part(&self) -> TokenStream {
         let node = self.node();
         let view_ident = node.view_ident();
-        let view_variants = node.variants.iter().map(HasTypeExpr::type_expr);
+
+        // each variant uses ValueView to produce its payload expression
+        let view_variants = node.variants.iter().map(|variant| {
+            let ident = variant.effective_ident();
+            if let Some(value) = &variant.value {
+                let value_expr = ValueView(value).view_expr();
+                quote!(#ident(#value_expr))
+            } else {
+                quote!(#ident)
+            }
+        });
 
         // extra traits
         let mut derives = self.traits();

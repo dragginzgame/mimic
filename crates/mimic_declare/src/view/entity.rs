@@ -1,4 +1,8 @@
-use crate::{node::Entity, prelude::*, view::ValueView};
+use crate::{
+    node::Entity,
+    prelude::*,
+    view::{ValueFilter, ValueView},
+};
 
 ///
 /// EntityView
@@ -94,11 +98,11 @@ impl ViewType for EntityFilter<'_> {
     fn view_part(&self) -> TokenStream {
         let node = self.node();
         let ident = node.filter_ident();
-        let fields = node.fields.iter().map(|f| {
+        let fields = node.fields.iter().filter_map(|f| {
             let ident = &f.ident;
-            let ty = ValueView(&f.value).view_expr();
+            let ty = ValueFilter(&f.value).filter_expr()?;
 
-            quote!(pub #ident: Option<#ty>)
+            Some(quote!(pub #ident: Option<#ty>))
         });
 
         // add in default manually
