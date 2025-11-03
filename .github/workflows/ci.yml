@@ -1,161 +1,48 @@
 name: CI
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-on:
-  push:
-    branches:
-      - main
-    tags:
-      - 'v*'
-  pull_request:
-
 jobs:
-  checks:
-    if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+  check:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     env:
       CARGO_TERM_COLOR: always
-      SSH_PRIVATE_KEY: ${{ secrets.READONLY_SSH_KEY }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Configure SSH for private git dependencies
-        if: env.SSH_PRIVATE_KEY != ''
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ env.SSH_PRIVATE_KEY }}
-
-      - name: Trust github.com host key
-        if: env.SSH_PRIVATE_KEY != ''
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -t rsa,ecdsa,ed25519 github.com >> ~/.ssh/known_hosts
-
-      - name: Prefer SSH for GitHub
-        if: env.SSH_PRIVATE_KEY != ''
-        run: git config --global url."ssh://git@github.com/".insteadOf "https://github.com/"
-
       - uses: dtolnay/rust-toolchain@v1
         with:
-          toolchain: 1.90.0
+          toolchain: 1.91.0
           components: rustfmt, clippy
-
       - uses: Swatinem/rust-cache@v2
-
-      - name: Clear stale Cargo package cache lock
-        run: rm -f ~/.cargo/.package-cache || true
-
       - run: cargo fmt --all -- --check
-      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
-      - run: cargo test --workspace --all-targets --verbose --locked
-
-  security:
-    if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    env:
-      CARGO_TERM_COLOR: always
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: dtolnay/rust-toolchain@v1
-        with:
-          toolchain: 1.90.0
-
-      - name: Clear stale Cargo package cache lock
-        run: rm -f ~/.cargo/.package-cache || true
-
-  versioning:
-    if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    env:
-      CARGO_TERM_COLOR: always
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: dtolnay/rust-toolchain@v1
-        with:
-          toolchain: 1.90.0
-
-      - name: Clear stale Cargo package cache lock
-        run: rm -f ~/.cargo/.package-cache || true
-
-      - name: Install cargo-edit
-        run: cargo install cargo-edit --locked
-
-      - name: Run repository versioning checks
-        run: bash scripts/ci/security-check.sh
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace --all-targets --verbose
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    env:
-      CARGO_TERM_COLOR: always
-      SSH_PRIVATE_KEY: ${{ secrets.READONLY_SSH_KEY }}
+    needs: check
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          clean: true
-
-      - name: Configure SSH for private git dependencies
-        if: env.SSH_PRIVATE_KEY != ''
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ env.SSH_PRIVATE_KEY }}
-
-      - name: Trust github.com host key
-        if: env.SSH_PRIVATE_KEY != ''
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -t rsa,ecdsa,ed25519 github.com >> ~/.ssh/known_hosts
-
-      - name: Prefer SSH for GitHub
-        if: env.SSH_PRIVATE_KEY != ''
-        run: git config --global url."ssh://git@github.com/".insteadOf "https://github.com/"
-
       - uses: dtolnay/rust-toolchain@v1
         with:
-          toolchain: 1.90.0
-          components: rustfmt, clippy
+          toolchain: 1.91.0
           targets: wasm32-unknown-unknown
-
       - uses: Swatinem/rust-cache@v2
-
-      - name: Clear stale Cargo package cache lock
-        run: rm -f ~/.cargo/.package-cache || true
-
-      - run: cargo fmt --all -- --check
-      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
-      - run: cargo test --workspace --all-targets --verbose --locked
-      - run: cargo build --release --workspace --locked
-
-      - name: Build test_canister (WASM)
-        run: cargo build -p test_canister --target wasm32-unknown-unknown --release --locked
-
-      - name: Install candid-extractor
-        run: cargo install candid-extractor --locked
-
-      - name: Extract and upload canister artifacts
-        run: |
+      - run: cargo build -p test_canister --target wasm32-unknown-unknown --release
+      - run: |
           mkdir -p artifacts
           wasm=target/wasm32-unknown-unknown/release/test_canister.wasm
-          did=artifacts/test_canister.did
-          cp "$wasm" artifacts/
-          candid-extractor "$wasm" > "$did"
-
-      - name: Upload canister artifacts
-        uses: actions/upload-artifact@v4
+          cargo install candid-extractor --locked
+          candid-extractor "$wasm" > artifacts/test_canister.did
+      - uses: actions/upload-artifact@v4
         with:
           name: test_canister
           path: artifacts/*

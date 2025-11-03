@@ -1,6 +1,6 @@
 
 
-![MSRV](https://img.shields.io/badge/rustc-1.90+-blue.svg)
+![MSRV](https://img.shields.io/badge/rustc-1.91+-blue.svg)
 [![CI](https://github.com/dragginzgame/mimic/actions/workflows/ci.yml/badge.svg)](https://github.com/dragginzgame/mimic/actions/workflows/ci.yml)
 
 # Mimic — Data Model Framework for the Internet Computer
@@ -118,7 +118,7 @@ See [INTEGRATION.md](INTEGRATION.md) for installation and integration details.
 
 ### Workspace
 
-- Rust 1.90.0, edition 2024 (see `Cargo.toml`).
+- Rust 1.91.0, edition 2024 (see `Cargo.toml`).
 - Layout: `crates/*`, assets in `assets/`, scripts in `scripts/`.
 
 ### Commands

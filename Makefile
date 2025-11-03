@@ -63,7 +63,7 @@ install-dev:
 
 # Install wasm target + candid tools
 install-canister-deps:
-	rustup toolchain install 1.90.0 || true
+	rustup toolchain install 1.91.0 || true
 	rustup target add wasm32-unknown-unknown
 	cargo install candid-extractor ic-wasm --locked || true
 
