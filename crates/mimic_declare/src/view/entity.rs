@@ -59,7 +59,7 @@ impl View for EntityCreate<'_> {
 impl ViewType for EntityCreate<'_> {
     fn view_part(&self) -> TokenStream {
         let node = self.node();
-        let ident = node.create_ident();
+        let create_ident = node.create_ident();
         let fields = node.iter_editable_fields().map(|f| {
             let ident = &f.ident;
             let ty = ValueView(&f.value).view_expr();
@@ -73,7 +73,7 @@ impl ViewType for EntityCreate<'_> {
 
         quote! {
             #derives
-            pub struct #ident {
+            pub struct #create_ident {
                 #(#fields),*
             }
         }
@@ -97,7 +97,7 @@ impl View for EntityEdit<'_> {
 impl ViewType for EntityEdit<'_> {
     fn view_part(&self) -> TokenStream {
         let node = self.node();
-        let ident = node.update_ident();
+        let update_ident = node.update_ident();
         let fields = node.iter_editable_fields().map(|f| {
             let ident = &f.ident;
             let ty = ValueView(&f.value).view_expr();
@@ -111,7 +111,7 @@ impl ViewType for EntityEdit<'_> {
 
         quote! {
             #derives
-            pub struct #ident {
+            pub struct #update_ident {
                 #(#fields),*
             }
         }
@@ -135,8 +135,8 @@ impl View for EntityFilter<'_> {
 impl ViewType for EntityFilter<'_> {
     fn view_part(&self) -> TokenStream {
         let node = self.node();
-        let ident = node.filter_ident();
         let entity_ident = node.def.ident();
+        let filter_ident = node.filter_ident();
         let fields = node.fields.iter().filter_map(|f| {
             let ident = &f.ident;
             let ty = ValueFilter(&f.value).filter_expr()?;
@@ -150,11 +150,11 @@ impl ViewType for EntityFilter<'_> {
 
         quote! {
             #derives
-            pub struct #ident {
+            pub struct #filter_ident {
                 #(#fields),*
             }
 
-            impl ::mimic::db::query::IntoFilterOpt for #ident {
+            impl ::mimic::db::query::IntoFilterOpt for #filter_ident {
                 #[inline]
                 fn into_filter_opt(self) -> Option<::mimic::db::query::FilterExpr> {
                     <#entity_ident as ::mimic::core::traits::FilterView>::into_expr(self)
