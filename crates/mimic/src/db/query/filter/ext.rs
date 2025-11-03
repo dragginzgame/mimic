@@ -37,9 +37,12 @@ pub trait FilterExt: FilterSlot + Sized {
     }
 
     #[must_use]
-    fn filter_opt(mut self, expr: Option<FilterExpr>) -> Self {
-        if let Some(e) = expr {
-            self = self.filter(|_| e);
+    fn filter_opt<R>(mut self, expr: R) -> Self
+    where
+        R: IntoFilterOpt,
+    {
+        if let Some(expr) = expr.into_filter_opt() {
+            self = self.filter(move |_| expr);
         }
 
         self
@@ -64,9 +67,12 @@ pub trait FilterExt: FilterSlot + Sized {
     }
 
     #[must_use]
-    fn or_filter_opt(mut self, expr: Option<FilterExpr>) -> Self {
-        if let Some(e) = expr {
-            self = self.or_filter(|_| e);
+    fn or_filter_opt<R>(mut self, expr: R) -> Self
+    where
+        R: IntoFilterOpt,
+    {
+        if let Some(expr) = expr.into_filter_opt() {
+            self = self.or_filter(move |_| expr);
         }
 
         self

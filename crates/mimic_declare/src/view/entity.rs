@@ -136,6 +136,7 @@ impl ViewType for EntityFilter<'_> {
     fn view_part(&self) -> TokenStream {
         let node = self.node();
         let ident = node.filter_ident();
+        let entity_ident = node.def.ident();
         let fields = node.fields.iter().filter_map(|f| {
             let ident = &f.ident;
             let ty = ValueFilter(&f.value).filter_expr()?;
@@ -151,6 +152,13 @@ impl ViewType for EntityFilter<'_> {
             #derives
             pub struct #ident {
                 #(#fields),*
+            }
+
+            impl ::mimic::db::query::IntoFilterOpt for #ident {
+                #[inline]
+                fn into_filter_opt(self) -> Option<::mimic::db::query::FilterExpr> {
+                    <#entity_ident as ::mimic::core::traits::FilterView>::into_expr(self)
+                }
             }
         }
     }

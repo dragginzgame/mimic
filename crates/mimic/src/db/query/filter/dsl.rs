@@ -210,9 +210,12 @@ impl IntoFilterOpt for FilterExpr {
     }
 }
 
-impl IntoFilterOpt for Option<FilterExpr> {
+impl<T> IntoFilterOpt for Option<T>
+where
+    T: IntoFilterOpt,
+{
     #[inline]
     fn into_filter_opt(self) -> Option<FilterExpr> {
-        self
+        self.and_then(IntoFilterOpt::into_filter_opt)
     }
 }
