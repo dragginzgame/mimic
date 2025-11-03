@@ -1,7 +1,2 @@
 [net]
 git-fetch-with-cli = true
-
-[env]
-TMPDIR = { value = ".tmp", relative = true, force = true }
-RUSTC_TMPDIR = { value = ".tmp", relative = true, force = true }
-CARGO_TARGET_TMPDIR = { value = ".tmp", relative = true, force = true }
