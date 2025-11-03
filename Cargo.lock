@@ -229,9 +229,9 @@ dependencies = [
 
 [[package]]
 name = "ctor"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "59c9b8bdf64ee849747c1b12eb861d21aa47fa161564f48332f1afe2373bf899"
+checksum = "3ffc71fcdcdb40d6f087edddf7f8f1f8f79e6cf922f555a9ee8779752d4819bd"
 dependencies = [
  "ctor-proc-macro",
  "dtor",
@@ -359,9 +359,9 @@ dependencies = [
 
 [[package]]
 name = "dtor"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e58a0764cddb55ab28955347b45be00ade43d4d6f3ba4bf3dc354e4ec9432934"
+checksum = "404d02eeb088a82cfd873006cb713fe411306c7d182c344905e101fb1167d301"
 dependencies = [
  "dtor-proc-macro",
 ]
@@ -800,7 +800,7 @@ checksum = "f52b00d39961fc5b2736ea853c9cc86238e165017a493d1d5c8eac6bdc4cc273"
 
 [[package]]
 name = "mimic"
-version = "0.26.12"
+version = "0.26.13"
 dependencies = [
  "bencher",
  "candid",
@@ -824,7 +824,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_build"
-version = "0.26.12"
+version = "0.26.13"
 dependencies = [
  "mimic_schema",
  "proc-macro2",
@@ -834,7 +834,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_common"
-version = "0.26.12"
+version = "0.26.13"
 dependencies = [
  "candid",
  "convert_case 0.8.0",
@@ -844,7 +844,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_declare"
-version = "0.26.12"
+version = "0.26.13"
 dependencies = [
  "darling 0.21.3",
  "derive_more",
@@ -859,7 +859,7 @@ dependencies = [
 
 [[package]]
 name = "mimic_schema"
-version = "0.26.12"
+version = "0.26.13"
 dependencies = [
  "candid",
  "canic",
@@ -1228,7 +1228,7 @@ dependencies = [
 
 [[package]]
 name = "test_canister"
-version = "0.26.12"
+version = "0.26.13"
 dependencies = [
  "candid",
  "canic",
@@ -1240,7 +1240,7 @@ dependencies = [
 
 [[package]]
 name = "test_design"
-version = "0.26.12"
+version = "0.26.13"
 dependencies = [
  "candid",
  "mimic",
