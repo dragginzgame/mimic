@@ -13,12 +13,14 @@ mod record;
 mod sanitizer;
 mod set;
 mod store;
-mod r#trait;
 mod tuple;
 mod r#type;
 mod validator;
 mod value;
 
+mod traits;
+
+// pub use all node types
 pub use self::arg::*;
 pub use self::canister::*;
 pub use self::def::*;
@@ -34,8 +36,10 @@ pub use self::record::*;
 pub use self::sanitizer::*;
 pub use self::set::*;
 pub use self::store::*;
-pub use self::r#trait::*;
 pub use self::tuple::*;
 pub use self::r#type::*;
 pub use self::validator::*;
 pub use self::value::*;
+
+// use traits
+pub use traits::*;

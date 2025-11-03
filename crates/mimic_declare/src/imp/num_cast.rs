@@ -26,7 +26,7 @@ impl Imp<Newtype> for NumCastTrait {
             }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::NumCast)
+        let tokens = Implementor::new(node.def(), TraitKind::NumCast)
             .set_tokens(q)
             .to_token_stream();
 
@@ -70,7 +70,7 @@ impl Imp<Newtype> for NumFromPrimitiveTrait {
             });
         }
 
-        let tokens = Implementor::new(node.def(), Trait::NumFromPrimitive)
+        let tokens = Implementor::new(node.def(), TraitKind::NumFromPrimitive)
             .set_tokens(q)
             .to_token_stream();
 
@@ -100,7 +100,7 @@ impl Imp<Newtype> for NumToPrimitiveTrait {
             }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::NumToPrimitive)
+        let tokens = Implementor::new(node.def(), TraitKind::NumToPrimitive)
             .set_tokens(q)
             .to_token_stream();
 

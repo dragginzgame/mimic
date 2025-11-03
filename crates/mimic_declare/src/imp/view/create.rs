@@ -36,7 +36,7 @@ impl Imp<Entity> for CreateViewTrait {
             type CreateType = #create_ident;
         };
 
-        let create_impl = Implementor::new(node.def(), Trait::CreateView)
+        let create_impl = Implementor::new(node.def(), TraitKind::CreateView)
             .set_tokens(q)
             .to_token_stream();
 

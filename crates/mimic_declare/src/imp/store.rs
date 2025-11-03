@@ -15,7 +15,7 @@ impl Imp<Store> for StoreKindTrait {
             type Canister = #canister;
         };
 
-        let tokens = Implementor::new(node.def(), Trait::StoreKind)
+        let tokens = Implementor::new(node.def(), TraitKind::StoreKind)
             .set_tokens(q)
             .to_token_stream();
 

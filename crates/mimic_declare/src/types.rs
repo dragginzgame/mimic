@@ -1,9 +1,4 @@
-mod implementor;
-
-pub use implementor::{Imp, Implementor};
-
-use crate::node::Trait;
-use proc_macro2::TokenStream;
+use crate::prelude::*;
 
 ///
 /// TraitStrategy
@@ -11,7 +6,7 @@ use proc_macro2::TokenStream;
 
 #[derive(Debug, Default)]
 pub struct TraitStrategy {
-    pub derive: Option<Trait>,
+    pub derive: Option<TraitKind>,
     pub imp: Option<TokenStream>,
 }
 
@@ -20,16 +15,16 @@ impl TraitStrategy {
         Self::default()
     }
 
-    pub fn from_derive(tr: Trait) -> Self {
-        Self::new().with_derive(tr)
+    pub fn from_derive(t: TraitKind) -> Self {
+        Self::new().with_derive(t)
     }
 
     pub fn from_impl(tokens: TokenStream) -> Self {
         Self::new().with_impl(tokens)
     }
 
-    pub const fn with_derive(mut self, tr: Trait) -> Self {
-        self.derive = Some(tr);
+    pub const fn with_derive(mut self, t: TraitKind) -> Self {
+        self.derive = Some(t);
         self
     }
 

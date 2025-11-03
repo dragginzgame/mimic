@@ -1,4 +1,11 @@
-use crate::{node::Record, prelude::*, view::ValueView};
+use crate::{
+    node::Record,
+    prelude::*,
+    view::{
+        ValueView,
+        traits::{View, ViewType},
+    },
+};
 
 ///
 /// RecordView
@@ -15,7 +22,7 @@ impl View for RecordView<'_> {
 }
 
 impl ViewType for RecordView<'_> {
-    fn view_part(&self) -> TokenStream {
+    fn generate(&self) -> TokenStream {
         let node = self.node();
         let ident = node.view_ident();
         let fields = node.fields.iter().map(|f| {
@@ -27,7 +34,7 @@ impl ViewType for RecordView<'_> {
 
         // add in default manually
         let mut derives = self.traits();
-        derives.push(Trait::Default);
+        derives.add(TraitKind::Default);
 
         quote! {
             #derives
@@ -38,13 +45,19 @@ impl ViewType for RecordView<'_> {
     }
 }
 
+impl ToTokens for RecordView<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.generate());
+    }
+}
+
 ///
-/// RecordEdit
+/// RecordUpdate
 ///
 
-pub struct RecordEdit<'a>(pub &'a Record);
+pub struct RecordUpdate<'a>(pub &'a Record);
 
-impl View for RecordEdit<'_> {
+impl View for RecordUpdate<'_> {
     type Node = Record;
 
     fn node(&self) -> &Self::Node {
@@ -52,8 +65,8 @@ impl View for RecordEdit<'_> {
     }
 }
 
-impl ViewType for RecordEdit<'_> {
-    fn view_part(&self) -> TokenStream {
+impl ViewType for RecordUpdate<'_> {
+    fn generate(&self) -> TokenStream {
         let node = self.node();
         let ident = node.update_ident();
         let fields = node.fields.iter().map(|f| {
@@ -65,7 +78,7 @@ impl ViewType for RecordEdit<'_> {
 
         // add in default manually
         let mut derives = self.traits();
-        derives.push(Trait::Default);
+        derives.add(TraitKind::Default);
 
         quote! {
             #derives
@@ -73,5 +86,11 @@ impl ViewType for RecordEdit<'_> {
                 #(#fields),*
             }
         }
+    }
+}
+
+impl ToTokens for RecordUpdate<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.generate());
     }
 }

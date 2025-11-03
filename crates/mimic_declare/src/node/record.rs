@@ -1,7 +1,4 @@
-use crate::{
-    prelude::*,
-    view::{RecordEdit, RecordView},
-};
+use crate::prelude::*;
 
 ///
 /// Record
@@ -16,7 +13,7 @@ pub struct Record {
     pub fields: FieldList,
 
     #[darling(default)]
-    pub traits: Traits,
+    pub traits: TraitBuilder,
 
     #[darling(default)]
     pub ty: Type,
@@ -51,31 +48,32 @@ impl HasSchemaPart for Record {
 }
 
 impl HasTraits for Record {
-    fn traits(&self) -> TraitList {
-        let mut traits = self.traits.clone().with_type_traits();
-        traits.extend(vec![Trait::UpdateView]);
+    fn traits(&self) -> Vec<TraitKind> {
+        let mut traits = self.traits.with_type_traits().build();
 
-        traits.list()
+        traits.extend(vec![TraitKind::UpdateView]);
+
+        traits.into_vec()
     }
 
-    fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
+    fn map_trait(&self, t: TraitKind) -> Option<TraitStrategy> {
         use crate::imp::*;
 
         match t {
-            Trait::Default => DefaultTrait::strategy(self),
-            Trait::UpdateView => UpdateViewTrait::strategy(self),
-            Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
-            Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
-            Trait::View => ViewTrait::strategy(self),
-            Trait::Visitable => VisitableTrait::strategy(self),
+            TraitKind::Default => DefaultTrait::strategy(self),
+            TraitKind::UpdateView => UpdateViewTrait::strategy(self),
+            TraitKind::SanitizeAuto => SanitizeAutoTrait::strategy(self),
+            TraitKind::ValidateAuto => ValidateAutoTrait::strategy(self),
+            TraitKind::View => ViewTrait::strategy(self),
+            TraitKind::Visitable => VisitableTrait::strategy(self),
 
             _ => None,
         }
     }
 
-    fn map_attribute(&self, t: Trait) -> Option<TokenStream> {
+    fn map_attribute(&self, t: TraitKind) -> Option<TokenStream> {
         match t {
-            Trait::Default => Trait::Default.derive_attribute(),
+            TraitKind::Default => TraitKind::Default.derive_attribute(),
 
             _ => None,
         }
@@ -92,12 +90,6 @@ impl HasType for Record {
                 #fields
             }
         }
-    }
-}
-
-impl HasViews for Record {
-    fn view_parts(&self) -> Vec<TokenStream> {
-        vec![RecordView(self).view_part(), RecordEdit(self).view_part()]
     }
 }
 

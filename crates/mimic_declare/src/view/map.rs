@@ -1,6 +1,9 @@
 use crate::{
     prelude::*,
-    view::{ItemView, ValueView},
+    view::{
+        ItemView, ValueView,
+        traits::{View, ViewType},
+    },
 };
 
 ///
@@ -18,7 +21,7 @@ impl View for MapView<'_> {
 }
 
 impl ViewType for MapView<'_> {
-    fn view_part(&self) -> TokenStream {
+    fn generate(&self) -> TokenStream {
         let node = self.node();
         let view_ident = node.view_ident();
         let key_view = ItemView(&node.key).view_expr();
@@ -27,5 +30,11 @@ impl ViewType for MapView<'_> {
         quote! {
             pub type #view_ident = Vec<(#key_view, #value_view)>;
         }
+    }
+}
+
+impl ToTokens for MapView<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.generate());
     }
 }

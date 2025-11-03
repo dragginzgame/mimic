@@ -29,7 +29,7 @@ macro_rules! impl_validate_auto {
                     #child_tokens
                 };
 
-                let tokens = Implementor::new(node.def(), Trait::ValidateAuto)
+                let tokens = Implementor::new(node.def(), TraitKind::ValidateAuto)
                     .add_tokens(tokens)
                     .to_token_stream();
 

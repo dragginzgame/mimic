@@ -1,4 +1,10 @@
-use crate::{prelude::*, view::ValueView};
+use crate::{
+    prelude::*,
+    view::{
+        ValueView,
+        traits::{View, ViewType},
+    },
+};
 
 ///
 /// TupleView
@@ -15,7 +21,7 @@ impl View for TupleView<'_> {
 }
 
 impl ViewType for TupleView<'_> {
-    fn view_part(&self) -> TokenStream {
+    fn generate(&self) -> TokenStream {
         let node = self.node();
         let view_ident = node.view_ident();
         let view_values = node.values.iter().map(|v| ValueView(v).view_expr());
@@ -23,5 +29,11 @@ impl ViewType for TupleView<'_> {
         quote! {
             pub type #view_ident = (#(#view_values),*);
         }
+    }
+}
+
+impl ToTokens for TupleView<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.generate());
     }
 }

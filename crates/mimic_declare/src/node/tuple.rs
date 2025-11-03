@@ -1,4 +1,4 @@
-use crate::{prelude::*, view::TupleView};
+use crate::prelude::*;
 
 ///
 /// Tuple
@@ -16,7 +16,7 @@ pub struct Tuple {
     pub ty: Type,
 
     #[darling(default)]
-    pub traits: Traits,
+    pub traits: TraitBuilder,
 }
 
 impl HasDef for Tuple {
@@ -48,16 +48,18 @@ impl HasSchemaPart for Tuple {
 }
 
 impl HasTraits for Tuple {
-    fn traits(&self) -> TraitList {
-        self.traits.clone().with_type_traits().list()
+    fn traits(&self) -> Vec<TraitKind> {
+        let traits = self.traits.with_type_traits().build();
+
+        traits.into_vec()
     }
 
-    fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
+    fn map_trait(&self, t: TraitKind) -> Option<TraitStrategy> {
         use crate::imp::*;
 
         match t {
-            Trait::View => ViewTrait::strategy(self),
-            Trait::Visitable => VisitableTrait::strategy(self),
+            TraitKind::View => ViewTrait::strategy(self),
+            TraitKind::Visitable => VisitableTrait::strategy(self),
 
             _ => None,
         }
@@ -72,12 +74,6 @@ impl HasType for Tuple {
         quote! {
             pub struct #ident(pub #(#values),*);
         }
-    }
-}
-
-impl HasViews for Tuple {
-    fn view_parts(&self) -> Vec<TokenStream> {
-        vec![TupleView(self).view_part()]
     }
 }
 

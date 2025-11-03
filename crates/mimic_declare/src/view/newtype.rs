@@ -1,4 +1,7 @@
-use crate::prelude::*;
+use crate::{
+    prelude::*,
+    view::traits::{View, ViewType},
+};
 
 ///
 /// NewtypeView
@@ -15,7 +18,7 @@ impl View for NewtypeView<'_> {
 }
 
 impl ViewType for NewtypeView<'_> {
-    fn view_part(&self) -> TokenStream {
+    fn generate(&self) -> TokenStream {
         let node = self.node();
         let view_ident = node.view_ident();
         let view_type = node.item.type_expr();
@@ -23,5 +26,11 @@ impl ViewType for NewtypeView<'_> {
         quote! {
             pub type #view_ident = <#view_type as ::mimic::core::traits::View>::ViewType;
         }
+    }
+}
+
+impl ToTokens for NewtypeView<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.generate());
     }
 }

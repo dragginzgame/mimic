@@ -43,7 +43,7 @@ impl Key {
 
     #[must_use]
     pub const fn upper_bound() -> Self {
-        Self::Ulid(Ulid::max_storable())
+        Self::Unit(Unit)
     }
 
     const fn variant_rank(&self) -> u8 {

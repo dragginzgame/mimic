@@ -44,11 +44,11 @@ impl HasSchemaPart for Canister {
 }
 
 impl HasTraits for Canister {
-    fn traits(&self) -> TraitList {
-        let mut traits = Traits::default().with_path_trait();
-        traits.add(Trait::CanisterKind);
+    fn traits(&self) -> Vec<TraitKind> {
+        let mut traits = TraitBuilder::default().build();
+        traits.add(TraitKind::CanisterKind);
 
-        traits.list()
+        traits.into_vec()
     }
 }
 
@@ -61,8 +61,6 @@ impl HasType for Canister {
         }
     }
 }
-
-impl HasViews for Canister {}
 
 impl ToTokens for Canister {
     fn to_tokens(&self, tokens: &mut TokenStream) {

@@ -1,4 +1,10 @@
-use crate::{prelude::*, view::ItemView};
+use crate::{
+    prelude::*,
+    view::{
+        ItemView,
+        traits::{View, ViewType},
+    },
+};
 
 ///
 /// ListView
@@ -15,7 +21,7 @@ impl View for ListView<'_> {
 }
 
 impl ViewType for ListView<'_> {
-    fn view_part(&self) -> TokenStream {
+    fn generate(&self) -> TokenStream {
         let node = self.node();
         let view_ident = node.view_ident();
         let item_view = ItemView(&node.item).view_expr();
@@ -23,5 +29,11 @@ impl ViewType for ListView<'_> {
         quote! {
             pub type #view_ident = Vec<#item_view>;
         }
+    }
+}
+
+impl ToTokens for ListView<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.generate());
     }
 }

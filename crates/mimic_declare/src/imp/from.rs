@@ -24,7 +24,7 @@ impl Imp<List> for FromTrait {
             }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::From)
+        let tokens = Implementor::new(node.def(), TraitKind::From)
             .set_tokens(q)
             .add_impl_constraint(quote!(I: Into<#item>))
             .add_impl_generic(quote!(I))
@@ -53,7 +53,7 @@ impl Imp<Map> for FromTrait {
             }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::From)
+        let tokens = Implementor::new(node.def(), TraitKind::From)
             .set_tokens(q)
             .add_impl_constraint(quote!(IK: Into<#key>))
             .add_impl_constraint(quote!(IV: Into<#value>))
@@ -80,7 +80,7 @@ impl Imp<Newtype> for FromTrait {
             }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::From)
+        let tokens = Implementor::new(node.def(), TraitKind::From)
             .set_tokens(q)
             .add_impl_constraint(quote!(T: Into<#item>))
             .add_impl_generic(quote!(T))
@@ -108,7 +108,7 @@ impl Imp<Set> for FromTrait {
             }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::From)
+        let tokens = Implementor::new(node.def(), TraitKind::From)
             .set_tokens(q)
             .add_impl_constraint(quote!(I: Into<#item>))
             .add_impl_generic(quote!(I))

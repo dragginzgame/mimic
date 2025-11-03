@@ -209,6 +209,7 @@ impl Value {
             Self::Principal(v) => Some(Key::Principal(*v)),
             Self::Subaccount(v) => Some(Key::Subaccount(*v)),
             Self::Ulid(v) => Some(Key::Ulid(*v)),
+            Self::Unit(v) => Some(Key::Unit(*v)),
             _ => None,
         }
     }

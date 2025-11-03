@@ -1,7 +1,10 @@
 use crate::{
     node::Entity,
     prelude::*,
-    view::{ValueFilter, ValueView},
+    view::{
+        ValueFilter, ValueView,
+        traits::{View, ViewType},
+    },
 };
 
 ///
@@ -19,26 +22,32 @@ impl View for EntityView<'_> {
 }
 
 impl ViewType for EntityView<'_> {
-    fn view_part(&self) -> TokenStream {
+    fn generate(&self) -> TokenStream {
         let node = self.node();
-        let ident = node.view_ident();
+        let view_ident = node.view_ident();
         let fields = node.fields.iter().map(|f| {
-            let ident = &f.ident;
+            let fi = &f.ident;
             let ty = ValueView(&f.value).view_expr();
 
-            quote!(pub #ident: #ty)
+            quote!(pub #fi: #ty)
         });
 
         // add in default manually
         let mut derives = self.traits();
-        derives.push(Trait::Default);
+        derives.add(TraitKind::Default);
 
         quote! {
             #derives
-            pub struct #ident {
+            pub struct #view_ident {
                 #(#fields),*
             }
         }
+    }
+}
+
+impl ToTokens for EntityView<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.generate());
     }
 }
 
@@ -57,7 +66,7 @@ impl View for EntityCreate<'_> {
 }
 
 impl ViewType for EntityCreate<'_> {
-    fn view_part(&self) -> TokenStream {
+    fn generate(&self) -> TokenStream {
         let node = self.node();
         let create_ident = node.create_ident();
         let fields = node.iter_editable_fields().map(|f| {
@@ -69,7 +78,7 @@ impl ViewType for EntityCreate<'_> {
 
         // add in default manually
         let mut derives = self.traits();
-        derives.push(Trait::Default);
+        derives.add(TraitKind::Default);
 
         quote! {
             #derives
@@ -80,13 +89,19 @@ impl ViewType for EntityCreate<'_> {
     }
 }
 
+impl ToTokens for EntityCreate<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.generate());
+    }
+}
+
 ///
-/// EntityEdit
+/// EntityUpdate
 ///
 
-pub struct EntityEdit<'a>(pub &'a Entity);
+pub struct EntityUpdate<'a>(pub &'a Entity);
 
-impl View for EntityEdit<'_> {
+impl View for EntityUpdate<'_> {
     type Node = Entity;
 
     fn node(&self) -> &Self::Node {
@@ -94,8 +109,8 @@ impl View for EntityEdit<'_> {
     }
 }
 
-impl ViewType for EntityEdit<'_> {
-    fn view_part(&self) -> TokenStream {
+impl ViewType for EntityUpdate<'_> {
+    fn generate(&self) -> TokenStream {
         let node = self.node();
         let update_ident = node.update_ident();
         let fields = node.iter_editable_fields().map(|f| {
@@ -107,7 +122,7 @@ impl ViewType for EntityEdit<'_> {
 
         // add in default manually
         let mut derives = self.traits();
-        derives.push(Trait::Default);
+        derives.add(TraitKind::Default);
 
         quote! {
             #derives
@@ -115,6 +130,12 @@ impl ViewType for EntityEdit<'_> {
                 #(#fields),*
             }
         }
+    }
+}
+
+impl ToTokens for EntityUpdate<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.generate());
     }
 }
 
@@ -133,7 +154,7 @@ impl View for EntityFilter<'_> {
 }
 
 impl ViewType for EntityFilter<'_> {
-    fn view_part(&self) -> TokenStream {
+    fn generate(&self) -> TokenStream {
         let node = self.node();
         let entity_ident = node.def.ident();
         let filter_ident = node.filter_ident();
@@ -146,7 +167,7 @@ impl ViewType for EntityFilter<'_> {
 
         // add in default manually
         let mut derives = self.traits();
-        derives.push(Trait::Default);
+        derives.add(TraitKind::Default);
 
         quote! {
             #derives
@@ -161,5 +182,11 @@ impl ViewType for EntityFilter<'_> {
                 }
             }
         }
+    }
+}
+
+impl ToTokens for EntityFilter<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.generate());
     }
 }

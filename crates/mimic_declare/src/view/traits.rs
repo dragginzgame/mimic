@@ -18,22 +18,19 @@ pub trait View {
 /// (e.g., main View, Edit, Filter).
 ///
 
-pub trait ViewType: View
-where
-    Self::Node: HasDef,
-{
+pub trait ViewType {
     /// Generate the view's token stream.
-    fn view_part(&self) -> TokenStream;
+    fn generate(&self) -> TokenStream;
 
     /// List of traits this node participates in
     /// (either derived or implemented).
-    fn traits(&self) -> TraitList {
-        TraitList(vec![
-            Trait::CandidType,
-            Trait::Clone,
-            Trait::Debug,
-            Trait::Serialize,
-            Trait::Deserialize,
+    fn traits(&self) -> TraitSet {
+        TraitSet::from(vec![
+            TraitKind::CandidType,
+            TraitKind::Clone,
+            TraitKind::Debug,
+            TraitKind::Serialize,
+            TraitKind::Deserialize,
         ])
     }
 }

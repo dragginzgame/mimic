@@ -10,7 +10,7 @@ mod tests {
             traits::{FieldValue, NumFromPrimitive},
             value::{TextMode, Value},
         },
-        types::{Decimal, E8s, E18s, Float32 as F32, Float64 as F64, Ulid},
+        types::{Decimal, E8s, E18s, Float32 as F32, Float64 as F64, Ulid, Unit},
     };
     use std::{cmp::Ordering, str::FromStr};
 
@@ -104,6 +104,7 @@ mod tests {
         assert_eq!(Value::Int(7).as_key(), Some(Key::Int(7)));
         assert_eq!(Value::Uint(7).as_key(), Some(Key::Uint(7)));
         assert_eq!(Value::Ulid(Ulid::MIN).as_key(), Some(Key::Ulid(Ulid::MIN)));
+        assert_eq!(Value::Unit(Unit).as_key(), Some(Key::Unit(Unit)));
         // Non-orderable / non-key variants
         assert!(v_txt("x").as_key().is_none());
         assert!(Value::Decimal(Decimal::new(1, 0)).as_key().is_none());
@@ -113,7 +114,12 @@ mod tests {
 
     #[test]
     fn from_key_round_trips() {
-        let ks = [Key::Int(-9), Key::Uint(9), Key::Ulid(Ulid::MAX)];
+        let ks = [
+            Key::Int(-9),
+            Key::Uint(9),
+            Key::Ulid(Ulid::MAX),
+            Key::Unit(Unit),
+        ];
         for k in ks {
             let v = k.to_value();
             let back = v

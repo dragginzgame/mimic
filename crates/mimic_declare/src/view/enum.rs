@@ -1,4 +1,11 @@
-use crate::{node::Enum, prelude::*, view::ValueView};
+use crate::{
+    node::Enum,
+    prelude::*,
+    view::{
+        ValueView,
+        traits::{View, ViewType},
+    },
+};
 
 ///
 /// EnumView
@@ -15,19 +22,19 @@ impl View for EnumView<'_> {
 }
 
 impl ViewType for EnumView<'_> {
-    fn view_part(&self) -> TokenStream {
+    fn generate(&self) -> TokenStream {
         let node = self.node();
         let view_ident = node.view_ident();
 
         // each variant uses ValueView to produce its payload expression
         let view_variants = node.variants.iter().map(|variant| {
-            let ident = variant.effective_ident();
+            let vi = variant.effective_ident();
             if let Some(value) = &variant.value {
-                let value_expr = ValueView(value).view_expr();
+                let ve = ValueView(value).view_expr();
 
-                quote!(#ident(#value_expr))
+                quote!(#vi(#ve))
             } else {
-                quote!(#ident)
+                quote!(#vi)
             }
         });
 
@@ -35,12 +42,12 @@ impl ViewType for EnumView<'_> {
         let mut derives = self.traits();
         if node.is_unit_enum() {
             derives.extend(vec![
-                Trait::Copy,
-                Trait::Hash,
-                Trait::Eq,
-                Trait::Ord,
-                Trait::PartialEq,
-                Trait::PartialOrd,
+                TraitKind::Copy,
+                TraitKind::Hash,
+                TraitKind::Eq,
+                TraitKind::Ord,
+                TraitKind::PartialEq,
+                TraitKind::PartialOrd,
             ]);
         }
 
@@ -79,5 +86,11 @@ impl EnumView<'_> {
                 }
             }
         })
+    }
+}
+
+impl ToTokens for EnumView<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.generate());
     }
 }

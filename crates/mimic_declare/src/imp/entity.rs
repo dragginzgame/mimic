@@ -43,7 +43,7 @@ impl Imp<Entity> for EntityKindTrait {
         // impls
         q.extend(key(node));
 
-        let tokens = Implementor::new(&node.def, Trait::EntityKind)
+        let tokens = Implementor::new(&node.def, TraitKind::EntityKind)
             .set_tokens(q)
             .to_token_stream();
 

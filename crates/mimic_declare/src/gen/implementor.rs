@@ -1,9 +1,4 @@
-use crate::{
-    codegen::TraitStrategy,
-    node::{Def, Trait},
-};
-use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
+use crate::prelude::*;
 use syn::{GenericParam, WherePredicate, parse2, punctuated::Punctuated, token::Comma};
 
 ///
@@ -20,7 +15,7 @@ pub trait Imp<N> {
 
 pub struct Implementor<'a> {
     def: &'a Def,
-    trait_: Trait,
+    trait_kind: TraitKind,
     trait_generics: Vec<TokenStream>,
     extra_generics: Vec<GenericParam>,
     extra_where: Vec<WherePredicate>,
@@ -28,10 +23,10 @@ pub struct Implementor<'a> {
 }
 
 impl<'a> Implementor<'a> {
-    pub fn new(def: &'a Def, trait_: Trait) -> Self {
+    pub fn new(def: &'a Def, trait_kind: TraitKind) -> Self {
         Self {
             def,
-            trait_,
+            trait_kind,
             trait_generics: Vec::new(),
             extra_generics: Vec::new(),
             extra_where: Vec::new(),
@@ -74,7 +69,7 @@ impl<'a> Implementor<'a> {
             .as_ref()
             .expect("Def.item must be Some for impl generation");
         let generics = &item.generics;
-        let trait_ = &self.trait_;
+        let trait_kind = &self.trait_kind;
         let trait_generics = &self.trait_generics;
 
         // Split once to get the type-position generics (e.g., `Type<T, 'a>`).
@@ -105,8 +100,8 @@ impl<'a> Implementor<'a> {
         };
 
         // ---- Trait path with optional generics (avoid `Trait<>`)
-        let trait_path = match trait_ {
-            Trait::Inherent => quote!(), // not used
+        let trait_path = match trait_kind {
+            TraitKind::Inherent => quote!(), // not used
             t => {
                 if trait_generics.is_empty() {
                     quote!( #t )
@@ -116,8 +111,8 @@ impl<'a> Implementor<'a> {
             }
         };
 
-        match trait_ {
-            Trait::Inherent => {
+        match trait_kind {
+            TraitKind::Inherent => {
                 // impl <all_params> Type<ty_params> where ...
                 quote! {
                     impl #impl_generics_ts #ident #ty_generics #where_tokens

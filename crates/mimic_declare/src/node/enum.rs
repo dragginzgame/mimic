@@ -1,4 +1,4 @@
-use crate::{prelude::*, view::EnumView};
+use crate::prelude::*;
 
 ///
 /// Enum
@@ -16,7 +16,7 @@ pub struct Enum {
     pub ty: Type,
 
     #[darling(default)]
-    pub traits: Traits,
+    pub traits: TraitBuilder,
 }
 
 impl Enum {
@@ -58,35 +58,39 @@ impl HasSchemaPart for Enum {
 }
 
 impl HasTraits for Enum {
-    fn traits(&self) -> TraitList {
-        let mut traits = self.traits.clone().with_type_traits();
+    fn traits(&self) -> Vec<TraitKind> {
+        let mut traits = self.traits.with_type_traits().build();
 
         // extra traits
         if self.is_unit_enum() {
-            traits.extend(vec![Trait::Copy, Trait::Hash, Trait::PartialOrd]);
+            traits.extend(vec![
+                TraitKind::Copy,
+                TraitKind::Hash,
+                TraitKind::PartialOrd,
+            ]);
         }
 
-        traits.list()
+        traits.into_vec()
     }
 
-    fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
+    fn map_trait(&self, t: TraitKind) -> Option<TraitStrategy> {
         use crate::imp::*;
 
         match t {
-            Trait::Default => DefaultTrait::strategy(self),
-            Trait::FieldValue => FieldValueTrait::strategy(self),
-            Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
-            Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
-            Trait::View => ViewTrait::strategy(self),
-            Trait::Visitable => VisitableTrait::strategy(self),
+            TraitKind::Default => DefaultTrait::strategy(self),
+            TraitKind::FieldValue => FieldValueTrait::strategy(self),
+            TraitKind::SanitizeAuto => SanitizeAutoTrait::strategy(self),
+            TraitKind::ValidateAuto => ValidateAutoTrait::strategy(self),
+            TraitKind::View => ViewTrait::strategy(self),
+            TraitKind::Visitable => VisitableTrait::strategy(self),
 
             _ => None,
         }
     }
 
-    fn map_attribute(&self, t: Trait) -> Option<TokenStream> {
+    fn map_attribute(&self, t: TraitKind) -> Option<TokenStream> {
         match t {
-            Trait::Sorted => Trait::Sorted.derive_attribute(),
+            TraitKind::Sorted => TraitKind::Sorted.derive_attribute(),
             _ => None,
         }
     }
@@ -102,12 +106,6 @@ impl HasType for Enum {
                 #(#variants),*
             }
         }
-    }
-}
-
-impl HasViews for Enum {
-    fn view_parts(&self) -> Vec<TokenStream> {
-        vec![EnumView(self).view_part()]
     }
 }
 

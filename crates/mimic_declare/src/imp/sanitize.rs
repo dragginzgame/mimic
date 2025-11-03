@@ -24,7 +24,7 @@ macro_rules! impl_sanitize_auto {
                 let self_tokens = SanitizeAutoFn::self_tokens(node);
                 let child_tokens = SanitizeAutoFn::child_tokens(node);
 
-                let tokens = Implementor::new(node.def(), Trait::SanitizeAuto)
+                let tokens = Implementor::new(node.def(), TraitKind::SanitizeAuto)
                     .add_tokens(self_tokens)
                     .add_tokens(child_tokens)
                     .to_token_stream();

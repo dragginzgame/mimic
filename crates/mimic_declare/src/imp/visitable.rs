@@ -14,7 +14,7 @@ impl Imp<Entity> for VisitableTrait {
     fn strategy(node: &Entity) -> Option<TraitStrategy> {
         let q = field_list(&node.fields);
 
-        let tokens = Implementor::new(node.def(), Trait::Visitable)
+        let tokens = Implementor::new(node.def(), TraitKind::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -35,7 +35,7 @@ impl Imp<Enum> for VisitableTrait {
         let inner = quote! { match self { #arms } };
         let inner_mut = quote! { match self { #arms_mut } };
 
-        let tokens = Implementor::new(node.def(), Trait::Visitable)
+        let tokens = Implementor::new(node.def(), TraitKind::Visitable)
             .set_tokens(quote_drives(&inner, &inner_mut))
             .to_token_stream();
 
@@ -63,7 +63,7 @@ impl Imp<List> for VisitableTrait {
 
         let q = quote_drives(&inner, &inner_mut);
 
-        let tokens = Implementor::new(node.def(), Trait::Visitable)
+        let tokens = Implementor::new(node.def(), TraitKind::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -92,7 +92,7 @@ impl Imp<Map> for VisitableTrait {
 
         let q = quote_drives(&inner, &inner_mut);
 
-        let tokens = Implementor::new(node.def(), Trait::Visitable)
+        let tokens = Implementor::new(node.def(), TraitKind::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -115,7 +115,7 @@ impl Imp<Newtype> for VisitableTrait {
 
         let q = quote_drives(&inner, &inner_mut);
 
-        let tokens = Implementor::new(node.def(), Trait::Visitable)
+        let tokens = Implementor::new(node.def(), TraitKind::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -131,7 +131,7 @@ impl Imp<Record> for VisitableTrait {
     fn strategy(node: &Record) -> Option<TraitStrategy> {
         let q = field_list(&node.fields);
 
-        let tokens = Implementor::new(node.def(), Trait::Visitable)
+        let tokens = Implementor::new(node.def(), TraitKind::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -153,7 +153,7 @@ impl Imp<Set> for VisitableTrait {
 
         let q = quote_drive(&inner); // only immutable
 
-        let tokens = Implementor::new(node.def(), Trait::Visitable)
+        let tokens = Implementor::new(node.def(), TraitKind::Visitable)
             .set_tokens(q)
             .to_token_stream();
 
@@ -185,7 +185,7 @@ impl Imp<Tuple> for VisitableTrait {
 
         let q = quote_drives(&inner, &inner_mut);
 
-        let tokens = Implementor::new(node.def(), Trait::Visitable)
+        let tokens = Implementor::new(node.def(), TraitKind::Visitable)
             .set_tokens(q)
             .to_token_stream();
 

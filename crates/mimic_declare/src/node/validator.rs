@@ -35,11 +35,11 @@ impl HasSchemaPart for Validator {
 }
 
 impl HasTraits for Validator {
-    fn traits(&self) -> TraitList {
-        let mut traits = Traits::default().with_default_traits();
-        traits.add(Trait::Default);
+    fn traits(&self) -> Vec<TraitKind> {
+        let mut traits = TraitBuilder::default().with_type_traits().build();
+        traits.add(TraitKind::Default);
 
-        traits.list()
+        traits.into_vec()
     }
 }
 
@@ -50,8 +50,6 @@ impl HasType for Validator {
         quote!(#item)
     }
 }
-
-impl HasViews for Validator {}
 
 impl ToTokens for Validator {
     fn to_tokens(&self, tokens: &mut TokenStream) {

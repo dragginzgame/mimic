@@ -48,18 +48,18 @@ impl HasSchemaPart for Store {
 }
 
 impl HasTraits for Store {
-    fn traits(&self) -> TraitList {
-        let mut traits = Traits::default().with_path_trait();
-        traits.add(Trait::StoreKind);
+    fn traits(&self) -> Vec<TraitKind> {
+        let mut traits = TraitBuilder::default().build();
+        traits.add(TraitKind::StoreKind);
 
-        traits.list()
+        traits.into_vec()
     }
 
-    fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
+    fn map_trait(&self, t: TraitKind) -> Option<TraitStrategy> {
         use crate::imp::*;
 
         match t {
-            Trait::StoreKind => StoreKindTrait::strategy(self),
+            TraitKind::StoreKind => StoreKindTrait::strategy(self),
             _ => None,
         }
     }
@@ -74,8 +74,6 @@ impl HasType for Store {
         }
     }
 }
-
-impl HasViews for Store {}
 
 impl ToTokens for Store {
     fn to_tokens(&self, tokens: &mut TokenStream) {

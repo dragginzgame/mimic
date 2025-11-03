@@ -6,9 +6,11 @@ mod map;
 mod newtype;
 mod record;
 mod set;
+mod traits;
 mod tuple;
 mod value;
 
+// export the View types
 pub use entity::*;
 pub use r#enum::*;
 pub use item::*;

@@ -17,7 +17,7 @@ impl Imp<Entity> for ViewTrait {
 
         // tokens
         let q = field_list(view_ident, &node.fields);
-        let view_impl = Implementor::new(node.def(), Trait::View)
+        let view_impl = Implementor::new(node.def(), TraitKind::View)
             .set_tokens(q)
             .to_token_stream();
         let conversions = owned_view_conversions(&ident, view_ident);
@@ -86,7 +86,7 @@ impl Imp<Enum> for ViewTrait {
         };
 
         // tokens
-        let view_impl = Implementor::new(node.def(), Trait::View)
+        let view_impl = Implementor::new(node.def(), TraitKind::View)
             .set_tokens(q)
             .to_token_stream();
         let conversions = owned_view_conversions(&ident, view_ident);
@@ -109,7 +109,7 @@ impl Imp<List> for ViewTrait {
 
         // tokens
         let q = quote_view_linear(view_ident);
-        let tokens = Implementor::new(node.def(), Trait::View)
+        let tokens = Implementor::new(node.def(), TraitKind::View)
             .set_tokens(q)
             .to_token_stream();
 
@@ -129,7 +129,7 @@ impl Imp<Map> for ViewTrait {
 
         // tokens
         let q = quote_view_map(view_ident, &quote!(#key), &quote!(#value));
-        let tokens = Implementor::new(node.def(), Trait::View)
+        let tokens = Implementor::new(node.def(), TraitKind::View)
             .set_tokens(q)
             .to_token_stream();
 
@@ -160,7 +160,7 @@ impl Imp<Newtype> for ViewTrait {
         };
 
         // tokens
-        let tokens = Implementor::new(node.def(), Trait::View)
+        let tokens = Implementor::new(node.def(), TraitKind::View)
             .set_tokens(q)
             .to_token_stream();
 
@@ -178,7 +178,7 @@ impl Imp<Record> for ViewTrait {
         let view_ident = &node.view_ident();
         let q = field_list(view_ident, &node.fields);
 
-        let view_impl = Implementor::new(node.def(), Trait::View)
+        let view_impl = Implementor::new(node.def(), TraitKind::View)
             .set_tokens(q)
             .to_token_stream();
         let conversions = owned_view_conversions(&ident, view_ident);
@@ -200,7 +200,7 @@ impl Imp<Set> for ViewTrait {
         let view_ident = &node.view_ident();
 
         let q = quote_view_linear(view_ident);
-        let tokens = Implementor::new(node.def(), Trait::View)
+        let tokens = Implementor::new(node.def(), TraitKind::View)
             .set_tokens(q)
             .to_token_stream();
 
@@ -249,7 +249,7 @@ impl Imp<Tuple> for ViewTrait {
             }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::View)
+        let tokens = Implementor::new(node.def(), TraitKind::View)
             .set_tokens(q)
             .to_token_stream();
 

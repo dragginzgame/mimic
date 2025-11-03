@@ -25,7 +25,7 @@ impl Imp<Record> for UpdateViewTrait {
 /// Shared generator
 fn update_impl<N, F>(node: &N, iter_fields: F) -> TraitStrategy
 where
-    N: HasViews + HasDef,
+    N: HasType,
     F: Fn(&N) -> Vec<syn::Ident>,
 {
     let update_ident = node.update_ident();
@@ -50,7 +50,7 @@ where
         }
     };
 
-    let update_impl = Implementor::new(node.def(), Trait::UpdateView)
+    let update_impl = Implementor::new(node.def(), TraitKind::UpdateView)
         .set_tokens(q)
         .to_token_stream();
 

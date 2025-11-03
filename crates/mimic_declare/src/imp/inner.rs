@@ -26,7 +26,7 @@ impl Imp<Newtype> for InnerTrait {
             }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::Inner)
+        let tokens = Implementor::new(node.def(), TraitKind::Inner)
             .add_trait_generic(quote!(#ty))
             .set_tokens(q)
             .to_token_stream();

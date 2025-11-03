@@ -1,4 +1,4 @@
-use crate::{prelude::*, view::SetView};
+use crate::prelude::*;
 
 ///
 /// Set
@@ -15,7 +15,7 @@ pub struct Set {
     pub ty: Type,
 
     #[darling(default)]
-    pub traits: Traits,
+    pub traits: TraitBuilder,
 }
 
 impl HasDef for Set {
@@ -47,23 +47,28 @@ impl HasSchemaPart for Set {
 }
 
 impl HasTraits for Set {
-    fn traits(&self) -> TraitList {
-        let mut traits = self.traits.clone().with_type_traits();
-        traits.extend(vec![Trait::Deref, Trait::DerefMut, Trait::IntoIterator]);
+    fn traits(&self) -> Vec<TraitKind> {
+        let mut traits = self.traits.with_type_traits().build();
 
-        traits.list()
+        traits.extend(vec![
+            TraitKind::Deref,
+            TraitKind::DerefMut,
+            TraitKind::IntoIterator,
+        ]);
+
+        traits.into_vec()
     }
 
-    fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
+    fn map_trait(&self, t: TraitKind) -> Option<TraitStrategy> {
         use crate::imp::*;
 
         match t {
-            Trait::FieldValue => FieldValueTrait::strategy(self),
-            Trait::From => FromTrait::strategy(self),
-            Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
-            Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
-            Trait::View => ViewTrait::strategy(self),
-            Trait::Visitable => VisitableTrait::strategy(self),
+            TraitKind::FieldValue => FieldValueTrait::strategy(self),
+            TraitKind::From => FromTrait::strategy(self),
+            TraitKind::SanitizeAuto => SanitizeAutoTrait::strategy(self),
+            TraitKind::ValidateAuto => ValidateAutoTrait::strategy(self),
+            TraitKind::View => ViewTrait::strategy(self),
+            TraitKind::Visitable => VisitableTrait::strategy(self),
 
             _ => None,
         }
@@ -79,12 +84,6 @@ impl HasType for Set {
             #[repr(transparent)]
             pub struct #ident(pub ::std::collections::HashSet<#item>);
         }
-    }
-}
-
-impl HasViews for Set {
-    fn view_parts(&self) -> Vec<TokenStream> {
-        vec![SetView(self).view_part()]
     }
 }
 

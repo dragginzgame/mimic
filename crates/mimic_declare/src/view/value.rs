@@ -1,4 +1,7 @@
-use crate::{prelude::*, view::ItemView};
+use crate::{
+    prelude::*,
+    view::{ItemView, traits::View},
+};
 
 ///
 /// ValueView

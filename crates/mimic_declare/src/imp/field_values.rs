@@ -57,7 +57,7 @@ impl Imp<Entity> for FieldValuesTrait {
             }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::FieldValues)
+        let tokens = Implementor::new(node.def(), TraitKind::FieldValues)
             .set_tokens(q)
             .to_token_stream();
 

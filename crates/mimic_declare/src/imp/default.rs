@@ -38,7 +38,7 @@ impl Imp<Enum> for DefaultTrait {
             }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::Default)
+        let tokens = Implementor::new(node.def(), TraitKind::Default)
             .set_tokens(q)
             .to_token_stream();
 
@@ -59,7 +59,7 @@ impl Imp<Record> for DefaultTrait {
 // default_strategy
 fn default_strategy(def: &Def, fields: &FieldList) -> TraitStrategy {
     if fields.iter().all(|f| f.default.is_none()) {
-        return TraitStrategy::from_derive(Trait::Default);
+        return TraitStrategy::from_derive(TraitKind::Default);
     }
 
     // assignments
@@ -77,7 +77,7 @@ fn default_strategy(def: &Def, fields: &FieldList) -> TraitStrategy {
         }
     };
 
-    let tokens = Implementor::new(def, Trait::Default)
+    let tokens = Implementor::new(def, TraitKind::Default)
         .set_tokens(q)
         .to_token_stream();
 
@@ -102,7 +102,7 @@ impl Imp<Newtype> for DefaultTrait {
             }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::Default)
+        let tokens = Implementor::new(node.def(), TraitKind::Default)
             .set_tokens(q)
             .to_token_stream();
 

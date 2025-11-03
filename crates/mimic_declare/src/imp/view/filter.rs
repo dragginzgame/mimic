@@ -29,7 +29,7 @@ impl Imp<Entity> for FilterViewTrait {
             }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::FilterView)
+        let tokens = Implementor::new(node.def(), TraitKind::FilterView)
             .set_tokens(q)
             .to_token_stream();
 

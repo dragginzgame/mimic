@@ -1,4 +1,7 @@
-use crate::{prelude::*, view::NewtypeView};
+use crate::{
+    node::traits::{HasDef, HasSchema},
+    prelude::*,
+};
 
 ///
 /// Newtype
@@ -19,7 +22,7 @@ pub struct Newtype {
     pub ty: Type,
 
     #[darling(default)]
-    pub traits: Traits,
+    pub traits: TraitBuilder,
 }
 
 impl HasDef for Newtype {
@@ -66,65 +69,70 @@ impl HasSchemaPart for Newtype {
 }
 
 impl HasTraits for Newtype {
-    fn traits(&self) -> TraitList {
-        let mut traits = self.traits.clone().with_type_traits();
-        traits.extend(vec![Trait::Deref, Trait::DerefMut, Trait::Inner]);
+    fn traits(&self) -> Vec<TraitKind> {
+        let mut traits = self.traits.with_type_traits().build();
+
+        traits.extend(vec![
+            TraitKind::Deref,
+            TraitKind::DerefMut,
+            TraitKind::Inner,
+        ]);
 
         // primitive traits
         if let Some(primitive) = self.primitive {
             if primitive.supports_arithmetic() {
                 traits.extend(vec![
-                    Trait::Add,
-                    Trait::AddAssign,
-                    Trait::Mul,
-                    Trait::MulAssign,
-                    Trait::Sub,
-                    Trait::SubAssign,
-                    Trait::Sum,
+                    TraitKind::Add,
+                    TraitKind::AddAssign,
+                    TraitKind::Mul,
+                    TraitKind::MulAssign,
+                    TraitKind::Sub,
+                    TraitKind::SubAssign,
+                    TraitKind::Sum,
                 ]);
             }
             if primitive.supports_copy() {
-                traits.add(Trait::Copy);
+                traits.add(TraitKind::Copy);
             }
             if primitive.supports_display() {
-                traits.add(Trait::Display);
+                traits.add(TraitKind::Display);
             }
             if primitive.supports_hash() {
-                traits.add(Trait::Hash);
+                traits.add(TraitKind::Hash);
             }
             if primitive.supports_num_cast() {
                 traits.extend(vec![
-                    Trait::NumCast,
-                    Trait::NumFromPrimitive,
-                    Trait::NumToPrimitive,
+                    TraitKind::NumCast,
+                    TraitKind::NumFromPrimitive,
+                    TraitKind::NumToPrimitive,
                 ]);
             }
             if primitive.supports_ord() {
-                traits.add(Trait::Ord);
-                traits.add(Trait::PartialOrd);
+                traits.add(TraitKind::Ord);
+                traits.add(TraitKind::PartialOrd);
             }
         }
 
-        traits.list()
+        traits.into_vec()
     }
 
-    fn map_trait(&self, t: Trait) -> Option<TraitStrategy> {
+    fn map_trait(&self, t: TraitKind) -> Option<TraitStrategy> {
         use crate::imp::*;
 
         match t {
-            Trait::PartialEq => PartialEqTrait::strategy(self).map(|s| s.with_derive(t)),
-            Trait::PartialOrd => PartialOrdTrait::strategy(self).map(|s| s.with_derive(t)),
+            TraitKind::PartialEq => PartialEqTrait::strategy(self).map(|s| s.with_derive(t)),
+            TraitKind::PartialOrd => PartialOrdTrait::strategy(self).map(|s| s.with_derive(t)),
 
-            Trait::FieldValue => FieldValueTrait::strategy(self),
-            Trait::From => FromTrait::strategy(self),
-            Trait::Inner => InnerTrait::strategy(self),
-            Trait::NumCast => NumCastTrait::strategy(self),
-            Trait::NumToPrimitive => NumToPrimitiveTrait::strategy(self),
-            Trait::NumFromPrimitive => NumFromPrimitiveTrait::strategy(self),
-            Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
-            Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
-            Trait::View => ViewTrait::strategy(self),
-            Trait::Visitable => VisitableTrait::strategy(self),
+            TraitKind::FieldValue => FieldValueTrait::strategy(self),
+            TraitKind::From => FromTrait::strategy(self),
+            TraitKind::Inner => InnerTrait::strategy(self),
+            TraitKind::NumCast => NumCastTrait::strategy(self),
+            TraitKind::NumToPrimitive => NumToPrimitiveTrait::strategy(self),
+            TraitKind::NumFromPrimitive => NumFromPrimitiveTrait::strategy(self),
+            TraitKind::SanitizeAuto => SanitizeAutoTrait::strategy(self),
+            TraitKind::ValidateAuto => ValidateAutoTrait::strategy(self),
+            TraitKind::View => ViewTrait::strategy(self),
+            TraitKind::Visitable => VisitableTrait::strategy(self),
 
             _ => None,
         }
@@ -140,12 +148,6 @@ impl HasType for Newtype {
             #[repr(transparent)]
             pub struct #ident(pub #item);
         }
-    }
-}
-
-impl HasViews for Newtype {
-    fn view_parts(&self) -> Vec<TokenStream> {
-        vec![NewtypeView(self).view_part()]
     }
 }
 

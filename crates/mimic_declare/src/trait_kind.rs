@@ -6,8 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, hash::Hash, str::FromStr, sync::LazyLock};
 
 ///
-/// Trait
-/// right now everything in one big enum
+/// TraitKind
 ///
 
 #[derive(
@@ -24,7 +23,7 @@ use std::{collections::HashSet, hash::Hash, str::FromStr, sync::LazyLock};
     Serialize,
     Deserialize,
 )]
-pub enum Trait {
+pub enum TraitKind {
     // inherent impl
     Inherent,
 
@@ -82,34 +81,24 @@ pub enum Trait {
     Visitable,
 }
 
-///
-/// Traits
-///
+static DEFAULT_TRAITS: LazyLock<Vec<TraitKind>> =
+    LazyLock::new(|| vec![TraitKind::Clone, TraitKind::Debug, TraitKind::Path]);
 
-#[rustfmt::skip]
- static DEFAULT_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
+static TYPE_TRAITS: LazyLock<Vec<TraitKind>> = LazyLock::new(|| {
     vec![
-        Trait::Clone,
-        Trait::Debug,
-        Trait::Path,
-    ]
-});
-
-static TYPE_TRAITS: LazyLock<Vec<Trait>> = LazyLock::new(|| {
-    vec![
-        Trait::Default,
-        Trait::Deserialize,
-        Trait::Eq,
-        Trait::FieldValue,
-        Trait::From,
-        Trait::PartialEq,
-        Trait::SanitizeAuto,
-        Trait::SanitizeCustom,
-        Trait::Serialize,
-        Trait::ValidateAuto,
-        Trait::ValidateCustom,
-        Trait::View,
-        Trait::Visitable,
+        TraitKind::Default,
+        TraitKind::Deserialize,
+        TraitKind::Eq,
+        TraitKind::FieldValue,
+        TraitKind::From,
+        TraitKind::PartialEq,
+        TraitKind::SanitizeAuto,
+        TraitKind::SanitizeCustom,
+        TraitKind::Serialize,
+        TraitKind::ValidateAuto,
+        TraitKind::ValidateCustom,
+        TraitKind::View,
+        TraitKind::Visitable,
     ]
 });
 
@@ -123,7 +112,7 @@ pub fn path_to_string(path: &syn::Path) -> String {
         .to_string()
 }
 
-impl Trait {
+impl TraitKind {
     #[must_use]
     #[remain::check]
     pub fn derive_path(self) -> Option<TokenStream> {
@@ -166,7 +155,7 @@ impl Trait {
     }
 }
 
-impl FromMeta for Trait {
+impl FromMeta for TraitKind {
     fn from_nested_meta(item: &NestedMeta) -> Result<Self, DarlingError> {
         match item {
             NestedMeta::Meta(syn::Meta::Path(path)) => {
@@ -182,7 +171,7 @@ impl FromMeta for Trait {
     }
 }
 
-impl ToTokens for Trait {
+impl ToTokens for TraitKind {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let trait_name = format_ident!("{}", self.to_string());
 
@@ -191,109 +180,117 @@ impl ToTokens for Trait {
 }
 
 ///
-/// Traits
+/// TraitSet
 ///
 
-#[derive(Clone, Debug, Default, FromMeta)]
-pub struct Traits {
-    #[darling(default)]
-    pub add: TraitList,
+#[derive(Clone, Debug, Default, Deref, DerefMut, Eq, PartialEq)]
+pub struct TraitSet(pub HashSet<TraitKind>);
 
-    #[darling(default)]
-    pub remove: TraitList,
-}
-
-impl Traits {
-    // with_path_trait
-    pub fn with_path_trait(mut self) -> Self {
-        self.add(Trait::Path);
-        self
-    }
-
-    // with_default_traits
-    pub fn with_default_traits(mut self) -> Self {
-        self.add.extend(DEFAULT_TRAITS.to_vec());
-        self
-    }
-
-    // with_type_traits
-    pub fn with_type_traits(mut self) -> Self {
-        self.add.extend(DEFAULT_TRAITS.to_vec());
-        self.add.extend(TYPE_TRAITS.to_vec());
-        self
-    }
-
-    // add
-    pub fn add(&mut self, tr: Trait) {
-        self.add.push(tr);
-    }
-
-    // extend
-    pub fn extend(&mut self, traits: Vec<Trait>) {
-        self.add.extend(traits);
-    }
-
-    // list
-    // generates the TraitList based on the defaults plus traits that have been added or removed
-    pub fn list(&self) -> TraitList {
-        let mut traits = HashSet::new();
-
-        // self.add
-        for tr in self.add.iter() {
-            assert!(traits.insert(*tr), "adding duplicate trait '{tr}'");
-        }
-
-        // self.remove
-        for tr in self.remove.iter() {
-            assert!(
-                traits.remove(tr),
-                "cannot remove trait {tr} from {traits:?}",
-            );
-        }
-
-        TraitList(traits.into_iter().collect::<Vec<_>>())
-    }
-}
-
-///
-/// TraitList
-///
-
-#[derive(Clone, Debug, Default, Deref, DerefMut, IntoIterator)]
-pub struct TraitList(pub Vec<Trait>);
-
-impl TraitList {
+impl TraitSet {
     pub fn new() -> Self {
         Self::default()
     }
-}
 
-impl From<&[Trait]> for TraitList {
-    fn from(traits: &[Trait]) -> Self {
-        Self(traits.to_vec())
+    pub fn add(&mut self, tr: TraitKind) {
+        self.insert(tr);
+    }
+
+    pub fn extend<I: IntoIterator<Item = TraitKind>>(&mut self, traits: I) {
+        self.0.extend(traits);
+    }
+
+    pub fn into_vec(self) -> Vec<TraitKind> {
+        self.0.into_iter().collect()
     }
 }
 
-impl FromMeta for TraitList {
-    fn from_list(items: &[NestedMeta]) -> Result<Self, DarlingError> {
-        let mut traits = Self::default();
-
-        for item in items {
-            let tr = Trait::from_nested_meta(item)?;
-            traits.push(tr);
-        }
-
-        Ok(traits)
+impl From<Vec<TraitKind>> for TraitSet {
+    fn from(v: Vec<TraitKind>) -> Self {
+        Self(v.into_iter().collect())
     }
 }
 
-impl ToTokens for TraitList {
+impl FromIterator<TraitKind> for TraitSet {
+    fn from_iter<I: IntoIterator<Item = TraitKind>>(iter: I) -> Self {
+        Self(iter.into_iter().collect())
+    }
+}
+
+impl ToTokens for TraitSet {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         if !self.0.is_empty() {
             let derive_paths = self.0.iter().filter_map(|tr| tr.derive_path());
+
             tokens.extend(quote! {
                 #[derive(#(#derive_paths),*)]
             });
         }
+    }
+}
+
+///
+/// TraitBuilder
+///
+/// Collects trait additions/removals from schema attributes.
+/// After parsing, it should be treated as immutable and resolved via `.build()`.
+///
+
+#[derive(Clone, Debug, Default, FromMeta)]
+pub struct TraitBuilder {
+    #[darling(default)]
+    pub add: TraitListMeta,
+
+    #[darling(default)]
+    pub remove: TraitListMeta,
+}
+
+impl TraitBuilder {
+    pub fn with_type_traits(&self) -> Self {
+        let mut clone = self.clone();
+        clone.add.extend(TYPE_TRAITS.to_vec());
+
+        clone
+    }
+
+    // build
+    // generates the TraitList based on the defaults plus traits that have been added or removed
+    pub fn build(&self) -> TraitSet {
+        let mut set = TraitSet::new();
+
+        // always set defaults
+        set.extend(DEFAULT_TRAITS.to_vec());
+
+        // self.add
+        for tr in self.add.iter() {
+            assert!(set.insert(*tr), "adding duplicate trait '{tr}'");
+        }
+
+        // self.remove
+        for tr in self.remove.iter() {
+            assert!(set.remove(tr), "cannot remove trait {tr} from {set:?}",);
+        }
+
+        set
+    }
+}
+
+///
+/// TraitListMeta
+/// Used only for parsing trait lists from schema attributes via darling.
+///
+
+#[derive(Clone, Debug, Default, Deref, DerefMut, IntoIterator)]
+pub struct TraitListMeta(pub Vec<TraitKind>);
+
+impl FromMeta for TraitListMeta {
+    fn from_list(items: &[NestedMeta]) -> Result<Self, DarlingError> {
+        let mut traits = Self::default();
+
+        for item in items {
+            let tr = TraitKind::from_nested_meta(item)?;
+            traits.push(tr);
+        }
+
+        Ok(traits)
     }
 }

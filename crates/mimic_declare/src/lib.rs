@@ -1,10 +1,11 @@
 #![allow(clippy::wildcard_imports)]
 
-mod codegen;
+mod r#gen;
 mod helper;
 mod imp;
 mod node;
-mod traits;
+mod trait_kind;
+mod types;
 mod view;
 
 use crate::node::Def;
@@ -23,15 +24,13 @@ use syn::{Attribute, ItemStruct, LitStr, Visibility, parse_macro_input};
 
 mod prelude {
     pub use crate::{
-        codegen::{Imp, Implementor, TraitStrategy},
+        r#gen::{Imp, Implementor},
         helper::{
             as_tokens, quote_one, quote_option, quote_slice, split_idents, to_path, to_str_lit,
         },
         node::*,
-        traits::{
-            HasDef, HasMacro, HasSchema, HasSchemaPart, HasTraits, HasType, HasTypeExpr, HasViews,
-            SchemaNodeKind, View, ViewType,
-        },
+        trait_kind::{TraitBuilder, TraitKind, TraitSet},
+        types::TraitStrategy,
     };
     pub use mimic_schema::types::{Cardinality, Primitive, StoreType};
 
@@ -47,7 +46,7 @@ mod prelude {
 ///
 
 macro_rules! macro_node {
-    ($fn_name:ident, $node_type:ty) => {
+    ($fn_name:ident, $node_type:ty, $gen_type:path) => {
         #[proc_macro_attribute]
         pub fn $fn_name(
             args: proc_macro::TokenStream,
@@ -70,14 +69,12 @@ macro_rules! macro_node {
                     let mut node = <$node_type>::from_list(&args).unwrap();
                     node.def = Def::new(item, comments);
 
-                    // quote
-                    let q = quote!(#node);
+                    // instantiate the generator
+                    let generator = $gen_type(&node);
+                    let q = quote!(#generator);
 
-                    // Check if the `#[debug]` attribute is present
                     if debug {
-                        quote! {
-                            compile_error!(stringify! { #q });
-                        }
+                        quote! { compile_error!(stringify! { #q }); }
                     } else {
                         q
                     }
@@ -89,18 +86,18 @@ macro_rules! macro_node {
     };
 }
 
-macro_node!(canister, node::Canister);
-macro_node!(entity, node::Entity);
-macro_node!(enum_, node::Enum);
-macro_node!(list, node::List);
-macro_node!(map, node::Map);
-macro_node!(newtype, node::Newtype);
-macro_node!(record, node::Record);
-macro_node!(sanitizer, node::Sanitizer);
-macro_node!(set, node::Set);
-macro_node!(store, node::Store);
-macro_node!(tuple, node::Tuple);
-macro_node!(validator, node::Validator);
+macro_node!(canister, node::Canister, r#gen::CanisterGen);
+macro_node!(entity, node::Entity, r#gen::EntityGen);
+macro_node!(enum_, node::Enum, r#gen::EnumGen);
+macro_node!(list, node::List, r#gen::ListGen);
+macro_node!(map, node::Map, r#gen::MapGen);
+macro_node!(newtype, node::Newtype, r#gen::NewtypeGen);
+macro_node!(record, node::Record, r#gen::RecordGen);
+macro_node!(sanitizer, node::Sanitizer, r#gen::SanitizerGen);
+macro_node!(set, node::Set, r#gen::SetGen);
+macro_node!(store, node::Store, r#gen::StoreGen);
+macro_node!(tuple, node::Tuple, r#gen::TupleGen);
+macro_node!(validator, node::Validator, r#gen::ValidatorGen);
 
 ///
 /// Helper Functions

@@ -47,7 +47,7 @@ impl Imp<Enum> for FieldValueTrait {
             }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::FieldValue)
+        let tokens = Implementor::new(node.def(), TraitKind::FieldValue)
             .set_tokens(q)
             .to_token_stream();
 
@@ -71,7 +71,7 @@ impl Imp<List> for FieldValueTrait {
             }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::FieldValue)
+        let tokens = Implementor::new(node.def(), TraitKind::FieldValue)
             .set_tokens(q)
             .to_token_stream();
 
@@ -91,7 +91,7 @@ impl Imp<Newtype> for FieldValueTrait {
             }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::FieldValue)
+        let tokens = Implementor::new(node.def(), TraitKind::FieldValue)
             .set_tokens(q)
             .to_token_stream();
 
@@ -115,7 +115,7 @@ impl Imp<Set> for FieldValueTrait {
             }
         };
 
-        let tokens = Implementor::new(node.def(), Trait::FieldValue)
+        let tokens = Implementor::new(node.def(), TraitKind::FieldValue)
             .set_tokens(q)
             .to_token_stream();
 
