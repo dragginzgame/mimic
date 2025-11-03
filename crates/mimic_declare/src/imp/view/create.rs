@@ -4,7 +4,7 @@ use crate::prelude::*;
 /// CreateViewTrait
 ///
 /// Generates the conversion logic from a `Create` view into an entity.
-/// Unlike `EditView`, this assumes all fields are present and constructs
+/// Unlike `UpdateView`, this assumes all fields are present and constructs
 /// a new instance directly (no merging of optional fields).
 ///
 

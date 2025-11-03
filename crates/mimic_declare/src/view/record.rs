@@ -55,7 +55,7 @@ impl View for RecordEdit<'_> {
 impl ViewType for RecordEdit<'_> {
     fn view_part(&self) -> TokenStream {
         let node = self.node();
-        let ident = node.edit_ident();
+        let ident = node.update_ident();
         let fields = node.fields.iter().map(|f| {
             let ident = &f.ident;
             let ty = ValueView(&f.value).view_expr();

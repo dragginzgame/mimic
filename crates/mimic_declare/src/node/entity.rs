@@ -92,7 +92,7 @@ impl HasTraits for Entity {
         traits.extend(vec![
             Trait::Inherent,
             Trait::CreateView,
-            Trait::EditView,
+            Trait::UpdateView,
             Trait::EntityKind,
             Trait::FieldValues,
             Trait::FilterView,
@@ -109,7 +109,7 @@ impl HasTraits for Entity {
 
             Trait::CreateView => CreateViewTrait::strategy(self),
             Trait::Default => DefaultTrait::strategy(self),
-            Trait::EditView => EditViewTrait::strategy(self),
+            Trait::UpdateView => UpdateViewTrait::strategy(self),
             Trait::EntityKind => EntityKindTrait::strategy(self),
             Trait::FieldValues => FieldValuesTrait::strategy(self),
             Trait::FilterView => FilterViewTrait::strategy(self),

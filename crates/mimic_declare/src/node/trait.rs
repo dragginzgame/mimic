@@ -63,7 +63,7 @@ pub enum Trait {
 
     // orm
     CreateView,
-    EditView,
+    UpdateView,
     FieldValue,
     FieldValues,
     From,

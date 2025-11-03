@@ -41,7 +41,7 @@ pub trait HasViews: HasType {
         format_ident!("{}Create", self.def().ident())
     }
 
-    fn edit_ident(&self) -> Ident {
+    fn update_ident(&self) -> Ident {
         format_ident!("{}Edit", self.def().ident())
     }
 

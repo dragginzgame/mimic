@@ -97,7 +97,7 @@ impl View for EntityEdit<'_> {
 impl ViewType for EntityEdit<'_> {
     fn view_part(&self) -> TokenStream {
         let node = self.node();
-        let ident = node.edit_ident();
+        let ident = node.update_ident();
         let fields = node.iter_editable_fields().map(|f| {
             let ident = &f.ident;
             let ty = ValueView(&f.value).view_expr();

@@ -53,7 +53,7 @@ impl HasSchemaPart for Record {
 impl HasTraits for Record {
     fn traits(&self) -> TraitList {
         let mut traits = self.traits.clone().with_type_traits();
-        traits.extend(vec![Trait::EditView]);
+        traits.extend(vec![Trait::UpdateView]);
 
         traits.list()
     }
@@ -63,7 +63,7 @@ impl HasTraits for Record {
 
         match t {
             Trait::Default => DefaultTrait::strategy(self),
-            Trait::EditView => EditViewTrait::strategy(self),
+            Trait::UpdateView => UpdateViewTrait::strategy(self),
             Trait::SanitizeAuto => SanitizeAutoTrait::strategy(self),
             Trait::ValidateAuto => ValidateAutoTrait::strategy(self),
             Trait::View => ViewTrait::strategy(self),

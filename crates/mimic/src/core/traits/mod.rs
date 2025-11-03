@@ -206,14 +206,14 @@ pub trait CreateView {
 }
 
 ///
-/// EditView
+/// UpdateView
 ///
 
-pub trait EditView {
-    type EditType: Default;
+pub trait UpdateView {
+    type UpdateType: Default;
 
     /// Merge `view` into `self`, skipping `None` fields.
-    fn merge(&mut self, view: Self::EditType);
+    fn merge(&mut self, view: Self::UpdateType);
 }
 
 ///
