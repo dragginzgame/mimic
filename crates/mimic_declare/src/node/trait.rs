@@ -57,7 +57,6 @@ pub enum Trait {
     // traits for the implementation of specific Schema Nodes
     CanisterKind,
     EntityKind,
-    EntityIdKind,
     IndexKind,
     PrimitiveKind,
     StoreKind,
@@ -70,7 +69,6 @@ pub enum Trait {
     From,
     FilterView,
     Inner,
-    Into,
     NumCast,
     NumFromPrimitive,
     NumToPrimitive,
@@ -206,11 +204,6 @@ pub struct Traits {
 }
 
 impl Traits {
-    // new
-    pub fn new() -> Self {
-        Self::default()
-    }
-
     // with_path_trait
     pub fn with_path_trait(mut self) -> Self {
         self.add(Trait::Path);

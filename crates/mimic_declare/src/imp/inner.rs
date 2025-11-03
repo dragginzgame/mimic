@@ -7,7 +7,7 @@ use crate::prelude::*;
 pub struct InnerTrait {}
 
 ///
-/// EntityId
+/// Newtype
 ///
 
 impl Imp<Newtype> for InnerTrait {

@@ -56,7 +56,6 @@ pub enum SchemaNodeKind {
     Newtype,
     Record,
     Sanitizer,
-    Selector,
     Set,
     Store,
     Tuple,

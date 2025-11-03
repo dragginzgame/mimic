@@ -35,13 +35,6 @@ pub struct Map {}
 pub struct Set {}
 
 ///
-/// EntityIdTest
-///
-
-#[entity_id(key = "Test")]
-pub struct EntityIdTest {}
-
-///
 /// EnumSorted
 ///
 
@@ -78,35 +71,6 @@ pub struct EnumUnspecified {}
     ty(validator(path = "validator::num::Range", args(-1, 3)))
 )]
 pub struct Negative {}
-
-///
-/// Selector
-///
-
-#[selector(
-    target = "SelectorNewtype",
-    variant(name = "50 cm", value = 0.5),
-    variant(name = "1m", value = 1.0),
-    variant(name = "10m", value = 10.0)
-)]
-pub struct Selector {}
-
-///
-/// SelectorRecord
-///
-
-#[record(fields(field(
-    ident = "interval",
-    value(item(is = "SelectorNewtype", selector = "Selector"))
-)))]
-pub struct SelectorRecord {}
-
-///
-/// SelectorNewtype
-///
-
-#[newtype(item(prim = "Decimal"), primitive = "Decimal")]
-pub struct SelectorNewtype {}
 
 ///
 /// NewtypeValidated

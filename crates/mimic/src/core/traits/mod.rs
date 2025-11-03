@@ -28,7 +28,6 @@ use crate::{
     core::{Key, Value},
     db::query::FilterExpr,
     schema::node::Index,
-    types::Ulid,
 };
 
 /// ------------------------
@@ -66,33 +65,6 @@ pub trait EntityKind: Kind + TypeKind + FieldValues {
 
     fn key(&self) -> Key;
     fn primary_key(&self) -> Self::PrimaryKey;
-}
-
-///
-/// EntityIdKind
-///
-
-pub trait EntityIdKind: Kind + std::fmt::Debug {
-    #[must_use]
-    fn ulid(&self) -> Ulid {
-        let digest = format!("{}-{:?}", Self::PATH, self);
-
-        Ulid::from_string_digest(&digest)
-    }
-
-    // key
-    #[must_use]
-    fn key(&self) -> Key {
-        self.ulid().into()
-    }
-}
-
-///
-/// EnumValueKind
-///
-
-pub trait EnumValueKind: Kind {
-    fn value(&self) -> i32;
 }
 
 ///

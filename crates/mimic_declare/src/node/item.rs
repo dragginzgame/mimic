@@ -15,9 +15,6 @@ pub struct Item {
     #[darling(default, rename = "rel")]
     pub relation: Option<Path>,
 
-    #[darling(default)]
-    pub selector: Option<Path>,
-
     #[darling(multiple, rename = "sanitizer")]
     pub sanitizers: Vec<TypeSanitizer>,
 
@@ -75,7 +72,6 @@ impl HasSchemaPart for Item {
     fn schema_part(&self) -> TokenStream {
         let target = self.target().schema_part();
         let relation = quote_option(self.relation.as_ref(), to_path);
-        let selector = quote_option(self.selector.as_ref(), to_path);
         let validators = quote_slice(&self.validators, TypeValidator::schema_part);
         let sanitizers = quote_slice(&self.sanitizers, TypeSanitizer::schema_part);
         let indirect = self.indirect;
@@ -84,7 +80,6 @@ impl HasSchemaPart for Item {
             ::mimic::schema::node::Item{
                 target: #target,
                 relation: #relation,
-                selector: #selector,
                 validators: #validators,
                 sanitizers: #sanitizers,
                 indirect: #indirect,

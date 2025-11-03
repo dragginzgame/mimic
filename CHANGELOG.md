@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - merged Create and Update to EditView
 - removed EnumValue as it should really just be an Enum
 - we arent deriving Default for enums as the serde code can get messy for multiple view types
+- Selector and EntityId removed too, we're down to the basic ORM types
 
 ## [0.25] - 2025-10-22
 - new View type - Create<Entity> which takes off the primary key and provides handy from() functionality

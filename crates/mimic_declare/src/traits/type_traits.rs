@@ -101,7 +101,6 @@ pub trait HasTraits: HasType + ToTokens {
             // Marker traits — empty impls
             // ─────────────────────────────
             Trait::CanisterKind
-            | Trait::EntityIdKind
             | Trait::FieldValue
             | Trait::SanitizeAuto
             | Trait::SanitizeCustom

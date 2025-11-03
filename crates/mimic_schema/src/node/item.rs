@@ -12,9 +12,6 @@ pub struct Item {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub relation: Option<&'static str>,
 
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub selector: Option<&'static str>,
-
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub validators: &'static [TypeValidator],
 
@@ -75,13 +72,6 @@ impl ValidateNode for Item {
                     err!(errs, "relation entity '{relation}' not found");
                 }
             }
-        }
-
-        // selector
-        if let Some(selector) = &self.selector
-            && schema.cast_node::<Selector>(selector).is_err()
-        {
-            err!(errs, "selector path '{selector}' not found");
         }
 
         errs.result()

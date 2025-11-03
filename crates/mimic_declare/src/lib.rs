@@ -91,14 +91,12 @@ macro_rules! macro_node {
 
 macro_node!(canister, node::Canister);
 macro_node!(entity, node::Entity);
-macro_node!(entity_id, node::EntityId);
 macro_node!(enum_, node::Enum);
 macro_node!(list, node::List);
 macro_node!(map, node::Map);
 macro_node!(newtype, node::Newtype);
 macro_node!(record, node::Record);
 macro_node!(sanitizer, node::Sanitizer);
-macro_node!(selector, node::Selector);
 macro_node!(set, node::Set);
 macro_node!(store, node::Store);
 macro_node!(tuple, node::Tuple);
