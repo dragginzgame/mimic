@@ -63,9 +63,10 @@ pub mod prelude {
         core::{
             Key, Value,
             traits::{
-                EditView as _, EntityKind as _, FilterView as _, Inner as _, Path as _, View as _,
+                CreateView as _, EditView as _, EntityKind as _, FilterView as _, Inner as _,
+                Path as _, View as _,
             },
-            view::{Edit, Filter, View},
+            view::{Create, Edit, Filter, View},
         },
         db,
         db::{
