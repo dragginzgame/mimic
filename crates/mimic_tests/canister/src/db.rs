@@ -23,6 +23,7 @@ impl DbSuite {
             ("limit_query", Self::limit_query),
             ("load_one", Self::load_one),
             ("load_many", Self::load_many),
+            ("unit_primary_key", Self::unit_primary_key),
             ("perf_options", Self::perf_options),
             ("perf_many_relations", Self::perf_many_relations),
         ];
@@ -384,6 +385,33 @@ impl DbSuite {
         for key in loaded.keys() {
             assert!(many_keys.contains(&key));
         }
+    }
+
+    fn unit_primary_key() {
+        use mimic::core::Key;
+        use mimic::types::Unit;
+        use test_design::test::entity::UnitKey;
+
+        let inserted = db!().insert(UnitKey::default()).unwrap();
+        assert_eq!(inserted.primary_key(), Unit, "insert should retain unit PK");
+
+        let response = db!().load::<UnitKey>().one(()).unwrap();
+        let key = response.key().expect("expected key for unit entity");
+        assert_eq!(key, Key::Unit(Unit), "unit PK should map to Key::Unit");
+
+        let fetched = response.try_entity().expect("entity should be present");
+        assert_eq!(
+            fetched.primary_key(),
+            Unit,
+            "loaded entity should have unit PK"
+        );
+        assert_eq!(
+            fetched.a, inserted.a,
+            "loaded payload should match the saved record"
+        );
+
+        let count = db!().load::<UnitKey>().count_all().unwrap();
+        assert_eq!(count, 1, "unit entity should be counted exactly once");
     }
 
     fn perf_options() {

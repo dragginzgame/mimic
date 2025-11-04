@@ -24,7 +24,8 @@ impl View for RecordView<'_> {
 impl ViewType for RecordView<'_> {
     fn generate(&self) -> TokenStream {
         let node = self.node();
-        let ident = node.view_ident();
+        let node_ident = node.def().ident();
+        let view_ident = node.view_ident();
         let fields = node.fields.iter().map(|f| {
             let ident = &f.ident;
             let ty = ValueView(&f.value).view_expr();
@@ -32,14 +33,19 @@ impl ViewType for RecordView<'_> {
             quote!(pub #ident: #ty)
         });
 
-        // add in default manually
-        let mut derives = self.traits();
-        derives.add(TraitKind::Default);
+        // all traits derived
+        let derives = self.traits();
 
         quote! {
             #derives
-            pub struct #ident {
+            pub struct #view_ident {
                 #(#fields),*
+            }
+
+            impl Default for #view_ident {
+                fn default() -> Self {
+                    #node_ident::default().to_view()
+                }
             }
         }
     }
@@ -68,7 +74,7 @@ impl View for RecordUpdate<'_> {
 impl ViewType for RecordUpdate<'_> {
     fn generate(&self) -> TokenStream {
         let node = self.node();
-        let ident = node.update_ident();
+        let update_ident = node.update_ident();
         let fields = node.fields.iter().map(|f| {
             let ident = &f.ident;
             let ty = ValueView(&f.value).view_expr();
@@ -82,7 +88,7 @@ impl ViewType for RecordUpdate<'_> {
 
         quote! {
             #derives
-            pub struct #ident {
+            pub struct #update_ident {
                 #(#fields),*
             }
         }

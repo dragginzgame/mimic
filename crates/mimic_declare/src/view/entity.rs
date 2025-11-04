@@ -24,6 +24,7 @@ impl View for EntityView<'_> {
 impl ViewType for EntityView<'_> {
     fn generate(&self) -> TokenStream {
         let node = self.node();
+        let node_ident = node.def().ident();
         let view_ident = node.view_ident();
         let fields = node.fields.iter().map(|f| {
             let fi = &f.ident;
@@ -32,14 +33,19 @@ impl ViewType for EntityView<'_> {
             quote!(pub #fi: #ty)
         });
 
-        // add in default manually
-        let mut derives = self.traits();
-        derives.add(TraitKind::Default);
+        // all traits are derived for now
+        let derives = self.traits();
 
         quote! {
             #derives
             pub struct #view_ident {
                 #(#fields),*
+            }
+
+            impl Default for #view_ident {
+                fn default() -> Self {
+                    #node_ident::default().to_view()
+                }
             }
         }
     }
@@ -68,6 +74,7 @@ impl View for EntityCreate<'_> {
 impl ViewType for EntityCreate<'_> {
     fn generate(&self) -> TokenStream {
         let node = self.node();
+        let node_ident = node.def().ident();
         let create_ident = node.create_ident();
         let fields = node.iter_editable_fields().map(|f| {
             let ident = &f.ident;
@@ -76,14 +83,28 @@ impl ViewType for EntityCreate<'_> {
             quote!(pub #ident: #ty)
         });
 
-        // add in default manually
-        let mut derives = self.traits();
-        derives.add(TraitKind::Default);
+        let defaults = node.iter_editable_fields().map(|f| {
+            let ident = &f.ident;
+
+            quote!(#ident: ::mimic::core::traits::View::to_view(&entity.#ident))
+        });
+
+        let derives = self.traits();
 
         quote! {
             #derives
             pub struct #create_ident {
                 #(#fields),*
+            }
+
+            impl Default for #create_ident {
+                fn default() -> Self {
+                    let entity = #node_ident::default();
+
+                    Self {
+                        #(#defaults),*
+                    }
+                }
             }
         }
     }

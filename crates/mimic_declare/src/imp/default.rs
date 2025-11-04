@@ -90,15 +90,14 @@ fn default_strategy(def: &Def, fields: &FieldList) -> TraitStrategy {
 
 impl Imp<Newtype> for DefaultTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
-        let inner = match &node.default {
-            Some(arg) => quote!(#arg.into()),
-            None => panic!("newtype {} is missing a default value", node.def.ident()),
+        // If no default we just want to derive
+        let Some(default_expr) = &node.default else {
+            return Some(TraitStrategy::from_derive(TraitKind::Default));
         };
 
-        // quote
         let q = quote! {
             fn default() -> Self {
-                Self(#inner)
+                Self(#default_expr.into())
             }
         };
 

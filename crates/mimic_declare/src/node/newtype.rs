@@ -123,6 +123,7 @@ impl HasTraits for Newtype {
             TraitKind::PartialEq => PartialEqTrait::strategy(self).map(|s| s.with_derive(t)),
             TraitKind::PartialOrd => PartialOrdTrait::strategy(self).map(|s| s.with_derive(t)),
 
+            TraitKind::Default => DefaultTrait::strategy(self),
             TraitKind::FieldValue => FieldValueTrait::strategy(self),
             TraitKind::From => FromTrait::strategy(self),
             TraitKind::Inner => InnerTrait::strategy(self),

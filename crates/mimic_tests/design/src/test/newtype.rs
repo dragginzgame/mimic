@@ -21,6 +21,13 @@ pub struct Account {}
 pub struct Bool {}
 
 ///
+/// BoolDefault
+///
+
+#[newtype(primitive = "Bool", item(prim = "Bool"), default = true)]
+pub struct BoolDefault {}
+
+///
 /// Date
 ///
 
