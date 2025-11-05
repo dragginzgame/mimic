@@ -61,17 +61,12 @@ impl Ulid {
     }
 
     /// from_seed
-    /// Deterministic ULID from a 32-bit integer seed.
-    /// Expands the 4-byte seed into a 16-byte ULID for quick fixture generation.
     #[must_use]
-    pub const fn from_seed(seed: i32) -> Self {
-        let b = seed.to_be_bytes();
-        let arr = [
-            b[0], b[1], b[2], b[3], b[3], b[2], b[1], b[0], b[0], b[1], b[2], b[3], 0xAA, 0x55,
-            0xAA, 0x55,
-        ];
+    pub fn from_seed(seed: i32) -> Self {
+        let u = u128::try_from(seed).unwrap_or(0);
+        let bytes = u.to_be_bytes();
 
-        Self(WrappedUlid::from_bytes(arr))
+        Self(WrappedUlid::from_bytes(bytes))
     }
 
     /// generate
