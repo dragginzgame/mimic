@@ -59,6 +59,12 @@ impl FieldValue for Float64 {
     }
 }
 
+impl From<i32> for Float64 {
+    fn from(n: i32) -> Self {
+        Self(f64::from(n))
+    }
+}
+
 impl Inner<Self> for Float64 {
     fn inner(&self) -> &Self {
         self

@@ -57,6 +57,12 @@ impl FieldValue for Nat {
     }
 }
 
+impl From<i32> for Nat {
+    fn from(n: i32) -> Self {
+        Self(WrappedNat::from(u32::try_from(n).unwrap_or(0)))
+    }
+}
+
 impl From<WrappedNat> for Nat {
     fn from(n: WrappedNat) -> Self {
         Self(n)

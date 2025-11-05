@@ -6,65 +6,30 @@ pub(crate) mod prelude {
 }
 pub use prelude::*;
 
-///
-/// Account
-///
+/// --------------------
+/// Primitive Newtypes
+/// --------------------
 
 #[newtype(primitive = "Account", item(prim = "Account"))]
 pub struct Account {}
 
-///
-/// Bool
-///
-
 #[newtype(primitive = "Bool", item(prim = "Bool"))]
 pub struct Bool {}
-
-///
-/// BoolDefault
-///
-
-#[newtype(primitive = "Bool", item(prim = "Bool"), default = true)]
-pub struct BoolDefault {}
-
-///
-/// Date
-///
 
 #[newtype(primitive = "Date", item(prim = "Date"))]
 pub struct Date {}
 
-///
-/// Decimal
-///
-
 #[newtype(item(prim = "Decimal"), primitive = "Decimal")]
 pub struct Decimal {}
-
-///
-/// Duration
-///
 
 #[newtype(item(prim = "Duration"), primitive = "Duration")]
 pub struct Duration {}
 
-///
-/// E8s
-///
-
 #[newtype(primitive = "E8s", item(prim = "E8s"))]
 pub struct E8s {}
 
-///
-/// E18s
-///
-
 #[newtype(primitive = "E18s", item(prim = "E18s"))]
 pub struct E18s {}
-
-///
-/// Float32
-///
 
 #[newtype(primitive = "Float32", item(prim = "Float32"))]
 pub struct Float32 {}
@@ -75,37 +40,17 @@ pub struct Float32W {}
 #[newtype(primitive = "Float32", item(is = "Float32W"))]
 pub struct Float32WW {}
 
-///
-/// Float64
-///
-
 #[newtype(primitive = "Float64", item(prim = "Float64"))]
 pub struct Float64 {}
-
-///
-/// Int
-///
 
 #[newtype(primitive = "Int", item(prim = "Int"))]
 pub struct Int {}
 
-///
-/// Int128
-///
-
 #[newtype(primitive = "Int128", item(prim = "Int128"))]
 pub struct Int128 {}
 
-///
-/// Nat
-///
-
 #[newtype(primitive = "Nat", item(prim = "Nat"))]
 pub struct Nat {}
-
-///
-/// Nat32
-///
 
 #[newtype(primitive = "Nat32", item(prim = "Nat32"))]
 pub struct Nat32 {}
@@ -116,61 +61,112 @@ pub struct Nat32W {}
 #[newtype(primitive = "Nat32", item(is = "Nat32W"))]
 pub struct Nat32WW {}
 
-///
-/// Nat64
-///
-
 #[newtype(primitive = "Nat64", item(prim = "Nat64"))]
 pub struct Nat64 {}
-
-///
-/// Nat128
-///
 
 #[newtype(primitive = "Nat128", item(prim = "Nat128"))]
 pub struct Nat128 {}
 
-///
-/// Principal
-///
-
 #[newtype(primitive = "Principal", item(prim = "Principal"))]
 pub struct Principal {}
-
-///
-/// Subaccount
-///
 
 #[newtype(primitive = "Subaccount", item(prim = "Subaccount"))]
 pub struct Subaccount {}
 
-///
-/// Text
-///
-
 #[newtype(primitive = "Text", item(prim = "Text"))]
 pub struct Text {}
-
-///
-/// Timestamp
-///
 
 #[newtype(primitive = "Timestamp", item(prim = "Timestamp"))]
 pub struct Timestamp {}
 
-///
-/// Ulid
-///
-
 #[newtype(primitive = "Ulid", item(prim = "Ulid"))]
 pub struct Ulid {}
 
-///
-/// Unit
-///
-
 #[newtype(primitive = "Unit", item(prim = "Unit"))]
 pub struct Unit {}
+
+/// --------------------
+/// Defaulted Newtypes
+/// --------------------
+///
+/// These all have a default value suitable for quick initialization.
+/// Each mirrors its non-default counterpart above.
+
+//#[newtype(primitive = "Account", item(prim = "Account"))]
+//pub struct AccountDefault {}
+
+#[newtype(primitive = "Bool", item(prim = "Bool"), default = true)]
+pub struct BoolDefault {}
+
+#[newtype(
+    primitive = "Date",
+    item(prim = "Date"),
+    default = "mimic::types::Date::EPOCH"
+)]
+pub struct DateDefault {}
+
+#[newtype(primitive = "Decimal", item(prim = "Decimal"), default = 0.0)]
+pub struct DecimalDefault {}
+
+#[newtype(primitive = "Duration", item(prim = "Duration"), default = 0)]
+pub struct DurationDefault {}
+
+#[newtype(primitive = "E8s", item(prim = "E8s"), default = 0)]
+pub struct E8sDefault {}
+
+#[newtype(primitive = "E18s", item(prim = "E18s"), default = 0)]
+pub struct E18sDefault {}
+
+#[newtype(primitive = "Float32", item(prim = "Float32"), default = 0)]
+pub struct Float32Default {}
+
+#[newtype(primitive = "Float64", item(prim = "Float64"), default = 0)]
+pub struct Float64Default {}
+
+#[newtype(primitive = "Int", item(prim = "Int"), default = 0)]
+pub struct IntDefault {}
+
+#[newtype(primitive = "Int128", item(prim = "Int128"), default = 0)]
+pub struct Int128Default {}
+
+#[newtype(primitive = "Nat", item(prim = "Nat"), default = 0)]
+pub struct NatDefault {}
+
+#[newtype(primitive = "Nat32", item(prim = "Nat32"), default = 0u32)]
+pub struct Nat32Default {}
+
+#[newtype(primitive = "Nat64", item(prim = "Nat64"), default = 0u64)]
+pub struct Nat64Default {}
+
+#[newtype(primitive = "Nat128", item(prim = "Nat128"), default = 0u128)]
+pub struct Nat128Default {}
+
+#[newtype(
+    primitive = "Principal",
+    item(prim = "Principal"),
+    default = "mimic::types::Principal::anonymous"
+)]
+pub struct PrincipalDefault {}
+
+#[newtype(primitive = "Subaccount", item(prim = "Subaccount"))]
+pub struct SubaccountDefault {}
+
+#[newtype(primitive = "Text", item(prim = "Text"), default = "\"\"")]
+pub struct TextDefault {}
+
+#[newtype(
+    primitive = "Timestamp",
+    item(prim = "Timestamp"),
+    default = "mimic::types::Timestamp::EPOCH"
+)]
+pub struct TimestampDefault {}
+
+#[newtype(
+    primitive = "Ulid",
+    item(prim = "Ulid"),
+    default = "mimic::types::Ulid::generate"
+)]
+pub struct UlidDefault {}
 
 ///
 /// TESTS

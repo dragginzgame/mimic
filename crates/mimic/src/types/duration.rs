@@ -124,9 +124,15 @@ impl FieldValue for Duration {
     }
 }
 
+impl From<i32> for Duration {
+    fn from(n: i32) -> Self {
+        Self(u64::try_from(n).unwrap_or(0))
+    }
+}
+
 impl From<u64> for Duration {
-    fn from(u: u64) -> Self {
-        Self(u)
+    fn from(n: u64) -> Self {
+        Self(n)
     }
 }
 

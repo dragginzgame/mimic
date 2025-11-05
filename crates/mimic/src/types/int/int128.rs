@@ -1,8 +1,8 @@
 use crate::core::{
     Value,
     traits::{
-        FieldValue, Inner, NumCast, NumToPrimitive, SanitizeAuto, SanitizeCustom, ValidateAuto,
-        ValidateCustom, View, Visitable,
+        FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
+        ValidateAuto, ValidateCustom, View, Visitable,
     },
 };
 use candid::CandidType;
@@ -50,6 +50,13 @@ impl FieldValue for Int128 {
     }
 }
 
+#[allow(clippy::cast_lossless)]
+impl From<i32> for Int128 {
+    fn from(n: i32) -> Self {
+        Self(n as i128)
+    }
+}
+
 impl From<i128> for Int128 {
     fn from(i: i128) -> Self {
         Self(i)
@@ -69,6 +76,17 @@ impl Inner<Self> for Int128 {
 impl NumCast for Int128 {
     fn from<T: NumToPrimitive>(i: T) -> Option<Self> {
         i.to_i128().map(Self)
+    }
+}
+
+#[allow(clippy::cast_lossless)]
+impl NumFromPrimitive for Int128 {
+    fn from_i64(n: i64) -> Option<Self> {
+        Some(Self(n as i128))
+    }
+
+    fn from_u64(n: u64) -> Option<Self> {
+        Some(Self(n as i128))
     }
 }
 

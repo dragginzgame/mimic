@@ -66,6 +66,13 @@ impl FieldValue for Float32 {
     }
 }
 
+#[allow(clippy::cast_precision_loss)]
+impl From<i32> for Float32 {
+    fn from(n: i32) -> Self {
+        Self(n as f32)
+    }
+}
+
 impl Inner<Self> for Float32 {
     fn inner(&self) -> &Self {
         self

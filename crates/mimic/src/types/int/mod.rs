@@ -58,6 +58,12 @@ impl FieldValue for Int {
     }
 }
 
+impl From<i32> for Int {
+    fn from(n: i32) -> Self {
+        Self(WrappedInt::from(n))
+    }
+}
+
 impl From<WrappedInt> for Int {
     fn from(i: WrappedInt) -> Self {
         Self(i)

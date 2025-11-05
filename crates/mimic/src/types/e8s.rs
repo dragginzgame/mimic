@@ -139,6 +139,12 @@ impl From<E8s> for Decimal {
     }
 }
 
+impl From<i32> for E8s {
+    fn from(n: i32) -> Self {
+        Self(u64::try_from(n).unwrap_or(0))
+    }
+}
+
 impl From<u64> for E8s {
     fn from(n: u64) -> Self {
         Self(n)

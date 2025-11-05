@@ -123,6 +123,12 @@ impl FieldValue for E18s {
     }
 }
 
+impl From<i32> for E18s {
+    fn from(n: i32) -> Self {
+        Self(u128::try_from(n).unwrap_or(0))
+    }
+}
+
 impl From<u128> for E18s {
     fn from(n: u128) -> Self {
         Self(n)

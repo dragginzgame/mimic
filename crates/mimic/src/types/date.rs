@@ -35,7 +35,7 @@ use std::fmt::{self, Display};
 pub struct Date(pub i32);
 
 impl Date {
-    pub const UNIX_EPOCH: Self = Self(0);
+    pub const EPOCH: Self = Self(0);
     pub const MIN: Self = Self(i32::MIN);
     pub const MAX: Self = Self(i32::MAX);
 
@@ -56,7 +56,7 @@ impl Date {
             Some(date) => {
                 Self((date - NaiveDate::from_ymd_opt(1970, 1, 1).unwrap()).num_days() as i32)
             }
-            None => Self::UNIX_EPOCH, // default to 1970-01-01
+            None => Self::EPOCH, // default to 1970-01-01
         }
     }
 
@@ -250,7 +250,7 @@ mod tests {
 
     #[test]
     fn epoch_is_1970_01_01() {
-        let epoch = Date::UNIX_EPOCH;
+        let epoch = Date::EPOCH;
         let naive = epoch.to_naive_date();
         assert_eq!(naive, NaiveDate::from_ymd_opt(1970, 1, 1).unwrap());
         assert_eq!(epoch.get(), 0);
