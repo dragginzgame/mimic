@@ -60,6 +60,20 @@ impl Ulid {
         Self(WrappedUlid::from_parts(timestamp_ms, random))
     }
 
+    /// from_seed
+    /// Deterministic ULID from a 32-bit integer seed.
+    /// Expands the 4-byte seed into a 16-byte ULID for quick fixture generation.
+    #[must_use]
+    pub const fn from_seed(seed: i32) -> Self {
+        let b = seed.to_be_bytes();
+        let arr = [
+            b[0], b[1], b[2], b[3], b[3], b[2], b[1], b[0], b[0], b[1], b[2], b[3], 0xAA, 0x55,
+            0xAA, 0x55,
+        ];
+
+        Self(WrappedUlid::from_bytes(arr))
+    }
+
     /// generate
     /// Generate a ULID with the current timestamp and a random value.
     /// Panics on generator overflow. Use `try_generate` to handle errors.

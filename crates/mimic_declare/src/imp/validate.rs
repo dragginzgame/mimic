@@ -1,8 +1,18 @@
 use crate::prelude::*;
 use quote::format_ident;
 
-///
+/// ---------------------------------------------------------------------------
 /// ValidateAuto
+/// ---------------------------------------------------------------------------
+///
+/// Generates auto-validation logic for schema nodes.
+/// Each node type (`Entity`, `Enum`, `List`, etc.) implements
+/// [`ValidateAutoFn`], which returns one or both token streams:
+/// - `self_tokens`: validation logic for the node itself
+/// - `child_tokens`: validation logic for its child values
+///
+/// The macro [`impl_validate_auto!`] wires these up into a concrete
+/// implementation of [`TraitKind::ValidateAuto`].
 ///
 
 pub struct ValidateAutoTrait;
@@ -17,13 +27,15 @@ pub trait ValidateAutoFn {
     }
 }
 
+/// Blanket impl macro – keeps local logic out of macro scope.
 macro_rules! impl_validate_auto {
-    ($ty:ty) => {
-        impl Imp<$ty> for ValidateAutoTrait {
+    ($($ty:ty),* $(,)?) => {
+        $(impl Imp<$ty> for ValidateAutoTrait {
             fn strategy(node: &$ty) -> Option<TraitStrategy> {
                 let self_tokens = ValidateAutoFn::self_tokens(node);
                 let child_tokens = ValidateAutoFn::child_tokens(node);
 
+                // Combine both token sets into a single impl body
                 let tokens = quote! {
                     #self_tokens
                     #child_tokens
@@ -35,34 +47,28 @@ macro_rules! impl_validate_auto {
 
                 Some(TraitStrategy::from_impl(tokens))
             }
-        }
+        })*
     };
 }
 
-impl_validate_auto!(Entity);
-impl_validate_auto!(Enum);
-impl_validate_auto!(List);
-impl_validate_auto!(Map);
-impl_validate_auto!(Newtype);
-impl_validate_auto!(Record);
-impl_validate_auto!(Set);
+impl_validate_auto!(Entity, Enum, List, Map, Newtype, Record, Set);
 
-///
+/// ---------------------------------------------------------------------------
 /// Entity
-///
+/// ---------------------------------------------------------------------------
 
 impl ValidateAutoFn for Entity {
     fn child_tokens(node: &Self) -> TokenStream {
-        fn_wrap(field_list(&node.fields))
+        wrap_validate_fn(field_list(&node.fields))
     }
 }
 
-///
+/// ---------------------------------------------------------------------------
 /// Enum
-/// any variants that have the invalid flag set should not
-/// pass validation if selected
+/// ---------------------------------------------------------------------------
 ///
-
+/// Any variants marked `unspecified` are invalid if selected.
+///
 impl ValidateAutoFn for Enum {
     fn self_tokens(node: &Self) -> TokenStream {
         let invalid_arms: TokenStream = node
@@ -82,7 +88,7 @@ impl ValidateAutoFn for Enum {
             quote!(Ok(()))
         } else {
             quote! {
-                match &self {
+                match self {
                     #invalid_arms
                     _ => Ok(()),
                 }
@@ -98,37 +104,30 @@ impl ValidateAutoFn for Enum {
     }
 }
 
-///
+/// ---------------------------------------------------------------------------
 /// List
-///
+/// ---------------------------------------------------------------------------
 
 impl ValidateAutoFn for List {
     fn child_tokens(node: &Self) -> TokenStream {
         let list_rules = generate_validators_inner(&node.ty.validators, quote!(&self.0));
         let item_rules = generate_validators_inner(&node.item.validators, quote!(v)).map(|block| {
-            let __item = format_ident!("__item");
+            let item = format_ident!("__item");
             quote! {
-                for #__item in &self.0 {
-                    let v = #__item;
+                for #item in &self.0 {
+                    let v = #item;
                     #block
                 }
             }
         });
 
-        match (list_rules, item_rules) {
-            (None, None) => fn_wrap(None),
-            (l, i) => {
-                let l = l.unwrap_or_default();
-                let i = i.unwrap_or_default();
-                fn_wrap(Some(quote! { #l #i }))
-            }
-        }
+        wrap_validate_fn(merge_rules(list_rules, item_rules))
     }
 }
 
-///
+/// ---------------------------------------------------------------------------
 /// Map
-///
+/// ---------------------------------------------------------------------------
 
 impl ValidateAutoFn for Map {
     fn child_tokens(node: &Self) -> TokenStream {
@@ -150,81 +149,71 @@ impl ValidateAutoFn for Map {
             }
         };
 
-        match (map_rules, entry_rules) {
-            (None, None) => fn_wrap(None),
-            (m, e) => {
-                let m = m.unwrap_or_default();
-                let e = e.unwrap_or_default();
-                fn_wrap(Some(quote! { #m #e }))
-            }
-        }
+        wrap_validate_fn(merge_rules(map_rules, entry_rules))
     }
 }
 
-///
+/// ---------------------------------------------------------------------------
 /// Newtype
-///
+/// ---------------------------------------------------------------------------
 
 impl ValidateAutoFn for Newtype {
     fn child_tokens(node: &Self) -> TokenStream {
         let type_rules = generate_validators_inner(&node.ty.validators, quote!(&self.0));
         let item_rules = generate_validators_inner(&node.item.validators, quote!(&self.0));
 
-        match (type_rules, item_rules) {
-            (None, None) => fn_wrap(None),
-            (t, i) => {
-                let t = t.unwrap_or_default();
-                let i = i.unwrap_or_default();
-                fn_wrap(Some(quote! { #t #i }))
-            }
-        }
+        wrap_validate_fn(merge_rules(type_rules, item_rules))
     }
 }
 
-///
+/// ---------------------------------------------------------------------------
 /// Record
-///
+/// ---------------------------------------------------------------------------
 
 impl ValidateAutoFn for Record {
     fn child_tokens(node: &Self) -> TokenStream {
-        fn_wrap(field_list(&node.fields))
+        wrap_validate_fn(field_list(&node.fields))
     }
 }
 
-///
+/// ---------------------------------------------------------------------------
 /// Set
-///
+/// ---------------------------------------------------------------------------
 
 impl ValidateAutoFn for Set {
     fn child_tokens(node: &Self) -> TokenStream {
         let set_rules = generate_validators_inner(&node.ty.validators, quote!(&self.0));
         let item_rules = generate_validators_inner(&node.item.validators, quote!(v)).map(|block| {
-            let __item = format_ident!("__item");
+            let item = format_ident!("__item");
             quote! {
-                for #__item in &self.0 {
-                    let v = #__item;
+                for #item in &self.0 {
+                    let v = #item;
                     #block
                 }
             }
         });
 
-        match (set_rules, item_rules) {
-            (None, None) => fn_wrap(None),
-            (s, i) => {
-                let s = s.unwrap_or_default();
-                let i = i.unwrap_or_default();
-                fn_wrap(Some(quote! { #s #i }))
-            }
-        }
+        wrap_validate_fn(merge_rules(set_rules, item_rules))
     }
 }
 
-///
-/// Helper Functions
-///
+/// ---------------------------------------------------------------------------
+/// Helper functions
+/// ---------------------------------------------------------------------------
 
+/// Merge two optional token blocks into one, preserving `None` as `None`.
+fn merge_rules(a: Option<TokenStream>, b: Option<TokenStream>) -> Option<TokenStream> {
+    match (a, b) {
+        (None, None) => None,
+        (x, None) => x,
+        (None, y) => y,
+        (Some(x), Some(y)) => Some(quote! { #x #y }),
+    }
+}
+
+/// Field-level validator list for Records / Entities
 fn field_list(fields: &FieldList) -> Option<TokenStream> {
-    let field_validations: Vec<TokenStream> = fields
+    let validations: Vec<_> = fields
         .iter()
         .filter_map(|field| {
             let field_ident = &field.ident;
@@ -237,31 +226,26 @@ fn field_list(fields: &FieldList) -> Option<TokenStream> {
         })
         .collect();
 
-    if field_validations.is_empty() {
+    if validations.is_empty() {
         None
     } else {
-        Some(quote! { #(#field_validations)* })
+        Some(quote! { #(#validations)* })
     }
 }
 
-///
-/// Generate validation rules from a list of validators
-///
+/// Generate validator expressions for a list of validators on a variable.
 fn generate_validators(validators: &[TypeValidator], var_expr: TokenStream) -> Vec<TokenStream> {
     validators
         .iter()
         .map(|validator| {
             let constructor = validator.quote_constructor();
-            quote! {
-                errs.add_result(#constructor.validate(#var_expr));
-            }
+            quote!(errs.add_result(#constructor.validate(#var_expr));)
         })
         .collect()
 }
 
-///
-/// Generate full validation logic from a list of validators
-///
+/// Combine multiple validator expressions into one block.
+/// This no longer emits `let v = &self.0;`, removing the dead code.
 fn generate_validators_inner(
     validators: &[TypeValidator],
     var_expr: TokenStream,
@@ -269,18 +253,27 @@ fn generate_validators_inner(
     if validators.is_empty() {
         return None;
     }
-
-    let validator_exprs = generate_validators(validators, var_expr.clone());
-
-    Some(quote! {
-        let v = #var_expr;
-        #(#validator_exprs;)*
-    })
+    let exprs = generate_validators(validators, var_expr);
+    Some(quote!(#(#exprs)*))
 }
 
-///
-/// Shared cardinality wrapper
-///
+/// Wraps validation code in a standard `fn validate_children()`
+/// method body if `inner` is present.
+fn wrap_validate_fn(inner: Option<TokenStream>) -> TokenStream {
+    match inner {
+        None => quote!(),
+        Some(inner) => quote! {
+            #[doc = "Auto-generated recursive validation method."]
+            fn validate_children(&self) -> ::std::result::Result<(), ::mimic::common::error::ErrorTree> {
+                let mut errs = ::mimic::common::error::ErrorTree::new();
+                #inner
+                errs.result()
+            }
+        },
+    }
+}
+
+/// Applies cardinality (One/Opt/Many) to a set of rule expressions.
 fn cardinality_wrapper(
     card: Cardinality,
     rules: Vec<TokenStream>,
@@ -289,83 +282,54 @@ fn cardinality_wrapper(
     if rules.is_empty() {
         return None;
     }
-
-    let block = quote! { #(#rules;)* };
-
+    let body = quote! { #(#rules;)* };
     let tokens = match card {
         Cardinality::One => quote! {
             let v = #var_expr;
-            #block
+            #body
         },
         Cardinality::Opt => quote! {
             if let Some(v) = #var_expr {
-                #block
+                #body
             }
         },
         Cardinality::Many => {
-            let __item = format_ident!("__item");
+            let item = format_ident!("__item");
             quote! {
-                for #__item in #var_expr {
-                    let v = #__item;
-                    #block
+                for #item in #var_expr {
+                    let v = #item;
+                    #body
                 }
             }
         }
     };
-
     Some(tokens)
 }
 
-///
-/// Generate full validation logic for a Value (Item + Cardinality)
-///
+/// Generates validation logic for a `Value` including its cardinality.
 fn generate_value_validation_inner(value: &Value, var_expr: TokenStream) -> Option<TokenStream> {
     let rules = generate_validators(&value.item.validators, quote!(v));
     cardinality_wrapper(value.cardinality(), rules, var_expr)
 }
 
-///
-/// Generate validation logic for a specific record field so error entries carry the field key.
-///
+/// Field-level value validation, adds errors under field key.
 fn generate_field_value_validation_inner(
     value: &Value,
     var_expr: TokenStream,
     field_key: &TokenStream,
 ) -> Option<TokenStream> {
-    let rules = generate_field_validators(&value.item.validators, quote!(v), field_key);
-    cardinality_wrapper(value.cardinality(), rules, var_expr)
-}
-
-fn generate_field_validators(
-    validators: &[TypeValidator],
-    var_expr: TokenStream,
-    field_key: &TokenStream,
-) -> Vec<TokenStream> {
-    validators
+    let rules = value
+        .item
+        .validators
         .iter()
         .map(|validator| {
-            let constructor = validator.quote_constructor();
+            let ctor = validator.quote_constructor();
             quote! {
-                if let Err(err) = #constructor.validate(#var_expr) {
+                if let Err(err) = #ctor.validate(v) {
                     errs.add_for(#field_key, err);
                 }
             }
         })
-        .collect()
-}
-
-// fn_wrap
-fn fn_wrap(inner: Option<TokenStream>) -> TokenStream {
-    if let Some(inner) = inner {
-        quote! {
-            #[doc = "Auto-generated recursive validation method."]
-            fn validate_children(&self) -> ::std::result::Result<(), ::mimic::common::error::ErrorTree> {
-                let mut errs = ::mimic::common::error::ErrorTree::new();
-                #inner
-                errs.result()
-            }
-        }
-    } else {
-        quote!()
-    }
+        .collect();
+    cardinality_wrapper(value.cardinality(), rules, var_expr)
 }

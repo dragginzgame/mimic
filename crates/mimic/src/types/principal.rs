@@ -66,6 +66,22 @@ impl Principal {
         Self(WrappedPrincipal::from_slice(slice))
     }
 
+    /// from_seed
+    #[must_use]
+    pub fn from_seed(seed: i32) -> Self {
+        let bytes = seed.to_be_bytes();
+
+        // Repeat the 4-byte pattern 4 times to make 16 bytes.
+        let arr = [
+            bytes[0], bytes[1], bytes[2], bytes[3], bytes[0], bytes[1], bytes[2], bytes[3],
+            bytes[0], bytes[1], bytes[2], bytes[3], bytes[0], bytes[1], bytes[2], bytes[3],
+        ];
+
+        // Since from_bytes expects a Cow<[u8]>, wrap our array
+        // This can't be `const` anymore because Cow::Borrowed() isn’t const-stable yet.
+        Self(WrappedPrincipal::from_bytes(Cow::Borrowed(&arr)))
+    }
+
     #[must_use]
     pub const fn anonymous() -> Self {
         Self(WrappedPrincipal::anonymous())
