@@ -120,6 +120,12 @@ impl FieldValue for Account {
     }
 }
 
+impl From<Account> for IcrcAccount {
+    fn from(acc: Account) -> Self {
+        acc.to_icrc_type()
+    }
+}
+
 impl From<IcrcAccount> for Account {
     fn from(acc: IcrcAccount) -> Self {
         Self {
