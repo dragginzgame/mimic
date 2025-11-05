@@ -48,25 +48,22 @@ impl Ulid {
     pub const MIN: Self = Self::from_bytes([0x00; 16]);
     pub const MAX: Self = Self::from_bytes([0xFF; 16]);
 
-    /// nil
     #[must_use]
     pub const fn nil() -> Self {
         Self(WrappedUlid::nil())
     }
 
-    /// from_parts
     #[must_use]
     pub const fn from_parts(timestamp_ms: u64, random: u128) -> Self {
         Self(WrappedUlid::from_parts(timestamp_ms, random))
     }
 
-    /// from_seed
     #[must_use]
-    pub fn from_seed(seed: i32) -> Self {
-        let u = u128::try_from(seed).unwrap_or(0);
-        let bytes = u.to_be_bytes();
+    pub fn from_seed(seed: u32) -> Self {
+        let mut buf = [0u8; 16];
+        buf[..4].copy_from_slice(&seed.to_be_bytes());
 
-        Self(WrappedUlid::from_bytes(bytes))
+        Self(WrappedUlid::from_bytes(buf))
     }
 
     /// generate

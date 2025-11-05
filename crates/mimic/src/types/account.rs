@@ -49,31 +49,9 @@ impl Account {
         }
     }
 
-    /// from_seed
-    /// Deterministic pseudo-account generator for tests and fixtures.
-    ///
-    /// Produces a stable `(Principal, Option<Subaccount>)` pair derived from `seed`.
     #[must_use]
-    pub fn from_seed(seed: i32) -> Self {
-        // 1. Make a pseudo-principal from the seed
-        let principal = Principal::from_seed(seed);
-
-        // 2. Derive a pseudo-subaccount: if seed is even, use a custom pattern; if odd, None.
-        let subaccount = if seed % 2 == 0 {
-            let bytes = seed.to_be_bytes();
-            let mut buf = [0u8; 32];
-            for i in 0..8 {
-                buf[i * 4..(i + 1) * 4].copy_from_slice(&bytes);
-            }
-            Some(Subaccount::from_array(buf))
-        } else {
-            None
-        };
-
-        Self {
-            owner: principal,
-            subaccount,
-        }
+    pub fn from_seed(seed: u32) -> Self {
+        Principal::from_seed(seed).into()
     }
 
     pub fn to_icrc_type(&self) -> IcrcAccount {
