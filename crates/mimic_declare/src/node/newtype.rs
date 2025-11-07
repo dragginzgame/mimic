@@ -123,6 +123,8 @@ impl HasTraits for Newtype {
             TraitKind::PartialEq => PartialEqTrait::strategy(self).map(|s| s.with_derive(t)),
             TraitKind::PartialOrd => PartialOrdTrait::strategy(self).map(|s| s.with_derive(t)),
 
+            TraitKind::Add => AddTrait::strategy(self),
+            TraitKind::AddAssign => AddAssignTrait::strategy(self),
             TraitKind::Default => DefaultTrait::strategy(self),
             TraitKind::FieldValue => FieldValueTrait::strategy(self),
             TraitKind::From => FromTrait::strategy(self),
@@ -131,6 +133,8 @@ impl HasTraits for Newtype {
             TraitKind::NumToPrimitive => NumToPrimitiveTrait::strategy(self),
             TraitKind::NumFromPrimitive => NumFromPrimitiveTrait::strategy(self),
             TraitKind::SanitizeAuto => SanitizeAutoTrait::strategy(self),
+            TraitKind::Sub => SubTrait::strategy(self),
+            TraitKind::SubAssign => SubAssignTrait::strategy(self),
             TraitKind::ValidateAuto => ValidateAutoTrait::strategy(self),
             TraitKind::View => ViewTrait::strategy(self),
             TraitKind::Visitable => VisitableTrait::strategy(self),
