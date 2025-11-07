@@ -15,6 +15,12 @@ pub trait HasLen {
     fn len(&self) -> usize;
 }
 
+impl HasLen for Blob {
+    fn len(&self) -> usize {
+        Self::len(self)
+    }
+}
+
 impl HasLen for str {
     fn len(&self) -> usize {
         Self::len(self)
