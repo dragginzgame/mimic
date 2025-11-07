@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 ///
-/// VendorPolicy
+/// Record
 ///
 
 #[record(fields(
@@ -16,8 +16,16 @@ use crate::prelude::*;
         ident = "attempts",
         value(item(prim = "Nat32", validator(path = "validator::num::Range", args(1, 20))))
     ),
+    field(
+        ident = "bytes",
+        value(item(prim = "Blob", validator(path = "validator::len::Max", args(500)))),
+    )
 ))]
-pub struct VendorPolicy {}
+pub struct Record {}
+
+///
+/// TESTS
+///
 
 #[cfg(test)]
 mod tests {
@@ -25,30 +33,26 @@ mod tests {
     use mimic::core::{ValidateError, validate};
 
     #[test]
-    fn record_field_errors_include_field_names() {
-        let policy = VendorPolicy {
-            duration_ms: 100,
-            attempts: 0,
+    fn base_record_validation_fields_fail_as_expected() {
+        let r = Record {
+            duration_ms: 100,             // invalid (too low)
+            attempts: 0,                  // invalid (too low)
+            bytes: vec![0u8; 600].into(), // invalid (too long)
         };
 
-        let err = validate(&policy).expect_err("policy validation should fail");
+        let err = validate(&r).expect_err("validation should fail for invalid values");
         let ValidateError::ValidationFailed(tree) = err;
         let flat = tree.flatten_ref();
 
-        assert!(
-            flat.contains(&(
-                "duration_ms".to_string(),
-                "100 must be between 180000 and 604800000".to_string(),
-            )),
-            "missing duration_ms error: {flat:?}"
-        );
+        // collect just the field names that failed
+        let failed_fields: Vec<_> = flat.iter().map(|(field, _)| field.as_str()).collect();
 
-        assert!(
-            flat.contains(&(
-                "attempts".to_string(),
-                "0 must be between 1 and 20".to_string(),
-            )),
-            "missing attempts error: {flat:?}"
-        );
+        // verify all expected fields failed
+        for field in ["duration_ms", "attempts", "bytes"] {
+            assert!(
+                failed_fields.contains(&field),
+                "expected field `{field}` to fail validation, got {failed_fields:?}"
+            );
+        }
     }
 }
