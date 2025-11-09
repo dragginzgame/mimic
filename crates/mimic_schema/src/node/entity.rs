@@ -76,6 +76,15 @@ impl ValidateNode for Entity {
 
         // check indexes have proper fields
         for index in self.indexes {
+            // index store
+            match schema.cast_node::<Store>(index.store) {
+                Ok(store) if !matches!(store.ty, StoreType::Index) => {
+                    err!(errs, "store is not type Index");
+                }
+                Ok(_) => {}
+                Err(e) => errs.add(e),
+            }
+
             // basic length checks
             if index.fields.is_empty() {
                 err!(errs, "index must reference at least one field");
