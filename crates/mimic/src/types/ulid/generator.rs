@@ -38,7 +38,7 @@ impl Generator {
         if ts <= last_ts {
             if let Some(next) = self.previous.increment() {
                 let ulid = next;
-                self.previous = ulid.into();
+                self.previous = ulid;
 
                 return Ok(self.previous);
             }

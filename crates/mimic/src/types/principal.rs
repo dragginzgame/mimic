@@ -67,14 +67,6 @@ impl Principal {
     }
 
     #[must_use]
-    pub fn from_seed(seed: u32) -> Self {
-        let mut buf = [0u8; 29];
-        buf[..4].copy_from_slice(&seed.to_be_bytes());
-
-        Self::from_slice(&buf)
-    }
-
-    #[must_use]
     pub const fn anonymous() -> Self {
         Self(WrappedPrincipal::anonymous())
     }

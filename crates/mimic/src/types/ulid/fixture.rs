@@ -1,6 +1,5 @@
 use crate::types::Ulid;
-use canic::utils::hash::hash_u128;
-use ulid::Ulid as WrappedUlid;
+use canic::{types::Ulid as WrappedUlid, utils::hash::hash_u128};
 
 ///
 /// Fixtures

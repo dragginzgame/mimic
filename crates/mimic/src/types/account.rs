@@ -49,11 +49,6 @@ impl Account {
         }
     }
 
-    #[must_use]
-    pub fn from_seed(seed: u32) -> Self {
-        Principal::from_seed(seed).into()
-    }
-
     pub fn to_icrc_type(&self) -> IcrcAccount {
         IcrcAccount {
             owner: self.owner.into(),

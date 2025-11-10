@@ -23,7 +23,6 @@ rust_decimal = { workspace = true }
 serde = { workspace = true }
 serde_bytes = { workspace = true }
 thiserror = { workspace = true }
-ulid = { workspace = true }
 
 [dev-dependencies]
 bencher = "0.1"

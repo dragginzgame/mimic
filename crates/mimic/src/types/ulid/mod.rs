@@ -13,11 +13,10 @@ use crate::{
     },
 };
 use candid::CandidType;
-use canic::cdk::structures::storable::Bound;
+use canic::{cdk::structures::storable::Bound, types::Ulid as WrappedUlid};
 use derive_more::{Deref, DerefMut, Display, FromStr};
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
-use ulid::Ulid as WrappedUlid;
 
 ///
 /// Error
@@ -37,7 +36,21 @@ pub enum UlidError {
 ///
 
 #[derive(
-    Clone, Copy, Debug, Deref, DerefMut, Display, Eq, FromStr, Hash, Ord, PartialEq, PartialOrd,
+    CandidType,
+    Clone,
+    Copy,
+    Debug,
+    Deref,
+    DerefMut,
+    Display,
+    Eq,
+    FromStr,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+    Serialize,
+    Deserialize,
 )]
 #[repr(transparent)]
 pub struct Ulid(WrappedUlid);
@@ -58,20 +71,17 @@ impl Ulid {
         Self(WrappedUlid::from_parts(timestamp_ms, random))
     }
 
-    #[must_use]
-    pub fn from_seed(seed: u32) -> Self {
-        let mut buf = [0u8; 16];
-        buf[..4].copy_from_slice(&seed.to_be_bytes());
-
-        Self(WrappedUlid::from_bytes(buf))
-    }
-
     /// generate
     /// Generate a ULID with the current timestamp and a random value.
     /// Panics on generator overflow. Use `try_generate` to handle errors.
     #[must_use]
     pub fn generate() -> Self {
         Self::try_generate().unwrap()
+    }
+
+    #[must_use]
+    pub fn increment(&self) -> Option<Self> {
+        self.0.increment().map(Self::from)
     }
 
     /// try_generate
@@ -106,19 +116,6 @@ impl Ulid {
     }
 }
 
-impl CandidType for Ulid {
-    fn _ty() -> candid::types::Type {
-        candid::types::TypeInner::Text.into()
-    }
-
-    fn idl_serialize<S>(&self, serializer: S) -> Result<(), S::Error>
-    where
-        S: candid::types::Serializer,
-    {
-        serializer.serialize_text(&self.0.to_string())
-    }
-}
-
 impl Default for Ulid {
     fn default() -> Self {
         Self(WrappedUlid::nil())
@@ -128,6 +125,12 @@ impl Default for Ulid {
 impl FieldValue for Ulid {
     fn to_value(&self) -> Value {
         Value::Ulid(*self)
+    }
+}
+
+impl From<WrappedUlid> for Ulid {
+    fn from(ulid: WrappedUlid) -> Self {
+        Self(ulid)
     }
 }
 
@@ -141,12 +144,6 @@ impl Inner<Self> for Ulid {
     }
 }
 
-impl<T: Into<WrappedUlid>> From<T> for Ulid {
-    fn from(t: T) -> Self {
-        Self(t.into())
-    }
-}
-
 impl PartialEq<WrappedUlid> for Ulid {
     fn eq(&self, other: &WrappedUlid) -> bool {
         self.0 == *other
@@ -156,33 +153,6 @@ impl PartialEq<WrappedUlid> for Ulid {
 impl PartialEq<Ulid> for WrappedUlid {
     fn eq(&self, other: &Ulid) -> bool {
         *self == other.0
-    }
-}
-
-// The ulid crate's serde impls are gated behind its `serde` feature.
-// With default-features disabled (to avoid pulling in `rand`), we implement
-// Serialize/Deserialize here explicitly.
-impl Serialize for Ulid {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut buffer = [0; ::ulid::ULID_LEN];
-        let text = self.array_to_str(&mut buffer);
-        text.serialize(serializer)
-    }
-}
-
-impl<'de> Deserialize<'de> for Ulid {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let deserialized_str = String::deserialize(deserializer)?;
-        match WrappedUlid::from_string(&deserialized_str) {
-            Ok(u) => Ok(Self(u)),
-            Err(_) => Err(serde::de::Error::custom("invalid ulid string")),
-        }
     }
 }
 
@@ -245,6 +215,10 @@ impl View for Ulid {
 }
 
 impl Visitable for Ulid {}
+
+///
+/// TESTS
+///
 
 #[cfg(test)]
 mod test {
