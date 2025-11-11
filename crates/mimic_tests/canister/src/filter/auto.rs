@@ -43,6 +43,7 @@ impl AutoFilterSuite {
         use FilterableEnum::{A, B, C};
 
         #[rustfmt::skip]
+        #[allow(clippy::type_complexity)]
         let fixtures: [(&str, &str, bool, f64, u8, i32, &[&str], u64, FilterableEnum); 4] = [
             ("Alpha", "A", true, 91.5, 1, -5, &["red", "blue"], 1, A),
             ("Beta", "B", false, 64.0, 2, 0, &["blue"], 2, B),
