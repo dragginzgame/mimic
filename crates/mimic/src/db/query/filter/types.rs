@@ -19,7 +19,15 @@ pub struct ContainsFilter {
     pub all_in: Option<Vec<String>>,
     pub any_in: Option<Vec<String>>,
     pub is_empty: Option<bool>,
-    pub is_not_empty: Option<bool>,
+
+    /// Field does not contain the given value.
+    pub not_contains: Option<String>,
+
+    /// Field contains none of the given values (disjoint).
+    pub not_any_in: Option<Vec<String>>,
+
+    /// Field does not contain all of the given values (missing at least one).
+    pub not_all_in: Option<Vec<String>>,
 }
 
 impl IntoFilterExpr for ContainsFilter {
@@ -27,6 +35,7 @@ impl IntoFilterExpr for ContainsFilter {
         let dsl = FilterDsl;
         let mut exprs = vec![];
 
+        // positive variants
         if let Some(v) = self.contains {
             exprs.push(dsl.contains(field, v));
         }
@@ -37,11 +46,24 @@ impl IntoFilterExpr for ContainsFilter {
             exprs.push(dsl.all_in(field, vs));
         }
 
-        // is_empty
-        if self.is_empty == Some(true) {
-            exprs.push(dsl.is_empty(field));
-        } else if self.is_not_empty == Some(true) {
-            exprs.push(dsl.is_not_empty(field));
+        // negative variants
+        if let Some(v) = self.not_contains {
+            exprs.push(FilterExpr::Not(Box::new(dsl.contains(field, v))));
+        }
+        if let Some(vs) = self.not_any_in {
+            exprs.push(FilterExpr::Not(Box::new(dsl.any_in(field, vs))));
+        }
+        if let Some(vs) = self.not_all_in {
+            exprs.push(FilterExpr::Not(Box::new(dsl.all_in(field, vs))));
+        }
+
+        // emptiness
+        if let Some(is_empty) = self.is_empty {
+            if is_empty {
+                exprs.push(dsl.is_empty(field));
+            } else {
+                exprs.push(dsl.is_not_empty(field));
+            }
         }
 
         FilterDsl::all(exprs)
@@ -59,7 +81,6 @@ pub struct EqualityFilter {
     pub in_: Option<Vec<String>>,
     pub not_in: Option<Vec<String>>,
     pub is_none: Option<bool>,
-    pub is_some: Option<bool>,
 }
 
 impl IntoFilterExpr for EqualityFilter {
@@ -79,10 +100,14 @@ impl IntoFilterExpr for EqualityFilter {
         if let Some(vs) = self.not_in {
             exprs.push(dsl.not_in_iter(field, vs));
         }
-        if self.is_none == Some(true) {
-            exprs.push(dsl.is_none(field));
-        } else if self.is_some == Some(true) {
-            exprs.push(dsl.is_some(field));
+
+        // some/none
+        if let Some(is_none) = self.is_none {
+            if is_none {
+                exprs.push(dsl.is_none(field));
+            } else {
+                exprs.push(dsl.is_some(field));
+            }
         }
 
         FilterDsl::all(exprs)
@@ -99,6 +124,7 @@ pub struct RangeFilter {
     pub gte: Option<i64>,
     pub lt: Option<i64>,
     pub lte: Option<i64>,
+    pub between: Option<(i64, i64)>,
 }
 
 impl IntoFilterExpr for RangeFilter {
@@ -118,6 +144,10 @@ impl IntoFilterExpr for RangeFilter {
         if let Some(v) = self.lte {
             exprs.push(dsl.lte(field, v));
         }
+        if let Some((min, max)) = self.between {
+            exprs.push(dsl.gte(field, min));
+            exprs.push(dsl.lte(field, max));
+        }
 
         FilterDsl::all(exprs)
     }
@@ -126,77 +156,76 @@ impl IntoFilterExpr for RangeFilter {
 ///
 /// TextFilter
 ///
-/// case_insensitive flag could be made better... currently we
-/// lose the ability to mix case-sensitive and case-insensitive filters
-/// in one request (e.g., eq_ci and contains simultaneously).
-///
 
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct TextFilter {
     pub eq: Option<String>,
+    pub eq_ci: Option<String>,
     pub ne: Option<String>,
+    pub ne_ci: Option<String>,
     pub contains: Option<String>,
+    pub contains_ci: Option<String>,
     pub starts_with: Option<String>,
+    pub starts_with_ci: Option<String>,
     pub ends_with: Option<String>,
-    /// When true, comparisons should be case-insensitive.
-    pub case_insensitive: bool,
-
+    pub ends_with_ci: Option<String>,
     pub is_empty: Option<bool>,
-    pub is_not_empty: Option<bool>,
 }
 
 impl IntoFilterExpr for TextFilter {
     fn into_expr(self, field: &str) -> Option<FilterExpr> {
         let dsl = FilterDsl;
-
         let mut exprs = vec![];
 
         // equality
         if let Some(v) = self.eq {
-            exprs.push(if self.case_insensitive {
-                dsl.eq_ci(field, v)
-            } else {
-                dsl.eq(field, v)
-            });
+            exprs.push(dsl.eq(field, v));
+        }
+        if let Some(v) = self.eq_ci {
+            exprs.push(dsl.eq_ci(field, v));
         }
         if let Some(v) = self.ne {
-            exprs.push(if self.case_insensitive {
-                dsl.ne_ci(field, v)
-            } else {
-                dsl.ne(field, v)
-            });
+            exprs.push(dsl.ne(field, v));
+        }
+        if let Some(v) = self.ne_ci {
+            exprs.push(dsl.ne_ci(field, v));
         }
 
-        // pattern matching
+        // contains / substring
         if let Some(v) = self.contains {
-            exprs.push(if self.case_insensitive {
-                dsl.contains_ci(field, v)
-            } else {
-                dsl.contains(field, v)
-            });
+            exprs.push(dsl.contains(field, v));
         }
+        if let Some(v) = self.contains_ci {
+            exprs.push(dsl.contains_ci(field, v));
+        }
+
+        // prefix / suffix
         if let Some(v) = self.starts_with {
-            exprs.push(if self.case_insensitive {
-                dsl.starts_with_ci(field, v)
-            } else {
-                dsl.starts_with(field, v)
-            });
+            exprs.push(dsl.starts_with(field, v));
+        }
+        if let Some(v) = self.starts_with_ci {
+            exprs.push(dsl.starts_with_ci(field, v));
         }
         if let Some(v) = self.ends_with {
-            exprs.push(if self.case_insensitive {
-                dsl.ends_with_ci(field, v)
+            exprs.push(dsl.ends_with(field, v));
+        }
+        if let Some(v) = self.ends_with_ci {
+            exprs.push(dsl.ends_with_ci(field, v));
+        }
+
+        // emptiness
+        if let Some(is_empty) = self.is_empty {
+            if is_empty {
+                exprs.push(dsl.is_empty(field));
             } else {
-                dsl.ends_with(field, v)
-            });
+                exprs.push(dsl.is_not_empty(field));
+            }
         }
 
-        // empty / non-empty
-        if self.is_empty == Some(true) {
-            exprs.push(dsl.is_empty(field));
-        } else if self.is_not_empty == Some(true) {
-            exprs.push(dsl.is_not_empty(field));
+        if exprs.is_empty() {
+            None
+        } else {
+            FilterDsl::all(exprs)
         }
-
-        FilterDsl::all(exprs)
     }
 }
