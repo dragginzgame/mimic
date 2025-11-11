@@ -12,12 +12,21 @@ pub trait FilterSlot {
 impl<T: FilterSlot> FilterExt for T {}
 
 pub trait FilterExt: FilterSlot + Sized {
+    //
+    // ---------- AND ------------
+    //
+
     #[must_use]
-    fn filter<F>(mut self, f: F) -> Self
+    fn filter<F>(self, f: F) -> Self
     where
         F: FnOnce(FilterDsl) -> FilterExpr,
     {
         let expr = f(FilterDsl);
+        self.filter_expr(expr)
+    }
+
+    #[must_use]
+    fn filter_expr(mut self, expr: FilterExpr) -> Self {
         let slot = self.filter_slot();
         let newf = match slot.take() {
             Some(existing) => existing.and(expr),
@@ -29,11 +38,29 @@ pub trait FilterExt: FilterSlot + Sized {
     }
 
     #[must_use]
-    fn or_filter<F>(mut self, f: F) -> Self
+    fn filter_expr_opt(self, expr: Option<FilterExpr>) -> Self {
+        if let Some(expr) = expr {
+            self.filter_expr(expr)
+        } else {
+            self
+        }
+    }
+
+    //
+    // ---------- OR ------------
+    //
+
+    #[must_use]
+    fn or_filter<F>(self, f: F) -> Self
     where
         F: FnOnce(FilterDsl) -> FilterExpr,
     {
         let expr = f(FilterDsl);
+        self.or_filter_expr(expr)
+    }
+
+    #[must_use]
+    fn or_filter_expr(mut self, expr: FilterExpr) -> Self {
         let slot = self.filter_slot();
         let newf = match slot.take() {
             Some(existing) => existing.or(expr),
@@ -45,14 +72,12 @@ pub trait FilterExt: FilterSlot + Sized {
     }
 
     #[must_use]
-    fn filter_expr(mut self, expr: FilterExpr) -> Self {
-        let slot = self.filter_slot();
-        let newf = match slot.take() {
-            Some(existing) => existing.and(expr),
-            None => expr,
-        };
-        *slot = Some(newf);
-        self
+    fn or_filter_expr_opt(self, expr: Option<FilterExpr>) -> Self {
+        if let Some(expr) = expr {
+            self.or_filter_expr(expr)
+        } else {
+            self
+        }
     }
 
     #[must_use]
@@ -63,7 +88,9 @@ pub trait FilterExt: FilterSlot + Sized {
         self
     }
 
+    //
     // Convenience primary-key filters
+    //
 
     #[must_use]
     fn one<E: EntityKind>(self, value: impl FieldValue) -> Self {

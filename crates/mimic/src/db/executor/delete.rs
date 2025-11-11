@@ -86,8 +86,16 @@ impl<E: EntityKind> DeleteExecutor<E> {
         self.execute(query)
     }
 
-    pub fn filter(self, f: impl FnOnce(FilterDsl) -> FilterExpr) -> Result<Response<E>, Error> {
+    pub fn filter<F>(self, f: F) -> Result<Response<E>, Error>
+    where
+        F: FnOnce(FilterDsl) -> FilterExpr,
+    {
         let query = DeleteQuery::new().filter(f);
+        self.execute(query)
+    }
+
+    pub fn filter_expr(self, expr: FilterExpr) -> Result<Response<E>, Error> {
+        let query = DeleteQuery::new().filter_expr(expr);
         self.execute(query)
     }
 

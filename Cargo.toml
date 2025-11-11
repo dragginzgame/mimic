@@ -11,7 +11,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-rust-version = "1.91.0"
+rust-version = "1.91.1"
 edition = "2024"
 version = "0.26.28"
 authors = ["borovan <84897664+borovan@users.noreply.github.com>"]
@@ -20,7 +20,7 @@ categories = ["database", "web-programming", "wasm"]
 
 [workspace.dependencies]
 candid = "0.10"
-canic = "0.2.36"
+canic = "0.2.38"
 chrono = { version = "0.4", default-features = false }
 convert_case = "0.9"
 ctor = "0.6"

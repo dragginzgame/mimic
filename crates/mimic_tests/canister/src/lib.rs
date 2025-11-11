@@ -42,6 +42,7 @@ pub fn test() {
         ("delete_filter", filter::delete::DeleteFilterSuite::test),
         ("index_filter", filter::index::IndexFilterSuite::test),
         ("load_filter", filter::load::LoadFilterSuite::test),
+        ("auto_filter", filter::auto::AutoFilterSuite::test),
         ("index", index::IndexSuite::test),
         ("ops", ops::OpsSuite::test),
         ("metrics", metrics::MetricsSuite::test),

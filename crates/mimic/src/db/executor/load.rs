@@ -92,6 +92,11 @@ impl<E: EntityKind> LoadExecutor<E> {
         self.execute(query)
     }
 
+    pub fn filter_expr(self, expr: FilterExpr) -> Result<Response<E>, Error> {
+        let query = LoadQuery::new().filter_expr(expr);
+        self.execute(query)
+    }
+
     pub fn count_all(self) -> Result<u32, Error> {
         let query = LoadQuery::all();
         self.count(query)
