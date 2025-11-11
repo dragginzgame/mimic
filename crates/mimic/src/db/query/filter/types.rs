@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 /// Converts a typed filter struct into a `FilterExpr`.
 ///
 pub trait IntoFilterExpr {
-    fn into_expr(self, field: &str) -> Option<FilterExpr>;
+    fn into_expr(self, field: &str) -> FilterExpr;
 }
 
 ///
@@ -31,7 +31,7 @@ pub struct ContainsFilter {
 }
 
 impl IntoFilterExpr for ContainsFilter {
-    fn into_expr(self, field: &str) -> Option<FilterExpr> {
+    fn into_expr(self, field: &str) -> FilterExpr {
         let dsl = FilterDsl;
         let mut exprs = vec![];
 
@@ -84,7 +84,7 @@ pub struct EqualityFilter {
 }
 
 impl IntoFilterExpr for EqualityFilter {
-    fn into_expr(self, field: &str) -> Option<FilterExpr> {
+    fn into_expr(self, field: &str) -> FilterExpr {
         let dsl = FilterDsl;
         let mut exprs = vec![];
 
@@ -128,7 +128,7 @@ pub struct RangeFilter {
 }
 
 impl IntoFilterExpr for RangeFilter {
-    fn into_expr(self, field: &str) -> Option<FilterExpr> {
+    fn into_expr(self, field: &str) -> FilterExpr {
         let dsl = FilterDsl;
         let mut exprs = vec![];
 
@@ -157,63 +157,62 @@ impl IntoFilterExpr for RangeFilter {
 /// TextFilter
 ///
 
-#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
 pub struct TextFilter {
-    pub eq: Option<String>,
-    pub eq_ci: Option<String>,
-    pub ne: Option<String>,
-    pub ne_ci: Option<String>,
-    pub contains: Option<String>,
-    pub contains_ci: Option<String>,
-    pub starts_with: Option<String>,
-    pub starts_with_ci: Option<String>,
-    pub ends_with: Option<String>,
-    pub ends_with_ci: Option<String>,
+    pub actions: Vec<TextFilterAction>,
     pub is_empty: Option<bool>,
 }
 
+///
+/// TextFilterAction
+///
+
+#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
+pub struct TextFilterAction {
+    pub op: TextFilterOp,
+    pub case_insensitive: bool,
+    pub values: Vec<String>,
+}
+
+///
+/// TextFilterOp
+///
+
+#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
+pub enum TextFilterOp {
+    Equal,
+    NotEqual,
+    Contains,
+    StartsWith,
+    EndsWith,
+}
+
 impl IntoFilterExpr for TextFilter {
-    fn into_expr(self, field: &str) -> Option<FilterExpr> {
+    fn into_expr(self, field: &str) -> FilterExpr {
         let dsl = FilterDsl;
         let mut exprs = vec![];
 
-        // equality
-        if let Some(v) = self.eq {
-            exprs.push(dsl.eq(field, v));
-        }
-        if let Some(v) = self.eq_ci {
-            exprs.push(dsl.eq_ci(field, v));
-        }
-        if let Some(v) = self.ne {
-            exprs.push(dsl.ne(field, v));
-        }
-        if let Some(v) = self.ne_ci {
-            exprs.push(dsl.ne_ci(field, v));
+        for action in self.actions {
+            let or_exprs = action
+                .values
+                .into_iter()
+                .map(|v| match (action.op.clone(), action.case_insensitive) {
+                    (TextFilterOp::Equal, false) => dsl.eq(field, v),
+                    (TextFilterOp::Equal, true) => dsl.eq_ci(field, v),
+                    (TextFilterOp::NotEqual, false) => dsl.ne(field, v),
+                    (TextFilterOp::NotEqual, true) => dsl.ne_ci(field, v),
+                    (TextFilterOp::Contains, false) => dsl.contains(field, v),
+                    (TextFilterOp::Contains, true) => dsl.contains_ci(field, v),
+                    (TextFilterOp::StartsWith, false) => dsl.starts_with(field, v),
+                    (TextFilterOp::StartsWith, true) => dsl.starts_with_ci(field, v),
+                    (TextFilterOp::EndsWith, false) => dsl.ends_with(field, v),
+                    (TextFilterOp::EndsWith, true) => dsl.ends_with_ci(field, v),
+                })
+                .collect::<Vec<_>>();
+
+            exprs.push(FilterDsl::any(or_exprs));
         }
 
-        // contains / substring
-        if let Some(v) = self.contains {
-            exprs.push(dsl.contains(field, v));
-        }
-        if let Some(v) = self.contains_ci {
-            exprs.push(dsl.contains_ci(field, v));
-        }
-
-        // prefix / suffix
-        if let Some(v) = self.starts_with {
-            exprs.push(dsl.starts_with(field, v));
-        }
-        if let Some(v) = self.starts_with_ci {
-            exprs.push(dsl.starts_with_ci(field, v));
-        }
-        if let Some(v) = self.ends_with {
-            exprs.push(dsl.ends_with(field, v));
-        }
-        if let Some(v) = self.ends_with_ci {
-            exprs.push(dsl.ends_with_ci(field, v));
-        }
-
-        // emptiness
         if let Some(is_empty) = self.is_empty {
             if is_empty {
                 exprs.push(dsl.is_empty(field));
@@ -222,10 +221,6 @@ impl IntoFilterExpr for TextFilter {
             }
         }
 
-        if exprs.is_empty() {
-            None
-        } else {
-            FilterDsl::all(exprs)
-        }
+        FilterDsl::all(exprs)
     }
 }

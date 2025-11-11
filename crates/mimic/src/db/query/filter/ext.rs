@@ -1,100 +1,70 @@
 use crate::{
     core::traits::{EntityKind, FieldValue},
-    db::query::filter::{FilterDsl, FilterExpr, IntoFilterOpt},
+    db::query::filter::{FilterDsl, FilterExpr},
 };
 
-///
-/// FilterSlot
-///
-
+/// Anything with a filter slot (e.g. a query builder)
 pub trait FilterSlot {
     fn filter_slot(&mut self) -> &mut Option<FilterExpr>;
 }
 
-///
-/// FilterExt
-///
-
+/// Extension trait for builder-style composition
 impl<T: FilterSlot> FilterExt for T {}
 
 pub trait FilterExt: FilterSlot + Sized {
     #[must_use]
-    fn filter<F, R>(mut self, f: F) -> Self
+    fn filter<F>(mut self, f: F) -> Self
     where
-        F: FnOnce(FilterDsl) -> R,
-        R: IntoFilterOpt,
+        F: FnOnce(FilterDsl) -> FilterExpr,
     {
-        if let Some(expr) = f(FilterDsl).into_filter_opt() {
-            let slot = self.filter_slot();
-            let newf = match slot.take() {
-                Some(existing) => existing.and(expr),
-                None => expr,
-            };
-            *slot = Some(newf);
-        }
+        let expr = f(FilterDsl);
+        let slot = self.filter_slot();
+        let newf = match slot.take() {
+            Some(existing) => existing.and(expr),
+            None => expr,
+        };
+        *slot = Some(newf);
 
         self
     }
 
     #[must_use]
-    fn filter_opt<R>(mut self, expr: R) -> Self
+    fn or_filter<F>(mut self, f: F) -> Self
     where
-        R: IntoFilterOpt,
+        F: FnOnce(FilterDsl) -> FilterExpr,
     {
-        if let Some(expr) = expr.into_filter_opt() {
-            self = self.filter(move |_| expr);
-        }
+        let expr = f(FilterDsl);
+        let slot = self.filter_slot();
+        let newf = match slot.take() {
+            Some(existing) => existing.or(expr),
+            None => expr,
+        };
+        *slot = Some(newf);
 
         self
     }
 
     #[must_use]
-    fn or_filter<F, R>(mut self, f: F) -> Self
-    where
-        F: FnOnce(FilterDsl) -> R,
-        R: IntoFilterOpt,
-    {
-        if let Some(expr) = f(FilterDsl).into_filter_opt() {
-            let slot = self.filter_slot();
-            let newf = match slot.take() {
-                Some(existing) => existing.or(expr),
-                None => expr,
-            };
-            *slot = Some(newf);
-        }
-
+    fn filter_expr(mut self, expr: FilterExpr) -> Self {
+        let slot = self.filter_slot();
+        let newf = match slot.take() {
+            Some(existing) => existing.and(expr),
+            None => expr,
+        };
+        *slot = Some(newf);
         self
     }
 
     #[must_use]
-    fn or_filter_opt<R>(mut self, expr: R) -> Self
-    where
-        R: IntoFilterOpt,
-    {
-        if let Some(expr) = expr.into_filter_opt() {
-            self = self.or_filter(move |_| expr);
+    fn simplify(mut self) -> Self {
+        if let Some(f) = self.filter_slot().take() {
+            *self.filter_slot() = Some(f.simplify());
         }
-
         self
     }
 
-    #[must_use]
-    fn filter_expr(self, expr: FilterExpr) -> Self {
-        self.filter(|_| expr)
-    }
+    // Convenience primary-key filters
 
-    #[must_use]
-    fn simplify(self) -> Self {
-        let mut me = self;
-        let slot = me.filter_slot();
-        if let Some(f) = slot.take() {
-            *slot = Some(f.simplify());
-        }
-
-        me
-    }
-
-    // Shapes (primary key helpers)
     #[must_use]
     fn one<E: EntityKind>(self, value: impl FieldValue) -> Self {
         self.filter(|f| f.eq(E::PRIMARY_KEY, value))
@@ -112,6 +82,6 @@ pub trait FilterExt: FilterSlot + Sized {
         I: IntoIterator,
         I::Item: FieldValue,
     {
-        self.filter(move |f| f.in_iter(E::PRIMARY_KEY, values))
+        self.filter(|f| f.in_iter(E::PRIMARY_KEY, values))
     }
 }

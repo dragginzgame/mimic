@@ -224,7 +224,7 @@ pub trait FilterView {
     type FilterType: Default;
 
     /// Converts the filter view into a `FilterExpr` suitable for execution.
-    fn into_expr(view: Self::FilterType) -> Option<FilterExpr>;
+    fn into_expr(view: Self::FilterType) -> FilterExpr;
 }
 
 /// ------------------------

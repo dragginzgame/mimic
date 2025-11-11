@@ -158,24 +158,29 @@ impl FilterDsl {
     // Collectors
     //
 
-    pub fn all<I, F>(items: I) -> Option<FilterExpr>
+    pub fn all<I>(items: I) -> FilterExpr
     where
-        I: IntoIterator<Item = F>,
-        F: IntoFilterOpt,
+        I: IntoIterator<Item = FilterExpr>,
     {
-        let mut it = items.into_iter().filter_map(IntoFilterOpt::into_filter_opt);
-        let first = it.next()?;
-        Some(it.fold(first, FilterExpr::and))
+        let mut it = items.into_iter();
+
+        // if empty, return a neutral "True" expression instead of None
+        match it.next() {
+            Some(first) => it.fold(first, FilterExpr::and),
+            None => FilterExpr::True,
+        }
     }
 
-    pub fn any<I, F>(items: I) -> Option<FilterExpr>
+    pub fn any<I>(items: I) -> FilterExpr
     where
-        I: IntoIterator<Item = F>,
-        F: IntoFilterOpt,
+        I: IntoIterator<Item = FilterExpr>,
     {
-        let mut it = items.into_iter().filter_map(IntoFilterOpt::into_filter_opt);
-        let first = it.next()?;
-        Some(it.fold(first, FilterExpr::or))
+        let mut it = items.into_iter();
+
+        match it.next() {
+            Some(first) => it.fold(first, FilterExpr::or),
+            None => FilterExpr::False, // empty OR = False
+        }
     }
 
     //
@@ -192,30 +197,5 @@ impl FilterDsl {
         f: impl FnOnce(T) -> FilterExpr,
     ) -> Option<FilterExpr> {
         opt.map(f)
-    }
-}
-
-///
-/// IntoFilterOpt
-///
-
-pub trait IntoFilterOpt {
-    fn into_filter_opt(self) -> Option<FilterExpr>;
-}
-
-impl IntoFilterOpt for FilterExpr {
-    #[inline]
-    fn into_filter_opt(self) -> Option<FilterExpr> {
-        Some(self)
-    }
-}
-
-impl<T> IntoFilterOpt for Option<T>
-where
-    T: IntoFilterOpt,
-{
-    #[inline]
-    fn into_filter_opt(self) -> Option<FilterExpr> {
-        self.and_then(IntoFilterOpt::into_filter_opt)
     }
 }
