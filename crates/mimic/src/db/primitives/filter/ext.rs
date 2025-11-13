@@ -1,6 +1,6 @@
 use crate::{
     core::traits::{EntityKind, FieldValue},
-    db::query::filter::{FilterDsl, FilterExpr},
+    db::primitives::filter::{FilterDsl, FilterExpr},
 };
 
 /// Anything with a filter slot (e.g. a query builder)

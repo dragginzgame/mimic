@@ -6,7 +6,7 @@ use crate::{
             ValidateCustom, View, Visitable,
         },
     },
-    db::query::TextFilter,
+    db::primitives::TextFilterKind,
     types::{Principal, Subaccount},
 };
 use candid::CandidType;
@@ -95,7 +95,7 @@ impl FieldValue for Account {
 }
 
 impl FilterView for Account {
-    type FilterViewType = TextFilter;
+    type FilterViewType = TextFilterKind;
 }
 
 impl From<Account> for IcrcAccount {

@@ -6,7 +6,7 @@ use crate::{
         },
         value::Value,
     },
-    db::query::RangeFilter,
+    db::primitives::RangeFilterKind,
     types::Decimal,
 };
 use candid::CandidType;
@@ -133,7 +133,7 @@ impl FieldValue for E8s {
 }
 
 impl FilterView for E8s {
-    type FilterViewType = RangeFilter;
+    type FilterViewType = RangeFilterKind;
 }
 
 #[allow(clippy::cast_possible_wrap)]

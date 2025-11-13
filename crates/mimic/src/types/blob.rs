@@ -6,7 +6,7 @@ use crate::{
             ValidateCustom, View, Visitable,
         },
     },
-    db::query::NoFilter,
+    db::primitives::NoFilterKind,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
@@ -61,7 +61,7 @@ impl FieldValue for Blob {
 }
 
 impl FilterView for Blob {
-    type FilterViewType = NoFilter;
+    type FilterViewType = NoFilterKind;
 }
 
 impl From<Vec<u8>> for Blob {

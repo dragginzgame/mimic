@@ -8,7 +8,8 @@ use crate::{
     db::{
         Db,
         executor::FilterEvaluator,
-        query::{DeleteQuery, FilterDsl, FilterExpr, FilterExt, QueryPlan, QueryValidate},
+        primitives::{FilterDsl, FilterExpr, FilterExt},
+        query::{DeleteQuery, QueryPlan, QueryValidate},
         response::Response,
     },
     obs::metrics,

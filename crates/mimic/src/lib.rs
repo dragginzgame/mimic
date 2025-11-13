@@ -71,7 +71,7 @@ pub mod prelude {
         db,
         db::{
             executor::SaveExecutor,
-            query::{
+            primitives::{
                 self, FilterDsl, FilterExpr, FilterExt as _, LimitExpr, LimitExt as _, SortExpr,
                 SortExt as _,
             },

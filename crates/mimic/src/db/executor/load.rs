@@ -7,9 +7,8 @@ use crate::{
     db::{
         Db,
         executor::{FilterEvaluator, plan_for},
-        query::{
-            FilterDsl, FilterExpr, FilterExt, LoadQuery, Order, QueryPlan, QueryValidate, SortExpr,
-        },
+        primitives::{FilterDsl, FilterExpr, FilterExt, Order, SortExpr},
+        query::{LoadQuery, QueryPlan, QueryValidate},
         response::Response,
     },
     obs::metrics,
@@ -247,6 +246,10 @@ pub fn apply_pagination<T>(rows: &mut Vec<T>, offset: u32, limit: Option<u32>) {
     }
 }
 
+///
+/// TESTS
+///
+
 #[cfg(test)]
 mod tests {
     use super::{LoadExecutor, apply_pagination};
@@ -258,7 +261,7 @@ mod tests {
                 StoreKind, ValidateAuto, ValidateCustom, View, Visitable,
             },
         },
-        db::query::{Order, SortExpr},
+        db::primitives::{Order, SortExpr},
         schema::node::Index,
     };
     use serde::{Deserialize, Serialize};

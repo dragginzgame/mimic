@@ -1,4 +1,5 @@
 pub mod executor;
+pub mod primitives;
 pub mod query;
 pub mod response;
 pub mod store;

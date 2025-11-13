@@ -1,6 +1,6 @@
 use crate::{
     core::traits::FieldValue,
-    db::query::{Cmp, FilterClause, FilterExpr},
+    db::primitives::filter::{Cmp, FilterClause, FilterExpr},
 };
 
 ///

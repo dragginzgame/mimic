@@ -1,29 +1,25 @@
 mod delete;
-mod filter;
-mod limit;
 mod load;
 mod planner;
 mod save;
-mod sort;
 
 pub use delete::*;
-pub use filter::*;
-pub use limit::*;
 pub use load::*;
 pub use planner::*;
 pub use save::*;
-pub use sort::*;
 
 ///
 /// Query Prelude
 ///
 
 pub mod prelude {
-    pub use crate::db::query::{
-        self,
-        filter::{FilterDsl, FilterExt as _},
-        limit::LimitExt as _,
-        sort::SortExt as _,
+    pub use crate::db::{
+        primitives::{
+            filter::{FilterDsl, FilterExt as _},
+            limit::LimitExt as _,
+            sort::SortExt as _,
+        },
+        query,
     };
 }
 

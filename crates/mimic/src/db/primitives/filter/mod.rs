@@ -1,6 +1,6 @@
 mod cmp;
 mod dsl;
-pub mod expr;
+mod expr;
 mod ext;
 mod types;
 

@@ -87,7 +87,7 @@ impl View for RecordFilter<'_> {
         let filter_ident = node.filter_ident();
 
         quote! {
-            pub type #filter_ident = ::mimic::db::query::NoFilter;
+            pub type #filter_ident = ::mimic::db::primitives::filter::NoFilter;
         }
     }
 }

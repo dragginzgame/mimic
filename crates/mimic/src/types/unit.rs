@@ -6,7 +6,7 @@ use crate::{
             ValidateCustom, View, Visitable,
         },
     },
-    db::query::NoFilter,
+    db::primitives::NoFilterKind,
 };
 use candid::CandidType;
 use derive_more::Display;
@@ -46,7 +46,7 @@ impl FieldValue for Unit {
 }
 
 impl FilterView for Unit {
-    type FilterViewType = NoFilter;
+    type FilterViewType = NoFilterKind;
 }
 
 impl Inner<Self> for Unit {

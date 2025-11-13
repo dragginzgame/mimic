@@ -6,7 +6,7 @@ use crate::{
         },
         value::Value,
     },
-    db::query::RangeFilter,
+    db::primitives::RangeFilterKind,
     types::Decimal,
 };
 use candid::CandidType;
@@ -125,7 +125,7 @@ impl FieldValue for E18s {
 }
 
 impl FilterView for E18s {
-    type FilterViewType = RangeFilter;
+    type FilterViewType = RangeFilterKind;
 }
 
 impl From<i32> for E18s {

@@ -7,7 +7,7 @@ use crate::{
         },
         value::Value,
     },
-    db::query::NoFilter,
+    db::primitives::filter::NoFilterKind,
 };
 use canic::cdk::{
     api::msg_caller,
@@ -102,7 +102,7 @@ impl FieldValue for WrappedPrincipal {
 }
 
 impl FilterView for Principal {
-    type FilterViewType = NoFilter;
+    type FilterViewType = NoFilterKind;
 }
 
 impl From<WrappedPrincipal> for Principal {

@@ -6,7 +6,7 @@ use crate::{
         },
         value::Value,
     },
-    db::query::RangeFilter,
+    db::primitives::RangeFilterKind,
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Rem, Sub, SubAssign, Sum};
@@ -140,7 +140,7 @@ impl FieldValue for Decimal {
 }
 
 impl FilterView for Decimal {
-    type FilterViewType = RangeFilter;
+    type FilterViewType = RangeFilterKind;
 }
 
 impl Inner<Self> for Decimal {

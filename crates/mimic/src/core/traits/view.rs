@@ -1,4 +1,4 @@
-use crate::db::query::{EqualityFilter, Filter, RangeFilter, TextFilter};
+use crate::db::primitives::{EqualityFilterKind, FilterKind, RangeFilterKind, TextFilterKind};
 use std::iter::IntoIterator;
 
 ///
@@ -107,14 +107,14 @@ pub trait UpdateView {
 ///
 
 pub trait FilterView {
-    type Filter: Filter;
+    type FilterViewType: FilterKind;
 }
 
 macro_rules! impl_filter_view {
     ( $( $type:ty => $filter_ty:path ),* $(,)? ) => {
         $(
             impl FilterView for $type {
-                type Filter = $filter_ty;
+                type FilterViewType = $filter_ty;
             }
         )*
     };
@@ -122,14 +122,14 @@ macro_rules! impl_filter_view {
 
 // for numbers and booleans
 impl_filter_view!(
-    bool    => EqualityFilter,
-    i8      => RangeFilter,
-    i16     => RangeFilter,
-    i32     => RangeFilter,
-    i64     => RangeFilter,
-    String  => TextFilter,
-    u8      => RangeFilter,
-    u16     => RangeFilter,
-    u32     => RangeFilter,
-    u64     => RangeFilter,
+    bool    => EqualityFilterKind,
+    i8      => RangeFilterKind,
+    i16     => RangeFilterKind,
+    i32     => RangeFilterKind,
+    i64     => RangeFilterKind,
+    String  => TextFilterKind,
+    u8      => RangeFilterKind,
+    u16     => RangeFilterKind,
+    u32     => RangeFilterKind,
+    u64     => RangeFilterKind,
 );

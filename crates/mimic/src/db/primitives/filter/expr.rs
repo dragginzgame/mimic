@@ -1,6 +1,6 @@
 use crate::{
     core::{traits::FieldValue, value::Value},
-    db::query::Cmp,
+    db::primitives::filter::Cmp,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};

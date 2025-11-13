@@ -42,7 +42,7 @@ impl View for TupleFilter<'_> {
         let filter_ident = node.filter_ident();
 
         quote! {
-            pub type #filter_ident = ::mimic::db::query::NoFilter;
+            pub type #filter_ident = ::mimic::db::primitives::filter::NoFilter;
         }
     }
 }
