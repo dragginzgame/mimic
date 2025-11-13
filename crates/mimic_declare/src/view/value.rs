@@ -32,17 +32,9 @@ pub struct ValueFilter<'a>(pub &'a Value);
 impl ViewExpr for ValueFilter<'_> {
     fn expr(&self) -> Option<TokenStream> {
         let node = self.0;
+        let item = ItemFilter(&node.item).expr()?;
 
-        match node.cardinality() {
-            Cardinality::Many => {
-                // For lists, we’ll usually use ContainsFilter
-                Some(quote!(::mimic::db::query::ContainsFilter))
-            }
-            Cardinality::Opt | Cardinality::One => {
-                // Delegate to ItemFilter for the actual type
-                let item = ItemFilter(&node.item);
-                item.expr()
-            }
-        }
+        // Filters ignore cardinality wrappers
+        quote!(#item).into()
     }
 }

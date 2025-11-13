@@ -1,11 +1,12 @@
 use crate::{
     core::{
         traits::{
-            FieldValue, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto, ValidateCustom, View,
-            Visitable,
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto,
+            ValidateCustom, View, Visitable,
         },
         value::Value,
     },
+    db::primitives::NoFilterKind,
     types::{Principal, Ulid},
 };
 use candid::CandidType;
@@ -113,6 +114,10 @@ impl FieldValue for Subaccount {
     fn to_value(&self) -> Value {
         Value::Subaccount(*self)
     }
+}
+
+impl Filterable for Subaccount {
+    type Filter = NoFilterKind;
 }
 
 /// code taken from

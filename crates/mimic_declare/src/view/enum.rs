@@ -86,26 +86,3 @@ impl ToTokens for EnumView<'_> {
         tokens.extend(self.generate());
     }
 }
-
-///
-/// EnumFilter
-///
-
-pub struct EnumFilter<'a>(pub &'a Enum);
-
-impl View for EnumFilter<'_> {
-    fn generate(&self) -> TokenStream {
-        let node = self.0;
-        let filter_ident = node.filter_ident();
-
-        quote! {
-            pub type #filter_ident = ::mimic::db::primitives::filter::NoFilter;
-        }
-    }
-}
-
-impl ToTokens for EnumFilter<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.generate());
-    }
-}

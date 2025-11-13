@@ -82,19 +82,17 @@ impl ToTokens for RecordGen<'_> {
 // simple_gen
 // for the simpler types that only have a view
 macro_rules! simple_gen {
-    ($name:ident, $node:ty, $view:path, $filter:path) => {
+    ($name:ident, $node:ty, $view:path) => {
         pub struct $name<'a>(pub &'a $node);
 
         impl NodeGen for $name<'_> {
             fn generate(&self) -> TokenStream {
                 let node = self.0;
                 let view = $view(node);
-                let filter = $filter(node);
 
                 quote! {
                     #node
                     #view
-                    #filter
                 }
             }
         }
@@ -107,12 +105,12 @@ macro_rules! simple_gen {
     };
 }
 
-simple_gen!(EnumGen, Enum, EnumView, EnumFilter);
-simple_gen!(ListGen, List, ListView, ListFilter);
-simple_gen!(MapGen, Map, MapView, MapFilter);
-simple_gen!(NewtypeGen, Newtype, NewtypeView, NewtypeFilter);
-simple_gen!(SetGen, Set, SetView, SetFilter);
-simple_gen!(TupleGen, Tuple, TupleView, TupleFilter);
+simple_gen!(EnumGen, Enum, EnumView);
+simple_gen!(ListGen, List, ListView);
+simple_gen!(MapGen, Map, MapView);
+simple_gen!(NewtypeGen, Newtype, NewtypeView);
+simple_gen!(SetGen, Set, SetView);
+simple_gen!(TupleGen, Tuple, TupleView);
 
 // passthrough_gen
 // for the simpler types that only have a view

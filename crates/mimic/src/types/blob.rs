@@ -2,7 +2,7 @@ use crate::{
     core::{
         Value,
         traits::{
-            FieldValue, FilterView, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto,
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto,
             ValidateCustom, View, Visitable,
         },
     },
@@ -60,8 +60,8 @@ impl FieldValue for Blob {
     }
 }
 
-impl FilterView for Blob {
-    type FilterViewType = NoFilterKind;
+impl Filterable for Blob {
+    type Filter = NoFilterKind;
 }
 
 impl From<Vec<u8>> for Blob {

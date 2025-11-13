@@ -1,4 +1,3 @@
-use crate::db::primitives::{EqualityFilterKind, FilterKind, RangeFilterKind, TextFilterKind};
 use std::iter::IntoIterator;
 
 ///
@@ -107,29 +106,5 @@ pub trait UpdateView {
 ///
 
 pub trait FilterView {
-    type FilterViewType: FilterKind;
+    type FilterViewType: Default;
 }
-
-macro_rules! impl_filter_view {
-    ( $( $type:ty => $filter_ty:path ),* $(,)? ) => {
-        $(
-            impl FilterView for $type {
-                type FilterViewType = $filter_ty;
-            }
-        )*
-    };
-}
-
-// for numbers and booleans
-impl_filter_view!(
-    bool    => EqualityFilterKind,
-    i8      => RangeFilterKind,
-    i16     => RangeFilterKind,
-    i32     => RangeFilterKind,
-    i64     => RangeFilterKind,
-    String  => TextFilterKind,
-    u8      => RangeFilterKind,
-    u16     => RangeFilterKind,
-    u32     => RangeFilterKind,
-    u64     => RangeFilterKind,
-);

@@ -2,7 +2,7 @@ use crate::{
     core::{
         Value,
         traits::{
-            FieldValue, FilterView, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
             ValidateCustom, View, Visitable,
         },
     },
@@ -94,8 +94,8 @@ impl FieldValue for Account {
     }
 }
 
-impl FilterView for Account {
-    type FilterViewType = TextFilterKind;
+impl Filterable for Account {
+    type Filter = TextFilterKind;
 }
 
 impl From<Account> for IcrcAccount {

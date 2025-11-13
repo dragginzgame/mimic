@@ -29,26 +29,3 @@ impl ToTokens for ListView<'_> {
         tokens.extend(self.generate());
     }
 }
-
-///
-/// ListFilter
-///
-
-pub struct ListFilter<'a>(pub &'a List);
-
-impl View for ListFilter<'_> {
-    fn generate(&self) -> TokenStream {
-        let node = self.0;
-        let filter_ident = node.filter_ident();
-
-        quote! {
-            pub type #filter_ident = ::mimic::db::query::ContainsFilter;
-        }
-    }
-}
-
-impl ToTokens for ListFilter<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.generate());
-    }
-}

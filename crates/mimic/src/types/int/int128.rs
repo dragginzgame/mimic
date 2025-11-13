@@ -1,9 +1,12 @@
-use crate::core::{
-    Value,
-    traits::{
-        FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
-        ValidateAuto, ValidateCustom, View, Visitable,
+use crate::{
+    core::{
+        Value,
+        traits::{
+            FieldValue, Filterable, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
+            SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
+        },
     },
+    db::primitives::RangeFilterKind,
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign, Sum};
@@ -48,6 +51,10 @@ impl FieldValue for Int128 {
     fn to_value(&self) -> Value {
         Value::Int128(*self)
     }
+}
+
+impl Filterable for Int128 {
+    type Filter = RangeFilterKind;
 }
 
 #[allow(clippy::cast_lossless)]

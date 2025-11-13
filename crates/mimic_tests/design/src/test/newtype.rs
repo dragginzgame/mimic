@@ -28,12 +28,6 @@ pub struct E18s {}
 #[newtype(primitive = "Float32", item(prim = "Float32"))]
 pub struct Float32 {}
 
-#[newtype(primitive = "Float32", item(is = "Float32"))]
-pub struct Float32W {}
-
-#[newtype(primitive = "Float32", item(is = "Float32W"))]
-pub struct Float32WW {}
-
 #[newtype(primitive = "Float64", item(prim = "Float64"))]
 pub struct Float64 {}
 
@@ -94,6 +88,12 @@ pub struct Unit {}
 ///
 /// Wrappers
 ///
+
+#[newtype(primitive = "Float32", item(is = "Float32"))]
+pub struct Float32W {}
+
+#[newtype(primitive = "Float32", item(is = "Float32W"))]
+pub struct Float32WW {}
 
 #[newtype(primitive = "Nat32", item(is = "Nat32"))]
 pub struct Nat32W {}

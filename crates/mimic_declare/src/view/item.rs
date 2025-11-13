@@ -26,6 +26,6 @@ impl ViewExpr for ItemFilter<'_> {
         let node = self.0;
         let ty = node.target().type_expr();
 
-        quote!(<#ty as ::mimic::core::traits::FilterView>::FilterViewType).into()
+        quote!(<<#ty as ::mimic::core::traits::Filterable>::Filter as ::mimic::db::primitives::FilterKind>::Payload).into()
     }
 }

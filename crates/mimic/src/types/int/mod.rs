@@ -2,12 +2,15 @@ mod int128;
 
 pub use int128::*;
 
-use crate::core::{
-    Value,
-    traits::{
-        FieldValue, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto, ValidateCustom, View,
-        Visitable,
+use crate::{
+    core::{
+        Value,
+        traits::{
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto,
+            ValidateCustom, View, Visitable,
+        },
     },
+    db::primitives::RangeFilterKind,
 };
 use candid::{CandidType, Int as WrappedInt};
 use canic::impl_storable_unbounded;
@@ -56,6 +59,10 @@ impl FieldValue for Int {
     fn to_value(&self) -> Value {
         Value::IntBig(self.clone())
     }
+}
+
+impl Filterable for Int {
+    type Filter = RangeFilterKind;
 }
 
 impl From<i32> for Int {

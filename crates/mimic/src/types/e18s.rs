@@ -1,7 +1,7 @@
 use crate::{
     core::{
         traits::{
-            FieldValue, FilterView, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
+            FieldValue, Filterable, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
             SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
         },
         value::Value,
@@ -124,8 +124,8 @@ impl FieldValue for E18s {
     }
 }
 
-impl FilterView for E18s {
-    type FilterViewType = RangeFilterKind;
+impl Filterable for E18s {
+    type Filter = RangeFilterKind;
 }
 
 impl From<i32> for E18s {

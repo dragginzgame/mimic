@@ -1,7 +1,7 @@
 use crate::{
     core::{
         traits::{
-            FieldValue, FilterView, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
+            FieldValue, Filterable, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
             SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
         },
         value::Value,
@@ -139,8 +139,8 @@ impl FieldValue for Decimal {
     }
 }
 
-impl FilterView for Decimal {
-    type FilterViewType = RangeFilterKind;
+impl Filterable for Decimal {
+    type Filter = RangeFilterKind;
 }
 
 impl Inner<Self> for Decimal {

@@ -1,9 +1,12 @@
-use crate::core::{
-    Value,
-    traits::{
-        FieldValue, Inner, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
-        ValidateAuto, ValidateCustom, View, Visitable,
+use crate::{
+    core::{
+        Value,
+        traits::{
+            FieldValue, Filterable, Inner, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
+            SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
+        },
     },
+    db::primitives::RangeFilterKind,
 };
 use candid::CandidType;
 use derive_more::Display;
@@ -64,6 +67,10 @@ impl FieldValue for Float32 {
     fn to_value(&self) -> Value {
         Value::Float32(*self)
     }
+}
+
+impl Filterable for Float32 {
+    type Filter = RangeFilterKind;
 }
 
 #[allow(clippy::cast_precision_loss)]

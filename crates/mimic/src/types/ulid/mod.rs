@@ -6,7 +6,7 @@ use crate::{
     common::error::ErrorTree,
     core::{
         traits::{
-            FieldValue, FilterView, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
             ValidateCustom, View, Visitable,
         },
         value::Value,
@@ -129,8 +129,8 @@ impl FieldValue for Ulid {
     }
 }
 
-impl FilterView for Ulid {
-    type FilterViewType = TextFilterKind;
+impl Filterable for Ulid {
+    type Filter = TextFilterKind;
 }
 
 impl From<WrappedUlid> for Ulid {

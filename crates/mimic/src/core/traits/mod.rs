@@ -28,6 +28,7 @@ pub use std::{
 
 use crate::{
     core::{Key, Value},
+    db::primitives::{EqualityFilterKind, FilterKind, RangeFilterKind, TextFilterKind},
     schema::node::Index,
 };
 
@@ -183,6 +184,37 @@ impl_field_value!(
     u32 => Uint,
     u64 => Uint,
     bool => Bool,
+);
+
+///
+/// Filterable
+///
+
+pub trait Filterable {
+    type Filter: FilterKind;
+}
+
+macro_rules! impl_filterable {
+    ( $( $type:ty => $filter:path ),* $(,)? ) => {
+        $(
+            impl Filterable for $type {
+                type Filter = $filter;
+            }
+        )*
+    };
+}
+
+impl_filterable!(
+    bool    => EqualityFilterKind,
+    i8      => RangeFilterKind,
+    i16     => RangeFilterKind,
+    i32     => RangeFilterKind,
+    i64     => RangeFilterKind,
+    u8      => RangeFilterKind,
+    u16     => RangeFilterKind,
+    u32     => RangeFilterKind,
+    u64     => RangeFilterKind,
+    String  => TextFilterKind,
 );
 
 ///

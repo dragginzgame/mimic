@@ -30,26 +30,3 @@ impl ToTokens for MapView<'_> {
         tokens.extend(self.generate());
     }
 }
-
-///
-/// MapFilter
-///
-
-pub struct MapFilter<'a>(pub &'a Map);
-
-impl View for MapFilter<'_> {
-    fn generate(&self) -> TokenStream {
-        let node = self.0;
-        let filter_ident = node.filter_ident();
-
-        quote! {
-            pub type #filter_ident = ::mimic::db::primitives::filter::NoFilter;
-        }
-    }
-}
-
-impl ToTokens for MapFilter<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.generate());
-    }
-}

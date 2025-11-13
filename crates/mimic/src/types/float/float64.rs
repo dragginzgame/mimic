@@ -1,9 +1,12 @@
-use crate::core::{
-    Value,
-    traits::{
-        FieldValue, Inner, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
-        ValidateAuto, ValidateCustom, View, Visitable,
+use crate::{
+    core::{
+        Value,
+        traits::{
+            FieldValue, Filterable, Inner, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
+            SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
+        },
     },
+    db::primitives::RangeFilterKind,
 };
 use candid::CandidType;
 use derive_more::Display;
@@ -57,6 +60,10 @@ impl FieldValue for Float64 {
     fn to_value(&self) -> Value {
         Value::Float64(*self)
     }
+}
+
+impl Filterable for Float64 {
+    type Filter = RangeFilterKind;
 }
 
 impl From<i32> for Float64 {

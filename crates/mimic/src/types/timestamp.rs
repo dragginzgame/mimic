@@ -2,7 +2,7 @@ use crate::{
     core::{
         Value,
         traits::{
-            FieldValue, FilterView, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
+            FieldValue, Filterable, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
             SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
         },
     },
@@ -65,8 +65,8 @@ impl FieldValue for Timestamp {
     }
 }
 
-impl FilterView for Timestamp {
-    type FilterViewType = RangeFilterKind;
+impl Filterable for Timestamp {
+    type Filter = RangeFilterKind;
 }
 
 impl From<u64> for Timestamp {

@@ -2,7 +2,7 @@ use crate::{
     ThisError,
     core::{
         traits::{
-            FieldValue, FilterView, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
             ValidateCustom, View, Visitable,
         },
         value::Value,
@@ -101,8 +101,8 @@ impl FieldValue for WrappedPrincipal {
     }
 }
 
-impl FilterView for Principal {
-    type FilterViewType = NoFilterKind;
+impl Filterable for Principal {
+    type Filter = NoFilterKind;
 }
 
 impl From<WrappedPrincipal> for Principal {

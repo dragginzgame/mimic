@@ -130,45 +130,40 @@ pub struct EntityFilter<'a>(pub &'a Entity);
 impl View for EntityFilter<'_> {
     fn generate(&self) -> TokenStream {
         let node = self.0;
-        let struct_ident = node.def.ident();
         let filter_ident = node.filter_ident();
+        let fields = node.fields.iter().map(|f| FieldFilter(f).expr());
 
-        // field definitions for the struct body
-        let fields = node.fields.iter().filter_map(|f| FieldFilter(f).expr());
+        // Derives
+        let mut derives = self.traits();
+        derives.add(TraitKind::Default);
 
-        // for the IntoFilterExpr impl, we need each field ident and its associated const
+        // Build each field’s FilterExpr
         let field_exprs = node.fields.iter().map(|f| {
             let ident = &f.ident;
-            let const_ident = f.const_ident();
-
+            let field_name = f.ident.to_string();
             quote! {
                 self.#ident.map(|f| {
-                    ::mimic::db::query::IntoFieldFilterExpr::into_field_expr(
-                        f,
-                        #struct_ident::#const_ident
-                    )
+                    ::mimic::db::primitives::filter::IntoScopedFilterExpr::into_scoped(f, #field_name)
                 })
             }
         });
 
-        // add Default derive
-        let mut derives = self.traits();
-        derives.add(TraitKind::Default);
-
+        // Emit final struct + impl
         quote! {
             #derives
             pub struct #filter_ident {
                 #(#fields),*
             }
 
-            impl ::mimic::db::query::IntoFilterExpr for #filter_ident {
-                fn into_expr(self) -> ::mimic::db::query::FilterExpr {
+            impl ::mimic::db::primitives::filter::IntoFilterExpr for #filter_ident {
+                fn into_expr(self) -> ::mimic::db::primitives::filter::FilterExpr {
                     let filters = [#(#field_exprs),*];
                     let exprs = filters.into_iter().flatten();
 
-                    ::mimic::db::query::FilterDsl::all(exprs)
+                    ::mimic::db::primitives::filter::FilterDsl::all(exprs)
                 }
             }
+
         }
     }
 }

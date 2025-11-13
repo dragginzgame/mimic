@@ -2,7 +2,7 @@ use crate::{
     core::{
         Value,
         traits::{
-            FieldValue, FilterView, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
+            FieldValue, Filterable, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
             SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
         },
     },
@@ -127,8 +127,8 @@ impl FieldValue for Duration {
     }
 }
 
-impl FilterView for Duration {
-    type FilterViewType = RangeFilterKind;
+impl Filterable for Duration {
+    type Filter = RangeFilterKind;
 }
 
 impl From<i32> for Duration {
