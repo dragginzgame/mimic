@@ -3,10 +3,42 @@ use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
 ///
-/// Converts a typed filter struct into a `FilterExpr`.
+/// Filter
 ///
+
+pub trait Filter {
+    type Payload: IntoFilterExpr;
+
+    /// Converts a payload into a FilterExpr for this filter.
+    fn to_expr(payload: Self::Payload) -> FilterExpr {
+        payload.into_expr()
+    }
+}
+
+///
+/// IntoFilterExpr
+///
+
 pub trait IntoFilterExpr {
-    fn into_expr(self, field: &str) -> FilterExpr;
+    fn into_expr(self) -> FilterExpr;
+}
+
+pub trait IntoScopedFilterExpr {
+    fn into_scoped(self, path: &str) -> FilterExpr;
+}
+
+///
+/// NoFilter
+/// (#nofilter)
+///
+
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
+pub struct NoFilter;
+
+impl IntoFilterExpr for NoFilter {
+    fn into_expr(self) -> FilterExpr {
+        FilterExpr::True
+    }
 }
 
 ///
@@ -31,7 +63,7 @@ pub struct ContainsFilter {
 }
 
 impl IntoFilterExpr for ContainsFilter {
-    fn into_expr(self, field: &str) -> FilterExpr {
+    fn into_expr(self, path: Option<&str>) -> FilterExpr {
         let dsl = FilterDsl;
         let mut exprs = vec![];
 
@@ -84,7 +116,7 @@ pub struct EqualityFilter {
 }
 
 impl IntoFilterExpr for EqualityFilter {
-    fn into_expr(self, field: &str) -> FilterExpr {
+    fn into_expr(self, path: Option<&str>) -> FilterExpr {
         let dsl = FilterDsl;
         let mut exprs = vec![];
 
@@ -127,8 +159,8 @@ pub struct RangeFilter {
     pub between: Option<(i64, i64)>,
 }
 
-impl IntoFilterExpr for RangeFilter {
-    fn into_expr(self, field: &str) -> FilterExpr {
+impl IntoFieldFilterExpr for RangeFilter {
+    fn into_field_expr(self, field: &str) -> FilterExpr {
         let dsl = FilterDsl;
         let mut exprs = vec![];
 
@@ -154,11 +186,48 @@ impl IntoFilterExpr for RangeFilter {
 }
 
 ///
+/// SetFilter
+///
+
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
+pub struct SetFilter {
+    /// Filter for membership checks (e.g., contains / any_in / all_in)
+    pub contains: Option<ContainsFilter>,
+
+    /// Optional equality-like filter (for entire set equality)
+    pub eq: Option<EqualityFilter>,
+
+    /// Optional range-like filter (for cardinality / size)
+    pub len: Option<RangeFilter>,
+}
+
+impl IntoFilterExpr for SetFilter {
+    fn into_expr(self) -> FilterExpr {
+        let mut exprs = Vec::new();
+
+        if let Some(f) = self.contains {
+            exprs.push(f.into_field_expr("value"));
+        }
+        if let Some(f) = self.len {
+            exprs.push(f.into_field_expr("len"));
+        }
+
+        FilterDsl::all(exprs)
+    }
+}
+
+///
 /// TextFilter
 ///
 
+pub struct TextFilter;
+
+impl Filter for TextFilter {
+    type Payload = TextFilterPayload;
+}
+
 #[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
-pub struct TextFilter {
+pub struct TextFilterPayload {
     pub actions: Vec<TextFilterAction>,
     pub is_empty: Option<bool>,
 }
@@ -187,8 +256,8 @@ pub enum TextFilterOp {
     EndsWith,
 }
 
-impl IntoFilterExpr for TextFilter {
-    fn into_expr(self, field: &str) -> FilterExpr {
+impl IntoFilterExpr for TextFilterPayload {
+    fn into_expr(self) -> FilterExpr {
         let dsl = FilterDsl;
         let mut exprs = vec![];
 

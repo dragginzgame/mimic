@@ -35,31 +35,6 @@ impl ToTokens for Cardinality {
 }
 
 ///
-/// Filter
-///
-
-#[derive(
-    CandidType, Clone, Copy, Debug, Deserialize, Display, Eq, PartialEq, FromStr, Serialize,
-)]
-pub enum Filter {
-    Contains,
-    Equality,
-    Range,
-    Text,
-}
-
-impl Filter {
-    #[must_use]
-    pub fn as_type(&self) -> TokenStream {
-        match self {
-            Self::Text => quote!(::mimic::db::query::TextFilter),
-            Self::Range => quote!(::mimic::db::query::RangeFilter),
-            Self::Equality => quote!(::mimic::db::query::EqualityFilter),
-            Self::Contains => quote!(::mimic::db::query::ContainsFilter),
-        }
-    }
-}
-///
 /// Primitive
 ///
 
@@ -99,28 +74,6 @@ pub enum Primitive {
 }
 
 impl Primitive {
-    #[must_use]
-    pub const fn filter_kind(&self) -> Option<Filter> {
-        match self {
-            // Textual data → TextFilter
-            Self::Text => Some(Filter::Text),
-
-            // Numeric, fixed-point, decimal, dates, durations → RangeFilter
-            p if p.is_numeric() || matches!(p, Self::Date | Self::Duration) => Some(Filter::Range),
-
-            // Boolean, principals, ULIDs, subaccounts, etc. → EqualityFilter
-            Self::Bool | Self::Ulid | Self::Principal | Self::Account | Self::Subaccount => {
-                Some(Filter::Equality)
-            }
-
-            // Unfilterable primitives (binary blobs, units, etc.)
-            Self::Blob | Self::Unit => None,
-
-            // Everything else defaults to equality for safety
-            _ => Some(Filter::Equality),
-        }
-    }
-
     #[must_use]
     pub const fn supports_arithmetic(self) -> bool {
         self.is_int() || self.is_fixed_point() || self.is_decimal()

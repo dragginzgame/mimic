@@ -1,9 +1,12 @@
-use crate::core::{
-    traits::{
-        FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
-        ValidateAuto, ValidateCustom, View, Visitable,
+use crate::{
+    core::{
+        traits::{
+            FieldValue, FilterView, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
+            SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
+        },
+        value::Value,
     },
-    value::Value,
+    db::query::RangeFilter,
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Rem, Sub, SubAssign, Sum};
@@ -134,6 +137,10 @@ impl FieldValue for Decimal {
     fn to_value(&self) -> Value {
         Value::Decimal(*self)
     }
+}
+
+impl FilterView for Decimal {
+    type FilterViewType = RangeFilter;
 }
 
 impl Inner<Self> for Decimal {

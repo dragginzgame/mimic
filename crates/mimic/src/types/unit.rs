@@ -1,9 +1,12 @@
-use crate::core::{
-    Value,
-    traits::{
-        FieldValue, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto, ValidateCustom, View,
-        Visitable,
+use crate::{
+    core::{
+        Value,
+        traits::{
+            FieldValue, FilterView, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto,
+            ValidateCustom, View, Visitable,
+        },
     },
+    db::query::NoFilter,
 };
 use candid::CandidType;
 use derive_more::Display;
@@ -40,6 +43,10 @@ impl FieldValue for Unit {
     fn to_value(&self) -> Value {
         Value::Unit(*self)
     }
+}
+
+impl FilterView for Unit {
+    type FilterViewType = NoFilter;
 }
 
 impl Inner<Self> for Unit {

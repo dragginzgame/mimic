@@ -2,10 +2,12 @@
 mod macros;
 mod sanitize;
 mod validate;
+mod view;
 mod visitable;
 
 pub use sanitize::*;
 pub use validate::*;
+pub use view::*;
 pub use visitable::*;
 
 // re-exports of other traits
@@ -26,7 +28,6 @@ pub use std::{
 
 use crate::{
     core::{Key, Value},
-    db::query::FilterExpr,
     schema::node::Index,
 };
 
@@ -113,121 +114,6 @@ impl<T> TypeKind for T where
 }
 
 /// ------------------------
-/// VIEW TRAITS
-/// ------------------------
-
-///
-/// View
-///
-
-pub trait View {
-    type ViewType: Default;
-
-    fn to_view(&self) -> Self::ViewType;
-    fn from_view(view: Self::ViewType) -> Self;
-}
-
-impl<T: View> View for Box<T> {
-    type ViewType = Box<T::ViewType>;
-
-    fn to_view(&self) -> Self::ViewType {
-        Box::new((**self).to_view())
-    }
-
-    fn from_view(view: Self::ViewType) -> Self {
-        Self::new(T::from_view(*view))
-    }
-}
-
-impl<T: View> View for Option<T> {
-    type ViewType = Option<T::ViewType>;
-
-    fn to_view(&self) -> Self::ViewType {
-        self.as_ref().map(View::to_view)
-    }
-
-    fn from_view(view: Self::ViewType) -> Self {
-        view.map(T::from_view)
-    }
-}
-
-impl<T: View> View for Vec<T> {
-    type ViewType = Vec<T::ViewType>;
-
-    fn to_view(&self) -> Self::ViewType {
-        self.iter().map(View::to_view).collect()
-    }
-
-    fn from_view(view: Self::ViewType) -> Self {
-        view.into_iter().map(T::from_view).collect()
-    }
-}
-
-impl View for String {
-    type ViewType = Self;
-
-    fn to_view(&self) -> Self::ViewType {
-        self.clone()
-    }
-
-    fn from_view(view: Self::ViewType) -> Self {
-        view
-    }
-}
-
-// impl_type_view
-#[macro_export]
-macro_rules! impl_type_view {
-    ($($type:ty),*) => {
-        $(
-            impl View for $type {
-                type ViewType = $type;
-
-                fn to_view(&self) -> Self::ViewType {
-                    *self
-                }
-
-                fn from_view(view: Self::ViewType) -> Self {
-                    view
-                }
-            }
-        )*
-    };
-}
-
-impl_type_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
-
-///
-/// CreateView
-///
-
-pub trait CreateView {
-    type CreateType: Default;
-}
-
-///
-/// UpdateView
-///
-
-pub trait UpdateView {
-    type UpdateType: Default;
-
-    /// Merge `view` into `self`, skipping `None` fields.
-    fn merge(&mut self, view: Self::UpdateType);
-}
-
-///
-/// FilterView
-///
-
-pub trait FilterView {
-    type FilterType: Default;
-
-    /// Converts the filter view into a `FilterExpr` suitable for execution.
-    fn into_expr(view: Self::FilterType) -> FilterExpr;
-}
-
-/// ------------------------
 /// OTHER TRAITS
 /// ------------------------
 
@@ -242,12 +128,8 @@ pub trait FieldValues {
 ///
 /// FieldValue
 ///
-/// A trait that defines how a value is wrapped for WHERE queries,
-/// filtering, or comparison.
-///
 
 pub trait FieldValue {
-    // returns an opaque sentinel type by default
     fn to_value(&self) -> Value {
         Value::Unsupported
     }
@@ -271,9 +153,15 @@ impl<T: FieldValue + Clone> FieldValue for &T {
     }
 }
 
-// impl_field_value_as
+impl FieldValue for Vec<Value> {
+    fn to_value(&self) -> Value {
+        Value::List(self.clone())
+    }
+}
+
+// impl_field_value
 #[macro_export]
-macro_rules! impl_field_value_as {
+macro_rules! impl_field_value {
     ( $( $type:ty => $variant:ident ),* $(,)? ) => {
         $(
             impl FieldValue for $type {
@@ -285,7 +173,7 @@ macro_rules! impl_field_value_as {
     };
 }
 
-impl_field_value_as!(
+impl_field_value!(
     i8 => Int,
     i16 => Int,
     i32 => Int,

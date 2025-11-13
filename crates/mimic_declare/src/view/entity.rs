@@ -2,8 +2,8 @@ use crate::{
     node::Entity,
     prelude::*,
     view::{
-        ValueFilter, ValueView,
-        traits::{View, ViewType},
+        FieldFilter, FieldUpdate, FieldView,
+        traits::{View, ViewExpr},
     },
 };
 
@@ -14,24 +14,11 @@ use crate::{
 pub struct EntityView<'a>(pub &'a Entity);
 
 impl View for EntityView<'_> {
-    type Node = Entity;
-
-    fn node(&self) -> &Self::Node {
-        self.0
-    }
-}
-
-impl ViewType for EntityView<'_> {
     fn generate(&self) -> TokenStream {
-        let node = self.node();
+        let node = self.0;
         let node_ident = node.def().ident();
         let view_ident = node.view_ident();
-        let fields = node.fields.iter().map(|f| {
-            let fi = &f.ident;
-            let ty = ValueView(&f.value).view_expr();
-
-            quote!(pub #fi: #ty)
-        });
+        let fields = node.fields.iter().map(|f| FieldView(f).expr());
 
         // all traits are derived for now
         let derives = self.traits();
@@ -64,24 +51,11 @@ impl ToTokens for EntityView<'_> {
 pub struct EntityCreate<'a>(pub &'a Entity);
 
 impl View for EntityCreate<'_> {
-    type Node = Entity;
-
-    fn node(&self) -> &Self::Node {
-        self.0
-    }
-}
-
-impl ViewType for EntityCreate<'_> {
     fn generate(&self) -> TokenStream {
-        let node = self.node();
+        let node = self.0;
         let node_ident = node.def().ident();
         let create_ident = node.create_ident();
-        let fields = node.iter_editable_fields().map(|f| {
-            let ident = &f.ident;
-            let ty = ValueView(&f.value).view_expr();
-
-            quote!(pub #ident: #ty)
-        });
+        let fields = node.iter_editable_fields().map(|f| FieldView(f).expr());
 
         let defaults = node.iter_editable_fields().map(|f| {
             let ident = &f.ident;
@@ -123,23 +97,10 @@ impl ToTokens for EntityCreate<'_> {
 pub struct EntityUpdate<'a>(pub &'a Entity);
 
 impl View for EntityUpdate<'_> {
-    type Node = Entity;
-
-    fn node(&self) -> &Self::Node {
-        self.0
-    }
-}
-
-impl ViewType for EntityUpdate<'_> {
     fn generate(&self) -> TokenStream {
-        let node = self.node();
+        let node = self.0;
         let update_ident = node.update_ident();
-        let fields = node.iter_editable_fields().map(|f| {
-            let ident = &f.ident;
-            let ty = ValueView(&f.value).view_expr();
-
-            quote!(pub #ident: Option<#ty>)
-        });
+        let fields = node.iter_editable_fields().map(|f| FieldUpdate(f).expr());
 
         // add in default manually
         let mut derives = self.traits();
@@ -167,25 +128,30 @@ impl ToTokens for EntityUpdate<'_> {
 pub struct EntityFilter<'a>(pub &'a Entity);
 
 impl View for EntityFilter<'_> {
-    type Node = Entity;
-
-    fn node(&self) -> &Self::Node {
-        self.0
-    }
-}
-
-impl ViewType for EntityFilter<'_> {
     fn generate(&self) -> TokenStream {
-        let node = self.node();
+        let node = self.0;
+        let struct_ident = node.def.ident();
         let filter_ident = node.filter_ident();
-        let fields = node.fields.iter().filter_map(|f| {
-            let ident = &f.ident;
-            let ty = ValueFilter(&f.value).filter_expr()?;
 
-            Some(quote!(pub #ident: Option<#ty>))
+        // field definitions for the struct body
+        let fields = node.fields.iter().filter_map(|f| FieldFilter(f).expr());
+
+        // for the IntoFilterExpr impl, we need each field ident and its associated const
+        let field_exprs = node.fields.iter().map(|f| {
+            let ident = &f.ident;
+            let const_ident = f.const_ident();
+
+            quote! {
+                self.#ident.map(|f| {
+                    ::mimic::db::query::IntoFieldFilterExpr::into_field_expr(
+                        f,
+                        #struct_ident::#const_ident
+                    )
+                })
+            }
         });
 
-        // add in default manually
+        // add Default derive
         let mut derives = self.traits();
         derives.add(TraitKind::Default);
 
@@ -193,6 +159,15 @@ impl ViewType for EntityFilter<'_> {
             #derives
             pub struct #filter_ident {
                 #(#fields),*
+            }
+
+            impl ::mimic::db::query::IntoFilterExpr for #filter_ident {
+                fn into_expr(self) -> ::mimic::db::query::FilterExpr {
+                    let filters = [#(#field_exprs),*];
+                    let exprs = filters.into_iter().flatten();
+
+                    ::mimic::db::query::FilterDsl::all(exprs)
+                }
             }
         }
     }

@@ -2,7 +2,7 @@ use crate::{
     prelude::*,
     view::{
         ItemView,
-        traits::{View, ViewType},
+        traits::{View, ViewExpr},
     },
 };
 
@@ -13,18 +13,10 @@ use crate::{
 pub struct ListView<'a>(pub &'a List);
 
 impl View for ListView<'_> {
-    type Node = List;
-
-    fn node(&self) -> &Self::Node {
-        self.0
-    }
-}
-
-impl ViewType for ListView<'_> {
     fn generate(&self) -> TokenStream {
-        let node = self.node();
+        let node = self.0;
         let view_ident = node.view_ident();
-        let item_view = ItemView(&node.item).view_expr();
+        let item_view = ItemView(&node.item).expr();
 
         quote! {
             pub type #view_ident = Vec<#item_view>;
@@ -33,6 +25,29 @@ impl ViewType for ListView<'_> {
 }
 
 impl ToTokens for ListView<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.generate());
+    }
+}
+
+///
+/// ListFilter
+///
+
+pub struct ListFilter<'a>(pub &'a List);
+
+impl View for ListFilter<'_> {
+    fn generate(&self) -> TokenStream {
+        let node = self.0;
+        let filter_ident = node.filter_ident();
+
+        quote! {
+            pub type #filter_ident = ::mimic::db::query::ContainsFilter;
+        }
+    }
+}
+
+impl ToTokens for ListFilter<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         tokens.extend(self.generate());
     }

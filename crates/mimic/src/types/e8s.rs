@@ -1,11 +1,12 @@
 use crate::{
     core::{
         traits::{
-            FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
+            FieldValue, FilterView, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
             SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
         },
         value::Value,
     },
+    db::query::RangeFilter,
     types::Decimal,
 };
 use candid::CandidType;
@@ -129,6 +130,10 @@ impl FieldValue for E8s {
     fn to_value(&self) -> Value {
         Value::E8s(*self)
     }
+}
+
+impl FilterView for E8s {
+    type FilterViewType = RangeFilter;
 }
 
 #[allow(clippy::cast_possible_wrap)]

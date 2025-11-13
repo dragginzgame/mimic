@@ -1,6 +1,6 @@
 use crate::{
     prelude::*,
-    view::{ItemView, traits::View},
+    view::{ItemFilter, ItemView, traits::ViewExpr},
 };
 
 ///
@@ -9,25 +9,17 @@ use crate::{
 
 pub struct ValueView<'a>(pub &'a Value);
 
-impl View for ValueView<'_> {
-    type Node = Value;
-
-    fn node(&self) -> &Self::Node {
-        self.0
-    }
-}
-
-impl ValueView<'_> {
-    pub fn view_expr(&self) -> TokenStream {
-        let node = self.node();
-        let item_view = ItemView(&node.item);
-        let item_expr = &item_view.view_expr();
+impl ViewExpr for ValueView<'_> {
+    fn expr(&self) -> Option<TokenStream> {
+        let node = self.0;
+        let item = ItemView(&node.item).expr();
 
         match node.cardinality() {
-            Cardinality::One => quote!(#item_expr),
-            Cardinality::Opt => quote!(Option<#item_expr>),
-            Cardinality::Many => quote!(Vec<#item_expr>),
+            Cardinality::One => quote!(#item),
+            Cardinality::Opt => quote!(Option<#item>),
+            Cardinality::Many => quote!(Vec<#item>),
         }
+        .into()
     }
 }
 
@@ -37,22 +29,20 @@ impl ValueView<'_> {
 
 pub struct ValueFilter<'a>(pub &'a Value);
 
-impl View for ValueFilter<'_> {
-    type Node = Value;
+impl ViewExpr for ValueFilter<'_> {
+    fn expr(&self) -> Option<TokenStream> {
+        let node = self.0;
 
-    fn node(&self) -> &Self::Node {
-        self.0
-    }
-}
-
-impl ValueFilter<'_> {
-    pub fn filter_expr(&self) -> Option<TokenStream> {
-        let node = self.node();
-
-        match (node.cardinality(), node.item.target()) {
-            (Cardinality::Many, _) => Some(quote!(::mimic::db::query::ContainsFilter)),
-            (_, ItemTarget::Primitive(p)) => p.filter_kind().map(|f| f.as_type()),
-            (_, ItemTarget::Is(_)) => None,
+        match node.cardinality() {
+            Cardinality::Many => {
+                // For lists, we’ll usually use ContainsFilter
+                Some(quote!(::mimic::db::query::ContainsFilter))
+            }
+            Cardinality::Opt | Cardinality::One => {
+                // Delegate to ItemFilter for the actual type
+                let item = ItemFilter(&node.item);
+                item.expr()
+            }
         }
     }
 }

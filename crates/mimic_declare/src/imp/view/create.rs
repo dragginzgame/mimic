@@ -33,7 +33,7 @@ impl Imp<Entity> for CreateViewTrait {
 
         // Build the trait implementation
         let q = quote! {
-            type CreateType = #create_ident;
+            type CreateViewType = #create_ident;
         };
 
         let create_impl = Implementor::new(node.def(), TraitKind::CreateView)

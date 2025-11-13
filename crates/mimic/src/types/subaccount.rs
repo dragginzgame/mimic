@@ -40,6 +40,7 @@ pub struct Subaccount(WrappedSubaccount);
 
 impl Subaccount {
     pub const STORABLE_MAX_SIZE: u32 = 72;
+
     pub const MIN: Self = Self::from_array([0x00; 32]);
     pub const MAX: Self = Self::from_array([0xFF; 32]);
 

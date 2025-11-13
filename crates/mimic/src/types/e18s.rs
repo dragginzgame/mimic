@@ -1,11 +1,12 @@
 use crate::{
     core::{
         traits::{
-            FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
+            FieldValue, FilterView, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
             SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
         },
         value::Value,
     },
+    db::query::RangeFilter,
     types::Decimal,
 };
 use candid::CandidType;
@@ -121,6 +122,10 @@ impl FieldValue for E18s {
     fn to_value(&self) -> Value {
         Value::E18s(*self)
     }
+}
+
+impl FilterView for E18s {
+    type FilterViewType = RangeFilter;
 }
 
 impl From<i32> for E18s {
