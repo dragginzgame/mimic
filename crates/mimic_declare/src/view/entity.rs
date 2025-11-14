@@ -141,6 +141,7 @@ impl View for EntityFilter<'_> {
         let field_exprs = node.fields.iter().map(|f| {
             let ident = &f.ident;
             let field_name = f.ident.to_string();
+
             quote! {
                 self.#ident.map(|f| {
                     ::mimic::db::primitives::filter::IntoScopedFilterExpr::into_scoped(f, #field_name)

@@ -1,5 +1,7 @@
-use mimic::{core::Value, prelude::*, types::Principal};
+use mimic::{core::Value, db::primitives::*, prelude::*, types::Principal};
 use test_design::e2e::filter::{Filterable, FilterableEnum, FilterableEnumFake, FilterableOpt};
+
+use super::fixtures;
 
 ///
 /// LoadFilterSuite
@@ -67,73 +69,47 @@ impl LoadFilterSuite {
                 "invalid_presence_rhs_non_unit",
                 Self::invalid_presence_rhs_non_unit,
             ),
+            (
+                "filter_builder_eq_category",
+                Self::filter_builder_eq_category,
+            ),
+            ("filter_builder_gt_score", Self::filter_builder_gt_score),
+            (
+                "filter_builder_name_starts_and_ends",
+                Self::filter_builder_name_starts_and_ends,
+            ),
+            (
+                "filter_builder_category_not_equal_ci",
+                Self::filter_builder_category_not_equal_ci,
+            ),
+            (
+                "filter_builder_name_contains_ci",
+                Self::filter_builder_name_contains_ci,
+            ),
+            (
+                "filter_builder_score_between",
+                Self::filter_builder_score_between,
+            ),
+            (
+                "filter_builder_level_between",
+                Self::filter_builder_level_between,
+            ),
+            (
+                "filter_builder_opt_name_present",
+                Self::filter_builder_opt_name_present,
+            ),
+            (
+                "filter_builder_opt_level_band",
+                Self::filter_builder_opt_level_band,
+            ),
         ];
 
         // insert data
-        Self::insert();
-        Self::insert_opt();
+        fixtures::seed_filter_data();
 
         for (name, test_fn) in tests {
             println!("Running test: {name}");
             test_fn();
-        }
-    }
-
-    // insert
-    fn insert() {
-        use FilterableEnum::{A, B, C};
-
-        #[rustfmt::skip]
-        let fixtures = [
-            ("Alpha", "A", true, 87.2, 1, -10, vec!["red", "blue"], 1, A),
-            ("Beta", "B", false, 65.1, 2, 0, vec!["green"], 2, B),
-            ("Gamma", "C", true, 92.5, 3, 10, vec!["red", "yellow"], 3, C),
-            ("Delta", "B", false, 15.3, 2, 5, vec![], 4, B),
-            ("Epsilon", "A", true, 75.0, 4, -5, vec!["green", "blue"], 5, A),
-            ("Zeta", "C", false, 88.8, 5, 15, vec!["purple"], 6, C),
-            ("Eta", "B", true, 30.5, 1, 8, vec!["red"], 7, B),
-            ("Theta", "A", true, 99.9, 6, -20, vec!["blue", "green"], 8 ,A),
-            ("Iota", "C", false, 42.0, 3, 0, vec!["yellow", "red"], 9, C),
-            ("Kappa", "B", true, 50.0, 2, 3, vec!["green", "blue"], 10, B),
-        ];
-
-        for (name, category, active, score, level, offset, tags, pid_index, abc) in fixtures {
-            db!()
-                .insert(Filterable {
-                    name: name.into(),
-                    category: category.into(),
-                    active,
-                    score: Decimal::from(score),
-                    level,
-                    offset,
-                    tags: tags.iter().map(ToString::to_string).collect(),
-                    pid: Principal::dummy(pid_index),
-                    abc,
-                    ..Default::default()
-                })
-                .unwrap();
-        }
-    }
-
-    fn insert_opt() {
-        let fixtures = [
-            (Some("Alice"), Some(1), Some(-10), Some(Principal::dummy(1))),
-            (Some("Bob"), Some(2), Some(0), Some(Principal::dummy(2))),
-            (None, Some(3), None, Some(Principal::dummy(3))),
-            (Some("Charlie"), None, Some(5), None),
-            (None, None, None, None),
-        ];
-
-        for (name, level, offset, pid) in fixtures {
-            db!()
-                .insert(FilterableOpt {
-                    name: name.map(str::to_string),
-                    level,
-                    offset,
-                    pid,
-                    ..Default::default()
-                })
-                .unwrap();
         }
     }
 
@@ -198,7 +174,7 @@ impl LoadFilterSuite {
 
     fn filter_and_group() {
         let query =
-            query::load().filter(|f| f.gte("score", Decimal::from(60.0)) & f.gte("level", 2));
+            db::query::load().filter(|f| f.gte("score", Decimal::from(60.0)) & f.gte("level", 2));
 
         let results = db!()
             .load::<Filterable>()
@@ -215,7 +191,7 @@ impl LoadFilterSuite {
     }
 
     fn filter_or_group() {
-        let query = query::load().filter(|f| f.eq("category", "A") | f.eq("category", "C"));
+        let query = db::query::load().filter(|f| f.eq("category", "A") | f.eq("category", "C"));
 
         let results = db!()
             .load::<Filterable>()
@@ -232,7 +208,7 @@ impl LoadFilterSuite {
     }
 
     fn filter_nested_groups() {
-        let query = query::load().filter(|f| {
+        let query = db::query::load().filter(|f| {
             f.eq("active", true) | f.lt("score", Decimal::from(40.0)) | f.lt("offset", 0)
         });
 
@@ -257,7 +233,7 @@ impl LoadFilterSuite {
     }
 
     fn filter_not_clause() {
-        let query = query::load().filter(|f| f.ne("category", "C"));
+        let query = db::query::load().filter(|f| f.ne("category", "C"));
 
         let results = db!()
             .load::<Filterable>()
@@ -575,7 +551,7 @@ impl LoadFilterSuite {
     fn invalid_any_in_ci_list_non_text() {
         use mimic::{
             core::value::Value,
-            db::query::{Cmp, FilterClause, FilterExpr},
+            db::primitives::{Cmp, FilterClause, FilterExpr},
         };
 
         // tags is list of Text; AnyInCi expects list of Text on RHS
@@ -585,8 +561,9 @@ impl LoadFilterSuite {
             Value::from(vec![Value::Int(1), Value::Int(2)]),
         ));
 
-        let q = query::load().filter_expr(bad);
+        let q = db::query::load().filter(|_| bad);
         let res = db!().load::<Filterable>().execute(q);
+
         assert!(
             res.is_err(),
             "Expected validation error for AnyInCi(tags, [ints])"
@@ -596,7 +573,7 @@ impl LoadFilterSuite {
     fn invalid_presence_rhs_non_unit() {
         use mimic::{
             core::value::Value,
-            db::query::{Cmp, FilterClause, FilterExpr},
+            db::primitives::{Cmp, FilterClause, FilterExpr},
         };
 
         // Manually construct an invalid presence filter: IsNone should use Unit RHS
@@ -605,11 +582,166 @@ impl LoadFilterSuite {
             Cmp::IsNone,
             Value::Text("x".into()),
         ));
-        let q = query::load().filter_expr(bad);
+        let q = db::query::load().filter(|_| bad);
         let res = db!().load::<Filterable>().execute(q);
+
         assert!(
             res.is_err(),
             "Expected validation error for IsNone with non-Unit RHS"
+        );
+    }
+
+    // -------------------- builder-based filters ---------------------
+
+    fn filter_builder_eq_category() {
+        let filter = Filter::<Filterable> {
+            category: Some(TextFilter::new().equal("A")),
+            ..Default::default()
+        };
+
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|_| filter)
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 3);
+        assert!(results.iter().all(|e| e.category == "A"));
+    }
+
+    fn filter_builder_gt_score() {
+        let filter = Filter::<Filterable> {
+            score: Some(RangeFilter::new().gt(80)),
+            ..Default::default()
+        };
+
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|_| filter)
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 4);
+        assert!(results.iter().all(|e| e.score > Decimal::from(80)));
+    }
+
+    fn filter_builder_name_starts_and_ends() {
+        let filter = Filter::<Filterable> {
+            name: Some(TextFilter::new().starts_with("Al").ends_with("ha")),
+            ..Default::default()
+        };
+
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|_| filter)
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].name, "Alpha");
+    }
+
+    fn filter_builder_category_not_equal_ci() {
+        let filter = Filter::<Filterable> {
+            category: Some(TextFilter::new().not_equal_ci("b")),
+            ..Default::default()
+        };
+
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|_| filter)
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 6);
+        assert!(results.iter().all(|e| e.category != "B"));
+    }
+
+    fn filter_builder_name_contains_ci() {
+        let filter = Filter::<Filterable> {
+            name: Some(TextFilter::new().contains_ci("ta")),
+            ..Default::default()
+        };
+
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|_| filter)
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 6);
+        assert!(results.iter().all(|e| e.name.to_lowercase().contains("ta")));
+    }
+
+    fn filter_builder_score_between() {
+        let filter = Filter::<Filterable> {
+            score: Some(RangeFilter::new().between(70, 90)),
+            ..Default::default()
+        };
+
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|_| filter)
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 3);
+        assert!(
+            results
+                .iter()
+                .all(|e| { e.score >= Decimal::from(70) && e.score <= Decimal::from(90) })
+        );
+    }
+
+    fn filter_builder_level_between() {
+        let filter = Filter::<Filterable> {
+            level: Some(RangeFilter::new().gte(2).lte(3)),
+            ..Default::default()
+        };
+
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|_| filter)
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 5);
+        assert!(results.iter().all(|e| (2..=3).contains(&e.level)));
+    }
+
+    fn filter_builder_opt_name_present() {
+        let filter = Filter::<FilterableOpt> {
+            name: Some(TextFilter::new().is_empty(false)),
+            ..Default::default()
+        };
+
+        let results = db!()
+            .load::<FilterableOpt>()
+            .filter(|_| filter)
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 3);
+        assert!(results.iter().all(|e| e.name.is_some()));
+    }
+
+    fn filter_builder_opt_level_band() {
+        let filter = Filter::<FilterableOpt> {
+            level: Some(RangeFilter::new().gte(2).lte(3)),
+            ..Default::default()
+        };
+
+        let results = db!()
+            .load::<FilterableOpt>()
+            .filter(|_| filter)
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 2);
+        assert!(
+            results
+                .iter()
+                .all(|e| { e.level.is_some_and(|level| (2..=3).contains(&level)) })
         );
     }
 }

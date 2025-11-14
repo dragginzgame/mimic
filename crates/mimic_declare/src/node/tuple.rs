@@ -58,6 +58,7 @@ impl HasTraits for Tuple {
         use crate::imp::*;
 
         match t {
+            TraitKind::Filterable => FilterableTrait::strategy(self),
             TraitKind::View => ViewTrait::strategy(self),
             TraitKind::Visitable => VisitableTrait::strategy(self),
 

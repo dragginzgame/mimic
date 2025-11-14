@@ -7,7 +7,7 @@ use crate::{
     db::{
         Db,
         executor::{FilterEvaluator, plan_for},
-        primitives::{FilterDsl, FilterExpr, FilterExt, Order, SortExpr},
+        primitives::{FilterDsl, FilterExpr, FilterExt, IntoFilterExpr, Order, SortExpr},
         query::{LoadQuery, QueryPlan, QueryValidate},
         response::Response,
     },
@@ -83,16 +83,12 @@ impl<E: EntityKind> LoadExecutor<E> {
         self.execute(query)
     }
 
-    pub fn filter<F>(self, f: F) -> Result<Response<E>, Error>
+    pub fn filter<F, I>(self, f: F) -> Result<Response<E>, Error>
     where
-        F: FnOnce(FilterDsl) -> FilterExpr,
+        F: FnOnce(FilterDsl) -> I,
+        I: IntoFilterExpr,
     {
         let query = LoadQuery::new().filter(f);
-        self.execute(query)
-    }
-
-    pub fn filter_expr(self, expr: FilterExpr) -> Result<Response<E>, Error> {
-        let query = LoadQuery::new().filter_expr(expr);
         self.execute(query)
     }
 

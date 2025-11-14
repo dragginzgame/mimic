@@ -2,7 +2,10 @@ mod bytes;
 mod tests;
 
 use crate::{
-    core::{Key, traits::NumFromPrimitive},
+    core::{
+        Key,
+        traits::{FieldValue, NumFromPrimitive},
+    },
     types::*,
 };
 use candid::CandidType;
@@ -482,6 +485,12 @@ impl Value {
             (Self::Text(x), Self::Text(_), Some(sf)) => Self::fold_ci(x) == *sf,
             _ => a == b,
         })
+    }
+}
+
+impl FieldValue for Value {
+    fn to_value(&self) -> Value {
+        self.clone()
     }
 }
 

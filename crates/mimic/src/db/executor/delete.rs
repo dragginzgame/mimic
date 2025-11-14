@@ -8,7 +8,7 @@ use crate::{
     db::{
         Db,
         executor::FilterEvaluator,
-        primitives::{FilterDsl, FilterExpr, FilterExt},
+        primitives::{FilterDsl, FilterExt, IntoFilterExpr},
         query::{DeleteQuery, QueryPlan, QueryValidate},
         response::Response,
     },
@@ -87,16 +87,12 @@ impl<E: EntityKind> DeleteExecutor<E> {
         self.execute(query)
     }
 
-    pub fn filter<F>(self, f: F) -> Result<Response<E>, Error>
+    pub fn filter<F, I>(self, f: F) -> Result<Response<E>, Error>
     where
-        F: FnOnce(FilterDsl) -> FilterExpr,
+        F: FnOnce(FilterDsl) -> I,
+        I: IntoFilterExpr,
     {
         let query = DeleteQuery::new().filter(f);
-        self.execute(query)
-    }
-
-    pub fn filter_expr(self, expr: FilterExpr) -> Result<Response<E>, Error> {
-        let query = DeleteQuery::new().filter_expr(expr);
         self.execute(query)
     }
 

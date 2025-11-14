@@ -61,8 +61,9 @@ impl HasTraits for Record {
 
         match t {
             TraitKind::Default => DefaultTrait::strategy(self),
-            TraitKind::UpdateView => UpdateViewTrait::strategy(self),
+            TraitKind::Filterable => FilterableTrait::strategy(self),
             TraitKind::SanitizeAuto => SanitizeAutoTrait::strategy(self),
+            TraitKind::UpdateView => UpdateViewTrait::strategy(self),
             TraitKind::ValidateAuto => ValidateAutoTrait::strategy(self),
             TraitKind::View => ViewTrait::strategy(self),
             TraitKind::Visitable => VisitableTrait::strategy(self),

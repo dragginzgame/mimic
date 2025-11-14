@@ -106,5 +106,5 @@ pub trait UpdateView {
 ///
 
 pub trait FilterView {
-    type FilterViewType: Default;
+    type FilterViewType: Default + ::mimic::db::primitives::IntoFilterExpr;
 }

@@ -1,6 +1,6 @@
 use crate::{
     core::traits::{EntityKind, FieldValue},
-    db::primitives::filter::{FilterDsl, FilterExpr},
+    db::primitives::filter::{FilterDsl, FilterExpr, IntoFilterExpr},
 };
 
 /// Anything with a filter slot (e.g. a query builder)
@@ -17,30 +17,31 @@ pub trait FilterExt: FilterSlot + Sized {
     //
 
     #[must_use]
-    fn filter<F>(self, f: F) -> Self
+    fn filter<F, I>(mut self, f: F) -> Self
     where
-        F: FnOnce(FilterDsl) -> FilterExpr,
+        F: FnOnce(FilterDsl) -> I,
+        I: IntoFilterExpr,
     {
-        let expr = f(FilterDsl);
-        self.filter_expr(expr)
-    }
+        let expr: FilterExpr = f(FilterDsl).into_expr();
 
-    #[must_use]
-    fn filter_expr(mut self, expr: FilterExpr) -> Self {
         let slot = self.filter_slot();
-        let newf = match slot.take() {
+        let combined = match slot.take() {
             Some(existing) => existing.and(expr),
             None => expr,
         };
-        *slot = Some(newf);
 
+        *slot = Some(combined);
         self
     }
 
     #[must_use]
-    fn filter_expr_opt(self, expr: Option<FilterExpr>) -> Self {
-        if let Some(expr) = expr {
-            self.filter_expr(expr)
+    fn filter_opt<F, I>(self, f: F) -> Self
+    where
+        F: FnOnce(FilterDsl) -> Option<I>,
+        I: IntoFilterExpr,
+    {
+        if let Some(i) = f(FilterDsl) {
+            self.filter(|_| i)
         } else {
             self
         }

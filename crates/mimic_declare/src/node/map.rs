@@ -66,6 +66,7 @@ impl HasTraits for Map {
         use crate::imp::*;
 
         match t {
+            TraitKind::Filterable => FilterableTrait::strategy(self),
             TraitKind::From => FromTrait::strategy(self),
             TraitKind::SanitizeAuto => SanitizeAutoTrait::strategy(self),
             TraitKind::ValidateAuto => ValidateAutoTrait::strategy(self),

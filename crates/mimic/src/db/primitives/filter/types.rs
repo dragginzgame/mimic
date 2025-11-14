@@ -83,6 +83,90 @@ pub struct ContainsFilter {
     pub not_all_in: Option<Vec<String>>,
 }
 
+impl ContainsFilter {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    #[must_use]
+    pub fn contains(mut self, value: impl Into<String>) -> Self {
+        self.contains = Some(value.into());
+        self
+    }
+
+    #[must_use]
+    pub fn not_contains(mut self, value: impl Into<String>) -> Self {
+        self.not_contains = Some(value.into());
+        self
+    }
+
+    #[must_use]
+    pub fn any_in<I, T>(mut self, values: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<String>,
+    {
+        Self::extend_slot(&mut self.any_in, values);
+        self
+    }
+
+    #[must_use]
+    pub fn all_in<I, T>(mut self, values: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<String>,
+    {
+        Self::extend_slot(&mut self.all_in, values);
+        self
+    }
+
+    #[must_use]
+    pub fn not_any_in<I, T>(mut self, values: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<String>,
+    {
+        Self::extend_slot(&mut self.not_any_in, values);
+        self
+    }
+
+    #[must_use]
+    pub fn not_all_in<I, T>(mut self, values: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<String>,
+    {
+        Self::extend_slot(&mut self.not_all_in, values);
+        self
+    }
+
+    #[must_use]
+    pub const fn is_empty(mut self, val: bool) -> Self {
+        self.is_empty = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub const fn empty(self) -> Self {
+        self.is_empty(true)
+    }
+
+    #[must_use]
+    pub const fn not_empty(self) -> Self {
+        self.is_empty(false)
+    }
+
+    fn extend_slot<I, T>(slot: &mut Option<Vec<String>>, values: I)
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<String>,
+    {
+        slot.get_or_insert_with(Vec::new)
+            .extend(values.into_iter().map(Into::into));
+    }
+}
+
 impl IntoScopedFilterExpr for ContainsFilter {
     fn into_scoped(self, path: &str) -> FilterExpr {
         let dsl = FilterDsl;
@@ -146,6 +230,70 @@ pub struct EqualityFilter {
     pub is_none: Option<bool>,
 }
 
+impl EqualityFilter {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    #[must_use]
+    pub fn eq(mut self, value: impl Into<String>) -> Self {
+        self.eq = Some(value.into());
+        self
+    }
+
+    #[must_use]
+    pub fn ne(mut self, value: impl Into<String>) -> Self {
+        self.ne = Some(value.into());
+        self
+    }
+
+    #[must_use]
+    pub fn in_<I, T>(mut self, values: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<String>,
+    {
+        Self::extend_slot(&mut self.in_, values);
+        self
+    }
+
+    #[must_use]
+    pub fn not_in<I, T>(mut self, values: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<String>,
+    {
+        Self::extend_slot(&mut self.not_in, values);
+        self
+    }
+
+    #[must_use]
+    pub const fn is_none(mut self, val: bool) -> Self {
+        self.is_none = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub const fn none(self) -> Self {
+        self.is_none(true)
+    }
+
+    #[must_use]
+    pub const fn some(self) -> Self {
+        self.is_none(false)
+    }
+
+    fn extend_slot<I, T>(slot: &mut Option<Vec<String>>, values: I)
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<String>,
+    {
+        slot.get_or_insert_with(Vec::new)
+            .extend(values.into_iter().map(Into::into));
+    }
+}
+
 impl IntoScopedFilterExpr for EqualityFilter {
     fn into_scoped(self, field: &str) -> FilterExpr {
         let dsl = FilterDsl;
@@ -199,6 +347,47 @@ pub struct RangeFilter {
     pub between: Option<(i64, i64)>,
 }
 
+impl RangeFilter {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    #[must_use]
+    pub fn gt(mut self, value: impl Into<i64>) -> Self {
+        self.gt = Some(value.into());
+        self
+    }
+
+    #[must_use]
+    pub fn gte(mut self, value: impl Into<i64>) -> Self {
+        self.gte = Some(value.into());
+        self
+    }
+
+    #[must_use]
+    pub fn lt(mut self, value: impl Into<i64>) -> Self {
+        self.lt = Some(value.into());
+        self
+    }
+
+    #[must_use]
+    pub fn lte(mut self, value: impl Into<i64>) -> Self {
+        self.lte = Some(value.into());
+        self
+    }
+
+    #[must_use]
+    pub fn between<M, N>(mut self, min: M, max: N) -> Self
+    where
+        M: Into<i64>,
+        N: Into<i64>,
+    {
+        self.between = Some((min.into(), max.into()));
+        self
+    }
+}
+
 impl IntoScopedFilterExpr for RangeFilter {
     fn into_scoped(self, path: &str) -> FilterExpr {
         let dsl = FilterDsl;
@@ -241,6 +430,52 @@ pub struct SetFilter {
     pub len: Option<RangeFilter>,
 }
 
+impl SetFilter {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    #[must_use]
+    pub fn contains(mut self, f: impl FnOnce(ContainsFilter) -> ContainsFilter) -> Self {
+        let filter = f(self.contains.unwrap_or_default());
+        self.contains = Some(filter);
+        self
+    }
+
+    #[must_use]
+    pub fn contains_filter(mut self, filter: ContainsFilter) -> Self {
+        self.contains = Some(filter);
+        self
+    }
+
+    #[must_use]
+    pub fn eq(mut self, f: impl FnOnce(EqualityFilter) -> EqualityFilter) -> Self {
+        let filter = f(self.eq.unwrap_or_default());
+        self.eq = Some(filter);
+        self
+    }
+
+    #[must_use]
+    pub fn eq_filter(mut self, filter: EqualityFilter) -> Self {
+        self.eq = Some(filter);
+        self
+    }
+
+    #[must_use]
+    pub fn len(mut self, f: impl FnOnce(RangeFilter) -> RangeFilter) -> Self {
+        let filter = f(self.len.unwrap_or_default());
+        self.len = Some(filter);
+        self
+    }
+
+    #[must_use]
+    pub const fn len_filter(mut self, filter: RangeFilter) -> Self {
+        self.len = Some(filter);
+        self
+    }
+}
+
 impl IntoScopedFilterExpr for SetFilter {
     fn into_scoped(self, field: &str) -> FilterExpr {
         let mut exprs = Vec::new();
@@ -274,10 +509,100 @@ impl FilterKind for TextFilterKind {
     type Payload = TextFilter;
 }
 
-#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
+///
+/// TextFilter
+///
+
+#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct TextFilter {
     pub actions: Vec<TextFilterAction>,
     pub is_empty: Option<bool>,
+}
+
+impl TextFilter {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    #[must_use]
+    pub const fn is_empty(mut self, val: bool) -> Self {
+        self.is_empty = Some(val);
+        self
+    }
+
+    // --- equality ---
+    #[must_use]
+    pub fn equal(mut self, value: impl Into<String>) -> Self {
+        self.push_action(TextFilterOp::Equal, false, value);
+        self
+    }
+
+    #[must_use]
+    pub fn equal_ci(mut self, value: impl Into<String>) -> Self {
+        self.push_action(TextFilterOp::Equal, true, value);
+        self
+    }
+
+    #[must_use]
+    pub fn not_equal(mut self, value: impl Into<String>) -> Self {
+        self.push_action(TextFilterOp::NotEqual, false, value);
+        self
+    }
+
+    #[must_use]
+    pub fn not_equal_ci(mut self, value: impl Into<String>) -> Self {
+        self.push_action(TextFilterOp::NotEqual, true, value);
+        self
+    }
+
+    // --- contains ---
+    #[must_use]
+    pub fn contains(mut self, value: impl Into<String>) -> Self {
+        self.push_action(TextFilterOp::Contains, false, value);
+        self
+    }
+
+    #[must_use]
+    pub fn contains_ci(mut self, value: impl Into<String>) -> Self {
+        self.push_action(TextFilterOp::Contains, true, value);
+        self
+    }
+
+    // --- starts_with ---
+    #[must_use]
+    pub fn starts_with(mut self, value: impl Into<String>) -> Self {
+        self.push_action(TextFilterOp::StartsWith, false, value);
+        self
+    }
+
+    #[must_use]
+    pub fn starts_with_ci(mut self, value: impl Into<String>) -> Self {
+        self.push_action(TextFilterOp::StartsWith, true, value);
+        self
+    }
+
+    // --- ends_with ---
+    #[must_use]
+    pub fn ends_with(mut self, value: impl Into<String>) -> Self {
+        self.push_action(TextFilterOp::EndsWith, false, value);
+        self
+    }
+
+    #[must_use]
+    pub fn ends_with_ci(mut self, value: impl Into<String>) -> Self {
+        self.push_action(TextFilterOp::EndsWith, true, value);
+        self
+    }
+
+    // -------- internal ----------
+    fn push_action(&mut self, op: TextFilterOp, case_insensitive: bool, value: impl Into<String>) {
+        self.actions.push(TextFilterAction {
+            op,
+            case_insensitive,
+            values: vec![value.into()],
+        });
+    }
 }
 
 ///

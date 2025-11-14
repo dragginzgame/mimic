@@ -1,6 +1,6 @@
 use crate::{
     core::{traits::FieldValue, value::Value},
-    db::primitives::filter::Cmp,
+    db::primitives::filter::{Cmp, IntoFilterExpr},
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
@@ -198,6 +198,12 @@ impl FilterExpr {
         }
 
         flat
+    }
+}
+
+impl IntoFilterExpr for FilterExpr {
+    fn into_expr(self) -> FilterExpr {
+        self
     }
 }
 

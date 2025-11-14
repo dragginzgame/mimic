@@ -64,6 +64,7 @@ impl HasTraits for List {
 
         match t {
             TraitKind::FieldValue => FieldValueTrait::strategy(self),
+            TraitKind::Filterable => FilterableTrait::strategy(self),
             TraitKind::From => FromTrait::strategy(self),
             TraitKind::SanitizeAuto => SanitizeAutoTrait::strategy(self),
             TraitKind::ValidateAuto => ValidateAutoTrait::strategy(self),

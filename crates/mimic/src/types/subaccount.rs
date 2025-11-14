@@ -6,7 +6,7 @@ use crate::{
         },
         value::Value,
     },
-    db::primitives::NoFilterKind,
+    db::primitives::EqualityFilterKind,
     types::{Principal, Ulid},
 };
 use candid::CandidType;
@@ -117,7 +117,7 @@ impl FieldValue for Subaccount {
 }
 
 impl Filterable for Subaccount {
-    type Filter = NoFilterKind;
+    type Filter = EqualityFilterKind;
 }
 
 /// code taken from
