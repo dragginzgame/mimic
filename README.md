@@ -118,7 +118,7 @@ See [INTEGRATION.md](INTEGRATION.md) for installation and integration details.
 
 ### Workspace
 
-- Rust 1.91.0, edition 2024 (see `Cargo.toml`).
+- Rust, edition 2024 (see `Cargo.toml`).
 - Layout: `crates/*`, assets in `assets/`, scripts in `scripts/`.
 
 ### Commands
