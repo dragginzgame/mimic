@@ -1,4 +1,4 @@
-use crate::db::query::{Order, SortExpr};
+use crate::db::primitives::sort::{Order, SortExpr};
 
 ///
 /// SortSlot

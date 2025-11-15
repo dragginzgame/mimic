@@ -1,6 +1,6 @@
 use crate::{
     core::{Key, Value, traits::EntityKind},
-    db::query::{Cmp, FilterExpr},
+    db::primitives::filter::{Cmp, FilterExpr},
     obs::metrics,
     schema::node::Index,
 };

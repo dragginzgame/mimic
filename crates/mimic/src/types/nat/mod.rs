@@ -2,12 +2,15 @@ mod nat128;
 
 pub use nat128::*;
 
-use crate::core::{
-    Value,
-    traits::{
-        FieldValue, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto, ValidateCustom, View,
-        Visitable,
+use crate::{
+    core::{
+        Value,
+        traits::{
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto,
+            ValidateCustom, View, Visitable,
+        },
     },
+    db::primitives::RangeFilterKind,
 };
 use candid::{CandidType, Nat as WrappedNat};
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign};
@@ -55,6 +58,10 @@ impl FieldValue for Nat {
     fn to_value(&self) -> Value {
         Value::UintBig(self.clone())
     }
+}
+
+impl Filterable for Nat {
+    type Filter = RangeFilterKind;
 }
 
 impl From<i32> for Nat {

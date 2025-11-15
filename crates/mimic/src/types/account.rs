@@ -2,10 +2,11 @@ use crate::{
     core::{
         Value,
         traits::{
-            FieldValue, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
             ValidateCustom, View, Visitable,
         },
     },
+    db::primitives::TextFilterKind,
     types::{Principal, Subaccount},
 };
 use candid::CandidType;
@@ -91,6 +92,10 @@ impl FieldValue for Account {
     fn to_value(&self) -> Value {
         Value::Account(*self)
     }
+}
+
+impl Filterable for Account {
+    type Filter = TextFilterKind;
 }
 
 impl From<Account> for IcrcAccount {

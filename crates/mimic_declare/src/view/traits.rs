@@ -1,24 +1,14 @@
 use crate::prelude::*;
+use quote::ToTokens;
 
 ///
 /// View
-/// a helper wrapper around a Node
-///
-
-pub trait View {
-    type Node;
-
-    fn node(&self) -> &Self::Node;
-}
-
-///
-/// ViewType
 ///
 /// A node that emits additional derived view representations
 /// (e.g., main View, Edit, Filter).
 ///
 
-pub trait ViewType {
+pub trait View: ToTokens {
     /// Generate the view's token stream.
     fn generate(&self) -> TokenStream;
 
@@ -33,4 +23,13 @@ pub trait ViewType {
             TraitKind::Deserialize,
         ])
     }
+}
+
+///
+/// ViewExpr
+/// for when a node makes up a part of a larger View
+///
+
+pub trait ViewExpr {
+    fn expr(&self) -> Option<TokenStream>;
 }

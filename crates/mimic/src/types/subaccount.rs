@@ -1,11 +1,12 @@
 use crate::{
     core::{
         traits::{
-            FieldValue, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto, ValidateCustom, View,
-            Visitable,
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto,
+            ValidateCustom, View, Visitable,
         },
         value::Value,
     },
+    db::primitives::EqualityFilterKind,
     types::{Principal, Ulid},
 };
 use candid::CandidType;
@@ -40,6 +41,7 @@ pub struct Subaccount(WrappedSubaccount);
 
 impl Subaccount {
     pub const STORABLE_MAX_SIZE: u32 = 72;
+
     pub const MIN: Self = Self::from_array([0x00; 32]);
     pub const MAX: Self = Self::from_array([0xFF; 32]);
 
@@ -112,6 +114,10 @@ impl FieldValue for Subaccount {
     fn to_value(&self) -> Value {
         Value::Subaccount(*self)
     }
+}
+
+impl Filterable for Subaccount {
+    type Filter = EqualityFilterKind;
 }
 
 /// code taken from

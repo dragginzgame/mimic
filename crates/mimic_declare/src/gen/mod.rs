@@ -61,12 +61,14 @@ impl RecordGen<'_> {
 
         let view = RecordView(node);
         let update = RecordUpdate(node);
+        let filter = RecordFilter(node);
 
         quote! {
             #node
 
             #view
             #update
+            #filter
         }
     }
 }

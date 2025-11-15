@@ -6,11 +6,12 @@ use crate::{
     common::error::ErrorTree,
     core::{
         traits::{
-            FieldValue, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
             ValidateCustom, View, Visitable,
         },
         value::Value,
     },
+    db::primitives::TextFilterKind,
 };
 use candid::CandidType;
 use canic::{cdk::structures::storable::Bound, types::Ulid as WrappedUlid};
@@ -126,6 +127,10 @@ impl FieldValue for Ulid {
     fn to_value(&self) -> Value {
         Value::Ulid(*self)
     }
+}
+
+impl Filterable for Ulid {
+    type Filter = TextFilterKind;
 }
 
 impl From<WrappedUlid> for Ulid {

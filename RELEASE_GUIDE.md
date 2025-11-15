@@ -23,7 +23,7 @@ git ls-remote --tags git@github.com:dragginzgame/mimic.git | grep "v0.21"
 
 ### Prerequisites for Maintainers
 
-- Rust 1.91.0 toolchain (matches the workspace MSRV)
+- Rust toolchain (matches the workspace MSRV)
 - `cargo-edit` so `cargo set-version` is available for release bumps:
   ```bash
   cargo install cargo-edit

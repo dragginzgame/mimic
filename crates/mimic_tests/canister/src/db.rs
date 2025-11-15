@@ -46,7 +46,7 @@ impl DbSuite {
     fn query_fail_filter() {
         use test_design::e2e::db::SimpleEntity;
 
-        let query = query::load().filter(|f| f.eq("wefwefasd", "A"));
+        let query = db::query::load().filter(|f| f.eq("wefwefasd", "A"));
         let res = db!().load::<SimpleEntity>().execute(query);
 
         assert!(res.is_err(), "filter query should fail");
@@ -57,7 +57,7 @@ impl DbSuite {
 
         let res = db!()
             .load::<SimpleEntity>()
-            .execute(query::load().sort(|s| s.asc("jwjehrjrh")));
+            .execute(db::query::load().sort(|s| s.asc("jwjehrjrh")));
 
         assert!(res.is_err(), "sort query should fail");
     }
@@ -76,7 +76,7 @@ impl DbSuite {
         // Retrieve rows in B-Tree order
         let keys = db!()
             .load::<ContainsBlob>()
-            .execute(query::load().sort(|s| s.asc("id")))
+            .execute(db::query::load().sort(|s| s.asc("id")))
             .unwrap()
             .keys();
 
@@ -163,7 +163,7 @@ impl DbSuite {
         // Retrieve rows in B-Tree order
         let keys = db!()
             .load::<DataKeyOrder>()
-            .execute(query::load().sort(|s| s.asc("id")))
+            .execute(db::query::load().sort(|s| s.asc("id")))
             .unwrap()
             .keys();
 
@@ -339,7 +339,7 @@ impl DbSuite {
             for offset in [0, 5, 10] {
                 let results = db!()
                     .load::<Limit>()
-                    .execute(query::load().offset(offset).limit(limit))
+                    .execute(db::query::load().offset(offset).limit(limit))
                     .unwrap();
 
                 let count = results.count();

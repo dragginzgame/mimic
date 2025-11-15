@@ -1,7 +1,4 @@
-use crate::{
-    prelude::*,
-    view::traits::{View, ViewType},
-};
+use crate::{prelude::*, view::traits::View};
 
 ///
 /// NewtypeView
@@ -10,16 +7,8 @@ use crate::{
 pub struct NewtypeView<'a>(pub &'a Newtype);
 
 impl View for NewtypeView<'_> {
-    type Node = Newtype;
-
-    fn node(&self) -> &Self::Node {
-        self.0
-    }
-}
-
-impl ViewType for NewtypeView<'_> {
     fn generate(&self) -> TokenStream {
-        let node = self.node();
+        let node = self.0;
         let view_ident = node.view_ident();
         let view_type = node.item.type_expr();
 

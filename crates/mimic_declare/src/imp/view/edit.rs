@@ -43,9 +43,9 @@ where
         .collect();
 
     let q = quote! {
-        type UpdateType = #update_ident;
+        type UpdateViewType = #update_ident;
 
-        fn merge(&mut self, view: Self::UpdateType) {
+        fn merge(&mut self, view: Self::UpdateViewType) {
             #(#merge_pairs)*
         }
     };

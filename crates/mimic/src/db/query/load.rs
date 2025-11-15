@@ -1,8 +1,8 @@
 use crate::{
     core::traits::{EntityKind, FieldValue},
-    db::query::{
-        FilterExpr, FilterSlot, LimitExpr, LimitSlot, QueryError, QueryValidate, SortExpr,
-        SortSlot, prelude::*,
+    db::{
+        primitives::{FilterExpr, FilterSlot, LimitExpr, LimitSlot, SortExpr, SortSlot},
+        query::{QueryError, QueryValidate, prelude::*},
     },
 };
 use candid::CandidType;

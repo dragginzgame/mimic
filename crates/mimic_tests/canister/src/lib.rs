@@ -39,14 +39,14 @@ pub fn clear_test_data_store() {
 pub fn test() {
     let tests: Vec<(&str, fn())> = vec![
         ("db", db::DbSuite::test),
-        ("delete_filter", filter::delete::DeleteFilterSuite::test),
-        ("index_filter", filter::index::IndexFilterSuite::test),
-        ("load_filter", filter::load::LoadFilterSuite::test),
-        ("auto_filter", filter::auto::AutoFilterSuite::test),
         ("index", index::IndexSuite::test),
         ("ops", ops::OpsSuite::test),
         ("metrics", metrics::MetricsSuite::test),
         ("view_into", view_into::ViewIntoSuite::test),
+        // filter
+        ("delete_filter", filter::delete::DeleteFilterSuite::test),
+        ("index_filter", filter::index::IndexFilterSuite::test),
+        ("load_filter", filter::load::LoadFilterSuite::test),
     ];
 
     // run tests

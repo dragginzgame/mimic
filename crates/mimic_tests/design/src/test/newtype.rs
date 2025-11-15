@@ -1,10 +1,4 @@
-pub(crate) mod prelude {
-    pub use mimic::design::{
-        base::{types, validator},
-        prelude::*,
-    };
-}
-pub use prelude::*;
+pub use crate::prelude::*;
 
 /// --------------------
 /// Primitive Newtypes
@@ -34,17 +28,23 @@ pub struct E18s {}
 #[newtype(primitive = "Float32", item(prim = "Float32"))]
 pub struct Float32 {}
 
-#[newtype(primitive = "Float32", item(is = "Float32"))]
-pub struct Float32W {}
-
-#[newtype(primitive = "Float32", item(is = "Float32W"))]
-pub struct Float32WW {}
-
 #[newtype(primitive = "Float64", item(prim = "Float64"))]
 pub struct Float64 {}
 
 #[newtype(primitive = "Int", item(prim = "Int"))]
 pub struct Int {}
+
+#[newtype(primitive = "Int8", item(prim = "Int8"))]
+pub struct Int8 {}
+
+#[newtype(primitive = "Int16", item(prim = "Int16"))]
+pub struct Int16 {}
+
+#[newtype(primitive = "Int32", item(prim = "Int32"))]
+pub struct Int32 {}
+
+#[newtype(primitive = "Int64", item(prim = "Int64"))]
+pub struct Int64 {}
 
 #[newtype(primitive = "Int128", item(prim = "Int128"))]
 pub struct Int128 {}
@@ -52,14 +52,14 @@ pub struct Int128 {}
 #[newtype(primitive = "Nat", item(prim = "Nat"))]
 pub struct Nat {}
 
+#[newtype(primitive = "Nat8", item(prim = "Nat8"))]
+pub struct Nat8 {}
+
+#[newtype(primitive = "Nat16", item(prim = "Nat16"))]
+pub struct Nat16 {}
+
 #[newtype(primitive = "Nat32", item(prim = "Nat32"))]
 pub struct Nat32 {}
-
-#[newtype(primitive = "Nat32", item(is = "Nat32"))]
-pub struct Nat32W {}
-
-#[newtype(primitive = "Nat32", item(is = "Nat32W"))]
-pub struct Nat32WW {}
 
 #[newtype(primitive = "Nat64", item(prim = "Nat64"))]
 pub struct Nat64 {}
@@ -85,6 +85,22 @@ pub struct Ulid {}
 #[newtype(primitive = "Unit", item(prim = "Unit"))]
 pub struct Unit {}
 
+///
+/// Wrappers
+///
+
+#[newtype(primitive = "Float32", item(is = "Float32"))]
+pub struct Float32W {}
+
+#[newtype(primitive = "Float32", item(is = "Float32W"))]
+pub struct Float32WW {}
+
+#[newtype(primitive = "Nat32", item(is = "Nat32"))]
+pub struct Nat32W {}
+
+#[newtype(primitive = "Nat32", item(is = "Nat32W"))]
+pub struct Nat32WW {}
+
 /// --------------------
 /// Defaulted Newtypes
 /// --------------------
@@ -92,8 +108,8 @@ pub struct Unit {}
 /// These all have a default value suitable for quick initialization.
 /// Each mirrors its non-default counterpart above.
 
-//#[newtype(primitive = "Account", item(prim = "Account"))]
-//pub struct AccountDefault {}
+#[newtype(primitive = "Account", item(prim = "Account"))]
+pub struct AccountDefault {}
 
 #[newtype(primitive = "Bool", item(prim = "Bool"), default = true)]
 pub struct BoolDefault {}
@@ -167,6 +183,25 @@ pub struct TimestampDefault {}
     default = "mimic::types::Ulid::generate"
 )]
 pub struct UlidDefault {}
+
+///
+/// FilterableNewtype
+///
+
+#[entity(
+    store = "TestDataStore",
+    pk = "id",
+    fields(
+        field(ident = "id", value(item(prim = "Ulid"))),
+        field(ident = "n_text", value(item(is = "Text"))),
+        field(ident = "n_bool", value(item(is = "Bool"))),
+        field(ident = "n_decimal", value(item(is = "Decimal"))),
+        field(ident = "n_nat8", value(item(is = "Nat8"))),
+        field(ident = "n_int32", value(item(is = "Int32"))),
+        field(ident = "n_principal", value(item(is = "Principal"))),
+    )
+)]
+pub struct FilterableNewtype {}
 
 ///
 /// TESTS

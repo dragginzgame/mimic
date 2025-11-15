@@ -1,9 +1,12 @@
-use crate::core::{
-    Value,
-    traits::{
-        FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
-        ValidateAuto, ValidateCustom, View, Visitable,
+use crate::{
+    core::{
+        Value,
+        traits::{
+            FieldValue, Filterable, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
+            SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
+        },
     },
+    db::primitives::RangeFilterKind,
 };
 use candid::CandidType;
 use canic::utils::time::now_secs;
@@ -60,6 +63,10 @@ impl FieldValue for Timestamp {
     fn to_value(&self) -> Value {
         Value::Timestamp(*self)
     }
+}
+
+impl Filterable for Timestamp {
+    type Filter = RangeFilterKind;
 }
 
 impl From<u64> for Timestamp {

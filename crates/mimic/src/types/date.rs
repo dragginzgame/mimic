@@ -1,9 +1,12 @@
-use crate::core::{
-    Value,
-    traits::{
-        FieldValue, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto, SanitizeCustom,
-        ValidateAuto, ValidateCustom, View, Visitable,
+use crate::{
+    core::{
+        Value,
+        traits::{
+            FieldValue, Filterable, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
+            SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
+        },
     },
+    db::primitives::RangeFilterKind,
 };
 use candid::CandidType;
 use chrono::{Datelike, Duration as ChronoDuration, NaiveDate};
@@ -123,6 +126,10 @@ impl FieldValue for Date {
     fn to_value(&self) -> Value {
         Value::Date(*self)
     }
+}
+
+impl Filterable for Date {
+    type Filter = RangeFilterKind;
 }
 
 impl From<i32> for Date {

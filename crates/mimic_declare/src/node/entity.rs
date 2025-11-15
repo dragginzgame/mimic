@@ -104,7 +104,6 @@ impl HasTraits for Entity {
 
         match t {
             TraitKind::Inherent => InherentTrait::strategy(self),
-
             TraitKind::CreateView => CreateViewTrait::strategy(self),
             TraitKind::Default => DefaultTrait::strategy(self),
             TraitKind::UpdateView => UpdateViewTrait::strategy(self),

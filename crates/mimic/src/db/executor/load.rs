@@ -7,9 +7,8 @@ use crate::{
     db::{
         Db,
         executor::{FilterEvaluator, plan_for},
-        query::{
-            FilterDsl, FilterExpr, FilterExt, LoadQuery, Order, QueryPlan, QueryValidate, SortExpr,
-        },
+        primitives::{FilterDsl, FilterExpr, FilterExt, IntoFilterExpr, Order, SortExpr},
+        query::{LoadQuery, QueryPlan, QueryValidate},
         response::Response,
     },
     obs::metrics,
@@ -84,16 +83,12 @@ impl<E: EntityKind> LoadExecutor<E> {
         self.execute(query)
     }
 
-    pub fn filter<F>(self, f: F) -> Result<Response<E>, Error>
+    pub fn filter<F, I>(self, f: F) -> Result<Response<E>, Error>
     where
-        F: FnOnce(FilterDsl) -> FilterExpr,
+        F: FnOnce(FilterDsl) -> I,
+        I: IntoFilterExpr,
     {
         let query = LoadQuery::new().filter(f);
-        self.execute(query)
-    }
-
-    pub fn filter_expr(self, expr: FilterExpr) -> Result<Response<E>, Error> {
-        let query = LoadQuery::new().filter_expr(expr);
         self.execute(query)
     }
 
@@ -247,6 +242,10 @@ pub fn apply_pagination<T>(rows: &mut Vec<T>, offset: u32, limit: Option<u32>) {
     }
 }
 
+///
+/// TESTS
+///
+
 #[cfg(test)]
 mod tests {
     use super::{LoadExecutor, apply_pagination};
@@ -258,7 +257,7 @@ mod tests {
                 StoreKind, ValidateAuto, ValidateCustom, View, Visitable,
             },
         },
-        db::query::{Order, SortExpr},
+        db::primitives::{Order, SortExpr},
         schema::node::Index,
     };
     use serde::{Deserialize, Serialize};

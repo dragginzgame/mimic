@@ -1,9 +1,12 @@
-use crate::core::{
-    Value,
-    traits::{
-        FieldValue, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto, ValidateCustom, View,
-        Visitable,
+use crate::{
+    core::{
+        Value,
+        traits::{
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto,
+            ValidateCustom, View, Visitable,
+        },
     },
+    db::primitives::NoFilterKind,
 };
 use candid::CandidType;
 use derive_more::{Deref, DerefMut};
@@ -55,6 +58,10 @@ impl FieldValue for Blob {
     fn to_value(&self) -> Value {
         Value::Blob(self.to_vec())
     }
+}
+
+impl Filterable for Blob {
+    type Filter = NoFilterKind;
 }
 
 impl From<Vec<u8>> for Blob {

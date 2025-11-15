@@ -1,6 +1,6 @@
 use crate::{
-    core::{traits::FieldValue, value::Value},
-    db::query::{Cmp, FilterClause, FilterExpr},
+    core::traits::FieldValue,
+    db::primitives::filter::{Cmp, FilterClause, FilterExpr},
 };
 
 ///
@@ -14,7 +14,7 @@ macro_rules! cmp_fns {
     ($( $name:ident => $cmp:ident ),*) => {
         $(
             pub fn $name(self, field: impl AsRef<str>, v: impl FieldValue) -> FilterExpr {
-                FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::$cmp, v.to_value()))
+                FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::$cmp, v))
             }
         )*
     }
@@ -91,7 +91,7 @@ impl FilterDsl {
     {
         let list = vals.into_iter().map(|v| v.to_value()).collect::<Vec<_>>();
 
-        FilterExpr::Clause(FilterClause::new(field.as_ref(), cmp, Value::List(list)))
+        FilterExpr::Clause(FilterClause::new(field.as_ref(), cmp, list))
     }
 
     /// field IN (v1, v2, ...)

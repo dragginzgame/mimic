@@ -3,7 +3,7 @@ use crate::{
     prelude::*,
     view::{
         ValueView,
-        traits::{View, ViewType},
+        traits::{View, ViewExpr},
     },
 };
 
@@ -14,23 +14,15 @@ use crate::{
 pub struct EnumView<'a>(pub &'a Enum);
 
 impl View for EnumView<'_> {
-    type Node = Enum;
-
-    fn node(&self) -> &Self::Node {
-        self.0
-    }
-}
-
-impl ViewType for EnumView<'_> {
     fn generate(&self) -> TokenStream {
-        let node = self.node();
+        let node = self.0;
         let view_ident = node.view_ident();
 
         // each variant uses ValueView to produce its payload expression
         let view_variants = node.variants.iter().map(|variant| {
             let vi = variant.effective_ident();
             if let Some(value) = &variant.value {
-                let ve = ValueView(value).view_expr();
+                let ve = ValueView(value).expr();
 
                 quote!(#vi(#ve))
             } else {
@@ -67,7 +59,7 @@ impl ViewType for EnumView<'_> {
 
 impl EnumView<'_> {
     fn view_default_impl(&self) -> Option<TokenStream> {
-        let node = self.node();
+        let node = self.0;
         let view_ident = node.view_ident();
         let default_variant = node.default_variant()?;
         let variant_ident = default_variant.effective_ident();

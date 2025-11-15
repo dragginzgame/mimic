@@ -1,4 +1,4 @@
-use crate::{prelude::*, view::traits::View};
+use crate::{prelude::*, view::traits::ViewExpr};
 
 ///
 /// ItemView
@@ -6,19 +6,26 @@ use crate::{prelude::*, view::traits::View};
 
 pub struct ItemView<'a>(pub &'a Item);
 
-impl View for ItemView<'_> {
-    type Node = Item;
+impl ViewExpr for ItemView<'_> {
+    fn expr(&self) -> Option<TokenStream> {
+        let node = self.0;
+        let ty = node.target().type_expr();
 
-    fn node(&self) -> &Self::Node {
-        self.0
+        quote!(<#ty as ::mimic::core::traits::View>::ViewType).into()
     }
 }
 
-impl ItemView<'_> {
-    pub fn view_expr(&self) -> TokenStream {
-        let node = self.node();
+///
+/// ItemFilter
+///
+
+pub struct ItemFilter<'a>(pub &'a Item);
+
+impl ViewExpr for ItemFilter<'_> {
+    fn expr(&self) -> Option<TokenStream> {
+        let node = self.0;
         let ty = node.target().type_expr();
 
-        quote!(<#ty as ::mimic::core::traits::View>::ViewType)
+        quote!(<<#ty as ::mimic::core::traits::Filterable>::Filter as ::mimic::db::primitives::FilterKind>::Payload).into()
     }
 }

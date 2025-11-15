@@ -2,8 +2,8 @@ use crate::{
     node::Record,
     prelude::*,
     view::{
-        ValueView,
-        traits::{View, ViewType},
+        FieldUpdate, FieldView,
+        traits::{View, ViewExpr},
     },
 };
 
@@ -14,24 +14,11 @@ use crate::{
 pub struct RecordView<'a>(pub &'a Record);
 
 impl View for RecordView<'_> {
-    type Node = Record;
-
-    fn node(&self) -> &Self::Node {
-        self.0
-    }
-}
-
-impl ViewType for RecordView<'_> {
     fn generate(&self) -> TokenStream {
-        let node = self.node();
+        let node = self.0;
         let node_ident = node.def().ident();
         let view_ident = node.view_ident();
-        let fields = node.fields.iter().map(|f| {
-            let ident = &f.ident;
-            let ty = ValueView(&f.value).view_expr();
-
-            quote!(pub #ident: #ty)
-        });
+        let fields = node.fields.iter().map(|f| FieldView(f).expr());
 
         // all traits derived
         let derives = self.traits();
@@ -64,23 +51,10 @@ impl ToTokens for RecordView<'_> {
 pub struct RecordUpdate<'a>(pub &'a Record);
 
 impl View for RecordUpdate<'_> {
-    type Node = Record;
-
-    fn node(&self) -> &Self::Node {
-        self.0
-    }
-}
-
-impl ViewType for RecordUpdate<'_> {
     fn generate(&self) -> TokenStream {
-        let node = self.node();
+        let node = self.0;
         let update_ident = node.update_ident();
-        let fields = node.fields.iter().map(|f| {
-            let ident = &f.ident;
-            let ty = ValueView(&f.value).view_expr();
-
-            quote!(pub #ident: Option<#ty>)
-        });
+        let fields = node.fields.iter().map(|f| FieldUpdate(f).expr());
 
         // add in default manually
         let mut derives = self.traits();
@@ -96,6 +70,29 @@ impl ViewType for RecordUpdate<'_> {
 }
 
 impl ToTokens for RecordUpdate<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.generate());
+    }
+}
+
+///
+/// RecordFilter
+///
+
+pub struct RecordFilter<'a>(pub &'a Record);
+
+impl View for RecordFilter<'_> {
+    fn generate(&self) -> TokenStream {
+        let node = self.0;
+        let filter_ident = node.filter_ident();
+
+        quote! {
+            pub type #filter_ident = ::mimic::db::primitives::filter::NoFilter;
+        }
+    }
+}
+
+impl ToTokens for RecordFilter<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         tokens.extend(self.generate());
     }

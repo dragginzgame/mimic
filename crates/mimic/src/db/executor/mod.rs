@@ -15,7 +15,8 @@ use crate::{
     core::traits::EntityKind,
     db::{
         DbError,
-        query::{FilterExpr, QueryPlan, QueryPlanner},
+        primitives::FilterExpr,
+        query::{QueryPlan, QueryPlanner},
         store::DataKey,
     },
     obs::metrics::Span,

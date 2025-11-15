@@ -2,11 +2,12 @@ use crate::{
     ThisError,
     core::{
         traits::{
-            FieldValue, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
             ValidateCustom, View, Visitable,
         },
         value::Value,
     },
+    db::primitives::filter::EqualityFilterKind,
 };
 use canic::cdk::{
     api::msg_caller,
@@ -98,6 +99,10 @@ impl FieldValue for WrappedPrincipal {
     fn to_value(&self) -> Value {
         Value::Principal(self.into())
     }
+}
+
+impl Filterable for Principal {
+    type Filter = EqualityFilterKind;
 }
 
 impl From<WrappedPrincipal> for Principal {

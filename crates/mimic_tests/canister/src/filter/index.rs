@@ -100,7 +100,7 @@ impl IndexFilterSuite {
 
     /// name == "Alpha" -> exactly one row
     fn filter_eq_name_alpha() {
-        let query = query::load().filter(|f| f.eq("name", "Alpha"));
+        let query = db::query::load().filter(|f| f.eq("name", "Alpha"));
 
         // explain plan
         let plan = db!()

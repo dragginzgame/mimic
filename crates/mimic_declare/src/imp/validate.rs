@@ -254,6 +254,7 @@ fn generate_validators_inner(
         return None;
     }
     let exprs = generate_validators(validators, var_expr);
+
     Some(quote!(#(#exprs)*))
 }
 
@@ -303,6 +304,7 @@ fn cardinality_wrapper(
             }
         }
     };
+
     Some(tokens)
 }
 
@@ -331,5 +333,6 @@ fn generate_field_value_validation_inner(
             }
         })
         .collect();
+
     cardinality_wrapper(value.cardinality(), rules, var_expr)
 }

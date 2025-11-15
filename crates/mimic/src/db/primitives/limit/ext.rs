@@ -1,4 +1,4 @@
-use crate::db::query::LimitExpr;
+use crate::db::primitives::limit::LimitExpr;
 
 ///
 /// LimitSlot

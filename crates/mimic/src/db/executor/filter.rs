@@ -3,7 +3,10 @@ use crate::{
         traits::{EntityKind, FieldValues},
         value::{TextMode, Value},
     },
-    db::query::{Cmp, FilterClause, FilterExpr, QueryError, QueryValidate},
+    db::{
+        primitives::{Cmp, FilterClause, FilterExpr},
+        query::{QueryError, QueryValidate},
+    },
 };
 
 ///
