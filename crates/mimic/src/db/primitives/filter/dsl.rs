@@ -184,6 +184,70 @@ impl FilterDsl {
     }
 
     //
+    // Maps
+    //
+
+    pub fn map_contains_key(self, field: impl AsRef<str>, key: impl FieldValue) -> FilterExpr {
+        FilterExpr::Clause(FilterClause::new(field.as_ref(), Cmp::MapContainsKey, key))
+    }
+
+    pub fn map_not_contains_key(self, field: impl AsRef<str>, key: impl FieldValue) -> FilterExpr {
+        FilterExpr::Clause(FilterClause::new(
+            field.as_ref(),
+            Cmp::MapNotContainsKey,
+            key,
+        ))
+    }
+
+    pub fn map_contains_value(self, field: impl AsRef<str>, value: impl FieldValue) -> FilterExpr {
+        FilterExpr::Clause(FilterClause::new(
+            field.as_ref(),
+            Cmp::MapContainsValue,
+            value,
+        ))
+    }
+
+    pub fn map_not_contains_value(
+        self,
+        field: impl AsRef<str>,
+        value: impl FieldValue,
+    ) -> FilterExpr {
+        FilterExpr::Clause(FilterClause::new(
+            field.as_ref(),
+            Cmp::MapNotContainsValue,
+            value,
+        ))
+    }
+
+    pub fn map_contains_entry(
+        self,
+        field: impl AsRef<str>,
+        key: impl FieldValue,
+        value: impl FieldValue,
+    ) -> FilterExpr {
+        let entry = vec![key.to_value(), value.to_value()];
+        FilterExpr::Clause(FilterClause::new(
+            field.as_ref(),
+            Cmp::MapContainsEntry,
+            entry,
+        ))
+    }
+
+    pub fn map_not_contains_entry(
+        self,
+        field: impl AsRef<str>,
+        key: impl FieldValue,
+        value: impl FieldValue,
+    ) -> FilterExpr {
+        let entry = vec![key.to_value(), value.to_value()];
+        FilterExpr::Clause(FilterClause::new(
+            field.as_ref(),
+            Cmp::MapNotContainsEntry,
+            entry,
+        ))
+    }
+
+    //
     // Conditionals
     //
 

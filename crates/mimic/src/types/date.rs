@@ -6,7 +6,7 @@ use crate::{
             SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
         },
     },
-    db::primitives::RangeFilterKind,
+    db::primitives::RangeIntFilterKind,
 };
 use candid::CandidType;
 use chrono::{Datelike, Duration as ChronoDuration, NaiveDate};
@@ -129,7 +129,7 @@ impl FieldValue for Date {
 }
 
 impl Filterable for Date {
-    type Filter = RangeFilterKind;
+    type Filter = RangeIntFilterKind;
 }
 
 impl From<i32> for Date {

@@ -3,6 +3,7 @@ use crate::{
     prelude::*,
     view::{
         FieldUpdate, FieldView,
+        helper::generate_field_list_filter,
         traits::{View, ViewExpr},
     },
 };
@@ -85,10 +86,10 @@ impl View for RecordFilter<'_> {
     fn generate(&self) -> TokenStream {
         let node = self.0;
         let filter_ident = node.filter_ident();
+        let mut derives = self.traits();
+        derives.add(TraitKind::Default);
 
-        quote! {
-            pub type #filter_ident = ::mimic::db::primitives::filter::NoFilter;
-        }
+        generate_field_list_filter(&filter_ident, &node.fields, &derives)
     }
 }
 

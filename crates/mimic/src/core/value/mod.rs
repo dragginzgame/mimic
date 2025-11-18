@@ -153,10 +153,13 @@ impl Value {
         matches!(self, Self::Unit(_))
     }
 
-    /// Returns true if the value is a list and all elements are Text.
     #[must_use]
-    pub fn is_list_of_text(&self) -> bool {
-        matches!(self, Self::List(items) if items.iter().all(Self::is_text))
+    pub const fn is_scalar(&self) -> bool {
+        match self {
+            // definitely not scalar:
+            Self::List(_) | Self::Unit(_) => false,
+            _ => true,
+        }
     }
 
     ///

@@ -7,7 +7,7 @@ use crate::{
         },
         value::Value,
     },
-    db::primitives::filter::EqualityFilterKind,
+    db::primitives::filter::TextEqualityFilterKind,
 };
 use canic::cdk::{
     api::msg_caller,
@@ -102,7 +102,7 @@ impl FieldValue for WrappedPrincipal {
 }
 
 impl Filterable for Principal {
-    type Filter = EqualityFilterKind;
+    type Filter = TextEqualityFilterKind;
 }
 
 impl From<WrappedPrincipal> for Principal {

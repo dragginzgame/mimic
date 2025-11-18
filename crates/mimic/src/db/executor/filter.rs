@@ -8,6 +8,7 @@ use crate::{
         query::{QueryError, QueryValidate},
     },
 };
+use std::{cmp::Ordering, convert::TryFrom};
 
 ///
 /// FilterEvaluator
@@ -55,9 +56,17 @@ impl<'a> FilterEvaluator<'a> {
         if matches!(
             cmp,
             Cmp::Eq | Cmp::Ne | Cmp::Lt | Cmp::Lte | Cmp::Gt | Cmp::Gte
-        ) && let Some(ord) = left.cmp_numeric(right)
-        {
-            return cmp.compare_order(ord);
+        ) {
+            if let Some(ord) = left.cmp_numeric(right) {
+                return cmp.compare_order(ord);
+            }
+
+            // Allow range comparators to treat collection length as the numeric value.
+            if matches!(cmp, Cmp::Lt | Cmp::Lte | Cmp::Gt | Cmp::Gte)
+                && let Some(ord) = Self::cmp_collection_len(left, right)
+            {
+                return cmp.compare_order(ord);
+            }
         }
 
         // 2) Text ops (CS/CI explicit)
@@ -143,9 +152,20 @@ impl<'a> FilterEvaluator<'a> {
             _ => None,
         }
     }
+
+    fn cmp_collection_len(left: &Value, right: &Value) -> Option<Ordering> {
+        match left {
+            Value::List(items) => {
+                let len = i64::try_from(items.len()).ok()?;
+                Value::Int(len).cmp_numeric(right)
+            }
+            _ => None,
+        }
+    }
 }
 
 impl<E: EntityKind> QueryValidate<E> for FilterExpr {
+    #[allow(clippy::match_same_arms, clippy::too_many_lines)]
     fn validate(&self) -> Result<(), QueryError> {
         match self {
             Self::True | Self::False => Ok(()),
@@ -238,7 +258,45 @@ impl<E: EntityKind> QueryValidate<E> for FilterExpr {
                             }
                         }
                     },
+
+                    // -------------------------
+                    // MAP FILTERS (NEW!)
+                    // -------------------------
+                    Cmp::MapContainsKey | Cmp::MapNotContainsKey => {
+                        if !v.is_scalar() {
+                            return Err(QueryError::InvalidFilterValue(format!(
+                                "field '{field}' expects scalar key for {cmp:?}",
+                                cmp = c.cmp
+                            )));
+                        }
+                    }
+
+                    Cmp::MapContainsValue | Cmp::MapNotContainsValue => {
+                        // Any Value allowed as map values
+                    }
+
+                    Cmp::MapContainsEntry | Cmp::MapNotContainsEntry => {
+                        match v {
+                            Value::List(pair) if pair.len() == 2 => {
+                                // Key must be scalar
+                                if !pair[0].is_scalar() {
+                                    return Err(QueryError::InvalidFilterValue(format!(
+                                        "field '{field}' expects scalar key in entry pair for {cmp:?}",
+                                        cmp = c.cmp
+                                    )));
+                                }
+                                // Value can be any Value
+                            }
+                            _ => {
+                                return Err(QueryError::InvalidFilterValue(format!(
+                                    "field '{field}' expects (key, value) pair for {cmp:?}",
+                                    cmp = c.cmp
+                                )));
+                            }
+                        }
+                    }
                 }
+
                 Ok(())
             }
 
@@ -246,6 +304,7 @@ impl<E: EntityKind> QueryValidate<E> for FilterExpr {
                 for expr in children {
                     QueryValidate::<E>::validate(expr)?;
                 }
+
                 Ok(())
             }
 

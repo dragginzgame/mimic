@@ -6,7 +6,7 @@ use crate::{
             SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
         },
     },
-    db::primitives::RangeFilterKind,
+    db::primitives::RangeNatFilterKind,
 };
 use candid::CandidType;
 use canic::utils::time::now_secs;
@@ -66,7 +66,7 @@ impl FieldValue for Timestamp {
 }
 
 impl Filterable for Timestamp {
-    type Filter = RangeFilterKind;
+    type Filter = RangeNatFilterKind;
 }
 
 impl From<u64> for Timestamp {

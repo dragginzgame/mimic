@@ -2,7 +2,8 @@ use crate::{
     node::Entity,
     prelude::*,
     view::{
-        FieldFilter, FieldUpdate, FieldView,
+        FieldUpdate, FieldView,
+        helper::generate_field_list_filter,
         traits::{View, ViewExpr},
     },
 };
@@ -131,41 +132,10 @@ impl View for EntityFilter<'_> {
     fn generate(&self) -> TokenStream {
         let node = self.0;
         let filter_ident = node.filter_ident();
-        let fields = node.fields.iter().map(|f| FieldFilter(f).expr());
-
-        // Derives
         let mut derives = self.traits();
         derives.add(TraitKind::Default);
 
-        // Build each field’s FilterExpr
-        let field_exprs = node.fields.iter().map(|f| {
-            let ident = &f.ident;
-            let field_name = f.ident.to_string();
-
-            quote! {
-                self.#ident.map(|f| {
-                    ::mimic::db::primitives::filter::IntoScopedFilterExpr::into_scoped(f, #field_name)
-                })
-            }
-        });
-
-        // Emit final struct + impl
-        quote! {
-            #derives
-            pub struct #filter_ident {
-                #(#fields),*
-            }
-
-            impl ::mimic::db::primitives::filter::IntoFilterExpr for #filter_ident {
-                fn into_expr(self) -> ::mimic::db::primitives::filter::FilterExpr {
-                    let filters = [#(#field_exprs),*];
-                    let exprs = filters.into_iter().flatten();
-
-                    ::mimic::db::primitives::filter::FilterDsl::all(exprs)
-                }
-            }
-
-        }
+        generate_field_list_filter(&filter_ident, &node.fields, &derives)
     }
 }
 

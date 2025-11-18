@@ -5,7 +5,7 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.27] - Filter Overhaul - 2025-11-14
+## [0.28] - Filter Overhaul - 2025-11-14
 - Overhauled the filter ergonomics across Mimic: every filter payload (ContainsFilter, EqualityFilter,
   RangeFilter, SetFilter, TextFilter) now ships with fluent, #[must_use]-annotated builders so schema-generated filter
   structs can be composed inline without hand-mutating options.

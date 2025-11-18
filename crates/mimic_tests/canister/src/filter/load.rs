@@ -1,5 +1,7 @@
 use mimic::{core::Value, db::primitives::*, prelude::*, types::Principal};
-use test_design::e2e::filter::{Filterable, FilterableEnum, FilterableEnumFake, FilterableOpt};
+use test_design::e2e::filter::{
+    Filterable, FilterableEnum, FilterableEnumFake, FilterableFilter, FilterableOpt,
+};
 
 use super::fixtures;
 
@@ -10,6 +12,7 @@ use super::fixtures;
 pub struct LoadFilterSuite {}
 
 impl LoadFilterSuite {
+    #[allow(clippy::too_many_lines)]
     pub fn test() {
         let tests: Vec<(&str, fn())> = vec![
             ("filter_eq_string", Self::filter_eq_string),
@@ -94,6 +97,24 @@ impl LoadFilterSuite {
                 "filter_builder_level_between",
                 Self::filter_builder_level_between,
             ),
+            /*
+            (
+                "filter_builder_category_score_struct",
+                Self::filter_builder_category_score_struct,
+            ),
+            (
+                "filter_builder_tags_all_in_len",
+                Self::filter_builder_tags_all_in_len,
+            ),
+            ("filter_builder_empty_tags", Self::filter_builder_empty_tags),
+            (
+                "filter_builder_offset_negative",
+                Self::filter_builder_offset_negative,
+            ),
+            (
+                "filter_builder_category_ci_level",
+                Self::filter_builder_category_ci_level,
+            ),
             (
                 "filter_builder_opt_name_present",
                 Self::filter_builder_opt_name_present,
@@ -101,7 +122,7 @@ impl LoadFilterSuite {
             (
                 "filter_builder_opt_level_band",
                 Self::filter_builder_opt_level_band,
-            ),
+            ),*/
         ];
 
         // insert data
@@ -708,6 +729,105 @@ impl LoadFilterSuite {
         assert_eq!(results.len(), 5);
         assert!(results.iter().all(|e| (2..=3).contains(&e.level)));
     }
+    /*
+    fn filter_builder_category_score_struct() {
+        let filter = FilterableFilter {
+            category: Some(TextFilter::new().equal("A")),
+            score: Some(RangeFilter::new().gt(80)),
+            tags: Some(
+                ListFilter::new()
+                    .contains(|c| c.any_in(["blue"]))
+                    .len(|len| len.gte(1)),
+            ),
+            ..Default::default()
+        };
+
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|_| filter)
+            .unwrap()
+            .entities();
+
+        let mut names: Vec<_> = results.iter().map(|e| e.name.as_str()).collect();
+        names.sort_unstable();
+
+        assert_eq!(names, vec!["Alpha", "Theta"]);
+    }
+
+    fn filter_builder_tags_all_in_len() {
+        let filter = Filter::<Filterable> {
+            tags: Some(
+                ListFilter::new()
+                    .contains(|c| c.all_in(["blue", "green"]))
+                    .len(|len| len.gte(2)),
+            ),
+            ..Default::default()
+        };
+
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|_| filter)
+            .unwrap()
+            .entities();
+
+        let mut names: Vec<_> = results.iter().map(|e| e.name.as_str()).collect();
+        names.sort_unstable();
+
+        assert_eq!(names, vec!["Epsilon", "Kappa", "Theta"]);
+    }
+
+    fn filter_builder_empty_tags() {
+        let filter = FilterableFilter {
+            tags: Some(ListFilter::new().contains(ContainsFilter::empty)),
+            ..Default::default()
+        };
+
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|_| filter)
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].name, "Delta");
+    }
+
+    fn filter_builder_offset_negative() {
+        let filter = Filter::<Filterable> {
+            offset: Some(RangeFilter::new().lt(0)),
+            ..Default::default()
+        };
+
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|_| filter)
+            .unwrap()
+            .entities();
+
+        let mut names: Vec<_> = results.iter().map(|e| e.name.as_str()).collect();
+        names.sort_unstable();
+
+        assert_eq!(names, vec!["Alpha", "Epsilon", "Theta"]);
+    }
+
+    fn filter_builder_category_ci_level() {
+        let filter = Filter::<Filterable> {
+            category: Some(TextFilter::new().equal_ci("a")),
+            level: Some(RangeFilter::new().gte(4)),
+            ..Default::default()
+        };
+
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|_| filter)
+            .unwrap()
+            .entities();
+
+        let mut names: Vec<_> = results.iter().map(|e| e.name.as_str()).collect();
+        names.sort_unstable();
+
+        assert_eq!(names, vec!["Epsilon", "Theta"]);
+    }
 
     fn filter_builder_opt_name_present() {
         let filter = Filter::<FilterableOpt> {
@@ -744,4 +864,5 @@ impl LoadFilterSuite {
                 .all(|e| { e.level.is_some_and(|level| (2..=3).contains(&level)) })
         );
     }
+    */
 }

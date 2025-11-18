@@ -34,7 +34,12 @@ impl ViewExpr for ValueFilter<'_> {
         let node = self.0;
         let item = ItemFilter(&node.item).expr()?;
 
-        // Filters ignore cardinality wrappers
-        quote!(#item).into()
+        let ty = if node.cardinality() == Cardinality::Many {
+            quote!(::mimic::db::primitives::NoFilter)
+        } else {
+            quote!(#item)
+        };
+
+        Some(ty)
     }
 }

@@ -28,7 +28,7 @@ pub use std::{
 
 use crate::{
     core::{Key, Value},
-    db::primitives::{EqualityFilterKind, FilterKind, RangeFilterKind, TextFilterKind},
+    db::primitives::{BoolEqualityFilterKind, FilterKind, RangeIntFilterKind, TextFilterKind},
     schema::node::Index,
 };
 
@@ -205,15 +205,15 @@ macro_rules! impl_filterable {
 }
 
 impl_filterable!(
-    bool    => EqualityFilterKind,
-    i8      => RangeFilterKind,
-    i16     => RangeFilterKind,
-    i32     => RangeFilterKind,
-    i64     => RangeFilterKind,
-    u8      => RangeFilterKind,
-    u16     => RangeFilterKind,
-    u32     => RangeFilterKind,
-    u64     => RangeFilterKind,
+    bool    => BoolEqualityFilterKind,
+    i8      => RangeIntFilterKind,
+    i16     => RangeIntFilterKind,
+    i32     => RangeIntFilterKind,
+    i64     => RangeIntFilterKind,
+    u8      => RangeIntFilterKind,
+    u16     => RangeIntFilterKind,
+    u32     => RangeIntFilterKind,
+    u64     => RangeIntFilterKind,
     String  => TextFilterKind,
 );
 

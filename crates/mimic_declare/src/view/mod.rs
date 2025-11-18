@@ -10,6 +10,7 @@ mod set;
 mod tuple;
 mod value;
 
+pub mod helper;
 pub mod traits;
 
 // export the View types

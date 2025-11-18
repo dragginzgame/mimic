@@ -45,6 +45,14 @@ pub enum Cmp {
     // collections / strings
     IsEmpty,    // len == 0
     IsNotEmpty, // len > 0
+
+    // maps
+    MapContainsKey,
+    MapContainsValue,
+    MapContainsEntry,
+    MapNotContainsKey,
+    MapNotContainsValue,
+    MapNotContainsEntry,
 }
 
 impl Cmp {

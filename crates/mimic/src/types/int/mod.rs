@@ -10,7 +10,7 @@ use crate::{
             ValidateCustom, View, Visitable,
         },
     },
-    db::primitives::RangeFilterKind,
+    db::primitives::RangeIntFilterKind,
 };
 use candid::{CandidType, Int as WrappedInt};
 use canic::impl_storable_unbounded;
@@ -62,7 +62,7 @@ impl FieldValue for Int {
 }
 
 impl Filterable for Int {
-    type Filter = RangeFilterKind;
+    type Filter = RangeIntFilterKind;
 }
 
 impl From<i32> for Int {
