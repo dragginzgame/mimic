@@ -2,8 +2,8 @@ use crate::{
     ThisError,
     core::{
         traits::{
-            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
-            ValidateCustom, View, Visitable,
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, Storable, UpdateView,
+            ValidateAuto, ValidateCustom, View, Visitable,
         },
         value::Value,
     },
@@ -179,6 +179,14 @@ impl Storable for Principal {
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
         Self::from_slice(bytes.as_ref())
+    }
+}
+
+impl UpdateView for Principal {
+    type UpdateViewType = Self;
+
+    fn merge(&mut self, v: Self::UpdateViewType) {
+        *self = v;
     }
 }
 

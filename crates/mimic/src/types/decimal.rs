@@ -2,7 +2,7 @@ use crate::{
     core::{
         traits::{
             FieldValue, Filterable, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
-            SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
+            SanitizeCustom, UpdateView, ValidateAuto, ValidateCustom, View, Visitable,
         },
         value::Value,
     },
@@ -284,6 +284,14 @@ impl PartialOrd<Decimal> for WrappedDecimal {
 impl SanitizeAuto for Decimal {}
 
 impl SanitizeCustom for Decimal {}
+
+impl UpdateView for Decimal {
+    type UpdateViewType = Self;
+
+    fn merge(&mut self, v: Self::UpdateViewType) {
+        *self = v;
+    }
+}
 
 impl ValidateAuto for Decimal {}
 

@@ -29,8 +29,9 @@ trap 'error_trap' ERR
 # START
 #
 
-cd $HOME/projects/dragginz/backend
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
+cd "$ROOT"
 
 # apt
 sudo apt -y update && sudo apt -y upgrade
@@ -92,4 +93,4 @@ chmod +x $HOME/bin/quill
 source ~/.profile
 
 # run update script
-$DIR/update.sh
+"$SCRIPT_DIR"/update.sh

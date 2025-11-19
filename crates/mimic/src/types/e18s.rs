@@ -2,7 +2,7 @@ use crate::{
     core::{
         traits::{
             FieldValue, Filterable, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
-            SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
+            SanitizeCustom, UpdateView, ValidateAuto, ValidateCustom, View, Visitable,
         },
         value::Value,
     },
@@ -181,6 +181,14 @@ impl NumToPrimitive for E18s {
 impl SanitizeAuto for E18s {}
 
 impl SanitizeCustom for E18s {}
+
+impl UpdateView for E18s {
+    type UpdateViewType = Self;
+
+    fn merge(&mut self, v: Self::UpdateViewType) {
+        *self = v;
+    }
+}
 
 impl ValidateAuto for E18s {}
 

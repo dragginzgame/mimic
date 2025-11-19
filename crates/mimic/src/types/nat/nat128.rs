@@ -3,7 +3,7 @@ use crate::{
         Value,
         traits::{
             FieldValue, Filterable, Inner, NumCast, NumToPrimitive, SanitizeAuto, SanitizeCustom,
-            ValidateAuto, ValidateCustom, View, Visitable,
+            UpdateView, ValidateAuto, ValidateCustom, View, Visitable,
         },
     },
     db::primitives::{NatListFilterKind, NatRangeFilterKind},
@@ -149,6 +149,14 @@ impl<'de> Deserialize<'de> for Nat128 {
         } else {
             Err(serde::de::Error::custom("expected 16 bytes"))
         }
+    }
+}
+
+impl UpdateView for Nat128 {
+    type UpdateViewType = Self;
+
+    fn merge(&mut self, v: Self::UpdateViewType) {
+        *self = v;
     }
 }
 

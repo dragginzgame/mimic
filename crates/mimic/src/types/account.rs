@@ -2,8 +2,8 @@ use crate::{
     core::{
         Value,
         traits::{
-            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
-            ValidateCustom, View, Visitable,
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, Storable, UpdateView,
+            ValidateAuto, ValidateCustom, View, Visitable,
         },
     },
     db::primitives::{TextFilterKind, TextListFilterKind},
@@ -171,6 +171,14 @@ impl Storable for Account {
         max_size: Self::STORABLE_MAX_SIZE,
         is_fixed_size: true,
     };
+}
+
+impl UpdateView for Account {
+    type UpdateViewType = Self;
+
+    fn merge(&mut self, v: Self::UpdateViewType) {
+        *self = v;
+    }
 }
 
 impl ValidateAuto for Account {}

@@ -3,7 +3,7 @@ use crate::{
         Value,
         traits::{
             FieldValue, Filterable, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
-            SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
+            SanitizeCustom, UpdateView, ValidateAuto, ValidateCustom, View, Visitable,
         },
     },
     db::primitives::{Int64ListFilterKind, Int64RangeFilterKind},
@@ -201,6 +201,14 @@ impl<'de> Deserialize<'de> for Date {
     {
         let s = String::deserialize(deserializer)?;
         Self::parse(&s).ok_or_else(|| serde::de::Error::custom(format!("invalid date: {s}")))
+    }
+}
+
+impl UpdateView for Date {
+    type UpdateViewType = Self;
+
+    fn merge(&mut self, v: Self::UpdateViewType) {
+        *self = v;
     }
 }
 

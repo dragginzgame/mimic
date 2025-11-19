@@ -8,14 +8,14 @@ This guide covers the complete workflow for developing, versioning, and releasin
 
 ```toml
 [dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0" }
+mimic = { git = "https://github.com/dragginzgame/mimic.git", tag = "v0.21.0" }
 ```
 
 ### Check Available Versions
 
 ```bash
 # From your project directory
-git ls-remote --tags git@github.com:dragginzgame/mimic.git | grep "v0.21"
+git ls-remote --tags https://github.com/dragginzgame/mimic.git | grep "v0.21"
 
 # Or use our helper script (if you have the repo cloned)
 ./scripts/app/check-git-versions.sh
@@ -213,10 +213,10 @@ make patch
 
 ```bash
 # Check if tag exists
-git ls-remote --tags git@github.com:dragginzgame/mimic.git | grep v1.0.0
+git ls-remote --tags https://github.com/dragginzgame/mimic.git | grep v1.0.0
 
 # Verify repository access
-git ls-remote git@github.com:dragginzgame/mimic.git
+git ls-remote https://github.com/dragginzgame/mimic.git
 ```
 
 ## 📚 Integration Examples
@@ -225,28 +225,28 @@ git ls-remote git@github.com:dragginzgame/mimic.git
 
 ```toml
 [dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0" }
+mimic = { git = "https://github.com/dragginzgame/mimic.git", tag = "v0.21.0" }
 ```
 
 ### With Features
 
 ```toml
 [dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0", features = ["serde"] }
+mimic = { git = "https://github.com/dragginzgame/mimic.git", tag = "v0.21.0", features = ["serde"] }
 ```
 
 ### Development Version
 
 ```toml
 [dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", branch = "main", features = [] }
+mimic = { git = "https://github.com/dragginzgame/mimic.git", branch = "main", features = [] }
 ```
 
 ### Workspace Integration
 
 ```toml
 [workspace.dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0" }
+mimic = { git = "https://github.com/dragginzgame/mimic.git", tag = "v0.21.0" }
 
 [dependencies]
 mimic = { workspace = true }

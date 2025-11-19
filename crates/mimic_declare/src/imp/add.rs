@@ -15,8 +15,16 @@ impl Imp<Newtype> for AddTrait {
 
         // Quote the implementation of Add for the newtype
         let tokens = quote! {
+            impl ::mimic::core::traits::Add<Self> for #ident {
+                type Output = Self;
+
+                fn add(self, other: Self) -> Self::Output {
+                    Self(self.0 + other.0)
+                }
+            }
+
             impl ::mimic::core::traits::Add<#prim> for #ident {
-                type Output = #ident;
+                type Output = Self;
 
                 fn add(self, other: #prim) -> Self::Output {
                     Self(self.0 + other)
@@ -28,15 +36,6 @@ impl Imp<Newtype> for AddTrait {
 
                 fn add(self, other: #ident) -> Self::Output {
                     #ident(self + other.0)
-                }
-            }
-
-            // Optionally: also implement Add<#ident> for #ident itself
-            impl ::mimic::core::traits::Add<#ident> for #ident {
-                type Output = #ident;
-
-                fn add(self, other: #ident) -> Self::Output {
-                    Self(self.0 + other.0)
                 }
             }
         };

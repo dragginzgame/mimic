@@ -15,16 +15,16 @@ impl Imp<Newtype> for SubTrait {
 
         // Quote the implementation of Sub for the newtype
         let tokens = quote! {
-            impl ::mimic::core::traits::Sub<#ident> for #ident {
-                type Output = #ident;
+            impl ::mimic::core::traits::Sub<Self> for #ident {
+                type Output = Self;
 
-                fn sub(self, other: #ident) -> Self::Output {
+                fn sub(self, other: Self) -> Self::Output {
                     Self(self.0 - other.0)
                 }
             }
 
             impl ::mimic::core::traits::Sub<#prim> for #ident {
-                type Output = #ident;
+                type Output = Self;
 
                 fn sub(self, other: #prim) -> Self::Output {
                     Self(self.0 - other)

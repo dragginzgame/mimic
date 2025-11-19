@@ -2,7 +2,7 @@ use crate::{
     core::{
         Value,
         traits::{
-            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto,
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, UpdateView, ValidateAuto,
             ValidateCustom, View, Visitable,
         },
     },
@@ -96,6 +96,14 @@ impl Inner<Self> for Blob {
 impl SanitizeAuto for Blob {}
 
 impl SanitizeCustom for Blob {}
+
+impl UpdateView for Blob {
+    type UpdateViewType = Self;
+
+    fn merge(&mut self, v: Self::UpdateViewType) {
+        *self = v;
+    }
+}
 
 impl ValidateAuto for Blob {}
 

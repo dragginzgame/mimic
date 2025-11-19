@@ -6,8 +6,8 @@ use crate::{
     common::error::ErrorTree,
     core::{
         traits::{
-            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, Storable, ValidateAuto,
-            ValidateCustom, View, Visitable,
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, Storable, UpdateView,
+            ValidateAuto, ValidateCustom, View, Visitable,
         },
         value::Value,
     },
@@ -191,6 +191,14 @@ impl Storable for Ulid {
         array.copy_from_slice(&bytes);
 
         Self::from_bytes(array)
+    }
+}
+
+impl UpdateView for Ulid {
+    type UpdateViewType = Self;
+
+    fn merge(&mut self, v: Self::UpdateViewType) {
+        *self = v;
     }
 }
 

@@ -3,7 +3,7 @@ use crate::{
         Value,
         traits::{
             FieldValue, Filterable, Inner, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
-            SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
+            SanitizeCustom, UpdateView, ValidateAuto, ValidateCustom, View, Visitable,
         },
     },
     db::primitives::{DecimalListFilterKind, DecimalRangeFilterKind},
@@ -159,6 +159,14 @@ impl PartialOrd for Float64 {
 impl SanitizeAuto for Float64 {}
 
 impl SanitizeCustom for Float64 {}
+
+impl UpdateView for Float64 {
+    type UpdateViewType = Self;
+
+    fn merge(&mut self, v: Self::UpdateViewType) {
+        *self = v;
+    }
+}
 
 impl ValidateAuto for Float64 {}
 
