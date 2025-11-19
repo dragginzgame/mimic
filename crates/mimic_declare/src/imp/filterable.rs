@@ -10,6 +10,7 @@ impl Imp<Enum> for FilterableTrait {
     fn strategy(node: &Enum) -> Option<TraitStrategy> {
         let q = quote! {
             type Filter = ::mimic::db::primitives::NoFilterKind;
+            type ListFilter = ::mimic::db::primitives::NoFilterKind;
         };
 
         let tokens = Implementor::new(node.def(), TraitKind::Filterable)
@@ -24,6 +25,7 @@ impl Imp<List> for FilterableTrait {
     fn strategy(node: &List) -> Option<TraitStrategy> {
         let q = quote! {
             type Filter = ::mimic::db::primitives::NoFilterKind;
+            type ListFilter = ::mimic::db::primitives::NoFilterKind;
         };
 
         let tokens = Implementor::new(node.def(), TraitKind::Filterable)
@@ -38,6 +40,7 @@ impl Imp<Map> for FilterableTrait {
     fn strategy(node: &Map) -> Option<TraitStrategy> {
         let q = quote! {
             type Filter = ::mimic::db::primitives::NoFilterKind;
+            type ListFilter = ::mimic::db::primitives::NoFilterKind;
         };
 
         let tokens = Implementor::new(node.def(), TraitKind::Filterable)
@@ -54,6 +57,7 @@ impl Imp<Newtype> for FilterableTrait {
 
         let q = quote! {
             type Filter = <#item_ty as ::mimic::core::traits::Filterable>::Filter;
+            type ListFilter = <#item_ty as ::mimic::core::traits::Filterable>::ListFilter;
         };
 
         let tokens = Implementor::new(node.def(), TraitKind::Filterable)
@@ -68,6 +72,7 @@ impl Imp<Record> for FilterableTrait {
     fn strategy(node: &Record) -> Option<TraitStrategy> {
         let q = quote! {
             type Filter = ::mimic::db::primitives::NoFilterKind;
+            type ListFilter = ::mimic::db::primitives::NoFilterKind;
         };
 
         let tokens = Implementor::new(node.def(), TraitKind::Filterable)
@@ -82,6 +87,7 @@ impl Imp<Set> for FilterableTrait {
     fn strategy(node: &Set) -> Option<TraitStrategy> {
         let q = quote! {
             type Filter = ::mimic::db::primitives::NoFilterKind;
+            type ListFilter = ::mimic::db::primitives::NoFilterKind;
         };
 
         let tokens = Implementor::new(node.def(), TraitKind::Filterable)
@@ -96,6 +102,7 @@ impl Imp<Tuple> for FilterableTrait {
     fn strategy(node: &Tuple) -> Option<TraitStrategy> {
         let q = quote! {
             type Filter = ::mimic::db::primitives::NoFilterKind;
+            type ListFilter = ::mimic::db::primitives::NoFilterKind;
         };
 
         let tokens = Implementor::new(node.def(), TraitKind::Filterable)

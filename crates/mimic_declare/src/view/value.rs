@@ -32,14 +32,30 @@ pub struct ValueFilter<'a>(pub &'a Value);
 impl ViewExpr for ValueFilter<'_> {
     fn expr(&self) -> Option<TokenStream> {
         let node = self.0;
-        let item = ItemFilter(&node.item).expr()?;
 
-        let ty = if node.cardinality() == Cardinality::Many {
-            quote!(::mimic::db::primitives::NoFilter)
-        } else {
-            quote!(#item)
+        // The Rust type of the field’s VALUE type (String, u64, Decimal, etc.)
+        let ty = node.item.target().type_expr();
+
+        // The scalar filter payload: <<T as Filterable>::Filter as FilterKind>::Payload
+        let scalar_payload = ItemFilter(&node.item).expr()?;
+
+        let q = match node.cardinality() {
+            Cardinality::One => {
+                // Just the scalar filter payload
+                quote!(#scalar_payload)
+            }
+            Cardinality::Opt => {
+                // Still scalar payload – NOT Option<T> !!
+                quote!(#scalar_payload)
+            }
+            Cardinality::Many => {
+                quote!(
+                    <<#ty as ::mimic::core::traits::Filterable>::ListFilter
+                        as ::mimic::db::primitives::filter::FilterKind>::Payload
+                )
+            }
         };
 
-        Some(ty)
+        Some(q)
     }
 }

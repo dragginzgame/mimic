@@ -11,7 +11,7 @@ use crate::{
         },
         value::Value,
     },
-    db::primitives::TextFilterKind,
+    db::primitives::{TextFilterKind, TextListFilterKind},
 };
 use candid::CandidType;
 use canic::{cdk::structures::storable::Bound, types::Ulid as WrappedUlid};
@@ -131,6 +131,7 @@ impl FieldValue for Ulid {
 
 impl Filterable for Ulid {
     type Filter = TextFilterKind;
+    type ListFilter = TextListFilterKind;
 }
 
 impl From<WrappedUlid> for Ulid {

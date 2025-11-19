@@ -5,7 +5,7 @@ use crate::{core::traits::Validator, design::prelude::*};
 ///
 
 #[validator]
-pub struct Utf8 {}
+pub struct Utf8;
 
 impl Validator<[u8]> for Utf8 {
     fn validate(&self, bytes: &[u8]) -> Result<(), String> {

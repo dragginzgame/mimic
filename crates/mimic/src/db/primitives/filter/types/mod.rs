@@ -1,14 +1,10 @@
-mod contains;
 mod equality;
 mod list;
-mod map;
 mod range;
 mod text;
 
-pub use contains::*;
 pub use equality::*;
 pub use list::*;
-pub use map::*;
 pub use range::*;
 pub use text::*;
 
@@ -63,12 +59,6 @@ impl FilterKind for NoFilterKind {
 
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct NoFilter;
-
-impl IntoFilterExpr for NoFilter {
-    fn into_expr(self) -> FilterExpr {
-        FilterExpr::True
-    }
-}
 
 impl IntoScopedFilterExpr for NoFilter {
     fn into_scoped(self, _path: &str) -> FilterExpr {

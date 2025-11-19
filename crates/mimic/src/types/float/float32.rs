@@ -6,7 +6,7 @@ use crate::{
             SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
         },
     },
-    db::primitives::RangeDecimalFilterKind,
+    db::primitives::{DecimalListFilterKind, DecimalRangeFilterKind},
 };
 use candid::CandidType;
 use derive_more::Display;
@@ -70,7 +70,8 @@ impl FieldValue for Float32 {
 }
 
 impl Filterable for Float32 {
-    type Filter = RangeDecimalFilterKind;
+    type Filter = DecimalRangeFilterKind;
+    type ListFilter = DecimalListFilterKind;
 }
 
 #[allow(clippy::cast_precision_loss)]

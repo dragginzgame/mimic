@@ -14,7 +14,7 @@ use crate::prelude::*;
         field(ident = "c_id", value(item(rel = "EntityC", prim = "Principal"))),
     )
 )]
-pub struct HasRelation {}
+pub struct HasRelation;
 
 ///
 /// HasManyRelation
@@ -28,7 +28,7 @@ pub struct HasRelation {}
         field(ident = "a_ids", value(many, item(rel = "EntityA"))),
     )
 )]
-pub struct HasManyRelation {}
+pub struct HasManyRelation;
 
 ///
 /// EntityA
@@ -39,7 +39,7 @@ pub struct HasManyRelation {}
     pk = "id",
     fields(field(ident = "id", value(item(prim = "Ulid")), default = "Ulid::generate"))
 )]
-pub struct EntityA {}
+pub struct EntityA;
 
 ///
 /// EntityB
@@ -50,7 +50,7 @@ pub struct EntityA {}
     pk = "id",
     fields(field(ident = "id", value(item(prim = "Nat16"))))
 )]
-pub struct EntityB {}
+pub struct EntityB;
 
 ///
 /// EntityC
@@ -61,4 +61,4 @@ pub struct EntityB {}
     pk = "id",
     fields(field(ident = "id", value(item(prim = "Principal"))))
 )]
-pub struct EntityC {}
+pub struct EntityC;

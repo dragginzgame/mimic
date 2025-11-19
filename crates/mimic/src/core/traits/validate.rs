@@ -21,7 +21,7 @@ impl<T> Validate for T where T: ValidateAuto + ValidateCustom {}
 ///
 
 #[derive(Clone, Debug, Default)]
-pub struct ValidateContext {}
+pub struct ValidateContext;
 
 ///
 /// ValidateAuto

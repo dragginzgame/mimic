@@ -152,37 +152,37 @@ pub struct NatDefault {}
 pub struct Nat32Default {}
 
 #[newtype(primitive = "Nat64", item(prim = "Nat64"), default = 0u64)]
-pub struct Nat64Default {}
+pub struct Nat64Default;
 
 #[newtype(primitive = "Nat128", item(prim = "Nat128"), default = 0u128)]
-pub struct Nat128Default {}
+pub struct Nat128Default;
 
 #[newtype(
     primitive = "Principal",
     item(prim = "Principal"),
     default = "mimic::types::Principal::anonymous"
 )]
-pub struct PrincipalDefault {}
+pub struct PrincipalDefault;
 
 #[newtype(primitive = "Subaccount", item(prim = "Subaccount"))]
-pub struct SubaccountDefault {}
+pub struct SubaccountDefault;
 
 #[newtype(primitive = "Text", item(prim = "Text"), default = "\"\"")]
-pub struct TextDefault {}
+pub struct TextDefault;
 
 #[newtype(
     primitive = "Timestamp",
     item(prim = "Timestamp"),
     default = "mimic::types::Timestamp::EPOCH"
 )]
-pub struct TimestampDefault {}
+pub struct TimestampDefault;
 
 #[newtype(
     primitive = "Ulid",
     item(prim = "Ulid"),
     default = "mimic::types::Ulid::generate"
 )]
-pub struct UlidDefault {}
+pub struct UlidDefault;
 
 ///
 /// FilterableNewtype

@@ -10,7 +10,7 @@ use crate::{
             ValidateCustom, View, Visitable,
         },
     },
-    db::primitives::RangeNatFilterKind,
+    db::primitives::{NatListFilterKind, NatRangeFilterKind},
 };
 use candid::{CandidType, Nat as WrappedNat};
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign};
@@ -61,7 +61,8 @@ impl FieldValue for Nat {
 }
 
 impl Filterable for Nat {
-    type Filter = RangeNatFilterKind;
+    type Filter = NatRangeFilterKind;
+    type ListFilter = NatListFilterKind;
 }
 
 impl From<i32> for Nat {

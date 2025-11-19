@@ -6,7 +6,7 @@ use crate::{
             SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
         },
     },
-    db::primitives::RangeIntFilterKind,
+    db::primitives::{IntListFilterKind, IntRangeFilterKind},
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign, Sum};
@@ -54,7 +54,8 @@ impl FieldValue for Int128 {
 }
 
 impl Filterable for Int128 {
-    type Filter = RangeIntFilterKind;
+    type Filter = IntRangeFilterKind;
+    type ListFilter = IntListFilterKind;
 }
 
 #[allow(clippy::cast_lossless)]

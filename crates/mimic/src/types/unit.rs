@@ -47,6 +47,7 @@ impl FieldValue for Unit {
 
 impl Filterable for Unit {
     type Filter = NoFilterKind;
+    type ListFilter = NoFilterKind;
 }
 
 impl Inner<Self> for Unit {

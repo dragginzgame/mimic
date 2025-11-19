@@ -11,31 +11,26 @@ use serde::{Deserialize, Serialize};
 ///
 
 pub struct TextEqualityFilterKind;
-
 impl FilterKind for TextEqualityFilterKind {
     type Payload = TextEqualityFilter;
 }
 
-pub struct IntEqualityFilterKind;
-
-impl FilterKind for IntEqualityFilterKind {
-    type Payload = IntEqualityFilter;
+pub struct Int64EqualityFilterKind;
+impl FilterKind for Int64EqualityFilterKind {
+    type Payload = Int64EqualityFilter;
 }
 
-pub struct NatEqualityFilterKind;
-
-impl FilterKind for NatEqualityFilterKind {
-    type Payload = NatEqualityFilter;
+pub struct Nat64EqualityFilterKind;
+impl FilterKind for Nat64EqualityFilterKind {
+    type Payload = Nat64EqualityFilter;
 }
 
 pub struct BoolEqualityFilterKind;
-
 impl FilterKind for BoolEqualityFilterKind {
     type Payload = BoolEqualityFilter;
 }
 
 pub struct DecimalEqualityFilterKind;
-
 impl FilterKind for DecimalEqualityFilterKind {
     type Payload = DecimalEqualityFilter;
 }
@@ -45,13 +40,13 @@ impl FilterKind for DecimalEqualityFilterKind {
 ///
 
 pub type TextEqualityFilter = EqualityFilter<String>;
-pub type IntEqualityFilter = EqualityFilter<i64>;
-pub type NatEqualityFilter = EqualityFilter<u64>;
+pub type Int64EqualityFilter = EqualityFilter<i64>;
+pub type Nat64EqualityFilter = EqualityFilter<u64>;
 pub type BoolEqualityFilter = EqualityFilter<bool>;
 pub type DecimalEqualityFilter = EqualityFilter<Decimal>;
 
 ///
-/// Generic EqualityFilter<T>
+/// EqualityFilter<T>
 ///
 
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]

@@ -9,7 +9,7 @@ use crate::design::{base, prelude::*};
     item(prim = "Blob"),
     traits(remove(ValidateCustom))
 )]
-pub struct Utf8 {}
+pub struct Utf8;
 
 #[allow(clippy::cast_possible_wrap)]
 impl ValidateCustom for Utf8 {
@@ -17,7 +17,7 @@ impl ValidateCustom for Utf8 {
         let mut errs = ErrorTree::default();
 
         // utf8
-        errs.add_result(base::validator::bytes::Utf8 {}.validate(self));
+        errs.add_result(base::validator::bytes::Utf8.validate(self));
 
         errs.result()
     }

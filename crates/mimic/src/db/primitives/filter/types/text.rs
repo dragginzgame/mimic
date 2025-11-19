@@ -2,9 +2,9 @@ use crate::db::primitives::filter::{FilterDsl, FilterExpr, FilterKind, IntoScope
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
-///
-/// TextFilterKind
-///
+//
+// TextFilterKind
+//
 
 pub struct TextFilterKind;
 
@@ -12,70 +12,43 @@ impl FilterKind for TextFilterKind {
     type Payload = TextFilter;
 }
 
-///
-/// TextClause
-///
+//
+// TextClause — no mode; mode is encoded in the field (cs/ci)
+//
 
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct TextClause {
-    pub mode: TextMatchMode,
     pub values: Vec<String>,
 }
 
-///
-/// TextMatchMode
-///
-
-#[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
-pub enum TextMatchMode {
-    #[serde(rename = "cs")]
-    #[default]
-    CaseSensitive,
-    #[serde(rename = "ci")]
-    CaseInsensitive,
+impl TextClause {
+    pub fn push_value(&mut self, v: impl Into<String>) {
+        self.values.push(v.into());
+    }
 }
 
-///
-/// TextFilterOp
-///
-
-#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
-pub enum TextFilterOp {
-    Equal,
-    NotEqual,
-    Contains,
-    StartsWith,
-    EndsWith,
-}
-
-///
-/// TextFilter
-///
+//
+// TextFilter operators (fully split CS/CI)
+//
 
 #[derive(CandidType, Clone, Debug, Default, Deserialize, Serialize)]
 pub struct TextFilter {
-    pub equal: Option<TextClause>,
-    pub not_equal: Option<TextClause>,
-    pub contains: Option<TextClause>,
-    pub starts_with: Option<TextClause>,
-    pub ends_with: Option<TextClause>,
+    pub equal_cs: Option<TextClause>,
+    pub equal_ci: Option<TextClause>,
+
+    pub not_equal_cs: Option<TextClause>,
+    pub not_equal_ci: Option<TextClause>,
+
+    pub contains_cs: Option<TextClause>,
+    pub contains_ci: Option<TextClause>,
+
+    pub starts_with_cs: Option<TextClause>,
+    pub starts_with_ci: Option<TextClause>,
+
+    pub ends_with_cs: Option<TextClause>,
+    pub ends_with_ci: Option<TextClause>,
+
     pub is_empty: Option<bool>,
-}
-
-impl TextClause {
-    #[must_use]
-    pub const fn new(mode: TextMatchMode) -> Self {
-        Self {
-            mode,
-            values: Vec::new(),
-        }
-    }
-
-    #[must_use]
-    pub fn push(mut self, value: impl Into<String>) -> Self {
-        self.values.push(value.into());
-        self
-    }
 }
 
 impl TextFilter {
@@ -85,187 +58,174 @@ impl TextFilter {
     }
 
     #[must_use]
-    pub const fn is_empty(mut self, val: bool) -> Self {
-        self.is_empty = Some(val);
+    pub const fn is_empty(mut self, yes: bool) -> Self {
+        self.is_empty = Some(yes);
         self
     }
 
-    // equality
+    //
+    // Equality
+    //
 
     #[must_use]
-    pub fn equal(mut self, value: impl Into<String>) -> Self {
-        Self::push_value(&mut self.equal, TextMatchMode::CaseSensitive, value);
-        self
-    }
-
-    #[must_use]
-    pub fn equal_ci(mut self, value: impl Into<String>) -> Self {
-        Self::push_value(&mut self.equal, TextMatchMode::CaseInsensitive, value);
+    pub fn equal(mut self, v: impl Into<String>) -> Self {
+        push(&mut self.equal_cs, v);
         self
     }
 
     #[must_use]
-    pub fn not_equal(mut self, value: impl Into<String>) -> Self {
-        Self::push_value(&mut self.not_equal, TextMatchMode::CaseSensitive, value);
+    pub fn equal_ci(mut self, v: impl Into<String>) -> Self {
+        push(&mut self.equal_ci, v);
+        self
+    }
+
+    //
+    // Not Equal
+    //
+
+    #[must_use]
+    pub fn not_equal(mut self, v: impl Into<String>) -> Self {
+        push(&mut self.not_equal_cs, v);
         self
     }
 
     #[must_use]
-    pub fn not_equal_ci(mut self, value: impl Into<String>) -> Self {
-        Self::push_value(&mut self.not_equal, TextMatchMode::CaseInsensitive, value);
+    pub fn not_equal_ci(mut self, v: impl Into<String>) -> Self {
+        push(&mut self.not_equal_ci, v);
         self
     }
 
-    // contains
+    //
+    // Contains
+    //
 
     #[must_use]
-    pub fn contains(mut self, value: impl Into<String>) -> Self {
-        Self::push_value(&mut self.contains, TextMatchMode::CaseSensitive, value);
-        self
-    }
-
-    #[must_use]
-    pub fn contains_ci(mut self, value: impl Into<String>) -> Self {
-        Self::push_value(&mut self.contains, TextMatchMode::CaseInsensitive, value);
-        self
-    }
-
-    // starts_with
-
-    #[must_use]
-    pub fn starts_with(mut self, value: impl Into<String>) -> Self {
-        Self::push_value(&mut self.starts_with, TextMatchMode::CaseSensitive, value);
+    pub fn contains(mut self, v: impl Into<String>) -> Self {
+        push(&mut self.contains_cs, v);
         self
     }
 
     #[must_use]
-    pub fn starts_with_ci(mut self, value: impl Into<String>) -> Self {
-        Self::push_value(&mut self.starts_with, TextMatchMode::CaseInsensitive, value);
+    pub fn contains_ci(mut self, v: impl Into<String>) -> Self {
+        push(&mut self.contains_ci, v);
         self
     }
 
-    // ends_with
+    //
+    // Starts With
+    //
 
     #[must_use]
-    pub fn ends_with(mut self, value: impl Into<String>) -> Self {
-        Self::push_value(&mut self.ends_with, TextMatchMode::CaseSensitive, value);
+    pub fn starts_with(mut self, v: impl Into<String>) -> Self {
+        push(&mut self.starts_with_cs, v);
         self
     }
 
     #[must_use]
-    pub fn ends_with_ci(mut self, value: impl Into<String>) -> Self {
-        Self::push_value(&mut self.ends_with, TextMatchMode::CaseInsensitive, value);
+    pub fn starts_with_ci(mut self, v: impl Into<String>) -> Self {
+        push(&mut self.starts_with_ci, v);
         self
     }
 
-    // internal helper
-    fn push_value(slot: &mut Option<TextClause>, mode: TextMatchMode, value: impl Into<String>) {
-        let clause = slot.get_or_insert_with(|| TextClause::new(mode));
-        // if mode differs from existing, you can decide to overwrite or ignore;
-        // for now we just keep the existing mode.
-        clause.values.push(value.into());
+    //
+    // Ends With
+    //
+
+    #[must_use]
+    pub fn ends_with(mut self, v: impl Into<String>) -> Self {
+        push(&mut self.ends_with_cs, v);
+        self
+    }
+
+    #[must_use]
+    pub fn ends_with_ci(mut self, v: impl Into<String>) -> Self {
+        push(&mut self.ends_with_ci, v);
+        self
     }
 }
+
+//
+// Shared helper for push() ergonomics
+//
+
+fn push(slot: &mut Option<TextClause>, v: impl Into<String>) {
+    slot.get_or_insert_with(TextClause::default).push_value(v);
+}
+
+//
+// IntoScopedFilterExpr implementation
+//
 
 impl IntoScopedFilterExpr for TextFilter {
     fn into_scoped(self, field: &str) -> FilterExpr {
         let dsl = FilterDsl;
-        let mut and_exprs = Vec::new();
+        let mut parts = Vec::new();
 
-        if let Some(clause) = self.equal
-            && let Some(e) = clause_exprs(dsl, field, clause, TextFilterOp::Equal)
-        {
-            and_exprs.push(e);
+        // Equal
+        if let Some(c) = self.equal_cs {
+            parts.push(or_clause(dsl, field, c, |dsl, f, v| dsl.eq(f, v)));
         }
-        if let Some(clause) = self.not_equal
-            && let Some(e) = clause_exprs(dsl, field, clause, TextFilterOp::NotEqual)
-        {
-            and_exprs.push(e);
-        }
-        if let Some(clause) = self.contains
-            && let Some(e) = clause_exprs(dsl, field, clause, TextFilterOp::Contains)
-        {
-            and_exprs.push(e);
-        }
-        if let Some(clause) = self.starts_with
-            && let Some(e) = clause_exprs(dsl, field, clause, TextFilterOp::StartsWith)
-        {
-            and_exprs.push(e);
-        }
-        if let Some(clause) = self.ends_with
-            && let Some(e) = clause_exprs(dsl, field, clause, TextFilterOp::EndsWith)
-        {
-            and_exprs.push(e);
+        if let Some(c) = self.equal_ci {
+            parts.push(or_clause(dsl, field, c, |dsl, f, v| dsl.eq_ci(f, v)));
         }
 
-        if let Some(is_empty) = self.is_empty {
-            and_exprs.push(if is_empty {
+        // NotEqual
+        if let Some(c) = self.not_equal_cs {
+            parts.push(or_clause(dsl, field, c, |dsl, f, v| dsl.ne(f, v)));
+        }
+        if let Some(c) = self.not_equal_ci {
+            parts.push(or_clause(dsl, field, c, |dsl, f, v| dsl.ne_ci(f, v)));
+        }
+
+        // Contains
+        if let Some(c) = self.contains_cs {
+            parts.push(or_clause(dsl, field, c, |dsl, f, v| dsl.contains(f, v)));
+        }
+        if let Some(c) = self.contains_ci {
+            parts.push(or_clause(dsl, field, c, |dsl, f, v| dsl.contains_ci(f, v)));
+        }
+
+        // StartsWith
+        if let Some(c) = self.starts_with_cs {
+            parts.push(or_clause(dsl, field, c, |dsl, f, v| dsl.starts_with(f, v)));
+        }
+        if let Some(c) = self.starts_with_ci {
+            parts.push(or_clause(dsl, field, c, |dsl, f, v| {
+                dsl.starts_with_ci(f, v)
+            }));
+        }
+
+        // EndsWith
+        if let Some(c) = self.ends_with_cs {
+            parts.push(or_clause(dsl, field, c, |dsl, f, v| dsl.ends_with(f, v)));
+        }
+        if let Some(c) = self.ends_with_ci {
+            parts.push(or_clause(dsl, field, c, |dsl, f, v| dsl.ends_with_ci(f, v)));
+        }
+
+        // Empty
+        if let Some(flag) = self.is_empty {
+            parts.push(if flag {
                 dsl.is_empty(field)
             } else {
                 dsl.is_not_empty(field)
             });
         }
 
-        FilterDsl::all(and_exprs)
+        FilterDsl::all(parts)
     }
 }
 
-// helper: build OR over values for one clause/op
-fn clause_exprs(
+//
+// OR helper for each clause: ANY(values)
+//
+
+fn or_clause(
     dsl: FilterDsl,
     field: &str,
     clause: TextClause,
-    op: TextFilterOp,
-) -> Option<FilterExpr> {
-    let TextClause { mode, values } = clause;
-    if values.is_empty() {
-        return None;
-    }
-
-    let ci = matches!(mode, TextMatchMode::CaseInsensitive);
-    let mut or_exprs = Vec::new();
-
-    for v in values {
-        let expr = match op {
-            TextFilterOp::Equal => {
-                if ci {
-                    dsl.eq_ci(field, v)
-                } else {
-                    dsl.eq(field, v)
-                }
-            }
-            TextFilterOp::NotEqual => {
-                if ci {
-                    dsl.ne_ci(field, v)
-                } else {
-                    dsl.ne(field, v)
-                }
-            }
-            TextFilterOp::Contains => {
-                if ci {
-                    dsl.contains_ci(field, v)
-                } else {
-                    dsl.contains(field, v)
-                }
-            }
-            TextFilterOp::StartsWith => {
-                if ci {
-                    dsl.starts_with_ci(field, v)
-                } else {
-                    dsl.starts_with(field, v)
-                }
-            }
-            TextFilterOp::EndsWith => {
-                if ci {
-                    dsl.ends_with_ci(field, v)
-                } else {
-                    dsl.ends_with(field, v)
-                }
-            }
-        };
-
-        or_exprs.push(expr);
-    }
-
-    Some(FilterDsl::any(or_exprs))
+    mk: impl Fn(FilterDsl, &str, String) -> FilterExpr,
+) -> FilterExpr {
+    let iter = clause.values.into_iter().map(|v| mk(dsl, field, v));
+    FilterDsl::any(iter)
 }

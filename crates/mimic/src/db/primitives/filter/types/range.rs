@@ -1,40 +1,49 @@
 use crate::{
     core::traits::FieldValue,
     db::primitives::filter::{FilterDsl, FilterExpr, FilterKind, IntoScopedFilterExpr},
-    types::Decimal,
+    types::{Decimal, Int, Nat},
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
 ///
-/// RangeDecimalFilterKind
+/// FilterKinds
 ///
 
-pub struct RangeDecimalFilterKind;
+pub struct DecimalRangeFilterKind;
+impl FilterKind for DecimalRangeFilterKind {
+    type Payload = DecimalRangeFilter;
+}
 
-impl FilterKind for RangeDecimalFilterKind {
-    type Payload = RangeFilter<Decimal>;
+pub struct Int64RangeFilterKind;
+impl FilterKind for Int64RangeFilterKind {
+    type Payload = Int64RangeFilter;
+}
+
+pub struct IntRangeFilterKind;
+impl FilterKind for IntRangeFilterKind {
+    type Payload = IntRangeFilter;
+}
+
+pub struct Nat64RangeFilterKind;
+impl FilterKind for Nat64RangeFilterKind {
+    type Payload = Nat64RangeFilter;
+}
+
+pub struct NatRangeFilterKind;
+impl FilterKind for NatRangeFilterKind {
+    type Payload = NatRangeFilter;
 }
 
 ///
-/// RangeIntFilterKind
+/// Aliases
 ///
 
-pub struct RangeIntFilterKind;
-
-impl FilterKind for RangeIntFilterKind {
-    type Payload = RangeFilter<i64>;
-}
-
-///
-/// RangeNatFilterKind
-///
-
-pub struct RangeNatFilterKind;
-
-impl FilterKind for RangeNatFilterKind {
-    type Payload = RangeFilter<u64>;
-}
+pub type DecimalRangeFilter = RangeFilter<Decimal>;
+pub type Int64RangeFilter = RangeFilter<i64>;
+pub type IntRangeFilter = RangeFilter<Int>;
+pub type Nat64RangeFilter = RangeFilter<u64>;
+pub type NatRangeFilter = RangeFilter<Nat>;
 
 ///
 /// RangeFilter

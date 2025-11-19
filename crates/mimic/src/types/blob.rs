@@ -62,6 +62,7 @@ impl FieldValue for Blob {
 
 impl Filterable for Blob {
     type Filter = NoFilterKind;
+    type ListFilter = NoFilterKind;
 }
 
 impl From<Vec<u8>> for Blob {

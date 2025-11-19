@@ -6,7 +6,7 @@ use crate::{
         },
         value::Value,
     },
-    db::primitives::RangeNatFilterKind,
+    db::primitives::{NatListFilterKind, NatRangeFilterKind},
     types::Decimal,
 };
 use candid::CandidType;
@@ -125,7 +125,8 @@ impl FieldValue for E18s {
 }
 
 impl Filterable for E18s {
-    type Filter = RangeNatFilterKind;
+    type Filter = NatRangeFilterKind;
+    type ListFilter = NatListFilterKind;
 }
 
 impl From<i32> for E18s {

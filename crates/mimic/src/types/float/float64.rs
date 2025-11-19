@@ -6,7 +6,7 @@ use crate::{
             SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
         },
     },
-    db::primitives::RangeDecimalFilterKind,
+    db::primitives::{DecimalListFilterKind, DecimalRangeFilterKind},
 };
 use candid::CandidType;
 use derive_more::Display;
@@ -63,7 +63,8 @@ impl FieldValue for Float64 {
 }
 
 impl Filterable for Float64 {
-    type Filter = RangeDecimalFilterKind;
+    type Filter = DecimalRangeFilterKind;
+    type ListFilter = DecimalListFilterKind;
 }
 
 impl From<i32> for Float64 {

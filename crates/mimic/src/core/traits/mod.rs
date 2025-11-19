@@ -28,7 +28,11 @@ pub use std::{
 
 use crate::{
     core::{Key, Value},
-    db::primitives::{BoolEqualityFilterKind, FilterKind, RangeIntFilterKind, TextFilterKind},
+    db::primitives::{
+        BoolEqualityFilterKind, BoolListFilterKind, FilterKind, Int64RangeFilterKind,
+        IntListFilterKind, Nat64RangeFilterKind, NatListFilterKind, TextFilterKind,
+        TextListFilterKind,
+    },
     schema::node::Index,
 };
 
@@ -192,30 +196,35 @@ impl_field_value!(
 
 pub trait Filterable {
     type Filter: FilterKind;
+    type ListFilter: FilterKind;
 }
 
 macro_rules! impl_filterable {
-    ( $( $type:ty => $filter:path ),* $(,)? ) => {
+    // Case 1: type => scalar_filter, list_filter
+    ( $( $type:ty => $filter:path, $list_filter:path );* $(;)? ) => {
         $(
             impl Filterable for $type {
                 type Filter = $filter;
+                type ListFilter = $list_filter;
             }
         )*
     };
 }
 
-impl_filterable!(
-    bool    => BoolEqualityFilterKind,
-    i8      => RangeIntFilterKind,
-    i16     => RangeIntFilterKind,
-    i32     => RangeIntFilterKind,
-    i64     => RangeIntFilterKind,
-    u8      => RangeIntFilterKind,
-    u16     => RangeIntFilterKind,
-    u32     => RangeIntFilterKind,
-    u64     => RangeIntFilterKind,
-    String  => TextFilterKind,
-);
+impl_filterable! {
+    bool    => BoolEqualityFilterKind, BoolListFilterKind;
+    i8      => Int64RangeFilterKind, IntListFilterKind;
+    i16     => Int64RangeFilterKind, IntListFilterKind;
+    i32     => Int64RangeFilterKind, IntListFilterKind;
+    i64     => Int64RangeFilterKind, IntListFilterKind;
+
+    u8      => Nat64RangeFilterKind, NatListFilterKind;
+    u16     => Nat64RangeFilterKind, NatListFilterKind;
+    u32     => Nat64RangeFilterKind, NatListFilterKind;
+    u64     => Nat64RangeFilterKind, NatListFilterKind;
+
+    String  => TextFilterKind, TextListFilterKind;
+}
 
 ///
 /// Inner

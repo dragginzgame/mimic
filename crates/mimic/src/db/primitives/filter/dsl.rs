@@ -45,6 +45,180 @@ impl FilterDsl {
     }
 
     //
+    // ───────────────────────────────────────────────
+    // LOGICAL COMBINATORS
+    // ───────────────────────────────────────────────
+    //
+
+    #[must_use]
+    pub fn not(expr: FilterExpr) -> FilterExpr {
+        FilterExpr::Not(Box::new(expr))
+    }
+
+    #[must_use]
+    pub fn not_expr(self, expr: FilterExpr) -> FilterExpr {
+        Self::not(expr)
+    }
+
+    pub fn all<I>(items: I) -> FilterExpr
+    where
+        I: IntoIterator<Item = FilterExpr>,
+    {
+        let mut it = items.into_iter();
+        match it.next() {
+            Some(first) => it.fold(first, FilterExpr::and),
+            None => FilterExpr::True,
+        }
+    }
+
+    pub fn all_expr<I>(self, items: I) -> FilterExpr
+    where
+        I: IntoIterator<Item = FilterExpr>,
+    {
+        Self::all(items)
+    }
+
+    pub fn any<I>(items: I) -> FilterExpr
+    where
+        I: IntoIterator<Item = FilterExpr>,
+    {
+        let mut it = items.into_iter();
+        match it.next() {
+            Some(first) => it.fold(first, FilterExpr::or),
+            None => FilterExpr::False,
+        }
+    }
+
+    pub fn any_expr<I>(self, items: I) -> FilterExpr
+    where
+        I: IntoIterator<Item = FilterExpr>,
+    {
+        Self::any(items)
+    }
+
+    //
+    // ───────────────────────────────────────────────
+    // VALUE LIST OPERATORS (scalar list filtering)
+    // ───────────────────────────────────────────────
+    //
+
+    /// field IN (v1, v2, v3)
+    #[inline]
+    pub fn in_iter<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
+    where
+        I: IntoIterator,
+        I::Item: FieldValue,
+    {
+        Self::cmp_iter(field, Cmp::In, vals)
+    }
+
+    /// ergonomic alias
+    #[inline]
+    pub fn in_list<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
+    where
+        I: IntoIterator,
+        I::Item: FieldValue,
+    {
+        self.in_iter(field, vals)
+    }
+
+    /// NOT IN (v1, v2, v3)
+    #[inline]
+    pub fn not_in_iter<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
+    where
+        I: IntoIterator,
+        I::Item: FieldValue,
+    {
+        Self::cmp_iter(field, Cmp::NotIn, vals)
+    }
+
+    #[inline]
+    pub fn not_in_list<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
+    where
+        I: IntoIterator,
+        I::Item: FieldValue,
+    {
+        self.not_in_iter(field, vals)
+    }
+
+    /// ANY elements of values are included
+    #[inline]
+    pub fn any_in<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
+    where
+        I: IntoIterator,
+        I::Item: FieldValue,
+    {
+        Self::cmp_iter(field, Cmp::AnyIn, vals)
+    }
+
+    #[inline]
+    pub fn has_any<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
+    where
+        I: IntoIterator,
+        I::Item: FieldValue,
+    {
+        self.any_in(field, vals)
+    }
+
+    /// ALL values are included
+    #[inline]
+    pub fn all_in<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
+    where
+        I: IntoIterator,
+        I::Item: FieldValue,
+    {
+        Self::cmp_iter(field, Cmp::AllIn, vals)
+    }
+
+    #[inline]
+    pub fn has_all<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
+    where
+        I: IntoIterator,
+        I::Item: FieldValue,
+    {
+        self.all_in(field, vals)
+    }
+
+    // CI versions (keep!)
+    #[inline]
+    pub fn any_in_ci<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
+    where
+        I: IntoIterator,
+        I::Item: FieldValue,
+    {
+        Self::cmp_iter(field, Cmp::AnyInCi, vals)
+    }
+
+    #[inline]
+    pub fn all_in_ci<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
+    where
+        I: IntoIterator,
+        I::Item: FieldValue,
+    {
+        Self::cmp_iter(field, Cmp::AllInCi, vals)
+    }
+
+    //
+    // ───────────────────────────────────────────────
+    // CONDITIONAL HELPERS (already good)
+    // ───────────────────────────────────────────────
+    //
+
+    #[inline]
+    pub fn when(self, cond: bool, f: impl FnOnce() -> FilterExpr) -> Option<FilterExpr> {
+        cond.then(f)
+    }
+
+    #[inline]
+    pub fn when_some<T>(
+        self,
+        opt: Option<T>,
+        f: impl FnOnce(T) -> FilterExpr,
+    ) -> Option<FilterExpr> {
+        opt.map(f)
+    }
+
+    //
     // Always / Never
     // (good placeholders for constructing queries)
     //
@@ -92,95 +266,6 @@ impl FilterDsl {
         let list = vals.into_iter().map(|v| v.to_value()).collect::<Vec<_>>();
 
         FilterExpr::Clause(FilterClause::new(field.as_ref(), cmp, list))
-    }
-
-    /// field IN (v1, v2, ...)
-    #[inline]
-    pub fn in_iter<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
-    where
-        I: IntoIterator,
-        I::Item: FieldValue,
-    {
-        Self::cmp_iter(field, Cmp::In, vals)
-    }
-
-    /// field NOT IN (v1, v2, ...)
-    #[inline]
-    pub fn not_in_iter<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
-    where
-        I: IntoIterator,
-        I::Item: FieldValue,
-    {
-        Self::cmp_iter(field, Cmp::NotIn, vals)
-    }
-
-    /// ANY element of `vals` is contained in the collection field.
-    #[inline]
-    pub fn any_in<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
-    where
-        I: IntoIterator,
-        I::Item: FieldValue,
-    {
-        Self::cmp_iter(field, Cmp::AnyIn, vals)
-    }
-
-    /// ALL elements of `vals` are contained in the collection field.
-    #[inline]
-    pub fn all_in<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
-    where
-        I: IntoIterator,
-        I::Item: FieldValue,
-    {
-        Self::cmp_iter(field, Cmp::AllIn, vals)
-    }
-
-    /// ANY element of `vals` is contained in the collection field (case-insensitive for Text).
-    #[inline]
-    pub fn any_in_ci<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
-    where
-        I: IntoIterator,
-        I::Item: FieldValue,
-    {
-        Self::cmp_iter(field, Cmp::AnyInCi, vals)
-    }
-
-    /// ALL elements of `vals` are contained in the collection field (case-insensitive for Text).
-    #[inline]
-    pub fn all_in_ci<I>(self, field: impl AsRef<str>, vals: I) -> FilterExpr
-    where
-        I: IntoIterator,
-        I::Item: FieldValue,
-    {
-        Self::cmp_iter(field, Cmp::AllInCi, vals)
-    }
-
-    //
-    // Collectors
-    //
-
-    pub fn all<I>(items: I) -> FilterExpr
-    where
-        I: IntoIterator<Item = FilterExpr>,
-    {
-        let mut it = items.into_iter();
-
-        // if empty, return a neutral "True" expression instead of None
-        match it.next() {
-            Some(first) => it.fold(first, FilterExpr::and),
-            None => FilterExpr::True,
-        }
-    }
-
-    pub fn any<I>(items: I) -> FilterExpr
-    where
-        I: IntoIterator<Item = FilterExpr>,
-    {
-        let mut it = items.into_iter();
-
-        match it.next() {
-            Some(first) => it.fold(first, FilterExpr::or),
-            None => FilterExpr::False, // empty OR = False
-        }
     }
 
     //
@@ -245,21 +330,5 @@ impl FilterDsl {
             Cmp::MapNotContainsEntry,
             entry,
         ))
-    }
-
-    //
-    // Conditionals
-    //
-
-    pub fn when(self, cond: bool, f: impl FnOnce() -> FilterExpr) -> Option<FilterExpr> {
-        cond.then(f)
-    }
-
-    pub fn when_some<T>(
-        self,
-        opt: Option<T>,
-        f: impl FnOnce(T) -> FilterExpr,
-    ) -> Option<FilterExpr> {
-        opt.map(f)
     }
 }

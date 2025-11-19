@@ -27,7 +27,7 @@ pub struct AddressLine {}
 /// - Trim
 /// - TitleCase (optional, e.g. “new york” → “New York”)
 /// - Length: 1–100
-/// - Allowed: letters, spaces, apostrophes, hyphens   TODO
+/// - Allowed: letters, spaces, apostrophes, hyphens
 ///
 
 #[newtype(

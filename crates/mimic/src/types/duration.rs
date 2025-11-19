@@ -6,7 +6,7 @@ use crate::{
             SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
         },
     },
-    db::primitives::RangeNatFilterKind,
+    db::primitives::{Nat64ListFilterKind, Nat64RangeFilterKind},
 };
 use candid::CandidType;
 use canic::utils::time::now_secs;
@@ -128,7 +128,8 @@ impl FieldValue for Duration {
 }
 
 impl Filterable for Duration {
-    type Filter = RangeNatFilterKind;
+    type Filter = Nat64RangeFilterKind;
+    type ListFilter = Nat64ListFilterKind;
 }
 
 impl From<i32> for Duration {

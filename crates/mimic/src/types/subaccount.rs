@@ -118,6 +118,7 @@ impl FieldValue for Subaccount {
 
 impl Filterable for Subaccount {
     type Filter = NoFilterKind;
+    type ListFilter = NoFilterKind;
 }
 
 /// code taken from
