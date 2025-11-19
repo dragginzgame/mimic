@@ -18,21 +18,28 @@ use crate::prelude::*;
 ///
 
 #[list(item(prim = "Text"))]
-pub struct List {}
+pub struct List;
 
 ///
 /// Map
 ///
 
 #[map(key(prim = "Text"), value(item(prim = "Nat8")))]
-pub struct Map {}
+pub struct Map;
+
+///
+/// Record
+///
+
+#[record]
+pub struct Record;
 
 ///
 /// Set
 ///
 
 #[set(item(prim = "Text"))]
-pub struct Set {}
+pub struct Set;
 
 ///
 /// EnumSorted

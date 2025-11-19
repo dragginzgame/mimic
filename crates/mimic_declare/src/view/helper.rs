@@ -9,20 +9,10 @@ pub fn generate_field_list_filter(
     fields: &FieldList,
     derives: &TraitSet,
 ) -> TokenStream {
-    // Build payload types for each field
     let field_defs = fields.iter().map(|f| FieldFilter(f).expr());
 
-    // Build each field’s scoped filter expression
-    let field_exprs = fields.iter().map(|f| {
-        let ident = &f.ident;
-        let field_name = f.ident.to_string();
-
-        quote! {
-            self.#ident.map(|f| {
-                ::mimic::db::primitives::filter::IntoScopedFilterExpr::into_scoped(f, #field_name)
-            })
-        }
-    });
+    let idents = fields.iter().map(|f| &f.ident);
+    let names = fields.iter().map(|f| f.ident.to_string());
 
     quote! {
         #derives
@@ -32,9 +22,24 @@ pub fn generate_field_list_filter(
 
         impl ::mimic::db::primitives::filter::IntoFilterExpr for #filter_ident {
             fn into_expr(self) -> ::mimic::db::primitives::filter::FilterExpr {
-                let filters = [#(#field_exprs),*];
-                let exprs = filters.into_iter().flatten();
-                ::mimic::db::primitives::filter::FilterDsl::all(exprs)
+                let mut exprs = Vec::new();
+
+                #(
+                    if let Some(f) = self.#idents {
+                        exprs.push(
+                            ::mimic::db::primitives::filter::IntoScopedFilterExpr::into_scoped(
+                                f,
+                                #names
+                            )
+                        );
+                    }
+                )*
+
+                if exprs.is_empty() {
+                    ::mimic::db::primitives::filter::FilterExpr::True
+                } else {
+                    ::mimic::db::primitives::filter::FilterDsl::all(exprs)
+                }
             }
         }
     }
