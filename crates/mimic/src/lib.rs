@@ -75,6 +75,7 @@ pub mod prelude {
                 self, FilterDsl, FilterExpr, FilterExt as _, LimitExpr, LimitExt as _, SortExpr,
                 SortExt as _,
             },
+            query,
             response::Response,
         },
         mimic_start,
