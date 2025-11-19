@@ -8,7 +8,7 @@ Add Mimic to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0" }
+mimic = { git = "https://github.com/dragginzgame/mimic.git", tag = "v0.21.0" }
 ```
 
 ### Toolchain
@@ -38,7 +38,7 @@ Use the Quick Start snippet above (pinned tag) for production.
 
 ```toml
 [dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", branch = "main", features = [] }
+mimic = { git = "https://github.com/dragginzgame/mimic.git", branch = "main", features = [] }
 ```
 
 **Pros:**
@@ -54,7 +54,7 @@ mimic = { git = "git@github.com:dragginzgame/mimic.git", branch = "main", featur
 
 ```toml
 [dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", rev = "abc123...", features = [] }
+mimic = { git = "https://github.com/dragginzgame/mimic.git", rev = "abc123...", features = [] }
 ```
 
 **Pros:**
@@ -69,7 +69,7 @@ mimic = { git = "git@github.com:dragginzgame/mimic.git", rev = "abc123...", feat
 
 ```toml
 [dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0", features = [
+mimic = { git = "https://github.com/dragginzgame/mimic.git", tag = "v0.21.0", features = [
   "serde",   # serde derive/support in types
 ] }
 ```
@@ -115,7 +115,7 @@ error: failed to select a version for `mimic`
 
 **Solution:** Ensure the tag exists and is spelled correctly:
 ```bash
-git ls-remote --tags git@github.com:dragginzgame/mimic.git
+git ls-remote --tags https://github.com/dragginzgame/mimic.git
 ```
 
 #### 2. Feature Not Found
@@ -154,10 +154,10 @@ Mimic enforces **tag immutability** - once a version is tagged and pushed, the c
 
 ```bash
 # Check if a specific version exists and is immutable
-git ls-remote --tags git@github.com:dragginzgame/mimic.git | grep v0.21
+git ls-remote --tags https://github.com/dragginzgame/mimic.git | grep v0.21
 
 # Verify the commit hash hasn't changed
-git ls-remote git@github.com:dragginzgame/mimic.git v0.21.0
+git ls-remote https://github.com/dragginzgame/mimic.git v0.21.0
 ```
 
 ## Best Practices
@@ -168,10 +168,10 @@ Always use tag-based dependencies for production:
 
 ```toml
 # ✅ Good - pinned version
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0" }
+mimic = { git = "https://github.com/dragginzgame/mimic.git", tag = "v0.21.0" }
 
 # ❌ Bad - floating version
-mimic = { git = "git@github.com:dragginzgame/mimic.git", branch = "main", features = [] }
+mimic = { git = "https://github.com/dragginzgame/mimic.git", branch = "main", features = [] }
 ```
 
 ### 2. Feature Selection
@@ -180,10 +180,10 @@ Only enable features you need:
 
 ```toml
 # ✅ Good - minimal features
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0", features = ["serde"] }
+mimic = { git = "https://github.com/dragginzgame/mimic.git", tag = "v0.21.0", features = ["serde"] }
 
 # ❌ Bad - unnecessary features
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0", features = ["serde"] }
+mimic = { git = "https://github.com/dragginzgame/mimic.git", tag = "v0.21.0", features = ["serde"] }
 ```
 
 ### 3. Regular Updates
@@ -192,7 +192,7 @@ Keep your dependency updated:
 
 ```bash
 # Check for new versions
-git ls-remote --tags git@github.com:dragginzgame/mimic.git | grep "v0.21"
+git ls-remote --tags https://github.com/dragginzgame/mimic.git | grep "v0.21"
 
 # Update to latest patch version
 # Change tag from v0.20.4 to v0.21.0
@@ -215,7 +215,7 @@ For workspace projects, add Mimic to the workspace dependencies:
 
 ```toml
 [workspace.dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0" }
+mimic = { git = "https://github.com/dragginzgame/mimic.git", tag = "v0.21.0" }
 
 [workspace.members]
 member1 = "crates/member1"
@@ -232,7 +232,7 @@ For testing and development:
 
 ```toml
 [dev-dependencies]
-mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0" }
+mimic = { git = "https://github.com/dragginzgame/mimic.git", tag = "v0.21.0" }
 ```
 
 ## Version History

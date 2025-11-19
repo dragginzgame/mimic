@@ -3,7 +3,7 @@ use crate::{
         Value,
         traits::{
             FieldValue, Filterable, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
-            SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
+            SanitizeCustom, UpdateView, ValidateAuto, ValidateCustom, View, Visitable,
         },
     },
     db::primitives::{Nat64ListFilterKind, Nat64RangeFilterKind},
@@ -116,6 +116,14 @@ impl NumToPrimitive for Timestamp {
 impl SanitizeAuto for Timestamp {}
 
 impl SanitizeCustom for Timestamp {}
+
+impl UpdateView for Timestamp {
+    type UpdateViewType = Self;
+
+    fn merge(&mut self, v: Self::UpdateViewType) {
+        *self = v;
+    }
+}
 
 impl ValidateAuto for Timestamp {}
 

@@ -6,7 +6,7 @@ use crate::{
     core::{
         Value,
         traits::{
-            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto,
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, UpdateView, ValidateAuto,
             ValidateCustom, View, Visitable,
         },
     },
@@ -97,6 +97,14 @@ impl_storable_unbounded!(Int);
 impl Sum for Int {
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
         iter.fold(Self::default(), |acc, x| acc + x)
+    }
+}
+
+impl UpdateView for Int {
+    type UpdateViewType = Self;
+
+    fn merge(&mut self, v: Self::UpdateViewType) {
+        *self = v;
     }
 }
 

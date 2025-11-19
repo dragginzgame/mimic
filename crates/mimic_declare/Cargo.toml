@@ -4,6 +4,7 @@ edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }
 publish = false
+license = { workspace = true }
 
 [lib]
 proc-macro = true

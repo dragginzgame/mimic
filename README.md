@@ -29,7 +29,7 @@ It was originally built for the Web3 game [Dragginz](https://dragginz.io/). Mimi
 
 ## ⚡ Quickstart
 
-1) Add dependency (pin to a release tag): `mimic = { git = "git@github.com:dragginzgame/mimic.git", tag = "v0.21.0" }` (or HTTPS with token)
+1) Add dependency (pin to a release tag): `mimic = { git = "https://github.com/dragginzgame/mimic.git", tag = "v0.21.0" }`
 2) Define an entity with `#[entity]` and a primary key.
 3) Query with `db().load::<Entity>().filter(|f| ...).sort(|s| ...).limit(...).execute()?`.
 
@@ -192,5 +192,13 @@ These complement clippy + rustfmt; run `make clippy` and `make fmt-check` before
 * Store statistics & memory usage
 * Reducing WASM size from codegen
 
+---
 
-<!-- License intentionally omitted for internal/private use. -->
+## 📄 License
+
+Licensed under either of:
+
+- Apache License, Version 2.0 (`LICENSE-APACHE`)
+- MIT license (`LICENSE-MIT`)
+
+at your option.

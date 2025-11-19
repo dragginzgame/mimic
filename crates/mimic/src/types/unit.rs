@@ -2,7 +2,7 @@ use crate::{
     core::{
         Value,
         traits::{
-            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto,
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, UpdateView, ValidateAuto,
             ValidateCustom, View, Visitable,
         },
     },
@@ -63,6 +63,10 @@ impl Inner<Self> for Unit {
 impl SanitizeAuto for Unit {}
 
 impl SanitizeCustom for Unit {}
+
+impl UpdateView for Unit {
+    type UpdateViewType = Self;
+}
 
 impl ValidateAuto for Unit {}
 

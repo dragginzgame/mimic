@@ -97,6 +97,7 @@ static TYPE_TRAITS: LazyLock<Vec<TraitKind>> = LazyLock::new(|| {
         TraitKind::SanitizeAuto,
         TraitKind::SanitizeCustom,
         TraitKind::Serialize,
+        TraitKind::UpdateView,
         TraitKind::ValidateAuto,
         TraitKind::ValidateCustom,
         TraitKind::View,

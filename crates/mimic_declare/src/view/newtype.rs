@@ -23,3 +23,27 @@ impl ToTokens for NewtypeView<'_> {
         tokens.extend(self.generate());
     }
 }
+
+///
+/// NewtypeUpdate
+///
+
+pub struct NewtypeUpdate<'a>(pub &'a Newtype);
+
+impl View for NewtypeUpdate<'_> {
+    fn generate(&self) -> TokenStream {
+        let node = self.0;
+        let update_ident = node.update_ident();
+        let update_type = node.item.type_expr();
+
+        quote! {
+            pub type #update_ident = <#update_type as ::mimic::core::traits::UpdateView>::UpdateViewType;
+        }
+    }
+}
+
+impl ToTokens for NewtypeUpdate<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.generate());
+    }
+}

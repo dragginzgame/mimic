@@ -1,7 +1,7 @@
 use crate::{
     prelude::*,
     view::{
-        ItemView,
+        ItemUpdate, ItemView,
         traits::{View, ViewExpr},
     },
 };
@@ -16,15 +16,39 @@ impl View for SetView<'_> {
     fn generate(&self) -> TokenStream {
         let node = self.0;
         let view_ident = node.view_ident();
-        let item_view = ItemView(&node.item).expr();
+        let view_expr = ItemView(&node.item).expr();
 
         quote! {
-            pub type #view_ident = Vec<#item_view>;
+            pub type #view_ident = Vec<#view_expr>;
         }
     }
 }
 
 impl ToTokens for SetView<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.generate());
+    }
+}
+
+///
+/// SetUpdate
+///
+
+pub struct SetUpdate<'a>(pub &'a Set);
+
+impl View for SetUpdate<'_> {
+    fn generate(&self) -> TokenStream {
+        let node = self.0;
+        let update_ident = node.update_ident();
+        let update_expr = ItemUpdate(&node.item).expr();
+
+        quote! {
+            pub type #update_ident = Vec<#update_expr>;
+        }
+    }
+}
+
+impl ToTokens for SetUpdate<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         tokens.extend(self.generate());
     }

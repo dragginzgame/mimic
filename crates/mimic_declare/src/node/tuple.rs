@@ -59,6 +59,7 @@ impl HasTraits for Tuple {
 
         match t {
             TraitKind::Filterable => FilterableTrait::strategy(self),
+            TraitKind::UpdateView => UpdateViewTrait::strategy(self),
             TraitKind::View => ViewTrait::strategy(self),
             TraitKind::Visitable => VisitableTrait::strategy(self),
 

@@ -3,7 +3,7 @@ use crate::{
         Value,
         traits::{
             FieldValue, Filterable, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
-            SanitizeCustom, ValidateAuto, ValidateCustom, View, Visitable,
+            SanitizeCustom, UpdateView, ValidateAuto, ValidateCustom, View, Visitable,
         },
     },
     db::primitives::{IntListFilterKind, IntRangeFilterKind},
@@ -167,6 +167,14 @@ impl<'de> Deserialize<'de> for Int128 {
         } else {
             Err(serde::de::Error::custom("expected 16 bytes"))
         }
+    }
+}
+
+impl UpdateView for Int128 {
+    type UpdateViewType = Self;
+
+    fn merge(&mut self, v: Self::UpdateViewType) {
+        *self = v;
     }
 }
 

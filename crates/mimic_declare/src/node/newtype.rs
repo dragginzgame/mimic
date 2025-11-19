@@ -136,6 +136,7 @@ impl HasTraits for Newtype {
             TraitKind::SanitizeAuto => SanitizeAutoTrait::strategy(self),
             TraitKind::Sub => SubTrait::strategy(self),
             TraitKind::SubAssign => SubAssignTrait::strategy(self),
+            TraitKind::UpdateView => UpdateViewTrait::strategy(self),
             TraitKind::ValidateAuto => ValidateAutoTrait::strategy(self),
             TraitKind::View => ViewTrait::strategy(self),
             TraitKind::Visitable => VisitableTrait::strategy(self),

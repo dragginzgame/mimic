@@ -86,3 +86,28 @@ impl ToTokens for EnumView<'_> {
         tokens.extend(self.generate());
     }
 }
+
+///
+/// EnumUpdate
+/// just the same as the view ident
+///
+
+pub struct EnumUpdate<'a>(pub &'a Enum);
+
+impl View for EnumUpdate<'_> {
+    fn generate(&self) -> TokenStream {
+        let node = self.0;
+        let update_ident = node.update_ident();
+        let view_ident = node.view_ident();
+
+        quote! {
+            pub type #update_ident = #view_ident;
+        }
+    }
+}
+
+impl ToTokens for EnumUpdate<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.generate());
+    }
+}

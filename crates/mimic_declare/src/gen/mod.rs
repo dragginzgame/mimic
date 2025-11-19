@@ -17,87 +17,49 @@ pub trait NodeGen {
 }
 
 ///
-/// EntityGen
-/// Generates all derived code for an `Entity` node.
+/// Nodes
 ///
 
-pub struct EntityGen<'a>(pub &'a Entity);
+macro_rules! define_gen {
+    (
+        $gen:ident, $node:ty,
+        view = $view:tt,
+        create = $create:tt,
+        update = $update:tt,
+        filter = $filter:tt $(,)?
+    ) => {
+        pub struct $gen<'a>(pub &'a $node);
 
-impl EntityGen<'_> {
-    pub fn generate(&self) -> TokenStream {
-        let node = self.0;
-
-        let view = EntityView(node);
-        let create = EntityCreate(node);
-        let update = EntityUpdate(node);
-        let filter = EntityFilter(node);
-
-        quote! {
-            #node
-
-            #view
-            #create
-            #update
-            #filter
-        }
-    }
-}
-
-impl ToTokens for EntityGen<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.generate());
-    }
-}
-
-///
-/// RecordGen
-///
-
-pub struct RecordGen<'a>(pub &'a Record);
-
-impl RecordGen<'_> {
-    pub fn generate(&self) -> TokenStream {
-        let node = self.0;
-
-        let view = RecordView(node);
-        let update = RecordUpdate(node);
-        let filter = RecordFilter(node);
-
-        quote! {
-            #node
-
-            #view
-            #update
-            #filter
-        }
-    }
-}
-
-impl ToTokens for RecordGen<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.generate());
-    }
-}
-
-// simple_gen
-// for the simpler types that only have a view
-macro_rules! simple_gen {
-    ($name:ident, $node:ty, $view:path) => {
-        pub struct $name<'a>(pub &'a $node);
-
-        impl NodeGen for $name<'_> {
+        impl NodeGen for $gen<'_> {
             fn generate(&self) -> TokenStream {
                 let node = self.0;
-                let view = $view(node);
+
+                // Expand helper
+                macro_rules! expand {
+                    (_) => {
+                        quote!()
+                    };
+                    ($path:ident) => {
+                        $path(node)
+                    };
+                }
+
+                let view = expand!($view);
+                let create = expand!($create);
+                let update = expand!($update);
+                let filter = expand!($filter);
 
                 quote! {
                     #node
                     #view
+                    #create
+                    #update
+                    #filter
                 }
             }
         }
 
-        impl ToTokens for $name<'_> {
+        impl ToTokens for $gen<'_> {
             fn to_tokens(&self, tokens: &mut TokenStream) {
                 tokens.extend(self.generate());
             }
@@ -105,38 +67,117 @@ macro_rules! simple_gen {
     };
 }
 
-simple_gen!(EnumGen, Enum, EnumView);
-simple_gen!(ListGen, List, ListView);
-simple_gen!(MapGen, Map, MapView);
-simple_gen!(NewtypeGen, Newtype, NewtypeView);
-simple_gen!(SetGen, Set, SetView);
-simple_gen!(TupleGen, Tuple, TupleView);
+//
+// Types
+//
 
-// passthrough_gen
-// for the simpler types that only have a view
-macro_rules! passthrough_gen {
-    ($name:ident, $node:ty) => {
-        pub struct $name<'a>(pub &'a $node);
+define_gen!(
+    EntityGen,
+    Entity,
+    view = EntityView,
+    create = EntityCreate,
+    update = EntityUpdate,
+    filter = EntityFilter,
+);
 
-        impl NodeGen for $name<'_> {
-            fn generate(&self) -> TokenStream {
-                let node = self.0;
+define_gen!(
+    EnumGen,
+    Enum,
+    view = EnumView,
+    create = _,
+    update = EnumUpdate,
+    filter = _,
+);
 
-                quote! {
-                    #node
-                }
-            }
-        }
+define_gen!(
+    ListGen,
+    List,
+    view = ListView,
+    create = _,
+    update = ListUpdate,
+    filter = _,
+);
 
-        impl ToTokens for $name<'_> {
-            fn to_tokens(&self, tokens: &mut TokenStream) {
-                tokens.extend(self.generate());
-            }
-        }
-    };
-}
+define_gen!(
+    MapGen,
+    Map,
+    view = MapView,
+    create = _,
+    update = MapUpdate,
+    filter = _,
+);
 
-passthrough_gen!(CanisterGen, Canister);
-passthrough_gen!(SanitizerGen, Sanitizer);
-passthrough_gen!(StoreGen, Store);
-passthrough_gen!(ValidatorGen, Validator);
+define_gen!(
+    NewtypeGen,
+    Newtype,
+    view = NewtypeView,
+    create = _,
+    update = NewtypeUpdate,
+    filter = _,
+);
+
+define_gen!(
+    RecordGen,
+    Record,
+    view = RecordView,
+    create = _,
+    update = RecordUpdate,
+    filter = RecordFilter,
+);
+
+define_gen!(
+    SetGen,
+    Set,
+    view = SetView,
+    create = _,
+    update = SetUpdate,
+    filter = _,
+);
+
+define_gen!(
+    TupleGen,
+    Tuple,
+    view = TupleView,
+    create = _,
+    update = TupleUpdate,
+    filter = _,
+);
+
+//
+// Infrastructure
+//
+
+define_gen!(
+    CanisterGen,
+    Canister,
+    view = _,
+    create = _,
+    update = _,
+    filter = _,
+);
+
+define_gen!(
+    SanitizerGen,
+    Sanitizer,
+    view = _,
+    create = _,
+    update = _,
+    filter = _,
+);
+define_gen!(
+    StoreGen,
+    Store,
+    view = _,
+    create = _,
+    update = _,
+    filter = _,
+);
+
+define_gen!(
+    ValidatorGen,
+    Validator,
+    view = _,
+    create = _,
+    update = _,
+    filter = _,
+);

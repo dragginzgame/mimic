@@ -60,7 +60,6 @@ impl View for String {
     }
 }
 
-// impl_view
 #[macro_export]
 macro_rules! impl_view {
     ($($type:ty),*) => {
@@ -97,9 +96,59 @@ pub trait CreateView {
 pub trait UpdateView {
     type UpdateViewType: Default;
 
-    /// Merge `view` into `self`, skipping `None` fields.
+    /// merge the updateview into self
     fn merge(&mut self, _: Self::UpdateViewType) {}
 }
+
+impl<T> UpdateView for Option<T>
+where
+    T: UpdateView + Default,
+{
+    type UpdateViewType = Option<T::UpdateViewType>;
+
+    fn merge(&mut self, update: Self::UpdateViewType) {
+        if let Some(inner_update) = update {
+            if let Some(inner_value) = self {
+                inner_value.merge(inner_update);
+            } else {
+                let mut new_value = T::default();
+                new_value.merge(inner_update);
+
+                *self = Some(new_value);
+            }
+        }
+    }
+}
+
+impl<T> UpdateView for Vec<T>
+where
+    T: UpdateView,
+{
+    type UpdateViewType = Vec<T::UpdateViewType>;
+
+    fn merge(&mut self, updates: Self::UpdateViewType) {
+        for (elem, update) in self.iter_mut().zip(updates.into_iter()) {
+            elem.merge(update);
+        }
+        // extra updates ignored (choose behavior)
+    }
+}
+
+macro_rules! impl_update_view {
+    ($($type:ty),*) => {
+        $(
+            impl UpdateView for $type {
+                type UpdateViewType = Self;
+
+                fn merge(&mut self, update: Self::UpdateViewType) {
+                    *self = update;
+                }
+            }
+        )*
+    };
+}
+
+impl_update_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, String);
 
 ///
 /// FilterView

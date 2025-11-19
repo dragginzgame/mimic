@@ -6,7 +6,7 @@ use crate::{
     core::{
         Value,
         traits::{
-            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto,
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, UpdateView, ValidateAuto,
             ValidateCustom, View, Visitable,
         },
     },
@@ -94,6 +94,14 @@ impl SanitizeCustom for Nat {}
 impl Sum for Nat {
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
         iter.fold(Self::default(), |acc, x| acc + x)
+    }
+}
+
+impl UpdateView for Nat {
+    type UpdateViewType = Self;
+
+    fn merge(&mut self, v: Self::UpdateViewType) {
+        *self = v;
     }
 }
 

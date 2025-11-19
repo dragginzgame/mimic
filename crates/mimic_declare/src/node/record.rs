@@ -49,9 +49,7 @@ impl HasSchemaPart for Record {
 
 impl HasTraits for Record {
     fn traits(&self) -> Vec<TraitKind> {
-        let mut traits = self.traits.with_type_traits().build();
-
-        traits.extend(vec![TraitKind::UpdateView]);
+        let traits = self.traits.with_type_traits().build();
 
         traits.into_vec()
     }

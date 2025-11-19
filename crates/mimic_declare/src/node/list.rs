@@ -67,6 +67,7 @@ impl HasTraits for List {
             TraitKind::Filterable => FilterableTrait::strategy(self),
             TraitKind::From => FromTrait::strategy(self),
             TraitKind::SanitizeAuto => SanitizeAutoTrait::strategy(self),
+            TraitKind::UpdateView => UpdateViewTrait::strategy(self),
             TraitKind::ValidateAuto => ValidateAutoTrait::strategy(self),
             TraitKind::View => ViewTrait::strategy(self),
             TraitKind::Visitable => VisitableTrait::strategy(self),

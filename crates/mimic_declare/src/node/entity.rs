@@ -90,7 +90,6 @@ impl HasTraits for Entity {
         traits.extend(vec![
             TraitKind::Inherent,
             TraitKind::CreateView,
-            TraitKind::UpdateView,
             TraitKind::EntityKind,
             TraitKind::FieldValues,
             TraitKind::FilterView,

@@ -1,7 +1,7 @@
 use crate::{
     core::{
         traits::{
-            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, ValidateAuto,
+            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, UpdateView, ValidateAuto,
             ValidateCustom, View, Visitable,
         },
         value::Value,
@@ -179,6 +179,14 @@ impl SanitizeAuto for Subaccount {}
 impl SanitizeCustom for Subaccount {}
 
 impl_storable_bounded!(Subaccount, Subaccount::STORABLE_MAX_SIZE, true);
+
+impl UpdateView for Subaccount {
+    type UpdateViewType = Self;
+
+    fn merge(&mut self, v: Self::UpdateViewType) {
+        *self = v;
+    }
+}
 
 impl ValidateAuto for Subaccount {}
 

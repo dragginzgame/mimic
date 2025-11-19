@@ -1,7 +1,7 @@
 use crate::{
     prelude::*,
     view::{
-        ItemView, ValueView,
+        ItemUpdate, ItemView, ValueUpdate, ValueView,
         traits::{View, ViewExpr},
     },
 };
@@ -26,6 +26,31 @@ impl View for MapView<'_> {
 }
 
 impl ToTokens for MapView<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        tokens.extend(self.generate());
+    }
+}
+
+///
+/// MapUpdate
+///
+
+pub struct MapUpdate<'a>(pub &'a Map);
+
+impl View for MapUpdate<'_> {
+    fn generate(&self) -> TokenStream {
+        let node = self.0;
+        let update_ident = node.update_ident();
+        let update_key = ItemUpdate(&node.key).expr();
+        let update_value = ValueUpdate(&node.value).expr();
+
+        quote! {
+            pub type #update_ident = Vec<(#update_key, #update_value)>;
+        }
+    }
+}
+
+impl ToTokens for MapUpdate<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         tokens.extend(self.generate());
     }
