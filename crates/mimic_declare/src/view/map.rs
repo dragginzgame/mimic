@@ -41,11 +41,16 @@ impl View for MapUpdate<'_> {
     fn generate(&self) -> TokenStream {
         let node = self.0;
         let update_ident = node.update_ident();
-        let update_key = ItemUpdate(&node.key).expr();
-        let update_value = ValueUpdate(&node.value).expr();
+        let key_update = ItemUpdate(&node.key).expr();
+        let value_update = ValueUpdate(&node.value).expr();
 
         quote! {
-            pub type #update_ident = Vec<(#update_key, Option<#update_value>)>;
+            pub type #update_ident = Vec<
+                ::mimic::core::view::MapPatch<
+                    #key_update,
+                    #value_update
+                >
+            >;
         }
     }
 }

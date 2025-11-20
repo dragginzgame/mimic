@@ -37,7 +37,7 @@ impl ViewExpr for ValueUpdate<'_> {
         match node.cardinality() {
             Cardinality::One => quote!(#item),
             Cardinality::Opt => quote!(Option<#item>),
-            Cardinality::Many => quote!(Vec<#item>),
+            Cardinality::Many => quote!(Vec<::mimic::core::view::ListPatch<#item>>),
         }
         .into()
     }

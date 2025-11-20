@@ -40,10 +40,11 @@ impl View for ListUpdate<'_> {
     fn generate(&self) -> TokenStream {
         let node = self.0;
         let update_ident = node.update_ident();
-        let update_expr = ItemUpdate(&node.item).expr();
+        let item_update = ItemUpdate(&node.item).expr();
 
         quote! {
-            pub type #update_ident = Vec<#update_expr>;
+            pub type #update_ident =
+                Vec<::mimic::core::view::ListPatch<#item_update>>;
         }
     }
 }

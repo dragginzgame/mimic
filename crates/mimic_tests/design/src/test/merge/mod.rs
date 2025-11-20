@@ -69,7 +69,10 @@ pub struct MergeTuple {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use mimic::core::{traits::UpdateView, view::Update};
+    use mimic::core::{
+        traits::UpdateView,
+        view::{ListPatch, MapPatch, SetPatch, Update},
+    };
     use std::collections::{HashMap, HashSet};
 
     fn profile(bio: &str, visits: u32, favorites: &[u32]) -> MergeProfile {
@@ -103,12 +106,29 @@ mod tests {
         let mut update: Update<MergeEntity> = Default::default();
         update.name = Some("updated".into());
         update.nickname = Some(Some("nick".into()));
-        update.scores = Some(vec![10, 20]);
-        update.tags = Some(vec!["green".into()]);
+        update.scores = Some(vec![
+            ListPatch::Update {
+                index: 0,
+                patch: 10,
+            },
+            ListPatch::Update {
+                index: 1,
+                patch: 20,
+            },
+        ]);
+        update.tags = Some(vec![SetPatch::Clear, SetPatch::Insert("green".to_string())]);
         update.settings = Some(vec![
-            ("volume".to_string(), Some(77u32)),
-            ("remove".to_string(), None),
-            ("insert".to_string(), Some(9u32)),
+            MapPatch::Upsert {
+                key: "volume".to_string(),
+                value: 77u32,
+            },
+            MapPatch::Remove {
+                key: "remove".to_string(),
+            },
+            MapPatch::Upsert {
+                key: "insert".to_string(),
+                value: 9u32,
+            },
         ]);
         update.profile = Some(MergeProfileUpdate {
             visits: Some(10),
@@ -170,7 +190,11 @@ mod tests {
     #[test]
     fn map_and_set_merge_behaviors() {
         let mut tags = MergeTags::from(vec!["old".to_string(), "stale".to_string()]);
-        tags.merge(vec!["fresh".to_string(), "new".to_string()]);
+        tags.merge(vec![
+            SetPatch::Clear,
+            SetPatch::Insert("fresh".to_string()),
+            SetPatch::Insert("new".to_string()),
+        ]);
         let tag_set: HashSet<_> = tags.iter().cloned().collect();
         let expected: HashSet<_> = vec!["fresh".to_string(), "new".to_string()]
             .into_iter()
@@ -180,9 +204,17 @@ mod tests {
         let mut settings =
             MergeSettings::from(vec![("keep".to_string(), 1u32), ("drop".to_string(), 2u32)]);
         let patch: Update<MergeSettings> = vec![
-            ("keep".to_string(), Some(5u32)),
-            ("drop".to_string(), None),
-            ("add".to_string(), Some(9u32)),
+            MapPatch::Upsert {
+                key: "keep".to_string(),
+                value: 5u32,
+            },
+            MapPatch::Remove {
+                key: "drop".to_string(),
+            },
+            MapPatch::Upsert {
+                key: "add".to_string(),
+                value: 9u32,
+            },
         ];
         settings.merge(patch);
 

@@ -1,3 +1,5 @@
+use crate::core::view::{ListPatch, MapPatch, SetPatch};
+use candid::CandidType;
 use std::{
     collections::{HashMap, HashSet, hash_map::Entry as HashMapEntry},
     hash::{BuildHasher, Hash},
@@ -127,7 +129,7 @@ impl_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64);
 ///
 
 pub trait CreateView {
-    type CreateViewType: Default;
+    type CreateViewType: CandidType + Default;
 }
 
 ///
@@ -135,7 +137,7 @@ pub trait CreateView {
 ///
 
 pub trait UpdateView {
-    type UpdateViewType: Default;
+    type UpdateViewType: CandidType + Default;
 
     /// merge the updateview into self
     fn merge(&mut self, _: Self::UpdateViewType) {}
@@ -162,16 +164,38 @@ where
 
 impl<T> UpdateView for Vec<T>
 where
-    T: UpdateView,
+    T: UpdateView + Default,
 {
-    type UpdateViewType = Vec<T::UpdateViewType>;
+    // Payload is T::UpdateViewType, which *is* CandidType
+    type UpdateViewType = Vec<ListPatch<T::UpdateViewType>>;
 
-    fn merge(&mut self, updates: Self::UpdateViewType) {
-        for (elem, update) in self.iter_mut().zip(updates.into_iter()) {
-            elem.merge(update);
+    fn merge(&mut self, patches: Self::UpdateViewType) {
+        for patch in patches {
+            match patch {
+                ListPatch::Update { index, patch } => {
+                    if let Some(elem) = self.get_mut(index) {
+                        elem.merge(patch);
+                    }
+                }
+                ListPatch::Insert { index, value } => {
+                    let mut elem = T::default();
+                    elem.merge(value);
+                    let idx = index.min(self.len());
+                    self.insert(idx, elem);
+                }
+                ListPatch::Push { value } => {
+                    let mut elem = T::default();
+                    elem.merge(value);
+                    self.push(elem);
+                }
+                ListPatch::Remove { index } => {
+                    if index < self.len() {
+                        self.remove(index);
+                    }
+                }
+                ListPatch::Clear => self.clear(),
+            }
         }
-        // ignore trailing updates
-        // do not append or truncate
     }
 }
 
@@ -180,46 +204,59 @@ where
     T: UpdateView + Default + Eq + Hash,
     S: BuildHasher + Default,
 {
-    type UpdateViewType = Vec<T::UpdateViewType>;
+    type UpdateViewType = Vec<SetPatch<T::UpdateViewType>>;
 
-    fn merge(&mut self, updates: Self::UpdateViewType) {
-        self.clear();
-
-        for patch in updates {
-            let mut value = T::default();
-            value.merge(patch);
-            self.insert(value);
+    fn merge(&mut self, patches: Self::UpdateViewType) {
+        for patch in patches {
+            match patch {
+                SetPatch::Insert(value) => {
+                    let mut elem = T::default();
+                    elem.merge(value);
+                    self.insert(elem);
+                }
+                SetPatch::Remove(value) => {
+                    let mut elem = T::default();
+                    elem.merge(value);
+                    self.remove(&elem);
+                }
+                SetPatch::Clear => self.clear(),
+            }
         }
     }
 }
 
 impl<K, V, S> UpdateView for HashMap<K, V, S>
 where
-    K: UpdateView + Default + Eq + Hash + Clone,
+    K: UpdateView + Default + Eq + Hash,
     V: UpdateView + Default,
     S: BuildHasher + Default,
 {
-    type UpdateViewType = Vec<(K::UpdateViewType, Option<V::UpdateViewType>)>;
+    type UpdateViewType = Vec<MapPatch<K::UpdateViewType, V::UpdateViewType>>;
 
-    fn merge(&mut self, updates: Self::UpdateViewType) {
-        for (k_patch, v_patch) in updates {
-            let mut key = K::default();
-            key.merge(k_patch);
+    fn merge(&mut self, patches: Self::UpdateViewType) {
+        for patch in patches {
+            match patch {
+                MapPatch::Upsert { key, value } => {
+                    let mut key_value = K::default();
+                    key_value.merge(key);
 
-            match v_patch {
-                Some(vu) => match self.entry(key) {
-                    HashMapEntry::Occupied(mut e) => {
-                        e.get_mut().merge(vu);
+                    match self.entry(key_value) {
+                        HashMapEntry::Occupied(mut slot) => {
+                            slot.get_mut().merge(value);
+                        }
+                        HashMapEntry::Vacant(slot) => {
+                            let mut value_value = V::default();
+                            value_value.merge(value);
+                            slot.insert(value_value);
+                        }
                     }
-                    HashMapEntry::Vacant(e) => {
-                        let mut v = V::default();
-                        v.merge(vu);
-                        e.insert(v);
-                    }
-                },
-                None => {
-                    self.remove(&key);
                 }
+                MapPatch::Remove { key } => {
+                    let mut key_value = K::default();
+                    key_value.merge(key);
+                    self.remove(&key_value);
+                }
+                MapPatch::Clear => self.clear(),
             }
         }
     }
@@ -247,119 +284,4 @@ impl_update_view!(bool, i8, i16, i32, i64, u8, u16, u32, u64, String);
 
 pub trait FilterView {
     type FilterViewType: Default + ::mimic::db::primitives::IntoFilterExpr;
-}
-
-///
-/// TESTS
-///
-
-#[cfg(test)]
-mod test {
-    use mimic::core::traits::UpdateView;
-    use std::collections::{HashMap, HashSet};
-
-    //
-    // Vec<T>
-    //
-
-    #[test]
-    fn vec_merge_updates_existing_elements_only() {
-        let mut v = vec![1u8, 2, 3];
-
-        // Vec<T>::UpdateViewType = Vec<T::UpdateViewType> = Vec<u8>
-        let patch = vec![10u8, 20];
-
-        v.merge(patch);
-
-        // first two positions updated, tail untouched
-        assert_eq!(v, vec![10, 20, 3]);
-    }
-
-    #[test]
-    fn vec_merge_ignores_extra_updates() {
-        let mut v = vec![1u8, 2];
-
-        // patch is longer than vec; extra element should be ignored
-        let patch = vec![10u8, 20, 30];
-
-        v.merge(patch);
-
-        assert_eq!(v, vec![10, 20]);
-    }
-
-    //
-    // HashSet<T>
-    //
-
-    #[test]
-    fn hashset_merge_replaces_entire_set() {
-        let mut set: HashSet<u8> = [1u8, 2, 3].into_iter().collect();
-
-        // HashSet<T>::UpdateViewType = Vec<T::UpdateViewType> = Vec<u8>
-        let patch = vec![5u8, 6];
-
-        set.merge(patch);
-
-        let result: HashSet<u8> = [5u8, 6].into_iter().collect();
-        assert_eq!(set, result);
-    }
-
-    #[test]
-    fn hashset_merge_can_clear_via_empty_patch() {
-        let mut set: HashSet<u8> = [1u8, 2, 3].into_iter().collect();
-
-        let patch: Vec<u8> = Vec::new();
-        set.merge(patch);
-
-        assert!(set.is_empty());
-    }
-
-    //
-    // HashMap<K, V>
-    //
-
-    #[test]
-    fn hashmap_merge_updates_inserts_and_removes_keys() {
-        let mut map: HashMap<String, u8> = [
-            ("a".to_string(), 1u8),
-            ("b".to_string(), 2u8),
-            ("keep".to_string(), 9u8),
-        ]
-        .into_iter()
-        .collect();
-
-        // HashMap<K,V>::UpdateViewType = Vec<(K, Option<V::UpdateViewType>)>
-        let patch = vec![
-            // update existing key "a"
-            ("a".to_string(), Some(10u8)),
-            // remove key "b"
-            ("b".to_string(), None),
-            // insert new key "c"
-            ("c".to_string(), Some(30u8)),
-        ];
-
-        map.merge(patch);
-
-        assert_eq!(map.get("a"), Some(&10));
-        assert_eq!(map.get("c"), Some(&30));
-        assert!(!map.contains_key("b"), "b should be removed");
-        assert_eq!(map.get("keep"), Some(&9), "untouched keys must remain");
-    }
-
-    #[test]
-    #[allow(clippy::iter_on_single_items)]
-    fn hashmap_merge_ignores_none_for_absent_keys() {
-        let mut map: HashMap<String, u8> = [("x".to_string(), 1u8)].into_iter().collect();
-
-        let patch = vec![
-            // None for a key that doesn't exist should be a no-op
-            ("y".to_string(), None),
-        ];
-
-        map.merge(patch);
-
-        assert_eq!(map.len(), 1);
-        assert_eq!(map.get("x"), Some(&1));
-        assert!(!map.contains_key("y"));
-    }
 }

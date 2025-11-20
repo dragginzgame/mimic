@@ -30,18 +30,8 @@ impl View for EnumView<'_> {
             }
         });
 
-        // extra traits
-        let mut derives = self.traits();
-        if node.is_unit_enum() {
-            derives.extend(vec![
-                TraitKind::Copy,
-                TraitKind::Hash,
-                TraitKind::Eq,
-                TraitKind::Ord,
-                TraitKind::PartialEq,
-                TraitKind::PartialOrd,
-            ]);
-        }
+        // traits
+        let derives = self.traits();
 
         // handle default manually
         let default_impl = self.view_default_impl();

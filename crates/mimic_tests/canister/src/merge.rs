@@ -1,5 +1,8 @@
 use mimic::{
-    core::{traits::UpdateView, view::Update},
+    core::{
+        traits::UpdateView,
+        view::{ListPatch, MapPatch, SetPatch, Update},
+    },
     prelude::*,
 };
 use std::collections::HashSet;
@@ -56,12 +59,23 @@ impl MergeSuite {
 
         let mut update: Update<MergeEntity> = Default::default();
         update.nickname = Some(Some("nick".into()));
-        update.scores = Some(vec![99]);
-        update.tags = Some(vec!["fresh".into()]);
+        update.scores = Some(vec![ListPatch::Update {
+            index: 0,
+            patch: 99,
+        }]);
+        update.tags = Some(vec![SetPatch::Clear, SetPatch::Insert("fresh".to_string())]);
         update.settings = Some(vec![
-            ("keep".to_string(), Some(5u32)),
-            ("remove".to_string(), None),
-            ("extra".to_string(), Some(3u32)),
+            MapPatch::Upsert {
+                key: "keep".to_string(),
+                value: 5u32,
+            },
+            MapPatch::Remove {
+                key: "remove".to_string(),
+            },
+            MapPatch::Upsert {
+                key: "extra".to_string(),
+                value: 3u32,
+            },
         ]);
         update.profile = Some(MergeProfileUpdate {
             visits: Some(10),
