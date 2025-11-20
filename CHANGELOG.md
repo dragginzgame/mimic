@@ -5,6 +5,13 @@ All notable, and occasionally less notable changes to this project will be docum
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.29] - Public Release Prep - 2025-11-19
+- Rewrote the README with public-facing positioning, expanded quickstart steps, and detailed onboarding/contribution info for new users.
+- Clarified repository status and support expectations as Mimic moves from a private to a public home.
+- Updated documentation references to the latest tag (`v0.29.0`) so adopters can pin to the launch release.
+- Fixed a bug where tuples only had the first pub
+- Added the Merge functionality so any type can have .merge() on an UpdateView, and it works recursively.
+
 ## [0.28] - Filter Overhaul - 2025-11-14
 - Overhauled the filter ergonomics across Mimic: every filter payload (ContainsFilter, EqualityFilter,
   RangeFilter, SetFilter, TextFilter) now ships with fluent, #[must_use]-annotated builders so schema-generated filter

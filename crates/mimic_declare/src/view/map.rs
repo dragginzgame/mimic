@@ -45,7 +45,7 @@ impl View for MapUpdate<'_> {
         let update_value = ValueUpdate(&node.value).expr();
 
         quote! {
-            pub type #update_ident = Vec<(#update_key, #update_value)>;
+            pub type #update_ident = Vec<(#update_key, Option<#update_value>)>;
         }
     }
 }

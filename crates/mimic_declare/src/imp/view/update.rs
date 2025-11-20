@@ -8,7 +8,7 @@ pub struct UpdateViewTrait {}
 
 impl Imp<Entity> for UpdateViewTrait {
     fn strategy(node: &Entity) -> Option<TraitStrategy> {
-        Some(update_impl(node, |n| {
+        Some(update_impl_fields(node, |n| {
             n.iter_editable_fields().map(|f| f.ident.clone()).collect()
         }))
     }
@@ -16,49 +16,34 @@ impl Imp<Entity> for UpdateViewTrait {
 
 impl Imp<Record> for UpdateViewTrait {
     fn strategy(node: &Record) -> Option<TraitStrategy> {
-        Some(update_impl(node, |n| {
+        Some(update_impl_fields(node, |n| {
             n.fields.iter().map(|f| f.ident.clone()).collect()
         }))
     }
 }
 
-/// Shared generator
-fn update_impl<N, F>(node: &N, iter_fields: F) -> TraitStrategy
-where
-    N: HasType,
-    F: Fn(&N) -> Vec<syn::Ident>,
-{
-    let update_ident = node.update_ident();
-    let field_idents = iter_fields(node);
+impl Imp<List> for UpdateViewTrait {
+    fn strategy(node: &List) -> Option<TraitStrategy> {
+        Some(update_impl_delegate(node))
+    }
+}
 
-    let merge_pairs: Vec<_> = field_idents
-        .iter()
-        .map(|ident| {
-            quote! {
-                if let Some(value) = view.#ident {
-                    ::mimic::core::traits::UpdateView::merge(&mut self.#ident, value);
-                }
-            }
-        })
-        .collect();
+impl Imp<Set> for UpdateViewTrait {
+    fn strategy(node: &Set) -> Option<TraitStrategy> {
+        Some(update_impl_delegate(node))
+    }
+}
 
-    let q = quote! {
-        type UpdateViewType = #update_ident;
+impl Imp<Map> for UpdateViewTrait {
+    fn strategy(node: &Map) -> Option<TraitStrategy> {
+        Some(update_impl_delegate(node))
+    }
+}
 
-        fn merge(&mut self, view: Self::UpdateViewType) {
-            #(#merge_pairs)*
-        }
-    };
-
-    let update_impl = Implementor::new(node.def(), TraitKind::UpdateView)
-        .set_tokens(q)
-        .to_token_stream();
-
-    let tokens = quote! {
-        #update_impl
-    };
-
-    TraitStrategy::from_impl(tokens)
+impl Imp<Newtype> for UpdateViewTrait {
+    fn strategy(node: &Newtype) -> Option<TraitStrategy> {
+        Some(update_impl_delegate(node))
+    }
 }
 
 ///
@@ -72,107 +57,8 @@ impl Imp<Enum> for UpdateViewTrait {
         let q = quote! {
             type UpdateViewType = #update_ident;
 
-            fn merge(&mut self, v: Self::UpdateViewType) {
-                *self = v.into();
-            }
-        };
-
-        Some(TraitStrategy::from_impl(
-            Implementor::new(node.def(), TraitKind::UpdateView)
-                .set_tokens(q)
-                .to_token_stream(),
-        ))
-    }
-}
-
-///
-/// List
-///
-
-impl Imp<List> for UpdateViewTrait {
-    fn strategy(node: &List) -> Option<TraitStrategy> {
-        let update_ident = node.update_ident();
-
-        let q = quote! {
-            type UpdateViewType = #update_ident;
-
-            fn merge(&mut self, view: Self::UpdateViewType) {
-                // Vec<T>: UpdateView is implemented generically.
-                ::mimic::core::traits::UpdateView::merge(self, view);
-            }
-        };
-
-        let update_impl = Implementor::new(node.def(), TraitKind::UpdateView)
-            .set_tokens(q)
-            .to_token_stream();
-
-        Some(TraitStrategy::from_impl(update_impl))
-    }
-}
-
-///
-/// Map
-/// TODO - this was too complicated for that time of noight
-///
-
-impl Imp<Map> for UpdateViewTrait {
-    fn strategy(node: &Map) -> Option<TraitStrategy> {
-        let update_ident = node.update_ident();
-        //      let value_ty = node.value.item.target().type_expr();
-
-        let q = quote! {
-            type UpdateViewType = #update_ident;
-
-            fn merge(&mut self, view: Self::UpdateViewType) {
-            }
-        };
-
-        Some(TraitStrategy::from_impl(
-            Implementor::new(node.def(), TraitKind::UpdateView)
-                .set_tokens(q)
-                .to_token_stream(),
-        ))
-    }
-}
-
-///
-/// Newtype
-///
-
-impl Imp<Newtype> for UpdateViewTrait {
-    fn strategy(node: &Newtype) -> Option<TraitStrategy> {
-        let update_ident = node.update_ident();
-
-        let q = quote! {
-            type UpdateViewType = #update_ident;
-
-            fn merge(&mut self, view: Self::UpdateViewType) {
-                // Delegate to inner
-                ::mimic::core::traits::UpdateView::merge(&mut self.0, view);
-            }
-        };
-
-        Some(TraitStrategy::from_impl(
-            Implementor::new(node.def(), TraitKind::UpdateView)
-                .set_tokens(q)
-                .to_token_stream(),
-        ))
-    }
-}
-
-///
-/// Set
-///
-
-impl Imp<Set> for UpdateViewTrait {
-    fn strategy(node: &Set) -> Option<TraitStrategy> {
-        let update_ident = node.update_ident();
-
-        let q = quote! {
-            type UpdateViewType = #update_ident;
-
-            fn merge(&mut self, view: Self::UpdateViewType) {
-                ::mimic::core::traits::UpdateView::merge(self, view);
+            fn merge(&mut self, update: Self::UpdateViewType) {
+                *self = update.into();
             }
         };
 
@@ -196,8 +82,8 @@ impl Imp<Tuple> for UpdateViewTrait {
         let merge_parts = values.iter().enumerate().map(|(i, _)| {
             let idx = syn::Index::from(i);
             quote! {
-                if let Some(update) = view.#idx {
-                    ::mimic::core::traits::UpdateView::merge(&mut self.#idx, update);
+                if let Some(v) = update.#idx {
+                    ::mimic::core::traits::UpdateView::merge(&mut self.#idx, v);
                 }
             }
         });
@@ -205,7 +91,7 @@ impl Imp<Tuple> for UpdateViewTrait {
         let q = quote! {
             type UpdateViewType = #update_ident;
 
-            fn merge(&mut self, view: Self::UpdateViewType) {
+            fn merge(&mut self, update: Self::UpdateViewType) {
                 #(#merge_parts)*
             }
         };
@@ -216,4 +102,65 @@ impl Imp<Tuple> for UpdateViewTrait {
                 .to_token_stream(),
         ))
     }
+}
+
+///
+/// Shared Generators
+///
+
+fn update_impl_fields<N, F>(node: &N, iter_fields: F) -> TraitStrategy
+where
+    N: HasType,
+    F: Fn(&N) -> Vec<syn::Ident>,
+{
+    let update_ident = node.update_ident();
+    let field_idents = iter_fields(node);
+
+    let merge_pairs: Vec<_> = field_idents
+        .iter()
+        .map(|ident| {
+            quote! {
+                if let Some(v) = update.#ident {
+                    ::mimic::core::traits::UpdateView::merge(&mut self.#ident, v);
+                }
+            }
+        })
+        .collect();
+
+    let q = quote! {
+        type UpdateViewType = #update_ident;
+
+        fn merge(&mut self, update: Self::UpdateViewType) {
+            #(#merge_pairs)*
+        }
+    };
+
+    let update_impl = Implementor::new(node.def(), TraitKind::UpdateView)
+        .set_tokens(q)
+        .to_token_stream();
+
+    let tokens = quote! {
+        #update_impl
+    };
+
+    TraitStrategy::from_impl(tokens)
+}
+
+fn update_impl_delegate(node: &impl HasType) -> TraitStrategy {
+    let update_ident = node.update_ident();
+
+    let q = quote! {
+        type UpdateViewType = #update_ident;
+
+        fn merge(&mut self, update: Self::UpdateViewType) {
+            // Forward to the inner collection (Vec, HashSet, HashMap)
+            ::mimic::core::traits::UpdateView::merge(&mut self.0, update);
+        }
+    };
+
+    TraitStrategy::from_impl(
+        Implementor::new(node.def(), TraitKind::UpdateView)
+            .set_tokens(q)
+            .to_token_stream(),
+    )
 }

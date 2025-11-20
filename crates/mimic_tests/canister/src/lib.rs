@@ -1,6 +1,7 @@
 mod db;
 mod filter;
 mod index;
+mod merge;
 mod metrics;
 mod ops;
 mod view_into;
@@ -42,6 +43,7 @@ pub fn test() {
         ("index", index::IndexSuite::test),
         ("ops", ops::OpsSuite::test),
         ("metrics", metrics::MetricsSuite::test),
+        ("merge", merge::MergeSuite::test),
         ("view_into", view_into::ViewIntoSuite::test),
         // filter
         ("delete_filter", filter::delete::DeleteFilterSuite::test),

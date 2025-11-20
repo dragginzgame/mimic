@@ -106,9 +106,8 @@ impl Imp<Enum> for ViewTrait {
 impl Imp<List> for ViewTrait {
     fn strategy(node: &List) -> Option<TraitStrategy> {
         let view_ident = &node.view_ident();
+        let q = quote_view_delegate(view_ident);
 
-        // tokens
-        let q = quote_view_linear(view_ident);
         let tokens = Implementor::new(node.def(), TraitKind::View)
             .set_tokens(q)
             .to_token_stream();
@@ -124,11 +123,8 @@ impl Imp<List> for ViewTrait {
 impl Imp<Map> for ViewTrait {
     fn strategy(node: &Map) -> Option<TraitStrategy> {
         let view_ident = &node.view_ident();
-        let key = &node.key.type_expr();
-        let value = &node.value.type_expr();
+        let q = quote_view_delegate(view_ident);
 
-        // tokens
-        let q = quote_view_map(view_ident, &quote!(#key), &quote!(#value));
         let tokens = Implementor::new(node.def(), TraitKind::View)
             .set_tokens(q)
             .to_token_stream();
@@ -143,23 +139,9 @@ impl Imp<Map> for ViewTrait {
 
 impl Imp<Newtype> for ViewTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
-        let item_ty = node.item.type_expr();
-        let item_ty_for_from = item_ty.clone();
         let view_ident = &node.view_ident();
+        let q = quote_view_delegate(view_ident);
 
-        let q = quote! {
-            type ViewType = #view_ident;
-
-            fn to_view(&self) -> Self::ViewType {
-                <#item_ty as ::mimic::core::traits::View>::to_view(&self.0)
-            }
-
-            fn from_view(view: Self::ViewType) -> Self {
-                Self(<#item_ty_for_from as ::mimic::core::traits::View>::from_view(view))
-            }
-        };
-
-        // tokens
         let tokens = Implementor::new(node.def(), TraitKind::View)
             .set_tokens(q)
             .to_token_stream();
@@ -198,8 +180,8 @@ impl Imp<Record> for ViewTrait {
 impl Imp<Set> for ViewTrait {
     fn strategy(node: &Set) -> Option<TraitStrategy> {
         let view_ident = &node.view_ident();
+        let q = quote_view_delegate(view_ident);
 
-        let q = quote_view_linear(view_ident);
         let tokens = Implementor::new(node.def(), TraitKind::View)
             .set_tokens(q)
             .to_token_stream();
@@ -214,9 +196,7 @@ impl Imp<Set> for ViewTrait {
 
 impl Imp<Tuple> for ViewTrait {
     fn strategy(node: &Tuple) -> Option<TraitStrategy> {
-        let ident = node.def.ident();
         let view_ident = node.view_ident();
-
         let indices: Vec<_> = (0..node.values.len()).collect();
 
         let to_view_fields = indices.iter().map(|i| {
@@ -243,7 +223,7 @@ impl Imp<Tuple> for ViewTrait {
             }
 
             fn from_view(view: Self::ViewType) -> Self {
-                #ident(
+                Self(
                     #(#from_view_fields),*
                 )
             }
@@ -322,44 +302,16 @@ fn owned_view_conversions(ident: &Ident, view_ident: &Ident) -> TokenStream {
     }
 }
 
-fn quote_view_linear(view_ident: &Ident) -> TokenStream {
+fn quote_view_delegate(view_ident: &Ident) -> TokenStream {
     quote! {
         type ViewType = #view_ident;
 
         fn to_view(&self) -> Self::ViewType {
-            self.iter()
-                .map(::mimic::core::traits::View::to_view)
-                .collect()
+            ::mimic::core::traits::View::to_view(&self.0)
         }
 
         fn from_view(view: Self::ViewType) -> Self {
-            Self(view.into_iter()
-                .map(::mimic::core::traits::View::from_view)
-                .collect())
-        }
-    }
-}
-
-fn quote_view_map(view_ident: &Ident, key: &TokenStream, value: &TokenStream) -> TokenStream {
-    quote! {
-        type ViewType = #view_ident;
-
-        fn to_view(&self) -> Self::ViewType {
-            self.0.iter()
-                .map(|(k, v)| (
-                    ::mimic::core::traits::View::to_view(k),
-                    ::mimic::core::traits::View::to_view(v),
-                ))
-                .collect()
-        }
-
-        fn from_view(view: Self::ViewType) -> Self {
-            Self(view.into_iter()
-                .map(|(k, v)| (
-                    <#key as ::mimic::core::traits::View>::from_view(k),
-                    <#value as ::mimic::core::traits::View>::from_view(v),
-                ))
-                .collect())
+            Self(::mimic::core::traits::View::from_view(view))
         }
     }
 }

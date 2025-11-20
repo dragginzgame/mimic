@@ -74,7 +74,7 @@ impl HasType for Tuple {
         let values = self.values.iter().map(HasTypeExpr::type_expr);
 
         quote! {
-            pub struct #ident(pub #(#values),*);
+            pub struct #ident(#(pub #values),*);
         }
     }
 }
