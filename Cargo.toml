@@ -22,13 +22,13 @@ repository = "https://github.com/dragginzgame/mimic"
 
 [workspace.dependencies]
 candid = "0.10"
-canic = "0.2.38"
+canic = "0.2.39"
 chrono = { version = "0.4", default-features = false }
 convert_case = "0.9"
 ctor = "0.6"
 darling = "0.21"
 derive_more = { version = "2.0", default-features = false, features = ["full"] }
-ic-cdk = "0.18.7"
+ic-cdk = "0.19.0"
 mimic = { path = "crates/mimic" }
 mimic_build = { path = "crates/mimic_build" }
 mimic_common = { path = "crates/mimic_common" }

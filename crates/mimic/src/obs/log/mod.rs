@@ -17,6 +17,7 @@ pub fn log_push(line: impl Into<String>) {
         if buf.len() >= CAP {
             buf.pop_front();
         }
+
         buf.push_back(line.into());
     });
 }
