@@ -25,12 +25,6 @@ pub fn generate(builder: &ActorBuilder) -> TokenStream {
             Ok(::mimic::obs::snapshot::storage_report(&DB, MIMIC_ENTITY_ID_PATH))
         }
 
-        /// Runtime event logs (oldest → newest). Ephemeral, in-memory buffer.
-        #[::mimic::export::canic::cdk::query]
-        pub fn mimic_logs() -> Result<Vec<String>, ::mimic::Error> {
-            Ok(::mimic::obs::log::logs_snapshot())
-        }
-
         /// Ephemeral event report since the internal `since_ms` (counters + per-entity summaries).
         /// Call `mimic_metrics_reset` to reset counters and refresh `since_ms`.
         #[::mimic::export::canic::cdk::query]
