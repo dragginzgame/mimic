@@ -13,7 +13,7 @@ use crate::{
     },
     obs::metrics,
 };
-use canic::{Log, log};
+use canic::{log, log::Level};
 use std::{cmp::Ordering, marker::PhantomData};
 
 ///
@@ -40,7 +40,7 @@ impl<E: EntityKind> LoadExecutor<E> {
     #[inline]
     fn debug_log(&self, s: impl Into<String>) {
         if self.debug {
-            log!(Log::Debug, "{}", s.into());
+            log!(Level::Debug, "{}", s.into());
         }
     }
 

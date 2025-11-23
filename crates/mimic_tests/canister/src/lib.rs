@@ -6,7 +6,7 @@ mod metrics;
 mod ops;
 mod view_into;
 
-use canic::{cdk::export_candid, prelude::*};
+use canic::{cdk::export_candid, log::Level, prelude::*};
 use mimic::{Error, prelude::*};
 use test_design::{
     e2e::filter::{Filterable, FilterableView},
@@ -61,7 +61,7 @@ pub fn test() {
 
     perf_start!();
 
-    log!(Log::Ok, "test: all tests passed successfully");
+    log!(Level::Ok, "test: all tests passed successfully");
 }
 
 //
