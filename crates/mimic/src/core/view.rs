@@ -17,7 +17,7 @@ pub type Filter<T> = <T as FilterView>::FilterViewType;
 
 /// Patches apply sequentially; indices outside the current length are clamped to the tail and
 /// invalid removals are ignored.
-#[derive(CandidType, Debug, Deserialize, Serialize)]
+#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
 pub enum ListPatch<U> {
     Update { index: usize, patch: U },
     Insert { index: usize, value: U },
@@ -30,7 +30,7 @@ pub enum ListPatch<U> {
 /// SetPatch
 ///
 
-#[derive(CandidType, Debug, Deserialize, Serialize)]
+#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
 pub enum SetPatch<U> {
     Insert(U),
     Remove(U),
@@ -41,7 +41,7 @@ pub enum SetPatch<U> {
 /// MapPatch
 ///
 
-#[derive(CandidType, Debug, Deserialize, Serialize)]
+#[derive(CandidType, Clone, Debug, Deserialize, Serialize)]
 pub enum MapPatch<K, V> {
     Upsert { key: K, value: V },
     Remove { key: K },

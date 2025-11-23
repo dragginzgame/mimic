@@ -17,6 +17,7 @@ pub trait View: ToTokens {
     fn traits(&self) -> TraitSet {
         TraitSet::from(vec![
             TraitKind::CandidType,
+            TraitKind::Clone,
             TraitKind::Debug,
             TraitKind::Serialize,
             TraitKind::Deserialize,
