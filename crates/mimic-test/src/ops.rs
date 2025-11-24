@@ -23,7 +23,7 @@ impl OpsSuite {
 
     // missing_field
     fn missing_field() {
-        use test_design::e2e::db::{MissingFieldLarge, MissingFieldSmall};
+        use mimic_test_design::e2e::db::{MissingFieldLarge, MissingFieldSmall};
 
         let small = MissingFieldSmall {
             a_id: Ulid::generate(),

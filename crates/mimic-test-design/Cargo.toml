@@ -1,5 +1,5 @@
 [package]
-name = "test_design"
+name = "mimic-test-design"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }

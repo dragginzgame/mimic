@@ -1,5 +1,7 @@
 use mimic::{core::Value, db::primitives::*, prelude::*, types::Principal};
-use test_design::e2e::filter::{Filterable, FilterableEnum, FilterableEnumFake, FilterableOpt};
+use mimic_test_design::e2e::filter::{
+    Filterable, FilterableEnum, FilterableEnumFake, FilterableOpt,
+};
 
 use super::fixtures;
 

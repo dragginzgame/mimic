@@ -1,4 +1,4 @@
-use test_design::test::view_into::{ViewIntoRoundTrip, ViewIntoRoundTripView};
+use mimic_test_design::test::view_into::{ViewIntoRoundTrip, ViewIntoRoundTripView};
 
 ///
 /// ViewIntoSuite

@@ -732,6 +732,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "mimic-test"
+version = "0.29.5"
+dependencies = [
+ "candid",
+ "canic",
+ "ic-cdk",
+ "mimic",
+ "mimic-test-design",
+ "mimic_build",
+]
+
+[[package]]
+name = "mimic-test-design"
+version = "0.29.5"
+dependencies = [
+ "candid",
+ "mimic",
+ "serde",
+]
+
+[[package]]
 name = "mimic_build"
 version = "0.29.5"
 dependencies = [
@@ -1127,27 +1148,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
-]
-
-[[package]]
-name = "test_canister"
-version = "0.29.5"
-dependencies = [
- "candid",
- "canic",
- "ic-cdk",
- "mimic",
- "mimic_build",
- "test_design",
-]
-
-[[package]]
-name = "test_design"
-version = "0.29.5"
-dependencies = [
- "candid",
- "mimic",
- "serde",
 ]
 
 [[package]]

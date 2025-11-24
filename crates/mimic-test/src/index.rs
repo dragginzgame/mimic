@@ -4,7 +4,7 @@ use mimic::{
     prelude::*,
     types::Principal,
 };
-use test_design::e2e::index::{Indexable, IndexableOptText, NotIndexable};
+use mimic_test_design::e2e::index::{Indexable, IndexableOptText, NotIndexable};
 
 pub struct IndexSuite;
 

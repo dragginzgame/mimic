@@ -8,7 +8,7 @@ mod view_into;
 
 use canic::{cdk::export_candid, prelude::*};
 use mimic::{Error, prelude::*};
-use test_design::{
+use mimic_test_design::{
     e2e::filter::{Filterable, FilterableView},
     schema::{TestDataStore, TestIndexStore},
 };

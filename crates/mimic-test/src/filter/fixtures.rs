@@ -1,5 +1,5 @@
 use mimic::{prelude::*, types::Principal};
-use test_design::e2e::filter::{Filterable, FilterableEnum, FilterableOpt};
+use mimic_test_design::e2e::filter::{Filterable, FilterableEnum, FilterableOpt};
 
 pub fn insert_filterable_data() {
     use FilterableEnum::{A, B, C};
