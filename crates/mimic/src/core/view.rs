@@ -22,6 +22,7 @@ pub enum ListPatch<U> {
     Update { index: usize, patch: U },
     Insert { index: usize, value: U },
     Push { value: U },
+    Overwrite { values: Vec<U> },
     Remove { index: usize },
     Clear,
 }
@@ -34,6 +35,7 @@ pub enum ListPatch<U> {
 pub enum SetPatch<U> {
     Insert(U),
     Remove(U),
+    Overwrite { values: Vec<U> },
     Clear,
 }
 
@@ -45,6 +47,7 @@ pub enum SetPatch<U> {
 pub enum MapPatch<K, V> {
     Upsert { key: K, value: V },
     Remove { key: K },
+    Overwrite { entries: Vec<(K, V)> },
     Clear,
 }
 
@@ -87,12 +90,35 @@ mod test {
     }
 
     #[test]
+    fn vec_overwrite_replaces_contents() {
+        let mut values = vec![1u8, 2, 3];
+        let patches = vec![ListPatch::Overwrite {
+            values: vec![9u8, 8],
+        }];
+
+        values.merge(patches);
+        assert_eq!(values, vec![9, 8]);
+    }
+
+    #[test]
     fn set_insert_remove_without_clear() {
         let mut set: HashSet<u8> = [1, 2, 3].into_iter().collect();
         let patches = vec![SetPatch::Remove(2), SetPatch::Insert(4)];
 
         set.merge(patches);
         let expected: HashSet<u8> = [1, 3, 4].into_iter().collect();
+        assert_eq!(set, expected);
+    }
+
+    #[test]
+    fn set_overwrite_replaces_contents() {
+        let mut set: HashSet<u8> = [1, 2, 3].into_iter().collect();
+        let patches = vec![SetPatch::Overwrite {
+            values: vec![3u8, 4, 5],
+        }];
+
+        set.merge(patches);
+        let expected: HashSet<u8> = [3, 4, 5].into_iter().collect();
         assert_eq!(set, expected);
     }
 
@@ -121,5 +147,27 @@ mod test {
         assert_eq!(map.get("a"), Some(&5));
         assert_eq!(map.get("insert"), Some(&7));
         assert!(!map.contains_key("keep"));
+    }
+
+    #[test]
+    fn map_overwrite_replaces_contents() {
+        let mut map: HashMap<String, u8> = [("keep".into(), 1u8), ("drop".into(), 2u8)]
+            .into_iter()
+            .collect();
+
+        let patches = vec![MapPatch::Overwrite {
+            entries: vec![
+                ("first".to_string(), 9u8),
+                ("second".to_string(), 5u8),
+                ("first".to_string(), 1u8),
+            ],
+        }];
+
+        map.merge(patches);
+
+        assert_eq!(map.get("first"), Some(&1));
+        assert_eq!(map.get("second"), Some(&5));
+        assert!(!map.contains_key("keep"));
+        assert!(!map.contains_key("drop"));
     }
 }

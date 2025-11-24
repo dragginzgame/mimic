@@ -188,6 +188,16 @@ where
                     elem.merge(value);
                     self.push(elem);
                 }
+                ListPatch::Overwrite { values } => {
+                    self.clear();
+                    self.reserve(values.len());
+
+                    for value in values {
+                        let mut elem = T::default();
+                        elem.merge(value);
+                        self.push(elem);
+                    }
+                }
                 ListPatch::Remove { index } => {
                     if index < self.len() {
                         self.remove(index);
@@ -218,6 +228,15 @@ where
                     let mut elem = T::default();
                     elem.merge(value);
                     self.remove(&elem);
+                }
+                SetPatch::Overwrite { values } => {
+                    self.clear();
+
+                    for value in values {
+                        let mut elem = T::default();
+                        elem.merge(value);
+                        self.insert(elem);
+                    }
                 }
                 SetPatch::Clear => self.clear(),
             }
@@ -255,6 +274,19 @@ where
                     let mut key_value = K::default();
                     key_value.merge(key);
                     self.remove(&key_value);
+                }
+                MapPatch::Overwrite { entries } => {
+                    self.clear();
+                    self.reserve(entries.len());
+
+                    for (key, value) in entries {
+                        let mut key_value = K::default();
+                        key_value.merge(key);
+
+                        let mut value_value = V::default();
+                        value_value.merge(value);
+                        self.insert(key_value, value_value);
+                    }
                 }
                 MapPatch::Clear => self.clear(),
             }

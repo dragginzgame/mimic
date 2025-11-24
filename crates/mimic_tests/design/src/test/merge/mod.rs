@@ -223,4 +223,55 @@ mod tests {
         assert_eq!(settings_map.get("add"), Some(&9));
         assert!(!settings_map.contains_key("drop"));
     }
+
+    #[test]
+    #[allow(clippy::field_reassign_with_default)]
+    fn entity_merge_overwrites_collections() {
+        let mut entity = MergeEntity {
+            name: "reset".into(),
+            score: 2,
+            nickname: None,
+            scores: vec![1, 2, 3],
+            tags: MergeTags::from(vec!["old".to_string(), "stale".to_string()]),
+            settings: MergeSettings::from(vec![("keep".to_string(), 1u32)]),
+            profile: profile("overwrite", 0, &[]),
+            wrapper: MergeWrapper(profile("wrapper", 0, &[])),
+            tuple_field: MergeTuple("tuple".into(), 0),
+            opt_profile: None,
+            ..Default::default()
+        };
+
+        let mut update: Update<MergeEntity> = Default::default();
+        update.scores = Some(vec![ListPatch::Overwrite {
+            values: vec![9u32, 8, 7],
+        }]);
+        update.tags = Some(vec![SetPatch::Overwrite {
+            values: vec!["fresh".to_string(), "new".to_string()],
+        }]);
+        update.settings = Some(vec![MapPatch::Overwrite {
+            entries: vec![
+                ("primary".to_string(), 10u32),
+                ("secondary".to_string(), 11u32),
+            ],
+        }]);
+
+        entity.merge(update);
+
+        assert_eq!(entity.scores, vec![9, 8, 7]);
+
+        let tags: HashSet<_> = entity.tags.iter().cloned().collect();
+        let expected_tags: HashSet<_> = vec!["fresh".to_string(), "new".to_string()]
+            .into_iter()
+            .collect();
+        assert_eq!(tags, expected_tags);
+
+        let settings: HashMap<_, _> = entity
+            .settings
+            .iter()
+            .map(|(k, v)| (k.clone(), *v))
+            .collect();
+        assert_eq!(settings.get("primary"), Some(&10));
+        assert_eq!(settings.get("secondary"), Some(&11));
+        assert!(!settings.contains_key("keep"));
+    }
 }
