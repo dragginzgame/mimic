@@ -22,7 +22,7 @@ repository = "https://github.com/dragginzgame/mimic"
 
 [workspace.dependencies]
 candid = "0.10"
-canic = "0.3.1"
+canic = "0.3.7"
 chrono = { version = "0.4", default-features = false }
 convert_case = "0.10"
 ctor = "0.6"
