@@ -1,4 +1,4 @@
-use mimic::{
+use icydb::{
     core::traits::EntityKind,
     db::query::{self, LoadQuery, QueryPlan, QueryPlanner},
     prelude::*,

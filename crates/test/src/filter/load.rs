@@ -1,4 +1,4 @@
-use mimic::{
+use icydb::{
     core::Value,
     db::primitives::*,
     prelude::*,
@@ -482,7 +482,7 @@ impl LoadFilterSuite {
 
     fn filter_eq_account_string_rhs() {
         // use dummy account based on principal/subaccount
-        let account = mimic::types::Account::dummy(1);
+        let account = icydb::types::Account::dummy(1);
         // add a filterable fixture with pid principal == account.owner
         // The fixtures already include Principal::dummy(1) on Alpha row, so reuse that
         let results = db!()
@@ -723,7 +723,7 @@ impl LoadFilterSuite {
     }
 
     fn invalid_any_in_ci_list_non_text() {
-        use mimic::{
+        use icydb::{
             core::value::Value,
             db::primitives::{Cmp, FilterClause, FilterExpr},
         };
@@ -745,7 +745,7 @@ impl LoadFilterSuite {
     }
 
     fn invalid_presence_rhs_non_unit() {
-        use mimic::{
+        use icydb::{
             core::value::Value,
             db::primitives::{Cmp, FilterClause, FilterExpr},
         };

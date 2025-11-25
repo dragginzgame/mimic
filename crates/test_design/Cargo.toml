@@ -8,7 +8,7 @@ license = { workspace = true }
 
 [dependencies]
 candid = { workspace = true }
-mimic = { workspace = true }
+icydb = { workspace = true }
 serde = { workspace = true }
 
 [lints]

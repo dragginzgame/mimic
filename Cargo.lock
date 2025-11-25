@@ -730,6 +730,108 @@ dependencies = [
 ]
 
 [[package]]
+name = "icydb"
+version = "0.0.1"
+dependencies = [
+ "canic",
+ "ctor",
+ "derive_more",
+ "icydb-base",
+ "icydb-core",
+ "icydb-macros",
+ "num-traits",
+ "remain",
+]
+
+[[package]]
+name = "icydb-base"
+version = "0.0.1"
+dependencies = [
+ "bencher",
+ "candid",
+ "canic",
+ "canic-utils",
+ "chrono",
+ "ctor",
+ "derive_more",
+ "icydb-build",
+ "icydb-core",
+ "icydb-macros",
+ "icydb-schema",
+ "num-traits",
+ "remain",
+ "rust_decimal",
+ "serde",
+ "serde_bytes",
+ "serde_json",
+ "thiserror 2.0.17",
+]
+
+[[package]]
+name = "icydb-build"
+version = "0.0.1"
+dependencies = [
+ "icydb-schema",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.111",
+]
+
+[[package]]
+name = "icydb-core"
+version = "0.0.1"
+dependencies = [
+ "bencher",
+ "candid",
+ "canic",
+ "canic-utils",
+ "chrono",
+ "ctor",
+ "derive_more",
+ "icydb-build",
+ "icydb-macros",
+ "icydb-schema",
+ "num-traits",
+ "remain",
+ "rust_decimal",
+ "serde",
+ "serde_bytes",
+ "serde_json",
+ "thiserror 2.0.17",
+]
+
+[[package]]
+name = "icydb-macros"
+version = "0.0.1"
+dependencies = [
+ "canic-utils",
+ "darling 0.21.3",
+ "derive_more",
+ "icydb-schema",
+ "proc-macro2",
+ "quote",
+ "remain",
+ "serde",
+ "syn 2.0.111",
+]
+
+[[package]]
+name = "icydb-schema"
+version = "0.0.1"
+dependencies = [
+ "candid",
+ "canic",
+ "canic-utils",
+ "darling 0.21.3",
+ "derive_more",
+ "proc-macro2",
+ "quote",
+ "remain",
+ "serde",
+ "thiserror 2.0.17",
+]
+
+[[package]]
 name = "ident_case"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -799,80 +901,6 @@ name = "memchr"
 version = "2.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f52b00d39961fc5b2736ea853c9cc86238e165017a493d1d5c8eac6bdc4cc273"
-
-[[package]]
-name = "mimic"
-version = "0.29.10"
-dependencies = [
- "bencher",
- "candid",
- "canic",
- "chrono",
- "ctor",
- "derive_more",
- "mimic_build",
- "mimic_common",
- "mimic_declare",
- "mimic_schema",
- "num-traits",
- "remain",
- "rust_decimal",
- "serde",
- "serde_bytes",
- "serde_json",
- "thiserror 2.0.17",
-]
-
-[[package]]
-name = "mimic_build"
-version = "0.29.10"
-dependencies = [
- "mimic_schema",
- "proc-macro2",
- "quote",
- "syn 2.0.111",
-]
-
-[[package]]
-name = "mimic_common"
-version = "0.29.10"
-dependencies = [
- "candid",
- "convert_case 0.10.0",
- "derive_more",
- "serde",
-]
-
-[[package]]
-name = "mimic_declare"
-version = "0.29.10"
-dependencies = [
- "darling 0.21.3",
- "derive_more",
- "mimic_common",
- "mimic_schema",
- "proc-macro2",
- "quote",
- "remain",
- "serde",
- "syn 2.0.111",
-]
-
-[[package]]
-name = "mimic_schema"
-version = "0.29.10"
-dependencies = [
- "candid",
- "canic",
- "darling 0.21.3",
- "derive_more",
- "mimic_common",
- "proc-macro2",
- "quote",
- "remain",
- "serde",
- "thiserror 2.0.17",
-]
 
 [[package]]
 name = "minicbor"
@@ -1242,22 +1270,22 @@ dependencies = [
 
 [[package]]
 name = "test"
-version = "0.29.10"
+version = "0.0.1"
 dependencies = [
  "candid",
  "canic",
  "ic-cdk",
- "mimic",
- "mimic_build",
+ "icydb",
+ "icydb-build",
  "test_design",
 ]
 
 [[package]]
 name = "test_design"
-version = "0.29.10"
+version = "0.0.1"
 dependencies = [
  "candid",
- "mimic",
+ "icydb",
  "serde",
 ]
 

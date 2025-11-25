@@ -98,7 +98,7 @@ pub struct TitleCaseValueMap {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use mimic::core::sanitize;
+    use icydb::core::sanitize;
     use std::collections::HashMap;
 
     #[test]

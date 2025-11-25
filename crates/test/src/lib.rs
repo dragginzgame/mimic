@@ -7,7 +7,7 @@ mod ops;
 mod view_into;
 
 use canic::{cdk::export_candid, prelude::*};
-use mimic::{Error, prelude::*};
+use icydb::{Error, prelude::*};
 use test_design::{
     e2e::filter::{Filterable, FilterableView},
     schema::{TestDataStore, TestIndexStore},

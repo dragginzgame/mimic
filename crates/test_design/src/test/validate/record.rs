@@ -30,7 +30,7 @@ pub struct Record {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use mimic::core::{ValidateError, validate};
+    use icydb::core::{ValidateError, validate};
 
     #[test]
     fn base_record_validation_fields_fail_as_expected() {

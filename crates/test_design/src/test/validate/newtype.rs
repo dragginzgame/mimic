@@ -17,7 +17,7 @@ pub struct Blob {}
 #[cfg(test)]
 mod test {
     use super::*;
-    use mimic::core::validate;
+    use icydb::core::validate;
 
     #[test]
     fn blob_length_validation() {

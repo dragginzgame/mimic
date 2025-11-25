@@ -13,13 +13,13 @@ crate-type = ["cdylib"]
 candid = { workspace = true }
 canic = { workspace = true }
 ic-cdk = { workspace = true }
-mimic = { workspace = true }
+icydb = { workspace = true }
 test_design = { workspace = true }
 
 [build-dependencies]
 canic = { workspace = true }
-mimic = { workspace = true }
-mimic_build = { workspace = true }
+icydb = { workspace = true }
+icydb-build = { workspace = true }
 test_design = { workspace = true }
 
 [lints]

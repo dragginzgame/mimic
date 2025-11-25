@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use mimic::{
+use icydb::{
     prelude::*,
     types::{Principal, Ulid},
 };

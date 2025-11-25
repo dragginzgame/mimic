@@ -1,4 +1,4 @@
-use mimic::{core::traits::EntityKind, obs::metrics, prelude::*};
+use icydb::{core::traits::EntityKind, obs::metrics, prelude::*};
 
 ///
 /// MetricsSuite
