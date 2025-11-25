@@ -1,6 +1,8 @@
 pub mod family;
-pub mod tests;
 pub mod text;
+
+#[cfg(test)]
+pub mod tests;
 
 // re-export the main entrypoint so callers can do:
 //   coerce::coerce_basic(...)
