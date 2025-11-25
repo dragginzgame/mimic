@@ -1,3 +1,4 @@
+
 [workspace]
 members = [
     "crates/mimic",
@@ -75,6 +76,15 @@ needless_pass_by_value = "allow"
 option_if_let_else = "allow"
 significant_drop_tightening = "allow"
 wildcard_imports = "allow"
+# --------------------------------------------------------------------
+#   IMPORTANT: patch section MUST be at the top level (not nested)
+# --------------------------------------------------------------------
+[patch.crates-io]
+mimic = { path = "crates/mimic" }
+mimic_build = { path = "crates/mimic_build" }
+mimic_common = { path = "crates/mimic_common" }
+mimic_declare = { path = "crates/mimic_declare" }
+mimic_schema = { path = "crates/mimic_schema" }
 
 # profiles
 # we don't need release as it's a library
