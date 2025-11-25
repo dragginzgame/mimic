@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Updated documentation references to the latest tag (`v0.29.0`) so adopters can pin to the launch release.
 - Fixed a bug where tuples only had the first pub
 - Added the Merge functionality so any type can have .merge() on an UpdateView, and it works recursively.
+- Added a new coercion module that handles filtering/search term conversion plus a robust test suite
 
 ## [0.28] - Filter Overhaul - 2025-11-14
 - Overhauled the filter ergonomics across Mimic: every filter payload (ContainsFilter, EqualityFilter,

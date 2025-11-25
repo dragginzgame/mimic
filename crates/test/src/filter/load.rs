@@ -122,6 +122,14 @@ impl LoadFilterSuite {
                 "filter_builder_opt_name_present",
                 Self::filter_builder_opt_name_present,
             ),
+            (
+                "filter_eq_principal_string_rhs",
+                Self::filter_eq_principal_string_rhs,
+            ),
+            (
+                "filter_eq_account_string_rhs",
+                Self::filter_eq_account_string_rhs,
+            ),
         ];
 
         // insert data
@@ -458,6 +466,33 @@ impl LoadFilterSuite {
             "All results should have matching principal"
         );
         assert_eq!(results.len(), 1);
+    }
+
+    fn filter_eq_principal_string_rhs() {
+        let expected = Principal::dummy(1);
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|f| f.eq("pid", expected.to_string()))
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 1);
+        assert!(results.iter().all(|e| e.pid == expected));
+    }
+
+    fn filter_eq_account_string_rhs() {
+        // use dummy account based on principal/subaccount
+        let account = mimic::types::Account::dummy(1);
+        // add a filterable fixture with pid principal == account.owner
+        // The fixtures already include Principal::dummy(1) on Alpha row, so reuse that
+        let results = db!()
+            .load::<Filterable>()
+            .filter(|f| f.eq("pid", account.to_string()))
+            .unwrap()
+            .entities();
+
+        // account string encodes owner+subaccount; we expect no matches for pid field
+        assert!(results.is_empty());
     }
 
     fn filter_contains_tag() {
