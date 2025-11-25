@@ -1,9 +1,11 @@
+mod coerce;
 mod context;
 mod delete;
 mod filter;
 mod load;
 mod save;
 
+pub use coerce::*;
 pub use context::*;
 pub use delete::*;
 pub use filter::*;

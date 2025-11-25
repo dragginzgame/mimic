@@ -1,15 +1,14 @@
 use crate::{
     core::{
         traits::{EntityKind, FieldValues},
-        value::{TextMode, Value},
+        value::Value,
     },
     db::{
+        executor::coerce::family::coerce_basic,
         primitives::{Cmp, FilterClause, FilterExpr},
         query::{QueryError, QueryValidate},
     },
-    types::Ulid,
 };
-use std::{cmp::Ordering, convert::TryFrom};
 
 ///
 /// FilterEvaluator
@@ -53,44 +52,21 @@ impl<'a> FilterEvaluator<'a> {
             _ => {}
         }
 
-        // 1) Numeric ordering (Decimal-first, then f64-safe handled inside Value::cmp_numeric)
-        if matches!(
-            cmp,
-            Cmp::Eq | Cmp::Ne | Cmp::Lt | Cmp::Lte | Cmp::Gt | Cmp::Gte
-        ) {
-            if let Some(ord) = left.cmp_numeric(right) {
-                return cmp.compare_order(ord);
-            }
-
-            // Allow range comparators to treat collection length as the numeric value.
-            if matches!(cmp, Cmp::Lt | Cmp::Lte | Cmp::Gt | Cmp::Gte)
-                && let Some(ord) = Self::cmp_collection_len(left, right)
-            {
-                return cmp.compare_order(ord);
-            }
-        }
-
-        // 2) Text ops (CS/CI explicit)
-        if let Some(res) = Self::coerce_text_match(left, right, cmp) {
+        // --- 0b) is_empty / is_not_empty (single Option<bool>) ---
+        if let Some(res) = match cmp {
+            Cmp::IsEmpty => left.is_empty(),
+            Cmp::IsNotEmpty => left.is_not_empty(),
+            _ => None,
+        } {
             return res;
         }
 
-        // 2b) Enum ops
-        if let Some(res) = Self::coerce_enum(left, right, cmp) {
+        // after handling IsNone/IsSome:
+        if let Some(res) = coerce_basic(left, right, cmp) {
             return res;
         }
 
-        // 2c) ULID vs Text equality (string-based comparison)
-        if let Some(res) = Self::coerce_ulid_text(left, right, cmp) {
-            return res;
-        }
-
-        // 3) Collection membership ops
-        if let Some(res) = Self::coerce_collection(left, right, cmp) {
-            return res;
-        }
-
-        // 4) final fallback: strict same-variant compare only
+        //  final fallback: strict same-variant compare only
         match cmp {
             Cmp::Eq => left == right,
             Cmp::Ne => left != right,
@@ -101,90 +77,11 @@ impl<'a> FilterEvaluator<'a> {
             _ => false,
         }
     }
-
-    /// Text dispatch (maps Cmp → Value::text_* with CS/CI)
-    fn coerce_text_match(actual: &Value, expected: &Value, cmp: Cmp) -> Option<bool> {
-        match cmp {
-            Cmp::Eq => actual.text_eq(expected, TextMode::Cs),
-            Cmp::Ne => actual.text_eq(expected, TextMode::Cs).map(|b| !b),
-            Cmp::Contains => actual.text_contains(expected, TextMode::Cs),
-            Cmp::StartsWith => actual.text_starts_with(expected, TextMode::Cs),
-            Cmp::EndsWith => actual.text_ends_with(expected, TextMode::Cs),
-
-            // CI variants — ensure these exist in your Cmp enum
-            Cmp::EqCi => actual.text_eq(expected, TextMode::Ci),
-            Cmp::NeCi => actual.text_eq(expected, TextMode::Ci).map(|b| !b),
-            Cmp::ContainsCi => actual.text_contains(expected, TextMode::Ci),
-            Cmp::StartsWithCi => actual.text_starts_with(expected, TextMode::Ci),
-            Cmp::EndsWithCi => actual.text_ends_with(expected, TextMode::Ci),
-
-            _ => None,
-        }
-    }
-
-    /// Collection membership using Value helpers
-    fn coerce_collection(actual: &Value, expected: &Value, cmp: Cmp) -> Option<bool> {
-        match cmp {
-            Cmp::AllIn => actual.contains_all(expected),
-            Cmp::AnyIn => actual.contains_any(expected),
-            Cmp::Contains => actual.contains(expected),
-            Cmp::In => actual.in_list(expected),
-
-            // Negated membership
-            Cmp::NotIn => actual.in_list(expected).map(|v| !v),
-
-            // CI variants
-            Cmp::AllInCi => actual.contains_all_ci(expected),
-            Cmp::AnyInCi => actual.contains_any_ci(expected),
-            Cmp::InCi => actual.in_list_ci(expected),
-
-            Cmp::IsEmpty => actual.is_empty(),
-            Cmp::IsNotEmpty => actual.is_not_empty(),
-            _ => None,
-        }
-    }
-
-    /// Enum checking
-    fn coerce_enum(left: &Value, right: &Value, cmp: Cmp) -> Option<bool> {
-        match (left, right) {
-            (Value::Enum(l), Value::Enum(r)) if l.path == r.path => {
-                match cmp {
-                    Cmp::Eq => Some(l.variant == r.variant),
-                    Cmp::Ne => Some(l.variant != r.variant),
-
-                    _ => None, // no string ops here
-                }
-            }
-            _ => None,
-        }
-    }
-
-    fn coerce_ulid_text(left: &Value, right: &Value, cmp: Cmp) -> Option<bool> {
-        match (left, right, cmp) {
-            (Value::Ulid(lhs), Value::Text(rhs), Cmp::Eq | Cmp::Ne)
-            | (Value::Text(rhs), Value::Ulid(lhs), Cmp::Eq | Cmp::Ne) => {
-                let parsed = Ulid::from_str(rhs).ok();
-
-                parsed.map(|rhs_ulid| match cmp {
-                    Cmp::Eq => rhs_ulid == *lhs,
-                    Cmp::Ne => rhs_ulid != *lhs,
-                    _ => unreachable!("handled in match"),
-                })
-            }
-            _ => None,
-        }
-    }
-
-    fn cmp_collection_len(left: &Value, right: &Value) -> Option<Ordering> {
-        match left {
-            Value::List(items) => {
-                let len = i64::try_from(items.len()).ok()?;
-                Value::Int(len).cmp_numeric(right)
-            }
-            _ => None,
-        }
-    }
 }
+
+///
+/// QueryValidate
+///
 
 impl<E: EntityKind> QueryValidate<E> for FilterExpr {
     #[allow(clippy::match_same_arms, clippy::too_many_lines)]

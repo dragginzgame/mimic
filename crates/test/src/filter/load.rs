@@ -486,8 +486,7 @@ impl LoadFilterSuite {
             .unwrap()
             .entities()
             .first()
-            .map(|e| e.id)
-            .unwrap_or_else(|| panic!("missing relation '{name}'"))
+            .map_or_else(|| panic!("missing relation '{name}'"), |e| e.id)
     }
 
     fn filter_opt_eq_name() {
@@ -871,6 +870,7 @@ impl LoadFilterSuite {
     }
 
     fn filter_builder_opt_name_present() {
+        // name != empty
         let filter = Filter::<FilterableOpt> {
             name: Some(TextFilter::new().is_empty(false)),
             ..Default::default()
@@ -882,7 +882,12 @@ impl LoadFilterSuite {
             .unwrap()
             .entities();
 
+        // Expect exactly 3 rows with Some(name) and non-empty text
         assert_eq!(results.len(), 3);
-        assert!(results.iter().all(|e| e.name.is_some()));
+        assert!(
+            results
+                .iter()
+                .all(|e| { e.name.is_some() && !e.name.as_ref().unwrap().is_empty() })
+        );
     }
 }

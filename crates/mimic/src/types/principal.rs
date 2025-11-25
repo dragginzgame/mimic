@@ -58,6 +58,11 @@ impl Principal {
     pub const MAX: Self = Self::from_slice(&[0xFF; 29]);
 
     #[must_use]
+    pub const fn anonymous() -> Self {
+        Self(WrappedPrincipal::anonymous())
+    }
+
+    #[must_use]
     pub fn msg_caller() -> Self {
         Self(msg_caller())
     }
@@ -65,11 +70,6 @@ impl Principal {
     #[must_use]
     pub const fn from_slice(slice: &[u8]) -> Self {
         Self(WrappedPrincipal::from_slice(slice))
-    }
-
-    #[must_use]
-    pub const fn anonymous() -> Self {
-        Self(WrappedPrincipal::anonymous())
     }
 
     #[must_use]

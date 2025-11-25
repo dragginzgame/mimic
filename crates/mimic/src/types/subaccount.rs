@@ -76,6 +76,11 @@ impl Subaccount {
         Ulid::from_bytes(ulid_bytes)
     }
 
+    #[must_use]
+    pub const fn dummy(v: u8) -> Self {
+        Self([v; 32])
+    }
+
     /// Generate a random subaccount using two 128-bit draws.
     #[must_use]
     pub fn random() -> Self {

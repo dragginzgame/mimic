@@ -154,7 +154,7 @@ impl Value {
             Self::Ulid(u) => {
                 feed_bytes(h, &u.to_bytes());
             }
-            Self::None | Self::Unit(_) | Self::Unsupported => {}
+            Self::None | Self::Unit | Self::Unsupported => {}
         }
     }
 

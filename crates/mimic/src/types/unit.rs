@@ -35,13 +35,13 @@ pub struct Unit;
 
 impl FieldValue for () {
     fn to_value(&self) -> Value {
-        Value::Unit(Unit)
+        Value::Unit
     }
 }
 
 impl FieldValue for Unit {
     fn to_value(&self) -> Value {
-        Value::Unit(*self)
+        Value::Unit
     }
 }
 

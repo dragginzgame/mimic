@@ -15,6 +15,7 @@ use serde::{Deserialize, Serialize};
 use std::{
     borrow::Cow,
     fmt::{self, Display},
+    str::FromStr,
 };
 
 ///
@@ -55,6 +56,14 @@ impl Account {
             owner: self.owner.into(),
             subaccount: self.subaccount.map(Into::into),
         }
+    }
+
+    #[must_use]
+    pub fn dummy(v: u8) -> Self {
+        let p = Principal::from_slice(&[v]);
+        let s = [v; 32];
+
+        Self::new(p, Some(s))
     }
 
     /// Convert the account into a deterministic IC-style byte representation.
@@ -111,6 +120,19 @@ impl From<IcrcAccount> for Account {
             owner: acc.owner.into(),
             subaccount: acc.subaccount.map(Into::into),
         }
+    }
+}
+
+impl FromStr for Account {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let icrc = IcrcAccount::from_str(s)?;
+
+        Ok(Self {
+            owner: icrc.owner.into(),
+            subaccount: icrc.subaccount.map(Into::into),
+        })
     }
 }
 

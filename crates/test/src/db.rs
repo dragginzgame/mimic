@@ -397,7 +397,7 @@ impl DbSuite {
 
         let response = db!().load::<UnitKey>().one(()).unwrap();
         let key = response.key().expect("expected key for unit entity");
-        assert_eq!(key, Key::Unit(Unit), "unit PK should map to Key::Unit");
+        assert_eq!(key, Key::Unit, "unit PK should map to Key::Unit");
 
         let fetched = response.try_entity().expect("entity should be present");
         assert_eq!(

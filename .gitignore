@@ -32,12 +32,10 @@ perf.data
 perf.data.old
 
 
-##
-## backend/
-##
-
+# tmp
 .env
-/target
+target
+target_tmp
 generated
 
 # Remove Cargo.lock from gitignore if creating an executable, leave it for libraries

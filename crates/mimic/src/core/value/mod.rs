@@ -1,4 +1,5 @@
 mod bytes;
+mod family;
 mod tests;
 
 use crate::{
@@ -9,8 +10,11 @@ use crate::{
     types::*,
 };
 use candid::CandidType;
+use num_traits::ToPrimitive;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
+
+pub use family::{ValueFamily, ValueFamilyExt};
 
 ///
 /// CONSTANTS
@@ -29,23 +33,6 @@ const F64_SAFE_U128: u128 = 1u128 << 53;
 pub enum TextMode {
     Cs, // case-sensitive
     Ci, // case-insensitive
-}
-
-///
-/// Handy Macros
-///
-
-#[macro_export]
-macro_rules! impl_from_for {
-    ( $struct:ty, $( $type:ty => $variant:ident ),* $(,)? ) => {
-        $(
-            impl From<$type> for $struct {
-                fn from(v: $type) -> Self {
-                    Self::$variant(v.into())
-                }
-            }
-        )*
-    };
 }
 
 ///
@@ -104,7 +91,7 @@ pub enum Value {
     Uint128(Nat128),
     UintBig(Nat),
     Ulid(Ulid),
-    Unit(Unit),
+    Unit,
     Unsupported,
 }
 
@@ -150,14 +137,14 @@ impl Value {
     /// Returns true if the value is Unit (used for presence/null comparators).
     #[must_use]
     pub const fn is_unit(&self) -> bool {
-        matches!(self, Self::Unit(_))
+        matches!(self, Self::Unit)
     }
 
     #[must_use]
     pub const fn is_scalar(&self) -> bool {
         match self {
             // definitely not scalar:
-            Self::List(_) | Self::Unit(_) => false,
+            Self::List(_) | Self::Unit => false,
             _ => true,
         }
     }
@@ -193,7 +180,7 @@ impl Value {
             Self::Uint128(_) => ValueTag::Uint128,
             Self::UintBig(_) => ValueTag::UintBig,
             Self::Ulid(_) => ValueTag::Ulid,
-            Self::Unit(_) => ValueTag::Unit,
+            Self::Unit => ValueTag::Unit,
             Self::Unsupported => ValueTag::Unsupported,
         }
         .to_u8()
@@ -212,7 +199,7 @@ impl Value {
             Self::Principal(v) => Some(Key::Principal(*v)),
             Self::Subaccount(v) => Some(Key::Subaccount(*v)),
             Self::Ulid(v) => Some(Key::Ulid(*v)),
-            Self::Unit(v) => Some(Key::Unit(*v)),
+            Self::Unit => Some(Key::Unit),
             _ => None,
         }
     }
@@ -245,9 +232,11 @@ impl Value {
             Self::Float32(f) => Decimal::from_f32(f.get()),
             Self::Int(i) => Decimal::from_i64(*i),
             Self::Int128(i) => Decimal::from_i128(i.get()),
+            Self::IntBig(i) => i.0.to_i128().and_then(Decimal::from_i128),
             Self::Timestamp(t) => Decimal::from_u64(t.get()),
             Self::Uint(u) => Decimal::from_u64(*u),
             Self::Uint128(u) => Decimal::from_u128(u.get()),
+            Self::UintBig(u) => u.0.to_u128().and_then(Decimal::from_u128),
 
             _ => None,
         }
@@ -264,9 +253,18 @@ impl Value {
             Self::Int128(i) if (-F64_SAFE_I128..=F64_SAFE_I128).contains(&i.get()) => {
                 Some(i.get() as f64)
             }
+            Self::IntBig(i) => i.0.to_i128().and_then(|v| {
+                (-F64_SAFE_I128..=F64_SAFE_I128)
+                    .contains(&v)
+                    .then_some(v as f64)
+            }),
             Self::Timestamp(t) if t.get() <= F64_SAFE_U64 => Some(t.get() as f64),
             Self::Uint(u) if *u <= F64_SAFE_U64 => Some(*u as f64),
             Self::Uint128(u) if u.get() <= F64_SAFE_U128 => Some(u.get() as f64),
+            Self::UintBig(u) => {
+                u.0.to_u128()
+                    .and_then(|v| (v <= F64_SAFE_U128).then_some(v as f64))
+            }
 
             _ => None,
         }
@@ -421,7 +419,11 @@ impl Value {
             Self::List(xs) => Some(xs.is_empty()),
             Self::Text(s) => Some(s.is_empty()),
             Self::Blob(b) => Some(b.is_empty()),
-            _ => None, // no concept of "empty"
+
+            // For Option<T> fields represented as Value::None:
+            Self::None => Some(true),
+
+            _ => None,
         }
     }
 
@@ -491,6 +493,94 @@ impl Value {
     }
 }
 
+#[macro_export]
+macro_rules! impl_from_for {
+    ( $( $type:ty => $variant:ident ),* $(,)? ) => {
+        $(
+            impl From<$type> for Value {
+                fn from(v: $type) -> Self {
+                    Self::$variant(v.into())
+                }
+            }
+        )*
+    };
+}
+
+impl_from_for! {
+    Account    => Account,
+    Date       => Date,
+    Decimal    => Decimal,
+    Duration   => Duration,
+    E8s        => E8s,
+    E18s       => E18s,
+    bool       => Bool,
+    i8         => Int,
+    i16        => Int,
+    i32        => Int,
+    i64        => Int,
+    i128       => Int128,
+    Int        => IntBig,
+    Principal  => Principal,
+    Subaccount => Subaccount,
+    &str       => Text,
+    String     => Text,
+    Timestamp  => Timestamp,
+    u8         => Uint,
+    u16        => Uint,
+    u32        => Uint,
+    u64        => Uint,
+    u128       => Uint128,
+    Nat        => UintBig,
+    Ulid       => Ulid,
+}
+
+impl ValueFamilyExt for Value {
+    fn family(&self) -> ValueFamily {
+        match self {
+            // Numeric
+            Self::Date(_)
+            | Self::Decimal(_)
+            | Self::Duration(_)
+            | Self::E8s(_)
+            | Self::E18s(_)
+            | Self::Float32(_)
+            | Self::Float64(_)
+            | Self::Int(_)
+            | Self::Int128(_)
+            | Self::Timestamp(_)
+            | Self::Uint(_)
+            | Self::Uint128(_)
+            | Self::IntBig(_)
+            | Self::UintBig(_) => ValueFamily::Numeric,
+
+            // Text
+            Self::Text(_) => ValueFamily::Textual,
+
+            // Identifiers
+            Self::Ulid(_) | Self::Principal(_) | Self::Account(_) => ValueFamily::Identifier,
+
+            // Enum
+            Self::Enum(_) => ValueFamily::Enum,
+
+            // Collections
+            Self::List(_) => ValueFamily::Collection,
+
+            // Blobs
+            Self::Blob(_) | Self::Subaccount(_) => ValueFamily::Blob,
+
+            // Bool
+            Self::Bool(_) => ValueFamily::Bool,
+
+            // Null / Unit
+            Self::None => ValueFamily::Null,
+            Self::Unit => ValueFamily::Unit,
+
+            // Everything else
+            Self::Unsupported => ValueFamily::Unsupported,
+        }
+    }
+}
+
 impl FieldValue for Value {
     fn to_value(&self) -> Value {
         self.clone()
@@ -505,7 +595,7 @@ impl From<Vec<Self>> for Value {
 
 impl From<()> for Value {
     fn from((): ()) -> Self {
-        Self::Unit(Unit)
+        Self::Unit
     }
 }
 

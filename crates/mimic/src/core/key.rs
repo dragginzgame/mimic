@@ -25,7 +25,7 @@ pub enum Key {
     Timestamp(Timestamp),
     Uint(u64),
     Ulid(Ulid),
-    Unit(Unit),
+    Unit,
 }
 
 impl Key {
@@ -43,7 +43,7 @@ impl Key {
 
     #[must_use]
     pub const fn upper_bound() -> Self {
-        Self::Unit(Unit)
+        Self::Unit
     }
 
     const fn variant_rank(&self) -> u8 {
@@ -55,7 +55,7 @@ impl Key {
             Self::Timestamp(_) => 4,
             Self::Uint(_) => 5,
             Self::Ulid(_) => 6,
-            Self::Unit(_) => 7,
+            Self::Unit => 7,
         }
     }
 }
@@ -70,8 +70,32 @@ impl FieldValue for Key {
             Self::Timestamp(v) => Value::Timestamp(*v),
             Self::Uint(v) => Value::Uint(*v),
             Self::Ulid(v) => Value::Ulid(*v),
-            Self::Unit(v) => Value::Unit(*v),
+            Self::Unit => Value::Unit,
         }
+    }
+}
+
+impl From<()> for Key {
+    fn from((): ()) -> Self {
+        Self::Unit
+    }
+}
+
+impl From<Unit> for Key {
+    fn from(_: Unit) -> Self {
+        Self::Unit
+    }
+}
+
+impl PartialEq<()> for Key {
+    fn eq(&self, (): &()) -> bool {
+        matches!(self, Self::Unit)
+    }
+}
+
+impl PartialEq<Key> for () {
+    fn eq(&self, other: &Key) -> bool {
+        other == self
     }
 }
 
@@ -122,7 +146,6 @@ impl_from_key! {
     u32 => Uint,
     u64 => Uint,
     Ulid => Ulid,
-    Unit => Unit,
 }
 
 impl_eq_key! {
@@ -133,7 +156,6 @@ impl_eq_key! {
     Timestamp => Timestamp,
     u64  => Uint,
     Ulid => Ulid,
-    Unit => Unit,
 }
 
 impl Ord for Key {

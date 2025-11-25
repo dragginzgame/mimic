@@ -48,6 +48,9 @@ pub struct TextFilter {
     pub ends_with_cs: Option<TextClause>,
     pub ends_with_ci: Option<TextClause>,
 
+    /// Some(true)  → must be empty
+    /// Some(false) → must be non-empty
+    /// None        → no constraint
     pub is_empty: Option<bool>,
 }
 
@@ -151,10 +154,6 @@ impl TextFilter {
 fn push(slot: &mut Option<TextClause>, v: impl Into<String>) {
     slot.get_or_insert_with(TextClause::default).push_value(v);
 }
-
-//
-// IntoScopedFilterExpr implementation
-//
 
 impl IntoScopedFilterExpr for TextFilter {
     fn into_scoped(self, field: &str) -> FilterExpr {
