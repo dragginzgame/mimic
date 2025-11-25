@@ -1,7 +1,10 @@
-use mimic::{core::Value, db::primitives::*, prelude::*, types::Principal};
-use mimic_test_design::e2e::filter::{
-    Filterable, FilterableEnum, FilterableEnumFake, FilterableOpt,
+use mimic::{
+    core::Value,
+    db::primitives::*,
+    prelude::*,
+    types::{Principal, Ulid},
 };
+use test_design::e2e::filter::{Filterable, FilterableEnum, FilterableEnumFake, FilterableOpt};
 
 use super::fixtures;
 
@@ -52,6 +55,20 @@ impl LoadFilterSuite {
             ("filter_opt_lt_level", Self::filter_opt_lt_level),
             ("filter_opt_is_none_name", Self::filter_opt_is_none_name),
             ("filter_opt_ne_pid_null", Self::filter_opt_ne_pid_null),
+            ("filter_opt_rel_eq_some", Self::filter_opt_rel_eq_some),
+            ("filter_opt_rel_eq_none", Self::filter_opt_rel_eq_none),
+            ("filter_opt_rel_ne_none", Self::filter_opt_rel_ne_none),
+            ("filter_opt_rel_is_some", Self::filter_opt_rel_is_some),
+            ("filter_opt_rel_is_none", Self::filter_opt_rel_is_none),
+            ("filter_opt_rel_in_list", Self::filter_opt_rel_in_list),
+            (
+                "filter_opt_rel_not_in_list",
+                Self::filter_opt_rel_not_in_list,
+            ),
+            (
+                "filter_opt_rel_eq_ulid_vs_text_mismatch",
+                Self::filter_opt_rel_eq_ulid_vs_text_mismatch,
+            ),
             // enum
             ("filter_eq_enum", Self::filter_eq_enum),
             ("filter_eq_enum_fake", Self::filter_eq_enum_fake),
@@ -462,6 +479,17 @@ impl LoadFilterSuite {
     /// OPTIONAL (FilterableOpt)
     ///
 
+    fn rel_id_for(name: &str) -> Ulid {
+        db!()
+            .load::<Filterable>()
+            .filter(|f| f.eq("name", name))
+            .unwrap()
+            .entities()
+            .first()
+            .map(|e| e.id)
+            .unwrap_or_else(|| panic!("missing relation '{name}'"))
+    }
+
     fn filter_opt_eq_name() {
         let results = db!()
             .load::<FilterableOpt>()
@@ -504,6 +532,115 @@ impl LoadFilterSuite {
 
         assert!(results.iter().all(|e| e.pid.is_some()));
         assert_eq!(results.len(), 3);
+    }
+
+    fn filter_opt_rel_eq_some() {
+        let alpha = Self::rel_id_for("Alpha");
+
+        let results = db!()
+            .load::<FilterableOpt>()
+            .filter(|f| f.eq("rel_id", alpha))
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 2);
+        assert!(results.iter().all(|e| e.rel_id == Some(alpha)));
+    }
+
+    fn filter_opt_rel_eq_none() {
+        let results = db!()
+            .load::<FilterableOpt>()
+            .filter(|f| f.eq("rel_id", Value::None))
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 2);
+        assert!(results.iter().all(|e| e.rel_id.is_none()));
+    }
+
+    fn filter_opt_rel_ne_none() {
+        let results = db!()
+            .load::<FilterableOpt>()
+            .filter(|f| f.ne("rel_id", Value::None))
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 3);
+        assert!(results.iter().all(|e| e.rel_id.is_some()));
+    }
+
+    fn filter_opt_rel_is_some() {
+        let results = db!()
+            .load::<FilterableOpt>()
+            .filter(|f| f.is_some("rel_id"))
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 3);
+        assert!(results.iter().all(|e| e.rel_id.is_some()));
+    }
+
+    fn filter_opt_rel_is_none() {
+        let results = db!()
+            .load::<FilterableOpt>()
+            .filter(|f| f.is_none("rel_id"))
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 2);
+        assert!(results.iter().all(|e| e.rel_id.is_none()));
+    }
+
+    fn filter_opt_rel_in_list() {
+        let alpha = Self::rel_id_for("Alpha");
+        let beta = Self::rel_id_for("Beta");
+
+        let results = db!()
+            .load::<FilterableOpt>()
+            .filter(|f| f.in_iter("rel_id", [alpha, beta]))
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 3);
+        assert!(
+            results
+                .iter()
+                .all(|e| matches!(e.rel_id, Some(id) if id == alpha || id == beta))
+        );
+    }
+
+    fn filter_opt_rel_not_in_list() {
+        let alpha = Self::rel_id_for("Alpha");
+
+        let results = db!()
+            .load::<FilterableOpt>()
+            .filter(|f| f.not_in_iter("rel_id", [alpha]))
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 3);
+        assert!(results.iter().all(|e| e.rel_id != Some(alpha)));
+    }
+
+    fn filter_opt_rel_eq_ulid_vs_text_mismatch() {
+        // RHS mimics the dfx bug: ULID rendered as Text instead of Ulid.
+        let alpha = Self::rel_id_for("Alpha");
+        let bad_rhs = Value::Text(alpha.to_string());
+
+        let expr = FilterExpr::Clause(FilterClause::new("rel_id", Cmp::Eq, bad_rhs.clone()));
+        let query = db::query::load().filter(|_| expr);
+
+        let results = db!()
+            .load::<FilterableOpt>()
+            .execute(query)
+            .unwrap()
+            .entities();
+
+        assert_eq!(results.len(), 2, "Text RHS should coerce to Ulid");
+        assert!(results.iter().all(|e| e.rel_id == Some(alpha)));
+
+        // Direct Value comparison remains strict (different variants are not equal).
+        assert_ne!(Value::Ulid(alpha), bad_rhs);
     }
 
     // --------------------------- enum ---------------------

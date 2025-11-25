@@ -1,5 +1,5 @@
 [package]
-name = "mimic-test"
+name = "test"
 edition = { workspace = true }
 rust-version = { workspace = true }
 version = { workspace = true }
@@ -11,16 +11,16 @@ crate-type = ["cdylib"]
 
 [dependencies]
 candid = { workspace = true }
-ic-cdk = { workspace = true }
 canic = { workspace = true }
+ic-cdk = { workspace = true }
 mimic = { workspace = true }
-mimic-test-design = { workspace = true }
+test_design = { workspace = true }
 
 [build-dependencies]
 canic = { workspace = true }
 mimic = { workspace = true }
+test_design = { workspace = true }
 mimic_build = { workspace = true }
-mimic-test-design = { workspace = true }
 
 [lints]
 workspace = true

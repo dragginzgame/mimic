@@ -1,12 +1,12 @@
 [workspace]
 members = [
     "crates/mimic",
-    "crates/mimic-test",
-    "crates/mimic-test-design",
     "crates/mimic_build",
     "crates/mimic_common",
     "crates/mimic_declare",
     "crates/mimic_schema",
+    "crates/test",
+    "crates/test_design",
 ]
 resolver = "2"
 
@@ -30,8 +30,6 @@ darling = "0.21"
 derive_more = { version = "2.0", default-features = false, features = ["full"] }
 ic-cdk = "0.19.0"
 mimic = { path = "crates/mimic" }
-mimic-test = { path = "crates/mimic-test" }
-mimic-test-design = { path = "crates/mimic-test-design" }
 mimic_build = { path = "crates/mimic_build" }
 mimic_common = { path = "crates/mimic_common" }
 mimic_declare = { path = "crates/mimic_declare" }
@@ -47,6 +45,8 @@ rust_decimal = { version = "1.37", default-features = false, features = [
 serde = { version = "1.0", default-features = false }
 serde_bytes = "0.11"
 syn = "2.0"
+test = { path = "crates/test" }
+test_design = { path = "crates/test_design" }
 thiserror = "2.0"
 
 # clippy

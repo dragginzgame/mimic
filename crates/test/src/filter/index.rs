@@ -1,5 +1,5 @@
 use mimic::{core::traits::FieldValue, db::query::QueryPlan, prelude::*};
-use mimic_test_design::e2e::filter::FilterableIndex;
+use test_design::e2e::filter::FilterableIndex;
 
 ///
 /// IndexFilterSuite

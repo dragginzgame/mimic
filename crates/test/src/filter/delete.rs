@@ -3,7 +3,7 @@ use mimic::{
     prelude::*,
     types::{Decimal, Principal},
 };
-use mimic_test_design::e2e::filter::{Filterable, FilterableOpt};
+use test_design::e2e::filter::{Filterable, FilterableOpt};
 
 pub struct DeleteFilterSuite {}
 

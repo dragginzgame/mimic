@@ -1,5 +1,5 @@
 use mimic::{core::traits::Path, prelude::*};
-use mimic_test_design::schema::TestDataStore;
+use test_design::schema::TestDataStore;
 
 ///
 /// DbSuite
@@ -44,7 +44,7 @@ impl DbSuite {
     //
 
     fn query_fail_filter() {
-        use mimic_test_design::e2e::db::SimpleEntity;
+        use test_design::e2e::db::SimpleEntity;
 
         let query = db::query::load().filter(|f| f.eq("wefwefasd", "A"));
         let res = db!().load::<SimpleEntity>().execute(query);
@@ -53,7 +53,7 @@ impl DbSuite {
     }
 
     fn query_fail_sort() {
-        use mimic_test_design::e2e::db::SimpleEntity;
+        use test_design::e2e::db::SimpleEntity;
 
         let res = db!()
             .load::<SimpleEntity>()
@@ -63,7 +63,7 @@ impl DbSuite {
     }
 
     fn blob() {
-        use mimic_test_design::e2e::db::ContainsBlob;
+        use test_design::e2e::db::ContainsBlob;
 
         const ROWS: usize = 100;
 
@@ -93,7 +93,7 @@ impl DbSuite {
     }
 
     fn insert() {
-        use mimic_test_design::e2e::db::SimpleEntity;
+        use test_design::e2e::db::SimpleEntity;
 
         let e = SimpleEntity::default();
         db!().insert(e).unwrap();
@@ -111,7 +111,7 @@ impl DbSuite {
     }
 
     fn insert_lots() {
-        use mimic_test_design::e2e::db::SimpleEntity;
+        use test_design::e2e::db::SimpleEntity;
         const ROWS: u32 = 1_000;
 
         // insert rows
@@ -128,7 +128,7 @@ impl DbSuite {
     }
 
     fn insert_lots_blob() {
-        use mimic_test_design::e2e::db::BlobEntity;
+        use test_design::e2e::db::BlobEntity;
         const ROWS: u32 = 500;
         const BLOB_SIZE: usize = 1024 * 2;
 
@@ -150,7 +150,7 @@ impl DbSuite {
     }
 
     fn data_key_order() {
-        use mimic_test_design::e2e::db::DataKeyOrder;
+        use test_design::e2e::db::DataKeyOrder;
 
         const ROWS: u16 = 1_000;
 
@@ -174,7 +174,7 @@ impl DbSuite {
     }
 
     fn delete_lots() {
-        use mimic_test_design::e2e::db::SimpleEntity;
+        use test_design::e2e::db::SimpleEntity;
 
         const ROWS: u32 = 500;
 
@@ -205,7 +205,7 @@ impl DbSuite {
     }
 
     fn index_create_and_delete() {
-        use mimic_test_design::e2e::db::Index;
+        use test_design::e2e::db::Index;
 
         // Step 1: Insert entity e1 with x=1, y=10
         let e1 = Index::new(1, 10);
@@ -257,7 +257,7 @@ impl DbSuite {
     }
 
     fn index_option() {
-        use mimic_test_design::e2e::db::IndexUniqueOpt;
+        use test_design::e2e::db::IndexUniqueOpt;
 
         // Insert entity with Some(10)
         let e1 = IndexUniqueOpt {
@@ -322,7 +322,7 @@ impl DbSuite {
     }
 
     fn limit_query() {
-        use mimic_test_design::e2e::db::Limit;
+        use test_design::e2e::db::Limit;
 
         // Insert 100 rows
         // overwrite the ulid with replace()
@@ -354,7 +354,7 @@ impl DbSuite {
     }
 
     fn load_one() {
-        use mimic_test_design::e2e::db::SimpleEntity;
+        use test_design::e2e::db::SimpleEntity;
 
         let saved_key = db!().insert(SimpleEntity::default()).unwrap().key();
         let loaded_key = db!()
@@ -368,7 +368,7 @@ impl DbSuite {
     }
 
     fn load_many() {
-        use mimic_test_design::e2e::db::SimpleEntity;
+        use test_design::e2e::db::SimpleEntity;
 
         let key1 = db!().insert(SimpleEntity::default()).unwrap().key();
         let key2 = db!().insert(SimpleEntity::default()).unwrap().key();
@@ -390,7 +390,7 @@ impl DbSuite {
     fn unit_primary_key() {
         use mimic::core::Key;
         use mimic::types::Unit;
-        use mimic_test_design::test::entity::UnitKey;
+        use test_design::test::entity::UnitKey;
 
         let inserted = db!().insert(UnitKey::default()).unwrap();
         assert_eq!(inserted.primary_key(), Unit, "insert should retain unit PK");
@@ -415,7 +415,7 @@ impl DbSuite {
     }
 
     fn perf_options() {
-        use mimic_test_design::e2e::db::ContainsOpts;
+        use test_design::e2e::db::ContainsOpts;
 
         const ROWS: u16 = 500;
 
@@ -434,7 +434,7 @@ impl DbSuite {
     }
 
     fn perf_many_relations() {
-        use mimic_test_design::e2e::db::ContainsManyRelations;
+        use test_design::e2e::db::ContainsManyRelations;
 
         const ROWS: u16 = 500;
 

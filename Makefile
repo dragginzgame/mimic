@@ -105,7 +105,7 @@ release: ensure-clean
 # Tests
 #
 
-test: test-unit test-canisters
+test: test-canisters test-unit
 
 test-unit:
 	cargo test --workspace
@@ -114,8 +114,8 @@ test-canisters:
 	@if command -v dfx >/dev/null 2>&1; then \
 		( dfx canister create --all -qq ); \
 		( dfx build --all ); \
-		( dfx canister install test_canister --mode=reinstall -y ); \
-		( dfx canister call test_canister test ); \
+		( dfx canister install test --mode=reinstall -y ); \
+		( dfx canister call test test ); \
 	else \
 		echo "Skipping canister tests (dfx not installed)"; \
 	fi
@@ -134,9 +134,13 @@ clippy: ensure-hooks
 	cargo clippy --workspace -- -D warnings
 
 fmt: ensure-hooks
+	cargo sort --workspace
+	cargo sort-derives
 	cargo fmt --all
 
 fmt-check: ensure-hooks
+	cargo sort --workspace --check
+	cargo sort-derives --check
 	cargo fmt --all -- --check
 
 clean:

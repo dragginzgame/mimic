@@ -5,11 +5,11 @@ use mimic::{
     },
     prelude::*,
 };
-use mimic_test_design::test::merge::{
+use std::collections::HashSet;
+use test_design::test::merge::{
     MergeEntity, MergeProfile, MergeProfileUpdate, MergeSettings, MergeTags, MergeTuple,
     MergeWrapper, MergeWrapperUpdate,
 };
-use std::collections::HashSet;
 
 ///
 /// MergeSuite

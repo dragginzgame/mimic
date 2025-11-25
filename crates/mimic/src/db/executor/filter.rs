@@ -7,6 +7,7 @@ use crate::{
         primitives::{Cmp, FilterClause, FilterExpr},
         query::{QueryError, QueryValidate},
     },
+    types::Ulid,
 };
 use std::{cmp::Ordering, convert::TryFrom};
 
@@ -79,6 +80,11 @@ impl<'a> FilterEvaluator<'a> {
             return res;
         }
 
+        // 2c) ULID vs Text equality (string-based comparison)
+        if let Some(res) = Self::coerce_ulid_text(left, right, cmp) {
+            return res;
+        }
+
         // 3) Collection membership ops
         if let Some(res) = Self::coerce_collection(left, right, cmp) {
             return res;
@@ -148,6 +154,22 @@ impl<'a> FilterEvaluator<'a> {
 
                     _ => None, // no string ops here
                 }
+            }
+            _ => None,
+        }
+    }
+
+    fn coerce_ulid_text(left: &Value, right: &Value, cmp: Cmp) -> Option<bool> {
+        match (left, right, cmp) {
+            (Value::Ulid(lhs), Value::Text(rhs), Cmp::Eq | Cmp::Ne)
+            | (Value::Text(rhs), Value::Ulid(lhs), Cmp::Eq | Cmp::Ne) => {
+                let parsed = Ulid::from_str(rhs).ok();
+
+                parsed.map(|rhs_ulid| match cmp {
+                    Cmp::Eq => rhs_ulid == *lhs,
+                    Cmp::Ne => rhs_ulid != *lhs,
+                    _ => unreachable!("handled in match"),
+                })
             }
             _ => None,
         }
@@ -260,7 +282,7 @@ impl<E: EntityKind> QueryValidate<E> for FilterExpr {
                     },
 
                     // -------------------------
-                    // MAP FILTERS (NEW!)
+                    // MAP FILTERS
                     // -------------------------
                     Cmp::MapContainsKey | Cmp::MapNotContainsKey => {
                         if !v.is_scalar() {

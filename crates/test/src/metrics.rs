@@ -30,7 +30,7 @@ impl MetricsSuite {
 
     // basic load/save/delete counters and rows touched
     fn counters_basic() {
-        use mimic_test_design::e2e::db::SimpleEntity;
+        use test_design::e2e::db::SimpleEntity;
 
         // 3 creates → 3 save calls
         for _ in 0..3 {
@@ -79,7 +79,7 @@ impl MetricsSuite {
 
     // index insert/remove and unique violation are counted
     fn index_counters_and_violation() {
-        use mimic_test_design::e2e::db::Index;
+        use test_design::e2e::db::Index;
 
         // Insert e1, e2 (each has 2 indexes) → index_inserts += 4
         let e1 = Index::new(1, 10);
@@ -132,7 +132,7 @@ impl MetricsSuite {
 
     // verify reset clears counters via the endpoint as well
     fn reset_metrics() {
-        use mimic_test_design::e2e::db::SimpleEntity;
+        use test_design::e2e::db::SimpleEntity;
 
         // Bump something
         db!().insert(SimpleEntity::default()).unwrap();

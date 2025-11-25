@@ -1,7 +1,12 @@
-use mimic::{prelude::*, types::Principal};
-use mimic_test_design::e2e::filter::{Filterable, FilterableEnum, FilterableOpt};
+use std::collections::HashMap;
 
-pub fn insert_filterable_data() {
+use mimic::{
+    prelude::*,
+    types::{Principal, Ulid},
+};
+use test_design::e2e::filter::{Filterable, FilterableEnum, FilterableOpt};
+
+pub fn insert_filterable_data() -> HashMap<String, Ulid> {
     use FilterableEnum::{A, B, C};
 
     #[rustfmt::skip]
@@ -18,8 +23,10 @@ pub fn insert_filterable_data() {
         ("Kappa", "B", true, 50.0, 2, 3, vec!["green", "blue"], 10, B),
     ];
 
+    let mut ids = HashMap::new();
+
     for (name, category, active, score, level, offset, tags, pid_index, abc) in fixtures {
-        db!()
+        let res = db!()
             .insert(Filterable {
                 name: name.into(),
                 category: category.into(),
@@ -33,25 +40,48 @@ pub fn insert_filterable_data() {
                 ..Default::default()
             })
             .unwrap();
+
+        ids.insert(name.to_string(), res.primary_key());
     }
+
+    ids
 }
 
-pub fn insert_filterable_opt_data() {
+pub fn insert_filterable_opt_data(relations: &HashMap<String, Ulid>) {
     let fixtures = [
-        (Some("Alice"), Some(1), Some(-10), Some(Principal::dummy(1))),
-        (Some("Bob"), Some(2), Some(0), Some(Principal::dummy(2))),
-        (None, Some(3), None, Some(Principal::dummy(3))),
-        (Some("Charlie"), None, Some(5), None),
-        (None, None, None, None),
+        (
+            Some("Alice"),
+            Some(1),
+            Some(-10),
+            Some(Principal::dummy(1)),
+            Some("Alpha"),
+        ),
+        (
+            Some("Bob"),
+            Some(2),
+            Some(0),
+            Some(Principal::dummy(2)),
+            Some("Beta"),
+        ),
+        (
+            None,
+            Some(3),
+            None,
+            Some(Principal::dummy(3)),
+            Some("Alpha"),
+        ),
+        (Some("Charlie"), None, Some(5), None, None),
+        (None, None, None, None, None),
     ];
 
-    for (name, level, offset, pid) in fixtures {
+    for (name, level, offset, pid, rel_name) in fixtures {
         db!()
             .insert(FilterableOpt {
                 name: name.map(str::to_string),
                 level,
                 offset,
                 pid,
+                rel_id: rel_name.and_then(|r| relations.get(r).copied()),
                 ..Default::default()
             })
             .unwrap();
@@ -59,6 +89,6 @@ pub fn insert_filterable_opt_data() {
 }
 
 pub fn seed_filter_data() {
-    insert_filterable_data();
-    insert_filterable_opt_data();
+    let relations = insert_filterable_data();
+    insert_filterable_opt_data(&relations);
 }

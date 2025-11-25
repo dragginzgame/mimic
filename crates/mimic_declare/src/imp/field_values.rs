@@ -25,11 +25,12 @@ impl Imp<Entity> for FieldValuesTrait {
                     }),
 
                     Cardinality::Opt => Some(quote! {
-                        Self::#field_const => Some(
-                            self.#field_ident
-                                .as_ref()
-                                .map_or(Value::None, FieldValue::to_value)
-                        ),
+                        Self::#field_const => {
+                            match self.#field_ident.as_ref() {
+                                Some(inner) => Some(FieldValue::to_value(inner)),
+                                None => Some(Value::None),
+                            }
+                        }
                     }),
 
                     Cardinality::Many => Some(quote! {

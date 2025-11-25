@@ -36,6 +36,7 @@ pub struct Filterable {}
         field(ident = "level", value(opt, item(prim = "Nat8"))),
         field(ident = "offset", value(opt, item(prim = "Int32"))),
         field(ident = "pid", value(opt, item(prim = "Principal"))),
+        field(ident = "rel_id", value(opt, item(rel = "Filterable"))),
     )
 )]
 pub struct FilterableOpt {}
