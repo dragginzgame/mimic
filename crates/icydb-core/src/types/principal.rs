@@ -1,13 +1,11 @@
 use crate::{
     ThisError,
-    core::{
-        traits::{
-            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, Storable, UpdateView,
-            ValidateAuto, ValidateCustom, View, Visitable,
-        },
-        value::Value,
-    },
     db::primitives::filter::{TextEqualityFilterKind, TextListFilterKind},
+    traits::{
+        FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, Storable, UpdateView,
+        ValidateAuto, ValidateCustom, View, Visitable,
+    },
+    value::Value,
 };
 use canic::cdk::{
     api::msg_caller,
@@ -217,7 +215,7 @@ impl Visitable for Principal {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::traits::Storable;
+    use crate::traits::Storable;
 
     #[test]
     fn principal_max_size_is_bounded() {

@@ -26,8 +26,10 @@ impl HasSchemaPart for Validator {
     fn schema_part(&self) -> TokenStream {
         let def = self.def.schema_part();
 
+        // quote
+        let sp = paths().schema;
         quote! {
-            ::icydb::schema::node::Validator {
+            #sp::node::Validator {
                 def: #def,
             }
         }

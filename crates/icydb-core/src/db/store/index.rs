@@ -1,11 +1,11 @@
 use crate::{
-    Error, MAX_INDEX_FIELDS,
-    core::{Key, Value, traits::EntityKind},
+    Error, IndexSpec, Key, MAX_INDEX_FIELDS, Value,
     db::{
         executor::ExecutorError,
         store::{DataKey, StoreRegistry},
     },
     obs::metrics,
+    traits::EntityKind,
 };
 use candid::CandidType;
 use canic::{
@@ -14,7 +14,6 @@ use canic::{
     utils::hash::hash_u64,
 };
 use derive_more::{Deref, DerefMut, Display};
-use icydb_schema::node::Index;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashSet,
@@ -55,7 +54,7 @@ impl IndexStore {
     pub fn insert_index_entry<E: EntityKind>(
         &mut self,
         entity: &E,
-        index: &Index,
+        index: &IndexSpec,
     ) -> Result<(), Error> {
         // Skip if index key can't be built (e.g. optional fields missing)
         let Some(index_key) = IndexKey::new(entity, index) else {
@@ -95,7 +94,7 @@ impl IndexStore {
     }
 
     // remove_index_entry
-    pub fn remove_index_entry<E: EntityKind>(&mut self, entity: &E, index: &Index) {
+    pub fn remove_index_entry<E: EntityKind>(&mut self, entity: &E, index: &IndexSpec) {
         // Skip if index key can't be built (e.g. optional fields missing)
         let Some(index_key) = IndexKey::new(entity, index) else {
             return;
@@ -121,7 +120,7 @@ impl IndexStore {
     #[must_use]
     pub fn resolve_data_values<E: EntityKind>(
         &self,
-        index: &Index,
+        index: &IndexSpec,
         prefix: &[Value],
     ) -> Vec<DataKey> {
         let mut out = Vec::new();
@@ -143,7 +142,7 @@ impl IndexStore {
     /// Uses a bounded range for efficient scanning.
     fn iter_with_hashed_prefix<E: EntityKind>(
         &self,
-        index: &Index,
+        index: &IndexSpec,
         prefix: &[Value],
     ) -> impl Iterator<Item = (IndexKey, IndexEntry)> {
         let index_id = IndexId::new::<E>(index);
@@ -198,7 +197,7 @@ pub struct IndexId(u64);
 
 impl IndexId {
     #[must_use]
-    pub fn new<E: EntityKind>(index: &Index) -> Self {
+    pub fn new<E: EntityKind>(index: &IndexSpec) -> Self {
         Self::from_path_and_fields(E::PATH, index.fields)
     }
 
@@ -245,7 +244,7 @@ impl IndexKey {
     pub const STORABLE_MAX_SIZE: u32 = 180;
 
     #[must_use]
-    pub fn new<E: EntityKind>(entity: &E, index: &Index) -> Option<Self> {
+    pub fn new<E: EntityKind>(entity: &E, index: &IndexSpec) -> Option<Self> {
         let mut hashed_values = Vec::<[u8; 16]>::with_capacity(index.fields.len());
 
         // get each value and convert to key
@@ -368,7 +367,7 @@ impl_storable_unbounded!(IndexEntry);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::traits::*;
+    use crate::traits::*;
 
     #[test]
     fn index_key_max_size_is_bounded() {

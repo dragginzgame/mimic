@@ -38,8 +38,10 @@ impl HasSchemaPart for Map {
         let value = self.value.schema_part();
         let ty = self.ty.schema_part();
 
+        // quote
+        let sp = paths().schema;
         quote! {
-            ::icydb::schema::node::Map {
+            #sp::node::Map {
                 def: #def,
                 key: #key,
                 value: #value,

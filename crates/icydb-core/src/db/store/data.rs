@@ -1,7 +1,4 @@
-use crate::{
-    core::{Key, traits::EntityKind},
-    db::store::StoreRegistry,
-};
+use crate::{Key, db::store::StoreRegistry, traits::EntityKind};
 use candid::CandidType;
 use canic::{
     cdk::structures::{BTreeMap, DefaultMemoryImpl, memory::VirtualMemory},
@@ -140,7 +137,7 @@ impl_storable_bounded!(DataKey, Self::STORABLE_MAX_SIZE, false);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::traits::Storable;
+    use crate::traits::Storable;
 
     #[test]
     fn data_key_max_size_is_bounded() {

@@ -10,8 +10,9 @@ impl ViewExpr for ItemView<'_> {
     fn expr(&self) -> Option<TokenStream> {
         let node = self.0;
         let ty = node.target().type_expr();
+        let cp = paths().core;
 
-        quote!(<#ty as ::icydb::core::traits::View>::ViewType).into()
+        quote!(<#ty as #cp::traits::View>::ViewType).into()
     }
 }
 
@@ -25,8 +26,9 @@ impl ViewExpr for ItemUpdate<'_> {
     fn expr(&self) -> Option<TokenStream> {
         let node = self.0;
         let ty = node.target().type_expr();
+        let cp = paths().core;
 
-        quote!(<#ty as ::icydb::core::traits::UpdateView>::UpdateViewType).into()
+        quote!(<#ty as #cp::traits::UpdateView>::UpdateViewType).into()
     }
 }
 
@@ -45,9 +47,10 @@ impl ViewExpr for ItemFilter<'_> {
 
         // Payload of the scalar filter kind:
         // <T::Filter as FilterKind>::Payload
+        let cp = paths().core;
         let payload = quote!(
-            <<#ty as ::icydb::core::traits::Filterable>::Filter
-                as ::icydb::db::primitives::FilterKind
+            <<#ty as #cp::traits::Filterable>::Filter
+                as #cp::db::primitives::FilterKind
             >::Payload
         );
 

@@ -1,9 +1,9 @@
 use crate::{
-    core::{Key, Value, traits::EntityKind},
+    IndexSpec, Key, Value,
     db::primitives::filter::{Cmp, FilterExpr},
     obs::metrics,
+    traits::EntityKind,
 };
-use icydb_schema::node::Index;
 use std::fmt::{self, Display};
 
 ///
@@ -49,7 +49,7 @@ impl fmt::Display for QueryPlan {
 
 #[derive(Debug)]
 pub struct IndexPlan {
-    pub index: &'static Index,
+    pub index: &'static IndexSpec,
     pub values: Vec<Value>,
 }
 

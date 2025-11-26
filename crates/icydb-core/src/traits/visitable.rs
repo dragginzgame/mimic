@@ -1,6 +1,6 @@
-use crate::core::{
+use crate::{
     traits::{Sanitize, Validate},
-    visit::{PathSegment, Visitor, VisitorMut, perform_visit, perform_visit_mut},
+    visitor::{PathSegment, Visitor, VisitorMut, perform_visit, perform_visit_mut},
 };
 use std::{
     collections::{HashMap, HashSet},

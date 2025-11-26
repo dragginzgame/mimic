@@ -738,6 +738,7 @@ dependencies = [
  "derive_more",
  "icydb-base",
  "icydb-core",
+ "icydb-error",
  "icydb-macros",
  "num-traits",
  "remain",
@@ -756,6 +757,7 @@ dependencies = [
  "derive_more",
  "icydb-build",
  "icydb-core",
+ "icydb-error",
  "icydb-macros",
  "icydb-schema",
  "num-traits",
@@ -789,8 +791,8 @@ dependencies = [
  "ctor",
  "derive_more",
  "icydb-build",
+ "icydb-error",
  "icydb-macros",
- "icydb-schema",
  "num-traits",
  "remain",
  "rust_decimal",
@@ -801,17 +803,36 @@ dependencies = [
 ]
 
 [[package]]
+name = "icydb-error"
+version = "0.0.1"
+dependencies = [
+ "candid",
+ "serde",
+]
+
+[[package]]
 name = "icydb-macros"
 version = "0.0.1"
 dependencies = [
  "canic-utils",
  "darling 0.21.3",
  "derive_more",
+ "icydb-error",
+ "icydb-paths",
  "icydb-schema",
  "proc-macro2",
  "quote",
  "remain",
  "serde",
+ "syn 2.0.111",
+]
+
+[[package]]
+name = "icydb-paths"
+version = "0.0.1"
+dependencies = [
+ "proc-macro2",
+ "quote",
  "syn 2.0.111",
 ]
 
@@ -824,6 +845,8 @@ dependencies = [
  "canic-utils",
  "darling 0.21.3",
  "derive_more",
+ "icydb-error",
+ "icydb-paths",
  "proc-macro2",
  "quote",
  "remain",

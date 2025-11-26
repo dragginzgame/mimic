@@ -1,6 +1,6 @@
-use crate::core::{
+use crate::{
     traits::Visitable,
-    visit::{Event, VisitorMut},
+    visitor::{Event, VisitorMut},
 };
 
 ///

@@ -36,8 +36,10 @@ impl HasSchemaPart for List {
         let item = self.item.schema_part();
         let ty = self.ty.schema_part();
 
+        // quote
+        let sp = paths().schema;
         quote! {
-            ::icydb::schema::node::List {
+            #sp::node::List {
                 def: #def,
                 item: #item,
                 ty: #ty,

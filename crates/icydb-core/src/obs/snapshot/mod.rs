@@ -1,6 +1,6 @@
 use crate::{
-    core::traits::CanisterKind,
     db::{Db, store::DataKey},
+    traits::CanisterKind,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};

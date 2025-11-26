@@ -1,8 +1,5 @@
 use crate::prelude::*;
 use canic_utils::case::{Case, Casing};
-use proc_macro2::TokenStream;
-use quote::{ToTokens, format_ident, quote};
-use syn::Ident;
 
 ///
 /// HasDef
@@ -230,14 +227,18 @@ pub trait HasSchema: HasSchemaPart + HasDef {
         let const_var = self.schema_const();
         let kind = Self::schema_node_kind();
 
+        // paths
+        let cp = &paths().core;
+        let sp = &paths().schema;
+
         quote! {
-            const #const_var: ::icydb::schema::node::#kind = #schema_expr;
+            const #const_var: #sp::node::#kind = #schema_expr;
 
             #[cfg(not(target_arch = "wasm32"))]
-            #[::icydb::export::ctor::ctor(anonymous, crate_path = ::icydb::export::ctor)]
+            #[#cp::export::ctor::ctor(anonymous, crate_path = #cp::export::ctor)]
             fn __ctor() {
-                ::icydb::schema::build::schema_write().insert_node(
-                    ::icydb::schema::node::SchemaNode::#kind(#const_var)
+                #sp::build::schema_write().insert_node(
+                    #sp::node::SchemaNode::#kind(#const_var)
                 );
             }
         }

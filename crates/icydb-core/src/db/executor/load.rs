@@ -1,9 +1,5 @@
 use crate::{
-    Error,
-    core::{
-        Key,
-        traits::{EntityKind, FieldValue},
-    },
+    Error, Key,
     db::{
         Db,
         executor::{FilterEvaluator, plan_for},
@@ -12,6 +8,7 @@ use crate::{
         response::Response,
     },
     obs::metrics,
+    traits::{EntityKind, FieldValue},
 };
 use canic::log;
 use std::{cmp::Ordering, marker::PhantomData};
@@ -250,14 +247,13 @@ pub fn apply_pagination<T>(rows: &mut Vec<T>, offset: u32, limit: Option<u32>) {
 mod tests {
     use super::{LoadExecutor, apply_pagination};
     use crate::{
-        core::{Key, Value},
+        IndexSpec, Key, Value,
         db::primitives::{Order, SortExpr},
         traits::{
             CanisterKind, EntityKind, FieldValues, Path, SanitizeAuto, SanitizeCustom, StoreKind,
             ValidateAuto, ValidateCustom, View, Visitable,
         },
     };
-    use icydb_schema::node::Index;
     use serde::{Deserialize, Serialize};
 
     #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
@@ -338,7 +334,7 @@ mod tests {
         const ENTITY_ID: u64 = 99;
         const PRIMARY_KEY: &'static str = "id";
         const FIELDS: &'static [&'static str] = &["id", "primary", "secondary", "optional_blob"];
-        const INDEXES: &'static [&'static Index] = &[];
+        const INDEXES: &'static [&'static IndexSpec] = &[];
 
         fn key(&self) -> Key {
             self.id.into()

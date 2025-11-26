@@ -1,4 +1,4 @@
-use crate::design::{base::validator, prelude::*};
+use crate::prelude::*;
 
 ///
 /// Code
@@ -19,7 +19,6 @@ pub struct Code {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::validate;
 
     #[test]
     fn test_code() {

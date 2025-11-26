@@ -50,7 +50,7 @@ impl ValidateNode for Index {
         // store
         match schema.cast_node::<Store>(self.store) {
             Ok(store) if !matches!(store.ty, StoreType::Index) => {
-                crate::err!(errs, "store is not type Index");
+                err!(errs, "store is not type Index");
             }
             Ok(_) => {}
             Err(e) => errs.add(e),

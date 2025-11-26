@@ -12,10 +12,7 @@ pub(crate) mod prelude {
         assert_invalid, assert_valid,
         schema::{TestDataStore, TestIndexStore},
     };
-    pub use icydb::design::{
-        base::{sanitizer, types, validator},
-        prelude::*,
-    };
+    pub use icydb::design::prelude::*;
     pub use icydb::macros::*;
 }
 

@@ -3,19 +3,17 @@ pub mod generator;
 
 use crate::{
     ThisError,
-    core::{
-        traits::{
-            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, Storable, UpdateView,
-            ValidateAuto, ValidateCustom, View, Visitable,
-        },
-        value::Value,
-    },
     db::primitives::{TextFilterKind, TextListFilterKind},
+    traits::{
+        FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, Storable, UpdateView,
+        ValidateAuto, ValidateCustom, View, Visitable,
+    },
+    value::Value,
 };
 use candid::CandidType;
 use canic::{cdk::structures::storable::Bound, types::Ulid as WrappedUlid};
 use derive_more::{Deref, DerefMut, Display, FromStr};
-use icydb_schema::error::ErrorTree;
+use icydb_error::ErrorTree;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
@@ -237,7 +235,7 @@ impl Visitable for Ulid {}
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::core::traits::Storable;
+    use crate::traits::Storable;
 
     #[test]
     fn ulid_max_size_is_bounded() {

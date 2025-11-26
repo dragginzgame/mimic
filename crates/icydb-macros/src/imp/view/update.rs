@@ -79,15 +79,18 @@ impl Imp<Tuple> for UpdateViewTrait {
         let update_ident = node.update_ident();
         let values = &node.values;
 
+        // paths
+        let cp = paths().core;
         let merge_parts = values.iter().enumerate().map(|(i, _)| {
             let idx = syn::Index::from(i);
             quote! {
                 if let Some(v) = update.#idx {
-                    ::icydb::core::traits::UpdateView::merge(&mut self.#idx, v);
+                    #cp::traits::UpdateView::merge(&mut self.#idx, v);
                 }
             }
         });
 
+        // quote
         let q = quote! {
             type UpdateViewType = #update_ident;
 
@@ -116,12 +119,14 @@ where
     let update_ident = node.update_ident();
     let field_idents = iter_fields(node);
 
+    // paths
+    let cp = paths().core;
     let merge_pairs: Vec<_> = field_idents
         .iter()
         .map(|ident| {
             quote! {
                 if let Some(v) = update.#ident {
-                    ::icydb::core::traits::UpdateView::merge(&mut self.#ident, v);
+                    #cp::traits::UpdateView::merge(&mut self.#ident, v);
                 }
             }
         })
@@ -149,12 +154,14 @@ where
 fn update_impl_delegate(node: &impl HasType) -> TraitStrategy {
     let update_ident = node.update_ident();
 
+    // quote
+    let cp = paths().core;
     let q = quote! {
         type UpdateViewType = #update_ident;
 
         fn merge(&mut self, update: Self::UpdateViewType) {
             // Forward to the inner collection (Vec, HashSet, HashMap)
-            ::icydb::core::traits::UpdateView::merge(&mut self.0, update);
+            #cp::traits::UpdateView::merge(&mut self.0, update);
         }
     };
 

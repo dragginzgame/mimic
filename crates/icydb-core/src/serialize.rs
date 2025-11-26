@@ -1,4 +1,4 @@
-use crate::{Error, core::CoreError};
+use crate::Error;
 use canic::serialize::{deserialize as canic_deserialize, serialize as canic_serialize};
 use serde::{Serialize, de::DeserializeOwned};
 use thiserror::Error as ThisError;
@@ -11,12 +11,6 @@ use thiserror::Error as ThisError;
 pub enum SerializeError {
     #[error(transparent)]
     SerializeError(#[from] canic::Error),
-}
-
-impl From<SerializeError> for Error {
-    fn from(err: SerializeError) -> Self {
-        CoreError::from(err).into()
-    }
 }
 
 // serialize

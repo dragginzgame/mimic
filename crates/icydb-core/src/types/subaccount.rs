@@ -1,13 +1,11 @@
 use crate::{
-    core::{
-        traits::{
-            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, UpdateView, ValidateAuto,
-            ValidateCustom, View, Visitable,
-        },
-        value::Value,
-    },
     db::primitives::NoFilterKind,
+    traits::{
+        FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, UpdateView, ValidateAuto,
+        ValidateCustom, View, Visitable,
+    },
     types::{Principal, Ulid},
+    value::Value,
 };
 use candid::CandidType;
 use canic::{
@@ -218,7 +216,7 @@ impl Visitable for Subaccount {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::traits::Storable;
+    use crate::traits::Storable;
 
     #[test]
     fn subaccount_max_size_is_bounded() {

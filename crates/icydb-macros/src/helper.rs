@@ -1,3 +1,4 @@
+pub use icydb_paths::paths;
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 use syn::Ident;
@@ -63,9 +64,9 @@ pub fn to_str_lit<T: ToTokens>(t: &T) -> TokenStream {
 
 /// to_path
 pub fn to_path<T: ToTokens>(t: &T) -> TokenStream {
-    quote! {
-        <#t as ::icydb::core::traits::Path>::PATH
-    }
+    let cp = paths().core;
+
+    quote! { <#t as #cp::traits::Path>::PATH }
 }
 
 ///

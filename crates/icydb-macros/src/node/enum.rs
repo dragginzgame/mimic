@@ -47,8 +47,10 @@ impl HasSchemaPart for Enum {
         let variants = quote_slice(&self.variants, EnumVariant::schema_part);
         let ty = &self.ty.schema_part();
 
+        // quote
+        let sp = paths().schema;
         quote! {
-            ::icydb::schema::node::Enum {
+            #sp::node::Enum {
                 def: #def,
                 variants: #variants,
                 ty: #ty,
@@ -161,8 +163,10 @@ impl HasSchemaPart for EnumVariant {
         let ident = quote_one(&self.ident, to_str_lit);
         let value = quote_option(self.value.as_ref(), Value::schema_part);
 
+        // quote
+        let sp = paths().schema;
         quote! {
-            ::icydb::schema::node::EnumVariant {
+            #sp::node::EnumVariant {
                 ident: #ident,
                 value : #value,
                 default: #default,

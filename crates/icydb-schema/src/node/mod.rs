@@ -41,7 +41,7 @@ pub use self::validator::*;
 pub use self::value::*;
 
 use crate::{
-    error::ErrorTree,
+    prelude::*,
     visit::{Event, Visitor},
 };
 use std::any::Any;

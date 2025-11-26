@@ -1,10 +1,10 @@
 pub mod reserved;
 pub mod validate;
 
-use crate::error::ErrorTree;
 use crate::{
     Error, ThisError,
     node::{Schema, VisitableNode},
+    prelude::*,
     visit::ValidateVisitor,
 };
 use std::sync::{LazyLock, OnceLock, RwLock, RwLockReadGuard, RwLockWriteGuard};

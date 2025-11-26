@@ -1,6 +1,6 @@
 use crate::{
-    core::traits::FieldValue,
     db::primitives::filter::{FilterDsl, FilterExpr, FilterKind, IntoScopedFilterExpr},
+    traits::FieldValue,
     types::Decimal,
 };
 use candid::CandidType;

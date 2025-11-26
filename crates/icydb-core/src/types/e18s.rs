@@ -1,13 +1,11 @@
 use crate::{
-    core::{
-        traits::{
-            FieldValue, Filterable, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
-            SanitizeCustom, UpdateView, ValidateAuto, ValidateCustom, View, Visitable,
-        },
-        value::Value,
-    },
     db::primitives::{NatListFilterKind, NatRangeFilterKind},
+    traits::{
+        FieldValue, Filterable, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
+        SanitizeCustom, UpdateView, ValidateAuto, ValidateCustom, View, Visitable,
+    },
     types::Decimal,
+    value::Value,
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, FromStr, Sub, SubAssign, Sum};

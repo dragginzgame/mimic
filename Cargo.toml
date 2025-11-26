@@ -1,10 +1,12 @@
 [workspace]
 members = [
-    # Internal crates
     "crates/icydb-base",
     "crates/icydb-build",
     "crates/icydb-core",
+    # Internal crates
+    "crates/icydb-error",
     "crates/icydb-macros",
+    "crates/icydb-paths",
     "crates/icydb-schema",
     # Test-only crates
     "crates/test",
@@ -37,7 +39,9 @@ icydb = { path = "icydb" }
 icydb-base = { path = "crates/icydb-base" }
 icydb-build = { path = "crates/icydb-build" }
 icydb-core = { path = "crates/icydb-core" }
+icydb-error = { path = "crates/icydb-error" }
 icydb-macros = { path = "crates/icydb-macros" }
+icydb-paths = { path = "crates/icydb-paths" }
 icydb-schema = { path = "crates/icydb-schema" }
 num-traits = { version = "0.2", default-features = false }
 proc-macro2 = "1.0"
@@ -94,6 +98,8 @@ icydb-macros = { path = "crates/icydb-macros" }
 icydb-schema = { path = "crates/icydb-schema" }
 icydb-build = { path = "crates/icydb-build" }
 icydb-base = { path = "crates/icydb-base" }
+icydb-error = { path = "crates/icydb-error" }
+icydb-paths = { path = "crates/icydb-paths" }
 
 # ---------------------
 #  DEV PROFILE

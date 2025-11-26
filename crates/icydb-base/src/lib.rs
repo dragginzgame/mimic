@@ -2,26 +2,14 @@ pub mod sanitizer;
 pub mod types;
 pub mod validator;
 
-///
-/// IcyDB DESIGN PRELUDE
-///
-/// only meant to be used in mimic design/ directories
-/// it imports too much otherwise
-///
+// Re-export core for convenience inside this crate
+pub use icydb_core as core;
 
 pub mod prelude {
-    pub use ::candid::CandidType;
-    pub use derive_more;
+    pub use crate::{sanitizer, types, validator};
     pub use icydb_core::{
-        Key, Value,
-        db::{self, Db},
-        traits::{
-            EntityKind, FieldValue as _, Inner as _, Path as _, Sanitize as _, Sanitizer as _,
-            Serialize as _, Validate as _, ValidateCustom, Validator as _, View as _,
-            Visitable as _,
-        },
-        types::*,
-        view::View,
+        design::prelude::*,
+        traits::{Sanitizer, Validator},
+        visitor::{sanitize, validate},
     };
-    pub use icydb_macros::*;
 }

@@ -226,7 +226,7 @@ impl Visitable for Account {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::traits::Storable;
+    use crate::traits::Storable;
     use candid::Principal;
 
     fn principal() -> Principal {

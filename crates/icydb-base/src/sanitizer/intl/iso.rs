@@ -1,4 +1,4 @@
-use icydb_core::{core::traits::Sanitizer, design::prelude::*};
+use crate::prelude::*;
 
 ///
 /// Iso3166_1A2

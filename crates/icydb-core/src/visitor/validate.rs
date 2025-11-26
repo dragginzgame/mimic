@@ -1,11 +1,39 @@
 use crate::{
-    common::error::ErrorTree,
-    core::{
-        traits::Visitable,
-        visit::{Event, PathSegment, Visitor},
-    },
+    Error, ThisError,
+    traits::Visitable,
+    visitor::{Event, PathSegment, Visitor, VisitorError, perform_visit},
 };
+use icydb_error::ErrorTree;
 use std::fmt::Write;
+
+///
+/// ValidateError
+///
+
+#[derive(Debug, ThisError)]
+pub enum ValidateError {
+    #[error("validation failed: {0}")]
+    ValidationFailed(ErrorTree),
+}
+
+impl From<ValidateError> for Error {
+    fn from(err: ValidateError) -> Self {
+        VisitorError::from(err).into()
+    }
+}
+
+// validate
+pub fn validate(node: &dyn Visitable) -> Result<(), ValidateError> {
+    let mut visitor = ValidateVisitor::new();
+    perform_visit(&mut visitor, node, PathSegment::Empty);
+
+    visitor
+        .errors
+        .result()
+        .map_err(ValidateError::ValidationFailed)?;
+
+    Ok(())
+}
 
 ///
 /// ValidateVisitor
@@ -105,10 +133,9 @@ impl Visitor for ValidateVisitor {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::error::ErrorTree;
-    use crate::core::{
+    use crate::{
         traits::{SanitizeAuto, SanitizeCustom, ValidateAuto, ValidateCustom, Visitable},
-        visit::{perform_visit, validate},
+        visitor::{perform_visit, validate},
     };
 
     const ERR_MSG: &str = "leaf error";
@@ -135,7 +162,7 @@ mod tests {
     fn flatten_errs(node: &dyn Visitable) -> Vec<(String, String)> {
         match validate(node) {
             Ok(()) => Vec::new(),
-            Err(crate::core::ValidateError::ValidationFailed(tree)) => tree.flatten_ref(),
+            Err(crate::visitor::ValidateError::ValidationFailed(tree)) => tree.flatten_ref(),
         }
     }
 

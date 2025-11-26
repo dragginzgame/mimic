@@ -25,9 +25,9 @@ macro_rules! icydb_build {
         // all
         println!("cargo:rerun-if-changed=build.rs");
 
-        // add the mimic cfg flag
-        println!("cargo:rustc-check-cfg=cfg(mimic)");
-        println!("cargo:rustc-cfg=mimic");
+        // add the cfg flag
+        println!("cargo:rustc-check-cfg=cfg(icydb)");
+        println!("cargo:rustc-cfg=icydb");
 
         // Get the output directory set by Cargo
         let out_dir = var("OUT_DIR").expect("OUT_DIR not set");

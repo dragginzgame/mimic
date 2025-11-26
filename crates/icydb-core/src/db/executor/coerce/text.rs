@@ -5,8 +5,8 @@
 //! Value::text_* helpers.
 
 use crate::{
-    core::value::{TextMode, Value},
     db::primitives::filter::Cmp,
+    value::{TextMode, Value},
 };
 
 /// Entry point used by coerce_basic().

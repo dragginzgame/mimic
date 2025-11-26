@@ -3,14 +3,12 @@ mod nat128;
 pub use nat128::*;
 
 use crate::{
-    core::{
-        Value,
-        traits::{
-            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, UpdateView, ValidateAuto,
-            ValidateCustom, View, Visitable,
-        },
-    },
     db::primitives::{NatListFilterKind, NatRangeFilterKind},
+    traits::{
+        FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, UpdateView, ValidateAuto,
+        ValidateCustom, View, Visitable,
+    },
+    value::Value,
 };
 use candid::{CandidType, Nat as WrappedNat};
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign};

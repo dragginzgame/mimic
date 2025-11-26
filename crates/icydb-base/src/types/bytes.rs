@@ -1,4 +1,4 @@
-use crate::design::{base, prelude::*};
+use crate::prelude::*;
 
 ///
 /// Utf8
@@ -17,7 +17,7 @@ impl ValidateCustom for Utf8 {
         let mut errs = ErrorTree::default();
 
         // utf8
-        errs.add_result(base::validator::bytes::Utf8.validate(self));
+        errs.add_result(validator::bytes::Utf8.validate(self));
 
         errs.result()
     }

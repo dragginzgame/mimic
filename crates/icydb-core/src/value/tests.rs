@@ -5,12 +5,10 @@
 #[cfg(test)]
 mod tests {
     use crate::{
-        core::{
-            Key,
-            traits::{FieldValue, NumFromPrimitive},
-            value::{TextMode, Value},
-        },
+        Key,
+        traits::{FieldValue, NumFromPrimitive},
         types::{Decimal, E8s, E18s, Float32 as F32, Float64 as F64, Ulid},
+        value::{TextMode, Value},
     };
     use std::{cmp::Ordering, str::FromStr};
 

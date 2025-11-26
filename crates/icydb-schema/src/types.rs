@@ -1,9 +1,9 @@
+use crate::prelude::*;
 use candid::CandidType;
 use darling::FromMeta;
 use derive_more::{Display, FromStr};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
-use serde::{Deserialize, Serialize};
 
 ///
 /// Cardinality
@@ -29,8 +29,9 @@ impl FromMeta for Cardinality {
 impl ToTokens for Cardinality {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let ident = format_ident!("{self}");
+        let sp = paths().schema;
 
-        tokens.extend(quote!(::icydb::schema::types::Cardinality::#ident));
+        tokens.extend(quote!(#sp::types::Cardinality::#ident));
     }
 }
 
@@ -174,8 +175,9 @@ impl Primitive {
     #[must_use]
     pub fn as_type(self) -> TokenStream {
         let ident = format_ident!("{self}");
+        let cp = paths().core;
 
-        quote!(::icydb::types::#ident)
+        quote!(#cp::types::#ident)
     }
 
     #[must_use]
@@ -208,8 +210,9 @@ impl FromMeta for Primitive {
 impl ToTokens for Primitive {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let ident = format_ident!("{self}");
+        let sp = paths().schema;
 
-        tokens.extend(quote!(::icydb::schema::types::Primitive::#ident));
+        tokens.extend(quote!(#sp::types::Primitive::#ident));
     }
 }
 
@@ -233,7 +236,8 @@ impl FromMeta for StoreType {
 impl ToTokens for StoreType {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let ident = format_ident!("{self}");
+        let sp = paths().schema;
 
-        tokens.extend(quote!(::icydb::schema::types::StoreType::#ident));
+        tokens.extend(quote!(#sp::types::StoreType::#ident));
     }
 }

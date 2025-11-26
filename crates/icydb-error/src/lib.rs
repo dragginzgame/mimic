@@ -5,7 +5,6 @@ use std::{collections::HashMap, fmt};
 ///
 /// ErrorTree
 ///
-
 #[derive(CandidType, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 pub struct ErrorTree {
     /// errors at the current level
@@ -147,6 +146,10 @@ impl From<String> for ErrorTree {
         tree
     }
 }
+
+///
+/// TESTS
+///
 
 #[cfg(test)]
 mod tests {

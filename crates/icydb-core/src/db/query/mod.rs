@@ -23,7 +23,7 @@ pub mod prelude {
     };
 }
 
-use crate::{Error, ThisError, core::traits::EntityKind, db::DbError};
+use crate::{Error, ThisError, db::DbError, traits::EntityKind};
 
 ///
 /// QueryError

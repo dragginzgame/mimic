@@ -27,7 +27,7 @@ pub use std::{
 };
 
 use crate::{
-    core::{Key, Value},
+    IndexSpec, Key, Value,
     db::primitives::{
         BoolEqualityFilterKind, BoolListFilterKind, FilterKind, Int64RangeFilterKind,
         IntListFilterKind, Nat64RangeFilterKind, NatListFilterKind, TextFilterKind,
@@ -66,7 +66,7 @@ pub trait EntityKind: Kind + TypeKind + FieldValues {
     const ENTITY_ID: u64;
     const PRIMARY_KEY: &'static str;
     const FIELDS: &'static [&'static str];
-    const INDEXES: &'static [&'static Index];
+    const INDEXES: &'static [&'static IndexSpec];
 
     fn key(&self) -> Key;
     fn primary_key(&self) -> Self::PrimaryKey;

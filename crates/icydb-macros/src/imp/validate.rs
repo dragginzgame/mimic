@@ -95,9 +95,11 @@ impl ValidateAutoFn for Enum {
             }
         };
 
+        // quote
+        let ep = paths().error;
         quote! {
             #[doc = "Auto-generated validation for unspecified variants."]
-            fn validate_self(&self) -> ::std::result::Result<(), ::icydb::common::error::ErrorTree> {
+            fn validate_self(&self) -> ::std::result::Result<(), #ep::ErrorTree> {
                 #inner
             }
         }
@@ -261,12 +263,14 @@ fn generate_validators_inner(
 /// Wraps validation code in a standard `fn validate_children()`
 /// method body if `inner` is present.
 fn wrap_validate_fn(inner: Option<TokenStream>) -> TokenStream {
+    let ep = paths().error;
+
     match inner {
         None => quote!(),
         Some(inner) => quote! {
             #[doc = "Auto-generated recursive validation method."]
-            fn validate_children(&self) -> ::std::result::Result<(), ::icydb::common::error::ErrorTree> {
-                let mut errs = ::icydb::common::error::ErrorTree::new();
+            fn validate_children(&self) -> ::std::result::Result<(), #ep::ErrorTree> {
+                let mut errs = #ep::ErrorTree::new();
                 #inner
                 errs.result()
             }

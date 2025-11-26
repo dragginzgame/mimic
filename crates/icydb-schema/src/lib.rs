@@ -1,5 +1,4 @@
 pub mod build;
-pub mod error;
 pub mod node;
 pub mod types;
 pub mod visit;
@@ -14,14 +13,14 @@ use thiserror::Error as ThisError;
 pub mod prelude {
     pub(crate) use crate::build::{schema_read, validate::validate_ident};
     pub use crate::{
-        err,
-        error::ErrorTree,
         node::*,
         types::{Cardinality, Primitive, StoreType},
         visit::Visitor,
     };
     pub use candid::CandidType;
-    pub use serde::Serialize;
+    pub use icydb_error::{ErrorTree, err};
+    pub use icydb_paths::paths;
+    pub use serde::{Deserialize, Serialize};
 }
 
 ///

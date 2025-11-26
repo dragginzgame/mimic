@@ -1,4 +1,4 @@
-use crate::design::{base::sanitizer, prelude::*};
+use crate::prelude::*;
 
 ///
 /// CreatedAt

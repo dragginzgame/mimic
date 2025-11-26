@@ -1,6 +1,6 @@
 #![allow(clippy::cast_possible_wrap, clippy::cast_possible_truncation)]
 
-use crate::{core::traits::Validator, design::prelude::*};
+use crate::{core::traits::Validator, prelude::*};
 use std::{
     collections::{HashMap, HashSet},
     hash::BuildHasher,

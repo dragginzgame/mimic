@@ -1,7 +1,7 @@
 use crate::{
-    core::value::{Value, ValueEnum},
     db::{executor::coerce::*, primitives::Cmp},
     types::{Account, Int, Nat, Principal, Ulid},
+    value::{Value, ValueEnum},
 };
 
 //

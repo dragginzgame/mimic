@@ -1,5 +1,4 @@
-use crate::error::ErrorTree;
-use crate::node::VisitableNode;
+use crate::{node::VisitableNode, prelude::*};
 
 ///
 /// Event

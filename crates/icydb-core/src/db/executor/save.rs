@@ -1,13 +1,16 @@
 use crate::{
     Error,
-    core::{deserialize, sanitize, serialize, traits::EntityKind, validate},
     db::{
         Db,
         executor::ExecutorError,
         query::{SaveMode, SaveQuery},
         store::DataKey,
     },
+    deserialize,
     obs::metrics,
+    serialize,
+    traits::EntityKind,
+    visitor::{sanitize, validate},
 };
 use std::marker::PhantomData;
 

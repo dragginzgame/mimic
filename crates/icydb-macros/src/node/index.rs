@@ -21,12 +21,28 @@ impl HasSchemaPart for Index {
         let fields = quote_slice(&self.fields, to_str_lit);
         let unique = &self.unique;
 
+        // quote
+        let sp = paths().schema;
         quote! {
-            ::icydb::schema::node::Index {
+            #sp::node::Index {
                 store: #store,
                 fields: #fields,
                 unique: #unique,
             }
+        }
+    }
+}
+
+impl Index {
+    pub fn runtime_part(&self) -> TokenStream {
+        let store = quote_one(&self.store, to_path);
+        let fields = quote_slice(&self.fields, to_str_lit);
+        let unique = &self.unique;
+
+        // quote
+        let cp = paths().core;
+        quote! {
+            #cp::IndexSpec::new(#store, #fields, #unique)
         }
     }
 }

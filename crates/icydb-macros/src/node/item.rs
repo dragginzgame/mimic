@@ -76,8 +76,10 @@ impl HasSchemaPart for Item {
         let sanitizers = quote_slice(&self.sanitizers, TypeSanitizer::schema_part);
         let indirect = self.indirect;
 
+        // quote
+        let sp = paths().schema;
         quote! {
-            ::icydb::schema::node::Item{
+            #sp::node::Item{
                 target: #target,
                 relation: #relation,
                 validators: #validators,
@@ -111,16 +113,18 @@ pub enum ItemTarget {
 
 impl HasSchemaPart for ItemTarget {
     fn schema_part(&self) -> TokenStream {
+        let sp = paths().schema;
+
         match self {
             Self::Is(path) => {
                 let path = quote_one(path, to_path);
                 quote! {
-                    ::icydb::schema::node::ItemTarget::Is(#path)
+                    #sp::node::ItemTarget::Is(#path)
                 }
             }
             Self::Primitive(prim) => {
                 quote! {
-                    ::icydb::schema::node::ItemTarget::Primitive(#prim)
+                    #sp::node::ItemTarget::Primitive(#prim)
                 }
             }
         }

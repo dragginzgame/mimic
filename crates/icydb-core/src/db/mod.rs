@@ -6,16 +6,15 @@ pub mod store;
 
 use crate::{
     Error,
-    core::{
-        SerializeError, ValidateError,
-        traits::{CanisterKind, EntityKind},
-    },
     db::{
         executor::{Context, DeleteExecutor, ExecutorError, LoadExecutor, SaveExecutor},
         query::QueryError,
         response::ResponseError,
         store::{DataStoreRegistry, IndexStoreRegistry, StoreError},
     },
+    serialize::SerializeError,
+    traits::{CanisterKind, EntityKind},
+    visitor::VisitorError,
 };
 use std::{marker::PhantomData, thread::LocalKey};
 use thiserror::Error as ThisError;
@@ -42,7 +41,7 @@ pub enum DbError {
     StoreError(#[from] StoreError),
 
     #[error(transparent)]
-    ValidateError(#[from] ValidateError),
+    VisitorError(#[from] VisitorError),
 }
 
 ///

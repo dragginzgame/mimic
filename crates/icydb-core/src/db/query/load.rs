@@ -1,9 +1,9 @@
 use crate::{
-    core::traits::{EntityKind, FieldValue},
     db::{
         primitives::{FilterExpr, FilterSlot, LimitExpr, LimitSlot, SortExpr, SortSlot},
         query::{QueryError, QueryValidate, prelude::*},
     },
+    traits::{EntityKind, FieldValue},
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};

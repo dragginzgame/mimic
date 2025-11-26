@@ -1,12 +1,10 @@
 use crate::{
-    core::{
-        Value,
-        traits::{
-            FieldValue, Filterable, Inner, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
-            SanitizeCustom, UpdateView, ValidateAuto, ValidateCustom, View, Visitable,
-        },
-    },
+    Value,
     db::primitives::{DecimalListFilterKind, DecimalRangeFilterKind},
+    traits::{
+        FieldValue, Filterable, Inner, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
+        SanitizeCustom, UpdateView, ValidateAuto, ValidateCustom, View, Visitable,
+    },
 };
 use candid::CandidType;
 use derive_more::Display;

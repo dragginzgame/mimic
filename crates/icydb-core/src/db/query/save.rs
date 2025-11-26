@@ -1,7 +1,4 @@
-use crate::{
-    Error,
-    core::{serialize, traits::EntityKind},
-};
+use crate::{Error, serialize, traits::EntityKind};
 use candid::CandidType;
 use derive_more::Display;
 use serde::{Deserialize, Serialize};

@@ -1,5 +1,4 @@
-use crate::core::traits::Sanitizer;
-use icydb_core::design::prelude::*;
+use crate::prelude::*;
 
 ///
 /// E164PhoneNumber

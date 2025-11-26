@@ -1,4 +1,4 @@
-use crate::core::traits::EntityKind;
+use crate::traits::EntityKind;
 use candid::CandidType;
 use canic::{cdk::api::performance_counter, utils::time};
 use serde::{Deserialize, Serialize};
@@ -297,7 +297,7 @@ pub struct EntitySummary {
 /// Increment unique-violation counters globally and for a specific entity type.
 pub fn record_unique_violation_for<E>(m: &mut EventState)
 where
-    E: crate::core::traits::EntityKind,
+    E: crate::traits::EntityKind,
 {
     m.ops.unique_violations = m.ops.unique_violations.saturating_add(1);
     let entry = m.entities.entry(E::PATH.to_string()).or_default();

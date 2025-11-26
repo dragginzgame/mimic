@@ -21,12 +21,15 @@ impl Imp<Entity> for CreateViewTrait {
             .map(|f| f.ident.clone())
             .collect();
 
+        // paths
+        let cp = paths().core;
+
         // For each field, generate `field: View::from_view(create.field)`
         let init_pairs: Vec<_> = field_idents
             .iter()
             .map(|ident| {
                 quote! {
-                    #ident: ::icydb::core::traits::View::from_view(create.#ident),
+                    #ident: #cp::traits::View::from_view(create.#ident),
                 }
             })
             .collect();

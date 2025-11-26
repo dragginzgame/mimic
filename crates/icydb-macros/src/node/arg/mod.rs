@@ -90,22 +90,24 @@ impl FromMeta for Arg {
 
 impl HasSchemaPart for Arg {
     fn schema_part(&self) -> TokenStream {
+        let sp = paths().schema;
+
         match self {
-            Self::Bool(v) => quote!(::icydb::schema::node::Arg::Bool(#v)),
-            Self::Char(v) => quote!(::icydb::schema::node::Arg::Char(#v)),
+            Self::Bool(v) => quote!(#sp::node::Arg::Bool(#v)),
+            Self::Char(v) => quote!(#sp::node::Arg::Char(#v)),
             Self::Number(v) => {
                 let num = quote_one(v, ArgNumber::schema_part);
-                quote!(::icydb::schema::node::Arg::Number(#num))
+                quote!(#sp::node::Arg::Number(#num))
             }
             Self::ConstPath(p) => {
                 let path = quote_one(p, to_str_lit);
-                quote!(::icydb::schema::node::Arg::ConstPath(#path))
+                quote!(#sp::node::Arg::ConstPath(#path))
             }
             Self::FuncPath(p) => {
                 let path = quote_one(p, to_str_lit);
-                quote!(::icydb::schema::node::Arg::FuncPath(#path))
+                quote!(#sp::node::Arg::FuncPath(#path))
             }
-            Self::String(v) => quote!(::icydb::schema::node::Arg::String(#v)),
+            Self::String(v) => quote!(#sp::node::Arg::String(#v)),
         }
     }
 }
@@ -154,9 +156,10 @@ impl FromMeta for Args {
 impl HasSchemaPart for Args {
     fn schema_part(&self) -> TokenStream {
         let args = quote_slice(&self.0, Arg::schema_part);
+        let sp = paths().schema;
 
         quote! {
-            ::icydb::schema::node::Args(#args)
+            #sp::node::Args(#args)
         }
     }
 }

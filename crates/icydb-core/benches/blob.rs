@@ -1,7 +1,7 @@
 #![allow(clippy::cast_possible_truncation)]
 use bencher::*;
 use icydb_core::{
-    core::serialize::{deserialize, serialize},
+    serialize::{deserialize, serialize},
     types::Blob,
 };
 

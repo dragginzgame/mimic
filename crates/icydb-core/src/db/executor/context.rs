@@ -1,11 +1,11 @@
 use crate::{
-    Error,
-    core::{Key, deserialize},
+    Error, Key,
     db::{
         Db,
         query::QueryPlan,
         store::{DataKey, DataRow, DataStore},
     },
+    deserialize,
     traits::{EntityKind, Path},
 };
 use std::{marker::PhantomData, ops::Bound};

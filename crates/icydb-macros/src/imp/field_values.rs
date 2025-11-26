@@ -47,9 +47,11 @@ impl Imp<Entity> for FieldValuesTrait {
             })
             .collect::<Vec<_>>();
 
+        // quote
+        let cp = paths().core;
         let q = quote! {
-            fn get_value(&self, field: &str) -> Option<::icydb::core::Value> {
-                use ::icydb::core::{traits::FieldValue, Value};
+            fn get_value(&self, field: &str) -> Option<#cp::Value> {
+                use #cp::{traits::FieldValue, Value};
 
                 match field {
                     #(#match_arms)*

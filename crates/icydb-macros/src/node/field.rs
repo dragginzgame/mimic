@@ -52,8 +52,10 @@ impl HasSchemaPart for FieldList {
     fn schema_part(&self) -> TokenStream {
         let fields = quote_slice(&self.fields, Field::schema_part);
 
+        // quote
+        let sp = paths().schema;
         quote! {
-            ::icydb::schema::node::FieldList {
+            #sp::node::FieldList {
                 fields: #fields,
             }
         }
@@ -142,8 +144,10 @@ impl HasSchemaPart for Field {
         let value = self.value.schema_part();
         let default = quote_option(self.default.as_ref(), Arg::schema_part);
 
+        // quote
+        let sp = paths().schema;
         quote! {
-            ::icydb::schema::node::Field {
+            #sp::node::Field {
                 ident: #ident,
                 value: #value,
                 default: #default,

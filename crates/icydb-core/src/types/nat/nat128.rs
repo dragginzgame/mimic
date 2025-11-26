@@ -1,12 +1,10 @@
 use crate::{
-    core::{
-        Value,
-        traits::{
-            FieldValue, Filterable, Inner, NumCast, NumToPrimitive, SanitizeAuto, SanitizeCustom,
-            UpdateView, ValidateAuto, ValidateCustom, View, Visitable,
-        },
-    },
     db::primitives::{NatListFilterKind, NatRangeFilterKind},
+    traits::{
+        FieldValue, Filterable, Inner, NumCast, NumToPrimitive, SanitizeAuto, SanitizeCustom,
+        UpdateView, ValidateAuto, ValidateCustom, View, Visitable,
+    },
+    value::Value,
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign, Sum};
@@ -185,7 +183,7 @@ impl Visitable for Nat128 {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::{deserialize, serialize};
+    use crate::{deserialize, serialize};
 
     fn roundtrip(v: u128) {
         let nat128: Nat128 = v.into();

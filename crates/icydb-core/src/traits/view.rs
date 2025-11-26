@@ -1,4 +1,4 @@
-use crate::core::view::{ListPatch, MapPatch, SetPatch};
+use crate::view::{ListPatch, MapPatch, SetPatch};
 use candid::CandidType;
 use std::{
     collections::{HashMap, HashSet, hash_map::Entry as HashMapEntry},

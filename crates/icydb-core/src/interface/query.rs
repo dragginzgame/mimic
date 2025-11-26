@@ -1,6 +1,5 @@
 use crate::{
-    Error,
-    core::Key,
+    Error, Key,
     db::query::{DeleteQuery, LoadQuery, SaveQuery},
     interface::InterfaceError,
 };

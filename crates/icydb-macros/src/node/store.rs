@@ -35,8 +35,10 @@ impl HasSchemaPart for Store {
         let canister = quote_one(&self.canister, to_path);
         let memory_id = &self.memory_id;
 
+        // quote
+        let sp = paths().schema;
         quote! {
-            ::icydb::schema::node::Store{
+            #sp::node::Store{
                 def: #def,
                 ident: #ident,
                 ty: #ty,

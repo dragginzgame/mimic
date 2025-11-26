@@ -1,10 +1,10 @@
 use crate::{
-    Value,
     db::primitives::{Int64ListFilterKind, Int64RangeFilterKind},
     traits::{
         FieldValue, Filterable, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
         SanitizeCustom, UpdateView, ValidateAuto, ValidateCustom, View, Visitable,
     },
+    value::Value,
 };
 use candid::CandidType;
 use chrono::{Datelike, Duration as ChronoDuration, NaiveDate};

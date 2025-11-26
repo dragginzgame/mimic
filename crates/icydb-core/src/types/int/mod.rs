@@ -3,14 +3,12 @@ mod int128;
 pub use int128::*;
 
 use crate::{
-    core::{
-        Value,
-        traits::{
-            FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, UpdateView, ValidateAuto,
-            ValidateCustom, View, Visitable,
-        },
-    },
+    Value,
     db::primitives::{IntListFilterKind, IntRangeFilterKind},
+    traits::{
+        FieldValue, Filterable, Inner, SanitizeAuto, SanitizeCustom, UpdateView, ValidateAuto,
+        ValidateCustom, View, Visitable,
+    },
 };
 use candid::{CandidType, Int as WrappedInt};
 use canic::impl_storable_unbounded;

@@ -1,8 +1,8 @@
 use crate::{
-    core::traits::FieldValue,
     db::primitives::filter::{
         FilterDsl, FilterExpr, FilterKind, IntoScopedFilterExpr, RangeFilter,
     },
+    traits::FieldValue,
     types::{Decimal, Int, Nat},
 };
 use candid::CandidType;

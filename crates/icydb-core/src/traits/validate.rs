@@ -1,4 +1,4 @@
-use crate::common::error::ErrorTree;
+use icydb_error::ErrorTree;
 use std::collections::{HashMap, HashSet};
 
 ///
@@ -169,7 +169,6 @@ impl_primitive!(ValidateCustom);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::error::ErrorTree;
 
     /// A dummy type that always fails validation
     #[derive(Debug, Eq, Hash, PartialEq)]

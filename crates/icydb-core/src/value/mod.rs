@@ -3,10 +3,8 @@ mod family;
 mod tests;
 
 use crate::{
-    core::{
-        Key,
-        traits::{FieldValue, NumFromPrimitive},
-    },
+    Key,
+    traits::{FieldValue, NumFromPrimitive},
     types::*,
 };
 use candid::CandidType;

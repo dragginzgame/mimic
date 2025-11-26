@@ -1,10 +1,5 @@
 use crate::{
-    Error,
-    core::{
-        Key, deserialize,
-        traits::{EntityKind, FieldValue},
-        view::View,
-    },
+    Error, Key,
     db::{
         Db,
         executor::FilterEvaluator,
@@ -12,7 +7,10 @@ use crate::{
         query::{DeleteQuery, QueryPlan, QueryValidate},
         response::Response,
     },
+    deserialize,
     obs::metrics,
+    traits::{EntityKind, FieldValue},
+    view::View,
 };
 use std::marker::PhantomData;
 

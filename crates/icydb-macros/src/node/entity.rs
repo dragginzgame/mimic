@@ -70,8 +70,10 @@ impl HasSchemaPart for Entity {
         let fields = &self.fields.schema_part();
         let ty = &self.ty.schema_part();
 
+        // quote
+        let sp = paths().schema;
         quote! {
-            ::icydb::schema::node::Entity {
+            #sp::node::Entity {
                 def: #def,
                 store: #store,
                 primary_key: #primary_key,

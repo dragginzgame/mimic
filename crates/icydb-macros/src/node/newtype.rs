@@ -57,8 +57,10 @@ impl HasSchemaPart for Newtype {
         let default = quote_option(self.default.as_ref(), Arg::schema_part);
         let ty = self.ty.schema_part();
 
+        // quote
+        let sp = paths().schema;
         quote! {
-            ::icydb::schema::node::Newtype {
+            #sp::node::Newtype {
                 def: #def,
                 item: #item,
                 default: #default,

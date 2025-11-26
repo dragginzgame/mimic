@@ -18,8 +18,10 @@ impl HasSchemaPart for Type {
         let sanitizers = quote_slice(&self.sanitizers, TypeSanitizer::schema_part);
         let validators = quote_slice(&self.validators, TypeValidator::schema_part);
 
+        // quote
+        let sp = paths().schema;
         quote! {
-            ::icydb::schema::node::Type {
+            #sp::node::Type {
                 sanitizers: #sanitizers,
                 validators: #validators,
             }
@@ -65,8 +67,10 @@ impl HasSchemaPart for TypeSanitizer {
         let path = quote_one(&self.path, to_path);
         let args = &self.args.schema_part();
 
+        // quote
+        let sp = paths().schema;
         quote! {
-            ::icydb::schema::node::TypeSanitizer {
+            #sp::node::TypeSanitizer {
                 path: #path,
                 args: #args,
             }
@@ -104,8 +108,10 @@ impl HasSchemaPart for TypeValidator {
         let path = quote_one(&self.path, to_path);
         let args = &self.args.schema_part();
 
+        // quote
+        let sp = paths().schema;
         quote! {
-            ::icydb::schema::node::TypeValidator {
+            #sp::node::TypeValidator {
                 path: #path,
                 args: #args,
             }

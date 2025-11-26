@@ -4,16 +4,17 @@ pub mod validate;
 pub use sanitize::*;
 pub use validate::*;
 
-use crate::{
-    Error,
-    common::error::ErrorTree,
-    core::{
-        CoreError,
-        traits::Visitable,
-        visit::{SanitizeVisitor, ValidateVisitor},
-    },
-};
-use thiserror::Error as ThisError;
+use crate::{ThisError, traits::Visitable, visitor::SanitizeVisitor};
+
+///
+/// VisitorError
+///
+
+#[derive(Debug, ThisError)]
+pub enum VisitorError {
+    #[error(transparent)]
+    ValidateError(#[from] validate::ValidateError),
+}
 
 ///
 /// MAIN FUNCTIONS
@@ -23,35 +24,6 @@ use thiserror::Error as ThisError;
 pub fn sanitize(node: &mut dyn Visitable) {
     let mut visitor = SanitizeVisitor::new();
     perform_visit_mut(&mut visitor, node, PathSegment::Empty);
-}
-
-///
-/// ValidateError
-///
-
-#[derive(Debug, ThisError)]
-pub enum ValidateError {
-    #[error("validation failed: {0}")]
-    ValidationFailed(ErrorTree),
-}
-
-impl From<ValidateError> for Error {
-    fn from(err: ValidateError) -> Self {
-        CoreError::from(err).into()
-    }
-}
-
-// validate
-pub fn validate(node: &dyn Visitable) -> Result<(), ValidateError> {
-    let mut visitor = ValidateVisitor::new();
-    perform_visit(&mut visitor, node, PathSegment::Empty);
-
-    visitor
-        .errors
-        .result()
-        .map_err(ValidateError::ValidationFailed)?;
-
-    Ok(())
 }
 
 ///

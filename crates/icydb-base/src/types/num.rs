@@ -1,4 +1,4 @@
-use crate::design::{base::validator, prelude::*};
+use crate::prelude::*;
 
 ///
 /// Degrees (°)

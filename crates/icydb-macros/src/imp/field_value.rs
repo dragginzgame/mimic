@@ -35,9 +35,11 @@ impl Imp<Enum> for FieldValueTrait {
             }
         });
 
+        // quote
+        let cp = paths().core;
         let q = quote! {
-            fn to_value(&self) -> ::icydb::core::value::Value {
-                use ::icydb::core::value::{ValueEnum, Value};
+            fn to_value(&self) -> #cp::value::Value {
+                use #cp::value::{ValueEnum, Value};
 
                 let ev = match self {
                     #(#arms),*
@@ -61,11 +63,13 @@ impl Imp<Enum> for FieldValueTrait {
 
 impl Imp<List> for FieldValueTrait {
     fn strategy(node: &List) -> Option<TraitStrategy> {
+        let cp = paths().core;
+
         let q = quote! {
-            fn to_value(&self) -> ::icydb::core::value::Value {
-                ::icydb::core::value::Value::List(
+            fn to_value(&self) -> #cp::value::Value {
+                #cp::value::Value::List(
                     self.iter()
-                        .map(::icydb::core::traits::FieldValue::to_value)
+                        .map(#cp::traits::FieldValue::to_value)
                         .collect()
                 )
             }
@@ -85,8 +89,10 @@ impl Imp<List> for FieldValueTrait {
 
 impl Imp<Newtype> for FieldValueTrait {
     fn strategy(node: &Newtype) -> Option<TraitStrategy> {
+        let cp = paths().core;
+
         let q = quote! {
-            fn to_value(&self) -> ::icydb::core::value::Value {
+            fn to_value(&self) -> #cp::value::Value {
                 self.0.to_value()
             }
         };
@@ -105,11 +111,13 @@ impl Imp<Newtype> for FieldValueTrait {
 
 impl Imp<Set> for FieldValueTrait {
     fn strategy(node: &Set) -> Option<TraitStrategy> {
+        let cp = paths().core;
+
         let q = quote! {
-            fn to_value(&self) -> ::icydb::core::value::Value {
-                ::icydb::core::value::Value::List(
+            fn to_value(&self) -> #cp::value::Value {
+                #cp::value::Value::List(
                     self.iter()
-                        .map(::icydb::core::traits::FieldValue::to_value)
+                        .map(#cp::traits::FieldValue::to_value)
                         .collect()
                 )
             }

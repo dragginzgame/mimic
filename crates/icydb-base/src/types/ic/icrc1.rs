@@ -1,4 +1,4 @@
-use crate::design::prelude::*;
+use crate::prelude::*;
 
 ///
 /// Icrc1 Payment

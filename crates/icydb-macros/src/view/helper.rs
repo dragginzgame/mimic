@@ -10,9 +10,11 @@ pub fn generate_field_list_filter(
     derives: &TraitSet,
 ) -> TokenStream {
     let field_defs = fields.iter().map(|f| FieldFilter(f).expr());
-
     let idents = fields.iter().map(|f| &f.ident);
     let names = fields.iter().map(|f| f.ident.to_string());
+
+    // paths
+    let cp = paths().core;
 
     quote! {
         #derives
@@ -20,14 +22,14 @@ pub fn generate_field_list_filter(
             #(#field_defs),*
         }
 
-        impl ::icydb::db::primitives::filter::IntoFilterExpr for #filter_ident {
-            fn into_expr(self) -> ::icydb::db::primitives::filter::FilterExpr {
+        impl #cp::db::primitives::filter::IntoFilterExpr for #filter_ident {
+            fn into_expr(self) -> #cp::db::primitives::filter::FilterExpr {
                 let mut exprs = Vec::new();
 
                 #(
                     if let Some(f) = self.#idents {
                         exprs.push(
-                            ::icydb::db::primitives::filter::IntoScopedFilterExpr::into_scoped(
+                            #cp::db::primitives::filter::IntoScopedFilterExpr::into_scoped(
                                 f,
                                 #names
                             )
@@ -36,9 +38,9 @@ pub fn generate_field_list_filter(
                 )*
 
                 if exprs.is_empty() {
-                    ::icydb::db::primitives::filter::FilterExpr::True
+                    #cp::db::primitives::filter::FilterExpr::True
                 } else {
-                    ::icydb::db::primitives::filter::FilterDsl::all(exprs)
+                    #cp::db::primitives::filter::FilterDsl::all(exprs)
                 }
             }
         }

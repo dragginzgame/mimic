@@ -1,4 +1,4 @@
-use crate::core::value::Value;
+use crate::value::Value;
 use canic::utils::hash::Xxh3;
 
 ///

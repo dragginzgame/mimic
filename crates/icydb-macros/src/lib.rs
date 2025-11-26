@@ -32,12 +32,14 @@ mod prelude {
         trait_kind::{TraitBuilder, TraitKind, TraitSet},
         types::TraitStrategy,
     };
+    pub use icydb_paths::paths;
     pub use icydb_schema::types::{Cardinality, Primitive, StoreType};
 
     // proc-macro essentials
     pub use darling::FromMeta;
     pub use proc_macro2::{Span, TokenStream};
     pub use quote::{ToTokens, format_ident, quote};
+    pub use serde::{Deserialize, Serialize};
     pub use syn::{Ident, ItemStruct, LitStr, Path};
 }
 

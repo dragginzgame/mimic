@@ -1,7 +1,7 @@
 use crate::{
-    core::Value,
     traits::FieldValue,
     types::{Account, Principal, Subaccount, Timestamp, Ulid, Unit},
+    value::Value,
 };
 use candid::{CandidType, Principal as WrappedPrincipal};
 use canic::impl_storable_bounded;

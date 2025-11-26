@@ -1,8 +1,4 @@
-use crate::{
-    Error, ThisError,
-    core::{Key, traits::EntityKind},
-    db::DbError,
-};
+use crate::{Error, Key, ThisError, db::DbError, traits::EntityKind};
 
 ///
 /// ResponseError

@@ -3,8 +3,8 @@ mod ext;
 pub use ext::*;
 
 use crate::{
-    core::traits::EntityKind,
     db::query::{QueryError, QueryValidate},
+    traits::EntityKind,
 };
 use candid::CandidType;
 use serde::{Deserialize, Serialize};

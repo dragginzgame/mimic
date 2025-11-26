@@ -13,9 +13,10 @@ impl Imp<Newtype> for AddTrait {
         let ident = &node.def.ident();
         let prim = &primitive.as_type();
 
-        // Quote the implementation of Add for the newtype
+        // quote
+        let cp = paths().core;
         let tokens = quote! {
-            impl ::icydb::core::traits::Add<Self> for #ident {
+            impl #cp::traits::Add<Self> for #ident {
                 type Output = Self;
 
                 fn add(self, other: Self) -> Self::Output {
@@ -23,7 +24,7 @@ impl Imp<Newtype> for AddTrait {
                 }
             }
 
-            impl ::icydb::core::traits::Add<#prim> for #ident {
+            impl #cp::traits::Add<#prim> for #ident {
                 type Output = Self;
 
                 fn add(self, other: #prim) -> Self::Output {
@@ -31,7 +32,7 @@ impl Imp<Newtype> for AddTrait {
                 }
             }
 
-            impl ::icydb::core::traits::Add<#ident> for #prim {
+            impl #cp::traits::Add<#ident> for #prim {
                 type Output = #ident;
 
                 fn add(self, other: #ident) -> Self::Output {
@@ -57,15 +58,16 @@ impl Imp<Newtype> for AddAssignTrait {
         let ident = &node.def.ident();
         let prim = &primitive.as_type();
 
-        // Quote the implementation of AddAssign for the newtype
+        // quote
+        let cp = paths().core;
         let tokens = quote! {
-            impl ::icydb::core::traits::AddAssign<#prim> for #ident {
+            impl #cp::traits::AddAssign<#prim> for #ident {
                 fn add_assign(&mut self, other: #prim) {
                     self.0 += other;
                 }
             }
 
-            impl ::icydb::core::traits::AddAssign<#ident> for #ident {
+            impl #cp::traits::AddAssign<#ident> for #ident {
                 fn add_assign(&mut self, other: #ident) {
                     self.0 += other.0;
                 }

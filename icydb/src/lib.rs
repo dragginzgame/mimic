@@ -1,4 +1,3 @@
-// icydb/src/lib.rs
 //! IcyDB — Data Models, Queries, and IC Integration for Canisters
 //!
 //! This is the public meta-crate. Downstream users depend on **icydb** only.
@@ -10,62 +9,38 @@
 //!
 //! Everything else (`icydb-schema`, `icydb-build`) is internal.
 
-//
-// ---- Re-export derive macros ------------------------------------------------
-//
+pub mod base {
+    pub use icydb_base::*;
+}
+
+pub mod core {
+    pub use icydb_core::*;
+}
+
+pub mod error {
+    pub use icydb_error::*;
+}
+
 pub mod macros {
     pub use icydb_macros::*;
 }
 
 //
-// ---- Re-export base ---
-//
-pub mod base {
-    pub use icydb_base::*;
-}
-
-//
-// ---- Re-export runtime model / query API -----------------------------------
-//
-pub mod core {
-    pub use icydb_core::*;
-}
-
-//
-// ---- Re-export IC adapter layer (optional for non-IC users) -----------------
-//
-pub mod ic {
-    pub use icydb_ic::*;
-}
-
-//
-// Third party re-exports
-//
-
-pub mod export {
-    pub use canic;
-    pub use ctor;
-    pub use derive_more;
-    pub use num_traits;
-    pub use remain;
-}
-
-//
-// ---- Crate-level Prelude ----------------------------------------------------
-//
-// Users can import `use icydb::prelude::*;` for the common API surface.
+// Actor Prelude
 //
 
 pub mod prelude {
-    // Derive macros
+    pub use icydb_core::{Value, db::primitives::FilterDsl};
     pub use icydb_macros::*;
+}
 
-    // Core runtime API
-    pub use icydb_core::{core::Value, db::primitives::FilterDsl};
+//
+// Design Prelude
+// For schema/design code (macros, traits, base helpers).
+//
 
-    // IC integration (only when feature enabled)
-    pub use icydb_ic::{
-        icydb_start,
-        // other public canister helpers
-    };
+pub mod design {
+    pub mod prelude {
+        pub use icydb_core::design::prelude::*;
+    }
 }

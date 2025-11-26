@@ -1,11 +1,11 @@
 use crate::{
-    core::value::Value,
     db::{
         executor::coerce::family::coerce_basic,
         primitives::{Cmp, FilterClause, FilterExpr},
         query::{QueryError, QueryValidate},
     },
     traits::{EntityKind, FieldValues},
+    value::Value,
 };
 
 ///

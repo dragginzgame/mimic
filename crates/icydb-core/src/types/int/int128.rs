@@ -1,12 +1,10 @@
 use crate::{
-    core::{
-        Value,
-        traits::{
-            FieldValue, Filterable, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
-            SanitizeCustom, UpdateView, ValidateAuto, ValidateCustom, View, Visitable,
-        },
-    },
+    Value,
     db::primitives::{IntListFilterKind, IntRangeFilterKind},
+    traits::{
+        FieldValue, Filterable, Inner, NumCast, NumFromPrimitive, NumToPrimitive, SanitizeAuto,
+        SanitizeCustom, UpdateView, ValidateAuto, ValidateCustom, View, Visitable,
+    },
 };
 use candid::CandidType;
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, FromStr, Sub, SubAssign, Sum};
@@ -203,7 +201,7 @@ impl Visitable for Int128 {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::{deserialize, serialize};
+    use crate::{deserialize, serialize};
 
     fn roundtrip(v: i128) {
         let int128: Int128 = v.into();
