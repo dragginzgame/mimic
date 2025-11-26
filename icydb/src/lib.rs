@@ -3,14 +3,20 @@
 //! This is the public meta-crate. Downstream users depend on **icydb** only.
 //!
 //! It re-exports the stable public API from:
+//!   - `icydb-base`     (design-time helpers)
 //!   - `icydb-core`     (runtime data model, filters, queries, values…)
+//!   - `icydb-error`    (error types)
 //!   - `icydb-macros`   (derive macros)
-//!   - `icydb-ic`       (IC/CDK glue, entrypoints, canister helpers)
+//!   - `icydb-schema`   (schema definitions)
 //!
-//! Everything else (`icydb-schema`, `icydb-build`) is internal.
+//! Everything else (`icydb-build`) is internal.
 
 pub mod base {
     pub use icydb_base::*;
+}
+
+pub mod build {
+    pub use icydb_build::*;
 }
 
 pub mod core {
@@ -21,17 +27,26 @@ pub mod error {
     pub use icydb_error::*;
 }
 
+pub mod schema {
+    pub use icydb_schema::*;
+}
+
 pub mod macros {
     pub use icydb_macros::*;
 }
+
+//
+// Macros
+//
+
+pub use core::{Error, build, db, start};
 
 //
 // Actor Prelude
 //
 
 pub mod prelude {
-    pub use icydb_core::{Value, db::primitives::FilterDsl};
-    pub use icydb_macros::*;
+    pub use icydb_core::prelude::*;
 }
 
 //

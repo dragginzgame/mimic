@@ -22,6 +22,7 @@ pub use index::IndexSpec;
 pub use key::Key;
 pub use serialize::{deserialize, serialize};
 pub use value::Value;
+pub use visitor::{sanitize, validate};
 
 ///
 /// CRATE
@@ -52,7 +53,6 @@ pub mod prelude {
             query,
             response::Response,
         },
-        icydb_start,
         key::Key,
         traits::{
             CreateView as _, EntityKind as _, FilterView as _, Inner as _, Path as _,
@@ -86,7 +86,7 @@ use thiserror::Error as ThisError;
 /// Error
 ///
 /// top level error should handle all sub-errors, but not expose the candid types
-/// as that would be a lot for any project that uses mimic
+/// as that would be a lot of them
 ///
 
 #[derive(CandidType, Debug, Deserialize, Serialize, ThisError)]

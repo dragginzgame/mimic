@@ -12,8 +12,8 @@ pub(crate) mod prelude {
         assert_invalid, assert_valid,
         schema::{TestDataStore, TestIndexStore},
     };
+    pub use icydb::base;
     pub use icydb::design::prelude::*;
-    pub use icydb::macros::*;
 }
 
 #[macro_export]

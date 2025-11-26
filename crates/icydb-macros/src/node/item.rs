@@ -41,7 +41,7 @@ impl Item {
         Self {
             primitive: Some(Primitive::Timestamp),
             sanitizers: vec![TypeSanitizer::new(
-                "icydb_core::design::base::sanitizer::time::CreatedAt",
+                "icydb::base::sanitizer::time::CreatedAt",
                 Args::none(),
             )],
             ..Default::default()
@@ -52,7 +52,7 @@ impl Item {
         Self {
             primitive: Some(Primitive::Timestamp),
             sanitizers: vec![TypeSanitizer::new(
-                "icydb_core::design::base::sanitizer::time::UpdatedAt",
+                "icydb::base::sanitizer::time::UpdatedAt",
                 Args::none(),
             )],
             ..Default::default()

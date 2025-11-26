@@ -6,7 +6,10 @@ use crate::prelude::*;
 
 #[newtype(
     primitive = "Blob",
-    item(prim = "Blob", validator(path = "validator::len::Max", args(500)))
+    item(
+        prim = "Blob",
+        validator(path = "base::validator::len::Max", args(500))
+    )
 )]
 pub struct Blob {}
 

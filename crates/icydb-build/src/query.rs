@@ -8,10 +8,10 @@ use syn::{Path, parse_str};
 pub fn generate(builder: &ActorBuilder) -> TokenStream {
     let mut tokens = quote!();
 
-    tokens.extend(generate_query("mimic_query_load", builder, QueryKind::Load));
-    tokens.extend(generate_query("mimic_query_save", builder, QueryKind::Save));
+    tokens.extend(generate_query("icydb_query_load", builder, QueryKind::Load));
+    tokens.extend(generate_query("icydb_query_save", builder, QueryKind::Save));
     tokens.extend(generate_query(
-        "mimic_query_delete",
+        "icydb_query_delete",
         builder,
         QueryKind::Delete,
     ));
@@ -73,7 +73,7 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
         },
 
         QueryKind::Save => quote! {
-            #[::icydb::export::canic::cdk::update]
+            #[::icydb::core::export::canic::cdk::update]
             pub fn #fn_name(
                 path: String,
                 query: ::icydb::core::db::query::SaveQuery,
@@ -81,7 +81,7 @@ fn generate_query(name: &str, builder: &ActorBuilder, kind: QueryKind) -> TokenS
         },
 
         QueryKind::Delete => quote! {
-           #[::icydb::export::canic::cdk::update]
+           #[::icydb::core::export::canic::cdk::update]
             pub fn #fn_name(
                 path: String,
                 query: ::icydb::core::db::query::DeleteQuery,

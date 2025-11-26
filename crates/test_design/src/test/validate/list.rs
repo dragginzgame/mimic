@@ -6,7 +6,7 @@ use crate::prelude::*;
 
 #[list(
     item(rel = "crate::test::validate::Entity"),
-    ty(validator(path = "validator::len::Max", args(2)))
+    ty(validator(path = "base::validator::len::Max", args(2)))
 )]
 pub struct FriendsList {}
 

@@ -388,8 +388,7 @@ impl DbSuite {
     }
 
     fn unit_primary_key() {
-        use icydb::core::Key;
-        use icydb::types::Unit;
+        use icydb::core::{Key, types::Unit};
         use test_design::test::entity::UnitKey;
 
         let inserted = db!().insert(UnitKey::default()).unwrap();

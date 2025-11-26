@@ -268,7 +268,6 @@ fn wrap_validate_fn(inner: Option<TokenStream>) -> TokenStream {
     match inner {
         None => quote!(),
         Some(inner) => quote! {
-            #[doc = "Auto-generated recursive validation method."]
             fn validate_children(&self) -> ::std::result::Result<(), #ep::ErrorTree> {
                 let mut errs = #ep::ErrorTree::new();
                 #inner

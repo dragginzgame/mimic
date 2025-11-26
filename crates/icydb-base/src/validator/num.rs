@@ -1,4 +1,7 @@
-use crate::{core::traits::Validator, prelude::*};
+use crate::{
+    core::traits::{NumCast, Validator},
+    prelude::*,
+};
 
 ///
 /// Lt

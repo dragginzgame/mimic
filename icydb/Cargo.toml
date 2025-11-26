@@ -9,7 +9,9 @@ license = { workspace = true }
 icydb-core = { workspace = true }
 icydb-macros = { workspace = true }
 icydb-base = { workspace = true }
+icydb-build = { workspace = true }
 icydb-error = { workspace = true }
+icydb-schema = { workspace = true }
 canic = { workspace = true }
 ctor = { workspace = true }
 derive_more = { workspace = true }

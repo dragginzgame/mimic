@@ -2,7 +2,7 @@
 /// FNV-1a 64-bit hash (compile-time safe).
 ///
 /// This variant is used only for **static, non-cryptographic identifiers** such as
-/// schema or entity constants (e.g. `ENTITY_ID` in Mimic).
+/// schema or entity constants (e.g. `ENTITY_ID`).
 ///
 /// - ✅ **Deterministic** across compilers and platforms
 /// - ✅ **`const fn`-compatible**, so hashes can be computed at compile time

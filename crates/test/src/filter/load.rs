@@ -1,8 +1,10 @@
 use icydb::{
-    core::Value,
-    db::primitives::*,
+    core::{
+        Value,
+        db::primitives::*,
+        types::{Account, Principal, Ulid},
+    },
     prelude::*,
-    types::{Principal, Ulid},
 };
 use test_design::e2e::filter::{Filterable, FilterableEnum, FilterableEnumFake, FilterableOpt};
 
@@ -482,7 +484,8 @@ impl LoadFilterSuite {
 
     fn filter_eq_account_string_rhs() {
         // use dummy account based on principal/subaccount
-        let account = icydb::types::Account::dummy(1);
+        let account = Account::dummy(1);
+
         // add a filterable fixture with pid principal == account.owner
         // The fixtures already include Principal::dummy(1) on Alpha row, so reuse that
         let results = db!()

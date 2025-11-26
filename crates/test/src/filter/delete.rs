@@ -1,7 +1,9 @@
 use icydb::{
-    core::Value,
+    core::{
+        Value,
+        types::{Decimal, Principal},
+    },
     prelude::*,
-    types::{Decimal, Principal},
 };
 use test_design::e2e::filter::{Filterable, FilterableOpt};
 

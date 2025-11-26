@@ -1,17 +1,17 @@
-// icydb_start
+// start
 // macro to be included at the start of each canister lib.rs file
 #[macro_export]
-macro_rules! icydb_start {
+macro_rules! start {
     () => {
         // actor.rs
         include!(concat!(env!("OUT_DIR"), "/actor.rs"));
     };
 }
 
-// icydb_build
+// build
 // for the various build.rs files
 #[macro_export]
-macro_rules! icydb_build {
+macro_rules! build {
     ($actor:expr) => {
         use std::{env::var, fs::File, io::Write, path::PathBuf};
 

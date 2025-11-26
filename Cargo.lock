@@ -737,9 +737,11 @@ dependencies = [
  "ctor",
  "derive_more",
  "icydb-base",
+ "icydb-build",
  "icydb-core",
  "icydb-error",
  "icydb-macros",
+ "icydb-schema",
  "num-traits",
  "remain",
 ]

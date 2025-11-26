@@ -14,27 +14,26 @@ pub fn generate(builder: &ActorBuilder) -> TokenStream {
     }
 
     quote! {
-        const MIMIC_ENTITY_ID_PATH: &[(u64, &str)] = &[
+        const ICYDB_ENTITY_ID_PATH: &[(u64, &str)] = &[
             #(#pairs),*
         ];
 
         /// Storage snapshot (live view).
         /// Includes data/index store stats and per-entity breakdown by store.
         #[::icydb::core::export::canic::cdk::query]
-        pub fn mimic_snapshot() -> Result<::icydb::core::obs::snapshot::StorageReport, ::icydb::core::Error> {
-            Ok(::icydb::core::obs::snapshot::storage_report(&DB, MIMIC_ENTITY_ID_PATH))
+        pub fn icydb_snapshot() -> Result<::icydb::core::obs::snapshot::StorageReport, ::icydb::core::Error> {
+            Ok(::icydb::core::obs::snapshot::storage_report(&DB, ICYDB_ENTITY_ID_PATH))
         }
 
         /// Ephemeral event report since the internal `since_ms` (counters + per-entity summaries).
-        /// Call `mimic_metrics_reset` to reset counters and refresh `since_ms`.
         #[::icydb::core::export::canic::cdk::query]
-        pub fn mimic_metrics() -> Result<::icydb::core::obs::metrics::EventReport, ::icydb::core::Error> {
+        pub fn icydb_metrics() -> Result<::icydb::core::obs::metrics::EventReport, ::icydb::core::Error> {
             Ok(::icydb::core::obs::metrics::report())
         }
 
         /// Reset ephemeral event state and refresh `since_ms`.
         #[::icydb::core::export::canic::cdk::update]
-        pub fn mimic_metrics_reset() -> Result<(), ::icydb::core::Error> {
+        pub fn icydb_metrics_reset() -> Result<(), ::icydb::core::Error> {
             ::icydb::core::obs::metrics::reset_all();
 
             Ok(())

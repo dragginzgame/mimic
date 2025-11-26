@@ -40,9 +40,9 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
             // Index store
             index_defs.extend(quote! {
                 ::canic::eager_static! {
-                    static #cell_ident: ::std::cell::RefCell<::icydb_core::db::store::IndexStore> =
-                        ::std::cell::RefCell::new(::icydb_core::db::store::IndexStore::init(
-                            ::canic::ic_memory!(::icydb_core::db::store::IndexStore, #memory_id)
+                    static #cell_ident: ::std::cell::RefCell<::icydb::core::db::store::IndexStore> =
+                        ::std::cell::RefCell::new(::icydb::core::db::store::IndexStore::init(
+                            ::canic::ic_memory!(::icydb::core::db::store::IndexStore, #memory_id)
                         ));
                 }
             });
@@ -54,9 +54,9 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
             // Data store
             data_defs.extend(quote! {
                 ::canic::eager_static! {
-                    static #cell_ident: ::std::cell::RefCell<::icydb_core::db::store::DataStore> =
-                        ::std::cell::RefCell::new(::icydb_core::db::store::DataStore::init(
-                            ::canic::ic_memory!(::icydb_core::db::store::DataStore, #memory_id)
+                    static #cell_ident: ::std::cell::RefCell<::icydb::core::db::store::DataStore> =
+                        ::std::cell::RefCell::new(::icydb::core::db::store::DataStore::init(
+                            ::canic::ic_memory!(::icydb::core::db::store::DataStore, #memory_id)
                         ));
                 }
             });
@@ -81,16 +81,16 @@ fn stores(builder: &ActorBuilder) -> TokenStream {
             // registries
             #[allow(unused_mut)]
             #[allow(clippy::let_and_return)]
-            static DATA_REGISTRY: ::icydb_core::db::store::DataStoreRegistry = {
-                let mut reg = ::icydb_core::db::store::DataStoreRegistry::new();
+            static DATA_REGISTRY: ::icydb::core::db::store::DataStoreRegistry = {
+                let mut reg = ::icydb::core::db::store::DataStoreRegistry::new();
                 #data_inits
                 reg
             };
 
             #[allow(unused_mut)]
             #[allow(clippy::let_and_return)]
-            static INDEX_REGISTRY: ::icydb_core::db::store::IndexStoreRegistry = {
-                let mut reg = ::icydb_core::db::store::IndexStoreRegistry::new();
+            static INDEX_REGISTRY: ::icydb::core::db::store::IndexStoreRegistry = {
+                let mut reg = ::icydb::core::db::store::IndexStoreRegistry::new();
                 #index_inits
                 reg
             };

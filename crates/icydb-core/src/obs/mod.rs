@@ -1,5 +1,4 @@
 //! Observability: runtime event telemetry (metrics) and storage snapshots.
-//! Import via `icydb_core::obs::*` or re-exports below.
 
 pub mod metrics;
 pub mod snapshot;
